@@ -292,5 +292,7 @@ The language is described in Bilofsky's *IMP72 Reference Manual* (DECUS 10-198,
 1973; `decus/imp.rno` is its RUNOFF source) and in "Syntax Extension and the
 IMP72 Programming Language" (SIGPLAN Notices, 1974).
 
-The new code in this repository (`stage0/`, `tests/`, `docs/`) is not yet
-licensed; a licence will be added before any release.
+The new code in this repository (`stage0/`, `tests/`, `docs/`, and what follows
+from them) is under the ISC licence, in `LICENSE`. That does not cover
+`decus/`, which is the original DECUS program (public domain, as above), or
+`third_party/pcc`, which has its own licence.
