@@ -170,9 +170,8 @@ sem_init(void)
 {
     static const char *const unported[] = {
         /* impsem.imc */
-        "LETSYN", "NAME", "AREG1", "AREG", "REG2", "VAL", "SVAL", "DECL",
-        "DECLARE", "SUBBEG", "SUBEND", "SUBPR0", "REMOT", "CALLME", "SWITCH",
-        "STACKUP", "REG2S", "FCON", "ERROR",
+        "LETSYN", "SUBBEG", "SUBEND", "SUBPR0", "REMOT", "CALLME", "REG2S",
+        "FCON", "ERROR",
         /* code.imc, code2.imc, code3.imc */
         "STORE", "FETCH", "REGOF", "DEWOP", "ADDOP", "TAG", "DEWFUN",
         "FREEZE", "SUBRCALL", "RETURN", "SUBRPAR", "CONOP", "FLOAT", "FIX",
@@ -188,4 +187,5 @@ sem_init(void)
     dsem("ENLIST", w_enlist);
     dsem("HOOK", w_hook);
     dsem("ASSEMC", w_assemc);
+    impsem_init();
 }

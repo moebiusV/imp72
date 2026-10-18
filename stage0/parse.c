@@ -46,7 +46,7 @@ static int knit;
 static word ol;                         /* column of the last token */
 static word tr;                         /* trace on */
 static word s[3];                       /* S: the symbol, SYM#, NAM# */
-static word name;                       /* ISNAME of the symbol */
+static word nameclass;                       /* ISNAME of the symbol */
 
 static long psts, pspn, pspnt, psps, pspst, psos, amtime, pstt, srtt;
 
@@ -154,7 +154,7 @@ nexts:
     psts++;
     if (dprop(DP_ISNM, s[0]) - 1 < 0)
         dprops(DP_ISNM, s[0], isname(s[0]) + 1);
-    name = isname(s[0]);
+    nameclass = isname(s[0]);
     if (tr) {
         FILE *f = imp_out();
 
@@ -187,7 +187,7 @@ nextn:
     }
 
     /* a terminal is wanted here */
-    for (i = name; i >= 0; i--) {
+    for (i = nameclass; i >= 0; i--) {
         if (cval == s[i]) {
             j = copy(&pp, &npp, &ppn);
             k = gnext(scr(cnode), cgoal);
@@ -225,7 +225,7 @@ l1: j = gnext(alt(j), cgoal);
      * can begin one */
 ntwanted:
     ngoal = dprop(DP_NODE, cval);
-    for (i = name; i >= 0; i--) {
+    for (i = nameclass; i >= 0; i--) {
         ent = dprop(DP_ENTRY, s[i]);
         j = gnext(scr(ent), ngoal);
         if (j) {
@@ -250,7 +250,7 @@ ntwanted:
     /* a circled node: the goal has been made */
 ntmade:
     ntn = dprop(DP_NODE, cval);
-    for (i = name; i >= 0; i--) {
+    for (i = nameclass; i >= 0; i--) {
         tnode = dprop(DP_NODE, s[i]);
 l2:     if (tnode && (nnode = gnt2tx(ntn, &tnode, cgoal)) != 0) {
             k = copy(&p, &np, &pn);

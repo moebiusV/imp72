@@ -1,15 +1,296 @@
 # imp72
 
-IMP72 (Irons / Bilofsky, DECUS 10-198, 1973) bootstrapped onto modern Linux,
-the BSDs and macOS, with pcc as the back end and a C-ABI FFI.
+IMP72 on modern Unix: a bootstrap of Ned Irons's extensible systems language,
+as implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198, 1973), onto
+Linux, the BSDs and macOS, generating native code through
+[pcc](https://github.com/moebiusv/pcc) and interoperating with C and ELF
+objects through the C ABI.
 
-Status: stage 0 (a hand port of the compiler's kernel to C) reads the whole of
-the IMP72 syntax file, `decus/syntax.imc`, building the syntax graph, the
-semantics and the code tree; it does not compile programs yet. The plan is in
-`docs/PLAN.md`, how to build and run in `docs/BUILDING.md`.
+The compiler is unusual. Almost none of the language is built in. A small
+kernel (a lexer, Irons's multi-track parser, a syntax graph, a code-tree
+matcher, a semantic stack) starts empty; a bootstrap reader, `RSYN`, reads a
+tiny notation for syntax statements; and `syntax.imc` then defines the whole
+language in statements of the form
 
-    cd stage0 && make check && ./imp72s0 ../decus/syntax.imc
+    <CLASS> ::= elements ::= semantics ;
 
-- `decus/`: the original tape, unchanged, with hashes and attribution.
-- `third_party/pcc`: the pcc back end (submodule, github `moebiusv/pcc`).
-- Stage 0 is C99, with GNU extensions allowed only where pcc compiles them.
+each carrying the semantics that generates its code. The language can be
+extended by adding such statements. This project keeps that design.
+
+## Status
+
+Stage 0, a hand port of the kernel to C, runs:
+
+    cd stage0 && make check
+    ./imp72s0 ../decus/syntax.imc                       # 177 productions
+    ./imp72s0 ../decus/syntax.imc ../decus/impsyn.imc   # 215, with declarations
+    ./imp72s0 -s TSX -o dump.txt ../decus/syntax.imc    # tree, semantics, graph
+
+It reads the whole of the IMP72 syntax file and the syntax the compiler's own
+sources are written in, building the syntax graph, the semantics array and the
+code tree, and executing the declarations in `impsyn.imc`. It does **not**
+compile programs yet: the semantic routines that generate PDP-10 code are
+registered by name but not ported, and calling one stops with
+`SEMANTIC ROUTINE X IS NOT YET PORTED`. Replacing them is the next big step
+(see Roadmap).
+
+Nothing has been compared with output from the original compiler yet; that is
+what the oracle (Roadmap, phase 1) is for. Where this file says the port is
+"faithful", it means it follows the source, not that it has been verified
+against the running original.
+
+## Contents
+
+- [How IMP72 works](#how-imp72-works)
+- [Repository layout](#repository-layout)
+- [Building and running](#building-and-running)
+- [Design decisions](#design-decisions)
+- [The plan](#the-plan)
+- [Findings so far](#findings-so-far)
+- [Documentation](#documentation)
+- [Provenance and licence](#provenance-and-licence)
+
+## How IMP72 works
+
+The pieces, in the order the original compiler's manual (section 4) gives them:
+
+| module | role |
+|---|---|
+| `free`, `dir`, `stack` | relocatable free storage; the name directory (hash coded); the semantic stack, a pushdown stack, bit matrices |
+| `lex` | input and lexical analysis |
+| `rsyn` | the bootstrap reader for the initial syntax, and the routines that enter productions |
+| `graph`, `parse`, `ercor` | the syntax graph and its connectivity matrices; Irons's parser; error correction and ambiguity resolution |
+| `entree`, `cotree`, `dosem` | the code-generation tree; the semantic stack reducer; the semantics interpreter |
+| `code*`, `impsem`, `amod`, `rmod`, `omod` | semantic routines that generate PDP-10 code, assemble it, allocate registers, write relocatable output |
+| `debug` | diagnostic dumps (graph, tree, semantics, parser trace) |
+
+A compiler is made in stages. `RSYN` reads the first part of `syntax.imc` (the
+syntax for syntax) with the lexer alone. The parser, now able to read syntax
+statements, reads the rest, which defines the base language and its semantics;
+quoted semantics (`"A LS 18" => DEWOP(...)`) become patterns in the code tree
+that are matched against the code-generation stack, most specific first.
+Finally `impsyn.imc` adds the syntax the compiler's own modules are written in.
+
+IMP expressions have **no operator precedence** (`A+B*C` is `A+(B*C)`), and
+`FOR I TO N` includes `N`; every port in this repository spells the grouping
+out.
+
+## Repository layout
+
+    decus/          the DECUS 10-198 tape directory, unchanged, with hashes
+                    (SHA256SUMS, SHA256SUMS.bin) and PROVENANCE.md
+    stage0/         the hand port of the kernel to C99, and its driver
+    tests/stage0/   unit tests, and the syntax-file integration test
+    docs/           PLAN.md, BUILDING.md, internals/, porting/
+    third_party/pcc the pcc back end (a submodule of github moebiusv/pcc)
+    backend/ src/ lib/ oracle/ tools/
+                    reserved for later phases (pcc IR back end, the compiler's
+                    own sources ported to IMP on 64 bits, the runtime library,
+                    the PDP-10 oracle, the RUNOFF converter)
+
+The `.imc` files in `decus/` are the original sources, in upper case with DEC-10
+CRLF line ends. They are never edited: ported sources will live in `src/`.
+
+## Building and running
+
+Stage 0 is C99 with no dependencies beyond libc: `make` builds `libstage0.a`
+and the driver `imp72s0`; `make check` runs the tests; `make CC=pcc` or
+`CC=clang` works. See [docs/BUILDING.md](docs/BUILDING.md), and
+[docs/porting/pcc-notes.md](docs/porting/pcc-notes.md) for building and using pcc
+itself (including with musl).
+
+The driver takes the original's compiler switches as letters (`-s TSX`):
+`G` trace the parser, `I` print the directory, `N` print the connectivity
+matrices, `P` trace semantics execution, `M` trace tree matching, `S` print
+the semantics array, `T` print the code tree, `X` print the syntax graph, `L`
+list the source, `E` trace productions entered, `Z` statistics. Dumps go to the
+file given with `-o`, else standard output. The exit status is 1 if an error
+(not an advisory) was reported.
+
+## Design decisions
+
+These were made deliberately; the reasons are here so they can be argued with.
+
+### The target
+
+**Native code through pcc, on modern Linux, the BSDs and macOS, with the C ABI
+as the foreign-function interface.** IMP72 `SUBR`s are C functions taking and
+returning machine words (`REAL` as `double`), so IMP calls libc and C calls IMP
+directly, and IMP data (`COMMON`) can be linked from C. There is no wrapper
+layer and no separate FFI syntax beyond declarations of foreign signatures
+(varargs, `REAL` arguments) that the ABI needs.
+
+### The word
+
+**A 64-bit word and byte addresses.** The original is built on 36-bit words, 18-bit
+halfwords, five 7-bit characters to a word and word addressing (`LOC(X)+1` is
+the next word). For native code that interoperates with C, the IMP word is
+`int64_t`, pointers are real byte addresses (so `A[i]` scales by 8), and
+strings are NUL-terminated bytes. The compiler's own sources therefore need a
+documented port that removes the 36-bit idioms (name packing, `LS 28`/`RS 7`,
+`CALLI`, `TWOSEG`), done module by module. Emulating 36 bits was rejected:
+it would make FFI need marshalling and make the generated code slow.
+
+### Stage 0 in C99, and it must compile with pcc
+
+**Stage 0 is C99, with GNU extensions allowed only where pcc compiles them.**
+It links in-process with pcc's `mip/` and `arch/` objects (as pcc's own f77
+does), so the bootstrap must be something pcc builds. Everything in `stage0/`
+compiles and passes its tests with the host compiler, under
+AddressSanitizer/UndefinedBehaviorSanitizer, and with pcc (also against musl,
+as static executables), and a pcc build gives byte-identical dumps to the host
+build.
+
+### Faithful ports, with the original's tables
+
+**Port the algorithms, not the idea.** Each C file names the `.imc` it ports
+and each function the routine; data structures keep the original's shape.
+
+- **Free storage is one array of words, addressed by index**, with the same
+  doubly linked relocatable arrays, best-fit gaps and packing, so every table
+  is an index into `fmem` as in the original (`FORG`). `FREE`/`FREES` are
+  inline functions, not macros: AddressSanitizer found that `FREES(a, f())`
+  stores through a stale pointer when `f` grows storage.
+- **The tables whose raw words the original prints keep their 36-bit formats**
+  (`SEMS`, `PROSEM`, the code tree's stuff words, the code stack, the semantic
+  stack), as sign-extended values in a 64-bit `word`, so `debug.c`'s octal
+  dumps can be compared digit for digit with the original's. The syntax graph
+  and the tree's links word, which nothing prints raw, use wider fields.
+- **The directory keeps the original's name packing and hash** (five 7-bit
+  characters to a word; hash of the first five), so a name's directory index is
+  the number the PDP-10 compiler computes; everything above the directory sees C
+  strings.
+- **Quirks are reproduced, and recorded** (see [Findings](#findings-so-far)),
+  not fixed, until the oracle says what the original does. Where the original
+  reads past an array or its own data (the unchecked `BIT` macro), the port
+  reads zero instead, and says so.
+
+### The back end: IR, not AST
+
+**pcc's pass-2 interface, entered at the IR level.** The front end hands pcc
+`NODE` trees in `struct interpass` and calls `pass2_compile()`, the way pcc's
+f77 front end does. pcc's pass-1 trees (`P1ND`) were rejected: they carry C
+symbol tables, C types and `buildtree`'s C rules, need most of ccom linked in,
+and fight a word-oriented, essentially untyped language; they would also
+duplicate what IMP's own code tree already does (pattern-matched semantic
+selection, constant folding, special cases). pcc also has a textual form of the
+same IR (`--enable-twopass`), which we emit too, for golden tests and debugging.
+The cost is a thin per-target layer for call lowering, function labels, data
+and constants; with one word type and `REAL`, it is small.
+
+The front end produces a *pre-ABI* IR (calls as `CALL(name, args)`, parameters
+as `PARAM n`, locals as temporaries), then either lowers it for pcc or prints
+portable C from it:
+
+### Targets, and the C fallback
+
+pcc covers amd64 and aarch64 ELF (Linux, FreeBSD, NetBSD, OpenBSD) and amd64
+Mach-O (macOS). **A C-emitting back end from the same IR covers every other
+host, and macOS arm64 in particular**, because pcc has no darwin/arm64 yet.
+Auditing pcc's aarch64 port found it is the 32-bit ARM port renamed (32-bit
+alignments, `long` mapped to `long long`, 32-bit varargs, a hidden scratch
+register): making it a correct AAPCS64 backend is a prerequisite for aarch64 on
+every OS, and the Darwin deltas (Apple's `@PAGE` relocations, all variadic
+arguments on the stack, caller-extended arguments, x18 reserved, `xcrun` and the
+arm64 linker flags, Apple's SDK headers) sit on top. The full audit is in
+[docs/PLAN.md](docs/PLAN.md); that work is a parallel track on the pcc fork.
+
+### The oracle
+
+**Differential testing against the original binaries.** The tape contains the
+compiler (`imp.low`, `imp.shr`, `implib.lib`). A SIMH + TOPS-10 setup running
+it is the reference for the dumps, parse traces and generated listings. It also
+recovers PMOD, the formatted print module, which is on the tape only as
+binary. Until it exists the stage 0 ports are checked against the sources and
+the manual.
+
+### Semantic routines
+
+**C functions registered by name**, called by the semantics interpreter with up
+to ten words, with the routine's id (a slot in a table) as the `SEM` property of
+its name, where the original stores the routine's address. All routines the
+PDP-10 compiler registers are registered, so `syntax.imc` loads unchanged; the
+ones that generate PDP-10 code are stubs that stop with an error until the IR
+back end replaces them.
+
+### Documentation as part of the work
+
+Every module has an internals note recording what it does and where the port
+differs; `docs/PLAN.md` is the plan; the original manual (`imp.rno`) is to be
+rendered to Markdown. Every difference from the original is written down where
+it is made.
+
+## The plan
+
+Full detail in [docs/PLAN.md](docs/PLAN.md). In outline:
+
+0. Repository and provenance. **Done.**
+1. **The oracle** (SIMH + TOPS-10): golden dumps and listings from the original
+   compiler; recover PMOD. *Not started.*
+2. Stage 0 kernel port: housekeeping (`free`, `dir`, `stack`, `lex`), parsing
+   (`graph`, `parse`, `ercor`), semantics (`dosem`, `entree`, `cotree`, `rsyn`),
+   `debug`, and the declaration routines. **Done**; `syntax.imc` and `impsyn.imc`
+   load.
+3. Switch from PDP-10 code to pcc IR: the machine-dependent semantic routines
+   (`DEWOP`, `ADDOP`, `HOOK`, `SUBCALL`, ...) become IR builders; `AMOD`, `RMOD`,
+   `OMOD` go away; the C ABI is made explicit. Compile real programs.
+4. Runtime library: the formatted `PRINT`, I/O, POSIX replacements for the
+   TOPS-10 services.
+5. Self-hosting: port the compiler's own sources (`src/`) to the 64-bit
+   word; stage 0 compiles them into stage 1, which compiles them into stage 2,
+   and so on until two stages are identical (each in its own directory; no stage
+   overwrites another).
+6. Platforms: pcc aarch64 and darwin/arm64; the C fallback; CI on every OS.
+
+## Findings so far
+
+Things in the original that look like bugs or surprises, reproduced here and to
+be confirmed against the oracle (details in `docs/internals/`):
+
+- Output is put out twice after a syntax error is corrected: the round in which
+  the parses died has already added output to the surviving parses.
+- `ERCOR` continues past a circled node without checking that the goal can
+  still be reached (the parser itself does check). With a production that begins
+  with its own nonterminal it can "correct" a symbol to itself forever.
+- The parser's output chain has its value and link halves the other way round
+  from its header comment; the code is authoritative.
+- `GRAPH` and `GMATR` read the bit matrices one row past the last node. The
+  checking version of `BIT` is commented out; the version in use reads whatever
+  follows.
+- `MATCH` calls `RMATCH` for registers and then ignores its answer, so the
+  register limits of a pattern never reject a match.
+- `CODEID` takes any identifier that begins with a three-letter indicator
+  (`REG`, `VAR`, ...) for that indicator and loops on the rest.
+- `PARTR1` indexes free storage with a value it has just loaded from free
+  storage; the intended value is printed instead.
+
+## Documentation
+
+- [docs/PLAN.md](docs/PLAN.md): the plan, decisions, and the pcc audit
+- [docs/BUILDING.md](docs/BUILDING.md): building and running
+- [docs/internals/stage0-foundation.md](docs/internals/stage0-foundation.md):
+  free storage, stack, directory, lexer
+- [docs/internals/stage0-parser.md](docs/internals/stage0-parser.md): the syntax
+  graph, parser, error corrector
+- [docs/internals/stage0-semantics.md](docs/internals/stage0-semantics.md):
+  semantics, code tree, RSYN, the driver
+- [docs/porting/pcc-notes.md](docs/porting/pcc-notes.md): building and using pcc
+
+## Provenance and licence
+
+The sources in `decus/` are DECUS program 10-198a, *IMP - PDP-10 IMP72 Compiler,
+Version 1.5*, October 3, 1973, by Walter Bilofsky, Yale University, Department of
+Computer Science, submitted by Sonya Shapiro, Bolt Beranek and Newman, Inc.
+IMP is by Edgar T. (Ned) Irons. They come from the PDP-10 archive's listing of
+the DECUS library tape 10-LIB-3,
+<https://pdp-10.trailing-edge.com/decuslib10-03/index.html>, directory
+`[43,50306]`, which states of the DECUS software that it was put into the public
+domain at the time of donation. The hashes of every file are in `decus/`; see
+`decus/PROVENANCE.md`.
+
+The language is described in Bilofsky's *IMP72 Reference Manual* (DECUS 10-198,
+1973; `decus/imp.rno` is its RUNOFF source) and in "Syntax Extension and the
+IMP72 Programming Language" (SIGPLAN Notices, 1974).
+
+The new code in this repository (`stage0/`, `tests/`, `docs/`) is not yet
+licensed; a licence will be added before any release.

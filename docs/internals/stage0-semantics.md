@@ -60,8 +60,16 @@ compiler's. The two `PRODUCTION DUPLICATES` advisories on `syntax.imc` are
 from the production check in `GRAPH`; whether the original prints them is part
 of that comparison.
 
+## Declarations (`impsem.c`)
+
+`impsyn.imc` runs IMP declarations (`ALF IS COMMON;`), so the declaration
+routines of `impsem.imc` are ported: `NAME`, `TSTRN`, `AREG`, `AREG1`, `REG2`,
+`DECL`, `DECLARE`, `VAL`, `SVAL`, `STACKUP`, `SWITCH`, `NSUBP`. `imp72s0 syntax.imc
+impsyn.imc` loads (215 productions); `tests/stage0/test_decl.c` checks the
+routines directly. Register declarations call `DEWFUN`, which generates
+code and is still a stub.
+
 ## Next
 
-`impsyn.imc`, the syntax the compiler's own sources are written in, runs
-declarations (`ALF IS COMMON;`), so it needs `DECL`, `DECLARE`, `NAME` and
-friends: `imp72s0 syntax.imc impsyn.imc` stops at `DECL`.
+The semantic routines that generate code (`code*.imc`, the rest of
+`impsem.imc`), which the switch to pcc IR replaces.

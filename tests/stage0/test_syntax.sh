@@ -24,5 +24,13 @@ for h in '\*\* CODE GENERATION TREE:' 'CODE TREE BIT MATRIX:' \
     grep -q "$h" test_syntax.dump || fail "dump lacks $h"
 done
 
+# impsyn.imc, the syntax the compiler's own sources are written in, also
+# loads (it runs declarations: ALF IS COMMON; ...)
+./imp72s0 -s E "$SYNTAX" ../decus/impsyn.imc >test_syntax.out 2>test_syntax.err \
+    || fail "impsyn.imc: exit status"
+grep -q 'ERROR' test_syntax.err && fail "impsyn.imc: errors reported"
+n=$(grep -c '^PRODUCTION ENTERED IN GRAPH' test_syntax.out)
+[ "$n" -gt 177 ] || fail "impsyn.imc entered no productions"
+
 rm -f test_syntax.err test_syntax.out test_syntax.dump
 echo ok

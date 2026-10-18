@@ -325,4 +325,13 @@ word getlist(word s);
 word hook(word d, word a, word b);
 word assemc(word a);
 
+/* impsem.c */
+void impsem_init(void);
+word name(word s);
+word tstrn(word dirindex);
+word areg(word i);
+word areg1(word i, word j);
+word decl(word i, word s);
+word declare(word s);
+
 #endif
