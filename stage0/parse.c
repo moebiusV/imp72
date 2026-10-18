@@ -25,7 +25,7 @@
  * pushdown stack and fed to COTREE.
  *
  * Differences: COTREE is a hook, parse_cotree, until the semantic stack
- * reducer is ported; PARSE returns when the goal has been reached rather than
+ * reducer is ported (PARTRA of the original is partr1 of debug.c); PARSE returns when the goal has been reached rather than
  * with a timing statistic; the timing counters count milliseconds of process
  * time.
  */
@@ -173,12 +173,8 @@ nextp:
     cnode = FREE(l + 1);
 nextn:
     cval = gval(cnode);
-    if (tr) {
-        fprintf(imp_out(), "\n  NODE #%ld TYPE %ld ", (long)cnode,
-            (long)gtype(cnode));
-        pname(cval);
-        fputc('\n', imp_out());
-    }
+    if (tr)
+        partr1(cnode, gtype(cnode), cval, p, ip, o, ip + coff);
     switch (gtype(cnode)) {
     case 0:
         goto ntwanted;

@@ -178,7 +178,8 @@ void gpout2(word cnode, word goal, word put);
 void graphf(void);
 void gprint(void);
 extern word ga, ng, nprods;                    /* GA, NG, NPRODS */
-extern void (*gprint_hook)(void);              /* GPRIN1, when linked in */
+/* graph state, for debug.c */
+extern word gr_nodes, gr_ntgent, gr_nbitn, gr_bitm[3], gr_nbitm[3];
 long imp_msec(void);                           /* CALLI(27B,0): run time, ms */
 
 /* ---- parse.c, ercor.c: the Irons parser (parse.imc, ercor.imc) ---------- */
@@ -192,5 +193,20 @@ void ambig(word p, word *np, word *pn, word o, word tr);
 void pstats(void);
 void parsef(void);                             /* PARSEF */
 extern void (*parse_cotree)(word k);           /* COTREE: gets each output */
+
+/* ---- pr.c, debug.c: PRINT formats and the diagnostic print-outs ---------- */
+
+/* The part of PMOD (the formatted print module) that debug.c needs.  Output
+ * goes to imp_out(). */
+void pr_stg(int w, const char *s);    /* STG w: at most w chars, right justified */
+void pr_igr(int w, word v);           /* IGR w: signed decimal */
+void pr_oct(int w, word v);           /* OCT w: 36 bit unsigned octal, zero filled */
+void pr_nl(void);                     /* / */
+
+#define SW_MATRICES 0x2000L           /* /N  print the connectivity matrices */
+
+void helpd(void);                     /* HELPD */
+void partr1(word cnode, word ctyp, word cval, word p, word ip, word o, word cw);
+void gprin1(void);                    /* GPRIN1: the graph and its matrices */
 
 #endif

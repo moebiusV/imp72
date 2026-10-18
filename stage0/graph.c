@@ -34,17 +34,18 @@
 #define ID_MASK  0xFFFFFFFFL
 
 word ga, ng, nprods;
-static word nodes, nnodes;          /* NODES, NNODES: terminal reference chains */
-static word ntgent, nbitn;
-static word bitm[3] = { 0, 625, 0 };
-static word nbitm[3] = { 0, 150, 0 };
+word gr_nodes;
+static word nnodes;                 /* NNODES; gr_nodes is array NODES: the
+                                       chains of nodes requiring a terminal */
+word gr_ntgent, gr_nbitn;
+word gr_bitm[3] = { 0, 625, 0 };
+word gr_nbitm[3] = { 0, 150, 0 };
 static word gept;                   /* GEPT: chain of terminal entry points */
 static word ggoal1;
 static word making, makent;         /* the circled node and nonterminal number
                                        of the production being entered */
 static word col;                    /* COL: set by GMATR for GNT2B */
 static int init;
-void (*gprint_hook)(void);
 
 #define NODEWORD(n) FREE(ga + (n) + 1)
 
@@ -91,8 +92,8 @@ gmark(word no)
 {
     word im = 1 + no / NS;
 
-    bits(bitm, im, makent);
-    bitor_(bitm, im, 1 + making / NS);
+    bits(gr_bitm, im, makent);
+    bitor_(gr_bitm, im, 1 + making / NS);
 }
 
 /* MAKENO: append a node; mw1 is its pointer word. */
@@ -107,7 +108,7 @@ makeno(word mw1, word mty, word mno, word mid)
     if (mty != 2)
         gmark(mg);
     else
-        bits(bitm, 1 + mg / NS, dprop(DP_NODE, mid));
+        bits(gr_bitm, 1 + mg / NS, dprop(DP_NODE, mid));
     return mg;
 }
 
@@ -132,10 +133,10 @@ newno(word ds, word rts, word typ, word id)
     if ((ty & 1) == 0) {                /* a nonterminal: has a circled node? */
         n1 = dprop(DP_ENTRY, id);
         if (n1 == 0) {
-            dprops(DP_NODE, id, ntgent);
-            ntgent++;
-            n1 = makeno(ty == 0 ? 0 : ptrs, 2, nbitn, id);
-            nbitn++;
+            dprops(DP_NODE, id, gr_ntgent);
+            gr_ntgent++;
+            n1 = makeno(ty == 0 ? 0 : ptrs, 2, gr_nbitn, id);
+            gr_nbitn++;
             dprops(DP_ENTRY, id, n1);
         }
         if (ty == 0)
@@ -162,8 +163,8 @@ graph(word synt, word nsynt, word pnq)
         frelot(&ga, "GRAPH", 1300, gorgfix);
         fincset(ga, 50);
         FREES(ga + 2, (word)((uword)7 << TY_SHIFT));
-        ng = ntgent = nnodes = nbitn = 1;
-        frelot(&nodes, "NODES", 100, NULL);
+        ng = gr_ntgent = nnodes = gr_nbitn = 1;
+        frelot(&gr_nodes, "NODES", 100, NULL);
         gept = 0;
     }
     making = newno(0, 0, 2, FREE(synt));
@@ -245,7 +246,7 @@ ck2:
     j = alt(j);
     goto ck1;
 
-    /* make a string of nodes: synt[0], the production number, and synt[hookn+1
+    /* make a string of gr_nodes: synt[0], the production number, and synt[hookn+1
      * ..nsynt], and hook it on as the successor of the hook */
 makeit:
     if (hookn == nsynt && pnr == 0 && scr(hook))    /* no alt to a type 2 node */
@@ -267,9 +268,9 @@ makeit:
         row = 1 + ent / NS;
         nodeno = 1 + ng / NS;
         for (nn = 1; nn <= nodeno; nn++) {
-            if (bit(bitm, nn, c)) {
-                (void)bit(bitm, nn, makent);
-                bitor_(bitm, nn, row);
+            if (bit(gr_bitm, nn, c)) {
+                (void)bit(gr_bitm, nn, makent);
+                bitor_(gr_bitm, nn, row);
             }
         }
     }
@@ -288,13 +289,11 @@ graphex:
     return nprods;
 }
 
+/* GPRINT: dump the graph (GPRIN1 of debug.c). */
 void
 gprint(void)
 {
-    if (gprint_hook != NULL)
-        gprint_hook();
-    else
-        imp_error(2, "GPRIN1 DEBUGGING PGM NOT PRESENT");
+    gprin1();
 }
 
 /* GCONN(Q,QGOAL): does node q lead to nonterminal qgoal? */
@@ -304,7 +303,7 @@ gconn(word q, word qgoal)
     word qv = 0;
 
     if (q)
-        qv = bit(bitm, 1 + q / NS, qgoal);
+        qv = bit(gr_bitm, 1 + q / NS, qgoal);
     return qv;
 }
 
@@ -312,9 +311,9 @@ gconn(word q, word qgoal)
 word
 gmade(word q, word qgoal)
 {
-    if (nbitm[2] == 0)
-        return 1 & (word)((uword)FREE(nbitm[0] + gnb(q)) >> qgoal);
-    return bit(nbitm, gnb(q), qgoal);
+    if (gr_nbitm[2] == 0)
+        return 1 & (word)((uword)FREE(gr_nbitm[0] + gnb(q)) >> qgoal);
+    return bit(gr_nbitm, gnb(q), qgoal);
 }
 
 /* GGOAL(NT): a node for the goal nonterminal, pointing at itself. */
@@ -323,7 +322,7 @@ ggoal(word nt)
 {
     ggoal1 = newno(0, 0, 0, 0);
     setscr(ggoal1, ggoal1);
-    bits(bitm, 1 + ggoal1 / NS, dprop(DP_NODE, nt));
+    bits(gr_bitm, 1 + ggoal1 / NS, dprop(DP_NODE, nt));
     FREES(ga + ggoal1 + 1, nt);
     return ggoal1;
 }
@@ -336,7 +335,7 @@ galt(word q, word qgoal)
 
     for (;;) {
         qq = alt(qq);
-        if (qq == 0 || bit(bitm, 1 + qq / NS, qgoal) != 0)
+        if (qq == 0 || bit(gr_bitm, 1 + qq / NS, qgoal) != 0)
             return qq;
     }
 }
@@ -351,10 +350,10 @@ gnt2t(word nt, word *ni, word gl)
     for (;;) {
         if (*ni == 0)
             return 0;
-        j = FREE(nodes + *ni);
+        j = FREE(gr_nodes + *ni);
         no = HR(j);
         *ni = HL(j);
-        if (bit(bitm, 1 + no / NS, gl) == 0)
+        if (bit(gr_bitm, 1 + no / NS, gl) == 0)
             continue;
         if (gleap(nt, no) == 0)
             continue;
@@ -375,12 +374,12 @@ gnt2tx(word nt, word *ni, word gl)
     for (;;) {
         if (*ni == 0)
             return 0;
-        j = FREE(nodes + *ni);
+        j = FREE(gr_nodes + *ni);
         no = HR(j);
         *ni = HL(j);
-        if ((msk1 & (uword)FREE((bitm[0] + (no >> 1)) + 1)) == 0)
+        if ((msk1 & (uword)FREE((gr_bitm[0] + (no >> 1)) + 1)) == 0)
             continue;
-        if ((msk2 & (uword)FREE(nbitm[0] + gnb(no))) == 0)
+        if ((msk2 & (uword)FREE(gr_nbitm[0] + gnb(no))) == 0)
             continue;
         return no;
     }
@@ -390,7 +389,7 @@ gnt2tx(word nt, word *ni, word gl)
 word
 gleap(word nt, word no)
 {
-    return bit(nbitm, gnb(no), nt);
+    return bit(gr_nbitm, gnb(no), nt);
 }
 
 /* GNEXT(Q,QGOAL): q, or its first alternate, that leads to qgoal. */
@@ -401,10 +400,10 @@ gnext(word q, word qgoal)
 
     if (q0 == 0)
         return 0;
-    if (bitm[2] == 0) {
+    if (gr_bitm[2] == 0) {
         uword mask = qgoal < 64 ? (uword)1 << qgoal : 0;
 
-        while (q0 && (mask & (uword)FREE((bitm[0] + (q0 >> 1)) + 1)) == 0)
+        while (q0 && (mask & (uword)FREE((gr_bitm[0] + (q0 >> 1)) + 1)) == 0)
             q0 = alt(q0);
     } else if (gconn(q0, qgoal) == 0)
         q0 = galt(q0, qgoal);
@@ -419,11 +418,11 @@ gnt2b(word nd)
     word nda = FREE(ga + nd + 1), non = (nda >> NB_SHIFT) & NB_MASK;
 
     if (non == 0) {
-        non = nbitn;
-        nbitn++;
+        non = gr_nbitn;
+        gr_nbitn++;
         FREES(ga + nd + 1, nda | (non << NB_SHIFT));
     }
-    bits(nbitm, non, col);
+    bits(gr_nbitm, non, col);
 }
 
 /* GRREQ(TN,NNR,ND): record that terminal tn is required at node nnr. */
@@ -435,13 +434,13 @@ grreq(word tn, word nnr, word nd)
     gnt2b(nd);
     s = ss = dprop(DP_NODE, tn);
     while (s) {
-        s = FREE(nodes + s);
+        s = FREE(gr_nodes + s);
         if (HR(s) == nnr)
             return;
         s = HL(s);
     }
     dprops(DP_NODE, tn, nnodes);
-    fadd(&nodes, &nnodes, HW(ss, nnr));
+    fadd(&gr_nodes, &nnodes, HW(ss, nnr));
 }
 
 /*
@@ -460,7 +459,7 @@ gmatr(word tfl)
     tin = imp_msec();
     if (tfl < 0)
         goto gmtrx;
-    bitz(nbitm);
+    bitz(gr_nbitm);
     nnodes = 1;
     for (nn = 1; nn <= ng; nn += NS) {
         j = FREE(ga + nn + 1);
@@ -476,8 +475,8 @@ gmatr(word tfl)
         pushmi(-1);
         col = dprop(DP_NODE, j & ID_MASK);
         row = (j >> NB_SHIFT) & NB_MASK;
-        bits(nbitm, row, col);
-        bits(bitm, 1 + nn / NS, col);
+        bits(gr_nbitm, row, col);
+        bits(gr_bitm, 1 + nn / NS, col);
         no = scr(nn);
         for (;;) {
             if (no == 0) {
@@ -492,7 +491,7 @@ alterm:
             noty = (noda >> TY_SHIFT) & 7;
             noid = noda & ID_MASK;
             if (noty == 2) {
-                bits(nbitm, row, dprop(DP_NODE, noid));
+                bits(gr_nbitm, row, dprop(DP_NODE, noid));
                 if (no == nn)
                     goto alterm;
             }
@@ -505,7 +504,7 @@ alterm:
                 gnt2b(no);
                 for (k = gept; k; k = alt(k)) {
                     nd = scr(k);
-                    if (bit(bitm, 1 + nd / NS, ntnr))
+                    if (bit(gr_bitm, 1 + nd / NS, ntnr))
                         grreq(gval(nd), no, nd);
                 }
                 goto alterm;
@@ -528,18 +527,18 @@ void
 graphf(void)
 {
     fallot(ga, 0);
-    fallot(nodes, 0);
+    fallot(gr_nodes, 0);
 }
 
 /*
  * GPOUT1(CNODE,NNODE,PUT): put out the production numbers along the path from
- * circled node cnode to nnode, which consists only of type 2 and 3 nodes, onto
+ * circled node cnode to nnode, which consists only of type 2 and 3 gr_nodes, onto
  * parse put.  nnode is a node requiring a terminal that follows a circled node.
  */
 void
 gpout1(word cnode, word nnode, word put)
 {
-    uword bitrow = (uword)FREE(nbitm[0] + gnb(nnode));
+    uword bitrow = (uword)FREE(gr_nbitm[0] + gnb(nnode));
     word k = scr(cnode), val, l, ntn;
     uword i;
 
@@ -601,10 +600,10 @@ gpout2(word cnode, word goal, word put)
         default:
             goto next;
         }
-        if (nbitm[2]) {
+        if (gr_nbitm[2]) {
             if (!gmade(l, goal))
                 goto next;
-        } else if ((mask & (uword)FREE(nbitm[0] + gnb(l))) == 0)
+        } else if ((mask & (uword)FREE(gr_nbitm[0] + gnb(l))) == 0)
             goto next;
         k = scr(l);
         if (vl)
