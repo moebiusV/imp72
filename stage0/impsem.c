@@ -18,9 +18,11 @@
  * register, bit 12 not a temporary, bit 11 a subroutine call, bits 10-6 the
  * lower limit, bit 5 two successive registers, bits 4-0 the upper limit.
  */
+#include <string.h>
 #include "imp.h"
 
 static word locv, nlocv, subpar, nsubpar, regdec, nregdec, arr, narr, rg, regn;
+static word remo, relnm, impm;
 static word props, plong, pregsyn, subtmpn, subtmp;
 static int ginit;
 
@@ -181,6 +183,215 @@ switch_(word n)
 
 word nsubp(void) { return nsubpar; }
 
+
+/* ---- registers and subroutines (impsem.imc) ------------------------------ */
+
+word hisreg(word i) { init(); return 010000 & FREE(rg + i); }
+word subreg(word j) { init(); return 04000 & FREE(rg + j); }
+
+/* TMPREG(J): is register j a temporary that can be optimised out? */
+word
+tmpreg(word j)
+{
+    init();
+    if (j <= 64)
+        return 0;
+    return (FREE(rg + j) & 014040) ? 0 : 1;
+}
+
+/* SAMEREG(J): a new register with the limits of register j. */
+word
+samereg(word j)
+{
+    word k;
+
+    if (tmpreg(j) == 0)
+        return j;
+    k = FREE(rg + j);
+    return areg1(077 & (u36(k) >> 6), 077 & k);
+}
+
+word
+regeq(word i, word j)
+{
+    word ii, jj;
+
+    init();
+    if (i == j)
+        return 1;
+    if (i == 0 || j == 0)
+        return 0;
+    ii = FREE(rg + i);
+    jj = FREE(rg + j);
+    return ((037 & ii) == (037 & (u36(ii) >> 6)) && ii == jj) ? 1 : 0;
+}
+
+word
+regsim(word i, word j)
+{
+    init();
+    if (i == j)
+        return 1;
+    if (i == 0 || j == 0)
+        return 0;
+    return FREE(rg + i) == FREE(rg + j) ? 1 : 0;
+}
+
+word
+reg0(word i)
+{
+    word j;
+
+    init();
+    if (i == 0)
+        return 0;
+    j = FREE(rg + i);
+    return (j & 03700) == 0 ? 1 : 0;
+}
+
+/* RMATCH(I,J,RN): is register rn within the limits i..j? */
+word
+rmatch(word i, word j, word rn)
+{
+    word k;
+
+    init();
+    k = FREE(rg + rn);
+    return (j >= (037 & k) && i <= (037 & (u36(k) >> 6))) ? 1 : 0;
+}
+
+static word subcnt, subtmpk, subrtn;
+
+/* SUBPR0(I): 0 at subroutine calls, 1 at the end of a parameter list; keeps
+ * track of when the call temporaries can be reused. */
+word
+subpr0(word i)
+{
+    if (i) {
+        if (--subcnt == 0)
+            subtmpk = 0;
+    } else
+        subcnt++;
+    return 0;
+}
+
+word
+subprm(word i)
+{
+    word j;
+
+    (void)i;
+    init();
+    j = enstack(0);
+    FREES(j, sx36(010 | (subtmp << 18)));
+    FREES(j + 1, subtmpk);
+    if (++subtmpk > subtmpn)
+        subtmpn = subtmpk;
+    return j;
+}
+
+word
+subtmpf(void)
+{
+    init();
+    if (subtmpn) {
+        fadd(&arr, &narr, sx36(subtmp | (subtmpn << 18)));
+        subtmp = newname("PAR");
+        subtmpn = subtmpk = 0;
+    }
+    return 0;
+}
+
+/* SUBTAG(N): the name of the tag for the entry of a subroutine called n:
+ * % and its first characters. */
+word
+subtag(word n)
+{
+    char buf[8];
+
+    buf[0] = '%';
+    strncpy(buf + 1, gname(n), 5);
+    buf[6] = '\0';
+    return dir(buf);
+}
+
+/*
+ * SUBBEG(A): begin a subroutine named at stack entry a, whose formal
+ * arguments are the current list.
+ */
+word
+subbeg(word a)
+{
+    word j, k, i, rntrnt;
+
+    init();
+    if (subrtn)
+        imp_error(1, "NESTED SUBROUTINES.");
+    subrtn = 1;
+    j = L18(FREE(a));
+    dprops(DP_COM, j, 2);
+    if (anyco() == 0)
+        impm = 0;
+    rntrnt = (finam5 & 0400000L) != 0;
+    if (rntrnt) {
+        k = enstack(0);
+        addcode(k, sx36(0200000000000L | j), 0);
+        addcode(k, 0, j);
+        j = subtag(j);
+        addcode(k, sx36(0254L << 24), j);
+        addcode(a, sx36(0200000000000L | j), 0);
+        remot(freeze(k));
+    } else {
+        addcode(a, sx36(0200000000000L | j), 0);
+        addcode(a, 0, j);
+    }
+    k = enstack(0);
+    while (getlist(k)) {
+        i = L18(FREE(k));
+        j = newname(gname(i));
+        fadd(&locv, &nlocv, sx36(j | (i << 18)));
+        fadd(&subpar, &nsubpar, j);
+    }
+    subtmpf();
+    return a;
+}
+
+word
+subend(void)
+{
+    subrtn = nlocv = nsubpar = 0;
+    return 0;
+}
+
+/* REMOT(A): code for the remote (high) segment. */
+word
+remot(word a)
+{
+    init();
+    if (remo == 0)
+        remo = enstack(0), FREES(remo + 2, 0);
+    hook(remo, remo, a);
+    FREES(a + 2, 0);
+    return a;
+}
+
+word
+callme(word a)
+{
+    relnm = L18(FREE(a));
+    return a;
+}
+
+word
+reg2s(word s)
+{
+    word j = FREE(s + 1);
+
+    j = sx36((reg2(03777 & (u36(j) >> 18)) << 18) | (j & ~(03777L << 18)));
+    FREES(s + 1, j);
+    return s;
+}
+
 /*
  * DECL(I,S): note one property of a declaration: 0 a synonym for the
  * register named at s, 1 a length (s is a constant), 2 and over a flag
@@ -214,15 +425,6 @@ decl(word i, word s)
     else
         imp_error(1, "N NOT A CONSTANT IN N LONG.");
     return 0;
-}
-
-static void
-dewfun(word t, word code, word jj)
-{
-    (void)t;
-    (void)code;
-    (void)jj;
-    imp_error(0, "SEMANTIC ROUTINE DEWFUN IS NOT YET PORTED");
 }
 
 /* DECLARE(S): apply the declared properties to the names of the current
@@ -314,6 +516,12 @@ static word w_decl(const word *p) { return decl(p[0], p[1]); }
 static word w_declare(const word *p) { return declare(p[0]); }
 static word w_stackup(const word *p) { return stackup(p[0]); }
 static word w_switch(const word *p) { return switch_(p[0]); }
+static word w_subbeg(const word *p) { return subbeg(p[0]); }
+static word w_subend(const word *p) { (void)p; return subend(); }
+static word w_subpr0(const word *p) { return subpr0(p[0]); }
+static word w_remot(const word *p) { return remot(p[0]); }
+static word w_callme(const word *p) { return callme(p[0]); }
+static word w_reg2s(const word *p) { return reg2s(p[0]); }
 
 void
 impsem_init(void)
@@ -328,4 +536,10 @@ impsem_init(void)
     dsem("DECLARE", w_declare);
     dsem("STACKUP", w_stackup);
     dsem("SWITCH", w_switch);
+    dsem("SUBBEG", w_subbeg);
+    dsem("SUBEND", w_subend);
+    dsem("SUBPR0", w_subpr0);
+    dsem("REMOT", w_remot);
+    dsem("CALLME", w_callme);
+    dsem("REG2S", w_reg2s);
 }

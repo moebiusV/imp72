@@ -279,7 +279,7 @@ extern word entries;                           /* ENTRIES (cotree.c sets it) */
 
 /* entree.c */
 word entree(word s, word cs, word sr, word pn);
-word match(word tn, word sn, word snonr);
+word match(word *tnp, word sn, word snonr);
 void entrca(word semn);
 void tprint(void);
 void tprin1(void);
@@ -324,6 +324,56 @@ word enlist(word s);
 word getlist(word s);
 word hook(word d, word a, word b);
 word assemc(word a);
+
+/* codegen.c, impsem.c: the code generator (PDP-10 code chains) */
+extern word co, nco, anco;
+void codegen_init(void);
+word addcode(word s, word w1, word w2);
+word dewop(word op, word rr, word s);
+word fetch(word s);
+word store(word s, word t);
+word regof(word s);
+word addop(word op, word s, word t);
+word tag(word s);
+word dewfun(word s, word i, word j);
+word freeze(word s);
+word subrcall(word t);
+word subrpar(word s, word pp);
+word return_(word s);
+word conop(word s, word t, word i, word v, word w);
+word float_(word s);
+word fix_(word s);
+word ojumpop(word i);
+word datast(word b);
+word addr_(word s);
+word coppy(word s);
+word subscript(word s, word t);
+word subcall(word a, word b);
+void copyco(word s);
+word mcode(word s, word t);
+word oneword(word s);
+word ochk_(word opc);
+word hisreg(word i);
+word subreg(word j);
+word tmpreg(word j);
+word samereg(word j);
+word regeq(word i, word j);
+word regsim(word i, word j);
+word reg0(word i);
+word rmatch(word i, word j, word rn);
+word subpr0(word i);
+word subprm(word i);
+word subtmpf(void);
+word subbeg(word a);
+word subend(void);
+word remot(word a);
+word callme(word a);
+word reg2s(word s);
+word nsubp(void);
+word anyco(void);
+void opname(word op, char *buf);
+void pcode_chain(word iw);
+void pcode(word s);
 
 /* impsem.c */
 void impsem_init(void);

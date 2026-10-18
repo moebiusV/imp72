@@ -129,39 +129,26 @@ getlist(word s)
 }
 
 /*
- * HOOK(D,A,B): hook the code of a to the code of b, put it in d; the value
- * of d is set to the value of b.  Without code (the word 2 of both is 0)
- * that is only the copy of the value.
+ * ASSEMC(A): the end of a compilation unit; a is the stack entry whose code
+ * is the whole program.  The original assembles it (assemb) after freeing the
+ * parser's and the graph's arrays; here the code is handed to the translator
+ * (trans.c), and listed first if /A.
  */
-word
-hook(word d, word a, word b)
-{
-    FREES(d, FREE(b));
-    FREES(d + 1, FREE(b + 1));
-    if (FREE(b + 2) == 0) {
-        FREES(d + 2, FREE(a + 2));
-        return d;
-    }
-    if (FREE(a + 2) == 0) {
-        FREES(d + 2, FREE(b + 2));
-        return d;
-    }
-    imp_error(0, "HOOK: CODE IS NOT YET PORTED");
-    return d;
-}
-
-/* ASSEMC(A): the end of a compilation unit.  Nothing is assembled without
- * code. */
 word
 assemc(word a)
 {
-    (void)a;
+    if (anyco()) {
+        subtmpf();
+        if (finam5 & SW_ASSEMBLY) {
+            fprintf(imp_out(), "\n** CODE PRODUCED BY PROGRAM\n");
+            pcode(a);
+        }
+    }
     return 0;
 }
 
 static word w_newlist(const word *p) { return newlist(p[0]); }
 static word w_enlist(const word *p) { return enlist(p[0]); }
-static word w_hook(const word *p) { return hook(p[0], p[1], p[2]); }
 static word w_assemc(const word *p) { return assemc(p[0]); }
 
 /* sem_init: register the routines. */
@@ -170,13 +157,9 @@ sem_init(void)
 {
     static const char *const unported[] = {
         /* impsem.imc */
-        "LETSYN", "SUBBEG", "SUBEND", "SUBPR0", "REMOT", "CALLME", "REG2S",
-        "FCON", "ERROR",
-        /* code.imc, code2.imc, code3.imc */
-        "STORE", "FETCH", "REGOF", "DEWOP", "ADDOP", "TAG", "DEWFUN",
-        "FREEZE", "SUBRCALL", "RETURN", "SUBRPAR", "CONOP", "FLOAT", "FIX",
-        "PRINCAL", "PRINPAR", "OJUMPOP", "DATAST", "ADDR", "COPY",
-        "SUBSCRIPT", "SUBCALL", "BYTEP",
+        "LETSYN", "FCON", "ERROR",
+        /* code2.imc, code3.imc */
+        "PRINCAL", "PRINPAR", "BYTEP",
         NULL
     };
     int i;
@@ -185,7 +168,7 @@ sem_init(void)
         dsem(unported[i], NULL);
     dsem("NEWLIST", w_newlist);
     dsem("ENLIST", w_enlist);
-    dsem("HOOK", w_hook);
     dsem("ASSEMC", w_assemc);
     impsem_init();
+    codegen_init();
 }

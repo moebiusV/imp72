@@ -2,7 +2,7 @@
 CC      = cc
 CFLAGS  = -std=c99 -O1 -g -Wall -Wextra -pedantic
 AR      = ar
-OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o sem.o impsem.o
+OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o sem.o impsem.o codegen.o pcode.o
 TESTDIR = ../tests/stage0
 TESTS   = test_free test_stack test_dir test_lex test_parse test_debug test_decl
 
@@ -22,6 +22,7 @@ $(OBJS): imp.h
 check: $(TESTS) imp72s0
 	@for t in $(TESTS); do echo "== $$t"; ./$$t || exit 1; done
 	@echo "== test_syntax"; sh $(TESTDIR)/test_syntax.sh
+	@echo "== test_codegen"; sh $(TESTDIR)/test_codegen.sh
 
 test_free: $(TESTDIR)/test_free.c libstage0.a
 	$(CC) $(CFLAGS) -I. -o $@ $(TESTDIR)/test_free.c libstage0.a

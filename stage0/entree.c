@@ -557,26 +557,17 @@ entrx:
     return tbl;
 }
 
-/* ONEWORD(S): does the code of stack entry s take exactly one word?  Entries
- * without code do not. */
-static word
-oneword(word sn)
-{
-    if (FREE(sn + 2) == 0)
-        return 0;
-    imp_error(0, "ONEWORD: CODE IS NOT YET PORTED");
-    return 0;
-}
-
 /*
  * MATCH(TN,SN,SNONR): does tree node tn match the stack entry at sn?  0 if
  * not, -1 if so, -2 if so for a VAL/ production read as its original, or at a
- * terminal node the semantics entry.  tn's alternates are tried in turn.
+ * terminal node the semantics entry.  tn's alternates are tried in turn;
+ * *tnp is left at the node that matched (the original's TN is a reference
+ * parameter that COTREE reads afterwards).
  */
 word
-match(word tn, word sn, word snonr)
+match_(word *tnp, word sn, word snonr)
 {
-    word val = -1, s = FREE(sn), sty = s & 037, sdi = L18(s), sval = FREE(sn + 1),
+    word tn = *tnp, val = -1, s = FREE(sn), sty = s & 037, sdi = L18(s), sval = FREE(sn + 1),
         t, tty, tval, j, snn, mask, rest;
 
     if (sty == 0) {
@@ -585,26 +576,26 @@ ty0al0:
             tn = FREE(ct + tn - 1);
             if (tn)
                 goto ty0al0;
-            return 0;
+            { *tnp = tn; return 0; }
         }
         t = FREE(tn + ct + 1);
         if (t & 02000000) {                     /* a terminal node */
             val = matchp(sdi, tn);
             if (val == 0)
                 goto ty0alt;
-            return val;
+            { *tnp = tn; return val; }
         }
         if (R18(t) == sdi)
-            return -1;
+            { *tnp = tn; return -1; }
         if (sval == 0)
             goto ty0alt;
         if (R18(t) == L18(sval))
-            return -2;
+            { *tnp = tn; return -2; }
 ty0alt:
         tn = talt(tn);
         if (tn)
             goto ty0al0;
-        return 0;
+        { *tnp = tn; return 0; }
     }
     snn = snonr;
 tyalt:
@@ -614,7 +605,7 @@ tyalt:
     tty = u36(t) >> 33;
     if (tty == 1) {
         if (((u36(t) >> 25) & 077) == 0)        /* productions are last */
-            return 0;
+            { *tnp = tn; return 0; }
         j = s & (u36(t) >> 25);
         if ((037 & j) == 0)
             goto nix;
@@ -668,12 +659,18 @@ mex:
         goto nix;
     if (val == 0)
         val = -1;
-    return val;
+    { *tnp = tn; return val; }
 nix:
     tn = talt(tn);
     if (tn)
         goto tyalt;
-    return 0;
+    { *tnp = tn; return 0; }
+}
+
+word
+match(word *tnp, word sn, word snonr)
+{
+    return match_(tnp, sn, snonr);
 }
 
 /* ENTRC1: step through the tree depth first, using the pushdown stack; 0 at

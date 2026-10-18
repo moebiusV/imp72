@@ -65,7 +65,7 @@ codent(word a, word b, word c, word f)
     FREES(csx + 1, b);
     FREES(csx + 2, c);
     if (f && c)
-        imp_error(0, "COPYCO: CODE IS NOT YET PORTED");
+        copyco(csx);
 }
 
 void
@@ -111,15 +111,6 @@ word
 setpri(word a)
 {
     prio = a;
-    return 0;
-}
-
-static word
-mcode(word s, word t)
-{
-    (void)s;
-    (void)t;
-    imp_error(0, "MCODE: CODE IS NOT YET PORTED");
     return 0;
 }
 
@@ -322,7 +313,7 @@ tryon:
         }
     }
 m2:
-    j = match(node, cs + im, snonr);
+    j = match(&node, cs + im, snonr);
     mark = 1;
     if (trm) {
         fprintf(f, "MATCH NODE%4ld BEFORE #%ld VS STACK%3ld = ", (long)node,
