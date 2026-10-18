@@ -183,6 +183,18 @@ switch_(word n)
 
 word nsubp(void) { return nsubpar; }
 
+/* the declared arrays (ARR): entry i is name | (words << 18) */
+word impsem_narr(void) { init(); return narr; }
+word
+impsem_array(word i, word *size)
+{
+    word w = FREE(arr + i);
+
+    *size = L18(w);
+    return R18(w);
+}
+word impsem_nregs(void) { init(); return regn; }
+
 
 /* ---- registers and subroutines (impsem.imc) ------------------------------ */
 

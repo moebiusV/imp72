@@ -256,40 +256,22 @@ l72:
                 ic = op >> 8;
                 k = 037 & (op >> 3);
                 if (1 & (u36(immv[ic]) >> k)) {
-l53:
                     op |= 1;
                     cse = se1;
                     dse = 0;
                     goto l6;
                 }
             }
-            if (op == 0200) {
-                if (se1 == -1) {
-                    op = 0474;
-                    cse = 0;
-                    dse = 0;
-                    goto l6;
-                }
-                if (j == 0777777L) {
-                    op = 0561;
-                    se1 = R18(se1);
-                    goto l53;
-                }
-                if ((j = R18(se1)) == 0) {
-                    op = 0515;
-                    goto l54;
-                }
-                if (j == 0777777L) {
-                    op = 0525;
-                    goto l54;
-                }
+            if (op == 0200 && se1 == -1) {
+                op = 0474;
+                cse = 0;
+                dse = 0;
+                goto l6;
             }
-            /* special floating point immediates */
-            if ((op & 0747) == 0144 && R18(se1) == 0) {
-l54:
-                se1 = u36(se1) >> 18;
-                goto l53;
-            }
+            /* The original also uses HRROI, HRLZI and HRLOI here for
+             * constants whose halves are all ones or zero, and immediate
+             * floating point operands: all 18 bit halfword tricks.  Halves
+             * are 32 bits here, so those constants go through the pool. */
         }
         if (dse == 0)
             dse = stcon(se1);

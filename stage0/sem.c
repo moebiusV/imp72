@@ -143,6 +143,7 @@ assemc(word a)
             fprintf(imp_out(), "\n** CODE PRODUCED BY PROGRAM\n");
             pcode(a);
         }
+        trans_unit(a);
     }
     return 0;
 }

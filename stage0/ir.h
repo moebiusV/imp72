@@ -1,0 +1,69 @@
+/*
+ * ir.h -- the pcc intermediate representation, as text.
+ *
+ * Trees are pcc pass 2 NODEs (mip/node.h): the same operators and types, the
+ * same shapes as pass 1 leaves for the pass 2 compiler on amd64.  They are
+ * written in the format mip/reader.c reads (`cc1` of pcc built with
+ * --enable-twopass reads it from standard input and writes assembly).  The
+ * writer in pass 1 of the fork is out of date, so this is written from the
+ * reader.
+ */
+#ifndef IR_H
+#define IR_H
+
+#include <stdio.h>
+
+/* operators (mip/node.h) */
+enum {
+    IR_NAME = 2, IR_ICON = 4, IR_FCON = 5, IR_REG = 6, IR_TEMP = 8,
+    IR_PLUS = 10, IR_MINUS = 11, IR_DIV = 12, IR_MOD = 13, IR_MUL = 14,
+    IR_AND = 15, IR_OR = 16, IR_ER = 17, IR_LS = 18, IR_RS = 19, IR_COMPL = 20,
+    IR_UMUL = 23, IR_UMINUS = 24,
+    IR_EQ = 25, IR_NE = 26, IR_LE = 27, IR_LT = 28, IR_GE = 29, IR_GT = 30,
+    IR_ULE = 31, IR_ULT = 32, IR_UGE = 33, IR_UGT = 34,
+    IR_CBRANCH = 35, IR_SCONV = 37, IR_PCONV = 38,
+    IR_CALL = 41, IR_UCALL = 42, IR_CM = 48, IR_ASSIGN = 49, IR_GOTO = 54
+};
+
+/* types (mip/manifest.h) */
+enum {
+    T_INT = 6, T_LONG = 8, T_ULONG = 9, T_DOUBLE = 13, T_VOID = 19,
+    T_PTR = 0x20, T_FTN = 0x40,
+    T_PLONG = T_LONG | T_PTR,                   /* pointer to long */
+    T_PFTN = (((T_FTN | T_LONG) & ~0x1f) << 2) | T_PTR | T_LONG
+};
+
+/* amd64 registers (arch/amd64/macdefs.h) */
+enum { R_RAX = 0, R_RDX = 1, R_RCX = 2, R_RSI = 4, R_RDI = 5, R_R8 = 8, R_R9 = 9 };
+
+struct irn {
+    int op, type;
+    long long lval;
+    int rval;
+    const char *name;
+    struct irn *l, *r;
+};
+
+struct irn *ir_new(int op, int type, struct irn *l, struct irn *r);
+struct irn *ir_icon(long long v, int type);
+struct irn *ir_sym(const char *name, long long off, int type);  /* &name+off */
+struct irn *ir_name(const char *name, long long off, int type); /* name+off */
+struct irn *ir_temp(int n, int type);
+struct irn *ir_reg(int n, int type);
+struct irn *ir_un(int op, int type, struct irn *l);
+struct irn *ir_bin(int op, int type, struct irn *l, struct irn *r);
+struct irn *ir_assign(struct irn *l, struct irn *r);
+struct irn *ir_deref(struct irn *addr, int type);
+
+void ir_open(FILE *f);
+int ir_newlabel(void);
+int ir_newtemp(void);
+void ir_func_begin(const char *name, int visible);
+void ir_stmt(struct irn *n);
+void ir_label(int n);
+void ir_goto(int label);
+void ir_cbranch(int op, struct irn *l, struct irn *r, int label);
+void ir_func_end(int retlab, int rettemp);
+void ir_pass(const char *fmt, ...);             /* a line for the assembler */
+
+#endif

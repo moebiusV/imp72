@@ -123,7 +123,8 @@ void bstats(int reset);
 
 word dir(const char *name);                /* DIR: index of a name */
 word dname(word i, word j);                /* DNAME: jth packed word of a name */
-const char *gname(word i);                 /* GNAME: name as a C string */
+const char *gname(word i);
+void dname_str(word i, char *buf, size_t n);  /* the whole name */                 /* GNAME: name as a C string */
 void pname(word i);                        /* PNAME */
 word dseq(word n);                         /* DSEQ */
 word radi50(word i);                       /* RADI50 */
@@ -324,6 +325,8 @@ word enlist(word s);
 word getlist(word s);
 word hook(word d, word a, word b);
 word assemc(word a);
+void trans_open(FILE *f);                       /* write pcc IR to f */
+void trans_unit(word a);
 
 /* codegen.c, impsem.c: the code generator (PDP-10 code chains) */
 extern word co, nco, anco;
@@ -370,6 +373,9 @@ word remot(word a);
 word callme(word a);
 word reg2s(word s);
 word nsubp(void);
+word impsem_array(word i, word *size);          /* the declared arrays, ARR */
+word impsem_narr(void);
+word impsem_nregs(void);
 word anyco(void);
 void opname(word op, char *buf);
 void pcode_chain(word iw);

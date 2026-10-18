@@ -3,7 +3,7 @@
  * here: read the bootstrap syntax with RSYN, then compile the rest of the
  * file, and any other files named, with the syntax built so far.
  *
- *     imp72s0 [-s LETTERS] [-o FILE] SYNTAX [FILE ...]
+ *     imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] SYNTAX [FILE ...]
  *
  * -s sets compiler switches, each letter of LETTERS the switch of that name
  * (the original's /A /B ... on the command line); the ones that mean
@@ -11,7 +11,9 @@
  * the connectivity matrices with the graph), P (trace semantics execution),
  * M (trace tree matching), S (print the semantics array), T (print the code
  * tree), X (print the syntax graph), L (list the source), Z (statistics).
- * Dumps go to the file given with -o, else to standard output.
+ * Dumps go to the file given with -o, else to standard output.  -c writes
+ * the pcc IR of the program to a file (- is standard output); cc1 of pcc
+ * turns it into assembly.
  *
  * Today this reads syntax files only: the semantic routines that generate
  * code are not ported, so a program that uses one stops with an error.
@@ -30,7 +32,7 @@ cotree_hook(word k)
 static void
 usage(void)
 {
-    fputs("usage: imp72s0 [-s LETTERS] [-o FILE] SYNTAX [FILE ...]\n", stderr);
+    fputs("usage: imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] SYNTAX [FILE ...]\n", stderr);
     exit(2);
 }
 
@@ -38,7 +40,7 @@ int
 main(int argc, char **argv)
 {
     int i = 1, nfiles;
-    const char *out = NULL;
+    const char *out = NULL, *irout = NULL;
     char **files;
 
     while (i < argc && argv[i][0] == '-' && argv[i][1] != '\0') {
@@ -50,6 +52,8 @@ main(int argc, char **argv)
                     finam5 |= (word)1 << (toupper((unsigned char)*p) - 'A');
         } else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc)
             out = argv[++i];
+        else if (strcmp(argv[i], "-c") == 0 && i + 1 < argc)
+            irout = argv[++i];
         else
             usage();
         i++;
@@ -63,6 +67,15 @@ main(int argc, char **argv)
         return 1;
     }
 
+    if (irout != NULL) {
+        FILE *f = strcmp(irout, "-") == 0 ? stdout : fopen(irout, "w");
+
+        if (f == NULL) {
+            perror(irout);
+            return 1;
+        }
+        trans_open(f);
+    }
     sem_init();
     if (lexin(files[0]) != 0) {
         fprintf(stderr, "CAN'T FIND FILE: %s\n", files[0]);

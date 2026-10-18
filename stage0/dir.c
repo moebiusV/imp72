@@ -178,6 +178,16 @@ done:
     return buf;
 }
 
+/* DNAME_STR(I,BUF,N): the whole name of entry i, up to n-1 characters. */
+void
+dname_str(word i, char *buf, size_t n)
+{
+    const char *s = fullname(i, n - 1);
+
+    strncpy(buf, s, n - 1);
+    buf[n - 1] = '\0';
+}
+
 /* GNAME(N): the first 24 characters of the name. */
 const char *
 gname(word i)
