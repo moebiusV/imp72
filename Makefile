@@ -8,7 +8,16 @@
 PCCBUILD = build/pcc
 CC1      = $(PCCBUILD)/cc/ccom/cc1
 
-all: $(CC1) stage0
+LIB = build/lib/libimp72.a
+
+all: $(CC1) stage0 $(LIB)
+
+$(LIB): lib/imp72rt.c lib/imp72main.c
+	mkdir -p build/lib
+	cc -std=c99 -Wall -O1 -c -o build/lib/imp72rt.o lib/imp72rt.c
+	cc -std=c99 -Wall -O1 -c -o build/lib/imp72main.o lib/imp72main.c
+	rm -f $(LIB)
+	ar rcs $(LIB) build/lib/imp72rt.o build/lib/imp72main.o
 
 $(CC1):
 	mkdir -p $(PCCBUILD)
@@ -27,6 +36,6 @@ check: all
 
 clean:
 	$(MAKE) -C stage0 clean
-	rm -rf $(PCCBUILD) build/native
+	rm -rf $(PCCBUILD) build/native build/lib
 
 .PHONY: all stage0 check clean

@@ -113,8 +113,12 @@ pcode_chain(word iw)
             continue;
         case 3:
             w2 = FREE(co + iw + 1);
-            fprintf(o, "%6ld          CONST %012lo\n", (long)iw,
-                (long)u36(w2));
+            fprintf(o, "%6ld          CONST %012lo", (long)iw, (long)u36(w2));
+            if (w & MASK18) {
+                fputc(' ', o);
+                pname(w & MASK18);
+            }
+            fputc('\n', o);
             iw += 2;
             continue;
         default:

@@ -160,7 +160,7 @@ sem_init(void)
         /* impsem.imc */
         "LETSYN", "FCON", "ERROR",
         /* code2.imc, code3.imc */
-        "PRINCAL", "PRINPAR", "BYTEP",
+        "BYTEP",
         NULL
     };
     int i;

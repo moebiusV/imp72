@@ -351,6 +351,8 @@ word datast(word b);
 word addr_(word s);
 word coppy(word s);
 word subscript(word s, word t);
+word prinpar(word n, word aa, word b, word c, word d);
+word princal(word a, word b);
 word subcall(word a, word b);
 void copyco(word s);
 word mcode(word s, word t);

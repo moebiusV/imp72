@@ -5,8 +5,10 @@
 #
 # Each FILE.imp is read with the syntax of the compiler (decus/syntax.imc), made
 # into pcc IR by stage 0 (imp72s0), into assembly by cc1 (pass 2 of pcc), and
-# assembled by cc.  -S stops at assembly, -c at the object file (the default
-# output names are FILE.s and FILE.o); the others are for the stage 0 driver.
+# assembled by cc and linked with the runtime library (build/lib/libimp72.a).
+# -S stops at assembly, -c at the object file (the default output names are
+# FILE.s and FILE.o), else an executable FILE is made.  -s gives switches to
+# the stage 0 driver (for listings and dumps).
 #
 # IMP72 passes arguments by reference, so a SUBR is a C function of pointers
 # to its arguments and a C program can call it.  Variables are common symbols.
@@ -15,7 +17,8 @@ root=$(dirname "$here")
 s0=${IMP72S0:-$root/stage0/imp72s0}
 cc1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 syntax=${IMP72SYNTAX:-$root/decus/syntax.imc}
-stop=o out= sw=
+lib=${IMP72LIB:-$root/build/lib/libimp72.a}
+stop=x out= sw=
 while [ $# -gt 0 ]; do
     case $1 in
     -S) stop=S ;;
@@ -42,6 +45,9 @@ fi
 "$cc1" <"$tmp/p.ir" >"$tmp/p.s"
 if [ $stop = S ]; then
     cp "$tmp/p.s" "${out:-$base.s}"
-else
+elif [ $stop = o ]; then
     cc -c -o "${out:-$base.o}" -x assembler "$tmp/p.s"
+else
+    cc -c -o "$tmp/p.o" -x assembler "$tmp/p.s"
+    cc -no-pie -o "${out:-$base}" "$tmp/p.o" "$lib"
 fi

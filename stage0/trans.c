@@ -104,6 +104,7 @@ collect(word iw)
         case 3:
             t = newti();
             t->kind = K_CONST;
+            t->v = w & MASK18;
             t->c = FREE(co + iw + 1);
             iw += 2;
             continue;
@@ -538,6 +539,18 @@ rot:
     }
 }
 
+/* %CALn: a word, tagged in the code, that receives a computed address. */
+static int
+iscal(word v)
+{
+    char buf[16];
+
+    if (v == 0)
+        return 0;
+    dname_str(v, buf, sizeof buf);
+    return strncmp(buf, "%CAL", 4) == 0;
+}
+
 /* the left / right halfword of x, as a number */
 static struct irn *
 lhalf(struct irn *x)
@@ -562,6 +575,13 @@ static void
 halfword(const struct ti *t)
 {
     int n = (int)((t->op - 0500) >> 2), mode = (int)(t->op & 3);
+
+    /* HRRM into a %CAL word stores the whole address */
+    if (t->op == 0542 && t->ac && iscal(t->v) && !t->ix && !t->ind && !t->ra) {
+        usevar(t->v);
+        asg(ir_name(symname(t->v), 0, T_LONG), rv(t->ac));
+        return;
+    }
     int destleft = n < 8, srcleft;
     int ext = (n >> 1) & 3;
     struct irn *src, *dst, *moved, *keep;
@@ -641,6 +661,68 @@ argptr(const struct ti *t)
 }
 
 /*
+ * A call of the print routine, PRN.: the words after it are a print list, each
+ * N << 24 | offset plus the address of the variable named in it (of the %CAL
+ * word that has been given an address).  It becomes a call of imp_pr(n, p)
+ * for each item, a routine of the runtime library that keeps the format.
+ */
+static long
+printcall(long i)
+{
+    long j = i + 1;
+    int res = -1;
+    struct irn *last = NULL;
+
+    while (j < nti && (tis[j].kind == K_CONST || tis[j].kind == K_TAG)) {
+        struct ti *a = &tis[j];
+        word n, off;
+        struct irn *p, *tree;
+
+        j++;
+        if (a->kind == K_TAG)
+            continue;
+        n = 077 & (u36(a->c) >> 24);
+        off = a->c & 0777777;
+        if (a->c & 020000000) {
+            tfail("TRANS: PRINT LIST ITEM THROUGH A POINTER WORD");
+            continue;
+        }
+        if (a->v == 0)
+            p = icon(0);
+        else if (iscal(a->v)) {
+            usevar(a->v);
+            p = ir_name(symname(a->v), 0, T_PLONG);
+        } else {
+            struct ti u;
+
+            memset(&u, 0, sizeof u);
+            u.v = a->v;
+            u.c = off;
+            p = effaddr(&u);
+        }
+        tree = ir_bin(IR_CALL, T_LONG, ir_sym("imp_pr", 0, T_PFTN),
+            ir_bin(IR_CM, T_INT,
+                ir_assign(ir_reg(R_RDI, T_LONG), icon(n)),
+                ir_assign(ir_reg(R_RSI, T_PLONG), p)));
+        if (last != NULL)
+            ir_stmt(last);
+        last = tree;
+    }
+    if (j < nti && tis[j].kind == K_SPEC && tis[j].fn == 2) {
+        if (tis[j].v)
+            res = regtemp(tis[j].v);
+        j++;
+    }
+    if (last != NULL) {
+        if (res >= 0)
+            asg(ir_temp(res, T_LONG), last);
+        else
+            ir_stmt(last);
+    }
+    return j - 1;
+}
+
+/*
  * A call: JSA at index i, then the argument words (JUMP, op 320) and the
  * restore special function that names the register with the result.
  */
@@ -659,6 +741,8 @@ call(long i)
         return i;
     }
     nm = symname(t->v);
+    if (strcmp(nm, "prn_2e") == 0)
+        return printcall(i);
     while (j < nti) {
         struct ti *a = &tis[j];
 
@@ -886,10 +970,10 @@ insn(long i)
 
 /* A subroutine: records [i0, i1). */
 static void
-subr(long i0, long i1)
+subr(long i0, long i1, int ismain)
 {
     long i;
-    word name = tis[i0].v;
+    word name = ismain ? 0 : tis[i0].v;
     int k;
     word maxp = 0;
 
@@ -903,7 +987,7 @@ subr(long i0, long i1)
         if (tis[i].op == 0267 && tis[i].c > maxp)
             maxp = tis[i].c;
     }
-    nparams = (int)maxp;
+    nparams = ismain ? 0 : (int)maxp;
     if (nparams > 6) {
         tfail("TRANS: SUBROUTINE %s HAS MORE THAN 6 PARAMETERS", symname(name));
         return;
@@ -911,7 +995,7 @@ subr(long i0, long i1)
     memset(regtmp, 0, (size_t)nregtmp * sizeof *regtmp);
     ntags = 0;
     pendskip = 0;
-    ir_func_begin(symname(name), 1);
+    ir_func_begin(ismain ? "imp_main" : symname(name), 1);
     retlab = ir_newlabel();
     for (k = 0; k < nparams; k++) {
         paramtmp[k] = ir_newtemp();
@@ -924,7 +1008,7 @@ subr(long i0, long i1)
 
         switch (t->kind) {
         case K_TAG:
-            if (t->v != name)
+            if (ismain || t->v != name)
                 ir_label(taglabel(t->v));
             break;
         case K_SPEC:
@@ -1021,14 +1105,16 @@ trans_unit(word a)
 
         if (entry) {
             if (start >= 0)
-                subr(start, i);
+                subr(start, i, 0);
+            else if (i > 0)
+                subr(0, i, 1);                  /* the main program */
             start = i;
         }
     }
     if (start >= 0)
-        subr(start, nti);
+        subr(start, nti, 0);
     else if (nti > 0)
-        tfail("TRANS: CODE OUTSIDE A SUBROUTINE IS NOT YET TRANSLATED");
+        subr(0, nti, 1);
     emit_data();
     fflush(irfile);
 }

@@ -19,20 +19,19 @@ extended by adding such statements. This project keeps that design.
 
 ## Status
 
-Stage 0, a hand port of the kernel to C, runs:
+IMP72 programs compile to native code and run (amd64 Linux so far):
 
-    cd stage0 && make check
-    ./imp72s0 ../decus/syntax.imc                       # 177 productions
-    ./imp72s0 ../decus/syntax.imc ../decus/impsyn.imc   # 215, with declarations
-    ./imp72s0 -s TSX -o dump.txt ../decus/syntax.imc    # tree, semantics, graph
+    make                                     # cc1 (from pcc), stage 0, runtime
+    tools/imp72c -o hello tests/native/hello.imp && ./hello
+    make check
 
-It reads the whole of the IMP72 syntax file and the syntax the compiler's own
-sources are written in, building the syntax graph, the semantics array and the
-code tree, and executing the declarations in `impsyn.imc`. It does **not**
-compile programs yet: the semantic routines that generate PDP-10 code are
-registered by name but not ported, and calling one stops with
-`SEMANTIC ROUTINE X IS NOT YET PORTED`. Replacing them is the next big step
-(see Roadmap).
+`imp72c` runs stage 0 (a C port of the compiler's kernel, with the original
+syntax file `decus/syntax.imc` unmodified and the original code generator
+ported to produce PDP-10 code chains), translates the chains to pcc IR, and
+lets pcc's pass 2 (`cc1`) produce assembly. Programs of subroutines,
+expressions, loops, conditionals, arrays, calls and `PRINT` work; see
+`docs/internals/codegen-and-translation.md` for what is done and what is not
+(floating point, byte pointers, calling C by value, ...).
 
 Nothing has been compared with output from the original compiler yet; that is
 what the oracle (Roadmap, phase 1) is for. Where this file says the port is
@@ -79,7 +78,10 @@ out.
 
     decus/          the DECUS 10-198 tape directory, unchanged, with hashes
                     (SHA256SUMS, SHA256SUMS.bin) and PROVENANCE.md
-    stage0/         the hand port of the kernel to C99, and its driver
+    stage0/         the hand port of the compiler to C99 (kernel, code generator,
+                    translator to pcc IR), and its driver imp72s0
+    lib/            the runtime library (PRINT, FINI, main)
+    tools/imp72c    compile IMP72 programs to native code
     tests/stage0/   unit tests, and the syntax-file integration test
     docs/           PLAN.md, BUILDING.md, internals/, porting/
     third_party/pcc the pcc back end (a submodule of github moebiusv/pcc)
@@ -274,6 +276,8 @@ be confirmed against the oracle (details in `docs/internals/`):
   graph, parser, error corrector
 - [docs/internals/stage0-semantics.md](docs/internals/stage0-semantics.md):
   semantics, code tree, RSYN, the driver
+- [docs/internals/codegen-and-translation.md](docs/internals/codegen-and-translation.md):
+  the code generator, the translation to pcc IR, the runtime
 - [docs/porting/pcc-notes.md](docs/porting/pcc-notes.md): building and using pcc
 
 ## Provenance and licence

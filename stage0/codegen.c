@@ -921,6 +921,13 @@ fix_(word s)
 {
     word sf = FREE(s);
 
+    /* An entry of no arithmetic type (a subroutine argument) is taken to be
+     * an integer; the original calls the library routine IFIX on it, which
+     * is not ported (there is no floating point yet). */
+    if ((sf & 0300) == 0) {
+        FREES(s, sx36(sf | 0100));
+        return s;
+    }
     if ((sf & 0300) != 0100) {
         if ((sf & 077) == 4) {
             double x;
@@ -967,6 +974,114 @@ datast(word b)
         hook(a, a, dewop(0, 0, b));
     }
     return a;
+}
+
+
+/*
+ * PRINPAR(N,A,B,C,D): process a print list item.  N: 0 an expression, 1 OCT,
+ * 2 IGR, 3 STG, 5 / (new line), 6 FILE (name, extension, project, programmer),
+ * 7 IMAGE MODE, 8 DEVICE, 9 TAB, 10 FILL, 11 FLT m.n.  A is the item's operand
+ * (B, C, D the rest of a FILE).  The result is a funny stack entry with the
+ * code that computes the item in word 2 and, in word 1, the code that enters
+ * it in the print list: constant words after the call of the print routine,
+ *
+ *     value = N << 24 | offset (| 1 << 23 if the address is the contents of
+ *             the variable) plus the address of the variable named in the word.
+ */
+word
+prinpar(word n, word aa, word b, word c, word d)
+{
+    word a = aa, t = enstack(0), i, j, kk, tm = 0, ae = 0, sh, s[3], sa;
+
+    if (n == 5) {
+        tm = ae = 0;
+        goto l8;
+    }
+    if (n == 11) {
+        if ((FREE(a) & 077) == 4 && (FREE(b) & 077) == 4) {
+            FREES(a + 1, sx36((FREE(a + 1) & MASK18) | ((FREE(b + 1) & MASK18) << 18)));
+            FREES(a, FREE(a) & ~(MASK18 << 18) & MASK36);
+            goto ppr1;
+        }
+        i = regof(dewop(0540, areg1(1, 013), a));
+        hook(a, a, dewop(0504, i, b));
+ppr1:
+        ;
+    }
+    a = subarg(t, a);
+    tm = u36(a) >> 18;
+    a &= MASK18;
+    if (tm)
+        ae = 020000000L;
+    else {
+        tm = L18(FREE(a));
+        ae = FREE(a + 1) & MASK18;
+    }
+l8:
+    addcode(t, sx36(0600000000000L | tm), sx36(ae | (n << 24)));
+    if (n != 6)
+        goto l9;
+    s[0] = b;
+    s[1] = c;
+    s[2] = d;
+    for (i = 0; i <= 2; i++) {
+        sa = s[i];
+        if (sa == 0) {
+            tm = ae = 0;
+            goto l10;
+        }
+        sa = subarg(t, sa);
+        tm = u36(sa) >> 18;
+        sa &= MASK18;
+        if (tm) {
+            ae = 020000000L;
+            goto l10;
+        }
+        tm = L18(FREE(sa));
+        ae = FREE(sa + 1) & MASK18;
+        if ((FREE(sa) & 077) == 4) {
+            if (i) {                    /* project, programmer: octal */
+                convc(tm);
+                j = convc_const;
+                sh = 0;
+                tm = 0;
+                ae = 0;
+                while (j) {
+                    kk = j / 10;
+                    if ((kk = j - 10 * kk) > 7)
+                        imp_error(1, "NON-OCTAL PJ OR PN **");
+                    ae |= kk << sh;
+                    sh += 3;
+                    j = j / 10;
+                }
+            }
+            if (tm == 0)
+                tm = stcon(ae);
+            ae = 0;
+        }
+l10:
+        addcode(t, sx36(0600000000000L | tm), sx36(ae | (n << 24)));
+        if (sa)
+            hook(a, sa, a);
+    }
+l9:
+    FREES(a + 1, FREE(t + 2));
+    FREES(a, 4);                        /* so the matcher does not read word 2 */
+    return a;
+}
+
+/* PRINCAL(A,B): add print list item b to the print call a. */
+word
+princal(word a, word b)
+{
+    word c = enstack(0);
+
+    FREES(c + 2, FREE(b + 1));
+    hook(b, b, hook(c, a, c));
+    FREES(b, FREE(a));
+    FREES(b + 1, FREE(a + 1));
+    subpr0(1);
+    return b;
 }
 
 /*
@@ -1060,6 +1175,8 @@ static word w_float(const word *p) { return float_(p[0]); }
 static word w_fix(const word *p) { return fix_(p[0]); }
 static word w_ojumpop(const word *p) { return ojumpop(p[0]); }
 static word w_datast(const word *p) { return datast(p[0]); }
+static word w_prinpar(const word *p) { return prinpar(p[0], p[1], p[2], p[3], p[4]); }
+static word w_princal(const word *p) { return princal(p[0], p[1]); }
 static word w_addr(const word *p) { return addr_(p[0]); }
 static word w_copy(const word *p) { return coppy(p[0]); }
 static word w_subscript(const word *p) { return subscript(p[0], p[1]); }
@@ -1091,6 +1208,8 @@ codegen_init(void)
     dsem("FIX", w_fix);
     dsem("OJUMPOP", w_ojumpop);
     dsem("DATAST", w_datast);
+    dsem("PRINPAR", w_prinpar);
+    dsem("PRINCAL", w_princal);
     dsem("ADDR", w_addr);
     dsem("COPY", w_copy);
     dsem("SUBSCRIPT", w_subscript);
