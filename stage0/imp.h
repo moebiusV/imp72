@@ -233,7 +233,7 @@ static inline word ls36(word x, word n)
 {
     if (n >= 36 || n <= -36)
         return 0;
-    return n >= 0 ? sx36(x << n) : sx36(u36(x) >> -n);
+    return n >= 0 ? sx36((word)((uword)x << n)) : sx36(u36(x) >> -n);
 }
 
 /* ---- sem.c, dosem.c: semantic routines and the semantics array ---------- */
