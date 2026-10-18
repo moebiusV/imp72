@@ -72,7 +72,7 @@ setstk(word n, word a, word b, word c)
 /* ---- PUSHMI-PULLYU ----------------------------------------------------- */
 
 static int pnit;
-static word pstack, stackn;
+static word pdstack, stackn;
 
 void
 pushmi(word v)
@@ -80,9 +80,9 @@ pushmi(word v)
     if (!pnit) {
         pnit = 1;
         stackn = 0;
-        pstack = fallot_new("PSHMI", 20);
+        pdstack = fallot_new("PSHMI", 20);
     }
-    fadd(&pstack, &stackn, v);
+    fadd(&pdstack, &stackn, v);
 }
 
 word
@@ -94,7 +94,7 @@ pullyu(word sw)
         imp_error(0, "** PUSHDOWN STACK UNDERFLOW ERROR");
         return 0;
     }
-    val = FREE(pstack + stackn - 1);
+    val = FREE(pdstack + stackn - 1);
     if (sw == 0) {
         stackn = stackn - 1;
         if (stackn < 0)

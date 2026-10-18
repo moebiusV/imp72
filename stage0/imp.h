@@ -57,7 +57,7 @@ typedef uint64_t uword;
 #define SW_ERRORS      SW_LIST
 #define SW_SEMPER      0x40000L   /* /S  print the semantics array */
 #define SW_TPRINT      0x80000L   /* /T  print the code tree */
-#define SW_GPRINT      0x400000L  /* /W  print the syntax graph */
+#define SW_GPRINT      0x800000L  /* /X  print the syntax graph */
 #define SW_TTYLIST     0x1000000L /* /Y  list source on the terminal */
 #define SW_STATS       0x2000000L /* /Z  count FALLOT calls (FSTATS) */
 
@@ -208,5 +208,121 @@ void pr_nl(void);                     /* / */
 void helpd(void);                     /* HELPD */
 void partr1(word cnode, word ctyp, word cval, word p, word ip, word o, word cw);
 void gprin1(void);                    /* GPRIN1: the graph and its matrices */
+
+/* ---- 36 bit words ------------------------------------------------------ */
+
+/*
+ * SEMS, PROSEM, the code tree, the code stack and the semantic stack keep the
+ * 36 bit formats of the original (so debug.c can print the same octal).  A
+ * word of one of them is a 36 bit two's complement number held sign-extended
+ * in a `word`.  The halves are 18 bits: L18() and R18() take them, W18()
+ * makes a word; sx36() wraps a result to 36 bits, u36() takes the bits.
+ * RS (logical right shift) of such a word is `u36(w) >> n`; ARS is `w >> n`.
+ */
+#define MASK36 ((word)0xFFFFFFFFFL)
+#define MASK18 ((word)0777777L)
+
+static inline word u36(word w) { return w & MASK36; }
+static inline word sx36(word w) { return ((w & MASK36) ^ ((word)1 << 35)) - ((word)1 << 35); }
+static inline word L18(word w) { return (w >> 18) & MASK18; }
+static inline word R18(word w) { return w & MASK18; }
+static inline word W18(word l, word r) { return sx36((l << 18) | (r & MASK18)); }
+/* 1 LS n, and x LS n, in a 36 bit word; a negative n shifts right */
+static inline word ls36(word x, word n)
+{
+    if (n >= 36 || n <= -36)
+        return 0;
+    return n >= 0 ? sx36(x << n) : sx36(u36(x) >> -n);
+}
+
+/* ---- sem.c, dosem.c: semantic routines and the semantics array ---------- */
+
+/*
+ * A semantic routine is called by DOSEM with the words it was given, as
+ * `fn(p)`: p[0], p[1], ... are its arguments (p has room for MARGS = 10; what
+ * is beyond the count passed is left over from earlier calls, as in the
+ * original).  The routine's address in the original is its id here: 1 + its
+ * slot in a table, kept as the 'SEM' property of its name.
+ */
+typedef word (*semfn)(const word *p);
+void dsem(const char *name, semfn fn);         /* DSEM */
+word semcall(word id, const word *pars);
+void sem_init(void);                           /* register the routines */
+
+#define MARGS 10
+
+/* dosem.c */
+word dosem(word ppo);
+word setsem(word ty, word val);
+void resetsem(word val, word a);
+word semfix(word i, word a);
+word semfx1(word i, word a, word na);
+void docase(word id, word semn, word prodn);
+void enprod(word pn, word no, word sem);
+word matchp(word pn, word n);
+void noteprod(word pn, word n);
+word plies(word i);
+word snoden(word i);
+word enstack(word v);
+word snarg(word n);
+word semget(word n);
+word semed(word a);
+void semor(word a, word n);
+word cksval(word v, word i);
+word par(word i);
+void semper(void);
+void sempr1(word sems, word prosem, word nsems);
+void pstac1(word s, word n);
+word synarg(word i);                           /* SYNARG (rsyn.c) */
+extern word sems, nsems, prosem, nprosem, scratch;
+extern word entries;                           /* ENTRIES (cotree.c sets it) */
+
+/* entree.c */
+word entree(word s, word cs, word sr, word pn);
+word match(word tn, word sn, word snonr);
+void entrca(word semn);
+void tprint(void);
+void tprin1(void);
+extern word ct, nct, noden, sbitm[3];
+word tscr(word n);
+word talt(word n);
+word tnoden(word n);
+
+/* cotree.c */
+word cotree(word ss);
+void cfudge(void);
+void codent(word a, word b, word c, word f);
+void ckdone(void);
+word maxwell(word n);
+word maxend(word a);
+word setpri(word a);
+word sameas(word sn, word k);
+void pstack(word s, word n);
+extern word cs, ncs;
+
+/* rsyn.c */
+void rsyn(void);
+word synt(word a, word b);
+word sytrm(word a);
+word synts(word n);
+word semantics(void);
+word syntax(word n);
+word semr(word a, word b);
+word semp(word a, word b);
+word quosem(word a);
+word equose(word a);
+word defcase(word n);
+word docase_(word a, word f);
+word sembit(word a);
+word repval(word s, word a);
+word valu(word n, word s);
+
+/* sem.c: the semantic routines of impsem.imc and code2.imc that syntax
+ * statements use when they are read */
+word newlist(word s);
+word enlist(word s);
+word getlist(word s);
+word hook(word d, word a, word b);
+word assemc(word a);
 
 #endif

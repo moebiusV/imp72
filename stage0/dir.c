@@ -29,8 +29,6 @@ static long dm, dn;                 /* DM, DN: buckets used; overflow nodes */
 static word nmark = -1;             /* NMARK (DSEQ) */
 static word newnum;                 /* NEWNUM */
 
-#define MASK36 ((word)0xFFFFFFFFFLL)
-
 /* DORGFIX: recompute pointers derived from PRP.  Here nothing is derived
  * (dprop() reads through `prp`), so it does nothing. */
 static void

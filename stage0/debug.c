@@ -203,3 +203,216 @@ partr1(word cnode, word ctyp, word cval, word p, word ip, word o, word cw)
         }
     }
 }
+
+/*
+ * TPRIN1: print the code tree and its bit matrix.  Each node: its index, SCR,
+ * ALT, the special field, the type of the stuff word, the node number, the
+ * stuff word in octal, and a gloss of it.
+ *
+ * The matrix is printed 75 columns at a time.  The original's width is
+ * 36 * (1 + SBITM[2]) columns for its 36 bit words; here the matrix has
+ * 64 bit words, so the number of columns printed is 36 * the number of 36 bit
+ * words that would hold the columns of this matrix, at least 5.
+ */
+void
+tprin1(void)
+{
+    FILE *o = imp_out();
+    word j = 0, kvv, kt, kv, n, t, i, k, cols;
+
+    pr_stg(0, "** CODE GENERATION TREE:");
+    pr_nl();
+    pr_stg(0, "NODE SCR ALT PDN TY NR");
+    pr_nl();
+    for (;;) {
+        j++;
+        if (j >= nct)
+            break;
+        kvv = FREE(ct + j + 1);
+        pr_igr(4, j);
+        pr_igr(4, tscr(j));
+        pr_igr(4, talt(j));
+        pr_igr(4, FREE(ct + j - 1));
+        pr_igr(3, u36(kvv) >> 33);
+        pr_igr(3, tnoden(j));
+        pr_oct(15, kvv);
+        kt = u36(kvv) >> 33;
+        j += 2;
+        if (kt == 1) {
+            if ((u36(kvv) & 017600000000L) == 0) {
+                if ((u36(kvv) & 02000000L) == 0) {
+                    pr_stg(0, "  [");
+                    pr_oct(0, kvv & MASK18);
+                    pr_stg(0, "]");
+                } else {
+                    pr_stg(0, "  <");
+                    pr_oct(0, kvv & MASK18);
+                    pr_stg(0, ">");
+                }
+                pr_nl();
+                continue;
+            }
+            if ((u36(kvv) & 020000000000L) == 0)
+                pr_stg(0, " FLT ");
+            if ((u36(kvv) & 040000000000L) == 0)
+                pr_stg(0, " IGR ");
+            if ((3 & (u36(kvv) >> 31)) == 3)
+                pr_stg(0, "     ");
+            pr_stg(0, (u36(kvv) & 010000000000L) ? "W" : " ");
+            pr_stg(0, (u36(kvv) & 004000000000L) ? "S" : " ");
+            pr_stg(0, (u36(kvv) & 002000000000L) ? "V" : " ");
+            pr_stg(0, (u36(kvv) & 001000000000L) ? "C" : " ");
+            pr_stg(0, (u36(kvv) & 000400000000L) ? "R" : " ");
+            pr_stg(0, (u36(kvv) & 000200000000L) ? "N" : " ");
+            pr_stg(0, "  ");
+            pr_oct(2, 037 & (u36(kvv) >> 20));
+            pr_stg(1, " ");
+            pr_oct(2, 037 & (u36(kvv) >> 15));
+            pr_stg(1, " ");
+            pr_oct(3, 0177 & (u36(kvv) >> 8));
+            pr_stg(1, " ");
+            pr_oct(3, 0377 & u36(kvv));
+            pr_nl();
+            continue;
+        }
+        if (kt == 3) {
+            kv = kvv & MASK18;
+            pr_stg(1, " ");
+            pname(kv);
+            if (u36(kvv) & 01000000L) {
+                kv = FREE(ct + j);
+                j++;
+                pr_oct(13, kv);
+            }
+            pr_nl();
+            continue;
+        }
+        pr_stg(2, " ");
+        pr_oct(5, kvv & MASK18);
+        pr_nl();
+    }
+    pr_stg(0, "CODE TREE BIT MATRIX:");
+    pr_nl();
+    pr_nl();
+    cols = (64 * (sbitm[2] + 1) + 35) / 36;
+    if (cols < 5)
+        cols = 5;
+    n = 36 * cols;
+    j = 0;
+    do {
+        t = j + 74;
+        if (t > n)
+            t = n;
+        pr_stg(5, " ");
+        pr_igr(6, 0);
+        for (k = j + 4; k <= t; k += 5) {
+            fprintf(o, "%6ld", (long)k);
+        }
+        pr_nl();
+        for (i = 0; i <= noden; i++) {
+            pr_igr(3, i);
+            pr_stg(2, " ");
+            for (k = j; k <= t; k++) {
+                if (k % 5 == 0)
+                    pr_stg(1, " ");
+                pr_igr(1, bit(sbitm, i, k) != 0 ? 1 : 0);
+            }
+            pr_nl();
+        }
+        pr_nl();
+        j += 75;
+    } while (t != n);
+}
+
+/*
+ * SEMPR1: print the semantics array: each production's header with its
+ * plies, snode number and the list of terminal nodes it matches, then the
+ * words of SEMS in octal, five to a line.
+ */
+void
+sempr1(word sems_, word prosem_, word nsems_)
+{
+    word k, j, l, nn = 0, lln, k1, n;
+
+    pr_nl();
+    pr_stg(0, "*** SEMANTICS ***");
+    pr_nl();
+    for (k = 1; k <= nsems_ - 1 || k == 1; k++) {
+        j = FREE(sems_ + k);
+        if ((u36(j) >> 30) == 0) {
+            if (nn)
+                pr_nl();
+            nn = 0;
+            pr_stg(1, "[");
+            pr_oct(4, k);
+            pr_stg(1, "]  ");
+            if ((l = j & MASK18)) {
+                pr_stg(0, " PLIES:");
+                pr_oct(0, FREE(prosem_ + l));
+                pr_stg(0, ",#");
+                pr_igr(0, FREE(prosem_ + l + 2));
+                l = FREE(prosem_ + l + 1);
+                lln = 0;
+                while (l) {
+                    if (++lln > 5) {
+                        lln = 1;
+                        pr_nl();
+                        pr_stg(12, " ");
+                    }
+                    k1 = FREE(prosem_ + l);
+                    pr_stg(0, " <");
+                    pr_oct(0, L18(k1));
+                    pr_stg(0, "/");
+                    n = FREE(prosem_ + l + 1);
+                    if (L18(n)) {
+                        pr_oct(0, L18(n));
+                        pr_stg(0, "_");
+                    }
+                    pr_oct(0, n & MASK18);
+                    pr_stg(0, ">");
+                    l = k1 & MASK18;
+                }
+                nn = 5;
+            }
+        }
+        if (++nn == 6) {
+            nn = 1;
+            pr_nl();
+            pr_stg(6, " ");
+        }
+        pr_stg(2, " ");
+        pr_oct(12, j);
+    }
+    pr_nl();
+}
+
+/* PSTAC1(S,N): print the stack entry at offset n of the stack at s. */
+void
+pstac1(word s, word n)
+{
+    word ss = FREE(s + n), t;
+
+    pr_stg(0, "STACK NODE ");
+    pr_igr(0, n);
+    pr_stg(0, ", TYPE ");
+    pr_oct(2, 077 & ss);
+    if ((077 & ss) == 0) {
+        pr_stg(0, " [");
+        pr_oct(0, L18(ss));
+        pr_stg(0, "]");
+    } else {
+        if ((t = L18(ss))) {
+            pr_stg(0, ", NAME ");
+            pname(t);
+        }
+        if (ss & 0100)
+            pr_stg(0, ", IGR");
+        if (ss & 0200)
+            pr_stg(0, ", REAL");
+    }
+    if ((t = FREE(s + n + 1))) {
+        pr_stg(0, ", VALUE ");
+        pr_oct(12, t);
+    }
+    pr_nl();
+}

@@ -41,9 +41,9 @@ imp_error(int n, const char *e)
     if (e != NULL) {
         const char *pre = n < 2 ? "** ERROR - " : n == 2 ? "** ADVISORY - " : "";
 
-        fputs(pre, stderr);
-        fprintf(imp_out(), "%s%s\n", pre, e);
-        imp_msg(e);
+        fprintf(stderr, "%s%s\n", pre, e);        /* the terminal */
+        if (listing != NULL)
+            fprintf(listing, "%s%s\n", pre, e);  /* and the listing file */
     }
     imp_err = -1;
     if (n == 0) {
