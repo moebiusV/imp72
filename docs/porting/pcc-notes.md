@@ -23,3 +23,17 @@ compiles with pcc.
 
 These go on the to-do list for the project's own build: carry minimal
 headers, or build pcc-libs as part of `third_party`.
+
+## musl
+
+pcc works with musl. With `musl` and `musl-dev` unpacked (not installed) from
+Debian into a private directory, `pcc -nostdinc -I<musl>/usr/include/x86_64-linux-musl`
+compiles all of `stage0/` and its tests with none of the stand-in headers
+above and without `-D__NO_INLINE__` (musl ships its own `stddef.h` and
+`stdarg.h`), and a plain `ld -static` of `crt1.o crti.o <objects> libc.a crtn.o`
+gives static executables that pass every test. No gcc is involved in compiling
+or linking.
+
+## Linking against glibc
+
+pcc emits non-PIC code, so link its objects with `cc -no-pie`.

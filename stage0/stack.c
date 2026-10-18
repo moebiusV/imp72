@@ -154,14 +154,18 @@ bits(word a[3], word i, word j)
     FREES(s, (word)((uword)FREE(s) | ((uword)1 << (j - WORDBITS * col))));
 }
 
-/* BIT(A,I,J): nonzero iff bit (i,j) is set.  No bounds check, as in the
- * original (its bounds-checking version is commented out). */
+/* BIT(A,I,J): nonzero iff bit (i,j) is set.  The BIT of impsyn.imc, which is
+ * what the compiler uses, does not check its indices and reads whatever lies
+ * beyond the matrix; the checking version in stack.imc is commented out.
+ * Here out-of-range bits read as zero, as in that version. */
 word
 bit(const word a[3], word i, word j)
 {
     word col = j / WORDBITS;
 
     qbit++;
+    if (i < 0 || i >= a[1] || col > a[2])
+        return 0;
     return (word)((uword)FREE(a[0] + i + a[1] * col)
         & ((uword)1 << (j - WORDBITS * col)));
 }

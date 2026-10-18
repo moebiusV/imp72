@@ -1,5 +1,7 @@
 # Stage 0, part 1: free storage, stack, directory, lexer
 
+(Part 2, the parser, is in `stage0-parser.md`.)
+
 Ports of `free.imc`, `stack.imc`, `dir.imc` and `lex.imc` to C99 in `stage0/`.
 `make -C stage0 check` runs the unit tests in `tests/stage0/`.
 
@@ -42,8 +44,10 @@ else "FREE STORAGE EXHAUSTED".
 ## stack.c (stack.imc)
 
 Unchanged in structure. Bit matrices hold 64 bits per word, so
-`bit(i,j)` is bit `j%64` of word `i + rows*(j/64)`; `bit` has no bounds check,
-as in the original.
+`bit(i,j)` is bit `j%64` of word `i + rows*(j/64)`. `bit` checks its
+indices and reads 0 outside the matrix (the version in `stack.imc`, which is
+commented out; the one the compiler uses, from `impsyn.imc`, does not check and
+reads whatever lies beyond).
 
 ## dir.c (dir.imc)
 

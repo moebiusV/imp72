@@ -45,8 +45,10 @@ typedef uint64_t uword;
  * (/A is bit 0).  Only the bits the kernel looks at are named.
  */
 #define SW_ASSEMBLY    0x1L       /* /A  assembly listing */
+#define SW_GTRACE      0x10L      /* /E  trace productions entered in the graph */
 #define SW_CONTINUE    0x4L       /* /C  compile another file after this one */
 #define SW_FMAP        0x20L      /* /F  trace free storage, print its map */
+#define SW_PTRACE      0x40L      /* /G  trace the parser and error corrector */
 #define SW_HELP        0x80L      /* /H */
 #define SW_DSPILL      0x100L     /* /I  print the directory after hashing */
 /* ERROR sets the /L bit (4000B) so that source lines are listed from the
@@ -72,8 +74,13 @@ void imp_fatal_handler(void (*fn)(void));  /* where a fatal error unwinds to */
 
 extern word *fmem;                /* [FORG+...]: the free storage area */
 
-#define FREE(a)    (fmem[(a)])
-#define FREES(a,v) (fmem[(a)] = (v))
+/*
+ * FREE and FREES are functions, not macros: `FREES(a, f())` with an f that
+ * allocates must not use the `fmem` it loaded before the call.
+ */
+static inline word FREE(word a) { return fmem[a]; }
+static inline void FREES(word a, word v) { fmem[a] = v; }
+static inline word *freep(word a) { return &fmem[a]; }
 
 word fpackname(const char *name);          /* header word 1 for an array name */
 word flen(word a);                         /* FLEN: array length */
@@ -145,5 +152,45 @@ int lexin(const char *path);               /* LEXIN: 0 ok, -1 can't open */
 word lex(word *s);                         /* LEX: sets *s to the token's
                                               directory index, returns IC */
 void pline1(word ol);
+
+/* ---- graph.c: the syntax graph (graph.imc) ----------------------------- */
+
+#define NS 2                                   /* words in a graph node */
+
+word graph(word synt, word nsynt, word pnq);   /* GRAPH: enter a production */
+word gmatr(word tfl);                          /* GMATR: remake NBITM */
+word ggoal(word nt);
+word gtype(word n);
+word gval(word n);
+word gnb(word n);
+word scr(word n);
+word alt(word n);
+word gentry(void);
+word gconn(word q, word qgoal);
+word gmade(word q, word qgoal);
+word galt(word q, word qgoal);
+word gnext(word q, word qgoal);
+word gleap(word nt, word no);
+word gnt2t(word nt, word *ni, word gl);
+word gnt2tx(word nt, word *ni, word gl);
+void gpout1(word cnode, word nnode, word put);
+void gpout2(word cnode, word goal, word put);
+void graphf(void);
+void gprint(void);
+extern word ga, ng, nprods;                    /* GA, NG, NPRODS */
+extern void (*gprint_hook)(void);              /* GPRIN1, when linked in */
+long imp_msec(void);                           /* CALLI(27B,0): run time, ms */
+
+/* ---- parse.c, ercor.c: the Irons parser (parse.imc, ercor.imc) ---------- */
+
+word parse(const char *goal);                  /* PARSE */
+void pforce(word sy);                          /* insert a symbol in the input */
+word pout(word qq, word vv);                   /* POUT: output vv on parse qq */
+word isname(word s);                           /* ISNAME */
+word ercor(word op, word np, word ss);         /* ERCOR */
+void ambig(word p, word *np, word *pn, word o, word tr);
+void pstats(void);
+void parsef(void);                             /* PARSEF */
+extern void (*parse_cotree)(word k);           /* COTREE: gets each output */
 
 #endif

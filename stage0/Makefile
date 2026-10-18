@@ -2,9 +2,9 @@
 CC      = cc
 CFLAGS  = -std=c99 -O1 -g -Wall -Wextra -pedantic
 AR      = ar
-OBJS    = error.o free.o stack.o dir.o lex.o
+OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o
 TESTDIR = ../tests/stage0
-TESTS   = test_free test_stack test_dir test_lex
+TESTS   = test_free test_stack test_dir test_lex test_parse
 
 all: libstage0.a
 
@@ -27,6 +27,9 @@ test_dir: $(TESTDIR)/test_dir.c libstage0.a
 	$(CC) $(CFLAGS) -I. -o $@ $(TESTDIR)/test_dir.c libstage0.a
 test_lex: $(TESTDIR)/test_lex.c libstage0.a
 	$(CC) $(CFLAGS) -I. -o $@ $(TESTDIR)/test_lex.c libstage0.a
+
+test_parse: $(TESTDIR)/test_parse.c libstage0.a
+	$(CC) $(CFLAGS) -I. -o $@ $(TESTDIR)/test_parse.c libstage0.a
 
 clean:
 	rm -f $(OBJS) libstage0.a $(TESTS)

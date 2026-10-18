@@ -35,7 +35,8 @@ main(void)
         for (j = 0; j < 500; j += 11)
             bits(a, i, j);
     CHECK(a[1] >= 295 && a[2] == 7);
-    for (i = 0; i < a[1]; i++)      /* bit() has no bounds check */
+    CHECK(bit(a, a[1], 0) == 0 && bit(a, 0, 64 * (a[2] + 1)) == 0);
+    for (i = 0; i < a[1]; i++)
         for (j = 0; j < 64 * (a[2] + 1); j++) {
             int want = (i % 7 == 0 && i < 300) && (j % 11 == 0 && j < 500);
             if ((bit(a, i, j) != 0) != want) { CHECK(0); goto out; }
