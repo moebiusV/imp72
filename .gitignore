@@ -1,3 +1,6 @@
 build/
 *.o
 *.a
+stage0/test_*
+!stage0/test_*.c
+stage0/*.tmp
