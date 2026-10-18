@@ -22,7 +22,7 @@ pcc (github `moebiusv/pcc`, already at `~/claude/pcc`) is the code generator.
 
 | Topic | Decision |
 |---|---|
-| Stage-0 language | **Strict ISO C99**, linked **in-process** with pcc's `mip/` and `arch/` objects (the f77 precedent). Stage 0 and `backend/` must **compile with pcc itself**: no GNU extensions, no C11+, only `<stdint.h>`/`<stdio.h>`-level libc. CI builds stage 0 twice, with the host cc and with pcc (`-std=c99 -pedantic` on the host). The whole toolchain then depends only on pcc |
+| Stage-0 language | **C99 (plus GNU extensions pcc accepts)**, linked **in-process** with pcc's `mip/` and `arch/` objects (the f77 precedent). Stage 0 and `backend/` must **compile with pcc itself**. GNU extensions are allowed, but only ones pcc accepts (CI is the arbiter); nothing from C11 on. CI builds stage 0 twice, with the host cc and with pcc. The whole toolchain then depends only on pcc |
 | Word model | **64-bit word (`int64_t`), byte addresses.** `A[i]` scales by 8. Strings are NUL-terminated bytes. The compiler's own IMP sources get a documented port that removes the 36-bit idioms |
 | pcc interface | **IR, not AST: pcc pass-2 `NODE` trees in `struct interpass`, fed to `pass2_compile()`** (rationale below) |
 | Targets | pcc: amd64 and aarch64 ELF (Linux, FreeBSD, NetBSD, OpenBSD), amd64 Mach-O (macOS). **C-emitting fallback back end** from the same IR: macOS arm64 and any other host |

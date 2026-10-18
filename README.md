@@ -7,4 +7,4 @@ Status: Phase 0 (repository and provenance). The plan is in `docs/PLAN.md`.
 
 - `decus/`: the original tape, unchanged, with hashes and attribution.
 - `third_party/pcc`: the pcc back end (submodule, github `moebiusv/pcc`).
-- Stage 0 is strict ISO C99 so that pcc can compile it.
+- Stage 0 is C99, with GNU extensions allowed only where pcc compiles them.
