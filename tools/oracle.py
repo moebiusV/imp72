@@ -7,13 +7,15 @@ A command is sent as a line and the reply is read up to the next monitor prompt
 ("." at the start of a line) unless it begins with "!" (send the text raw, no wait).
 Library use: Session().cmd("DIR") returns the text.
 """
-import re, socket, sys, time
+import os, re, socket, sys, time
 
 IAC, DONT, DO, WONT, WILL, SB, SE = 255, 254, 253, 252, 251, 250, 240
 
 
 class Session:
-    def __init__(self, port=10603, user="100,100", password="demo1", timeout=120):
+    def __init__(self, port=10603, user=None, password=None, timeout=120):
+        user = user or os.environ.get("ORACLE_USER", "100,100")           # the KA10 disk's account;
+        password = password or os.environ.get("ORACLE_PASS", "demo1")    # the KI10 disk's is 1,2 / FAILSA
         self.port, self.timeout = port, timeout
         for attempt in range(8):            # a line just hung up may not be free yet
             try:

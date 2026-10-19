@@ -186,38 +186,137 @@ field(const char *s, long w, int zero)
     put(s, n);
 }
 
-/* a real: fixed notation if it fits, else the scientific form with " for
- * 'times ten to the' */
+/*
+ * A real, as the original's PMOD prints it (read off the original running: docs/ORACLE.md):
+ *
+ *  - no 0 before the point: .5, -.25; with n = 0 no point, and nothing at all for an
+ *    integer part of 0 (just the sign of a negative number);
+ *  - digits are rounded half up from the exact decimal value of the number;
+ *  - fixed notation is used when the unsigned text and two more columns fit in the field
+ *    (always when the width is 0); otherwise the number is written as .ddd"e (the " is
+ *    'times ten to the'; the mantissa is a fraction from .1 up, the exponent has no sign
+ *    when positive and no leading zeros), with w-7 digits, padded to w; a field narrower
+ *    than 9 gets two digits and no padding;
+ *  - a negative width is the scientific form always, in -m columns, with n+1 digits;
+ *  - a carry out of the digits of the scientific form is dropped (99999.5 is .99999"5).
+ *
+ * The original works in 27 bit single precision and its digits for numbers that are not
+ * exact in binary (0.001, 12345678.0) differ in the last places: not reproduced.
+ */
+#define NDIG 41
+
+/* the exact decimal digits of ax: value = 0.d[0]d[1]... * 10^*e */
+static void
+decdigits(double ax, char *d, int *e)
+{
+    char buf[64];
+
+    if (ax == 0) {
+        memset(d, '0', NDIG);
+        d[NDIG] = '\0';
+        *e = 0;
+        return;
+    }
+    snprintf(buf, sizeof buf, "%.*e", NDIG - 1, ax);    /* d.ddd...e+XX */
+    d[0] = buf[0];
+    memcpy(d + 1, buf + 2, NDIG - 1);
+    d[NDIG] = '\0';
+    *e = atoi(strchr(buf, 'e') + 1) + 1;
+}
+
+/* keep the first k digits of d, rounded half up; 1 if that carried out of the front */
+static int
+roundk(char *d, int k)
+{
+    int i, carry;
+
+    if (k < 0) {
+        d[0] = '\0';
+        return 0;
+    }
+    carry = d[k] >= '5';
+    d[k] = '\0';
+    for (i = k - 1; i >= 0 && carry; i--) {
+        if (d[i] == '9')
+            d[i] = '0';
+        else {
+            d[i]++;
+            carry = 0;
+        }
+    }
+    return carry;
+}
+
 static void
 printflt(double x, long m, long n)
 {
-    char buf[128], sci[128];
-    int p, neg = x < 0;
+    char d[NDIG + 1], r[NDIG + 8], txt[256];
+    int e, carry, neg = x < 0, len;
     long w = m < 0 ? -m : m;
 
-    snprintf(buf, sizeof buf, "%.*f", (int)n, x);
-    if (m > 0 && (long)strlen(buf) <= m) {
-        field(buf, m, 0);
-        return;
-    }
-    if (m == 0) {
-        field(buf, 0, 0);
-        return;
-    }
-    /* scientific: as many digits as fit in w columns */
-    for (p = 12; p >= 0; p--) {
-        char *e;
-        int ex;
+    decdigits(fabs(x), d, &e);
+    if (m >= 0) {
+        int k = e + (int)n;
+        char *lead;
 
-        snprintf(sci, sizeof sci, "%.*e", p, x);
-        e = strchr(sci, 'e');
-        ex = atoi(e + 1);
-        snprintf(e, sizeof sci - (size_t)(e - sci), "\"%d", ex);
-        if ((long)strlen(sci) <= w || p == 0)
-            break;
+        /* r: the digits of |x| * 10^n rounded to an integer, without leading zeros */
+        if (k < 0)
+            r[0] = '\0', carry = 0;
+        else {
+            strcpy(r + 1, d);
+            carry = roundk(r + 1, k);
+            r[0] = '1';
+        }
+        lead = r + (carry ? 0 : 1);
+        if (k < 0)
+            lead = r;
+        else if (k == 0 && carry)
+            strcpy(r, "1"), lead = r;
+        while (*lead == '0')
+            lead++;
+        len = (int)strlen(lead);
+        {
+            char *q = txt;
+            int ni = len - (int)n, i;
+
+            if (ni > 0) {
+                memcpy(q, lead, (size_t)ni);
+                q += ni;
+            }
+            if (n > 0) {
+                *q++ = '.';
+                for (i = 0; i < n; i++) {
+                    int idx = ni + i;           /* index into lead; before its start: a zero */
+
+                    *q++ = idx >= 0 ? lead[idx] : '0';
+                }
+            }
+            *q = '\0';
+        }
+        if (m == 0 || (long)strlen(txt) + 2 <= m) {
+            char out[300];
+
+            snprintf(out, sizeof out, "%s%s", neg ? "-" : "", txt);
+            field(out, m, 0);
+            return;
+        }
     }
-    (void)neg;
-    field(sci, w, 0);
+    {
+        int pad = 1, dg = m < 0 ? (int)n + 1 : (int)(w - 7);
+
+        if (dg < 2)                             /* a field too narrow for any good form: two digits, unpadded */
+            dg = 2, pad = 0;
+        char out[300];
+
+        if (dg > NDIG - 2)
+            dg = NDIG - 2;
+        if (roundk(d, dg)) {                    /* the carry is dropped: all nines */
+            memset(d, '9', (size_t)dg);
+            d[dg] = '\0';
+        }
+        snprintf(out, sizeof out, "%s.%s\"%d", neg ? "-" : "", d, e);
+        field(out, pad ? w : 0, 0);
+    }
 }
 
 long
