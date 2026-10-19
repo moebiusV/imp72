@@ -51,6 +51,31 @@ imp72stage0 and compares with the stored goldens.
   `EX X.REL,/LIBRARY,IMPLIB.LIB,SYS:FORLIB/LIBRARY`.
 - **hello, algo and features give the same output as imp72stage0**, byte for byte.
 
+## Differential fuzzing
+
+`tools/oracle-fuzz.sh SEED COUNT` writes random programs (`tools/imp-fuzz.py`: integer
+expressions; `GEN=imp-fuzz2.py`: subroutines, arrays, loops, conditionals), runs them on the
+original and on imp72stage0, and reports the programs whose output differs. The programs keep
+their values small and shift only non-negative values, so the 36 bit original and the 64 bit
+port must agree. `tools/imp-trace.py` adds a PRINT of the variables after every statement of
+every SUBR, to find the statement where the two part. It found, in the port:
+
+- constant-folded comparisons gave 1 for true (IMP's true is -1);
+- the conditional case of `CONOP` (a constant condition) copied two of the three words of the
+  chosen arm, and a one-armed conditional on a constant took the wrong branch;
+- `PRINT` of an element such as `V[I]`, whose address an `HRRM` patches into the argument
+  word, printed nothing.
+
+Things in the original that the fuzzer taught us to leave alone:
+
+- A constant passed as an argument is a word of the literal pool (shared with every other use
+  of that value), and a `0` is address 0: assigning to such a parameter changes the
+  constant for the whole program, or, for 0, overwrites the first instruction and the program
+  stops with `?Illegal UUO`. The fuzzer never assigns to a parameter.
+- The monitor folds a line longer than the terminal width (72) when it is typed; the runner
+  sets `TTY WIDTH 200`.
+- Output is lost when a program stops without `FINI(0)`.
+
 ## Limits
 
 - **KA10 has no floating conversion instructions** (`FLTR` and friends came with the KI10), so

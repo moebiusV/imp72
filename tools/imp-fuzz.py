@@ -43,7 +43,15 @@ def expr(r, depth):
         return "((%s AND 255) LS %d)" % (a, r.randint(0, 8))
     if k < 0.90:
         return "((%s AND 1023) RS %d)" % (a, r.randint(0, 9))
-    if k < 0.96:
+    if k < 0.93:
+        return "(NOT %s)" % a
+    if k < 0.945:
+        return "(%s ARS %d)" % (a, r.randint(0, 6))
+    if k < 0.955:
+        return "((%s AND 255) ALS %d)" % (a, r.randint(0, 6))
+    if k < 0.965:
+        return "((%s AND 255) LROT %d)" % (a, r.randint(0, 8))
+    if k < 0.975:
         return "(%s %s %s=>%s ELSE %s)" % (a, r.choice(REL), b, expr(r, depth - 1), expr(r, depth - 1))
     return "(0-%s)" % a
 
