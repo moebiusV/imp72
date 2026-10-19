@@ -31,7 +31,10 @@ ported to produce PDP-10 code chains), translates the chains to pcc IR, and
 lets pcc's pass 2 (`cc1`) produce assembly. Programs of subroutines,
 expressions, loops, conditionals, arrays, calls and `PRINT` work; see
 `docs/internals/codegen-and-translation.md` for what is done and what is not
-(floating point, byte pointers, calling C by value, ...).
+(calling C by value, I/O, ...). Byte fields and pointers, `BLT`, computed
+`GO TO`, `DATA`, more than six arguments and floating point work, and
+`tools/survey.sh` shows 18 of the 19 modules of the compiler's own sources
+translating.
 
 Nothing has been compared with output from the original compiler yet; that is
 what the oracle (Roadmap, phase 1) is for. Where this file says the port is

@@ -28,7 +28,7 @@ syntax file as it is.
 Changes to the original routines: no halfword constant idioms in `DEWOP`
 (`HRROI`, `HRLZI` and `HRLOI` load constants by 18 bit halves; constants go
 through the pool); `FIX` takes an argument of no arithmetic type as an integer
-(the original calls `IFIX`; there is no floating point yet); `HOOK`,
+(the original calls `IFIX`); `FIX` of a real calls the runtime `ifix`; `HOOK`,
 `MATCH` as noted in `stage0-semantics.md`.
 
 ## Translation (`trans.c`)
@@ -77,10 +77,44 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
 `FINI(0)` is `fini`. A computed operand's address goes through a `%CALn` word
 (an `HRRM` into it stores the whole address).
 
+## Language features beyond the basics
+
+- **Byte fields** `A<S,P>` (size S, P bits from the right): a shift and mask,
+  with S and P constants or variables. `BYTEP` makes a descriptor
+  (`bytedescs` in `codegen.c`); read as a value it is a one-word byte pointer:
+  bits 63-58 size, 57-52 position, low 52 bits the byte address. `<X>`, `<+X>`,
+  `LDB`/`DPB`/`IBP`/`ILDB`/`IDPB` work through such a word. Stepping moves to the
+  next lower field, or to the next word (address + 8) when there is no room, as
+  on the PDP-10 but with 64 bits in the word.
+- **Variable shifts:** pcc's amd64 table takes a variable shift count only as
+  an unsigned char, in a tree with one variable shift and a temp as the
+  operand, so `shiftop` (`trans.c`) goes through temps.
+- **Computed `GO TO (L0,L1,...) N`:** `JRST table(N)` followed by the table of
+  `JRST` words becomes a chain of compares.
+- **`BLT`** (`MOVE B THROUGH N TO A`): `HRLI`/`HRRI` also leave the whole
+  addresses in shadow temps, as a 32-bit half cannot hold a pointer; `BLT`
+  calls `imp_blt` (`memmove`).
+- **`DATA` words** (a tag followed by constants in the code) become initialised
+  data named for the tag.
+- **More than 6 arguments:** the extra pointers go in the outgoing stack area
+  (an assignment to `0(%rsp)+8k` in the call's list, which pcc reserves), and
+  the callee reads them at `16(%rbp)+8k`.
+- **Reals** are IEEE doubles in a word. `FLOAT` is `FSC ac,233` (int to double),
+  `FADR`/`FSBR`/`FMPR`/`FDVR` go through the scratch word `imp_fs`, floating
+  constants (`FCON`, which uses `strtod` where the original sums digits in REAL
+  arithmetic) are pooled whole. Comparison of reals still compares the bits as
+  integers, which is wrong for negative reals.
+- **`CALLI`** goes to `imp_calli` in the runtime (a few calls: exit, time).
+
+## Survey
+
+`tools/survey.sh` runs every module of the tape through stage 0. All but
+`impm` (the system dependent module, which writes TOPS-10 UUOs as inline
+`DATA`) translate.
+
 ## Not done yet
 
-Floating point (`REAL`, `FLOAT`/`FIX` of non-constants); byte pointers
-(`<s,p>` fields, `<+P>`, `BYTEP`); `BLT` (`MOVE ... THROUGH`); `XCT`; `DATA`
-and `REMOTE`; more than 6 parameters; calling C functions with arguments by
-value; `LET`, `CALLI` and the other UUOs; `FILE`, `DEVICE`, `FLT` in `PRINT`;
-computed jumps (`GO TO (L1,L2) N`).
+`XCT`; `REMOTE` as separate code; immediate floating operands and comparison of
+negative reals; calling C functions with arguments by value; `LET`, the other
+UUOs; `FILE`, `DEVICE`, `FLT` in `PRINT`; the `(A[I]_B[I]) FOR I TO N` copy
+loop is not turned into `BLT`.
