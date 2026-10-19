@@ -1,0 +1,14 @@
+# IMPSYN FOR THE 64 BIT PORT: FREE STORAGE IS AN ARENA AT FB, ADDRESSED BY
+ WORD INDEX.  THE FIELDS <L> AND <R> ARE THE LEFT AND RIGHT 18 BITS OF THE
+ LOW 36, AS BEFORE, SO INDICES ARE LIMITED TO 18 BITS. #
+
+ FB IS COMMON;
+
+ <VBL>  ::= FREE(<A>)         ::= "[FB+8*(A)]";
+ <ATOM> ::= FREES(<A>,<B>)    ::= "[FB+8*(A)]_B";
+ <ATOM> ::= FLEN(<A>)         ::= "[FB+8*(A-2)]<R>";
+ <ATOM> ::= FADD(<A>,<B>,<C>) ::= "FLEN(A) LE B=>FADDEX(A,B);
+                                   FREES(A+B,C);
+                                   B_B+1; A";
+ <EXP> ::= FORG+<A>::="FB+8*(A)";
+ <EXP> ::= <A>+FORG ::= "FB+8*(A)"%%
