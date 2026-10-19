@@ -9,5 +9,6 @@ extern long imp_main(void);
 int
 main(void)
 {
-    return (int)imp_main();
+    imp_main();
+    return 0;
 }

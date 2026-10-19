@@ -18,6 +18,7 @@ for p in tests/native/*.imp; do
             || { echo "FAILED: $n: imp72c -C" >&2; fail=1; continue; }
     fi
     build/nativec/$n >build/nativec/$n.got || { echo "FAILED: $n: run" >&2; fail=1; continue; }
+    rm -f IOTEST.TMP
     cmp -s build/nativec/$n.got tests/native/$n.out \
         || { diff build/nativec/$n.got tests/native/$n.out; echo "FAILED: $n: output" >&2; fail=1; continue; }
     echo ok

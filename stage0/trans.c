@@ -1029,7 +1029,7 @@ argptr(const struct ti *t)
  * for each item, a routine of the runtime library that keeps the format.
  */
 static long
-printcall(long i)
+printcall(long i, int rd)
 {
     long j = i + 1;
     int res = -1;
@@ -1058,7 +1058,7 @@ printcall(long i)
             u.c = off;
             p = effaddr(&u);
         }
-        tree = ir_bin(IR_CALL, T_LONG, ir_sym("imp_pr", 0, T_PFTN),
+        tree = ir_bin(IR_CALL, T_LONG, ir_sym(rd ? "imp_rd" : "imp_pr", 0, T_PFTN),
             ir_bin(IR_CM, T_INT,
                 ir_assign(ir_reg(R_RDI, T_LONG), icon(n)),
                 ir_assign(ir_reg(R_RSI, T_PLONG), p)));
@@ -1100,7 +1100,9 @@ call(long i)
     }
     nm = symname(t->v);
     if (strcmp(nm, "prn_2e") == 0)
-        return printcall(i);
+        return printcall(i, 0);
+    if (strcmp(nm, "red_2e") == 0)
+        return printcall(i, 1);
     while (j < nti) {
         struct ti *a = &tis[j];
 

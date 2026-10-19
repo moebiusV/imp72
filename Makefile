@@ -18,12 +18,13 @@ $(IR2C): tools/ir2c.c
 	mkdir -p build/bin
 	cc -std=gnu99 -Wall -O1 -o $(IR2C) tools/ir2c.c
 
-$(LIB): lib/imp72rt.c lib/imp72main.c
+$(LIB): lib/imp72rt.c lib/imp72io.c lib/imp72main.c
 	mkdir -p build/lib
 	cc -std=c99 -Wall -O1 -c -o build/lib/imp72rt.o lib/imp72rt.c
+	cc -std=c99 -Wall -O1 -c -o build/lib/imp72io.o lib/imp72io.c
 	cc -std=c99 -Wall -O1 -c -o build/lib/imp72main.o lib/imp72main.c
 	rm -f $(LIB)
-	ar rcs $(LIB) build/lib/imp72rt.o build/lib/imp72main.o
+	ar rcs $(LIB) build/lib/imp72rt.o build/lib/imp72io.o build/lib/imp72main.o
 
 $(CC1):
 	mkdir -p $(PCCBUILD)

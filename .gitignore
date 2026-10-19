@@ -5,3 +5,4 @@ stage0/test_*
 !stage0/test_*.c
 stage0/*.tmp
 stage0/imp72s0
+IOTEST.TMP

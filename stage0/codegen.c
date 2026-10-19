@@ -1021,7 +1021,7 @@ prinpar(word n, word aa, word b, word c, word d)
     }
     if (n == 11) {
         if ((FREE(a) & 077) == 4 && (FREE(b) & 077) == 4) {
-            FREES(a + 1, sx36((FREE(a + 1) & MASK18) | ((FREE(b + 1) & MASK18) << 18)));
+            FREES(a + 1, sx36(0) | ((FREE(a + 1) & 0xFFFFFFFFL) | ((FREE(b + 1) & 0xFFFFFFFFL) << 32)));
             FREES(a, FREE(a) & ~(MASK18 << 18) & MASK36);
             goto ppr1;
         }
