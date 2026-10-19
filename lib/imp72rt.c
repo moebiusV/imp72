@@ -162,3 +162,11 @@ imp_blt(char *dst, char *src, long bytes)
         memmove(dst, src, (size_t)bytes);
     return 0;
 }
+
+/* IFIX(x): a real to an integer, truncating (the library routine the
+ * original reaches as MALAMUD).  The argument is the address of the real. */
+long
+ifix(double *x)
+{
+    return (long)*x;
+}

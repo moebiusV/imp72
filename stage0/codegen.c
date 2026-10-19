@@ -245,6 +245,8 @@ l72:
     ise = 0100000000000L & (u36(se1) >> 2);
     if (tse == 4) {                             /* a constant: immediate? */
         rse = ise = cse = 0;
+        if (se & 0200)                          /* a real: all 64 bits, pooled */
+            goto pool;
         if ((op & 0770) == 0310 && (u36(se1) >> 18) == 0) {
             op = 0300 | (op & 7);               /* CAMX to CAIX */
             cse = se1;
@@ -273,6 +275,7 @@ l72:
              * floating point operands: all 18 bit halfword tricks.  Halves
              * are 32 bits here, so those constants go through the pool. */
         }
+pool:
         if (dse == 0)
             dse = stcon(se1);
     }
@@ -911,7 +914,15 @@ float_(word s)
             FREES(s, sx36(0204 | (sf & 0777000L)));
             return s;
         }
-        imp_error(0, "FLOAT: NON-CONSTANT FLOATING POINT IS NOT YET PORTED");
+        /* FSC j,233: the integer to floating (trans.c knows the idiom) */
+        {
+            word j;
+
+            fetch(s);
+            j = regof(s);
+            addcode(s, sx36(013200000000L | (j << 12)), 0233000000L);
+            FREES(s, sx36(0202 | (sf & ~0377L)));
+        }
     }
     return s;
 }
@@ -938,7 +949,18 @@ fix_(word s)
             FREES(s, sx36(0104 | (sf & 0777000L)));
             return s;
         }
-        imp_error(0, "FIX: NON-CONSTANT FLOATING POINT IS NOT YET PORTED");
+        /* the library routine IFIX takes the real and returns the integer */
+        {
+            word t = name(enstack(dir("IFIX"))), tf;
+
+            subrcall(t);
+            dewfun(subrpar(t, s), 2, regof(t));
+            subpr0(1);
+            tf = FREE(t);
+            FREES(s, sx36(0100 | (tf & ~0300L)));
+            FREES(s + 1, FREE(t + 1));
+            FREES(s + 2, FREE(t + 2));
+        }
     }
     return s;
 }

@@ -18,6 +18,8 @@
  * register, bit 12 not a temporary, bit 11 a subroutine call, bits 10-6 the
  * lower limit, bit 5 two successive registers, bits 4-0 the upper limit.
  */
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "imp.h"
 
@@ -428,6 +430,51 @@ letsyn(word s)
 }
 
 /*
+ * FCON(A,B,E): the floating constant A.B"E.  A and B are the digit strings
+ * (names); E, if nonzero, the stack entry of the constant exponent.  The
+ * original sums the digits in REAL arithmetic; strtod gives the correctly
+ * rounded double instead, so the two may differ in the last bit.
+ */
+word
+fcon(word a, word b, word e)
+{
+    char ai[64], bi[64], buf[200];
+    const char *p;
+    int ex = 0;
+    double v;
+    word bits;
+
+    dname_str(L18(FREE(a)), ai, sizeof ai);
+    dname_str(L18(FREE(b)), bi, sizeof bi);
+    for (p = ai; *p; p++)
+        if (*p < '0' || *p > '9')
+            goto bad;
+    for (p = bi; *p; p++)
+        if (*p < '0' || *p > '9')
+            goto bad;
+    if (e) {
+        if ((FREE(e) & 077) != 4)
+            goto bad;
+        ex = (int)FREE(e + 1);
+        if (ex > 127 || ex < -127) {
+            imp_error(1, "EXPONENT GREATER THEN 127.");
+            ex = 0;
+        }
+    }
+    snprintf(buf, sizeof buf, "%s.%se%d", ai, bi, ex);
+    v = strtod(buf, NULL);
+    goto done;
+bad:
+    imp_error(1, "ILLEGAL CHARACTER IN FLOATING CONSTANT.");
+    v = 0;
+done:
+    memcpy(&bits, &v, sizeof bits);
+    FREES(a, 0204);
+    FREES(a + 1, bits);
+    return a;
+}
+
+/*
  * DECL(I,S): note one property of a declaration: 0 a synonym for the
  * register named at s, 1 a length (s is a constant), 2 and over a flag
  * (bit i of PROPS).
@@ -557,6 +604,7 @@ static word w_subend(const word *p) { (void)p; return subend(); }
 static word w_subpr0(const word *p) { return subpr0(p[0]); }
 static word w_remot(const word *p) { return remot(p[0]); }
 static word w_callme(const word *p) { return callme(p[0]); }
+static word w_fcon(const word *p) { return fcon(p[0], p[1], p[2]); }
 static word w_reg2s(const word *p) { return reg2s(p[0]); }
 
 void
@@ -578,5 +626,6 @@ impsem_init(void)
     dsem("SUBPR0", w_subpr0);
     dsem("REMOT", w_remot);
     dsem("CALLME", w_callme);
+    dsem("FCON", w_fcon);
     dsem("REG2S", w_reg2s);
 }

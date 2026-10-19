@@ -158,7 +158,7 @@ sem_init(void)
 {
     static const char *const unported[] = {
         /* impsem.imc */
-        "FCON", "ERROR",
+        "ERROR",
         /* code2.imc, code3.imc */
 
         NULL

@@ -400,5 +400,6 @@ word areg1(word i, word j);
 word decl(word i, word s);
 word declare(word s);
 word letsyn(word s);
+word fcon(word a, word b, word e);
 
 #endif

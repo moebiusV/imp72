@@ -930,6 +930,67 @@ halfword(const struct ti *t)
         asg(oplvalue(t), rv(t->ac));
 }
 
+
+/* ---- floating point --------------------------------------------------------
+ * A REAL is the 64 bits of an IEEE double kept in a word.  Registers are long
+ * temps, so an operation goes through the scratch word imp_fs: store the
+ * long, read it as a double, compute, store the double, read it as a long.
+ */
+static int usedfs;
+
+static int
+tod(struct irn *x)
+{
+    int c = ir_newtemp();
+
+    usedfs = 1;
+    asg(ir_name("imp_fs", 0, T_LONG), x);
+    asg(ir_temp(c, T_DOUBLE), ir_name("imp_fs", 0, T_DOUBLE));
+    return c;
+}
+
+static struct irn *
+fromd(struct irn *d)
+{
+    usedfs = 1;
+    asg(ir_name("imp_fs", 0, T_DOUBLE), d);
+    return ir_name("imp_fs", 0, T_LONG);
+}
+
+/* FADR/FSBR/FMPR/FDVR (144, 154, 164, 174 + mode) */
+static void
+fpop(const struct ti *t)
+{
+    int mode = (int)(t->op & 3), a, b;
+    int kind = (int)((t->op >> 3) & 7) - 4, ops[4] = { IR_PLUS, IR_MINUS, IR_MUL, IR_DIV };
+    struct irn *r;
+
+    if (mode == 1) {
+        tfail("TRANS: IMMEDIATE FLOATING OPERAND IS NOT TRANSLATED");
+        return;
+    }
+    a = tod(rv(t->ac));
+    b = tod(opvalue(t));
+    r = ir_bin(ops[kind], T_DOUBLE, ir_temp(a, T_DOUBLE), ir_temp(b, T_DOUBLE));
+    if (mode == 0 || mode == 3)
+        asg(rv(t->ac), fromd(r));
+    else
+        asg(oplvalue(t), fromd(r));
+    if (mode == 3)
+        asg(oplvalue(t), rv(t->ac));
+}
+
+/* FSC ac,233: the integer in ac made a floating number */
+static void
+fsc(const struct ti *t)
+{
+    if (t->c != 0233 || t->v || t->ix) {
+        tfail("TRANS: FSC OTHER THAN THE INTEGER TO FLOATING IDIOM");
+        return;
+    }
+    asg(rv(t->ac), fromd(ir_un(IR_SCONV, T_DOUBLE, rv(t->ac))));
+}
+
 /* ---- calls ---------------------------------------------------------------- */
 
 static const int argreg[6] = { R_RDI, R_RSI, R_RDX, R_RCX, R_R8, R_R9 };
@@ -1207,6 +1268,14 @@ insn(long i)
         shift(t, op == 0240 ? 1 : op == 0242 ? 0 : 2);
         return i;
     }
+    if (op == 0132) {                           /* FSC */
+        fsc(t);
+        return i;
+    }
+    if (op >= 0144 && op <= 0177 && (op & 4)) {   /* FADR, FSBR, FMPR, FDVR */
+        fpop(t);
+        return i;
+    }
     if (op == 0133) {                           /* IBP */
         bp_step(t);
         return i;
@@ -1442,6 +1511,8 @@ emit_data(void)
     long sz;
     char buf[400];
 
+    if (usedfs)
+        ir_pass("\t.comm imp_fs,8,8");
     for (v = vars; v != NULL; v = v->next) {
         struct datadef *d;
 
@@ -1512,6 +1583,7 @@ trans_unit(word a)
         return;
     collect(u36(FREE(a + 2)) >> 18);
     vars = NULL;
+    usedfs = 0;
     datadefs = NULL;
     pools = NULL;
     unsupported = 0;

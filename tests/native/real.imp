@@ -1,0 +1,3 @@
+SUBR T(N) IS (X IS REAL; Y IS REAL; X_FLT(N); Y_X*X+X/FLT(4); FIX(Y));
+SUBR U(N) IS (X IS REAL; X_FLT(N)*2.5; FIX(X*10.0))
+%%
