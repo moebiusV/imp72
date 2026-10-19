@@ -22,7 +22,7 @@ static long newarr(long n)
     return a;
 }
 
-long fallot(long *a, long *n)
+long impfallot(long *a, long *n)
 {
     long b = newarr(*n);
     if (*a >= 4 && *a < (1L << 18)) {
@@ -32,14 +32,14 @@ long fallot(long *a, long *n)
     *a = b;
     return b;
 }
-long faddex(long *a, long *n)
+long impfaddex(long *a, long *n)
 {
     long m = *n + 10;
-    fallot(a, &m);
+    impfallot(a, &m);
     return *a;
 }
-long frelot(long *a, long *aa, long *n, long *s) { (void)aa; (void)s; return fallot(a, n); }
-long error(long *n, long *s) { (void)s; fprintf(stderr, "error %ld\n", *n); exit(1); }
+long impfrelot(long *a, long *aa, long *n, long *s) { (void)aa; (void)s; return impfallot(a, n); }
+long imperror(long *n, long *s) { (void)s; fprintf(stderr, "error %ld\n", *n); exit(1); }
 
 int main(void)
 {
