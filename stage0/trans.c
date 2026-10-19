@@ -172,6 +172,15 @@ struct var {
 };
 static struct var *vars;
 
+/* DATA statements: a tag followed by constant words in the code */
+struct datadef {
+    word v;
+    long n;
+    long long *w;
+    struct datadef *next;
+};
+static struct datadef *datadefs;
+
 static void
 usevar(word v)
 {
@@ -258,6 +267,7 @@ static int bltsrc[2048], bltdst[2048];
 static int *regtmp;
 static word nregtmp;
 static int paramtmp[16];
+#define MAXPARAMS 16
 static int nparams;
 static int retlab, rettmp;
 static struct { word tag; int label; } *tags;
@@ -1012,7 +1022,7 @@ call(long i)
     const char *nm;
     int nargs = 0, res = -1, k;
     long j = i + 1;
-    struct irn *args[16];
+    struct irn *args[MAXPARAMS];
     struct irn *tree;
 
     if (t->v == 0 || t->ind || t->ix) {
@@ -1025,9 +1035,20 @@ call(long i)
     while (j < nti) {
         struct ti *a = &tis[j];
 
+        if (a->kind == K_TAG && iscal(a->v) && j + 1 < nti) {
+            /* the argument word a HRRM has just filled in with an address */
+            if (nargs >= MAXPARAMS) {
+                tfail("TRANS: MORE THAN %d ARGUMENTS", MAXPARAMS);
+                break;
+            }
+            usevar(a->v);
+            args[nargs++] = ir_name(symname(a->v), 0, T_PLONG);
+            j += 2;
+            continue;
+        }
         if (a->kind == K_INSN && a->op == 0320 && a->ac == 0) {
-            if (nargs >= 6) {
-                tfail("TRANS: MORE THAN 6 ARGUMENTS");
+            if (nargs >= MAXPARAMS) {
+                tfail("TRANS: MORE THAN %d ARGUMENTS", MAXPARAMS);
                 break;
             }
             args[nargs++] = argptr(a);
@@ -1045,7 +1066,17 @@ call(long i)
     if (nargs > 0) {
         struct irn *cm = NULL;
 
-        for (k = 0; k < nargs; k++) {
+        /* the arguments beyond the sixth go in the outgoing stack area, which
+         * pcc reserves for any assignment to memory in a call's list; they
+         * come first, the register ones last */
+        for (k = 6; k < nargs; k++) {
+            struct irn *m = ir_un(IR_UMUL, T_PLONG, ir_bin(IR_PLUS, T_PLONG,
+                ir_reg(R_RSP, T_PLONG), ir_icon(8 * (k - 6), T_LONG)));
+            struct irn *a = ir_assign(m, args[k]);
+
+            cm = cm == NULL ? a : ir_bin(IR_CM, T_INT, cm, a);
+        }
+        for (k = 0; k < nargs && k < 6; k++) {
             struct irn *a = ir_assign(ir_reg(argreg[k], T_PLONG), args[k]);
 
             cm = cm == NULL ? a : ir_bin(IR_CM, T_INT, cm, a);
@@ -1333,8 +1364,8 @@ subr(long i0, long i1, int ismain)
             maxp = tis[i].c;
     }
     nparams = ismain ? 0 : (int)maxp;
-    if (nparams > 6) {
-        tfail("TRANS: SUBROUTINE %s HAS MORE THAN 6 PARAMETERS", symname(name));
+    if (nparams > MAXPARAMS) {
+        tfail("TRANS: SUBROUTINE %s HAS MORE THAN %d PARAMETERS", symname(name), MAXPARAMS);
         return;
     }
     memset(regtmp, 0, (size_t)nregtmp * sizeof *regtmp);
@@ -1346,7 +1377,11 @@ subr(long i0, long i1, int ismain)
     retlab = ir_newlabel();
     for (k = 0; k < nparams; k++) {
         paramtmp[k] = ir_newtemp();
-        asg(ir_temp(paramtmp[k], T_PLONG), ir_reg(argreg[k], T_PLONG));
+        if (k < 6)
+            asg(ir_temp(paramtmp[k], T_PLONG), ir_reg(argreg[k], T_PLONG));
+        else                                    /* above the return address and saved rbp */
+            asg(ir_temp(paramtmp[k], T_PLONG), ir_un(IR_UMUL, T_PLONG,
+                ir_bin(IR_PLUS, T_PLONG, ir_reg(R_RBP, T_PLONG), ir_icon(16 + 8 * (k - 6), T_LONG))));
     }
     rettmp = ir_newtemp();
     lastmove = 0;
@@ -1355,6 +1390,21 @@ subr(long i0, long i1, int ismain)
 
         switch (t->kind) {
         case K_TAG:
+            if (i + 1 < i1 && tis[i + 1].kind == K_CONST) {   /* DATA: not code */
+                struct datadef *d = calloc(1, sizeof *d);
+
+                d->v = t->v;
+                for (i++; i < i1 && tis[i].kind == K_CONST; i++) {
+                    if (tis[i].v)
+                        tfail("TRANS: ADDRESS CONSTANT IN DATA");
+                    d->w = realloc(d->w, (size_t)(d->n + 1) * sizeof *d->w);
+                    d->w[d->n++] = (long long)tis[i].c;
+                }
+                i--;
+                d->next = datadefs;
+                datadefs = d;
+                break;
+            }
             if (ismain || t->v != name)
                 ir_label(taglabel(t->v));
             break;
@@ -1393,6 +1443,13 @@ emit_data(void)
     char buf[400];
 
     for (v = vars; v != NULL; v = v->next) {
+        struct datadef *d;
+
+        for (d = datadefs; d != NULL; d = d->next)
+            if (d->v == v->v)
+                break;
+        if (d != NULL)
+            continue;
         sz = 8;
         n = impsem_narr();
         for (i = 0; i < n; i++) {
@@ -1403,6 +1460,18 @@ emit_data(void)
                 sz = 8 * (long)w;
         }
         ir_pass("\t.comm %s,%ld,8", symname(v->v), sz);
+    }
+    {
+        struct datadef *d;
+        long k;
+
+        for (d = datadefs; d != NULL; d = d->next) {
+            ir_pass("\t.data");
+            ir_pass("\t.balign 8");
+            ir_pass("%s:", symname(d->v));
+            for (k = 0; k < d->n; k++)
+                ir_pass("\t.quad %lld", d->w[k]);
+        }
     }
     for (p = pools; p != NULL; p = p->next) {
         ir_pass("\t.data");
@@ -1443,6 +1512,7 @@ trans_unit(word a)
         return;
     collect(u36(FREE(a + 2)) >> 18);
     vars = NULL;
+    datadefs = NULL;
     pools = NULL;
     unsupported = 0;
     for (i = 0; i < nti; i++) {

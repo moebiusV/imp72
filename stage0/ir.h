@@ -34,7 +34,7 @@ enum {
 };
 
 /* amd64 registers (arch/amd64/macdefs.h) */
-enum { R_RAX = 0, R_RDX = 1, R_RCX = 2, R_RSI = 4, R_RDI = 5, R_R8 = 8, R_R9 = 9 };
+enum { R_RAX = 0, R_RDX = 1, R_RCX = 2, R_RSI = 4, R_RDI = 5, R_RBP = 6, R_RSP = 7, R_R8 = 8, R_R9 = 9 };
 
 struct irn {
     int op, type;
