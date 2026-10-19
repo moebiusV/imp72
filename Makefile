@@ -34,6 +34,7 @@ check: all
 	$(MAKE) -C stage0 check
 	CC1=$(CURDIR)/$(CC1) sh tests/native/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/run.sh
+	CC1=$(CURDIR)/$(CC1) sh tests/self/stage1.sh
 
 clean:
 	$(MAKE) -C stage0 clean
