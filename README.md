@@ -19,10 +19,15 @@ extended by adding such statements. This project keeps that design.
 
 ## Status
 
-IMP72 programs compile to native code and run, on amd64 Linux through pcc's code
-generator and on any 64 bit little endian host through a C back end:
+IMP72 programs compile to native code and run. There are two back ends. pcc's
+code generator is used where pcc works, which today is amd64; the C back end,
+which turns the same IR into C for the host's compiler, works wherever there is
+a C compiler and is the only one elsewhere. The whole test suite passes on
+x86_64 (both back ends) and, with the C back end, on aarch64, riscv64, ppc64le,
+s390x and loongarch64 (Alpine/musl containers under QEMU, as in
+`docs/porting/pcc-targets.md`):
 
-    make                                     # stage 0, runtime, cc1 (amd64), ir2c
+    make                                     # stage 0, runtime, ir2c, cc1 where pcc works
     stage0/imp72stage0 -o hello tests/native/hello.imp && ./hello
     stage0/imp72stage0 -C -o hello tests/native/hello.imp   # the C back end
     make check
@@ -31,7 +36,7 @@ generator and on any 64 bit little endian host through a C back end:
 `imp72stage0` runs stage 0 (a C port of the compiler's kernel, with the original
 syntax file `decus/syntax.imc` unmodified and the original code generator
 ported to produce PDP-10 code chains), translates the chains to pcc IR, and
-turns that into machine code with pcc's pass 2 (`cc1`, amd64) or into C
+turns that into machine code with pcc's pass 2 (`cc1`, where pcc works) or into C
 (`tools/ir2c.c`) for the host's compiler. What works: subroutines, expressions,
 loops, conditionals, arrays, calls (any number of arguments), byte fields and
 pointers, `BLT`, computed `GO TO`, `DATA`, reals (`FLOAT`, `FIX`, arithmetic,
@@ -48,10 +53,10 @@ writes the same IR as stage 0 for 22 programs, among them 14 modules of the
 tape. `free`, `ercor`, `dosem` and `impsem` use executed instructions that need
 porting, `impm` is the TOPS-10 interface. See `docs/porting/stack.md`.
 
-Packages: `debian/` (amd64, arm64, mips64el) and `packaging/alpine/APKBUILD`
-(x86_64, aarch64); only the amd64 Debian package has been built here
-(`packaging/README.md`). `.github/workflows/ci.yml` builds and tests on amd64,
-arm64, macOS arm64 and Alpine; its results have not been seen yet.
+Packages: `debian/` and `packaging/alpine/APKBUILD` (`packaging/README.md`; only
+the amd64 Debian package has been built here). `.github/workflows/ci.yml`
+builds and tests on every architecture above and on macOS arm64; its results
+have not been seen yet.
 
 Nothing has been compared with output from the original compiler yet; that is
 what the oracle (Roadmap, phase 1) is for. Where this file says the port is
@@ -208,16 +213,22 @@ portable C from it:
 
 ### Targets, and the C fallback
 
-pcc covers amd64 and aarch64 ELF (Linux, FreeBSD, NetBSD, OpenBSD) and amd64
-Mach-O (macOS). **A C-emitting back end from the same IR covers every other
-host, and macOS arm64 in particular**, because pcc has no darwin/arm64 yet.
+pcc's code generator is used wherever pcc works. Testing pcc itself on the
+machines we can run (see [docs/porting/pcc-targets.md](docs/porting/pcc-targets.md))
+gives: amd64 works; on aarch64 pcc builds but cannot compile a function with an
+integer loop ("op 75 slipped through") or a double constant; riscv64 is not
+configurable on Linux. So pcc is the back end on amd64 only for now, and the
+**C-emitting back end from the same IR covers every other host**, macOS arm64
+included, and is tested on aarch64, riscv64, ppc64le, s390x and loongarch64.
 Auditing pcc's aarch64 port found it is the 32-bit ARM port renamed (32-bit
 alignments, `long` mapped to `long long`, 32-bit varargs, a hidden scratch
 register): making it a correct AAPCS64 backend is a prerequisite for aarch64 on
 every OS, and the Darwin deltas (Apple's `@PAGE` relocations, all variadic
 arguments on the stack, caller-extended arguments, x18 reserved, `xcrun` and the
 arm64 linker flags, Apple's SDK headers) sit on top. The full audit is in
-[docs/PLAN.md](docs/PLAN.md); that work is a parallel track on the pcc fork.
+[docs/PLAN.md](docs/PLAN.md); that work is a parallel track on the pcc fork, and
+each pcc target that starts to work needs only a small table in the translator
+(its argument registers, return register and frame pointer).
 
 ### The oracle
 
