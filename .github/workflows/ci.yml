@@ -16,7 +16,7 @@ jobs:
       - run: make
       - run: make check
 
-  # arm64: the C back end only (pcc is not built off amd64)
+  # arm64: the C back end (pcc does not work on aarch64 yet)
   linux-arm64:
     runs-on: ubuntu-24.04-arm
     steps:
@@ -37,17 +37,40 @@ jobs:
       - run: make
       - run: make check
 
-  # musl: Alpine, with pcc's cc1 built against it
-  alpine-x86_64:
-    runs-on: ubuntu-latest
-    container: alpine:3.20
+  # Alpine (musl, gcc 15) on every 64 bit architecture it has: natively where the
+  # runner is that architecture, else under QEMU user mode, as ada-on-alpine does.
+  # x86_64 also builds pcc's cc1 against musl; the others use the C back end.
+  alpine:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {arch: amd64,   runner: ubuntu-latest,    qemu: false}
+          - {arch: arm64,   runner: ubuntu-24.04-arm, qemu: false}
+          - {arch: ppc64le, runner: ubuntu-latest,    qemu: true}
+          - {arch: riscv64, runner: ubuntu-latest,    qemu: true}
+          - {arch: s390x,   runner: ubuntu-latest,    qemu: true}
+          - {arch: loong64, runner: ubuntu-latest,    qemu: true}
     steps:
-      - run: apk add --no-cache build-base git binutils
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - run: make
-      - run: make check
+      - if: matrix.qemu && matrix.arch != 'loong64'
+        uses: docker/setup-qemu-action@v3
+      # Docker's alpine image has no loongarch64: import Alpine's minirootfs
+      - if: matrix.arch == 'loong64'
+        run: |
+          set -eu
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-user-static binfmt-support
+          base=https://dl-cdn.alpinelinux.org/alpine/edge/releases/loongarch64
+          file=$(curl -sf $base/latest-releases.yaml | awk '/file: alpine-minirootfs/ {print $2; exit}')
+          curl -sfO "$base/$file"
+          docker import --platform linux/loong64 "$file" alpine-loongarch64:edge
+      - run: tools/ci-arch.sh ${{ matrix.arch }}
+        env:
+          IMAGE: ${{ matrix.arch == 'loong64' && 'alpine-loongarch64:edge' || 'alpine:edge' }}
 
   # the Debian package, built from the source package it makes
   debian-package:

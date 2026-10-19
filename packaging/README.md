@@ -2,23 +2,29 @@
 
 ## Which machines
 
-imp72 needs a 64 bit little endian machine: its word is 64 bits and its
-strings are packed little endian, so 32 bit machines (i386, armhf, armel, mipsel,
-powerpc) and big endian ones are out. Of the 64 bit little endian machines the
-distributions build for, pcc has a back end for these, and those are what the
-packages list:
+Any 64 bit machine: the language's word is 64 bits (so i386, armhf, armel and
+the other 32 bit ports are out; their `long` is not a word). The suite
+(`make check`, 23 checks) passes in Alpine edge containers, native or under QEMU
+user mode (`tools/ci-arch.sh ARCH`), on:
 
-| | architectures |
-|---|---|
-| Debian | `amd64` `arm64` `mips64el` |
-| Alpine | `x86_64` `aarch64` |
+| Alpine | Debian | pcc's code generator | tested here |
+|---|---|---|---|
+| x86_64 | amd64 | **yes** (cc1 built, both back ends tested) | native and in a musl container |
+| aarch64 | arm64 | no: pcc's aarch64 port fails (`docs/porting/pcc-targets.md`) | musl container, QEMU |
+| ppc64le | ppc64el | no | musl container, QEMU |
+| riscv64 | riscv64 | no (pcc does not configure) | musl container, QEMU |
+| s390x | s390x | no | musl container, QEMU |
+| loongarch64 | loong64 | no | musl container, QEMU |
 
-pcc's code generator (its pass 2, `cc1`) is used only on amd64, because that is
-the only target the translator's IR suits; on every other machine `imp72stage0` uses
-the C back end (`tools/ir2c.c`) and the system's C compiler, and pcc is not
-built (`make WITH_PCC=no`, which is what `auto` means off x86_64). The tests
-run in both configurations. Only the amd64 build of the Debian package has been
-made and tested (not run through lintian); the Alpine recipe and the other machines have not been built.
+So both distributions list those architectures. pcc's code generator (its
+pass 2, `cc1`) is built and used where pcc works, which is amd64; everywhere
+else `imp72stage0` uses the C back end (`tools/ir2c.c`) and the system's C
+compiler (`make WITH_PCC=no`, which is what `auto` means off x86_64). When pcc's
+port for another machine works, that machine gets `cc1` too
+(`docs/porting/pcc-targets.md`). mips64el, which pcc also has a target for, has
+not been tried (no container for it). Only the amd64 build of the Debian package
+has been made (not run through lintian); the Alpine recipe has not been built;
+the container runs build the programs from the repository, not from the packages.
 
 ## Debian: `debian/`
 

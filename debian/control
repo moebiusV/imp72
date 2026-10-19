@@ -10,7 +10,7 @@ Vcs-Git: https://github.com/moebiusV/imp72.git
 Vcs-Browser: https://github.com/moebiusV/imp72
 
 Package: imp72
-Architecture: amd64 arm64 mips64el
+Architecture: amd64 arm64 ppc64el riscv64 s390x loong64
 Depends: ${shlibs:Depends}, ${misc:Depends}, gcc | c-compiler
 Description: IMP72 systems programming language compiler
  IMP72 is the extensible systems language of Ned Irons, in the compiler
@@ -22,8 +22,7 @@ Description: IMP72 systems programming language compiler
  imp72stage0 compiles IMP72 programs to native code and links them with a small
  runtime.  A subroutine is a C function (arguments by reference, as in
  FORTRAN), and CCALL calls C functions with arguments by value.  The code
- generator is the pcc compiler's pass 2 on amd64; on every other machine the
+ generator is the pcc compiler's pass 2 where that works (amd64); elsewhere the
  program is turned into C for the system compiler.
  .
- Only 64 bit little endian machines are supported: the language's word is 64
- bits and strings are packed little endian.
+ Any 64 bit machine will do (the language's word is 64 bits).

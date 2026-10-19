@@ -4,10 +4,10 @@ pkgver=0.1.0
 pkgrel=0
 pkgdesc="IMP72 systems programming language compiler (Bilofsky's PDP-10 compiler, ported)"
 url="https://github.com/moebiusV/imp72"
-# 64 bit little endian machines that pcc has a back end for: the language's
-# word is 64 bits and strings are packed little endian.  pcc's code generator
-# is used on x86_64; on aarch64 the program is turned into C for gcc.
-arch="x86_64 aarch64"
+# 64 bit machines (the language's word is 64 bits).  pcc's code generator is
+# used where pcc works, x86_64; elsewhere the program is turned into C for gcc.
+# Tested in Alpine containers of each (tools/ci-arch.sh).
+arch="x86_64 aarch64 ppc64le riscv64 s390x loongarch64"
 license="ISC AND BSD-2-Clause AND BSD-3-Clause"
 # a C compiler and linker are used to assemble and link the programs it makes
 depends="gcc musl-dev"
