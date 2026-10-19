@@ -17,6 +17,7 @@ root=$(dirname "$here")
 s0=${IMP72S0:-$root/stage0/imp72s0}
 cc1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 syntax=${IMP72SYNTAX:-$root/decus/syntax.imc}
+ffi=${IMP72FFI:-$root/lib/ffi.imc}
 lib=${IMP72LIB:-$root/build/lib/libimp72.a}
 stop=x out= sw=
 while [ $# -gt 0 ]; do
@@ -37,9 +38,9 @@ set -e
 first=$1
 base=${first%.imp}
 if [ -n "$sw" ]; then
-    "$s0" -s "$sw" -c "$tmp/p.ir" "$syntax" "$@" >&2
+    "$s0" -s "$sw" -c "$tmp/p.ir" "$syntax" "$ffi" "$@" >&2
 else
-    "$s0" -c "$tmp/p.ir" "$syntax" "$@" 2>"$tmp/err" || { grep -v "^SYNTAX BOOTSTRAPPED" "$tmp/err" >&2; exit 1; }
+    "$s0" -c "$tmp/p.ir" "$syntax" "$ffi" "$@" 2>"$tmp/err" || { grep -v "^SYNTAX BOOTSTRAPPED" "$tmp/err" >&2; exit 1; }
     grep -v "^SYNTAX BOOTSTRAPPED\|ADVISORY - PRODUCTION DUPLICATES" "$tmp/err" >&2 || true
 fi
 "$cc1" <"$tmp/p.ir" >"$tmp/p.s"

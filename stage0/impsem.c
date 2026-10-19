@@ -430,6 +430,38 @@ letsyn(word s)
 }
 
 /*
+ * CVAL(A): not in the original.  The name A is a C function that takes its
+ * arguments by value; trans.c passes the values, not the addresses.
+ */
+static word cvalnames[64];
+static int ncval;
+
+word
+ccall_mark(word a)
+{
+    word d = u36(FREE(a)) >> 18;
+    int i;
+
+    for (i = 0; i < ncval; i++)
+        if (cvalnames[i] == d)
+            return a;
+    if (ncval < 64)
+        cvalnames[ncval++] = d;
+    return a;
+}
+
+int
+is_cval(word d)
+{
+    int i;
+
+    for (i = 0; i < ncval; i++)
+        if (cvalnames[i] == d)
+            return 1;
+    return 0;
+}
+
+/*
  * FCON(A,B,E): the floating constant A.B"E.  A and B are the digit strings
  * (names); E, if nonzero, the stack entry of the constant exponent.  The
  * original sums the digits in REAL arithmetic; strtod gives the correctly
@@ -603,6 +635,7 @@ static word w_subbeg(const word *p) { return subbeg(p[0]); }
 static word w_subend(const word *p) { (void)p; return subend(); }
 static word w_subpr0(const word *p) { return subpr0(p[0]); }
 static word w_remot(const word *p) { return remot(p[0]); }
+static word w_cval(const word *p) { return ccall_mark(p[0]); }
 static word w_callme(const word *p) { return callme(p[0]); }
 static word w_fcon(const word *p) { return fcon(p[0], p[1], p[2]); }
 static word w_reg2s(const word *p) { return reg2s(p[0]); }
@@ -626,6 +659,7 @@ impsem_init(void)
     dsem("SUBPR0", w_subpr0);
     dsem("REMOT", w_remot);
     dsem("CALLME", w_callme);
+    dsem("CVAL", w_cval);
     dsem("FCON", w_fcon);
     dsem("REG2S", w_reg2s);
 }

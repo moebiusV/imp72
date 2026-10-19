@@ -1081,7 +1081,7 @@ call(long i)
 {
     struct ti *t = &tis[i];
     const char *nm;
-    int nargs = 0, res = -1, k;
+    int nargs = 0, res = -1, k, byval;
     long j = i + 1;
     struct irn *args[MAXPARAMS];
     struct irn *tree;
@@ -1124,6 +1124,10 @@ call(long i)
         j++;
     }
     tree = ir_sym(nm, 0, T_PFTN);
+    byval = is_cval(t->v);
+    if (byval)                                  /* C: the values, not the addresses */
+        for (k = 0; k < nargs; k++)
+            args[k] = ir_deref(args[k], T_LONG);
     if (nargs > 0) {
         struct irn *cm = NULL;
 
@@ -1138,10 +1142,12 @@ call(long i)
             cm = cm == NULL ? a : ir_bin(IR_CM, T_INT, cm, a);
         }
         for (k = 0; k < nargs && k < 6; k++) {
-            struct irn *a = ir_assign(ir_reg(argreg[k], T_PLONG), args[k]);
+            struct irn *a = ir_assign(ir_reg(argreg[k], byval ? T_LONG : T_PLONG), args[k]);
 
             cm = cm == NULL ? a : ir_bin(IR_CM, T_INT, cm, a);
         }
+        if (byval)                              /* varargs: no vector registers used */
+            cm = ir_bin(IR_CM, T_INT, cm, ir_assign(ir_reg(R_RAX, T_LONG), icon(0)));
         tree = ir_bin(IR_CALL, T_LONG, tree, cm);
     } else
         tree = ir_un(IR_UCALL, T_LONG, tree);
