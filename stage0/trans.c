@@ -1047,7 +1047,7 @@ static struct irn *
 mkcall(struct irn *fn, struct irn **a, int n, int cret)
 {
     struct irn *cm = NULL, *tree;
-    int k, rt = T_LONG;
+    int k, rt = T_LONG, qual = 0;
 
     if (irtgt->wordll)                                  /* a word argument: the C long */
         for (k = 0; k < n; k++)
@@ -1066,7 +1066,13 @@ mkcall(struct irn *fn, struct irn **a, int n, int cret)
         /* the arguments beyond the registers go in the outgoing stack
          * area, which pcc reserves for any assignment to memory in a call's
          * list; they come first, the register ones last */
-        for (k = irtgt->narg; k < n; k++) {
+        for (k = irtgt->narg; k < n && irtgt->pushargs; k++) {  /* pass 2 pushes from the right: the last first */
+            struct irn *f = ir_un(IR_FUNARG, a[k]->type, a[k]);
+
+            cm = cm == NULL ? f : ir_bin(IR_CM, T_INT, cm, f);
+            qual += irtgt->argslot;
+        }
+        for (k = irtgt->narg; k < n && !irtgt->pushargs; k++) {
             struct irn *m = ir_un(IR_UMUL, a[k]->type, ir_bin(IR_PLUS, T_PLONG,
                 ir_reg(R_RSP, T_PLONG), ir_icon(irtgt->argslot * (k - irtgt->narg), T_LONG)));
             struct irn *as = ir_assign(m, a[k]);
@@ -1084,6 +1090,7 @@ mkcall(struct irn *fn, struct irn **a, int n, int cret)
             cm = ir_bin(IR_CM, T_INT, cm, ir_assign(ir_reg(R_RAX, T_LONG), icon(0)));
     }
     tree = n > 0 ? ir_bin(IR_CALL, rt, fn, cm) : ir_un(IR_UCALL, rt, fn);
+    tree->qual = qual;
     if (rt != T_LONG)
         tree = ir_un(IR_SCONV, T_LONG, tree);
     return tree;

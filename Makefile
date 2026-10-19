@@ -50,7 +50,7 @@ $(CC1):
 
 # cc1, if wanted
 pcc:
-	@if [ "$(WITH_PCC)" = yes ] || { [ "$(WITH_PCC)" = auto ] && { case "`uname -m`" in x86_64|aarch64|arm64|i?86) true;; *) false;; esac; }; }; then \
+	@if [ "$(WITH_PCC)" = yes ] || { [ "$(WITH_PCC)" = auto ] && { case "`uname -m`" in x86_64|aarch64|arm64|i?86|armv[67]*) true;; *) false;; esac; }; }; then \
 	    $(MAKE) $(CC1); \
 	else echo "pcc not built: imp72stage0 will use the C back end"; fi
 

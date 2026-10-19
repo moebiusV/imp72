@@ -48,6 +48,7 @@ struct irtarget {
     int autos0;                 /* bytes of the frame before the first automatic (AUTOINIT) */
     int argslot;                /* bytes a stack argument takes */
     int fnargs;                 /* arguments are FUNARG nodes pushed by pass 2 (i386), not registers */
+    int pushargs;               /* arguments beyond the registers are pushed by pass 2 as FUNARG (arm) */
     int ippmem;                 /* the IR has the target's extra lines after the prolog and epilog */
     int wordll;                 /* the 64 bit word is pcc's long long: long is 32 bits (i386) */
 };
@@ -68,6 +69,7 @@ struct irn {
     int op, type;
     long long lval;
     int rval;
+    int qual;                   /* the node's qualifier: bytes of arguments pushed, of a call */
     const char *name;
     struct irn *l, *r;
 };

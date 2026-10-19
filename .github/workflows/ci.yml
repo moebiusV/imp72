@@ -52,6 +52,8 @@ jobs:
           - {arch: riscv64, runner: ubuntu-latest,    qemu: true}
           - {arch: s390x,   runner: ubuntu-latest,    qemu: true}
           - {arch: loong64, runner: ubuntu-latest,    qemu: true}
+          - {arch: 386,     runner: ubuntu-latest,    qemu: false, make: 'WITH_PCC=yes PCCCONF=--build=i686-pc-linux-musl'}
+          - {arch: arm/v7,  runner: ubuntu-latest,    qemu: true,  make: 'WITH_PCC=yes PCCCONF=--build=arm-unknown-linux-musleabihf'}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,7 +70,7 @@ jobs:
           file=$(curl -sf $base/latest-releases.yaml | awk '/file: alpine-minirootfs/ {print $2; exit}')
           curl -sfO "$base/$file"
           docker import --platform linux/loong64 "$file" alpine-loongarch64:edge
-      - run: tools/ci-arch.sh ${{ matrix.arch }}
+      - run: tools/ci-arch.sh ${{ matrix.arch }} ${{ matrix.make }}
         env:
           IMAGE: ${{ matrix.arch == 'loong64' && 'alpine-loongarch64:edge' || 'alpine:edge' }}
 

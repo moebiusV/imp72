@@ -5,7 +5,6 @@
 # and the output must be the same.  tools/oracle-update.sh makes the goldens again.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-[ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || [ -n "$IMP72_BACKEND" ] || { echo "oracle goldens skipped: no cc1 (make)"; exit 0; }
 mkdir -p build/oracle-check
 fail=0
 for n in $(cat tests/oracle/LIST); do

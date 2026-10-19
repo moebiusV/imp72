@@ -29,11 +29,11 @@ static const struct irtarget targets[] = {
     { "aarch64", 8, { 0, 1, 2, 3, 4, 5, 6, 7 }, 0, 26, 27, "%function", 0x1000000, 16, 8, 0, 0 },
     /* i386: the word is long long, returned in eax:edx (register 020); the
      * arguments are pushed by pass 2; the first is at 8(%ebp) */
-    { "i386", 0, { 0 }, 020, 6, 7, "@function", 8, 0, 4, 1, 1, 1 },
+    { "i386", 0, { 0 }, 020, 6, 7, "@function", 8, 0, 4, 1, 0, 1, 1 },
     /* arm: the word is long long, returned in r0:r1 (register 16); the first
      * four arguments are in r0-r3, the rest above the 16 bytes of the
      * frame record and the argument area; autos begin 12 bytes below fp */
-    { "arm", 4, { 0, 1, 2, 3 }, 16, 11, 13, "%function", 20, 12, 4, 0, 0, 1 },
+    { "arm", 4, { 0, 1, 2, 3 }, 16, 11, 13, "%function", 20, 12, 4, 0, 1, 0, 1 },
 };
 const struct irtarget *irtgt = &targets[0];
 
@@ -197,7 +197,7 @@ put(struct irn *n)
 {
     int ty;
 
-    fprintf(out, "\" %d %d 0", n->op, tymap(n->type));
+    fprintf(out, "\" %d %d %d", n->op, tymap(n->type), n->qual);
     switch (n->op) {
     case IR_NAME:
     case IR_ICON:

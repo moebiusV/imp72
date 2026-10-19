@@ -10,7 +10,7 @@ Vcs-Git: https://github.com/moebiusV/imp72.git
 Vcs-Browser: https://github.com/moebiusV/imp72
 
 Package: imp72
-Architecture: amd64 arm64 ppc64el riscv64 s390x loong64
+Architecture: amd64 i386 arm64 armhf ppc64el riscv64 s390x loong64
 Depends: ${shlibs:Depends}, ${misc:Depends}, gcc | c-compiler
 Description: IMP72 systems programming language compiler
  IMP72 is the extensible systems language of Ned Irons, in the compiler

@@ -33,7 +33,9 @@ they print is compared (`tools/pcc-difftest.sh`); the same containers run
 | riscv64 | upstream's port is for NetBSD only and its output does not assemble; not tried in the fork | passes, C back end |
 | ppc64le, s390x, loongarch64 | no pcc target | passes, C back end |
 | i386 | 32 bit; the IMP word is mapped to `long long` (pass 2 pushes the arguments, returns edx:eax, and the runtime keeps C `long` results apart from words) | passes, with pcc and with the C back end (32 bit Alpine) |
-| arm, mips, m68k | 32 bit; same mapping would be needed | not tried |
+| arm (armv7) | 32 bit; the IMP word is `long long` in a register pair. The fork's back end needed: globals and named constants through the literal pool (kept out of line), a callee-saved register save and a correct return (`sp` was left 16 bytes low), 64-bit subtract, multiply (`__muldi3`), constant loads (`mvn` of the complement), signed shifts by 32 or more, compare operand order and unsigned low word, `livecall` for pushed arguments, and OREG ranges for word pairs. Arguments 5 and up are pushed by pass 2 (`FUNARG`, last first), the first four are in r0-r3, the word is returned in r0:r1 | passes (`tests/native`, the oracle goldens, the stack module), in Alpine armv7 under QEMU |
+| mips64 | the fork's back end is an o32 design with 64-bit values in pairs of 32-bit registers; a proper n64 back end would be a rewrite | the C back end passes (Debian `mips64le/debian:bookworm-slim` under QEMU) |
+| mips, m68k, powerpc, sparc64, hppa | no emulator to test with here | not tried |
 
 ("passes" is the whole of `make check`: the unit tests, the syntax file, the
 listings, 13 programs run and compared, the ported module and stage 1.)
