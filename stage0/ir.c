@@ -21,6 +21,25 @@
 static FILE *out;
 static int nlabel = 100, ntemp;
 static int tmpbase, lblbase;
+
+static const struct irtarget targets[] = {
+    { "amd64", 6, { 5, 4, 1, 2, 8, 9 }, 0, 6, 7, "@function", 16, 0 },
+    { "aarch64", 8, { 0, 1, 2, 3, 4, 5, 6, 7 }, 0, 26, 27, "%function", 0x1000000, 16 },
+};
+const struct irtarget *irtgt = &targets[0];
+
+int
+ir_settarget(const char *name)
+{
+    size_t i;
+
+    for (i = 0; i < sizeof targets / sizeof targets[0]; i++)
+        if (strcmp(targets[i].name, name) == 0) {
+            irtgt = &targets[i];
+            return 1;
+        }
+    return 0;
+}
 static const char *fname;
 
 struct irn *
@@ -210,7 +229,7 @@ ir_func_begin(const char *name, int visible)
     ir_pass("\t.align 4");
     if (visible)
         ir_pass("\t.globl %s", name);
-    ir_pass("\t.type %s,@function", name);
+    ir_pass("\t.type %s,%s", name, irtgt->functype);
     ir_pass("%s:", name);
     fprintf(out, "! %d %d %d %d %d %s\n", T_LONG, visible ? 1 : 0, prolab,
         tmpbase, lblbase, name);
@@ -227,6 +246,6 @@ ir_func_end(int retlab, int rettemp)
     ir_label(retlab);
     if (rettemp >= 0)
         ir_stmt(ir_assign(ir_reg(R_RAX, T_LONG), ir_temp(rettemp, T_LONG)));
-    fprintf(out, "%% 0 %d %d %d %s\n", retlab, tmpbase + ntemp + 1, nlabel + 1,
+    fprintf(out, "%% %d %d %d %d %s\n", irtgt->autos0, retlab, tmpbase + ntemp + 1, nlabel + 1,
         fname);
 }

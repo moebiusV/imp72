@@ -33,8 +33,32 @@ enum {
     T_PFTN = (((T_FTN | T_LONG) & ~0x1f) << 2) | T_PTR | T_LONG
 };
 
-/* amd64 registers (arch/amd64/macdefs.h) */
-enum { R_RAX = 0, R_RDX = 1, R_RCX = 2, R_RSI = 4, R_RDI = 5, R_RBP = 6, R_RSP = 7, R_R8 = 8, R_R9 = 9 };
+/*
+ * The machine the IR is lowered for: the numbers of the registers that arguments
+ * and results travel in (arch/<target>/macdefs.h of pcc), and how a function is
+ * declared.  "amd64" is also what the C back end reads.
+ */
+struct irtarget {
+    const char *name;
+    int narg;                   /* arguments in registers */
+    int arg[8];
+    int ret, fp, sp;
+    const char *functype;       /* the .type directive's operand */
+    int stackarg0;              /* bytes above fp where stack arguments start */
+    int autos0;                 /* bytes of the frame before the first automatic (AUTOINIT) */
+};
+extern const struct irtarget *irtgt;
+int ir_settarget(const char *name);      /* 0 if there is no such target */
+
+#define R_RDI (irtgt->arg[0])
+#define R_RSI (irtgt->arg[1])
+#define R_RDX (irtgt->arg[2])
+#define R_RCX (irtgt->arg[3])
+#define R_R8  (irtgt->arg[4])
+#define R_R9  (irtgt->arg[5])
+#define R_RAX (irtgt->ret)
+#define R_RBP (irtgt->fp)
+#define R_RSP (irtgt->sp)
 
 struct irn {
     int op, type;

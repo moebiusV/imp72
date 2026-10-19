@@ -20,14 +20,14 @@ extended by adding such statements. This project keeps that design.
 ## Status
 
 IMP72 programs compile to native code and run. There are two back ends. pcc's
-code generator is used where pcc works, which today is amd64; the C back end,
-which turns the same IR into C for the host's compiler, works wherever there is
-a C compiler and is the only one elsewhere. The whole test suite passes on
-x86_64 (both back ends) and, with the C back end, on aarch64, riscv64, ppc64le,
-s390x and loongarch64 (Alpine/musl containers under QEMU, as in
-`docs/porting/pcc-targets.md`):
+code generator (the moebiusv fork) is used where its back end works, which
+today is amd64 and aarch64; the C back end, which turns the same IR into C for
+the host's compiler, works wherever there is a C compiler and is the only one
+elsewhere. The whole test suite passes on x86_64 and aarch64 with both back
+ends and, with the C back end, on riscv64, ppc64le, s390x and loongarch64
+(Alpine/musl containers under QEMU, as in `docs/porting/pcc-targets.md`):
 
-    make                                     # stage 0, runtime, ir2c, cc1 where pcc works
+    make                                     # stage 0, runtime, ir2c, cc1 on amd64 and aarch64
     stage0/imp72stage0 -o hello tests/native/hello.imp && ./hello
     stage0/imp72stage0 -C -o hello tests/native/hello.imp   # the C back end
     make check
@@ -213,22 +213,18 @@ portable C from it:
 
 ### Targets, and the C fallback
 
-pcc's code generator is used wherever pcc works. Testing pcc itself on the
-machines we can run (see [docs/porting/pcc-targets.md](docs/porting/pcc-targets.md))
-gives: amd64 works; on aarch64 pcc builds but cannot compile a function with an
-integer loop ("op 75 slipped through") or a double constant; riscv64 is not
-configurable on Linux. So pcc is the back end on amd64 only for now, and the
+pcc's code generator is used wherever the moebiusv fork of pcc has a back end
+that works: amd64 and aarch64 (the fork replaced the 32 bit ARM port that
+aarch64 had been with an AAPCS64 one). Testing it on the machines we can run
+is in [docs/porting/pcc-targets.md](docs/porting/pcc-targets.md). The
 **C-emitting back end from the same IR covers every other host**, macOS arm64
-included, and is tested on aarch64, riscv64, ppc64le, s390x and loongarch64.
-Auditing pcc's aarch64 port found it is the 32-bit ARM port renamed (32-bit
-alignments, `long` mapped to `long long`, 32-bit varargs, a hidden scratch
-register): making it a correct AAPCS64 backend is a prerequisite for aarch64 on
-every OS, and the Darwin deltas (Apple's `@PAGE` relocations, all variadic
-arguments on the stack, caller-extended arguments, x18 reserved, `xcrun` and the
-arm64 linker flags, Apple's SDK headers) sit on top. The full audit is in
-[docs/PLAN.md](docs/PLAN.md); that work is a parallel track on the pcc fork, and
-each pcc target that starts to work needs only a small table in the translator
-(its argument registers, return register and frame pointer).
+included until the fork's back end has Mach-O, and is tested on riscv64,
+ppc64le, s390x and loongarch64 as well as aarch64 and x86_64. Each pcc target
+needs only a small table in the translator (its argument registers, result
+register, frame and stack pointers). The aarch64 back end is still missing
+structures-in-IMP-calls, Darwin deltas (Apple's `@PAGE` relocations, all
+variadic arguments on the stack, x18, the SDK headers), described in
+[docs/PLAN.md](docs/PLAN.md).
 
 ### The oracle
 

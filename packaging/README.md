@@ -10,14 +10,14 @@ user mode (`tools/ci-arch.sh ARCH`), on:
 | Alpine | Debian | pcc's code generator | tested here |
 |---|---|---|---|
 | x86_64 | amd64 | **yes** (cc1 built, both back ends tested) | native and in a musl container |
-| aarch64 | arm64 | no: pcc's aarch64 port fails (`docs/porting/pcc-targets.md`) | musl container, QEMU |
+| aarch64 | arm64 | **yes** (the fork's AAPCS64 back end; both back ends tested) | musl container, QEMU |
 | ppc64le | ppc64el | no | musl container, QEMU |
 | riscv64 | riscv64 | no (pcc does not configure) | musl container, QEMU |
 | s390x | s390x | no | musl container, QEMU |
 | loongarch64 | loong64 | no | musl container, QEMU |
 
 So both distributions list those architectures. pcc's code generator (its
-pass 2, `cc1`) is built and used where pcc works, which is amd64; everywhere
+pass 2, `cc1`) is built and used on amd64 and aarch64; everywhere
 else `imp72stage0` uses the C back end (`tools/ir2c.c`) and the system's C
 compiler (`make WITH_PCC=no`, which is what `auto` means off x86_64). When pcc's
 port for another machine works, that machine gets `cc1` too

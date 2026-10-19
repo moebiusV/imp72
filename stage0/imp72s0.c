@@ -3,7 +3,7 @@
  * here: read the bootstrap syntax with RSYN, then compile the rest of the
  * file, and any other files named, with the syntax built so far.
  *
- *     imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] SYNTAX [FILE ...]
+ *     imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]
  *
  * -s sets compiler switches, each letter of LETTERS the switch of that name
  * (the original's /A /B ... on the command line); the ones that mean
@@ -13,7 +13,8 @@
  * tree), X (print the syntax graph), L (list the source), Z (statistics).
  * Dumps go to the file given with -o, else to standard output.  -c writes
  * the pcc IR of the program to a file (- is standard output); cc1 of pcc
- * turns it into assembly.
+ * turns it into assembly.  -T names the machine the IR is lowered for (amd64,
+ * the default, or aarch64): the registers of the procedure call standard.
  *
  * The same program is also the compiler, imp72stage0 (a link to it, or a
  * copy: the name decides):
@@ -36,6 +37,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "imp.h"
+#include "ir.h"
 
 static void
 cotree_hook(word k)
@@ -46,7 +48,7 @@ cotree_hook(word k)
 static void
 usage(void)
 {
-    fputs("usage: imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] SYNTAX [FILE ...]\n", stderr);
+    fputs("usage: imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]\n", stderr);
     exit(2);
 }
 
@@ -68,7 +70,12 @@ kernel_main(int argc, char **argv)
             out = argv[++i];
         else if (strcmp(argv[i], "-c") == 0 && i + 1 < argc)
             irout = argv[++i];
-        else
+        else if (strcmp(argv[i], "-T") == 0 && i + 1 < argc) {
+            if (!ir_settarget(argv[++i])) {
+                fprintf(stderr, "imp72s0: no target %s\n", argv[i]);
+                return 2;
+            }
+        } else
             usage();
         i++;
     }
@@ -307,6 +314,12 @@ driver_main(int argc, char **argv)
         dup2(2, 1);                             /* the dumps go with the messages */
     } else
         imp_quiet = 1;
+    if (strcmp(backend, "pcc") == 0) {          /* cc1 of the machine we are on */
+#if defined(__aarch64__) || defined(__arm64__)
+        kargv[k++] = "-T";
+        kargv[k++] = "aarch64";
+#endif
+    }
     kargv[k++] = "-c";
     kargv[k++] = ir;
     kargv[k++] = syntax;

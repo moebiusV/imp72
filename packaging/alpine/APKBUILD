@@ -5,8 +5,9 @@ pkgrel=0
 pkgdesc="IMP72 systems programming language compiler (Bilofsky's PDP-10 compiler, ported)"
 url="https://github.com/moebiusV/imp72"
 # 64 bit machines (the language's word is 64 bits).  pcc's code generator is
-# used where pcc works, x86_64; elsewhere the program is turned into C for gcc.
-# Tested in Alpine containers of each (tools/ci-arch.sh).
+# used on x86_64 and aarch64, where the moebiusv fork of pcc has a working
+# back end; elsewhere the program is turned into C for gcc.  Tested in
+# Alpine containers of each (tools/ci-arch.sh).
 arch="x86_64 aarch64 ppc64le riscv64 s390x loongarch64"
 license="ISC AND BSD-2-Clause AND BSD-3-Clause"
 # a C compiler and linker are used to assemble and link the programs it makes
@@ -15,8 +16,8 @@ makedepends=""
 subpackages="$pkgname-doc"
 # The compiler uses pcc's pass 2 compiler (cc1), built from this pcc revision
 # (the submodule third_party/pcc of the release, which GitHub's tarball leaves
-# empty).
-_pccrev=9db636ff7e67a8f8e9003aea6282d12c6e618539
+# empty): the moebiusv fork, branch imp72-fixes.
+_pccrev=86e963db0e419decbebacf8ccec76458349a4552
 source="$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz
 	pcc-$_pccrev.tar.gz::https://github.com/moebiusV/pcc/archive/$_pccrev.tar.gz
 	"
@@ -54,5 +55,5 @@ package() {
 # exists (run `abuild checksum`); that of pcc is the archive of the revision above.
 sha512sums="
 0  imp72-0.1.0.tar.gz
-6e0796e960fe76900003981a419a876fc733ec19b4302d702b12e9d90ac20932925beec5a5fc20731ea86f8d70b00c841c6e0fa0901353ed35b18035bc54aed9  pcc-9db636ff7e67a8f8e9003aea6282d12c6e618539.tar.gz
+7c96e5951957bfdbee2c1c1d6fe0b201a249300e19aae487fa68fdefc183e4f7a670d7a9f0cb074265d54365d38a77ea184b18d6b442623c4af766b6398bb5ea  pcc-86e963db0e419decbebacf8ccec76458349a4552.tar.gz
 "

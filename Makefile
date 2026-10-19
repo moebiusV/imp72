@@ -15,8 +15,9 @@ LDFLAGS  =
 DESTDIR  =
 PREFIX   = /usr/local
 
-# pcc's code generator is used where the translator's output suits it: amd64.
-# yes, no, or auto (yes on x86_64).  Elsewhere imp72stage0 uses the C back end.
+# pcc's code generator is used where pcc works and the translator has a table
+# for it: amd64 and aarch64.
+# yes, no, or auto (yes on x86_64 and aarch64).  Elsewhere imp72stage0 uses the C back end.
 WITH_PCC = auto
 
 LIB = build/lib/libimp72.a
@@ -48,7 +49,7 @@ $(CC1):
 
 # cc1, if wanted
 pcc:
-	@if [ "$(WITH_PCC)" = yes ] || { [ "$(WITH_PCC)" = auto ] && [ "`uname -m`" = x86_64 ]; }; then \
+	@if [ "$(WITH_PCC)" = yes ] || { [ "$(WITH_PCC)" = auto ] && { [ "`uname -m`" = x86_64 ] || [ "`uname -m`" = aarch64 ] || [ "`uname -m`" = arm64 ]; }; }; then \
 	    $(MAKE) $(CC1); \
 	else echo "pcc not built: imp72stage0 will use the C back end"; fi
 

@@ -1019,7 +1019,8 @@ fsc(const struct ti *t)
 
 /* ---- calls ---------------------------------------------------------------- */
 
-static const int argreg[6] = { R_RDI, R_RSI, R_RDX, R_RCX, R_R8, R_R9 };
+#define argreg(k) (irtgt->arg[k])
+#define NARGREG (irtgt->narg)
 
 /* the pointer an argument word stands for */
 static struct irn *
@@ -1171,19 +1172,19 @@ call(long i)
         /* the arguments beyond the sixth go in the outgoing stack area, which
          * pcc reserves for any assignment to memory in a call's list; they
          * come first, the register ones last */
-        for (k = 6; k < nargs; k++) {
+        for (k = NARGREG; k < nargs; k++) {
             struct irn *m = ir_un(IR_UMUL, T_PLONG, ir_bin(IR_PLUS, T_PLONG,
-                ir_reg(R_RSP, T_PLONG), ir_icon(8 * (k - 6), T_LONG)));
+                ir_reg(R_RSP, T_PLONG), ir_icon(8 * (k - NARGREG), T_LONG)));
             struct irn *a = ir_assign(m, args[k]);
 
             cm = cm == NULL ? a : ir_bin(IR_CM, T_INT, cm, a);
         }
-        for (k = 0; k < nargs && k < 6; k++) {
-            struct irn *a = ir_assign(ir_reg(argreg[k], byval ? T_LONG : T_PLONG), args[k]);
+        for (k = 0; k < nargs && k < NARGREG; k++) {
+            struct irn *a = ir_assign(ir_reg(argreg(k), byval ? T_LONG : T_PLONG), args[k]);
 
             cm = cm == NULL ? a : ir_bin(IR_CM, T_INT, cm, a);
         }
-        if (byval)                              /* varargs: no vector registers used */
+        if (byval && strcmp(irtgt->name, "amd64") == 0)  /* varargs: no vector registers used */
             cm = ir_bin(IR_CM, T_INT, cm, ir_assign(ir_reg(R_RAX, T_LONG), icon(0)));
         tree = ir_bin(IR_CALL, T_LONG, tree, cm);
     } else
@@ -1495,11 +1496,11 @@ subr(long i0, long i1, int ismain)
     retlab = ir_newlabel();
     for (k = 0; k < nparams; k++) {
         paramtmp[k] = ir_newtemp();
-        if (k < 6)
-            asg(ir_temp(paramtmp[k], T_PLONG), ir_reg(argreg[k], T_PLONG));
+        if (k < NARGREG)
+            asg(ir_temp(paramtmp[k], T_PLONG), ir_reg(argreg(k), T_PLONG));
         else                                    /* above the return address and saved rbp */
             asg(ir_temp(paramtmp[k], T_PLONG), ir_un(IR_UMUL, T_PLONG,
-                ir_bin(IR_PLUS, T_PLONG, ir_reg(R_RBP, T_PLONG), ir_icon(16 + 8 * (k - 6), T_LONG))));
+                ir_bin(IR_PLUS, T_PLONG, ir_reg(R_RBP, T_PLONG), ir_icon(irtgt->stackarg0 + 8 * (k - NARGREG), T_LONG))));
     }
     rettmp = ir_newtemp();
     lastmove = 0;
