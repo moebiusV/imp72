@@ -228,12 +228,15 @@ variadic arguments on the stack, x18, the SDK headers), described in
 
 ### The oracle
 
-**Differential testing against the original binaries.** The tape contains the
-compiler (`imp.low`, `imp.shr`, `implib.lib`). A SIMH + TOPS-10 setup running
-it is the reference for the dumps, parse traces and generated listings. It also
-recovers PMOD, the formatted print module, which is on the tape only as
-binary. Until it exists the stage 0 ports are checked against the sources and
-the manual.
+**Differential testing against the original compiler.** The original IMP 1.5 runs
+on TOPS-10 6.03 on a simulated KA10 (open-simh), set up by `tools/oracle-build.sh`
+and driven by `tools/oracle-*.py`; [docs/ORACLE.md](docs/ORACLE.md) says how. Its output
+for the programs in `tests/oracle/LIST` is stored in `tests/golden/oracle/`, and
+`make check` compares imp72stage0's with it: `hello`, `algo` and `features` are
+identical. The oracle also showed that the archive's copies of the three binaries
+lose a bit of every word; the exact words (from the DECUS tape image) are in
+`decus/exact/`. Still to do with it: the dumps (`GPRINT`/`TPRINT`/`SEMPER`), the
+`/A` listings, PMOD, and programs with `REAL` (they need a KI10 or later monitor).
 
 ### Semantic routines
 
@@ -257,7 +260,7 @@ Full detail in [docs/PLAN.md](docs/PLAN.md). In outline:
 
 0. Repository and provenance. **Done.**
 1. **The oracle** (SIMH + TOPS-10): golden dumps and listings from the original
-   compiler; recover PMOD. *Not started.*
+   compiler; recover PMOD. *Running; run output compared; dumps and listings to do.*
 2. Stage 0 kernel port: housekeeping (`free`, `dir`, `stack`, `lex`), parsing
    (`graph`, `parse`, `ercor`), semantics (`dosem`, `entree`, `cotree`, `rsyn`),
    `debug`, and the declaration routines. **Done**; `syntax.imc` and `impsyn.imc`

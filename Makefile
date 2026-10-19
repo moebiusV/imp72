@@ -73,6 +73,7 @@ install: all
 check: all
 	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 	CC1=$(CURDIR)/$(CC1) sh tests/native/run.sh
+	CC1=$(CURDIR)/$(CC1) sh tests/oracle/run.sh
 	sh tests/native/runc.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/stage1.sh

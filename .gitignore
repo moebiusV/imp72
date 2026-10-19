@@ -16,3 +16,8 @@ debian/*.debhelper.log
 debian/imp72-dbgsym/
 debian/imp72.substvars
 stage0/imp72stage0
+oracle/disks/
+oracle/dl/
+oracle/tapes/
+oracle/units/
+tools/__pycache__/

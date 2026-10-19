@@ -6,8 +6,10 @@ Never edit these files; ported sources live in `src/`.
 - `SHA256SUMS`: the 30 text files (`cd decus && sha256sum -c SHA256SUMS`).
 - `SHA256SUMS.bin`: the three PDP-10 binaries (`imp.low`, `imp.shr`, `implib.lib`),
   fetched 2026-10-18 from the same archive directory. The archive serves 36-bit
-  words as 5 bytes each (12090 words -> 60450 bytes for `imp.low`). They are the
-  differential-test oracle's input and the only record of the PMOD print module.
+  words as 5 bytes each (12090 words -> 60450 bytes for `imp.low`), **but with only
+  35 bits of each word** (every byte is 7 bit; the last bit of each word is lost).
+  They are useful for reading, not for running: the exact words are in `decus/exact/`
+  (recovered from the DECUS tape image, see `docs/ORACLE.md`).
 - The text files carry DEC-10 conventions (CRLF line ends, upper case).
 
 ## Source and attribution
