@@ -6,28 +6,36 @@ differences with some of the text before them."""
 import difflib, re, sys
 
 
+import re
+
+# Semantic routines are named by address in the original and by a slot of a table here, and
+# constants of the code tree by their address in free storage: the low half of such words
+# is masked (they begin 03... in the semantics array and 3000010... in the tree).
+ADDRESS = re.compile(r"^(03[0-7]{4}|300001)[0-7]{6}$")
+
+
 def words(path, start_marker):
     t = open(path, errors="replace").read().replace("\r", "")
     i = t.find(start_marker)
-    return t[i:].split() if i >= 0 else []
+    ws = t[i:].split() if i >= 0 else []
+    return [w[:6] + "......" if ADDRESS.match(w) else w for w in ws]
 
 
 def main(a, b, marker="** CODE GENERATION TREE"):
+    import subprocess, tempfile
     x, y = words(a, marker), words(b, marker)
     print("%d words (oracle), %d words (ours)" % (len(x), len(y)))
-    sm = difflib.SequenceMatcher(None, x, y, autojunk=False)
-    n = 0
-    for tag, i1, i2, j1, j2 in sm.get_opcodes():
-        if tag == "equal":
-            continue
-        n += 1
-        if n <= 12:
-            print("%s at oracle word %d / ours %d:" % (tag, i1, j1))
-            print("   before:", " ".join(x[max(0, i1 - 8):i1]))
-            print("   oracle:", " ".join(x[i1:i2][:12]))
-            print("   ours  :", " ".join(y[j1:j2][:12]))
-    print("%d differing runs" % n)
-    return 1 if n else 0
+    with tempfile.NamedTemporaryFile("w", suffix=".o") as fx, tempfile.NamedTemporaryFile("w", suffix=".u") as fy:
+        fx.write("\n".join(x) + "\n")
+        fy.write("\n".join(y) + "\n")
+        fx.flush()
+        fy.flush()
+        r = subprocess.run(["diff", "-U3", fx.name, fy.name], capture_output=True, text=True)
+    lines = r.stdout.split("\n")
+    hunks = [l for l in lines if l.startswith("@@")]
+    print("%d differing runs" % len(hunks))
+    print("\n".join(lines[:80]))
+    return 1 if hunks else 0
 
 
 if __name__ == "__main__":

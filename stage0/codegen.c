@@ -851,12 +851,12 @@ conop(word s, word t, word i, word v, word w)
     case 6: co1 = ~co1; break;
     case 7: co1 = co1 & co2; break;
     case 8: co1 = co1 | co2; break;
-    case 9: co1 = co1 < co2; break;
-    case 10: co1 = co1 == co2; break;
-    case 11: co1 = co1 <= co2; break;
-    case 13: co1 = co1 >= co2; break;
-    case 14: co1 = co1 != co2; break;
-    case 15: co1 = co1 > co2; break;
+    case 9: co1 = -(word)(co1 < co2); break;       /* IMP's true is -1 */
+    case 10: co1 = -(word)(co1 == co2); break;       /* IMP's true is -1 */
+    case 11: co1 = -(word)(co1 <= co2); break;       /* IMP's true is -1 */
+    case 13: co1 = -(word)(co1 >= co2); break;       /* IMP's true is -1 */
+    case 14: co1 = -(word)(co1 != co2); break;       /* IMP's true is -1 */
+    case 15: co1 = -(word)(co1 > co2); break;       /* IMP's true is -1 */
     case 16: co1 = ls36(co1, co2); break;
     case 17: co1 = (word)((u36(co1) << (co2 % 36) | u36(co1) >> (36 - co2 % 36))
         & MASK36); break;
@@ -867,23 +867,20 @@ conop(word s, word t, word i, word v, word w)
     co1 = sx36(co1);
     c = i >> 18;
     if (c) {                                    /* special for conditionals */
+        /* the chosen arm replaces the whole entry: FREES(S+I,FREE(V+I)) FOR I FROM 2,
+         * which counts 2, 1, 0 */
         if (c == 1) {
             if (co1 != 0)
                 goto cxc;
-            for (j = 2; j <= 2; j++)
-                ;
-            FREES(s + 2, FREE(v + 2));
-            FREES(s + 1, FREE(v + 1));
+            for (j = 2; j >= 0; j--)
+                FREES(s + j, FREE(v + j));
             return s;
         }
         if (c == 2) {
-            if (co1 == 0) {
-                FREES(s + 2, FREE(w + 2));
-                FREES(s + 1, FREE(w + 1));
-            } else {
-                FREES(s + 2, FREE(v + 2));
-                FREES(s + 1, FREE(v + 1));
-            }
+            word arm = co1 == 0 ? w : v;
+
+            for (j = 2; j >= 0; j--)
+                FREES(s + j, FREE(arm + j));
             return s;
         }
     }

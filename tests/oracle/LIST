@@ -7,3 +7,6 @@ arrays
 subr
 logic
 fmt
+blt
+fields
+shifts
