@@ -252,6 +252,9 @@ strvalue(word v)
 
 /* ---- per subroutine state ------------------------------------------------ */
 
+/* BLT's AC holds source,,destination; with 32-bit halves that cannot hold a
+ * pointer, so HRLI/HRRI also leave the whole address in a shadow temp */
+static int bltsrc[2048], bltdst[2048];
 static int *regtmp;
 static word nregtmp;
 static int paramtmp[16];
@@ -855,6 +858,13 @@ halfword(const struct ti *t)
         asg(ir_name(symname(t->v), 0, T_LONG), rv(t->ac));
         return;
     }
+    if ((t->op == 0505 || t->op == 0541) && t->ac && t->ac < 2048) {
+        int *sh = t->op == 0505 ? bltsrc : bltdst;
+
+        if (!sh[t->ac])
+            sh[t->ac] = ir_newtemp();
+        asg(ir_temp(sh[t->ac], T_LONG), immvalue(t));
+    }
     int destleft = n < 8, srcleft;
     int ext = (n >> 1) & 3;
     struct irn *src, *dst, *moved, *keep;
@@ -956,13 +966,9 @@ printcall(long i)
             continue;
         n = 077 & (u36(a->c) >> 24);
         off = a->c & 0777777;
-        if (a->c & 020000000) {
-            tfail("TRANS: PRINT LIST ITEM THROUGH A POINTER WORD");
-            continue;
-        }
         if (a->v == 0)
             p = icon(0);
-        else if (iscal(a->v)) {
+        else if ((a->c & 020000000) || iscal(a->v)) {   /* the word holds the address */
             usevar(a->v);
             p = ir_name(symname(a->v), 0, T_PLONG);
         } else {
@@ -1190,6 +1196,24 @@ insn(long i)
         dpb(t);
         return i;
     }
+    if (op == 0251) {                           /* BLT: imp_blt(dst, src, bytes) */
+        struct irn *tree;
+
+        if (!t->ac || t->ac >= 2048 || !bltsrc[t->ac] || !bltdst[t->ac]) {
+            tfail("TRANS: BLT WITHOUT HRLI/HRRI SETUP");
+            return i;
+        }
+        tree = ir_bin(IR_CALL, T_LONG, ir_sym("imp_blt", 0, T_PFTN),
+            ir_bin(IR_CM, T_INT,
+                ir_bin(IR_CM, T_INT,
+                    ir_assign(ir_reg(R_RDI, T_LONG), ir_temp(bltdst[t->ac], T_LONG)),
+                    ir_assign(ir_reg(R_RSI, T_LONG), ir_temp(bltsrc[t->ac], T_LONG))),
+                ir_assign(ir_reg(R_RDX, T_LONG), ir_bin(IR_PLUS, T_LONG,
+                    ir_bin(IR_MINUS, T_LONG, immvalue(t), ir_temp(bltdst[t->ac], T_LONG)),
+                    icon(8)))));
+        ir_stmt(tree);
+        return i;
+    }
     if (op == 0250) {                           /* EXCH */
         int tmp = ir_newtemp();
 
@@ -1199,6 +1223,21 @@ insn(long i)
         return i;
     }
     if (op == 0254) {                           /* JRST */
+        if (t->v && !t->ind && t->ix) {         /* GO TO (L0,L1,...) N: JRST table(N) */
+            int j, k;
+
+            for (j = 0; j < nti; j++)
+                if (tis[j].kind == K_TAG && tis[j].v == t->v)
+                    break;
+            if (j == nti) {
+                tfail("TRANS: JUMP TABLE NOT FOUND");
+                return i;
+            }
+            for (k = 0, j++; j < nti && tis[j].kind == K_INSN && tis[j].op == 0254 &&
+                tis[j].v && !tis[j].ind && !tis[j].ix; j++, k++)
+                ir_cbranch(IR_EQ, rv(t->ix), icon(k), taglabel(tis[j].v));
+            return i;                           /* out of range: falls into the table's jumps */
+        }
         if (t->v == 0 || t->ind || t->ix) {
             tfail("TRANS: JUMP TO A COMPUTED ADDRESS");
             return i;
@@ -1299,6 +1338,8 @@ subr(long i0, long i1, int ismain)
         return;
     }
     memset(regtmp, 0, (size_t)nregtmp * sizeof *regtmp);
+    memset(bltsrc, 0, sizeof bltsrc);
+    memset(bltdst, 0, sizeof bltdst);
     ntags = 0;
     pendskip = 0;
     ir_func_begin(ismain ? "imp_main" : symname(name), 1);

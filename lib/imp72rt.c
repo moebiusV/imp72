@@ -150,3 +150,15 @@ imp_calli(long code, long ac)
         return 0;
     }
 }
+
+/* BLT: copy bytes words from src to dst (the ranges may overlap, as the
+ * PDP-10 copies upward word by word; memmove is the safe superset). */
+#include <string.h>
+
+long
+imp_blt(char *dst, char *src, long bytes)
+{
+    if (bytes > 0)
+        memmove(dst, src, (size_t)bytes);
+    return 0;
+}
