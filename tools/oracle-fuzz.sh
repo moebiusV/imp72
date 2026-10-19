@@ -9,7 +9,7 @@ mkdir -p $d
 python3 tools/${GEN:-imp-fuzz.py} $seed $count $d
 python3 tools/oracle-run.py -d $d $d/*z*.imp || exit 1
 bad=0
-for p in $d/*z[0-9][0-9].imp; do
+for p in $d/[a-z]z[0-9][0-9].imp; do
     n=$(basename $p .imp)
     stage0/imp72stage0 -o $d/$n $p >/dev/null 2>&1 || { echo "$n: ours does not compile"; bad=1; continue; }
     $d/$n | sed 's/[ 	]*$//' > $d/$n.got

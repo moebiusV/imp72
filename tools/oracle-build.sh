@@ -15,8 +15,8 @@ if [ ! -x build/oracle/simh/BIN/pdp10-ka ]; then
     [ -d oracle/dl/simh-src/open-simh ] || git clone -q https://github.com/open-simh/simh.git oracle/dl/simh-src/open-simh
     git -C oracle/dl/simh-src/open-simh checkout -q $SIMH_COMMIT 2>/dev/null || true
     rm -rf build/oracle/simh; cp -r oracle/dl/simh-src/open-simh build/oracle/simh
-    (cd build/oracle/simh && patch -p0 --binary sim_tape.c < "$root/oracle/simh-tape-fflush.patch" \
-        && make pdp10-ka -j4)
+    python3 tools/patch-sim-tape.py build/oracle/simh/sim_tape.c
+    (cd build/oracle/simh && make pdp10-ka -j4)
 fi
 
 # 2. the TOPS-10 6.03 disks (PiDP-10 project)

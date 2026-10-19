@@ -198,6 +198,8 @@ field(const char *s, long w, int zero)
  *    when positive and no leading zeros), with w-7 digits, padded to w; a field narrower
  *    than 9 gets two digits and no padding;
  *  - a negative width is the scientific form always, in -m columns, with n+1 digits;
+ *  - zero is a bare 0 right-aligned in the field (the original does not stop to print it in
+ *    the scientific form: it hangs, and the output is lost);
  *  - a carry out of the digits of the scientific form is dropped (99999.5 is .99999"5).
  *
  * The original works in 27 bit single precision and its digits for numbers that are not
@@ -254,6 +256,10 @@ printflt(double x, long m, long n)
     int e, carry, neg = x < 0, len;
     long w = m < 0 ? -m : m;
 
+    if (x == 0) {                               /* zero is a bare 0, in any format */
+        field("0", w, 0);
+        return;
+    }
     decdigits(fabs(x), d, &e);
     if (m >= 0) {
         int k = e + (int)n;
