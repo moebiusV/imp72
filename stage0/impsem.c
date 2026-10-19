@@ -19,6 +19,7 @@
  * lower limit, bit 5 two successive registers, bits 4-0 the upper limit.
  */
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "imp.h"
@@ -466,19 +467,36 @@ is_cval(word d)
     return 0;
 }
 
+/* x rounded to the 27 bit mantissa of the PDP-10's floating point numbers (to nearest, a tie
+ * away from zero, as the rounded instructions do; the exponent range is not limited) */
+double
+round27(double x)
+{
+    uint64_t b, mag;
+
+    memcpy(&b, &x, sizeof b);
+    mag = b & 0x7FFFFFFFFFFFFFFFULL;
+    if (mag == 0 || mag >= 0x7FF0000000000000ULL)           /* zero, infinity, not a number */
+        return x;
+    mag = (mag + 0x2000000ULL) & ~0x3FFFFFFULL;
+    b = (b & 0x8000000000000000ULL) | mag;
+    memcpy(&x, &b, sizeof b);
+    return x;
+}
+
 /*
- * FCON(A,B,E): the floating constant A.B"E.  A and B are the digit strings
- * (names); E, if nonzero, the stack entry of the constant exponent.  The
- * original sums the digits in REAL arithmetic; strtod gives the correctly
- * rounded double instead, so the two may differ in the last bit.
+ * FCON(A,B,E): the floating constant A.B"E.  The original sums the digits in REAL arithmetic
+ * (decus/impsem.imc), and so does this, in 27 bit mantissa floating point: 0.25 comes out one
+ * unit in the last place low, as it does there (TEN is 1/10, not exact), and programs that
+ * compare, FIX or print the constants see the same numbers.
  */
 word
 fcon(word a, word b, word e)
 {
-    char ai[64], bi[64], buf[200];
+    char ai[64], bi[64];
     const char *p;
     int ex = 0;
-    double v;
+    double lh = 0, rh = 0, ten = 10, sca = 1, v;
     word bits;
 
     dname_str(L18(FREE(a)), ai, sizeof ai);
@@ -489,17 +507,41 @@ fcon(word a, word b, word e)
     for (p = bi; *p; p++)
         if (*p < '0' || *p > '9')
             goto bad;
+    for (p = ai; *p; p++)                                   /* LH_(CH-'0')+LH*TEN */
+        lh = round27((double)(*p - '0') + round27(lh * ten));
+    ten = round27(1.0 / ten);
+    for (p = bi; *p; p++) {                                 /* RH_RH+(CH-'0')*SCA_SCA*TEN */
+        sca = round27(sca * ten);
+        rh = round27(rh + round27((double)(*p - '0') * sca));
+    }
+    lh = round27(lh + rh);
     if (e) {
+        double xpt = 1;
+        int neg;
+
         if ((FREE(e) & 077) != 4)
             goto bad;
         ex = (int)FREE(e + 1);
-        if (ex > 127 || ex < -127) {
+        neg = ex < 0;
+        if (neg)
+            ex = -ex;
+        if (ex > 127) {
             imp_error(1, "EXPONENT GREATER THEN 127.");
             ex = 0;
         }
+        while (ex > 9) {
+            ex -= 10;
+            xpt = round27(xpt * round27(10000000000.0));
+        }
+        while (ex > 0) {
+            ex--;
+            xpt = round27(xpt * 10.0);
+        }
+        if (neg)
+            xpt = round27(1.0 / xpt);
+        lh = round27(lh * xpt);
     }
-    snprintf(buf, sizeof buf, "%s.%se%d", ai, bi, ex);
-    v = strtod(buf, NULL);
+    v = lh;
     goto done;
 bad:
     imp_error(1, "ILLEGAL CHARACTER IN FLOATING CONSTANT.");

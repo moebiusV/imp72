@@ -187,142 +187,150 @@ field(const char *s, long w, int zero)
 }
 
 /*
- * A real, as the original's PMOD prints it (read off the original running: docs/ORACLE.md):
+ * A real, as the original's PMOD prints it.  This is the FLT part of PMOD's PRN. routine
+ * (the compiled IMP, read off the original's code with DDT), instruction for instruction:
+ * the number is scaled into .1 <= z < 1 by multiplying by 10^10, 10^-10 and 0.1 (the last two
+ * not exact), a rounding quantity 0.5*0.1^(digits-1) is added, and each digit is the last
+ * digit of IFIX(z*10) with z multiplied by 10 each time and never reduced.  All the
+ * arithmetic is PDP-10 single precision (27 bit mantissa, rounded), so the inexact constants
+ * and the rounding of the products show in the last digits, as they do there: 0.001 prints
+ * as .99999"-3, 65536.0 with three decimals as 65535.999, and ties go either way.
  *
- *  - no 0 before the point: .5, -.25; with n = 0 no point, and nothing at all for an
- *    integer part of 0 (just the sign of a negative number);
- *  - digits are rounded half up from the exact decimal value of the number;
- *  - fixed notation is used when the unsigned text and two more columns fit in the field
- *    (always when the width is 0); otherwise the number is written as .ddd"e (the " is
- *    'times ten to the'; the mantissa is a fraction from .1 up, the exponent has no sign
- *    when positive and no leading zeros), with w-7 digits, padded to w; a field narrower
- *    than 9 gets two digits and no padding;
- *  - a negative width is the scientific form always, in -m columns, with n+1 digits;
- *  - zero is a bare 0 right-aligned in the field (the original does not stop to print it in
- *    the scientific form: it hangs, and the output is lost);
- *  - a carry out of the digits of the scientific form is dropped (99999.5 is .99999"5).
- *
- * The original works in 27 bit single precision and its digits for numbers that are not
- * exact in binary (0.001, 12345678.0) differ in the last places: not reproduced.
+ *  - no 0 before the point; zero is a bare 0;
+ *  - fixed notation unless the digits do not fit the field (m wide: the digits and the
+ *    point must be fewer than m-1), then .ddd"e with m-7 digits (two, unpadded, when the
+ *    field is narrower than 9);
+ *  - a negative m is the scientific form always, in -m columns, with n+1 digits.
  */
-#define NDIG 41
-
-/* the exact decimal digits of ax: value = 0.d[0]d[1]... * 10^*e */
-static void
-decdigits(double ax, char *d, int *e)
+static double
+r27(double x)                                   /* a rounded floating point result */
 {
-    char buf[64];
+    uint64_t b, mag;
 
-    if (ax == 0) {
-        memset(d, '0', NDIG);
-        d[NDIG] = '\0';
-        *e = 0;
-        return;
-    }
-    snprintf(buf, sizeof buf, "%.*e", NDIG - 1, ax);    /* d.ddd...e+XX */
-    d[0] = buf[0];
-    memcpy(d + 1, buf + 2, NDIG - 1);
-    d[NDIG] = '\0';
-    *e = atoi(strchr(buf, 'e') + 1) + 1;
+    memcpy(&b, &x, sizeof b);
+    mag = b & 0x7FFFFFFFFFFFFFFFULL;
+    if (mag == 0 || mag >= 0x7FF0000000000000ULL)
+        return x;
+    mag = (mag + 0x2000000ULL) & ~0x3FFFFFFULL;
+    b = (b & 0x8000000000000000ULL) | mag;
+    memcpy(&x, &b, sizeof b);
+    return x;
 }
 
-/* keep the first k digits of d, rounded half up; 1 if that carried out of the front */
-static int
-roundk(char *d, int k)
+/* the constants of PMOD, from their words: 1.0e-10, 0.1, 1.0e10 as 27 bit floats */
+static double
+pdpfloat(uint64_t w)
 {
-    int i, carry;
+    int e = (int)((w >> 27) & 0377) - 128;
+    double f = (double)(w & 0x7FFFFFFULL) / 134217728.0;
 
-    if (k < 0) {
-        d[0] = '\0';
-        return 0;
-    }
-    carry = d[k] >= '5';
-    d[k] = '\0';
-    for (i = k - 1; i >= 0 && carry; i--) {
-        if (d[i] == '9')
-            d[i] = '0';
-        else {
-            d[i]++;
-            carry = 0;
-        }
-    }
-    return carry;
+    return f * (e >= 0 ? (double)(1ULL << e) : 1.0 / (double)(1ULL << -e));
 }
 
 static void
 printflt(double x, long m, long n)
 {
-    char d[NDIG + 1], r[NDIG + 8], txt[256];
-    int e, carry, neg = x < 0, len;
-    long w = m < 0 ? -m : m;
+    const double c1m10 = pdpfloat(0137667633766ULL), c01 = pdpfloat(0175631463146ULL),
+        c1e10 = pdpfloat(0242452013710ULL);
+    char b[96], out[96];
+    double zz = fabs(x), rnd;
+    long d = n, g, xp, ii, j, k;
+    int exp = 0, sci = 1, i, neg = x < 0, len;
 
-    if (x == 0) {                               /* zero is a bare 0, in any format */
-        field("0", w, 0);
-        return;
+    memset(b, ' ', sizeof b);
+    g = m > 0 ? m - 1 : m < 0 ? -m - 1 : -1;
+    if (zz == 0) {
+        b[0] = '0';
+        i = 0;
+        goto tx;
     }
-    decdigits(fabs(x), d, &e);
-    if (m >= 0) {
-        int k = e + (int)n;
-        char *lead;
-
-        /* r: the digits of |x| * 10^n rounded to an integer, without leading zeros */
-        if (k < 0)
-            r[0] = '\0', carry = 0;
-        else {
-            strcpy(r + 1, d);
-            carry = roundk(r + 1, k);
-            r[0] = '1';
+    while (zz < c01) {
+        exp -= 10;
+        zz = r27(c1e10 * zz);
+    }
+    while (zz >= c1e10) {
+        exp += 10;
+        zz = r27(c1m10 * zz);
+    }
+    while (zz >= 1.0) {
+        exp++;
+        zz = r27(c01 * zz);
+    }
+    if (m < 0)                                  /* scientific always: one more digit */
+        d = n + 1, sci = 0;
+    j = exp > 0 ? exp * sci : 0;
+    i = (int)((d ? d + 1 : 0) + j);
+    if (g >= 0 && i >= g) {                     /* it does not fit */
+        sci = 0;
+        d = g - 6;
+        if (d <= 1) {
+            d = 2;
+            g = -1;
         }
-        lead = r + (carry ? 0 : 1);
-        if (k < 0)
-            lead = r;
-        else if (k == 0 && carry)
-            strcpy(r, "1"), lead = r;
-        while (*lead == '0')
-            lead++;
-        len = (int)strlen(lead);
-        {
-            char *q = txt;
-            int ni = len - (int)n, i;
-
-            if (ni > 0) {
-                memcpy(q, lead, (size_t)ni);
-                q += ni;
+        i = (int)d + 1;
+    }
+    if (d == 0)
+        i++;
+    rnd = 0.5;
+    if (i > 1)
+        for (ii = i - 2; ii >= 0; ii--)
+            rnd = r27(c01 * rnd);
+    while (r27(rnd + zz) >= 1.0)
+        rnd = r27(c01 * rnd);
+    zz = r27(rnd + zz);
+    xp = exp * sci;
+    i = -1;
+    if (neg)
+        b[30 - ++i] = '-';
+    while (xp > 0) {
+        zz = r27(zz * 10.0);
+        b[30 - ++i] = (char)('0' + (long)zz % 10);
+        xp--;
+    }
+    if (d > 0) {
+        b[30 - ++i] = '.';
+        for (j = d - 1; j >= 0; j--) {
+            ++i;
+            if (i >= g && g >= 0)
+                break;
+            if (xp < 0) {
+                b[30 - i] = '0';
+                xp++;
+            } else {
+                zz = r27(zz * 10.0);
+                b[30 - i] = (char)('0' + (long)zz % 10);
             }
-            if (n > 0) {
-                *q++ = '.';
-                for (i = 0; i < n; i++) {
-                    int idx = ni + i;           /* index into lead; before its start: a zero */
-
-                    *q++ = idx >= 0 ? lead[idx] : '0';
-                }
-            }
-            *q = '\0';
-        }
-        if (m == 0 || (long)strlen(txt) + 2 <= m) {
-            char out[300];
-
-            snprintf(out, sizeof out, "%s%s", neg ? "-" : "", txt);
-            field(out, m, 0);
-            return;
         }
     }
-    {
-        int pad = 1, dg = m < 0 ? (int)n + 1 : (int)(w - 7);
-
-        if (dg < 2)                             /* a field too narrow for any good form: two digits, unpadded */
-            dg = 2, pad = 0;
-        char out[300];
-
-        if (dg > NDIG - 2)
-            dg = NDIG - 2;
-        if (roundk(d, dg)) {                    /* the carry is dropped: all nines */
-            memset(d, '9', (size_t)dg);
-            d[dg] = '\0';
-        }
-        snprintf(out, sizeof out, "%s.%s\"%d", neg ? "-" : "", d, e);
-        field(out, pad ? w : 0, 0);
+    j = 0;
+    if (!sci) {                                 /* the exponent, before the digits in the buffer */
+        j = -1;
+        xp = exp < 0 ? -exp : exp;
+        do {
+            b[++j] = (char)('0' + xp % 10);
+            xp /= 10;
+        } while (xp != 0);
+        if (exp < 0)
+            b[++j] = '-';
+        b[++j] = '"';
+        j++;
     }
+    for (k = 0; k <= i; k++)
+        b[k + j] = b[30 - i + k];
+    i += (int)j;
+tx:
+    /* PMOD pads while the width g exceeds the index i of the last character, then writes
+     * b[i] down to b[0] with a loop that runs at least once: with nothing to write (i = -1,
+     * a fraction printed with no decimals) that is the word before the buffer, a blank. */
+    for (k = g; k > i; k--)
+        pad(1, fillch);
+    len = 0;
+    k = i;
+    do
+        out[len++] = k >= 0 ? b[k] : ' ';
+    while (--k >= 0);
+    out[len] = '\0';
+    put(out, len);
 }
 
 long
