@@ -10,7 +10,13 @@ CC1      = $(PCCBUILD)/cc/ccom/cc1
 
 LIB = build/lib/libimp72.a
 
-all: $(CC1) stage0 $(LIB)
+IR2C     = build/bin/ir2c
+
+all: $(CC1) stage0 $(LIB) $(IR2C)
+
+$(IR2C): tools/ir2c.c
+	mkdir -p build/bin
+	cc -std=gnu99 -Wall -O1 -o $(IR2C) tools/ir2c.c
 
 $(LIB): lib/imp72rt.c lib/imp72main.c
 	mkdir -p build/lib
@@ -33,6 +39,7 @@ stage0:
 check: all
 	$(MAKE) -C stage0 check
 	CC1=$(CURDIR)/$(CC1) sh tests/native/run.sh
+	sh tests/native/runc.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/stage1.sh
 

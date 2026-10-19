@@ -6,6 +6,8 @@
 # Each FILE.imp is read with the syntax of the compiler (decus/syntax.imc), made
 # into pcc IR by stage 0 (imp72s0), into assembly by cc1 (pass 2 of pcc), and
 # assembled by cc and linked with the runtime library (build/lib/libimp72.a).
+# -C uses the C back end (tools/ir2c.c, the host's C compiler) instead of pcc;
+# -S then stops at C.
 # -S stops at assembly, -c at the object file (the default output names are
 # FILE.s and FILE.o), else an executable FILE is made.  -s gives switches to
 # the stage 0 driver (for listings and dumps).
@@ -18,10 +20,12 @@ s0=${IMP72S0:-$root/stage0/imp72s0}
 cc1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 syntax=${IMP72SYNTAX:-$root/decus/syntax.imc}
 ffi=${IMP72FFI:-$root/lib/ffi.imc}
+ir2c=${IR2C:-$root/build/bin/ir2c}
 lib=${IMP72LIB:-$root/build/lib/libimp72.a}
-stop=x out= sw=
+stop=x out= sw= backend=${IMP72BACKEND:-pcc}
 while [ $# -gt 0 ]; do
     case $1 in
+    -C) backend=c ;;
     -S) stop=S ;;
     -c) stop=o ;;
     -o) out=$2; shift ;;
@@ -42,6 +46,19 @@ if [ -n "$sw" ]; then
 else
     "$s0" -c "$tmp/p.ir" "$syntax" "$ffi" "$@" 2>"$tmp/err" || { grep -v "^SYNTAX BOOTSTRAPPED" "$tmp/err" >&2; exit 1; }
     grep -v "^SYNTAX BOOTSTRAPPED\|ADVISORY - PRODUCTION DUPLICATES" "$tmp/err" >&2 || true
+fi
+if [ "$backend" = c ]; then
+    # the C back end: the IR as C, for the host's compiler
+    "$ir2c" <"$tmp/p.ir" >"$tmp/p.c"
+    if [ $stop = S ]; then
+        cp "$tmp/p.c" "${out:-$base.c}"
+    elif [ $stop = o ]; then
+        cc -w -c -o "${out:-$base.o}" "$tmp/p.c"
+    else
+        cc -w -c -o "$tmp/p.o" "$tmp/p.c"
+        cc -o "${out:-$base}" "$tmp/p.o" "$lib"
+    fi
+    exit 0
 fi
 "$cc1" <"$tmp/p.ir" >"$tmp/p.s"
 if [ $stop = S ]; then
