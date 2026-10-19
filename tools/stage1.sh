@@ -5,6 +5,8 @@
 # functions renamed impl_NAME, and stage0/NAME_imp.c adapts the C interface
 # to it.  Run from the top of the tree after `make`.
 set -e
+command -v objcopy >/dev/null 2>&1 || { echo "stage1: no objcopy (ELF only)" >&2; exit 77; }
+nopie=-no-pie; [ "$(uname)" = Darwin ] && nopie=
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-stack}
@@ -34,5 +36,5 @@ for o in stage0/*.o; do
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-cc -no-pie -o $out/imp72s1 stage0/imp72s0.o $keep $objs build/lib/libimp72.a
+cc $nopie -o $out/imp72s1 stage0/imp72s0.o $keep $objs build/lib/libimp72.a
 echo "built $out/imp72s1 with the compiler's own: $modules"

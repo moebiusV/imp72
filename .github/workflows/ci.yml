@@ -1,0 +1,67 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # amd64: pcc's code generator and the C back end, all the tests
+  linux-amd64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: make
+      - run: make check
+
+  # arm64: the C back end only (pcc is not built off amd64)
+  linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: make
+      - run: make check
+
+  # macOS on Apple silicon: the C back end; the stage 1 test needs ELF objcopy
+  # and is skipped
+  macos-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: make
+      - run: make check
+
+  # musl: Alpine, with pcc's cc1 built against it
+  alpine-x86_64:
+    runs-on: ubuntu-latest
+    container: alpine:3.20
+    steps:
+      - run: apk add --no-cache build-base git binutils
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: make
+      - run: make check
+
+  # the Debian package, built from the source package it makes
+  debian-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: dpkg-buildpackage -us -uc -b
+      - run: dpkg-deb -I ../imp72_*_amd64.deb
+      - run: sudo dpkg -i ../imp72_*_amd64.deb
+      - name: compile and run a program with the installed package
+        run: |
+          imp72c -o /tmp/hello tests/native/hello.imp
+          /tmp/hello
+          imp72c -C -o /tmp/hello_c tests/native/hello.imp
+          /tmp/hello_c

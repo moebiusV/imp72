@@ -12,7 +12,8 @@ tools/imp72c -c -o build/self/stack.o src/impsyn64.imc src/stack.imp >/dev/null 
     || { echo "FAILED: stack: imp72c" >&2; exit 1; }
 tools/imp72c -c -o build/self/bit_test.o src/impsyn64.imc tests/self/bit_test.imp >/dev/null 2>&1 \
     || { echo "FAILED: bit_test: imp72c" >&2; exit 1; }
-cc -no-pie -o build/self/stack tests/self/stack_main.c build/self/stack.o build/self/bit_test.o build/lib/libimp72.a \
+nopie=-no-pie; [ "$(uname)" = Darwin ] && nopie=
+cc $nopie -o build/self/stack tests/self/stack_main.c build/self/stack.o build/self/bit_test.o build/lib/libimp72.a \
     || { echo "FAILED: stack: link" >&2; exit 1; }
 build/self/stack >build/self/stack.got
 cmp -s build/self/stack.got tests/self/stack.out \

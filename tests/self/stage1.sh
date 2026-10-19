@@ -5,7 +5,9 @@
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
-tools/stage1.sh >/dev/null || { echo "FAILED: stage1 build" >&2; exit 1; }
+tools/stage1.sh >/dev/null 2>&1; rc=$?
+[ $rc = 77 ] && { echo "stage1 test skipped: no objcopy"; exit 0; }
+[ $rc = 0 ] || { echo "FAILED: stage1 build" >&2; exit 1; }
 out=build/stage1/ir
 mkdir -p $out
 fail=0
