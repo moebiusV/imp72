@@ -32,7 +32,8 @@ they print is compared (`tools/pcc-difftest.sh`); the same containers run
 | aarch64 | the fork's back end passes `tests/pcc` (integers, floats, calls with stack arguments, structs, globals) after two fixes below; the back end for IMP | passes, with pcc as the back end |
 | riscv64 | upstream's port is for NetBSD only and its output does not assemble; not tried in the fork | passes, C back end |
 | ppc64le, s390x, loongarch64 | no pcc target | passes, C back end |
-| i386, arm, mips, m68k | 32 bit; the language's word is 64 bits and would need the word type mapped to `long long` | not tried |
+| i386 | 32 bit; the IMP word is mapped to `long long` (pass 2 pushes the arguments, returns edx:eax, and the runtime keeps C `long` results apart from words) | passes, with pcc and with the C back end (32 bit Alpine) |
+| arm, mips, m68k | 32 bit; same mapping would be needed | not tried |
 
 ("passes" is the whole of `make check`: the unit tests, the syntax file, the
 listings, 13 programs run and compared, the ported module and stage 1.)

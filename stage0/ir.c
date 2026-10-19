@@ -19,12 +19,17 @@
 #include "ir.h"
 
 static FILE *out;
+
+#define LABELGAP 65536
 static int nlabel = 100, ntemp;
 static int tmpbase, lblbase;
 
 static const struct irtarget targets[] = {
-    { "amd64", 6, { 5, 4, 1, 2, 8, 9 }, 0, 6, 7, "@function", 16, 0 },
-    { "aarch64", 8, { 0, 1, 2, 3, 4, 5, 6, 7 }, 0, 26, 27, "%function", 0x1000000, 16 },
+    { "amd64", 6, { 5, 4, 1, 2, 8, 9 }, 0, 6, 7, "@function", 16, 0, 8, 0, 0 },
+    { "aarch64", 8, { 0, 1, 2, 3, 4, 5, 6, 7 }, 0, 26, 27, "%function", 0x1000000, 16, 8, 0, 0 },
+    /* i386: the word is long long, returned in eax:edx (register 020); the
+     * arguments are pushed by pass 2; the first is at 8(%ebp) */
+    { "i386", 0, { 0 }, 020, 6, 7, "@function", 8, 0, 4, 1, 1, 1 },
 };
 const struct irtarget *irtgt = &targets[0];
 
@@ -104,15 +109,49 @@ ir_reg(int num, int type)
     return n;
 }
 
+
+
+static int
+isword(int t)
+{
+    return t == T_LONG || t == T_ULONG;
+}
+
+/* a word used where the machine wants a pointer-sized integer (i386) */
+static struct irn *
+narrow(struct irn *x)
+{
+    if (x->op == IR_ICON && x->name == NULL) {
+        x->type = T_INT;
+        return x;
+    }
+    return ir_new(IR_SCONV, T_INT, x, NULL);
+}
+
 struct irn *
 ir_un(int op, int type, struct irn *l)
 {
+    if (irtgt->wordll && op == IR_PCONV) {
+        if ((type & T_PTR) && isword(l->type))          /* word to pointer */
+            l = narrow(l);
+        else if (isword(type) && (l->type & T_PTR)) {   /* pointer to word */
+            struct irn *p = ir_new(IR_PCONV, T_UINT, l, NULL);   /* zero extended */
+
+            return ir_new(IR_SCONV, type, p, NULL);
+        }
+    }
     return ir_new(op, type, l, NULL);
 }
 
 struct irn *
 ir_bin(int op, int type, struct irn *l, struct irn *r)
 {
+    if (irtgt->wordll && (op == IR_PLUS || op == IR_MINUS) && (type & T_PTR)) {
+        if (isword(l->type))
+            l = narrow(l);
+        if (isword(r->type))
+            r = narrow(r);
+    }
     return ir_new(op, type, l, r);
 }
 
@@ -137,13 +176,24 @@ ir_open(FILE *f)
 int ir_newlabel(void) { return nlabel++; }
 int ir_newtemp(void) { return tmpbase + ntemp++; }
 
+/* the type as pass 2 is to see it: with the word as long long on i386 */
+static int
+tymap(int t)
+{
+    int base = t & 0x1f;
+
+    if (irtgt->wordll && (base == T_LONG || base == T_ULONG))
+        base += 2;                              /* LONGLONG, ULONGLONG */
+    return (t & ~0x1f) | base;
+}
+
 /* write a tree, preorder, a node to a line */
 static void
 put(struct irn *n)
 {
     int ty;
 
-    fprintf(out, "\" %d %d 0", n->op, n->type);
+    fprintf(out, "\" %d %d 0", n->op, tymap(n->type));
     switch (n->op) {
     case IR_NAME:
     case IR_ICON:
@@ -223,7 +273,13 @@ ir_func_begin(const char *name, int visible)
     fname = name;
     tmpbase = 100;
     ntemp = 0;
+    /*
+     * Pass 2 makes labels of its own (a compare of two long longs on i386 does)
+     * from the label base of the prolog up; ours begin a gap above it so
+     * that they do not meet.
+     */
     lblbase = nlabel;
+    nlabel += LABELGAP;
     prolab = nlabel++;
     ir_pass("\t.text");
     ir_pass("\t.align 4");
@@ -231,8 +287,10 @@ ir_func_begin(const char *name, int visible)
         ir_pass("\t.globl %s", name);
     ir_pass("\t.type %s,%s", name, irtgt->functype);
     ir_pass("%s:", name);
-    fprintf(out, "! %d %d %d %d %d %s\n", T_LONG, visible ? 1 : 0, prolab,
+    fprintf(out, "! %d %d %d %d %d %s\n", tymap(T_LONG), visible ? 1 : 0, prolab,
         tmpbase, lblbase, name);
+    if (irtgt->ippmem)
+        fprintf(out, "( 0\n");                 /* ipp_argstacksize: cdecl */
     ir_label(prolab);
 }
 
@@ -246,6 +304,8 @@ ir_func_end(int retlab, int rettemp)
     ir_label(retlab);
     if (rettemp >= 0)
         ir_stmt(ir_assign(ir_reg(R_RAX, T_LONG), ir_temp(rettemp, T_LONG)));
-    fprintf(out, "%% %d %d %d %d %s\n", irtgt->autos0, retlab, tmpbase + ntemp + 1, nlabel + 1,
-        fname);
+    fprintf(out, "%% %d %d %d %d %s\n", irtgt->autos0, retlab, tmpbase + ntemp + 1,
+        nlabel + 1, fname);
+    if (irtgt->ippmem)
+        fprintf(out, ") 0\n");
 }

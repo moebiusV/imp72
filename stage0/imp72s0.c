@@ -318,6 +318,9 @@ driver_main(int argc, char **argv)
 #if defined(__aarch64__) || defined(__arm64__)
         kargv[k++] = "-T";
         kargv[k++] = "aarch64";
+#elif defined(__i386__)
+        kargv[k++] = "-T";
+        kargv[k++] = "i386";
 #endif
     }
     kargv[k++] = "-c";

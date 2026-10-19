@@ -3,6 +3,7 @@
  * monitor calls the compiler's own sources make (CALLI), BLT and IFIX.  PRINT,
  * READ and FINI are in imp72io.c.
  */
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,9 +52,9 @@ imp_blt(char *dst, char *src, long bytes)
 /* IFIX(x): a real to an integer, truncating (the library routine the
  * original reaches as MALAMUD).  The argument is the address of the real. */
 long
-ifix(long *p)
+ifix(int64_t *p)
 {
-    long e = *p, s = e >> 63, bits = ((e ^ s) - s) | (s & (long)0x8000000000000000UL);
+    int64_t e = *p, s = e >> 63, bits = ((e ^ s) - s) | (s & (int64_t)0x8000000000000000ULL);
     double x;
 
     memcpy(&x, &bits, sizeof x);

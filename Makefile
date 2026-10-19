@@ -19,6 +19,7 @@ PREFIX   = /usr/local
 # for it: amd64 and aarch64.
 # yes, no, or auto (yes on x86_64 and aarch64).  Elsewhere imp72stage0 uses the C back end.
 WITH_PCC = auto
+PCCCONF  =		# extra arguments for pcc's configure (--build=i686-pc-linux-musl in a 32 bit userland)
 
 LIB = build/lib/libimp72.a
 
@@ -40,7 +41,7 @@ $(LIB): lib/imp72rt.c lib/imp72io.c lib/imp72main.c
 
 $(CC1):
 	mkdir -p $(PCCBUILD)
-	cd $(PCCBUILD) && ../../third_party/pcc/configure --enable-twopass \
+	cd $(PCCBUILD) && ../../third_party/pcc/configure --enable-twopass $(PCCCONF) \
 	    >configure.log 2>&1
 	touch $(PCCBUILD)/cc/ccom/cgram.c $(PCCBUILD)/cc/ccom/cgram.h \
 	    $(PCCBUILD)/cc/ccom/scan.c
@@ -49,7 +50,7 @@ $(CC1):
 
 # cc1, if wanted
 pcc:
-	@if [ "$(WITH_PCC)" = yes ] || { [ "$(WITH_PCC)" = auto ] && { [ "`uname -m`" = x86_64 ] || [ "`uname -m`" = aarch64 ] || [ "`uname -m`" = arm64 ]; }; }; then \
+	@if [ "$(WITH_PCC)" = yes ] || { [ "$(WITH_PCC)" = auto ] && { case "`uname -m`" in x86_64|aarch64|arm64|i?86) true;; *) false;; esac; }; }; then \
 	    $(MAKE) $(CC1); \
 	else echo "pcc not built: imp72stage0 will use the C back end"; fi
 

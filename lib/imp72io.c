@@ -32,6 +32,7 @@
  * string of up to 7 characters (it is the bytes of the word that holds it).
  */
 #include <ctype.h>
+#include <stdint.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -110,14 +111,14 @@ filespec(struct dir *d, int out)
 
 /* common handling of the items that mean the same in both directions */
 static int
-common(struct dir *d, int out, long n, long *p)
+common(struct dir *d, int out, long n, int64_t *p)
 {
     switch (n) {
     case 1: case 2: case 3:
         d->fmt = n == 2 ? 0 : (int)n;
         d->width = 0;
         if (p != NULL)
-            d->width = *p;
+            d->width = (long)*p;
         d->image = 0;
         return 1;
     case 6: {
@@ -150,8 +151,8 @@ common(struct dir *d, int out, long n, long *p)
     }
     case 11:
         d->fmt = 11;
-        d->fltm = p != NULL ? (long)(int)(*p & 0xFFFFFFFFL) : 0;
-        d->fltn = p != NULL ? (*p >> 32) & 0xFFFFFFFFL : 0;
+        d->fltm = p != NULL ? (long)(int)(*p & 0xFFFFFFFFLL) : 0;
+        d->fltn = p != NULL ? (long)((*p >> 32) & 0xFFFFFFFFLL) : 0;
         d->image = 0;
         return 1;
     default:
@@ -220,7 +221,7 @@ printflt(double x, long m, long n)
 }
 
 long
-imp_pr(long n, long *p)
+imp_pr(long n, int64_t *p)
 {
     char buf[64];
 
@@ -269,19 +270,19 @@ imp_pr(long n, long *p)
         break;
     }
     case 1:
-        snprintf(buf, sizeof buf, "%lo", (unsigned long)*p);
+        snprintf(buf, sizeof buf, "%llo", (unsigned long long)*p);
         field(buf, po.width, 1);
         break;
     case 11: {
         double x;
-        long e = *p, s = e >> 63, bits = ((e ^ s) - s) | (s & (long)0x8000000000000000UL);
+        int64_t e = *p, s = e >> 63, bits = ((e ^ s) - s) | (s & (int64_t)0x8000000000000000ULL);
 
         memcpy(&x, &bits, sizeof x);
         printflt(x, po.fltm, po.fltn);
         break;
     }
     default:
-        snprintf(buf, sizeof buf, "%ld", *p);
+        snprintf(buf, sizeof buf, "%lld", (long long)*p);
         field(buf, po.width, 0);
         break;
     }
@@ -350,7 +351,7 @@ nextfield(struct dir *d, int term, int fixed, int keep, char *out, int *past)
 }
 
 long
-imp_rd(long n, long *p)
+imp_rd(long n, int64_t *p)
 {
     char buf[200];
     int past = 0;
@@ -390,12 +391,12 @@ imp_rd(long n, long *p)
     }
     case 1:
         nextfield(&pi, term, fixed, 0, buf, &past);
-        *p = (long)strtoul(buf, NULL, 8);
+        *p = (int64_t)strtoull(buf, NULL, 8);
         break;
     case 11:                            /* on input, FLT m.n is IGR m */
     default:
         nextfield(&pi, term, fixed, 0, buf, &past);
-        *p = strtol(buf, NULL, 10);
+        *p = (int64_t)strtoll(buf, NULL, 10);
         break;
     }
     return past;
@@ -405,7 +406,7 @@ imp_rd(long n, long *p)
 
 /* FINI(I): close the files; I = 0 exits. */
 long
-fini(long *p)
+fini(int64_t *p)
 {
     int i;
 

@@ -17,7 +17,7 @@ subpackages="$pkgname-doc"
 # The compiler uses pcc's pass 2 compiler (cc1), built from this pcc revision
 # (the submodule third_party/pcc of the release, which GitHub's tarball leaves
 # empty): the moebiusv fork, branch imp72-fixes.
-_pccrev=86e963db0e419decbebacf8ccec76458349a4552
+_pccrev=fcc22ee7e1ed23a69524606bf07df8049a959a6c
 source="$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz
 	pcc-$_pccrev.tar.gz::https://github.com/moebiusV/pcc/archive/$_pccrev.tar.gz
 	"
@@ -55,5 +55,5 @@ package() {
 # exists (run `abuild checksum`); that of pcc is the archive of the revision above.
 sha512sums="
 0  imp72-0.1.0.tar.gz
-7c96e5951957bfdbee2c1c1d6fe0b201a249300e19aae487fa68fdefc183e4f7a670d7a9f0cb074265d54365d38a77ea184b18d6b442623c4af766b6398bb5ea  pcc-86e963db0e419decbebacf8ccec76458349a4552.tar.gz
+7c96e5951957bfdbee2c1c1d6fe0b201a249300e19aae487fa68fdefc183e4f7a670d7a9f0cb074265d54365d38a77ea184b18d6b442623c4af766b6398bb5ea  pcc-fcc22ee7e1ed23a69524606bf07df8049a959a6c.tar.gz
 "

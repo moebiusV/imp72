@@ -1,7 +1,8 @@
 #include <stdio.h>
-long t(long *), u(long *), neg(long *);
+#include "imp72words.h"
+word t(word *), u(word *), neg(word *);
 int main(void) {
-    long n = 10;
-    printf("t=%ld u=%ld neg=%ld\n", t(&n), u(&n), neg(&n));
+    word n = 10;
+    printf("t=%lld u=%lld neg=%lld\n", W(t(&n)), W(u(&n)), W(neg(&n)));
     return 0;
 }

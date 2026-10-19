@@ -415,6 +415,13 @@ immvalue(const struct ti *t)
 
     if (t->v == 0 && !t->ix && !t->ind && !t->ra)
         return icon(t->c);
+    if (!t->v && !t->ind && !t->ra) {           /* pure arithmetic: keep it in words */
+        word cc = t->c;
+
+        if (cc & 0400000)
+            cc -= 01000000;
+        return ir_bin(IR_PLUS, T_LONG, icon(8 * (long long)cc), rv(t->ix));
+    }
     e = effaddr(t);
     return ir_un(IR_PCONV, T_LONG, e);
 }
@@ -1022,6 +1029,62 @@ fsc(const struct ti *t)
 #define argreg(k) (irtgt->arg[k])
 #define NARGREG (irtgt->narg)
 
+
+/* the routines of the runtime library, which return a C long, not a word */
+static int
+isruntime(const char *nm)
+{
+    return strcmp(nm, "ifix") == 0 || strcmp(nm, "fini") == 0 || strncmp(nm, "imp_", 4) == 0;
+}
+
+/*
+ * A call of fn with the arguments a[0..n-1]: in registers and in the
+ * outgoing stack area as the machine's procedure call standard wants, or
+ * as FUNARG nodes that pass 2 pushes (i386).  A function of the runtime or
+ * of C returns a C `long`: on i386 an int, which is widened to the word.
+ */
+static struct irn *
+mkcall(struct irn *fn, struct irn **a, int n, int cret)
+{
+    struct irn *cm = NULL, *tree;
+    int k, rt = T_LONG;
+
+    if (irtgt->fnargs) {
+        for (k = 0; k < n; k++) {
+            struct irn *v = a[k], *f;
+
+            if (!(v->type & T_PTR) && v->type != T_INT)     /* a word: the C long */
+                v = ir_un(IR_SCONV, T_INT, v);
+            f = ir_un(IR_FUNARG, v->type, v);
+            cm = cm == NULL ? f : ir_bin(IR_CM, T_INT, cm, f);
+        }
+        if (cret)
+            rt = T_INT;
+    } else {
+        /* the arguments beyond the registers go in the outgoing stack
+         * area, which pcc reserves for any assignment to memory in a call's
+         * list; they come first, the register ones last */
+        for (k = irtgt->narg; k < n; k++) {
+            struct irn *m = ir_un(IR_UMUL, a[k]->type, ir_bin(IR_PLUS, T_PLONG,
+                ir_reg(R_RSP, T_PLONG), ir_icon(irtgt->argslot * (k - irtgt->narg), T_LONG)));
+            struct irn *as = ir_assign(m, a[k]);
+
+            cm = cm == NULL ? as : ir_bin(IR_CM, T_INT, cm, as);
+        }
+        for (k = 0; k < n && k < irtgt->narg; k++) {
+            struct irn *as = ir_assign(ir_reg(argreg(k), a[k]->type), a[k]);
+
+            cm = cm == NULL ? as : ir_bin(IR_CM, T_INT, cm, as);
+        }
+        if (cret && n > 0 && strcmp(irtgt->name, "amd64") == 0)   /* varargs: %al = vector registers used */
+            cm = ir_bin(IR_CM, T_INT, cm, ir_assign(ir_reg(R_RAX, T_LONG), icon(0)));
+    }
+    tree = n > 0 ? ir_bin(IR_CALL, rt, fn, cm) : ir_un(IR_UCALL, rt, fn);
+    if (rt != T_LONG)
+        tree = ir_un(IR_SCONV, T_LONG, tree);
+    return tree;
+}
+
 /* the pointer an argument word stands for */
 static struct irn *
 argptr(const struct ti *t)
@@ -1077,10 +1140,13 @@ printcall(long i, int rd)
             u.c = off;
             p = effaddr(&u);
         }
-        tree = ir_bin(IR_CALL, T_LONG, ir_sym(rd ? "imp_rd" : "imp_pr", 0, T_PFTN),
-            ir_bin(IR_CM, T_INT,
-                ir_assign(ir_reg(R_RDI, T_LONG), icon(n)),
-                ir_assign(ir_reg(R_RSI, T_PLONG), p)));
+        {
+            struct irn *av[2];
+
+            av[0] = icon(n);
+            av[1] = p;
+            tree = mkcall(ir_sym(rd ? "imp_rd" : "imp_pr", 0, T_PFTN), av, 2, 1);
+        }
         if (last != NULL)
             ir_stmt(last);
         last = tree;
@@ -1166,29 +1232,15 @@ call(long i)
     if (byval)                                  /* C: the values, not the addresses */
         for (k = 0; k < nargs; k++)
             args[k] = ir_deref(args[k], T_LONG);
-    if (nargs > 0) {
-        struct irn *cm = NULL;
+    {
+        struct irn *av[MAXPARAMS];
 
-        /* the arguments beyond the sixth go in the outgoing stack area, which
-         * pcc reserves for any assignment to memory in a call's list; they
-         * come first, the register ones last */
-        for (k = NARGREG; k < nargs; k++) {
-            struct irn *m = ir_un(IR_UMUL, T_PLONG, ir_bin(IR_PLUS, T_PLONG,
-                ir_reg(R_RSP, T_PLONG), ir_icon(8 * (k - NARGREG), T_LONG)));
-            struct irn *a = ir_assign(m, args[k]);
-
-            cm = cm == NULL ? a : ir_bin(IR_CM, T_INT, cm, a);
-        }
-        for (k = 0; k < nargs && k < NARGREG; k++) {
-            struct irn *a = ir_assign(ir_reg(argreg(k), byval ? T_LONG : T_PLONG), args[k]);
-
-            cm = cm == NULL ? a : ir_bin(IR_CM, T_INT, cm, a);
-        }
-        if (byval && strcmp(irtgt->name, "amd64") == 0)  /* varargs: no vector registers used */
-            cm = ir_bin(IR_CM, T_INT, cm, ir_assign(ir_reg(R_RAX, T_LONG), icon(0)));
-        tree = ir_bin(IR_CALL, T_LONG, tree, cm);
-    } else
-        tree = ir_un(IR_UCALL, T_LONG, tree);
+        for (k = 0; k < nargs; k++)
+            av[k] = args[k];
+        if (byval)                      /* tell the C back end the callee is C's, with C's longs */
+            ir_pass("\t# cfunc %s", nm);
+        tree = mkcall(tree, av, nargs, byval || isruntime(nm));
+    }
     if (res >= 0)
         asg(ir_temp(res, T_LONG), tree);
     else
@@ -1351,14 +1403,16 @@ insn(long i)
             tfail("TRANS: BLT WITHOUT HRLI/HRRI SETUP");
             return i;
         }
-        tree = ir_bin(IR_CALL, T_LONG, ir_sym("imp_blt", 0, T_PFTN),
-            ir_bin(IR_CM, T_INT,
-                ir_bin(IR_CM, T_INT,
-                    ir_assign(ir_reg(R_RDI, T_LONG), ir_temp(bltdst[t->ac], T_LONG)),
-                    ir_assign(ir_reg(R_RSI, T_LONG), ir_temp(bltsrc[t->ac], T_LONG))),
-                ir_assign(ir_reg(R_RDX, T_LONG), ir_bin(IR_PLUS, T_LONG,
-                    ir_bin(IR_MINUS, T_LONG, immvalue(t), ir_temp(bltdst[t->ac], T_LONG)),
-                    icon(8)))));
+        {
+            struct irn *av[3];
+
+            av[0] = ir_temp(bltdst[t->ac], T_LONG);
+            av[1] = ir_temp(bltsrc[t->ac], T_LONG);
+            av[2] = ir_bin(IR_PLUS, T_LONG,
+                ir_bin(IR_MINUS, T_LONG, immvalue(t), ir_temp(bltdst[t->ac], T_LONG)),
+                icon(8));
+            tree = mkcall(ir_sym("imp_blt", 0, T_PFTN), av, 3, 1);
+        }
         ir_stmt(tree);
         return i;
     }
@@ -1397,10 +1451,11 @@ insn(long i)
         return i;
     if (op == 0047) {                           /* CALLI: a monitor call */
         struct irn *r = t->ac ? rv(t->ac) : icon(0);
-        struct irn *tree = ir_bin(IR_CALL, T_LONG, ir_sym("imp_calli", 0, T_PFTN),
-            ir_bin(IR_CM, T_INT,
-                ir_assign(ir_reg(R_RDI, T_LONG), immvalue(t)),
-                ir_assign(ir_reg(R_RSI, T_LONG), r)));
+        struct irn *av[2], *tree;
+
+        av[0] = immvalue(t);
+        av[1] = r;
+        tree = mkcall(ir_sym("imp_calli", 0, T_PFTN), av, 2, 1);
 
         if (t->ac)
             asg(rv(t->ac), tree);
@@ -1500,7 +1555,7 @@ subr(long i0, long i1, int ismain)
             asg(ir_temp(paramtmp[k], T_PLONG), ir_reg(argreg(k), T_PLONG));
         else                                    /* above the return address and saved rbp */
             asg(ir_temp(paramtmp[k], T_PLONG), ir_un(IR_UMUL, T_PLONG,
-                ir_bin(IR_PLUS, T_PLONG, ir_reg(R_RBP, T_PLONG), ir_icon(irtgt->stackarg0 + 8 * (k - NARGREG), T_LONG))));
+                ir_bin(IR_PLUS, T_PLONG, ir_reg(R_RBP, T_PLONG), ir_icon(irtgt->stackarg0 + irtgt->argslot * (k - NARGREG), T_LONG))));
     }
     rettmp = ir_newtemp();
     lastmove = 0;

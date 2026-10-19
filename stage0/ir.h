@@ -22,12 +22,12 @@ enum {
     IR_EQ = 25, IR_NE = 26, IR_LE = 27, IR_LT = 28, IR_GE = 29, IR_GT = 30,
     IR_ULE = 31, IR_ULT = 32, IR_UGE = 33, IR_UGT = 34,
     IR_CBRANCH = 35, IR_SCONV = 37, IR_PCONV = 38,
-    IR_CALL = 41, IR_UCALL = 42, IR_CM = 48, IR_ASSIGN = 49, IR_GOTO = 54
+    IR_CALL = 41, IR_UCALL = 42, IR_CM = 48, IR_ASSIGN = 49, IR_GOTO = 54, IR_FUNARG = 57
 };
 
 /* types (mip/manifest.h) */
 enum {
-    T_UCHAR = 3, T_INT = 6, T_LONG = 8, T_ULONG = 9, T_DOUBLE = 13, T_VOID = 19,
+    T_UCHAR = 3, T_INT = 6, T_UINT = 7, T_LONG = 8, T_ULONG = 9, T_DOUBLE = 13, T_VOID = 19,
     T_PTR = 0x20, T_FTN = 0x40,
     T_PLONG = T_LONG | T_PTR,                   /* pointer to long */
     T_PFTN = (((T_FTN | T_LONG) & ~0x1f) << 2) | T_PTR | T_LONG
@@ -46,6 +46,10 @@ struct irtarget {
     const char *functype;       /* the .type directive's operand */
     int stackarg0;              /* bytes above fp where stack arguments start */
     int autos0;                 /* bytes of the frame before the first automatic (AUTOINIT) */
+    int argslot;                /* bytes a stack argument takes */
+    int fnargs;                 /* arguments are FUNARG nodes pushed by pass 2 (i386), not registers */
+    int ippmem;                 /* the IR has the target's extra lines after the prolog and epilog */
+    int wordll;                 /* the 64 bit word is pcc's long long: long is 32 bits (i386) */
 };
 extern const struct irtarget *irtgt;
 int ir_settarget(const char *name);      /* 0 if there is no such target */

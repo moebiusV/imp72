@@ -9,17 +9,18 @@
  * pointer-passing entry points below (the syntax layer src/impsyn64.imc
  * renames FALLOT to IMPFALLOT and so on).
  */
+#include <stdint.h>
 #include <string.h>
 #include "imp.h"
 
-extern long impl_stack(long *), impl_stinit(long *), impl_stpop(long *),
-    impl_stpush(long *, long *, long *), impl_setstk(long *, long *, long *, long *),
-    impl_pushmi(long *), impl_pullyu(long *), impl_bits(long *, long *, long *),
-    impl_bitz(long *), impl_bitor(long *, long *, long *);
+extern word impl_stack(word *), impl_stinit(word *), impl_stpop(word *),
+    impl_stpush(word *, word *, word *), impl_setstk(word *, word *, word *, word *),
+    impl_pushmi(word *), impl_pullyu(word *), impl_bits(word *, word *, word *),
+    impl_bitz(word *), impl_bitor(word *, word *, word *);
 
-long fb;                                /* the base of free storage, for IMP */
+word fb;                                /* the base of free storage, for IMP */
 
-static void sync(void) { fb = (long)fmem; }
+static void sync(void) { fb = (word)(intptr_t)fmem; }
 
 word stack(word n) { sync(); return impl_stack(&n); }
 word stinit(void) { word nil = 0; sync(); return impl_stinit(&nil); }
@@ -46,10 +47,10 @@ void bstats(int reset) { (void)reset; }
 
 /* ---- the free storage routines, as IMP calls them ------------------------ */
 
-long
-impfallot(long *a, long *n)
+word
+impfallot(word *a, word *n)
 {
-    long r;
+    word r;
 
     if (*a >= (1L << 18))                       /* a name: a new array */
         r = fallot_new((const char *)a, *n);
@@ -59,25 +60,25 @@ impfallot(long *a, long *n)
     return r;
 }
 
-long
-impfrelot(long *a, long *aa, long *n, long *s)
+word
+impfrelot(word *a, word *aa, word *n, word *s)
 {
-    long r = frelot(a, (const char *)aa, *n, *s ? (void (*)(void))*s : NULL);
+    word r = frelot(a, (const char *)aa, *n, *s ? (void (*)(void))*s : NULL);
 
     sync();
     return r;
 }
 
-long
-impfaddex(long *a, long *n)
+word
+impfaddex(word *a, word *n)
 {
     faddex(a, *n);
     sync();
     return *a;
 }
 
-long
-imperror(long *n, long *s)
+word
+imperror(word *n, word *s)
 {
     imp_error((int)*n, (const char *)s);
     return 0;
