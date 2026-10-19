@@ -6,3 +6,7 @@ stage0/test_*
 stage0/*.tmp
 stage0/imp72s0
 IOTEST.TMP
+debian/imp72/
+debian/files
+debian/*.substvars
+debian/.stamp-*

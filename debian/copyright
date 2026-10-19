@@ -1,0 +1,48 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: imp72
+Source: https://github.com/moebiusV/imp72
+Comment: The files of the original IMP72 compiler (decus/) and pcc
+ (third_party/pcc, of which only the pass 2 compiler cc1 is built) keep their
+ own terms.  The summary of the many notices in pcc is in
+ /usr/share/doc/imp72/LICENSE.pcc.md and the provenance of the DECUS files in
+ /usr/share/doc/imp72/PROVENANCE.decus.md.
+
+Files: *
+Copyright: 2026, the imp72 contributors
+License: ISC
+
+Files: decus/*
+Copyright: 1973, Walter Bilofsky, Yale University
+Comment: DECUS program 10-198a, IMP72 compiler version 1.5, from the DECUS
+ library tape 10-LIB-3 as kept by the PDP-10 archive, which states that the
+ software was put into the public domain at the time of donation and that its
+ use and distribution is completely unrestricted.  The language is by Ned
+ Irons.  The three PDP-10 binaries of the tape are not in the Debian source
+ package.
+License: public-domain
+ Put into the public domain by its donors to the DECUS library.
+
+Files: third_party/pcc/*
+Copyright: Caldera International Inc. 2001-2002
+           Lucent Technologies 1998-2000 (common/strtodg.c)
+           and the other holders named in the headers of the files
+License: BSD-like
+ A mixture of permissive licences (BSD 2 and 3 clause, ISC, Caldera's BSD
+ licence with an advertising clause, and others), file by file; the notice of
+ each file is authoritative and the licences are collected in
+ /usr/share/doc/imp72/LICENSE.pcc.md.  config.guess and config.sub are under
+ the GPL 3 or later with the Autoconf exception and are used only to build
+ cc1, which they are not part of.
+
+License: ISC
+ Permission to use, copy, modify, and/or distribute this software for any
+ purpose with or without fee is hereby granted, provided that the above
+ copyright notice and this permission notice appear in all copies.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.

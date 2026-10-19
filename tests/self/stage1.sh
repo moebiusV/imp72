@@ -4,7 +4,6 @@
 # stage 0 for every program: the native tests and the modules of the tape.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-[ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || { echo "stage1 test skipped: no cc1 (make)"; exit 0; }
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 tools/stage1.sh >/dev/null || { echo "FAILED: stage1 build" >&2; exit 1; }
 out=build/stage1/ir

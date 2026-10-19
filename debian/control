@@ -1,0 +1,29 @@
+Source: imp72
+Section: devel
+Priority: optional
+Maintainer: David Walther <tederific@gmail.com>
+Build-Depends: binutils
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/moebiusV/imp72
+Vcs-Git: https://github.com/moebiusV/imp72.git
+Vcs-Browser: https://github.com/moebiusV/imp72
+
+Package: imp72
+Architecture: amd64 arm64 mips64el
+Depends: ${shlibs:Depends}, ${misc:Depends}, gcc | c-compiler
+Description: IMP72 systems programming language compiler
+ IMP72 is the extensible systems language of Ned Irons, in the compiler
+ Walter Bilofsky wrote for the PDP-10 (DECUS 10-198a, 1973): a small kernel
+ reads the syntax and semantics of the language from a file in its own
+ notation.  This is a port of that compiler to 64 bit machines, keeping the
+ original syntax file and code generator.
+ .
+ imp72c compiles IMP72 programs to native code and links them with a small
+ runtime.  A subroutine is a C function (arguments by reference, as in
+ FORTRAN), and CCALL calls C functions with arguments by value.  The code
+ generator is the pcc compiler's pass 2 on amd64; on every other machine the
+ program is turned into C for the system compiler.
+ .
+ Only 64 bit little endian machines are supported: the language's word is 64
+ bits and strings are packed little endian.

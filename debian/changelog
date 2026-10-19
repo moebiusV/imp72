@@ -1,0 +1,7 @@
+imp72 (0.1.0) unstable; urgency=low
+
+  * First packaging: the stage 0 compiler (a C port of the kernel of
+    Bilofsky's IMP72), the original syntax file, the translator to pcc IR, the
+    pcc code generator on amd64, the C back end elsewhere, and the runtime.
+
+ -- David Walther <tederific@gmail.com>  Sun, 18 Oct 2026 19:23:12 -0700

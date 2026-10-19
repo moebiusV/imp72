@@ -1,0 +1,12 @@
+# no build products, no git data, no binaries of the original compiler
+tar-ignore = "build"
+tar-ignore = "*.o"
+tar-ignore = "*.a"
+tar-ignore = "imp.low"
+tar-ignore = "imp.shr"
+tar-ignore = "implib.lib"
+tar-ignore = "imp72s0"
+tar-ignore = ".git"
+tar-ignore = ".gitmodules"
+tar-ignore = "*~"
+tar-ignore = ".*.swp"

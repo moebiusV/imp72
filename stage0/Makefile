@@ -1,5 +1,6 @@
 # Stage 0 build.  Plain make (GNU or BSD); the compiler is $(CC).
 CC      = cc
+LDFLAGS =
 CFLAGS  = -std=c99 -O1 -g -Wall -Wextra -pedantic
 AR      = ar
 OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o sem.o impsem.o codegen.o pcode.o ir.o trans.o
@@ -9,7 +10,7 @@ TESTS   = test_free test_stack test_dir test_lex test_parse test_debug test_decl
 all: libstage0.a imp72s0
 
 imp72s0: imp72s0.o libstage0.a
-	$(CC) $(CFLAGS) -o $@ imp72s0.o libstage0.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o libstage0.a
 
 libstage0.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)

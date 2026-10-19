@@ -4,7 +4,6 @@
 # modules not yet ported.  Run from the top of the tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-[ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || { echo "self tests skipped: no cc1 (make)"; exit 0; }
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 mkdir -p build/self
 fail=0

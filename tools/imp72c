@@ -7,7 +7,8 @@
 # into pcc IR by stage 0 (imp72s0), into assembly by cc1 (pass 2 of pcc), and
 # assembled by cc and linked with the runtime library (build/lib/libimp72.a).
 # -C uses the C back end (tools/ir2c.c, the host's C compiler) instead of pcc;
-# -S then stops at C.
+# -S then stops at C.  Where pcc's cc1 was not built (every host but amd64) the
+# C back end is the only one.
 # -S stops at assembly, -c at the object file (the default output names are
 # FILE.s and FILE.o), else an executable FILE is made.  -s gives switches to
 # the stage 0 driver (for listings and dumps).
@@ -16,13 +17,24 @@
 # to its arguments and a C program can call it.  Variables are common symbols.
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(dirname "$here")
-s0=${IMP72S0:-$root/stage0/imp72s0}
-cc1=${CC1:-$root/build/pcc/cc/ccom/cc1}
-syntax=${IMP72SYNTAX:-$root/decus/syntax.imc}
-ffi=${IMP72FFI:-$root/lib/ffi.imc}
-ir2c=${IR2C:-$root/build/bin/ir2c}
-lib=${IMP72LIB:-$root/build/lib/libimp72.a}
-stop=x out= sw= backend=${IMP72BACKEND:-pcc}
+if [ -x "$root/stage0/imp72s0" ]; then             # in the source tree
+    s0=${IMP72S0:-$root/stage0/imp72s0}
+    cc1=${CC1:-$root/build/pcc/cc/ccom/cc1}
+    syntax=${IMP72SYNTAX:-$root/decus/syntax.imc}
+    ffi=${IMP72FFI:-$root/lib/ffi.imc}
+    ir2c=${IR2C:-$root/build/bin/ir2c}
+    lib=${IMP72LIB:-$root/build/lib/libimp72.a}
+else                                               # installed: PREFIX/bin/imp72c
+    s0=${IMP72S0:-$root/lib/imp72/imp72s0}
+    cc1=${CC1:-$root/lib/imp72/cc1}
+    syntax=${IMP72SYNTAX:-$root/share/imp72/syntax.imc}
+    ffi=${IMP72FFI:-$root/share/imp72/ffi.imc}
+    ir2c=${IR2C:-$root/lib/imp72/ir2c}
+    lib=${IMP72LIB:-$root/lib/imp72/libimp72.a}
+fi
+# the back end: pcc where it was built (amd64), else the C one
+if [ -x "$cc1" ]; then backend=${IMP72BACKEND:-pcc}; else backend=c; fi
+stop=x out= sw=
 while [ $# -gt 0 ]; do
     case $1 in
     -C) backend=c ;;
