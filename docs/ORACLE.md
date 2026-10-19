@@ -8,8 +8,9 @@ simulators), the same monitor and kind of machine it was made for. Programs are 
 ## Using it
 
 ```
-tools/oracle-build.sh        # once: simulator, disks, tape, exact binaries (about 400 MB; see oracle/PROVENANCE.md)
-tools/oracle-boot.sh         # start TOPS-10 in the background (1 to 3 minutes; it restarts itself if the boot hangs)
+tools/oracle-build.sh        # once: prebsd, the simulator, disks, tape, exact binaries (about 400 MB; see oracle/PROVENANCE.md)
+tools/oracle-boot.sh [ka|ki] # start TOPS-10 in the background through prebsd (1 to 3 minutes; prebsd restarts it if the boot hangs)
+tools/oracle-boot.sh stop
 tools/oracle-put.py decus/exact/imp.low.words=IMP.LOW decus/exact/imp.shr.words=IMP.SHR \
                     decus/exact/implib.lib.words=IMPLIB.LIB     # once per fresh disk
 tools/oracle-run.py -d DIR prog.imp...      # compile, link, run; DIR/prog.oracle (and .tty, .compile)
@@ -19,6 +20,16 @@ tools/oracle.py "DIR" "TYPE X.IMP"          # any TOPS-10 commands, over the sim
 
 `make check` does not need the oracle: `tests/oracle/run.sh` compiles the listed programs with
 imp72stage0 and compares with the stored goldens.
+
+## prebsd
+
+What can be done by [prebsd](https://github.com/moebiusV/prebsd) is: building the simulators (pinned,
+with the tape patch), fetching the disks, making the KI10's from Cornwell's tape, keeping local
+copies of all of that, and booting (`prebsd -k` leaves the system running; its console stays held
+by prebsd, the DC lines are ours). imp72 sets `PREBSD=/path` (default `../prebsd`, cloned from the
+`tops10` branch if absent) and does only what is specific to the oracle: the transfer tapes
+(`tools/pdp10tap.py`), the terminal sessions (`tools/oracle.py`), the exact binaries of the
+compiler and the goldens.
 
 ## How it works
 

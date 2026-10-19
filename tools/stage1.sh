@@ -9,7 +9,7 @@ command -v objcopy >/dev/null 2>&1 || { echo "stage1: no objcopy (ELF only)" >&2
 nopie=-no-pie; [ "$(uname)" = Darwin ] && nopie=
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
-modules=${MODULES:-stack}
+modules=${MODULES:-stack dir}
 out=build/stage1
 mkdir -p $out
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
@@ -25,7 +25,7 @@ for m in $modules; do
     args=
     for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
     objcopy $args $out/$m.imp.o $out/$m.imp2.o
-    cc -std=c99 -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
+    cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
     objs="$objs $out/$m.imp2.o $out/${m}_c.o"
     repl="$repl stage0/$m.o"
 done

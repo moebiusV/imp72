@@ -13,6 +13,7 @@
  <ATOM> ::= FALLOT(<A>,<B>)       ::= "IMPFALLOT(A,B)";
  <ATOM> ::= FRELOT(<A>,<B>,<C>,<D>) ::= "IMPFRELOT(A,B,C,D)";
  <ATOM> ::= FADDEX(<A>,<B>)       ::= "IMPFADDEX(A,B)";
+ <ATOM> ::= FINCSET(<A>,<B>)      ::= "IMPFINCSET(A,B)";
  <ATOM> ::= ERROR(<A>,<B>)        ::= "IMPERROR(A,B)";
 
  <EXP> ::= FORG+<A>::="FB+8*(A)";

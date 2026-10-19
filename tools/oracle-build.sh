@@ -1,29 +1,28 @@
 #!/bin/sh
-# oracle-build.sh: set up the oracle from nothing (about 400 MB; the work is idempotent and
-# resumable).  Downloads go to oracle/dl/<name>/ (untrusted, hashed, never run from there);
-# the simulator is built from a copy in build/oracle/.  See oracle/PROVENANCE.md and docs/ORACLE.md.
+# oracle-build.sh: set up the oracle from nothing (the work is idempotent and resumable).
+# prebsd (https://github.com/moebiusV/prebsd, branch tops10; PREBSD=/path, else it is cloned next
+# to this repository) builds the simulators from pinned sources, fetches the TOPS-10 disks, keeps
+# local copies of both, and later boots the system (tools/oracle-boot.sh).  What is here is what
+# it does not do: the DECUS tape for the exact words of the compiler, and the transfer tapes.
+# Downloads go to oracle/dl/<name>/ (untrusted, hashed, never run from there).  See
+# oracle/PROVENANCE.md and docs/ORACLE.md.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
-SIMH_COMMIT=87eb7d5e
-KIT_SHA=70fbf55544bb50dd6b9216cbad0bd037cb41c1fd9570ea6e94dd13735f61599d
 TAPE_SHA=13180d5c1e39b3c78181f6660250562282edbbf8c9379d3e837e4b734012ac9a
-mkdir -p oracle/dl/simh-src oracle/dl/kit oracle/dl/decus-tape build/oracle oracle/disks oracle/tapes oracle/units
+mkdir -p oracle/dl/decus-tape build/oracle oracle/disks oracle/tapes oracle/units
 
-# 1. the simulator (open-simh, KA10), with the tape patch
-if [ ! -x build/oracle/simh/BIN/pdp10-ka ]; then
-    [ -d oracle/dl/simh-src/open-simh ] || git clone -q https://github.com/open-simh/simh.git oracle/dl/simh-src/open-simh
-    git -C oracle/dl/simh-src/open-simh checkout -q $SIMH_COMMIT 2>/dev/null || true
-    rm -rf build/oracle/simh; cp -r oracle/dl/simh-src/open-simh build/oracle/simh
-    python3 tools/patch-sim-tape.py build/oracle/simh/sim_tape.c
-    (cd build/oracle/simh && make pdp10-ka -j4)
-fi
+# 1. prebsd and its KA10 simulator
+PREBSD=${PREBSD:-$root/../prebsd}
+[ -d "$PREBSD" ] || git clone -q -b tops10 https://github.com/moebiusV/prebsd.git "$PREBSD"
+[ -x "$PREBSD/prebsd" ] || (cd "$PREBSD" && { [ -f Makefile ] || ./configure -q; } && make -s)
+[ -x "$PREBSD/simh/bin/pdp10-ka" ] || (cd "$PREBSD" && ./build-simh pdp10-ka)
 
-# 2. the TOPS-10 6.03 disks (PiDP-10 project)
+# 2. the TOPS-10 6.03 disks (PiDP-10 project).  The oracle writes to its disks, so it gets
+#    copies; prebsd's stay as fetched.
 if [ ! -f oracle/disks/ka_dskb0.rp3 ]; then
-    [ -f oracle/dl/kit/tops603ka.zip ] || curl -sSL -o oracle/dl/kit/tops603ka.zip https://obsolescence.dev/pidp10-sw/tops603ka.zip
-    echo "$KIT_SHA  oracle/dl/kit/tops603ka.zip" | sha256sum -c -
-    python3 -I -m zipfile -e oracle/dl/kit/tops603ka.zip oracle/disks
+    (cd "$PREBSD" && ./prebsd -f tops10-603-ka)
+    for n in 0 1 2 3; do cp "$PREBSD/images/ka_dskb$n.rp3" oracle/disks/; done
 fi
 
 # 3. the DECUS tape, for the exact words of imp.low, imp.shr and implib.lib
