@@ -1,0 +1,3 @@
+SUBR GETP(A,N) IS (X_BYTEP A<8,8>; Y_<X>; <X>_N; Y+1000*A);
+SUBR WALK(W) IS (X_BYTEP W<8,56>; S_<+X>; T_<+X>; U_<+X>; S+256*T+65536*U)
+%%

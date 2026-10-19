@@ -357,6 +357,9 @@ effaddr(const struct ti *t)
     return e;
 }
 
+static struct bytedesc *bytedescof(word v);
+static struct irn *bytepvalue(const struct bytedesc *d);
+
 /* the value of the operand of an instruction (the word at the address) */
 static struct irn *
 opvalue(const struct ti *t)
@@ -365,6 +368,8 @@ opvalue(const struct ti *t)
 
     if (t->ra)
         return rv(t->v);
+    if (t->v && !t->ind && !t->ix && bytedescof(t->v))
+        return bytepvalue(bytedescof(t->v));
     if (t->v && !t->ind && !t->ix && isstring(t->v))
         return icon(strvalue(t->v));
     if (t->v && !t->ind && !t->ix && isnumconst(t->v, &cv))
@@ -393,6 +398,269 @@ immvalue(const struct ti *t)
         return icon(t->c);
     e = effaddr(t);
     return ir_un(IR_PCONV, T_LONG, e);
+}
+
+
+/* ---- byte fields --------------------------------------------------------- */
+
+static void asg(struct irn *l, struct irn *r);
+
+/*
+ * Shifts for the field code.  pcc handles a shift of a temp by an int count
+ * assigned back to the same temp, so every shift goes through one: the result
+ * is a fresh temp node.  (A constant on the left, or a shift whose operand
+ * is not the destination, is not code pcc can generate.)
+ */
+static struct irn *
+shiftop(int right, struct irn *l, struct irn *r)
+{
+    int c = ir_newtemp();
+    struct irn *cnt;
+
+    if (r->op == IR_ICON)
+        cnt = ir_icon(r->lval, T_INT);
+    else {
+        int k = ir_newtemp();
+
+        asg(ir_temp(k, T_LONG), r);
+        cnt = ir_un(IR_SCONV, T_UCHAR, ir_temp(k, T_LONG));  /* pcc: counts are chars */
+    }
+    asg(ir_temp(c, T_LONG), l);
+    if (right)
+        asg(ir_temp(c, T_LONG), ir_un(IR_SCONV, T_LONG, ir_bin(IR_RS, T_ULONG,
+            ir_un(IR_SCONV, T_ULONG, ir_temp(c, T_LONG)), cnt)));
+    else
+        asg(ir_temp(c, T_LONG), ir_bin(IR_LS, T_LONG, ir_temp(c, T_LONG), cnt));
+    return ir_temp(c, T_LONG);
+}
+#define SHL(l, r) shiftop(0, (l), (r))
+#define SHR(l, r) shiftop(1, (l), (r))
+
+/* The instruction a BYTEP descriptor was made from, decoded like collect(). */
+static int
+bytefield(const struct ti *t, struct bytedesc **dp, struct ti *u)
+{
+    struct bytedesc *d;
+    word w;
+
+    if (t->ra || t->ind || t->ix || (d = bytedescof(t->v)) == NULL)
+        return 0;
+    w = d->a0;
+    memset(u, 0, sizeof *u);
+    u->kind = K_INSN;
+    u->op = 0777 & (u36(w) >> 24);
+    u->ac = 03777 & (u36(w) >> 12);
+    u->ix = 03777 & u36(w);
+    u->ind = (u36(w) >> 33) & 1;
+    u->ra = (u36(w) >> 11) & 1;
+    u->v = d->a1 & MASK18;
+    u->c = L18(d->a1);
+    *dp = d;
+    return 1;
+}
+
+static struct irn *
+fieldpos(const struct bytedesc *d)
+{
+    return d->pconst ? icon(d->p) : rv(d->p);
+}
+
+static struct irn *
+fieldmask(const struct bytedesc *d)
+{
+    if (d->sconst)
+        return icon(d->s >= 63 ? -1LL : (1LL << d->s) - 1);
+    return ir_bin(IR_MINUS, T_LONG,
+        SHL(icon(1), rv(d->s)), icon(1));
+}
+
+/*
+ * A byte pointer held in a variable or register is one word: bits 63..58 the
+ * size, 57..52 the position (bits from the right, as in A<S,P>), and the low
+ * 52 bits the byte address of the word that holds the field.  Incrementing
+ * moves to the next lower field of the same size, or to the next word
+ * (address + 8) when there is no room, as <+X> does on the PDP-10 with 64
+ * bits in the word in place of 36.
+ */
+#define BPADDR 0xFFFFFFFFFFFFFLL
+
+static struct bytedesc *
+bytedescof(word v)
+{
+    int i;
+
+    for (i = 0; i < nbytedescs; i++)
+        if (bytedescs[i].name == v)
+            return &bytedescs[i];
+    return NULL;
+}
+
+static void
+decodeop(const struct bytedesc *d, struct ti *u)
+{
+    word w = d->a0;
+
+    memset(u, 0, sizeof *u);
+    u->kind = K_INSN;
+    u->op = 0777 & (u36(w) >> 24);
+    u->ac = 03777 & (u36(w) >> 12);
+    u->ix = 03777 & u36(w);
+    u->ind = (u36(w) >> 33) & 1;
+    u->ra = (u36(w) >> 11) & 1;
+    u->v = d->a1 & MASK18;
+    u->c = L18(d->a1);
+}
+
+static struct irn *
+bytepvalue(const struct bytedesc *d)
+{
+    struct ti u;
+    struct irn *a;
+
+    decodeop(d, &u);
+    a = ir_un(IR_PCONV, T_LONG, effaddr(&u));
+    a = ir_bin(IR_OR, T_LONG, a, SHL(d->sconst ? icon(d->s) : rv(d->s), icon(58)));
+    return ir_bin(IR_OR, T_LONG, a, SHL(d->pconst ? icon(d->p) : rv(d->p), icon(52)));
+}
+
+/* a value kept in a temp: pcc cannot have two variable shifts in one tree */
+static int
+tmpof(struct irn *e)
+{
+    int c = ir_newtemp();
+
+    asg(ir_temp(c, T_LONG), e);
+    return c;
+}
+
+/* IR nodes are freed with their statement, so each use needs its own */
+#define TMP(c) ir_temp((c), T_LONG)
+
+static struct irn *
+bp_size(int pt)
+{
+    return ir_bin(IR_AND, T_LONG, SHR(ir_temp(pt, T_LONG), icon(58)), icon(63));
+}
+
+static struct irn *
+bp_pos(int pt)
+{
+    return ir_bin(IR_AND, T_LONG, SHR(ir_temp(pt, T_LONG), icon(52)), icon(63));
+}
+
+static struct irn *
+bp_word(int pt)
+{
+    return ir_deref(ir_un(IR_PCONV, T_PLONG,
+        ir_bin(IR_AND, T_LONG, ir_temp(pt, T_LONG), icon(BPADDR))), T_LONG);
+}
+
+static struct irn *
+bp_mask(int pt)
+{
+    return ir_bin(IR_MINUS, T_LONG, SHL(icon(1), bp_size(pt)), icon(1));
+}
+
+/* IBP: step the pointer in the operand to the next field */
+static int
+bp_step(const struct ti *t)
+{
+    int pt = ir_newtemp(), np = ir_newtemp(), lok = ir_newlabel();
+
+    asg(ir_temp(pt, T_LONG), opvalue(t));
+    asg(ir_temp(np, T_LONG), ir_bin(IR_MINUS, T_LONG, bp_pos(pt), bp_size(pt)));
+    ir_cbranch(IR_GE, ir_temp(np, T_LONG), icon(0), lok);
+    asg(ir_temp(np, T_LONG), ir_bin(IR_MINUS, T_LONG, icon(64), bp_size(pt)));
+    asg(ir_temp(pt, T_LONG), ir_bin(IR_PLUS, T_LONG, ir_temp(pt, T_LONG), icon(8)));
+    ir_label(lok);
+    asg(ir_temp(pt, T_LONG), ir_bin(IR_OR, T_LONG,
+        ir_bin(IR_AND, T_LONG, ir_temp(pt, T_LONG), icon(~(63LL << 52))),
+        SHL(ir_temp(np, T_LONG), icon(52))));
+    asg(oplvalue(t), ir_temp(pt, T_LONG));
+    return pt;
+}
+
+/* LDB/ILDB through a pointer in the operand */
+static void
+ldb_dyn(const struct ti *t, int step)
+{
+    int pt;
+
+    if (step)
+        pt = bp_step(t);
+    else {
+        pt = ir_newtemp();
+        asg(ir_temp(pt, T_LONG), opvalue(t));
+    }
+    {
+        int w = tmpof(bp_word(pt)), p = tmpof(bp_pos(pt)), m = tmpof(bp_mask(pt));
+
+        asg(rv(t->ac), ir_bin(IR_AND, T_LONG, SHR(TMP(w), TMP(p)), TMP(m)));
+    }
+}
+
+/* DPB/IDPB through a pointer in the operand */
+static void
+dpb_dyn(const struct ti *t, int step)
+{
+    int pt;
+
+    if (step)
+        pt = bp_step(t);
+    else {
+        pt = ir_newtemp();
+        asg(ir_temp(pt, T_LONG), opvalue(t));
+    }
+    {
+        int p = tmpof(bp_pos(pt)), k = tmpof(bp_mask(pt)), m, v;
+
+        m = tmpof(SHL(TMP(k), TMP(p)));
+        v = tmpof(SHL(rv(t->ac), TMP(p)));
+        asg(bp_word(pt), ir_bin(IR_OR, T_LONG,
+            ir_bin(IR_AND, T_LONG, bp_word(pt), ir_un(IR_COMPL, T_LONG, TMP(m))),
+            ir_bin(IR_AND, T_LONG, TMP(v), TMP(m))));
+    }
+}
+
+/* LDB ac,field: the field, right justified */
+static void
+ldb(const struct ti *t)
+{
+    struct bytedesc *d;
+    struct ti u;
+
+    if (!bytefield(t, &d, &u)) {
+        ldb_dyn(t, 0);
+        return;
+    }
+    {
+        int w = tmpof(opvalue(&u)), p = tmpof(fieldpos(d)), m = tmpof(fieldmask(d));
+
+        asg(rv(t->ac), ir_bin(IR_AND, T_LONG, SHR(TMP(w), TMP(p)), TMP(m)));
+    }
+}
+
+/* DPB ac,field: store the low bits of ac into the field */
+static void
+dpb(const struct ti *t)
+{
+    struct bytedesc *d;
+    struct ti u;
+    struct irn *old;
+
+    if (!bytefield(t, &d, &u)) {
+        dpb_dyn(t, 0);
+        return;
+    }
+    {
+        int p = tmpof(fieldpos(d)), k = tmpof(fieldmask(d)), m, v;
+
+        m = tmpof(SHL(TMP(k), TMP(p)));
+        v = tmpof(SHL(rv(t->ac), TMP(p)));
+        old = ir_bin(IR_AND, T_LONG, opvalue(&u), ir_un(IR_COMPL, T_LONG, TMP(m)));
+        asg(oplvalue(&u), ir_bin(IR_OR, T_LONG, old,
+            ir_bin(IR_AND, T_LONG, TMP(v), TMP(m))));
+    }
 }
 
 /* ---- operations ---------------------------------------------------------- */
@@ -520,11 +788,11 @@ shift(const struct ti *t, int kind)
         ir_cbranch(IR_GE, ir_temp(cnt, T_LONG), icon(0), lpos);
         asg(rv(t->ac), ir_un(IR_SCONV, T_LONG,
             ir_bin(IR_RS, ty, ir_un(IR_SCONV, ty, rv(t->ac)),
-            ir_un(IR_UMINUS, T_INT, ir_un(IR_SCONV, T_INT, ir_temp(cnt, T_LONG))))));
+            ir_un(IR_SCONV, T_UCHAR, ir_un(IR_UMINUS, T_LONG, ir_temp(cnt, T_LONG))))));
         ir_goto(ldone);
         ir_label(lpos);
         asg(rv(t->ac), ir_bin(IR_LS, T_LONG, rv(t->ac),
-            ir_un(IR_SCONV, T_INT, ir_temp(cnt, T_LONG))));
+            ir_un(IR_SCONV, T_UCHAR, ir_temp(cnt, T_LONG))));
         ir_label(ldone);
     }
     return;
@@ -900,6 +1168,26 @@ insn(long i)
     }
     if (op == 0240 || op == 0242 || op == 0241) {
         shift(t, op == 0240 ? 1 : op == 0242 ? 0 : 2);
+        return i;
+    }
+    if (op == 0133) {                           /* IBP */
+        bp_step(t);
+        return i;
+    }
+    if (op == 0134) {                           /* ILDB */
+        ldb_dyn(t, 1);
+        return i;
+    }
+    if (op == 0136) {                           /* IDPB */
+        dpb_dyn(t, 1);
+        return i;
+    }
+    if (op == 0135) {                           /* LDB */
+        ldb(t);
+        return i;
+    }
+    if (op == 0137) {                           /* DPB */
+        dpb(t);
         return i;
     }
     if (op == 0250) {                           /* EXCH */

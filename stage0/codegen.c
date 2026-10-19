@@ -1114,8 +1114,19 @@ bytep(word a, word s, word p, word flag)
     name(t);
     d = &bytedescs[nbytedescs++];
     d->name = td;
-    d->a0 = FREE(a);
-    d->a1 = FREE(a + 1);
+    /* the operand a as dewop would put it in an instruction's second word */
+    unpck(a);
+    {
+        word ise = 0100000000000L & (u36(se1) >> 2), r = rse, dd = dse;
+
+        if (tse == 2) {
+            ise |= 04000;
+            dd = rse;
+            r = 0;
+        }
+        d->a0 = sx36(ise | r);
+        d->a1 = sx36(dd | (cse << 18));
+    }
     pty = FREE(p) & 077;
     if (pty == 4) {
         d->pconst = 1;
