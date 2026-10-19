@@ -19,30 +19,39 @@ extended by adding such statements. This project keeps that design.
 
 ## Status
 
-IMP72 programs compile to native code and run (amd64 Linux so far):
+IMP72 programs compile to native code and run, on amd64 Linux through pcc's code
+generator and on any 64 bit little endian host through a C back end:
 
-    make                                     # cc1 (from pcc), stage 0, runtime
+    make                                     # stage 0, runtime, cc1 (amd64), ir2c
     tools/imp72c -o hello tests/native/hello.imp && ./hello
+    tools/imp72c -C -o hello tests/native/hello.imp   # the C back end
     make check
+    make install PREFIX=/usr/local
 
 `imp72c` runs stage 0 (a C port of the compiler's kernel, with the original
 syntax file `decus/syntax.imc` unmodified and the original code generator
 ported to produce PDP-10 code chains), translates the chains to pcc IR, and
-lets pcc's pass 2 (`cc1`) produce assembly. Programs of subroutines,
-expressions, loops, conditionals, arrays, calls and `PRINT` work; see
-`docs/internals/codegen-and-translation.md` for what is done and what is not
-(calling C by value, I/O, ...). Byte fields and pointers, `BLT`, computed
-`GO TO`, `DATA`, more than six arguments and floating point work, and
-`tools/survey.sh` shows 18 of the 19 modules of the compiler's own sources
-translating.
+turns that into machine code with pcc's pass 2 (`cc1`, amd64) or into C
+(`tools/ir2c.c`) for the host's compiler. What works: subroutines, expressions,
+loops, conditionals, arrays, calls (any number of arguments), byte fields and
+pointers, `BLT`, computed `GO TO`, `DATA`, reals (`FLOAT`, `FIX`, arithmetic,
+constants), `PRINT` and `READ` with their formats (`FLT`, `FILE`, `DEVICE`,
+`IMAGE MODE`), and `CCALL`, which calls C functions with arguments by value
+(`docs/FFI.md`). What does not, and the survey of the compiler's own sources
+(18 of the 19 modules translate, 14 compile to objects), is in
+`docs/internals/codegen-and-translation.md`.
 
 Self-hosting has started: `tools/stage1.sh` builds `imp72s1`, stage 0 with its
 `stack` module replaced by `src/stack.imp`, the compiler's own source (ported
 to 64 bit words) compiled by `imp72c`. `tests/self/stage1.sh` checks that it
 writes the same IR as stage 0 for 22 programs, among them 14 modules of the
-tape. 14 of the 19 modules of the tape compile to objects; `free`, `ercor`,
-`dosem` and `impsem` use executed instructions that need porting, `impm` is the
-TOPS-10 interface. See `docs/porting/stack.md`.
+tape. `free`, `ercor`, `dosem` and `impsem` use executed instructions that need
+porting, `impm` is the TOPS-10 interface. See `docs/porting/stack.md`.
+
+Packages: `debian/` (amd64, arm64, mips64el) and `packaging/alpine/APKBUILD`
+(x86_64, aarch64); only the amd64 Debian package has been built here
+(`packaging/README.md`). `.github/workflows/ci.yml` builds and tests on amd64,
+arm64, macOS arm64 and Alpine; its results have not been seen yet.
 
 Nothing has been compared with output from the original compiler yet; that is
 what the oracle (Roadmap, phase 1) is for. Where this file says the port is
@@ -91,15 +100,17 @@ out.
                     (SHA256SUMS, SHA256SUMS.bin) and PROVENANCE.md
     stage0/         the hand port of the compiler to C99 (kernel, code generator,
                     translator to pcc IR), and its driver imp72s0
-    lib/            the runtime library (PRINT, FINI, main)
-    tools/imp72c    compile IMP72 programs to native code
+    lib/            the runtime library (PRINT, READ, FINI, main) and ffi.imc
+    src/            the compiler's own sources ported to 64 bits (stack so far)
+    tools/          imp72c (the compiler driver), ir2c (the C back end),
+                    stage1.sh, survey.sh, modules.sh
+    debian/ packaging/  Debian and Alpine packages
     tests/stage0/   unit tests, and the syntax-file integration test
-    docs/           PLAN.md, BUILDING.md, internals/, porting/
+    tests/native/ self/  programs run against expected output; the ported
+                    modules and the stage 1 compiler
+    docs/           PLAN.md, BUILDING.md, FFI.md, internals/, porting/
     third_party/pcc the pcc back end (a submodule of github moebiusv/pcc)
-    backend/ src/ lib/ oracle/ tools/
-                    reserved for later phases (pcc IR back end, the compiler's
-                    own sources ported to IMP on 64 bits, the runtime library,
-                    the PDP-10 oracle, the RUNOFF converter)
+    backend/ oracle/ reserved for later phases (the PDP-10 oracle)
 
 The `.imc` files in `decus/` are the original sources, in upper case with DEC-10
 CRLF line ends. They are never edited: ported sources will live in `src/`.
@@ -281,6 +292,10 @@ be confirmed against the oracle (details in `docs/internals/`):
 
 - [docs/PLAN.md](docs/PLAN.md): the plan, decisions, and the pcc audit
 - [docs/BUILDING.md](docs/BUILDING.md): building and running
+- [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
+- [docs/internals/c-backend.md](docs/internals/c-backend.md): the C back end
+- [docs/porting/stack.md](docs/porting/stack.md): the first ported module, stage 1
+- [packaging/README.md](packaging/README.md): Debian and Alpine packages
 - [docs/internals/stage0-foundation.md](docs/internals/stage0-foundation.md):
   free storage, stack, directory, lexer
 - [docs/internals/stage0-parser.md](docs/internals/stage0-parser.md): the syntax
