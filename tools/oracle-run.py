@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """oracle-run.py [-d DIR] PROG.imp...: compile, link and run IMP programs with the original
 compiler (IMP 1.5 on TOPS-10 6.03, the SIMH KA10; start it with tools/oracle-boot.sh).
+With --lst only compile, with /A/L, and keep the assembly listing (DIR/NAME.lst).
 
 For each program the output the program put into its default output file (PO) is written to
 DIR/NAME.oracle (default: standard output, after a header line), tabs expanded to the 8 column
@@ -24,7 +25,7 @@ def quiet(t, idle=4, limit=600, until=None):
     return out
 
 
-def run(progs, outdir):
+def run(progs, outdir, lst=False):
     tape = os.path.join(here, "..", "oracle", "tapes", "in.tap")
     names = [os.path.splitext(os.path.basename(p))[0].upper()[:6] for p in progs]
     t = oracle.Session(timeout=120)
@@ -43,8 +44,20 @@ def run(progs, outdir):
             t.cmd("DELETE PO.,%s.REL" % n)
             t.send("RUN IMP\r")
             t.expect(r"^\*", 60)
-            t.send("%s.IMP\r" % n)
+            t.send("%s.IMP%s\r" % (n, "/A/L" if lst else ""))
             comp = t.expect(r"^\.", 600)
+            if lst:                         # the assembly listing only: no link, no run
+                t.send("TYPE %s.LST\r" % n)
+                text = t.expect(r"^\.", 600).split("TYPE %s.LST\n" % n, 1)[-1].rsplit("\n.", 1)[0]
+                text = "\n".join(l.expandtabs(8).rstrip() for l in text.split("\n")).strip("\n") + "\n"
+                base = os.path.splitext(os.path.basename(p))[0]
+                if outdir:
+                    open(os.path.join(outdir, base + ".lst"), "w").write(text)
+                    open(os.path.join(outdir, base + ".compile"), "w").write(comp)
+                else:
+                    print(text)
+                t.cmd("DELETE %s.LST,%s.REL" % (n, n))
+                continue
             t.send("EX %s.REL,/LIBRARY,IMPLIB.LIB,SYS:FORLIB/LIBRARY\r" % n)
             ex = t.expect(r"^\.", 600)
             tty = ex.split("Execution]", 1)[-1].rsplit("\n.", 1)[0].strip("\n")
@@ -68,8 +81,15 @@ def run(progs, outdir):
 if __name__ == "__main__":
     args = sys.argv[1:]
     outdir = None
-    if args[:1] == ["-d"]:
-        outdir = args[1]
-        os.makedirs(outdir, exist_ok=True)
-        args = args[2:]
-    run(args, outdir)
+    lst = False
+    while args[:1] and args[0].startswith("-"):
+        if args[0] == "-d":
+            outdir = args[1]
+            os.makedirs(outdir, exist_ok=True)
+            args = args[2:]
+        elif args[0] == "--lst":
+            lst = True
+            args = args[1:]
+        else:
+            sys.exit("usage: oracle-run.py [-d DIR] [--lst] PROG.imp...")
+    run(args, outdir, lst)
