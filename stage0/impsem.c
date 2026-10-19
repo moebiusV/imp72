@@ -405,6 +405,29 @@ reg2s(word s)
 }
 
 /*
+ * LETSYN(S): `LET X = Y`: make the name x a synonym of the variable y by
+ * entering the production <VBL> ::= x with the quoted semantics y.  s is the
+ * stack entry whose second word is the array of parser output of the
+ * quoted text, x first.
+ */
+word
+letsyn(word s)
+{
+    word max = FREE(s + 1), j, k;
+
+    synt(enstack(dir("VBL")), 0);
+    sytrm(enstack(-FREE(max)));
+    syntax(1);
+    for (j = max; (k = FREE(j + 1)) != 0; j++)
+        FREES(j, k);
+    FREES(j, 0);
+    equose(s);
+    newlist(0);
+    semantics();
+    return enstack(0);
+}
+
+/*
  * DECL(I,S): note one property of a declaration: 0 a synonym for the
  * register named at s, 1 a length (s is a constant), 2 and over a flag
  * (bit i of PROPS).
@@ -528,6 +551,7 @@ static word w_decl(const word *p) { return decl(p[0], p[1]); }
 static word w_declare(const word *p) { return declare(p[0]); }
 static word w_stackup(const word *p) { return stackup(p[0]); }
 static word w_switch(const word *p) { return switch_(p[0]); }
+static word w_letsyn(const word *p) { return letsyn(p[0]); }
 static word w_subbeg(const word *p) { return subbeg(p[0]); }
 static word w_subend(const word *p) { (void)p; return subend(); }
 static word w_subpr0(const word *p) { return subpr0(p[0]); }
@@ -548,6 +572,7 @@ impsem_init(void)
     dsem("DECLARE", w_declare);
     dsem("STACKUP", w_stackup);
     dsem("SWITCH", w_switch);
+    dsem("LETSYN", w_letsyn);
     dsem("SUBBEG", w_subbeg);
     dsem("SUBEND", w_subend);
     dsem("SUBPR0", w_subpr0);

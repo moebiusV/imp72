@@ -351,6 +351,14 @@ word datast(word b);
 word addr_(word s);
 word coppy(word s);
 word subscript(word s, word t);
+struct bytedesc {
+    word name, a0, a1;                  /* the field's operand, as a stack entry */
+    int pconst, sconst;
+    word p, s;                          /* position, size: constants or registers */
+};
+extern struct bytedesc bytedescs[256];
+extern int nbytedescs;
+word bytep(word a, word s, word p, word flag);
 word prinpar(word n, word aa, word b, word c, word d);
 word princal(word a, word b);
 word subcall(word a, word b);
@@ -391,5 +399,6 @@ word areg(word i);
 word areg1(word i, word j);
 word decl(word i, word s);
 word declare(word s);
+word letsyn(word s);
 
 #endif

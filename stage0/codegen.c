@@ -1084,6 +1084,60 @@ princal(word a, word b)
     return b;
 }
 
+
+/*
+ * BYTEP(A,S,P,FLAG): the byte pointer for the field of size s at position p
+ * of a (A<S,P>).  The original builds a PDP-10 byte pointer word as constant
+ * code and the instruction that uses it refers to that word.  Here the
+ * result is a variable entry named for a descriptor kept in a table: the
+ * operand a was (its two words), and s and p, each a constant or the number
+ * of the register that holds it.  trans.c reads the descriptor where the
+ * original has the pointer word: LDB and DPB do the field, MOVE of it gives
+ * the byte pointer value (see trans.c).  FLAG is not used.
+ */
+struct bytedesc bytedescs[256];
+int nbytedescs;
+
+word
+bytep(word a, word s, word p, word flag)
+{
+    word td, t, pty, sty;
+    struct bytedesc *d;
+
+    (void)flag;
+    if (nbytedescs == 256) {
+        imp_error(0, "TOO MANY BYTE POINTERS IN ONE PROGRAM");
+        return a;
+    }
+    td = newname("BYTE");
+    t = enstack(td);
+    name(t);
+    d = &bytedescs[nbytedescs++];
+    d->name = td;
+    d->a0 = FREE(a);
+    d->a1 = FREE(a + 1);
+    pty = FREE(p) & 077;
+    if (pty == 4) {
+        d->pconst = 1;
+        d->p = FREE(p + 1);
+    } else {
+        d->pconst = 0;
+        d->p = regof(fetch(p));
+    }
+    sty = FREE(s) & 077;
+    if (sty == 4) {
+        d->sconst = 1;
+        d->s = FREE(s + 1);
+    } else {
+        d->sconst = 0;
+        d->s = regof(fetch(s));
+    }
+    hook(a, hook(p, p, s), a);
+    FREES(a + 1, 0);
+    FREES(a, sx36(0110 | (td << 18)));
+    return a;
+}
+
 /*
  * SUBSCRIPT(S,T): the subscripted variable s[t] (s = 0: [t], the word at
  * address t).
@@ -1181,6 +1235,7 @@ static word w_addr(const word *p) { return addr_(p[0]); }
 static word w_copy(const word *p) { return coppy(p[0]); }
 static word w_subscript(const word *p) { return subscript(p[0], p[1]); }
 static word w_subcall(const word *p) { return subcall(p[0], p[1]); }
+static word w_bytep(const word *p) { return bytep(p[0], p[1], p[2], p[3]); }
 
 void
 codegen_init(void)
@@ -1214,6 +1269,7 @@ codegen_init(void)
     dsem("COPY", w_copy);
     dsem("SUBSCRIPT", w_subscript);
     dsem("SUBCALL", w_subcall);
+    dsem("BYTEP", w_bytep);
     (void)remo;
 }
 

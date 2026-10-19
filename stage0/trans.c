@@ -323,8 +323,13 @@ effaddr(const struct ti *t)
     if (t->ind) {
         if (t->v == 0 && t->ix == LINKREG && cc < nparams)
             return ir_temp(paramtmp[cc], T_PLONG);
-        tfail("TRANS: INDIRECT ADDRESS IS NOT YET TRANSLATED");
-        return icon(0);
+        {
+            /* the word at the address holds a (byte) address */
+            struct ti u = *t;
+
+            u.ind = 0;
+            return ir_un(IR_PCONV, T_PLONG, ir_deref(effaddr(&u), T_LONG));
+        }
     }
     if (t->v) {
         word cv;
@@ -915,6 +920,19 @@ insn(long i)
     }
     if (op == 0255)                             /* JFCL */
         return i;
+    if (op == 0047) {                           /* CALLI: a monitor call */
+        struct irn *r = t->ac ? rv(t->ac) : icon(0);
+        struct irn *tree = ir_bin(IR_CALL, T_LONG, ir_sym("imp_calli", 0, T_PFTN),
+            ir_bin(IR_CM, T_INT,
+                ir_assign(ir_reg(R_RDI, T_LONG), immvalue(t)),
+                ir_assign(ir_reg(R_RSI, T_LONG), r)));
+
+        if (t->ac)
+            asg(rv(t->ac), tree);
+        else
+            ir_stmt(tree);
+        return i;
+    }
     if (op == 0266)
         return call(i);
     if (op == 0267) {                           /* JRA: return */

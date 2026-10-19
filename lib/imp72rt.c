@@ -121,3 +121,32 @@ fini(long *p)
         exit(0);
     return 0;
 }
+
+/*
+ * CALLI(code, ac): the TOPS-10 monitor calls the compiler's sources make.
+ * 0 reset, 012 exit, 014 date, 023 time of day in ms, 024 and 030 job
+ * identification, 027 run time in ms; the others do nothing.
+ */
+#include <time.h>
+
+long
+imp_calli(long code, long ac)
+{
+    switch (code) {
+    case 012:
+        fflush(stdout);
+        exit(0);
+    case 023: {
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+
+        return tm == NULL ? 0 : ((tm->tm_hour * 60L + tm->tm_min) * 60 + tm->tm_sec) * 1000;
+    }
+    case 027:
+        return (long)(clock() * 1000 / CLOCKS_PER_SEC);
+    case 030:
+        return 1;
+    default:
+        return 0;
+    }
+}
