@@ -1,0 +1,1804 @@
+PMOD (IMPLIB.LIB) as DDT disassembles it on the KI10 oracle: symbolic, one word per line.
+Labels with # are the compiler's own (%IF, %WH, %FOR ...); the data after the code is not instructions.
+Made with: DEBUG HELLO.REL,/LIBRARY,IMPLIB.LIB,SYS:FORLIB/LIBRARY, then PRN./ and line feeds.
+
+PRN.         PRN.
+PRN.+1       MOVE 1,16
+PRN.+2       ANDI 1,-1
+PRN.+3       MOVEM 1,Q#
+PRN.+4       SKIPE 2,PSW.
+PRN.+5       JRST TD#
+PRN.+6       MOVEI 3,1
+PRN.+7       MOVEM 3,PSW.
+PRN.+10      SETZM OL.+1
+PRN.+11      MOVEI 2,DDT+36
+PRN.+12      MOVEM 2,BN#
+PRN.+13      MOVEI 4,REENT#
+PRN.+14      MOVEM 4,.JBREN
+PRN.+15      MOVEI 5,1
+PRN.+16      MOVE 6,@Q#
+PRN.+17      LSH 6,-30
+PRN.+20      LSH 5,0(6)
+PRN.+21      ANDI 5,520
+PRN.+22      JUMPN 5,TD#
+PRN.+23      JSA 16,OBIN.
+PRN.+24      JUMP BN#+3
+PRN.+25      JUMP BN#+3
+PRN.+26      JUMP OC.
+PRN.+27      JUMP OL.
+TD#          MOVE 1,@Q#
+TD#+1        LSH 1,-30
+TD#+2        MOVEM 1,T#
+TD#+3        JSA 16,PADR.
+TD#+4        JUMP Q#
+TD#+5        MOVEM N#
+TD#+6        SKIPN 1,T#
+TD#+7        JRST %IF14#
+TD#+10       CAIE 1,5
+TD#+11       JRST %IF5#
+TD#+12       JSA 16,POUT.
+TD#+13       JUMP BN#+4
+TD#+14       JSA 16,POUT.
+TD#+15       JUMP BN#+6
+TD#+16       MOVE 1,OC.
+TD#+17       SETZM LC.(1)
+TD#+20       JRST TZ#
+%IF5#        MOVE 1,T#
+%IF5#+1      CAIE 1,4
+%IF5#+2      JRST %IF6#
+%IF5#+3      JSA 16,OBIN.
+%IF5#+4      JUMP Q#
+%IF5#+5      JUMP BN#+3
+%IF5#+6      JUMP OC.
+%IF5#+7      JUMP OL.
+%IF5#+10     JRST TZ#
+%IF6#        MOVE 1,T#
+%IF6#+1      CAIE 1,6
+%IF6#+2      JRST %IF7#
+%IF6#+3      JSA 16,FBLK.
+%IF6#+4      JUMP Q#
+%IF6#+5      MOVEM %PAR1#
+%IF6#+6      JSA 16,OBIN.
+%IF6#+7      JUMP %PAR1#
+%IF6#+10     JUMP BN#+3
+%IF6#+11     JUMP OC.
+%IF6#+12     JUMP OL.
+%IF6#+13     JRST TZ#
+%IF7#        MOVE 1,T#
+%IF7#+1      CAIE 1,7
+%IF7#+2      JRST %IF8#
+%IF7#+3      MOVE 2,OC.
+%IF7#+4      MOVE 3,PTR.(2)
+%IF7#+5      ANDI 3,-1
+%IF7#+6      IOR 3,BN#+12
+%IF7#+7      MOVEM 3,PTR.(2)
+%IF7#+10     MOVE 3,PTE.(2)
+%IF7#+11     ANDI 3,-1
+%IF7#+12     IOR 3,BN#+12
+%IF7#+13     MOVEM 3,PTE.(2)
+%IF8#        MOVE 1,T#
+%IF8#+1      CAIE 1,10
+%IF8#+2      JRST %IF10#
+%IF8#+3      MOVEI 2,@N#
+%IF8#+4      HRRM 2,%CAL9#
+%IF8#+5      JSA 16,DEV.
+%CAL9#       JUMP 0
+%CAL9#+1     JUMP BN#+3
+%CAL9#+2     JRST TZ#
+%IF10#       MOVE 1,T#
+%IF10#+1     CAIE 1,11
+%IF10#+2     JRST %IF12#
+TAB#         MOVE 1,OC.
+TAB#+1       MOVE 2,LC.(1)
+TAB#+2       ADDI 2,1
+TAB#+3       CAML 2,@N#
+TAB#+4       JRST %IF11#
+TAB#+5       AOS 2,LC.(1)
+TAB#+6       JSA 16,POUT.
+TAB#+7       JUMP BN#+5
+TAB#+10      JRST TAB#
+%IF11#       JRST TZ#
+%IF12#       MOVE 1,T#
+%IF12#+1     CAIE 1,12
+%IF12#+2     JRST %IF13#
+%IF12#+3     MOVE 2,@N#
+%IF12#+4     LSH 2,-35
+%IF12#+5     MOVEM 2,FILLER#
+%IF12#+6     JRST TZ#
+%IF13#       MOVE 1,T#
+%IF13#+1     CAILE 1,13
+%IF13#+2     JRST TV#
+%IF13#+3     MOVE 2,OC.
+%IF13#+4     MOVEM 1,FM.(2)
+%IF13#+5     MOVE 3,@N#
+%IF13#+6     MOVEM 3,FL.(2)
+%IF13#+7     JRST TZ#
+%IF14#       MOVE 1,OC.
+%IF14#+1     MOVE 2,FM.(1)
+%IF14#+2     MOVEM 2,F#
+%IF14#+3     HRRZ 3,FL.(1)
+%IF14#+4     SUBI 3,1
+%IF14#+5     MOVEM 3,G#
+%IF14#+6     CAIE 2,3
+%IF14#+7     JRST %IF19#
+%IF14#+10    SETOM I#
+%IF14#+11    MOVE 4,N#
+%IF14#+12    ADD 4,BN#+10
+%IF14#+13    MOVEM 4,P#
+%IF14#+14    MOVEM 4,S#
+TC#          MOVE 1,I#
+TC#+1        CAML 1,BN#
+TC#+2        JRST %IF16#
+TC#+3        ILDB 2,P#
+TC#+4        JUMPE 2,%IF16#
+TC#+5        AOS 1,I#
+TC#+6        CAME 1,G#
+TC#+7        JRST TC#
+%IF16#       SKIPGE 1,I#
+%IF16#+1     JRST %IF18#
+%IF16#+2     MOVEM 1,J#
+%FOR17#      ILDB 1,S#
+%FOR17#+1    MOVE 2,J#
+%FOR17#+2    MOVEM 1,B#(2)
+%FOR17#+3    SOSL 1,J#
+%FOR17#+4    JRST %FOR17#
+%IF18#       JRST TX#
+%IF19#       MOVE 1,F#
+%IF19#+1     CAIE 1,13
+%IF19#+2     JRST %IF55#
+%IF19#+3     MOVE 2,OC.
+%IF19#+4     HLRE 3,FL.(2)
+%IF19#+5     MOVEM 3,D#
+%IF19#+6     MOVE 4,@N#
+%IF19#+7     MOVEM 4,ZZ#
+%IF19#+10    SKIPGE 5,ZZ#
+%IF19#+11    MOVNS 4,ZZ#
+%IF19#+12    SETZM EXP#
+%IF19#+13    SKIPE 4,ZZ#
+%IF19#+14    JRST %WH21#
+%IF19#+15    MOVEI 5,60
+%IF19#+16    MOVEM 5,B#
+%IF19#+17    SETZM I#
+%IF19#+20    JRST TX#
+%WH21#       MOVE 1,ZZ#
+%WH21#+1     CAML 1,BN#+2
+%WH21#+2     JRST %WH23#
+%WH21#+3     MOVE 2,EXP#
+%WH21#+4     SUBI 2,12
+%WH21#+5     MOVEM 2,EXP#
+%WH21#+6     MOVE 3,BN#+7
+%WH21#+7     FMPRB 3,ZZ#
+%WH21#+10    JRST %WH21#
+%WH23#       MOVE 1,ZZ#
+%WH23#+1     CAMGE 1,BN#+7
+%WH23#+2     JRST %WH25#
+%WH23#+3     MOVEI 2,12
+%WH23#+4     ADDB 2,EXP#
+%WH23#+5     MOVE 3,BN#+1
+%WH23#+6     FMPRB 3,ZZ#
+%WH23#+7     JRST %WH23#
+%WH25#       MOVE 1,ZZ#
+%WH25#+1     CAMGE 1,BN#+13
+%WH25#+2     JRST %IF26#
+%WH25#+3     AOS 2,EXP#
+%WH25#+4     MOVE 3,BN#+2
+%WH25#+5     FMPRB 3,ZZ#
+%WH25#+6     JRST %WH25#
+%IF26#       MOVEI 1,1
+%IF26#+1     MOVEM 1,SCI#
+%IF26#+2     SKIPG 2,G#
+%IF26#+3     JRST %IF28#
+%IF26#+4     ANDI 2,400000
+%IF26#+5     JUMPE 2,%IF28#
+%IF26#+6     SETO 2,0
+%IF26#+7     MOVE 3,G#
+%IF26#+10    ADDI 3,1
+%IF26#+11    HRLZ 3,3
+%IF26#+12    HLRE 3,3
+%IF26#+13    SUB 2,3
+%IF26#+14    MOVEM 2,G#
+%IF26#+15    AOS 3,D#
+%IF26#+16    SETZM SCI#
+%IF28#       SKIPG 2,EXP#
+%IF28#+1     JRST %IF31#
+%IF28#+2     MOVE 1,EXP#
+%IF28#+3     IMUL 1,SCI#
+%IF28#+4     JRST %ELSE3#
+%IF31#       MOVEI 1,0
+%ELSE3#      MOVEM 1,J#
+%ELSE3#+1    SKIPN 3,D#
+%ELSE3#+2    JRST %IF34#
+%ELSE3#+3    MOVE 2,D#
+%ELSE3#+4    ADDI 2,1
+%ELSE3#+5    JRST %ELSE3#
+%IF34#       MOVEI 2,0
+%ELSE3#      MOVE 1,2
+%ELSE3#+1    ADD 1,J#
+%ELSE3#+2    MOVEM 1,I#
+%ELSE3#+3    SKIPGE 2,G#
+%ELSE3#+4    JRST %IF37#
+%ELSE3#+5    CAMGE 1,G#
+%ELSE3#+6    JRST %IF37#
+%ELSE3#+7    SETZM SCI#
+%ELSE3#+10   SUBI 2,6
+%ELSE3#+11   MOVEM 2,D#
+%ELSE3#+12   CAILE 2,1
+%ELSE3#+13   JRST %IF35#
+%ELSE3#+14   MOVEI 3,2
+%ELSE3#+15   MOVEM 3,D#
+%ELSE3#+16   SETOM G#
+%IF35#       MOVE 1,D#
+%IF35#+1     ADDI 1,1
+%IF35#+2     MOVEM 1,I#
+%IF37#       SKIPN 1,D#
+%IF37#+1     AOS 2,I#
+FLT3#        HRLZI 1,200400
+FLT3#+1      MOVEM 1,RND#
+FLT3#+2      MOVE 2,I#
+FLT3#+3      CAIG 2,1
+FLT3#+4      JRST %WH40#
+FLT3#+5      SUBI 2,2
+FLT3#+6      MOVEM 2,II#
+%FOR38#      MOVE 1,BN#+2
+%FOR38#+1    FMPRB 1,RND#
+%FOR38#+2    SOSL 2,II#
+%FOR38#+3    JRST %FOR38#
+%WH40#       MOVE 1,RND#
+%WH40#+1     FADR 1,ZZ#
+%WH40#+2     CAMGE 1,BN#+13
+%WH40#+3     JRST %IF41#
+%WH40#+4     MOVE 1,BN#+2
+%WH40#+5     FMPRB 1,RND#
+%WH40#+6     JRST %WH40#
+%IF41#       MOVE 1,RND#
+%IF41#+1     FADRB 1,ZZ#
+%IF41#+2     MOVE 2,EXP#
+%IF41#+3     IMUL 2,SCI#
+%IF41#+4     MOVEM 2,XP#
+%IF41#+5     SETOM I#
+%IF41#+6     SKIPL 3,@N#
+%IF41#+7     JRST %WH43#
+%IF41#+10    MOVEI 3,55
+%IF41#+11    MOVEI 4,DDT+36
+%IF41#+12    AOS 5,I#
+%IF41#+13    SUB 4,5
+%IF41#+14    MOVEM 3,B#(4)
+%WH43#       SKIPG 1,XP#
+%WH43#+1     JRST %IF44#
+%WH43#+2     MOVE 2,ZZ#
+%WH43#+3     FMPRI 2,204500
+%WH43#+4     MOVEM 2,ZZ#
+%WH43#+5     MOVEM 2,%PAR1#
+%WH43#+6     JSA 16,IFIX.
+%WH43#+7     JUMP %PAR1#
+%WH43#+10    MOVEM II#
+%WH43#+11    MOVE 1,II#
+%WH43#+12    IDIVI 1,12
+%WH43#+13    ADDI 2,60
+%WH43#+14    MOVEI 1,DDT+36
+%WH43#+15    AOS 3,I#
+%WH43#+16    SUB 1,3
+%WH43#+17    MOVEM 2,B#(1)
+%WH43#+20    SOS 1,XP#
+%WH43#+21    JRST %WH43#
+%IF44#       SKIPG 1,D#
+%IF44#+1     JRST FLT1#
+%IF44#+2     MOVEI 2,56
+%IF44#+3     MOVEI 3,DDT+36
+%IF44#+4     AOS 4,I#
+%IF44#+5     SUB 3,4
+%IF44#+6     MOVEM 2,B#(3)
+%IF44#+7     SUBI 1,1
+%IF44#+10    MOVEM 1,J#
+%FOR47#      AOS 1,I#
+%FOR47#+1    CAMGE 1,G#
+%FOR47#+2    JRST %IF45#
+%FOR47#+3    SKIPL 2,G#
+%FOR47#+4    JRST FLT1#
+%IF45#       SKIPL 1,XP#
+%IF45#+1     JRST %IF46#
+%IF45#+2     MOVEI 2,60
+%IF45#+3     MOVEI 3,DDT+36
+%IF45#+4     SUB 3,I#
+%IF45#+5     MOVEM 2,B#(3)
+%IF45#+6     AOS 1,XP#
+%IF45#+7     JRST LL7#
+%IF46#       MOVE 1,ZZ#
+%IF46#+1     FMPRI 1,204500
+%IF46#+2     MOVEM 1,ZZ#
+%IF46#+3     MOVEM 1,%PAR1#
+%IF46#+4     JSA 16,IFIX.
+%IF46#+5     JUMP %PAR1#
+%IF46#+6     MOVEM II#
+%IF46#+7     MOVE 1,II#
+%IF46#+10    IDIVI 1,12
+%IF46#+11    ADDI 2,60
+%IF46#+12    MOVEI 1,DDT+36
+%IF46#+13    SUB 1,I#
+%IF46#+14    MOVEM 2,B#(1)
+LL7#         SOSL 1,J#
+LL7#+1       JRST %FOR47#
+FLT1#        SETZM J#
+FLT1#+1      SKIPE 1,SCI#
+FLT1#+2      JRST %IF53#
+FLT1#+3      SETOM J#
+FLT1#+4      SKIPGE 3,EXP#
+FLT1#+5      JRST %IF51#
+FLT1#+6      MOVE 2,EXP#
+FLT1#+7      JRST %ELSE5#
+%IF51#       MOVN 2,EXP#
+%ELSE5#      MOVEM 2,XP#
+FLT2#        MOVE 1,XP#
+FLT2#+1      IDIVI 1,12
+FLT2#+2      ADDI 2,60
+FLT2#+3      AOS 1,J#
+FLT2#+4      MOVEM 2,B#(1)
+FLT2#+5      MOVE 2,XP#
+FLT2#+6      IDIVI 2,12
+FLT2#+7      MOVEM 2,XP#
+FLT2#+10     JUMPN 2,FLT2#
+FLT2#+11     SKIPL 3,EXP#
+FLT2#+12     JRST %IF52#
+FLT2#+13     MOVEI 4,55
+FLT2#+14     AOS 1,J#
+FLT2#+15     MOVEM 4,B#(1)
+%IF52#       MOVEI 1,.JBERR
+%IF52#+1     AOS 2,J#
+%IF52#+2     MOVEM 1,B#(2)
+%IF52#+3     AOS 1,J#
+%IF53#       SETZM K#
+%FOR54#      MOVE 1,K#
+%FOR54#+1    SUB 1,I#
+%FOR54#+2    MOVE 1,7744(1)
+%FOR54#+3    MOVE 2,K#
+%FOR54#+4    ADD 2,J#
+%FOR54#+5    MOVEM 1,B#(2)
+%FOR54#+6    AOS 1,K#
+%FOR54#+7    CAMG 1,I#
+%FOR54#+10   JRST %FOR54#
+%FOR54#+11   MOVE 2,J#
+%FOR54#+12   ADDB 2,I#
+%FOR54#+13   JRST TX#
+%IF55#       MOVE 1,F#
+%IF55#+1     CAIE 1,7
+%IF55#+2     JRST %IF57#
+%IF55#+3     MOVEI 2,@N#
+%IF55#+4     HRRM 2,%CAL56#
+%IF55#+5     JSA 16,POUT.
+%CAL56#      JUMP 0
+%CAL56#+1    JRST TZ#
+%IF57#       SETZM I#
+%IF57#+1     MOVE 1,@N#
+%IF57#+2     MOVEM 1,X#
+%IF57#+3     MOVE 2,F#
+%IF57#+4     CAIE 2,2
+%IF57#+5     JRST %IF63#
+%IF57#+6     JUMPGE 1,%IF60#
+%IF57#+7     MOVN 11,X#
+%IF57#+10    MOVE 3,11
+%IF57#+11    JRST TA#
+%IF60#       MOVE 11,X#
+%IF60#+1     MOVE 3,11
+TA#          IDIVI 11,12
+TA#+1        MOVE 1,12
+TA#+2        ADDI 1,60
+TA#+3        MOVE 2,I#
+TA#+4        MOVEM 1,B#(2)
+TA#+5        JUMPE 11,%IF61#
+TA#+6        AOS 1,I#
+TA#+7        JRST TA#
+%IF61#       SKIPL 1,X#
+%IF61#+1     JRST %IF62#
+%IF61#+2     AOS 2,I#
+%IF61#+3     MOVEI 3,55
+%IF61#+4     MOVEM 3,B#(2)
+%IF62#       JRST TX#
+%IF63#       MOVE 1,F#
+%IF63#+1     CAIE 1,1
+%IF63#+2     JRST TX#
+TB#          MOVE 1,X#
+TB#+1        ANDI 1,7
+TB#+2        ADDI 1,60
+TB#+3        MOVE 2,I#
+TB#+4        MOVEM 1,B#(2)
+TB#+5        MOVE 1,X#
+TB#+6        LSH 1,-3
+TB#+7        MOVEM 1,X#
+TB#+10       JUMPE 1,TL#
+TB#+11       AOS 2,I#
+TB#+12       JRST TB#
+TL#          MOVE 1,I#
+TL#+1        CAML 1,G#
+TL#+2        JRST TX#
+TL#+3        CAIL 1,13
+TL#+4        JRST TX#
+TL#+5        AOS 1,I#
+TL#+6        MOVEI 2,60
+TL#+7        MOVEM 2,B#(1)
+TL#+10       JRST TL#
+TX#          MOVE 2,G#
+TX#+1        MOVEM 2,J#
+TX#+2        CAMG 2,I#
+TX#+3        JRST %IF70#
+TX#+4        MOVE 1,J#
+TX#+5        MOVEM 1,T#
+TX#+6        JRST %ELSE6#
+%IF70#       MOVE 1,I#
+%IF70#+1     MOVEM 1,T#
+%ELSE6#      MOVE 1,T#
+%ELSE6#+1    ADDI 1,1
+%ELSE6#+2    MOVE 2,OC.
+%ELSE6#+3    ADDB 1,LC.(2)
+TE#          MOVE 1,J#
+TE#+1        CAMG 1,I#
+TE#+2        JRST %IF71#
+TE#+3        SOS 1,J#
+TE#+4        JSA 16,POUT.
+TE#+5        JUMP FILLER#
+TE#+6        JRST TE#
+%IF71#       MOVE 1,I#
+%IF71#+1     MOVEM 1,J#
+%FOR73#      MOVE 1,J#
+%FOR73#+1    MOVEI 2,B#(1)
+%FOR73#+2    HRRM 2,%CAL72#
+%FOR73#+3    JSA 16,POUT.
+%CAL72#      JUMP 0
+%CAL72#+1    SOSL 1,J#
+%CAL72#+2    JRST %FOR73#
+TZ#          AOS 1,Q#
+TZ#+1        JRST TD#
+TV#          MOVE 1,Q#
+TV#+1        SUBI 1,1
+TV#+2        ANDI 1,-1
+TV#+3        HRRM 1,16
+TV#+4        MOVE 1,OC.
+TV#+5        MOVE LC.(1)
+TV#+6        JRA 16,1(16)
+REENT#       JSA 16,FINI
+REENT#+1     JUMP BN#+3
+REENT#+2     MOVEI 0
+REENT#+3     JRA 16,1(16)
+POUT.        POUT.
+POUT.+1      SKIPL 1,OC.
+POUT.+2      JRST %IF76#
+POUT.+3      MOVEI 2,@0(16)
+POUT.+4      ADD 2,BN#+11
+POUT.+5      XCT 2
+POUT.+6      MOVEI 0
+POUT.+7      JRA 16,1(16)
+%IF76#       MOVE 1,@0(16)
+%IF76#+1     MOVE 2,OC.
+%IF76#+2     IDPB 1,PTR.(2)
+%IF76#+3     MOVE 1,@0(16)
+%IF76#+4     CAIE 1,12
+%IF76#+5     JRST %IF78#
+%IF76#+6     SKIPG 1,OL.
+%IF76#+7     JRST %IF78#
+%IF76#+10    MOVEI 3,0
+%IF76#+11    IDPB 3,PTR.(2)
+%IF76#+12    MOVE 3,PTE.(2)
+%IF76#+13    MOVEM 3,PTR.(2)
+%IF76#+14    JRST TYPIT#
+%IF78#       MOVE 1,OC.
+%IF78#+1     MOVE 2,PTR.(1)
+%IF78#+2     CAME 2,PTE.(1)
+%IF78#+3     JRST %IF83#
+TYPIT#       SKIPG 2,OL.
+TYPIT#+1     JRST %IF82#
+TYPIT#+2     MOVE 3,OC.
+TYPIT#+3     MOVEI 4,PTR.(3)
+TYPIT#+4     HRRM 4,%CAL79#
+TYPIT#+5     JSA 16,TYP.
+%CAL79#      JUMP 0
+%CAL79#+1    JUMP OL.
+%CAL79#+2    MOVEI 1,20
+%CAL79#+3    MOVEM 1,X#
+%CAL79#+4    JRST %ELSE8#
+%IF82#       MOVE 2,OC.
+%IF82#+1     ADDI 2,14
+%IF82#+2     MOVEM 2,%PAR75#
+%IF82#+3     JSA 16,OUTPUT
+%IF82#+4     JUMP %PAR75#
+%IF82#+5     JUMP OL.
+%IF82#+6     MOVEI 1,DDT+37
+%IF82#+7     MOVEM 1,X#
+%ELSE8#      MOVE 1,OC.
+%ELSE8#+1    MOVE 2,PTR.(1)
+%ELSE8#+2    SUB 2,X#
+%ELSE8#+3    MOVEM 2,PTR.(1)
+%IF83#       MOVEI 0
+%IF83#+1     JRA 16,1(16)
+TYP.#        TYP.#
+TYP.+1       MOVE 1,@0(16)
+TYP.+2       MOVEM 1,X#
+TYP.+3       MOVEI 2,0
+TYP.+4       IDPB 2,X#
+TYP.+5       MOVE 1,@1(16)
+TYP.+6       HRRM 1,%CAL87#
+TYP.+7       JSA 16,OUTSTR
+%CAL87#      JUMP 0
+%CAL87#+1    JRA 16,2(16)
+FILLER#      .JBUUO
+B#           0
+B#+1         0
+B#+2         0
+B#+3         0
+B#+4         0
+B#+5         0
+B#+6         0
+B#+7         0
+B#+10        0
+B#+11        0
+B#+12        0
+B#+13        0
+B#+14        0
+B#+15        0
+B#+16        0
+B#+17        0
+B#+20        0
+B#+21        0
+B#+22        0
+B#+23        0
+B#+24        0
+B#+25        0
+B#+26        0
+B#+27        0
+B#+30        0
+B#+31        0
+B#+32        0
+B#+33        0
+B#+34        0
+B#+35        0
+B#+36        0
+B#+37        0
+B#+40        0
+B#+41        0
+B#+42        0
+B#+43        0
+B#+44        0
+B#+45        0
+B#+46        0
+B#+47        0
+B#+50        0
+B#+51        0
+B#+52        0
+B#+53        0
+B#+54        0
+B#+55        0
+B#+56        0
+B#+57        0
+B#+60        0
+B#+61        0
+B#+62        0
+B#+63        0
+B#+64        0
+B#+65        0
+B#+66        0
+B#+67        0
+B#+70        0
+B#+71        0
+B#+72        0
+B#+73        0
+B#+74        0
+B#+75        0
+B#+76        0
+B#+77        0
+7645         0
+7646         0
+7647         0
+7650         0
+7651         0
+7652         0
+7653         0
+7654         0
+7655         0
+7656         0
+7657         0
+7660         0
+7661         0
+7662         0
+7663         0
+7664         0
+7665         0
+7666         0
+7667         0
+7670         0
+7671         0
+7672         0
+7673         0
+7674         0
+7675         0
+7676         0
+7677         0
+7700         0
+7701         0
+7702         0
+7703         0
+7704         0
+7705         0
+7706         0
+7707         0
+7710         0
+7711         0
+7712         0
+7713         0
+7714         0
+7715         0
+7716         0
+7717         0
+7720         0
+7721         0
+7722         0
+7723         0
+7724         0
+7725         0
+7726         0
+7727         0
+7730         0
+7731         0
+7732         0
+7733         0
+7734         0
+7735         0
+7736         0
+7737         0
+7740         0
+7741         0
+7742         0
+7743         0
+7744         0
+%PAR1#       0
+%PAR75#      0
+XP#          0
+EXP#         0
+RND#         0
+ZZ#          0
+D#           0
+F#           0
+G#           0
+I#           0
+J#           0
+K#           0
+SCI#         0
+N#           0
+P#           0
+Q#           0
+S#           0
+T#           0
+X#           0
+II#          0
+BN#          0
+BN#+1        DPB 15,@633766(7)
+BN#+2        FDVRI 14,@463146(11)
+BN#+3        0
+BN#+4        15
+BN#+5        .JBUUO
+BN#+6        12
+BN#+7        LSH 11,13710(12)
+BN#+10       %FOR72#+15,,-1
+BN#+11       TTCALL 1,0
+BN#+12       4400,,0
+BN#+13       MOVEI 10,0
+OBIN.        OBIN.
+OBIN.+1      SKIPE 2,@0(16)
+OBIN.+2      JRST %IF13#
+OBIN.+3      SKIPN 3,@1(16)
+OBIN.+4      JRST %IF8#
+OBIN.+5      HRLZI 2,502220
+OBIN.+6      MOVEM 2,FN#
+OBIN.+7      JRST %ELSE7#
+%IF8#        HRLZI 2,502360
+%IF8#+1      MOVEM 2,FN#
+%ELSE7#      SETZM I#
+%FOR9#       MOVE 2,I#
+%FOR9#+1     SETZM FN#+1(2)
+%FOR9#+2     AOS 2,I#
+%FOR9#+3     CAIG 2,3
+%FOR9#+4     JRST %FOR9#
+%FOR9#+5     MOVE 1,%FOR9#
+%FOR9#+6     JRST %ELSE1#
+%IF13#       MOVE 2,@0(16)
+%IF13#+1     MOVE 2,0(2)
+%IF13#+2     MOVEM 2,W#
+%IF13#+3     SETZM I#
+%FOR10#      MOVE 2,I#
+%FOR10#+1    ADD 2,W#
+%FOR10#+2    MOVE 2,0(2)
+%FOR10#+3    MOVE 3,I#
+%FOR10#+4    MOVEM 2,FN#(3)
+%FOR10#+5    AOS 2,I#
+%FOR10#+6    CAIG 2,4
+%FOR10#+7    JRST %FOR10#
+%FOR10#+10   MOVE 1,%FOR10#
+%ELSE1#      MOVE 1,FN#
+%ELSE1#+1    ANDI 1,377
+%ELSE1#+2    SKIPN 1,1
+%ELSE1#+3    SETZM FN#+1
+%ELSE1#+4    JSA 16,FCH.
+%ELSE1#+5    JUMP FN#
+%ELSE1#+6    JUMP I#
+%ELSE1#+7    MOVEM @2(16)
+%ELSE1#+10   SKIPGE 1,@2(16)
+%ELSE1#+11   JRST %IF14#
+%ELSE1#+12   MOVEI 1,BBF#
+%ELSE1#+13   MOVE 2,@2(16)
+%ELSE1#+14   LSH 2,7
+%ELSE1#+15   ADD 1,2
+%ELSE1#+16   MOVEM 1,E#
+%ELSE1#+17   JRST SLS#
+%IF14#       SKIPL 1,I#
+%IF14#+1     JRST %IF15#
+%IF14#+2     JSA 16,IER
+%IF14#+3     JUMP SL#+53
+%IF14#+4     JSA 16,FINI
+%IF14#+5     JUMP SL#+35
+%IF15#       MOVE 1,I#
+%IF15#+1     MOVEM 1,@2(16)
+%IF15#+2     MOVE 2,@2(16)
+%IF15#+3     IMULI 2,5
+%IF15#+4     MOVEM 2,I#
+%IF15#+5     MOVE 1,@2(16)
+%IF15#+6     ADDI 1,14
+%IF15#+7     MOVEM 1,HCH#
+%IF15#+10    MOVE 3,@1(16)
+%IF15#+11    ADDI 3,1
+%IF15#+12    MOVE 4,@2(16)
+%IF15#+13    MOVEM 3,UC#(4)
+%IF15#+14    MOVE 3,@2(16)
+%IF15#+15    CAMG 3,NC#
+%IF15#+16    JRST %IF16#
+%IF15#+17    MOVE 3,@2(16)
+%IF15#+20    MOVEM 3,NC#
+%IF16#       SETZM J#
+%FOR17#      MOVE 1,J#
+%FOR17#+1    MOVE 2,FN#(1)
+%FOR17#+2    ADD 1,I#
+%FOR17#+3    MOVEM 2,FI#(1)
+%FOR17#+4    AOS 1,J#
+%FOR17#+5    CAIG 1,4
+%FOR17#+6    JRST %FOR17#
+%FOR17#+7    JSA 16,INIT
+%FOR17#+10   JUMP HCH#
+%FOR17#+11   JUMP SL#+66
+%FOR17#+12   JUMP DEV#
+%FOR17#+13   MOVE 1,SL#+63
+%FOR17#+14   MOVEM 1,DEV#
+%FOR17#+15   SETZM DEV#+1
+%FOR17#+16   MOVEI 2,BBF#
+%FOR17#+17   MOVE 3,@2(16)
+%FOR17#+20   LSH 3,7
+%FOR17#+21   ADD 2,3
+%FOR17#+22   MOVEM 2,E#
+%FOR17#+23   ADD 2,SL#+32
+%FOR17#+24   MOVE 3,@2(16)
+%FOR17#+25   MOVEM 2,PTE.(3)
+%FOR17#+26   MOVE 2,@2(16)
+%FOR17#+27   SETZM FL.(2)
+%FOR17#+30   MOVE 2,@2(16)
+%FOR17#+31   SETZM LC.(2)
+%FOR17#+32   MOVEI 2,1
+%FOR17#+33   MOVE 3,@2(16)
+%FOR17#+34   MOVEM 2,FM.(3)
+%FOR17#+35   SKIPN 3,@1(16)
+%FOR17#+36   JRST %IF24#
+%FOR17#+37   JSA 16,LOOKUP
+%FOR17#+40   JUMP HCH#
+%FOR17#+41   JUMP FN#
+%FOR17#+42   JUMP FN#+2
+%FOR17#+43   JUMP FN#+3
+%FOR17#+44   JUMP FN#+4
+%FOR17#+45   MOVEM W#
+%FOR17#+46   JUMPE %IF18#
+%FOR17#+47   JSA 16,IER
+%FOR17#+50   JUMP SL#+1
+%FOR17#+51   JRST ERF#
+%IF18#       MOVE 1,@2(16)
+%IF18#+1     MOVE 2,PTE.(1)
+%IF18#+2     MOVE 1,@2(16)
+%IF18#+3     MOVEM 2,PTR.(1)
+%IF18#+4     JRST SLS#
+%IF24#       JSA 16,ENTER
+%IF24#+1     JUMP HCH#
+%IF24#+2     JUMP FN#
+%IF24#+3     JUMP FN#+2
+%IF24#+4     JUMP FN#+3
+%IF24#+5     JUMP FN#+4
+%IF24#+6     MOVEM W#
+%IF24#+7     JUMPE %IF21#
+%IF24#+10    JSA 16,IER
+%IF24#+11    JUMP SL#+13
+ERF#         JSA 16,OUTSTR
+ERF#+1       JUMP FN#
+ERF#+2       SKIPN 1,FN#+2
+ERF#+3       JRST %IF19#
+ERF#+4       JSA 16,OUTSTR
+ERF#+5       JUMP SL#+22
+ERF#+6       JSA 16,OUTSTR
+ERF#+7       JUMP FN#+2
+%IF19#       SKIPN 1,FN#+3
+%IF19#+1     JRST %IF20#
+%IF19#+2     JSA 16,OUTSTR
+%IF19#+3     JUMP SL#+62
+%IF19#+4     JSA 16,OAS.
+%IF19#+5     JUMP FN#+3
+%IF19#+6     MOVEM %PAR1#
+%IF19#+7     JSA 16,OUTSTR
+%IF19#+10    JUMP %PAR1#
+%IF19#+11    JSA 16,OUTSTR
+%IF19#+12    JUMP SL#+20
+%IF19#+13    JSA 16,OAS.
+%IF19#+14    JUMP FN#+4
+%IF19#+15    MOVEM %PAR1#
+%IF19#+16    JSA 16,OUTSTR
+%IF19#+17    JUMP %PAR1#
+%IF19#+20    JSA 16,OUTSTR
+%IF19#+21    JUMP SL#+64
+%IF20#       JSA 16,FINI
+%IF20#+1     JUMP SL#+35
+%IF21#       MOVE 2,E#
+%IF21#+1     ADD 2,SL#+70
+%IF21#+2     MOVE 1,@2(16)
+%IF21#+3     MOVEM 2,PTR.(1)
+SLS#         MOVE 2,@2(16)
+SLS#+1       MOVE 2,UC#(2)
+SLS#+2       CAIE 2,3
+SLS#+3       JRST %IF27#
+SLS#+4       MOVE 1,E#
+SLS#+5       MOVEM 1,@3(16)
+SLS#+6       JRST %ELSE2#
+%IF27#       MOVE 1,E#
+%IF27#+1     ADD 1,SL#+50
+%IF27#+2     MOVEM 1,@3(16)
+%ELSE2#      MOVEI 0
+%ELSE2#+1    JRA 16,4(16)
+DEV.         DEV.
+DEV.+1       MOVE 1,@0(16)
+DEV.+2       CAME 1,SL#+67
+DEV.+3       JRST %IF34#
+DEV.+4       SKIPN 2,@1(16)
+DEV.+5       JRST %IF33#
+DEV.+6       HRROI 1,-2
+DEV.+7       MOVEM 1,IC.
+DEV.+10      JRST %ELSE3#
+%IF33#       SETOM OC.
+%IF33#+1     SETO 1,0
+%ELSE3#      MOVE 1,@1(16)
+%ELSE3#+1    ADDI 1,1
+%ELSE3#+2    MOVN 1,1
+%ELSE3#+3    MOVEM 1,I#
+%ELSE3#+4    SETZM FL.(1)
+%ELSE3#+5    SETZM LC.(1)
+%ELSE3#+6    MOVEI 2,1
+%ELSE3#+7    MOVEM 2,FM.(1)
+%ELSE3#+10   MOVEI 0
+%ELSE3#+11   JRA 16,2(16)
+%IF34#       MOVE 2,@0(16)
+%IF34#+1     MOVEM 2,DEV#
+%IF34#+2     ANDI 2,376
+%IF34#+3     JUMPE 2,%IF37#
+%IF34#+4     MOVEI 2,@0(16)
+%IF34#+5     MOVE 1,1(2)
+%IF34#+6     JRST %ELSE3#
+%IF37#       MOVEI 1,0
+%ELSE3#      MOVEM 1,DEV#+1
+%ELSE3#+1    MOVE 1
+%ELSE3#+2    JRA 16,2(16)
+DEV#         ANDCMM 11,@300000(11)
+DEV#+1       0
+FINI         FINI
+FINI+1       SKIPN 1,@0(16)
+FINI+2       JRST ALL#
+FINI+3       MOVE 1,@0(16)
+FINI+4       CAMN 1,SL#+52
+FINI+5       JRST ALL#
+FINI+6       MOVE 1,@0(16)
+FINI+7       MOVEM 1,FN#
+FINI+10      MOVEI 2,2
+FINI+11      MOVEM 2,I#
+%FOR39#      MOVE 1,I#
+%FOR39#+1    SUBI 1,1
+%FOR39#+2    MOVE 2,16
+%FOR39#+3    ADD 2,1
+%FOR39#+4    MOVE 1,@0(2)
+%FOR39#+5    MOVE 2,I#
+%FOR39#+6    MOVEM 1,FN#(2)
+%FOR39#+7    AOS 1,I#
+%FOR39#+10   CAIG 1,4
+%FOR39#+11   JRST %FOR39#
+%FOR39#+12   MOVE 2,0(16)
+%FOR39#+13   MOVE 2,1(2)
+%FOR39#+14   MOVEM 2,FN#+1
+%FOR39#+15   MOVE 3,FN#
+%FOR39#+16   ANDI 3,377
+%FOR39#+17   SKIPN 3,3
+%FOR39#+20   SETZM FN#+1
+%FOR39#+21   MOVE 2,FN#+2
+%FOR39#+22   CAME 2,SL#+21
+%FOR39#+23   JRST %IF40#
+%FOR39#+24   HRLZI 3,600000
+%FOR39#+25   AND 3,FN#
+%FOR39#+26   SKIPN 3,3
+%FOR39#+27   SETZM FN#+1
+%IF40#       JSA 16,CLS.
+%IF40#+1     JUMP FN#
+%IF40#+2     MOVEI 0
+%IF40#+3     JRA 16,4(16)
+ALL#         SETZM I#
+%FOR45#      MOVE 1,I#
+%FOR45#+1    MOVE 2,UC#(1)
+%FOR45#+2    CAIE 2,1
+%FOR45#+3    JRST %IF41#
+%FOR45#+4    JSA 16,PDO.
+%FOR45#+5    JUMP I#
+%IF41#       MOVE 1,I#
+%IF41#+1     MOVE 2,UC#(1)
+%IF41#+2     CAIE 2,3
+%IF41#+3     JRST %IF43#
+%IF41#+4     MOVEI 2,BBF#
+%IF41#+5     LSH 1,7
+%IF41#+6     ADD 2,1
+%IF41#+7     MOVEM 2,%PAR30#
+%IF41#+10    MOVE 1,I#
+%IF41#+11    MOVEI 3,PTR.(1)
+%IF41#+12    HRRM 3,%CAL42#
+%IF41#+13    JSA 16,TYP.
+%CAL42#      JUMP 0
+%CAL42#+1    JUMP %PAR30#
+%IF43#       MOVE 1,I#
+%IF43#+1     SKIPN 2,UC#(1)
+%IF43#+2     JRST %IF44#
+%IF43#+3     SETZM UC#(1)
+%IF43#+4     ADDI 1,14
+%IF43#+5     MOVEM 1,%PAR30#
+%IF43#+6     JSA 16,CLOSE
+%IF43#+7     JUMP %PAR30#
+%IF44#       AOS 1,I#
+%IF44#+1     CAMG 1,NC#
+%IF44#+2     JRST %FOR45#
+%IF44#+3     SETOM NC#
+%IF44#+4     SKIPE 2,@0(16)
+%IF44#+5     JRST %IF47#
+%IF44#+6     SETZM I#
+%FOR46#      MOVE 1,I#
+%FOR46#+1    ADDI 1,14
+%FOR46#+2    MOVEM 1,%PAR30#
+%FOR46#+3    JSA 16,RELEA
+%FOR46#+4    JUMP %PAR30#
+%FOR46#+5    AOS 1,I#
+%FOR46#+6    CAMG 1,NC#
+%FOR46#+7    JRST %FOR46#
+%FOR46#+10   MOVEI 2,1
+%FOR46#+11   CALLI 2,12
+%FOR46#+12   SETOM 2,CALLI#
+%IF47#       SETZM RSW.#
+%IF47#+1     SETZM PSW.
+%IF47#+2     MOVEI 0
+%IF47#+3     JRA 16,1(16)
+CLS.         CLS.
+CLS.+1       MOVEI 1,@0(16)
+CLS.+2       HRRM 1,%CAL50#
+CLS.+3       JSA 16,FCH.#
+%CAL50#      JUMP 0
+%CAL50#+1    JUMP M#
+%CAL50#+2    MOVEM I#
+%CAL50#+3    JUMPL %IF55#
+%CAL50#+4    MOVE 1,I#
+%CAL50#+5    IMULI 1,5
+%CAL50#+6    MOVEM 1,J#
+%CAL50#+7    SETZM K#
+%FOR51#      MOVE 1,K#
+%FOR51#+1    ADD 1,J#
+%FOR51#+2    SETZM FI#(1)
+%FOR51#+3    AOS 1,K#
+%FOR51#+4    CAIG 1,4
+%FOR51#+5    JRST %FOR51#
+%FOR51#+6    MOVE 2,NC#
+%FOR51#+7    CAMN 2,I#
+%FOR51#+10   SOS 2,NC#
+%FOR51#+11   MOVE 2,I#
+%FOR51#+12   MOVE 3,UC#(2)
+%FOR51#+13   CAIE 3,1
+%FOR51#+14   JRST %IF52#
+%FOR51#+15   MOVE 3,OC.
+%FOR51#+16   MOVEM 3,SC#
+%FOR51#+17   MOVE 4,OL.
+%FOR51#+20   MOVEM 4,SL#
+%FOR51#+21   JSA 16,PDO.
+%FOR51#+22   JUMP I#
+%FOR51#+23   MOVE 1,SC#
+%FOR51#+24   MOVEM 1,OC.
+%FOR51#+25   MOVE 2,SL#
+%FOR51#+26   MOVEM 2,OL.
+%IF52#       MOVE 1,I#
+%IF52#+1     MOVE 2,UC#(1)
+%IF52#+2     CAIE 2,3
+%IF52#+3     JRST %IF54#
+%IF52#+4     MOVEI 2,BBF#
+%IF52#+5     LSH 1,7
+%IF52#+6     ADD 2,1
+%IF52#+7     MOVEM 2,%PAR49#
+%IF52#+10    MOVE 1,I#
+%IF52#+11    MOVEI 3,PTR.(1)
+%IF52#+12    HRRM 3,%CAL53#
+%IF52#+13    JSA 16,TYP.
+%CAL53#      JUMP 0
+%CAL53#+1    JUMP %PAR49#
+%IF54#       MOVE 1,I#
+%IF54#+1     SETZM UC#(1)
+%IF54#+2     ADDI 1,14
+%IF54#+3     MOVEM 1,%PAR49#
+%IF54#+4     JSA 16,CLOSE
+%IF54#+5     JUMP %PAR49#
+%IF55#       MOVEI 0
+%IF55#+1     JRA 16,1(16)
+FCH.         FCH.
+FCH.+1       SETOM C#
+LB#          AOS 1,C#
+LB#+1        CAMLE 1,NC#
+LB#+2        JRST %IF64#
+LB#+3        IMULI 1,5
+LB#+4        MOVEM 1,I#
+LB#+5        SETZM J#
+%FOR59#      MOVE 1,J#
+%FOR59#+1    ADD 1,I#
+%FOR59#+2    MOVE 1,FI#(1)
+%FOR59#+3    MOVE 3,J#
+%FOR59#+4    MOVEI 4,@0(16)
+%FOR59#+5    ADD 4,3
+%FOR59#+6    CAME 1,0(4)
+%FOR59#+7    JRST LB#
+%FOR59#+10   AOS 1,J#
+%FOR59#+11   CAIG 1,4
+%FOR59#+12   JRST %FOR59#
+%FOR59#+13   MOVE 2,%FOR59#
+%FOR59#+14   JRST RTFC#
+%IF64#       SETOM C#
+%IF64#+1     SETZM J#
+%FOR61#      MOVE 1,J#
+%FOR61#+1    SKIPE 3,UC#(1)
+%FOR61#+2    JRST %IF60#
+%FOR61#+3    MOVEM 1,@1(16)
+%FOR61#+4    JRST RTFC#
+%IF60#       AOS 1,J#
+%IF60#+1     CAIG 1,3
+%IF60#+2     JRST %FOR61#
+%IF60#+3     SETOM @1(16)
+%IF60#+4     SETO 2,0
+RTFC#        MOVE C#
+RTFC#+1      JRA 16,2(16)
+NC#          -1
+PDO.         PDO.
+PDO.+1       MOVE 1,@0(16)
+PDO.+2       MOVE 1,PTE.(1)
+PDO.+3       SUBI 1,DDT+37
+PDO.+4       MOVEM 1,E#
+PDO.+5       SUB 1,SL#+36
+PDO.+6       MOVEM 1,OL.
+PDO.+7       MOVE 2,@0(16)
+PDO.+10      MOVEM 2,OC.
+PAD#         MOVE 1,OC.
+PAD#+1       MOVE 2,PTR.(1)
+PAD#+2       CAMN 2,E#
+PAD#+3       JRST %IF66#
+PAD#+4       JSA 16,POUT.
+PAD#+5       JUMP SL#+35
+PAD#+6       JRST PAD#
+%IF66#       MOVEI 0
+%IF66#+1     JRA 16,1(16)
+FBLK.        FBLK.
+FBLK.+1      MOVEI 1,@0(16)
+FBLK.+2      HRRM 1,%CAL68#
+FBLK.+3      JSA 16,PADR.
+%CAL68#      JUMP 0
+%CAL68#+1    MOVE 1,0
+%CAL68#+2    MOVE 1,0(1)
+%CAL68#+3    MOVEM 1,BLK#
+%CAL68#+4    SETZM BLK#+1
+%CAL68#+5    ANDI 1,377
+%CAL68#+6    JUMPE 1,%IF71#
+%CAL68#+7    HRLZI 1,774000
+%CAL68#+10   AND 1,BLK#
+%CAL68#+11   JUMPE 1,%IF71#
+%CAL68#+12   MOVEI 1,@0(16)
+%CAL68#+13   HRRM 1,%CAL69#
+%CAL68#+14   JSA 16,PADR.
+%CAL69#      JUMP 0
+%CAL69#+1    MOVE 1,0
+%CAL69#+2    MOVE 1,1(1)
+%CAL69#+3    MOVEM 1,BLK#+1
+%IF71#       MOVEI 1,1
+%IF71#+1     MOVEM 1,I#
+%FOR72#      MOVE 1,I#
+%FOR72#+1    ADD 1,@0(16)
+%FOR72#+2    MOVEM 1,%PAR58#
+%FOR72#+3    JSA 16,PADR.
+%FOR72#+4    JUMP %PAR58#
+%FOR72#+5    MOVE 1,0
+%FOR72#+6    MOVE 1,0(1)
+%FOR72#+7    MOVE 2,I#
+%FOR72#+10   MOVEM 1,BLK#+1(2)
+%FOR72#+11   AOS 1,I#
+%FOR72#+12   CAIG 1,3
+%FOR72#+13   JRST %FOR72#
+%FOR72#+14   MOVE 2,@0(16)
+%FOR72#+15   ADDI 2,3
+%FOR72#+16   MOVEM 2,@0(16)
+%FOR72#+17   MOVEI 2,BLK#
+%FOR72#+20   MOVEM 2,I#
+%FOR72#+21   MOVEI 1,I#
+%FOR72#+22   MOVE 1
+%FOR72#+23   JRA 16,1(16)
+OAS.         OAS.
+OAS.+1       SETZM I#
+OAS.+2       SETZM RTV#
+OAS.+3       MOVE 1,%BYTE7#
+OAS.+4       MOVEM 1,P#
+OAS.+5       MOVE 2,@0(16)
+OAS.+6       MOVEM 2,M#
+TA1#         MOVE 1,M#
+TA1#+1       ANDI 1,7
+TA1#+2       ADDI 1,60
+TA1#+3       MOVE 2,I#
+TA1#+4       MOVEM 1,FI#(2)
+TA1#+5       AOS 1,I#
+TA1#+6       CAIL 1,4
+TA1#+7       JRST %IF76#
+TA1#+10      MOVE 2,M#
+TA1#+11      LSH 2,-3
+TA1#+12      MOVEM 2,M#
+TA1#+13      JUMPN 2,TA1#
+%IF76#       MOVE 1,I#
+%IF76#+1     SUBI 1,1
+%IF76#+2     MOVEM 1,L#
+%FOR77#      MOVE 1,L#
+%FOR77#+1    MOVE 2,FI#(1)
+%FOR77#+2    IDPB 2,P#
+%FOR77#+3    SOSL 1,L#
+%FOR77#+4    JRST %FOR77#
+%FOR77#+5    MOVE RTV#
+%FOR77#+6    JRA 16,1(16)
+ITYPE        ITYPE
+ITYPE+1      MOVE 1,@0(16)
+ITYPE+2      MOVEM 1,FN#
+ITYPE+3      SETZM FN#+4
+ITYPE+4      SETZM FN#+3
+ITYPE+5      SETZM FN#+2
+ITYPE+6      ANDI 1,377
+ITYPE+7      JUMPE 1,%IF81#
+ITYPE+10     MOVEI 1,@0(16)
+ITYPE+11     MOVE 2,1(1)
+ITYPE+12     MOVEM 2,FN#+1
+ITYPE+13     JRST %ELSE8#
+%IF81#       SETZM FN#+1
+%IF81#+1     MOVEI 2,0
+%ELSE8#      JSA 16,FCH.
+%ELSE8#+1    JUMP FN#
+%ELSE8#+2    JUMP J#
+%ELSE8#+3    MOVEM I#
+%ELSE8#+4    JUMPL %IF83#
+%ELSE8#+5    MOVE 1,I#
+%ELSE8#+6    MOVE 2,UC#(1)
+%ELSE8#+7    CAIN 2,3
+%ELSE8#+10   JRST %IF82#
+%ELSE8#+11   JSA 16,IER
+%ELSE8#+12   JUMP SL#+23
+%ELSE8#+13   JSA 16,OUTSTR
+%ELSE8#+14   JUMP FN#
+%IF82#       JRST RTNI#
+%IF83#       SKIPL 1,J#
+%IF83#+1     JRST %IF84#
+%IF83#+2     JSA 16,IER
+%IF83#+3     JUMP SL#+40
+%IF83#+4     JSA 16,OUTSTR
+%IF83#+5     JUMP FN#
+%IF83#+6     JRST RTNI#
+%IF84#       MOVE 1,J#
+%IF84#+1     IMULI 1,5
+%IF84#+2     MOVEM 1,K#
+%IF84#+3     SETZM I#
+%FOR85#      MOVE 1,I#
+%FOR85#+1    MOVE 2,FN#(1)
+%FOR85#+2    ADD 1,K#
+%FOR85#+3    MOVEM 2,FI#(1)
+%FOR85#+4    AOS 1,I#
+%FOR85#+5    CAIG 1,4
+%FOR85#+6    JRST %FOR85#
+%FOR85#+7    MOVE 2,J#
+%FOR85#+10   CAMG 2,NC#
+%FOR85#+11   JRST %IF86#
+%FOR85#+12   MOVEM 2,NC#
+%IF86#       MOVEI 1,3
+%IF86#+1     MOVE 2,J#
+%IF86#+2     MOVEM 1,UC#(2)
+%IF86#+3     SETZM FL.(2)
+%IF86#+4     SETZM LC.(2)
+%IF86#+5     MOVEI 1,1
+%IF86#+6     MOVEM 1,FM.(2)
+%IF86#+7     MOVEI 1,BBF#
+%IF86#+10    LSH 2,7
+%IF86#+11    ADD 1,2
+%IF86#+12    MOVEM 1,E#
+%IF86#+13    ADD 1,SL#+33
+%IF86#+14    MOVE 2,J#
+%IF86#+15    MOVEM 1,PTE.(2)
+%IF86#+16    MOVE 1,E#
+%IF86#+17    ADD 1,SL#+37
+%IF86#+20    MOVEM 1,PTR.(2)
+RTNI#        MOVEI 0
+RTNI#+1      JRA 16,1(16)
+PADR.        PADR.
+PADR.+1      MOVE 10,@0(16)
+PADR.+2      MOVEI 10,@0(10)
+PADR.+3      MOVE 10
+PADR.+4      JRA 16,1(16)
+IER          IER
+IER+1        JSA 16,OUTCHR
+IER+2        JUMP SL#+51
+IER+3        JSA 16,OUTCHR
+IER+4        JUMP SL#+65
+IER+5        JSA 16,OUTSTR
+IER+6        JUMP SL#+5
+IER+7        JSA 16,OUTCHR
+IER+10       JUMP SL#+51
+IER+11       JSA 16,OUTCHR
+IER+12       JUMP SL#+65
+IER+13       JSA 16,OUTSTR
+IER+14       JUMP SL#+34
+IER+15       MOVEI 1,@0(16)
+IER+16       HRRM 1,%CAL89#
+IER+17       JSA 16,OUTSTR
+%CAL89#      JUMP 0
+%CAL89#+1    MOVEI 0
+%CAL89#+2    JRA 16,1(16)
+%CAL89#+3    0
+%CAL89#+4    0
+PTR.         0
+PTR.+1       0
+PTR.+2       0
+PTR.+3       0
+PTR.+4       0
+PTR.+5       0
+PTE.         0
+PTE.+1       0
+PTE.+2       0
+PTE.+3       0
+PTE.+4       0
+PTE.+5       0
+LC.          0
+LC.+1        0
+LC.+2        0
+LC.+3        0
+LC.+4        0
+LC.+5        0
+FL.          0
+FL.+1        0
+FL.+2        0
+FL.+3        0
+FL.+4        0
+FL.+5        0
+FM.          0
+FM.+1        0
+FM.+2        0
+FM.+3        0
+%BYTE7#      ANDCB 16,RTV#
+OL.          0
+OL.+1        0
+IL.          0
+IL.+1        0
+OC.          0
+IC.          0
+PSW.         0
+RSW.#        0
+BBF#         0
+BBF#+1       0
+BBF#+2       0
+BBF#+3       0
+BBF#+4       0
+BBF#+5       0
+BBF#+6       0
+BBF#+7       0
+BBF#+10      0
+BBF#+11      0
+BBF#+12      0
+BBF#+13      0
+BBF#+14      0
+BBF#+15      0
+BBF#+16      0
+BBF#+17      0
+BBF#+20      0
+BBF#+21      0
+BBF#+22      0
+BBF#+23      0
+BBF#+24      0
+BBF#+25      0
+BBF#+26      0
+BBF#+27      0
+BBF#+30      0
+BBF#+31      0
+BBF#+32      0
+BBF#+33      0
+BBF#+34      0
+BBF#+35      0
+BBF#+36      0
+BBF#+37      0
+BBF#+40      0
+BBF#+41      0
+BBF#+42      0
+BBF#+43      0
+BBF#+44      0
+BBF#+45      0
+BBF#+46      0
+BBF#+47      0
+BBF#+50      0
+BBF#+51      0
+BBF#+52      0
+BBF#+53      0
+BBF#+54      0
+BBF#+55      0
+BBF#+56      0
+BBF#+57      0
+BBF#+60      0
+BBF#+61      0
+BBF#+62      0
+BBF#+63      0
+BBF#+64      0
+BBF#+65      0
+BBF#+66      0
+BBF#+67      0
+BBF#+70      0
+BBF#+71      0
+BBF#+72      0
+BBF#+73      0
+BBF#+74      0
+BBF#+75      0
+BBF#+76      0
+BBF#+77      0
+11247        0
+11250        0
+11251        0
+11252        0
+11253        0
+11254        0
+11255        0
+11256        0
+11257        0
+11260        0
+11261        0
+11262        0
+11263        0
+11264        0
+11265        0
+11266        0
+11267        0
+11270        0
+11271        0
+11272        0
+11273        0
+11274        0
+11275        0
+11276        0
+11277        0
+11300        0
+11301        0
+11302        0
+11303        0
+11304        0
+11305        0
+11306        0
+11307        0
+11310        0
+11311        0
+11312        0
+11313        0
+11314        0
+11315        0
+11316        0
+11317        0
+11320        0
+11321        0
+11322        0
+11323        0
+11324        0
+11325        0
+11326        0
+11327        0
+11330        0
+11331        0
+11332        0
+11333        0
+11334        0
+11335        0
+11336        0
+11337        0
+11340        0
+11341        0
+11342        0
+11343        0
+11344        0
+11345        0
+11346        0
+11347        0
+11350        0
+11351        0
+11352        0
+11353        0
+11354        0
+11355        0
+11356        0
+11357        0
+11360        0
+11361        0
+11362        0
+11363        0
+11364        0
+11365        0
+11366        0
+11367        0
+11370        0
+11371        0
+11372        0
+11373        0
+11374        0
+11375        0
+11376        0
+11377        0
+11400        0
+11401        0
+11402        0
+11403        0
+11404        0
+11405        0
+11406        0
+11407        0
+11410        0
+11411        0
+11412        0
+11413        0
+11414        0
+11415        0
+11416        0
+11417        0
+11420        0
+11421        0
+11422        0
+11423        0
+11424        0
+11425        0
+11426        0
+11427        0
+11430        0
+11431        0
+11432        0
+11433        0
+11434        0
+11435        0
+11436        0
+11437        0
+11440        0
+11441        0
+11442        0
+11443        0
+11444        0
+11445        0
+11446        0
+11447        0
+11450        0
+11451        0
+11452        0
+11453        0
+11454        0
+11455        0
+11456        0
+11457        0
+11460        0
+11461        0
+11462        0
+11463        0
+11464        0
+11465        0
+11466        0
+11467        0
+11470        0
+11471        0
+11472        0
+11473        0
+11474        0
+11475        0
+11476        0
+11477        0
+11500        0
+11501        0
+11502        0
+11503        0
+11504        0
+11505        0
+11506        0
+11507        0
+11510        0
+11511        0
+11512        0
+11513        0
+11514        0
+11515        0
+11516        0
+11517        0
+11520        0
+11521        0
+11522        0
+11523        0
+11524        0
+11525        0
+11526        0
+11527        0
+11530        0
+11531        0
+11532        0
+11533        0
+11534        0
+11535        0
+11536        0
+11537        0
+11540        0
+11541        0
+11542        0
+11543        0
+11544        0
+11545        0
+11546        0
+11547        0
+11550        0
+11551        0
+11552        0
+11553        0
+11554        0
+11555        0
+11556        0
+11557        0
+11560        0
+11561        0
+11562        0
+11563        0
+11564        0
+11565        0
+11566        0
+11567        0
+11570        0
+11571        0
+11572        0
+11573        0
+11574        0
+11575        0
+11576        0
+11577        0
+11600        0
+11601        0
+11602        0
+11603        0
+11604        0
+11605        0
+11606        0
+11607        0
+11610        0
+11611        0
+11612        0
+11613        0
+11614        0
+11615        0
+11616        0
+11617        0
+11620        0
+11621        0
+11622        0
+11623        0
+11624        0
+11625        0
+11626        0
+11627        0
+11630        0
+11631        0
+11632        0
+11633        0
+11634        0
+11635        0
+11636        0
+11637        0
+11640        0
+11641        0
+11642        0
+11643        0
+11644        0
+11645        0
+11646        0
+11647        0
+11650        0
+11651        0
+11652        0
+11653        0
+11654        0
+11655        0
+11656        0
+11657        0
+11660        0
+11661        0
+11662        0
+11663        0
+11664        0
+11665        0
+11666        0
+11667        0
+11670        0
+11671        0
+11672        0
+11673        0
+11674        0
+11675        0
+11676        0
+11677        0
+11700        0
+11701        0
+11702        0
+11703        0
+11704        0
+11705        0
+11706        0
+11707        0
+11710        0
+11711        0
+11712        0
+11713        0
+11714        0
+11715        0
+11716        0
+11717        0
+11720        0
+11721        0
+11722        0
+11723        0
+11724        0
+11725        0
+11726        0
+11727        0
+11730        0
+11731        0
+11732        0
+11733        0
+11734        0
+11735        0
+11736        0
+11737        0
+11740        0
+11741        0
+11742        0
+11743        0
+11744        0
+11745        0
+11746        0
+11747        0
+11750        0
+11751        0
+11752        0
+11753        0
+11754        0
+11755        0
+11756        0
+11757        0
+11760        0
+11761        0
+11762        0
+11763        0
+11764        0
+11765        0
+11766        0
+11767        0
+11770        0
+11771        0
+11772        0
+11773        0
+11774        0
+11775        0
+11776        0
+11777        0
+12000        0
+12001        0
+12002        0
+12003        0
+12004        0
+12005        0
+12006        0
+12007        0
+12010        0
+12011        0
+12012        0
+12013        0
+12014        0
+12015        0
+12016        0
+12017        0
+12020        0
+12021        0
+12022        0
+12023        0
+12024        0
+12025        0
+12026        0
+12027        0
+12030        0
+12031        0
+12032        0
+12033        0
+12034        0
+12035        0
+12036        0
+12037        0
+12040        0
+12041        0
+12042        0
+12043        0
+12044        0
+12045        0
+12046        0
+12047        0
+12050        0
+12051        0
+12052        0
+12053        0
+12054        0
+12055        0
+12056        0
+12057        0
+12060        0
+12061        0
+12062        0
+12063        0
+12064        0
+12065        0
+12066        0
+12067        0
+12070        0
+12071        0
+12072        0
+12073        0
+12074        0
+12075        0
+12076        0
+12077        0
+12100        0
+12101        0
+12102        0
+12103        0
+12104        0
+12105        0
+12106        0
+12107        0
+12110        0
+12111        0
+12112        0
+12113        0
+12114        0
+12115        0
+12116        0
+12117        0
+12120        0
+12121        0
+12122        0
+12123        0
+12124        0
+12125        0
+12126        0
+12127        0
+12130        0
+12131        0
+12132        0
+12133        0
+12134        0
+12135        0
+12136        0
+12137        0
+12140        0
+12141        0
+12142        0
+12143        0
+12144        0
+12145        0
+12146        0
+FI#          0

@@ -76,10 +76,24 @@ Things in the original that the fuzzer taught us to leave alone:
   sets `TTY WIDTH 200`.
 - Output is lost when a program stops without `FINI(0)`.
 
+## The KI10 oracle and REAL
+
+The KA10 has no floating conversion instructions, so programs that convert reals stop with
+`?Illegal UUO` there. The KI10 oracle (`tools/oracle-ki-build.sh`, `tools/oracle-boot.sh ki`;
+login `[1,2]` password `FAILSA`, set `ORACLE_USER` and `ORACLE_PASS`) is TOPS-10 6.03 restored from
+Richard Cornwell's system tape by [prebsd](https://github.com/moebiusV/prebsd)'s
+`pdp10/install-ki.sh`. With it:
+
+- **Constants.** The original converts `0.25` with its own `FCON`, in 27 bit REAL arithmetic with
+  an inexact 1/10, so `0.25`, `0.125`, `0.75` and `0.0625` are one unit in the last place low.
+  `fcon` in `stage0/impsem.c` does the same sums. Every real operation result is rounded to a
+  27 bit mantissa (`fromd` in `trans.c`).
+- **PRINT FLT** follows PMOD's code (`docs/internals/pmod.md`), digits, ties and all.
+- **Zero** prints as `0` in any FLT format. The original never returns from the scientific
+  form of zero (`FLT -12.4` of 0.0), and a program that overflows 2^127 stops the same way.
+
 ## Limits
 
-- **KA10 has no floating conversion instructions** (`FLTR` and friends came with the KI10), so
-  programs with `REAL` conversions stop at `?Illegal UUO`. `io.imp` (reals) is not in the golden
-  list; a KI10 or KL10 monitor is needed for those, as is a KS10 for the later monitors.
+- The KA10 oracle has no floating conversion instructions (see above): use the KI10 for REAL.
 - The boot sometimes hangs after `%DPA7 IS OFF-LINE`; `oracle-boot.sh` starts again.
 - Programs for the oracle must be self-contained (no C main) and end with `FINI(0)`.
