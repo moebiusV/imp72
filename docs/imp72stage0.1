@@ -1,66 +1,100 @@
-.TH IMP72STAGE0 1 "2026" "imp72"
-.SH NAME
-imp72stage0 \- compile IMP72 programs to native code
-.SH SYNOPSIS
-.B imp72stage0
-[\fB\-C\fR] [\fB\-S\fR | \fB\-c\fR] [\fB\-o\fR \fIoutput\fR] [\fB\-s\fR \fIletters\fR]
-.I file.imp
-\&...
-.SH DESCRIPTION
-.B imp72stage0
+.\" Copyright (c) 2026 The imp72 authors.  ISC licence, see LICENSE.
+.Dd October 19, 2026
+.Dt IMP72STAGE0 1
+.Os
+.Sh NAME
+.Nm imp72stage0
+.Nd compile IMP72 programs to native code
+.Sh SYNOPSIS
+.Nm
+.Op Fl C
+.Op Fl S | Fl c
+.Op Fl o Ar output
+.Op Fl s Ar letters
+.Ar file.imp ...
+.Sh DESCRIPTION
+.Nm
 compiles programs in IMP72, the extensible systems language of Ned Irons as
 implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a), to native code.
 The syntax of the language is read from the original syntax file
-.IR syntax.imc ,
-the compiler's code generator makes PDP-10 code, which is translated to an
+.Pa syntax.imc .
+The compiler's code generator makes PDP-10 code, which is translated to an
 intermediate form and from there to machine code.
-.PP
-IMP72 passes arguments by reference, as FORTRAN does, and a word is 64 bits.
+.Pp
+IMP72 passes arguments by reference, as FORTRAN does, and a word is 64 bits
+(32 bit hosts hold it in a
+.Vt long long ) .
 A subroutine
-.B SUBR
-is therefore a C function of pointers to its arguments, returning a
-.BR long ,
+.Sy SUBR
+is therefore a C function of pointers to its arguments, returning a word,
 and a C program can call it.
-.B CCALL F(A, B)
-calls the C function F with the values of A and B.
+.Sy CCALL F(A, B)
+calls the C function
+.Fn F
+with the values of
+.Va A
+and
+.Va B .
 Variables are common symbols.
-.SH OPTIONS
-.TP
-.B \-C
-Use the C back end: the program is turned into C and compiled by the host's C
-compiler.  This is the only back end on hosts other than amd64, where
-the pcc code generator is used otherwise.
-.TP
-.B \-S
-Stop after generating assembly (with \fB\-C\fR, C).
-.TP
-.B \-c
+.Pp
+Unless told otherwise,
+.Nm
+compiles with the code generator of pcc where it was built
+.Pq amd64, aarch64 and i386 hosts
+and with the host's C compiler elsewhere.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl C
+Use the C back end: the program is turned into C and compiled by the host's
+C compiler.
+This is the only back end on hosts that pcc does not build for.
+.It Fl S
+Stop after generating assembly
+.Pq with Fl C , No C .
+.It Fl c
 Stop after generating the object file.
-.TP
-.BI \-o " output"
+.It Fl o Ar output
 Name of the output file.
-.TP
-.BI \-s " letters"
-Switches for the compiler proper (listings and dumps of its tables, as in the
-original: A assembly listing, T code tree, S semantics, X syntax graph).
-.SH ENVIRONMENT
-.TP
-.B IMP72BACKEND
-.B c
+.It Fl s Ar letters
+Switches for the compiler proper: listings and dumps of its tables, as in the
+original.
+.Ql A
+assembly listing,
+.Ql T
+code tree,
+.Ql S
+semantics,
+.Ql X
+syntax graph.
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev IMP72BACKEND
+.Ql c
 or
-.B pcc
+.Ql pcc ,
 to choose the back end.
-.SH FILES
-.TP
-.I /usr/share/imp72/syntax.imc
+.El
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa /usr/share/imp72/syntax.imc
 The syntax of IMP72.
-.TP
-.I /usr/share/imp72/ffi.imc
-The extension that adds CCALL.
-.TP
-.I /usr/lib/imp72/
-The compiler proper, the back ends and the runtime library libimp72.a.
-.SH SEE ALSO
-.I /usr/share/doc/imp72/
-.SH AUTHORS
-The original IMP72 is by Walter Bilofsky; the IMP language by Ned Irons.
+.It Pa /usr/share/imp72/ffi.imc
+The extension that adds
+.Sy CCALL .
+.It Pa /usr/lib/imp72/
+The compiler proper, the back ends and the runtime library
+.Pa libimp72.a .
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr cc 1 ,
+.Xr pcc 1
+.Pp
+.Pa /usr/share/doc/imp72/
+.Sh AUTHORS
+The original IMP72 is by
+.An Walter Bilofsky ;
+the IMP language by
+.An Ned Irons .
