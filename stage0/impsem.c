@@ -179,7 +179,10 @@ stackup(word v)
 word
 switch_(word n)
 {
-    finam5 |= (word)1 << (n - 1);
+    /* Switch 18 (TWOSEG) puts the code of the subroutines in the high segment,
+     * behind a jump in the low one; there is one segment here. */
+    if (n != 18)
+        finam5 |= (word)1 << (n - 1);
     return enstack(0);
 }
 

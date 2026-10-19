@@ -181,6 +181,10 @@ struct datadef {
 };
 static struct datadef *datadefs;
 
+/* the subroutines defined in this unit: not variables */
+static word fnames[512];
+static int nfnames;
+
 static void
 usevar(word v)
 {
@@ -270,7 +274,7 @@ static int paramtmp[16];
 #define MAXPARAMS 16
 static int nparams;
 static int retlab, rettmp;
-static struct { word tag; int label; } *tags;
+static struct { word tag; int label, defined; } *tags;
 static long ntags, ctags;
 
 static int
@@ -306,6 +310,7 @@ taglabel(word tag)
         tags = realloc(tags, (size_t)(ctags = ctags ? ctags * 2 : 32) * sizeof *tags);
     tags[ntags].tag = tag;
     tags[ntags].label = ir_newlabel();
+    tags[ntags].defined = 0;
     return tags[ntags++].label;
 }
 
@@ -811,17 +816,19 @@ shift(const struct ti *t, int kind)
     return;
 rot:
     {
-        int cnt = ir_newtemp(), tmp = ir_newtemp();
-        struct irn *a, *b;
+        int cnt = ir_newtemp(), cnt2 = ir_newtemp(), u1 = ir_newtemp(), u2 = ir_newtemp();
 
         asg(ir_temp(cnt, T_LONG), ir_bin(IR_AND, T_LONG, immvalue(t), icon(63)));
-        asg(ir_temp(tmp, T_ULONG), ir_un(IR_SCONV, T_ULONG, rv(t->ac)));
-        a = ir_bin(IR_LS, T_ULONG, ir_temp(tmp, T_ULONG),
-            ir_un(IR_SCONV, T_INT, ir_temp(cnt, T_LONG)));
-        b = ir_bin(IR_RS, T_ULONG, ir_temp(tmp, T_ULONG),
-            ir_un(IR_SCONV, T_INT, ir_bin(IR_AND, T_LONG,
-            ir_bin(IR_MINUS, T_LONG, icon(64), ir_temp(cnt, T_LONG)), icon(63))));
-        asg(rv(t->ac), ir_un(IR_SCONV, T_LONG, ir_bin(IR_OR, T_ULONG, a, b)));
+        asg(ir_temp(cnt2, T_LONG), ir_bin(IR_AND, T_LONG,
+            ir_bin(IR_MINUS, T_LONG, icon(64), ir_temp(cnt, T_LONG)), icon(63)));
+        asg(ir_temp(u1, T_ULONG), ir_un(IR_SCONV, T_ULONG, rv(t->ac)));
+        asg(ir_temp(u2, T_ULONG), ir_temp(u1, T_ULONG));
+        asg(ir_temp(u1, T_ULONG), ir_bin(IR_LS, T_ULONG, ir_temp(u1, T_ULONG),
+            ir_un(IR_SCONV, T_UCHAR, ir_temp(cnt, T_LONG))));
+        asg(ir_temp(u2, T_ULONG), ir_bin(IR_RS, T_ULONG, ir_temp(u2, T_ULONG),
+            ir_un(IR_SCONV, T_UCHAR, ir_temp(cnt2, T_LONG))));
+        asg(rv(t->ac), ir_un(IR_SCONV, T_LONG, ir_bin(IR_OR, T_ULONG,
+            ir_temp(u1, T_ULONG), ir_temp(u2, T_ULONG))));
     }
 }
 
@@ -1125,6 +1132,15 @@ call(long i)
     }
     tree = ir_sym(nm, 0, T_PFTN);
     byval = is_cval(t->v);
+    {
+        int q;
+
+        for (q = 0; q < nfnames; q++)
+            if (fnames[q] == t->v)
+                break;
+        if (q == nfnames && nfnames < 512)
+            fnames[nfnames++] = t->v;       /* called: a function, not data */
+    }
     if (byval)                                  /* C: the values, not the addresses */
         for (k = 0; k < nargs; k++)
             args[k] = ir_deref(args[k], T_LONG);
@@ -1448,6 +1464,8 @@ subr(long i0, long i1, int ismain)
     memset(bltdst, 0, sizeof bltdst);
     ntags = 0;
     pendskip = 0;
+    if (!ismain && nfnames < 512)
+        fnames[nfnames++] = name;
     ir_func_begin(ismain ? "imp_main" : symname(name), 1);
     retlab = ir_newlabel();
     for (k = 0; k < nparams; k++) {
@@ -1480,8 +1498,14 @@ subr(long i0, long i1, int ismain)
                 datadefs = d;
                 break;
             }
-            if (ismain || t->v != name)
-                ir_label(taglabel(t->v));
+            if (ismain || t->v != name) {
+                int lb = taglabel(t->v), q;
+
+                for (q = 0; q < ntags; q++)
+                    if (tags[q].label == lb)
+                        tags[q].defined = 1;
+                ir_label(lb);
+            }
             break;
         case K_SPEC:
             break;
@@ -1503,6 +1527,14 @@ subr(long i0, long i1, int ismain)
     }
     if (pendskip)
         ir_label(pendskip);
+    {
+        long q;
+
+        for (q = 0; q < ntags; q++)
+            if (!tags[q].defined)
+                tfail("TRANS: %s: JUMP TO %s, WHICH IS NOT IN THE SUBROUTINE",
+                    ismain ? "main" : symname(name), symname(tags[q].tag));
+    }
     ir_func_end(retlab, rettmp);
 }
 
@@ -1527,6 +1559,15 @@ emit_data(void)
                 break;
         if (d != NULL)
             continue;
+        {
+            int q;
+
+            for (q = 0; q < nfnames; q++)
+                if (fnames[q] == v->v)
+                    break;
+            if (q < nfnames)
+                continue;
+        }
         sz = 8;
         n = impsem_narr();
         for (i = 0; i < n; i++) {
@@ -1589,6 +1630,7 @@ trans_unit(word a)
         return;
     collect(u36(FREE(a + 2)) >> 18);
     vars = NULL;
+    nfnames = 0;
     usedfs = 0;
     datadefs = NULL;
     pools = NULL;
