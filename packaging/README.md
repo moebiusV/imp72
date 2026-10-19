@@ -14,7 +14,7 @@ packages list:
 | Alpine | `x86_64` `aarch64` |
 
 pcc's code generator (its pass 2, `cc1`) is used only on amd64, because that is
-the only target the translator's IR suits; on every other machine `imp72c` uses
+the only target the translator's IR suits; on every other machine `imp72stage0` uses
 the C back end (`tools/ir2c.c`) and the system's C compiler, and pcc is not
 built (`make WITH_PCC=no`, which is what `auto` means off x86_64). The tests
 run in both configurations. Only the amd64 build of the Debian package has been

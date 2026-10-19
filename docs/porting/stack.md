@@ -31,7 +31,7 @@ Running real compiler code found three faults in the translator, all fixed:
 ## Stage 1
 
 `tools/stage1.sh` builds `build/stage1/imp72s1`: stage 0 with `stack.o`
-replaced by `src/stack.imp` compiled by `imp72c`. Three things make that work:
+replaced by `src/stack.imp` compiled by `imp72stage0`. Three things make that work:
 
 - **Names.** IMP has one flat name space and C has functions called `val` and
   `pstack`, so every symbol the IMP module defines is renamed `impl_NAME`

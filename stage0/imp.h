@@ -67,6 +67,7 @@ extern word imp_err;              /* ERR: -1 once any error has been reported */
 FILE *imp_out(void);              /* where PRINT output goes: listing or stdout */
 
 void imp_error(int n, const char *msg);    /* ERROR(N,E): n==0 is fatal */
+extern int imp_quiet;             /* set by the compiler driver: no chatter */
 void imp_msg(const char *msg);             /* MSG(M) */
 void imp_fatal_handler(void (*fn)(void));  /* where a fatal error unwinds to */
 

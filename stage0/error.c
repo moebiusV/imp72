@@ -8,6 +8,7 @@
  * The driver says where a fatal error unwinds to with imp_fatal_handler().
  */
 #include <stdlib.h>
+#include <string.h>
 #include "imp.h"
 
 word finam5;
@@ -21,9 +22,13 @@ imp_out(void)
     return listing != NULL ? listing : stdout;
 }
 
+int imp_quiet;                          /* the compiler driver: no chatter */
+
 void
 imp_msg(const char *m)
 {
+    if (imp_quiet && strcmp(m, "SYNTAX BOOTSTRAPPED") == 0)
+        return;
     fprintf(stderr, "%s\n", m);
 }
 
@@ -41,9 +46,12 @@ imp_error(int n, const char *e)
     if (e != NULL) {
         const char *pre = n < 2 ? "** ERROR - " : n == 2 ? "** ADVISORY - " : "";
 
-        fprintf(stderr, "%s%s\n", pre, e);        /* the terminal */
-        if (listing != NULL)
-            fprintf(listing, "%s%s\n", pre, e);  /* and the listing file */
+
+        if (!(imp_quiet && n == 2 && strncmp(e, "PRODUCTION DUPLICATES", 21) == 0)) {
+            fprintf(stderr, "%s%s\n", pre, e);        /* the terminal */
+            if (listing != NULL)
+                fprintf(listing, "%s%s\n", pre, e);  /* and the listing file */
+        }
     }
     imp_err = -1;
     if (n == 0) {

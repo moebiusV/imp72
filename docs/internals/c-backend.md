@@ -2,7 +2,7 @@
 
 pcc does not generate code for every host (macOS on arm64 is the one that
 matters), so the pcc IR that `imp72s0 -c` writes can also be turned into C and
-left to the host's compiler: `imp72c -C FILE.imp`. `-S` with `-C` stops at the
+left to the host's compiler: `imp72stage0 -C FILE.imp`. `-S` with `-C` stops at the
 C file.
 
 `ir2c` reads the IR on standard input and writes a C translation unit:

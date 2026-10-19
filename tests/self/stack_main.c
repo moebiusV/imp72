@@ -1,4 +1,4 @@
-/* The compiler's own stack module (src/stack.imp, compiled by imp72c) with
+/* The compiler's own stack module (src/stack.imp, compiled by imp72stage0) with
  * C stand-ins for the free storage package. */
 #include <stdio.h>
 #include <stdlib.h>

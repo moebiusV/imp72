@@ -30,12 +30,12 @@ Make variables: `CC`, `CFLAGS`, `LDFLAGS`, `DESTDIR`, `PREFIX`, and
 `WITH_PCC=yes|no|auto` (auto: build pcc's cc1 on x86_64 only). The submodule
 `third_party/pcc` must be checked out (`git submodule update --init`).
 
-`tools/imp72c` works from the source tree and from an installed one. Without
+`stage0/imp72stage0` works from the source tree and from an installed one. Without
 `cc1` it uses the C back end; `-C` chooses it anywhere. Programs:
 
-    tools/imp72c -o prog prog.imp                 # executable
-    tools/imp72c -c -o prog.o prog.imp            # object, to link with C
-    tools/imp72c -C -S -o prog.c prog.imp         # the C text
+    stage0/imp72stage0 -o prog prog.imp                 # executable
+    stage0/imp72stage0 -c -o prog.o prog.imp            # object, to link with C
+    stage0/imp72stage0 -C -S -o prog.c prog.imp         # the C text
 
 Tests: `make -C stage0 check` (units, the syntax file, code listings),
 `tests/native/run.sh` (pcc) and `runc.sh` (C back end) compile and run the

@@ -1,6 +1,6 @@
 # Code generation and translation to pcc IR
 
-`imp72c prog.imp` compiles an IMP72 program to a native executable:
+`imp72stage0 prog.imp` compiles an IMP72 program to a native executable:
 
     stage 0  (imp72s0)   parse, run the semantics of decus/syntax.imc
        |                  -> PDP-10 code chains          (codegen.c, as code.imc)

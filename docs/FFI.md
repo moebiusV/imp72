@@ -11,7 +11,7 @@ C can declare them `extern long x;`. See `tests/native/*_main.c`.
 
 ## C from IMP72, arguments by value
 
-`lib/ffi.imc` (loaded by `imp72c` after the compiler's syntax) adds
+`lib/ffi.imc` (loaded by `imp72stage0` after the compiler's syntax) adds
 
     CCALL NAME(A, B, ...)
 

@@ -7,10 +7,14 @@ OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.
 TESTDIR = ../tests/stage0
 TESTS   = test_free test_stack test_dir test_lex test_parse test_debug test_decl
 
-all: libstage0.a imp72s0
+all: libstage0.a imp72s0 imp72stage0
 
 imp72s0: imp72s0.o libstage0.a
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o libstage0.a
+
+# the compiler is the same program under another name
+imp72stage0: imp72s0
+	rm -f $@ && ln -s imp72s0 $@
 
 libstage0.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)
@@ -44,4 +48,4 @@ test_decl: $(TESTDIR)/test_decl.c libstage0.a
 	$(CC) $(CFLAGS) -I. -o $@ $(TESTDIR)/test_decl.c libstage0.a
 
 clean:
-	rm -f $(OBJS) imp72s0.o imp72s0 libstage0.a $(TESTS)
+	rm -f $(OBJS) imp72s0.o imp72s0 imp72stage0 libstage0.a $(TESTS)

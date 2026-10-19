@@ -23,12 +23,12 @@ IMP72 programs compile to native code and run, on amd64 Linux through pcc's code
 generator and on any 64 bit little endian host through a C back end:
 
     make                                     # stage 0, runtime, cc1 (amd64), ir2c
-    tools/imp72c -o hello tests/native/hello.imp && ./hello
-    tools/imp72c -C -o hello tests/native/hello.imp   # the C back end
+    stage0/imp72stage0 -o hello tests/native/hello.imp && ./hello
+    stage0/imp72stage0 -C -o hello tests/native/hello.imp   # the C back end
     make check
     make install PREFIX=/usr/local
 
-`imp72c` runs stage 0 (a C port of the compiler's kernel, with the original
+`imp72stage0` runs stage 0 (a C port of the compiler's kernel, with the original
 syntax file `decus/syntax.imc` unmodified and the original code generator
 ported to produce PDP-10 code chains), translates the chains to pcc IR, and
 turns that into machine code with pcc's pass 2 (`cc1`, amd64) or into C
@@ -43,7 +43,7 @@ constants), `PRINT` and `READ` with their formats (`FLT`, `FILE`, `DEVICE`,
 
 Self-hosting has started: `tools/stage1.sh` builds `imp72s1`, stage 0 with its
 `stack` module replaced by `src/stack.imp`, the compiler's own source (ported
-to 64 bit words) compiled by `imp72c`. `tests/self/stage1.sh` checks that it
+to 64 bit words) compiled by `imp72stage0`. `tests/self/stage1.sh` checks that it
 writes the same IR as stage 0 for 22 programs, among them 14 modules of the
 tape. `free`, `ercor`, `dosem` and `impsem` use executed instructions that need
 porting, `impm` is the TOPS-10 interface. See `docs/porting/stack.md`.
@@ -102,7 +102,7 @@ out.
                     translator to pcc IR), and its driver imp72s0
     lib/            the runtime library (PRINT, READ, FINI, main) and ffi.imc
     src/            the compiler's own sources ported to 64 bits (stack so far)
-    tools/          imp72c (the compiler driver), ir2c (the C back end),
+    tools/          imp72stage0 (the compiler driver), ir2c (the C back end),
                     stage1.sh, survey.sh, modules.sh
     debian/ packaging/  Debian and Alpine packages
     tests/stage0/   unit tests, and the syntax-file integration test

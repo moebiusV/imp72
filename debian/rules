@@ -3,7 +3,7 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 include /usr/share/dpkg/buildflags.mk
 
 # The Makefile takes the flags on its command line.  pcc's cc1 is built where
-# it is used (amd64); everywhere else imp72c uses the C back end.
+# it is used (amd64); everywhere else imp72stage0 uses the C back end.
 MAKEFLAGS_PKG = CFLAGS="$(CFLAGS) $(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"
 TMP = $(CURDIR)/debian/imp72
 

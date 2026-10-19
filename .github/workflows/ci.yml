@@ -62,7 +62,7 @@ jobs:
       - run: sudo dpkg -i ../imp72_*_amd64.deb
       - name: compile and run a program with the installed package
         run: |
-          imp72c -o /tmp/hello tests/native/hello.imp
+          imp72stage0 -o /tmp/hello tests/native/hello.imp
           /tmp/hello
-          imp72c -C -o /tmp/hello_c tests/native/hello.imp
+          imp72stage0 -C -o /tmp/hello_c tests/native/hello.imp
           /tmp/hello_c

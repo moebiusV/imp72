@@ -1,5 +1,5 @@
 /*
- * stack_imp.c -- stack.c's interface, over src/stack.imp compiled by imp72c.
+ * stack_imp.c -- stack.c's interface, over src/stack.imp compiled by imp72stage0.
  *
  * The IMP module takes every argument by reference and finds free storage at
  * the address FB, so each entry point here puts the current fmem in FB (the

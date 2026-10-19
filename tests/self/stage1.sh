@@ -1,6 +1,6 @@
 #!/bin/sh
 # Stage 1 test: imp72s1 (stage 0 with modules replaced by the compiler's own
-# sources compiled by imp72c, tools/stage1.sh) must write the same IR as
+# sources compiled by imp72stage0, tools/stage1.sh) must write the same IR as
 # stage 0 for every program: the native tests and the modules of the tape.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
