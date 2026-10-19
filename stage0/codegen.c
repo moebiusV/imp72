@@ -910,6 +910,7 @@ float_(word s)
             word bits;
 
             memcpy(&bits, &x, sizeof bits);
+            bits = real_enc(bits);
             FREES(s + 1, bits);
             FREES(s, sx36(0204 | (sf & 0777000L)));
             return s;
@@ -942,8 +943,9 @@ fix_(word s)
     if ((sf & 0300) != 0100) {
         if ((sf & 077) == 4) {
             double x;
-            word v = FREE(s + 1);
+            word v = FREE(s + 1), sg = v >> 63;
 
+            v = ((v ^ sg) - sg) | (sg & (word)0x8000000000000000UL);     /* undo real_enc */
             memcpy(&x, &v, sizeof x);
             FREES(s + 1, (word)x);
             FREES(s, sx36(0104 | (sf & 0777000L)));

@@ -274,8 +274,9 @@ imp_pr(long n, long *p)
         break;
     case 11: {
         double x;
+        long e = *p, s = e >> 63, bits = ((e ^ s) - s) | (s & (long)0x8000000000000000UL);
 
-        memcpy(&x, p, sizeof x);
+        memcpy(&x, &bits, sizeof x);
         printflt(x, po.fltm, po.fltn);
         break;
     }

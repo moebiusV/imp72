@@ -51,7 +51,11 @@ imp_blt(char *dst, char *src, long bytes)
 /* IFIX(x): a real to an integer, truncating (the library routine the
  * original reaches as MALAMUD).  The argument is the address of the real. */
 long
-ifix(double *x)
+ifix(long *p)
 {
-    return (long)*x;
+    long e = *p, s = e >> 63, bits = ((e ^ s) - s) | (s & (long)0x8000000000000000UL);
+    double x;
+
+    memcpy(&x, &bits, sizeof x);
+    return (long)x;
 }

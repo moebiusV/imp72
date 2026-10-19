@@ -403,6 +403,15 @@ word letsyn(word s);
 word fcon(word a, word b, word e);
 word ccall_mark(word a);
 int is_cval(word d);
+
+/* A REAL in a word: the double's sign and magnitude with the magnitude negated
+ * for a negative number, so integer order and negation are the real ones. */
+static inline word real_enc(word bits)
+{
+    word s = bits >> 63;                /* -1 if negative */
+
+    return ((bits & 0x7FFFFFFFFFFFFFFFL) ^ s) - s;
+}
 word pairfirst(word j);
 
 #endif

@@ -99,11 +99,12 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
 - **More than 6 arguments:** the extra pointers go in the outgoing stack area
   (an assignment to `0(%rsp)+8k` in the call's list, which pcc reserves), and
   the callee reads them at `16(%rbp)+8k`.
-- **Reals** are IEEE doubles in a word. `FLOAT` is `FSC ac,233` (int to double),
+- **Reals** are IEEE doubles in a word, encoded as on the PDP-10: the sign and
+  magnitude with the magnitude negated for a negative number (`real_enc` in
+  `imp.h`), so that integer comparison and negation are the real ones. `FLOAT` is `FSC ac,233` (int to double),
   `FADR`/`FSBR`/`FMPR`/`FDVR` go through the scratch word `imp_fs`, floating
   constants (`FCON`, which uses `strtod` where the original sums digits in REAL
-  arithmetic) are pooled whole. Comparison of reals still compares the bits as
-  integers, which is wrong for negative reals.
+  arithmetic) are pooled whole.
 - **`CALLI`** goes to `imp_calli` in the runtime (a few calls: exit, time).
 
 ## Survey
@@ -114,7 +115,6 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
 
 ## Not done yet
 
-`XCT`; `REMOTE` as separate code; immediate floating operands and comparison of
-negative reals; calling C functions with arguments by value; `LET`, the other
+`XCT`; `REMOTE` as separate code; immediate floating operands; calling C functions with arguments by value; `LET`, the other
 UUOs; `FILE`, `DEVICE`, `FLT` in `PRINT`; the `(A[I]_B[I]) FOR I TO N` copy
 loop is not turned into `BLT`.

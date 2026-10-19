@@ -506,6 +506,7 @@ bad:
     v = 0;
 done:
     memcpy(&bits, &v, sizeof bits);
+    bits = real_enc(bits);
     FREES(a, 0204);
     FREES(a + 1, bits);
     return a;

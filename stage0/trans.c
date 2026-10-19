@@ -949,20 +949,38 @@ static int usedfs;
 static int
 tod(struct irn *x)
 {
-    int c = ir_newtemp();
+    int c = ir_newtemp(), te = ir_newtemp(), ts = ir_newtemp();
 
     usedfs = 1;
-    asg(ir_name("imp_fs", 0, T_LONG), x);
+    /* the word is the sign and magnitude of the double with the magnitude
+     * negated for a negative number (as on the PDP-10): integer order and
+     * integer negation are the real ones.  Back to the double's bits: */
+    asg(ir_temp(te, T_LONG), x);
+    asg(ir_temp(ts, T_LONG), ir_bin(IR_RS, T_LONG, ir_temp(te, T_LONG), ir_icon(63, T_INT)));
+    asg(ir_name("imp_fs", 0, T_LONG), ir_bin(IR_OR, T_LONG,
+        ir_bin(IR_MINUS, T_LONG, ir_bin(IR_ER, T_LONG, ir_temp(te, T_LONG), ir_temp(ts, T_LONG)),
+            ir_temp(ts, T_LONG)),
+        ir_bin(IR_AND, T_LONG, ir_temp(ts, T_LONG), icon((long long)0x8000000000000000ULL))));
     asg(ir_temp(c, T_DOUBLE), ir_name("imp_fs", 0, T_DOUBLE));
     return c;
 }
 
+/* the word for the double d: a statement leaves it in temps; the value is the
+ * expression that combines them */
 static struct irn *
 fromd(struct irn *d)
 {
+    int tb = ir_newtemp(), ts = ir_newtemp();
+
     usedfs = 1;
     asg(ir_name("imp_fs", 0, T_DOUBLE), d);
-    return ir_name("imp_fs", 0, T_LONG);
+    asg(ir_temp(tb, T_LONG), ir_name("imp_fs", 0, T_LONG));
+    asg(ir_temp(ts, T_LONG), ir_bin(IR_RS, T_LONG, ir_temp(tb, T_LONG), ir_icon(63, T_INT)));
+    return ir_bin(IR_MINUS, T_LONG,
+        ir_bin(IR_ER, T_LONG,
+            ir_bin(IR_AND, T_LONG, ir_temp(tb, T_LONG), icon(0x7FFFFFFFFFFFFFFFLL)),
+            ir_temp(ts, T_LONG)),
+        ir_temp(ts, T_LONG));
 }
 
 /* FADR/FSBR/FMPR/FDVR (144, 154, 164, 174 + mode) */
