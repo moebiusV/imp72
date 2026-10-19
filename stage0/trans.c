@@ -1279,6 +1279,8 @@ call(long i)
 
 static int pendskip;                            /* label after the skipped insn */
 static word lastmove;                           /* AC of the MOVE just before */
+static word cv_;                                /* scratch for isnumconst */
+static word lastaddr;                           /* AC that the instruction just before loaded with an address */
 
 static void
 skipnext(struct irn *cond_l, struct irn *cond_r, int c)
@@ -1375,6 +1377,13 @@ insn(long i)
         return i;
     }
     if (op >= 0270 && op <= 0273) {
+        if (t->ac && lastaddr == t->ac && mode <= 1) {
+            /* ADD to an address that was just loaded (an array's base): the number added is
+             * words, and the address in the register is bytes */
+            asg(rv(t->ac), ir_bin(IR_PLUS, T_LONG, rv(t->ac),
+                ir_bin(IR_LS, T_LONG, mode == 1 ? immvalue(t) : opvalue(t), ir_icon(3, T_INT))));
+            return i;
+        }
         twoop(t, fadd_, mode);
         return i;
     }
@@ -1586,6 +1595,7 @@ subr(long i0, long i1, int ismain)
     }
     rettmp = ir_newtemp();
     lastmove = 0;
+    lastaddr = 0;
     for (i = i0; i < i1; i++) {
         struct ti *t = &tis[i];
 
@@ -1629,6 +1639,8 @@ subr(long i0, long i1, int ismain)
             if (skipped)                        /* the skipped instruction is done */
                 ir_label(skipped);
             lastmove = (op == 0200 || op == 0201 || op == 0202) ? t->ac : 0;
+            lastaddr = (op == 0201 && (t->v || t->ind) && !t->ra
+                && !(t->v && (isnumconst(t->v, &cv_) || isstring(t->v)))) ? t->ac : 0;
             break;
             }
         }
