@@ -870,7 +870,7 @@ conop(word s, word t, word i, word v, word w)
         /* the chosen arm replaces the whole entry: FREES(S+I,FREE(V+I)) FOR I FROM 2,
          * which counts 2, 1, 0 */
         if (c == 1) {
-            if (co1 != 0)
+            if (co1 == 0)
                 goto cxc;
             for (j = 2; j >= 0; j--)
                 FREES(s + j, FREE(v + j));

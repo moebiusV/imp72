@@ -51,7 +51,7 @@ class G:
     def stmt(self, vs, loopvars, d):
         r = self.r
         k = r.random()
-        t = r.choice([v for v in vs if v[0] not in 'IW'])   # never assign to a loop variable
+        t = r.choice([v for v in vs if v[0] not in 'IWP'])   # never to a loop variable or a parameter (a constant argument is a shared word of the pool, and a 0 is address 0 in the original)
         if k < 0.35:
             return "%s_((%s) AND 4095)" % (t, self.expr(vs, 2))
         if k < 0.50:
