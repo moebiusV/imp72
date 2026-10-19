@@ -204,6 +204,8 @@ word impsem_nregs(void) { init(); return regn; }
 /* ---- registers and subroutines (impsem.imc) ------------------------------ */
 
 word hisreg(word i) { init(); return 010000 & FREE(rg + i); }
+/* is register j the first of a pair reserved by AREG1 with the 40B bit? */
+word pairfirst(word j) { init(); return 040 & FREE(rg + j); }
 word subreg(word j) { init(); return 04000 & FREE(rg + j); }
 
 /* TMPREG(J): is register j a temporary that can be optimised out? */

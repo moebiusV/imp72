@@ -403,5 +403,6 @@ word letsyn(word s);
 word fcon(word a, word b, word e);
 word ccall_mark(word a);
 int is_cval(word d);
+word pairfirst(word j);
 
 #endif

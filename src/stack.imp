@@ -24,7 +24,7 @@ SUBR STPOP(N) IS (STP_STP-3*N; STP);
 SUBR STPUSH(A,B,C) IS (STP_STP+3;
                        STN_STP+3; FLEN(ST) LE STN => FADDEX(ST,STN);
                        STX_FORG+ST+STP;
-                       [STX]_A; [STX+8]_B; [STX+16]_C;
+                       [STX]_A; [STX+1]_B; [STX+2]_C;
                        S_ST+STP; S);
 SUBR SETSTK(N,A,B,C) IS (S_STN_STP+3*N;
                        FADD(ST,STN,A); FADD(ST,STN,B); FADD(ST,STN,C);
@@ -65,7 +65,7 @@ SUBR PULLYU(SW) IS (
     THAN THE CURRENT LIMITS. #
 
 SUBR BITS(A,I,J) IS (QBITS_QBITS+1;
- COL_J/36;
+ COL_J/64;
  A=0=>(I GE A[1]=>(A[1]_10) LE I => A[1]_I+1;
        COL>A[2]=>A[2]_COL;
        FRELOT(A,'BITS',A[1]*A[2]+1,0));
@@ -82,7 +82,7 @@ SUBR BITS(A,I,J) IS (QBITS_QBITS+1;
              A[1]_NEW);
  S_A+I+A[1]*COL;
  K_FREE(S);
- FREES(S,K OR 1 LS J-36*COL));
+ FREES(S,K OR 1 LS J-64*COL));
 #SUBR BIT(A,I,J) IS (QBIT_QBIT+1;
  VAL_0; I GE A[1]=>GO TO BITE;
  (COL_J/36)>A[2]=>GO TO BITE;

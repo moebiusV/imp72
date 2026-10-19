@@ -11,4 +11,7 @@
                                    FREES(A+B,C);
                                    B_B+1; A";
  <EXP> ::= FORG+<A>::="FB+8*(A)";
- <EXP> ::= <A>+FORG ::= "FB+8*(A)"%%
+ <EXP> ::= <A>+FORG ::= "FB+8*(A)";
+
+ <EXP> ::= BIT(<M>,<ROW>,<COL>) ::=
+        "(FREE(M+ROW+M[1]*(COL/64)) RS (COL-64*(COL/64))) AND 1"%%

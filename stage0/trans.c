@@ -369,10 +369,11 @@ effaddr(const struct ti *t)
     }
     if (cc & 0400000)
         cc -= 01000000;
-    e = ir_icon(cc, T_PLONG);
-    if (t->ix)
-        e = ir_bin(IR_PLUS, T_PLONG, e, rv(t->ix));
-    return e;
+    if (t->ix) {                                /* c words from the pointer in the register */
+        e = ir_bin(IR_PLUS, T_PLONG, ir_icon(8 * (long long)cc, T_PLONG), rv(t->ix));
+        return e;
+    }
+    return ir_icon(cc, T_PLONG);
 }
 
 static struct bytedesc *bytedescof(word v);
@@ -1262,7 +1263,11 @@ insn(long i)
         asg(ir_temp(r, T_LONG), ir_bin(IR_MOD, T_LONG, t->ac ? rv(t->ac) : icon(0),
             ir_temp(d, T_LONG)));
         if (mode == 0 || mode == 1 || mode == 3) {
-            asg(rv(t->ac + 1), ir_temp(r, T_LONG));
+            /* AC+1 gets the remainder, but IDIV does not clobber it unless the
+             * compiler reserved the pair; reusing it as another register is
+             * what the original's code does */
+            if (pairfirst(t->ac))
+                asg(rv(t->ac + 1), ir_temp(r, T_LONG));
             asg(rv(t->ac), ir_temp(q, T_LONG));
         }
         if (mode == 2 || mode == 3)

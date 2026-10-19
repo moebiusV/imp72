@@ -1,0 +1,2 @@
+SUBR TBIT(M,I,J) IS BIT(M,I,J)
+%%
