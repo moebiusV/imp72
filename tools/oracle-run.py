@@ -30,6 +30,7 @@ def run(progs, outdir, lst=False):
     names = [os.path.splitext(os.path.basename(p))[0].upper()[:6] for p in progs]
     t = oracle.Session(timeout=120)
     try:
+        t.cmd("TTY WIDTH 200")           # the terminal folds lines at 72 columns: not in our output
         for p, n in zip(progs, names):      # one tape per program: several files on one tape lose the last
             pdp10tap.put(tape, [p])
             t.cmd("ASSIGN MTA0: TAPE")
@@ -59,7 +60,13 @@ def run(progs, outdir, lst=False):
                 t.cmd("DELETE %s.LST,%s.REL" % (n, n))
                 continue
             t.send("EX %s.REL,/LIBRARY,IMPLIB.LIB,SYS:FORLIB/LIBRARY\r" % n)
-            ex = t.expect(r"^\.", 600)
+            try:
+                ex = t.expect(r"^\.", 120)
+            except TimeoutError as e:           # a program that does not stop: ^C it
+                t.raw(b"\x03\x03")
+                time.sleep(2)
+                ex = "%s\n[TIMEOUT]\n" % e
+                t._read(3.0)
             tty = ex.split("Execution]", 1)[-1].rsplit("\n.", 1)[0].strip("\n")
             time.sleep(1)
             t.send("TYPE PO.\r")

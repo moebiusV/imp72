@@ -1127,6 +1127,7 @@ printcall(long i, int rd)
     long j = i + 1;
     int res = -1;
     struct irn *last = NULL;
+    struct ti *tag = NULL;
 
     while (j < nti && (tis[j].kind == K_CONST || tis[j].kind == K_TAG)) {
         struct ti *a = &tis[j];
@@ -1134,11 +1135,16 @@ printcall(long i, int rd)
         struct irn *p, *tree;
 
         j++;
-        if (a->kind == K_TAG)
+        if (a->kind == K_TAG) {
+            tag = a;                    /* a %CAL word follows: an HRRM has filled in its address */
             continue;
+        }
         n = 077 & (u36(a->c) >> 24);
         off = a->c & 0777777;
-        if (a->v == 0)
+        if (tag != NULL && a->v == 0 && iscal(tag->v)) {
+            usevar(tag->v);
+            p = ir_name(symname(tag->v), 0, T_PLONG);
+        } else if (a->v == 0)
             p = icon(0);
         else if ((a->c & 020000000) || iscal(a->v)) {   /* the word holds the address */
             usevar(a->v);
@@ -1151,6 +1157,7 @@ printcall(long i, int rd)
             u.c = off;
             p = effaddr(&u);
         }
+        tag = NULL;
         {
             struct irn *av[2];
 
