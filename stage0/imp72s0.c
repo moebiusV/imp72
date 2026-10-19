@@ -321,6 +321,9 @@ driver_main(int argc, char **argv)
 #elif defined(__i386__)
         kargv[k++] = "-T";
         kargv[k++] = "i386";
+#elif defined(__arm__)
+        kargv[k++] = "-T";
+        kargv[k++] = "arm";
 #endif
     }
     kargv[k++] = "-c";

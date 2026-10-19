@@ -1049,12 +1049,14 @@ mkcall(struct irn *fn, struct irn **a, int n, int cret)
     struct irn *cm = NULL, *tree;
     int k, rt = T_LONG;
 
+    if (irtgt->wordll)                                  /* a word argument: the C long */
+        for (k = 0; k < n; k++)
+            if (!(a[k]->type & T_PTR) && a[k]->type != T_INT)
+                a[k] = ir_un(IR_SCONV, T_INT, a[k]);
     if (irtgt->fnargs) {
         for (k = 0; k < n; k++) {
             struct irn *v = a[k], *f;
 
-            if (!(v->type & T_PTR) && v->type != T_INT)     /* a word: the C long */
-                v = ir_un(IR_SCONV, T_INT, v);
             f = ir_un(IR_FUNARG, v->type, v);
             cm = cm == NULL ? f : ir_bin(IR_CM, T_INT, cm, f);
         }
@@ -1076,6 +1078,8 @@ mkcall(struct irn *fn, struct irn **a, int n, int cret)
 
             cm = cm == NULL ? as : ir_bin(IR_CM, T_INT, cm, as);
         }
+        if (cret && irtgt->wordll)
+            rt = T_INT;
         if (cret && n > 0 && strcmp(irtgt->name, "amd64") == 0)   /* varargs: %al = vector registers used */
             cm = ir_bin(IR_CM, T_INT, cm, ir_assign(ir_reg(R_RAX, T_LONG), icon(0)));
     }

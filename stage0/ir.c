@@ -30,6 +30,10 @@ static const struct irtarget targets[] = {
     /* i386: the word is long long, returned in eax:edx (register 020); the
      * arguments are pushed by pass 2; the first is at 8(%ebp) */
     { "i386", 0, { 0 }, 020, 6, 7, "@function", 8, 0, 4, 1, 1, 1 },
+    /* arm: the word is long long, returned in r0:r1 (register 16); the first
+     * four arguments are in r0-r3, the rest above the 16 bytes of the
+     * frame record and the argument area; autos begin 12 bytes below fp */
+    { "arm", 4, { 0, 1, 2, 3 }, 16, 11, 13, "%function", 20, 12, 4, 0, 0, 1 },
 };
 const struct irtarget *irtgt = &targets[0];
 
