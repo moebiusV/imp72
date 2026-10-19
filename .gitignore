@@ -21,3 +21,5 @@ oracle/dl/
 oracle/tapes/
 oracle/units/
 tools/__pycache__/
+oracle/disks-ki/
+oracle/tapes-ki
