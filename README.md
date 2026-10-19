@@ -36,6 +36,14 @@ expressions, loops, conditionals, arrays, calls and `PRINT` work; see
 `tools/survey.sh` shows 18 of the 19 modules of the compiler's own sources
 translating.
 
+Self-hosting has started: `tools/stage1.sh` builds `imp72s1`, stage 0 with its
+`stack` module replaced by `src/stack.imp`, the compiler's own source (ported
+to 64 bit words) compiled by `imp72c`. `tests/self/stage1.sh` checks that it
+writes the same IR as stage 0 for 22 programs, among them 14 modules of the
+tape. 14 of the 19 modules of the tape compile to objects; `free`, `ercor`,
+`dosem` and `impsem` use executed instructions that need porting, `impm` is the
+TOPS-10 interface. See `docs/porting/stack.md`.
+
 Nothing has been compared with output from the original compiler yet; that is
 what the oracle (Roadmap, phase 1) is for. Where this file says the port is
 "faithful", it means it follows the source, not that it has been verified
