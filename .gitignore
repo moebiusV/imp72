@@ -10,3 +10,8 @@ debian/imp72/
 debian/files
 debian/*.substvars
 debian/.stamp-*
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/*.debhelper.log
+debian/imp72-dbgsym/
+debian/imp72.substvars

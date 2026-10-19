@@ -18,11 +18,11 @@ the only target the translator's IR suits; on every other machine `imp72c` uses
 the C back end (`tools/ir2c.c`) and the system's C compiler, and pcc is not
 built (`make WITH_PCC=no`, which is what `auto` means off x86_64). The tests
 run in both configurations. Only the amd64 build of the Debian package has been
-made and tested; the Alpine recipe and the other machines have not been built.
+made and tested (not run through lintian); the Alpine recipe and the other machines have not been built.
 
 ## Debian: `debian/`
 
-A native source package (3.0 native), built without debhelper by `debian/rules`:
+A native source package (3.0 native), using debhelper (compat 13) with `dh` and a few overrides in `debian/rules`:
 
     dpkg-buildpackage -us -uc          # source and binary, with the tests
     DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b

@@ -1,64 +1,28 @@
 #!/usr/bin/make -f
-# No debhelper: the package is one binary package made by hand.
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 include /usr/share/dpkg/buildflags.mk
 
-PKG  = imp72
-TMP  = $(CURDIR)/debian/$(PKG)
-
-# make's flags for this package; pcc's cc1 is built where it is used (amd64)
+# The Makefile takes the flags on its command line.  pcc's cc1 is built where
+# it is used (amd64); everywhere else imp72c uses the C back end.
 MAKEFLAGS_PKG = CFLAGS="$(CFLAGS) $(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"
+TMP = $(CURDIR)/debian/imp72
 
 %:
-	@echo "debian/rules: unknown target $@" >&2; exit 1
+	dh $@
 
-.PHONY: clean build build-arch build-indep binary binary-arch binary-indep
-
-clean:
+override_dh_auto_clean:
 	$(MAKE) distclean
-	rm -rf debian/$(PKG) debian/files debian/*.substvars debian/*.debhelper* \
-	    debian/.stamp-*
 
-build: build-arch build-indep
-
-build-indep:
-
-build-arch: debian/.stamp-build
-
-debian/.stamp-build:
+override_dh_auto_build:
 	$(MAKE) $(MAKEFLAGS_PKG)
+
+override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	$(MAKE) $(MAKEFLAGS_PKG) check
 endif
-	touch $@
 
-binary: binary-arch binary-indep
-
-binary-indep:
-
-binary-arch: build-arch
-	rm -rf $(TMP)
+override_dh_auto_install:
 	$(MAKE) $(MAKEFLAGS_PKG) install DESTDIR=$(TMP) PREFIX=/usr
-	# the documentation
-	install -d $(TMP)/usr/share/doc/$(PKG)
-	install -m 644 README.md docs/FFI.md docs/BUILDING.md docs/PLAN.md \
-	    $(TMP)/usr/share/doc/$(PKG)/
-	cp -r docs/internals docs/porting $(TMP)/usr/share/doc/$(PKG)/
-	install -m 644 debian/copyright $(TMP)/usr/share/doc/$(PKG)/copyright
-	install -m 644 third_party/pcc/LICENSE.md $(TMP)/usr/share/doc/$(PKG)/LICENSE.pcc.md
-	install -m 644 decus/PROVENANCE.md $(TMP)/usr/share/doc/$(PKG)/PROVENANCE.decus.md
-	gzip -9n -c debian/changelog > $(TMP)/usr/share/doc/$(PKG)/changelog.gz
-	gzip -9n $(TMP)/usr/share/man/man1/imp72c.1
-	# the programs, stripped
-	strip --strip-unneeded $(TMP)/usr/lib/$(PKG)/imp72s0 $(TMP)/usr/lib/$(PKG)/ir2c
-	if [ -f $(TMP)/usr/lib/$(PKG)/cc1 ]; then strip --strip-unneeded $(TMP)/usr/lib/$(PKG)/cc1; fi
-	strip --strip-debug $(TMP)/usr/lib/$(PKG)/libimp72.a
-	# control files
-	install -d $(TMP)/DEBIAN
-	dpkg-shlibdeps -Tdebian/$(PKG).substvars \
-	    $$(find $(TMP)/usr/lib/$(PKG) -type f -perm -u+x)
-	echo "misc:Depends=" >> debian/$(PKG).substvars
-	dpkg-gencontrol -p$(PKG) -P$(TMP) -Tdebian/$(PKG).substvars
-	cd $(TMP) && find usr -type f -print0 | LC_ALL=C sort -z | xargs -0 md5sum > DEBIAN/md5sums
-	chmod -R go-w $(TMP)
-	dpkg-deb --root-owner-group --build $(TMP) ..
+	install -d $(TMP)/usr/share/doc/imp72
+	install -m 644 third_party/pcc/LICENSE.md $(TMP)/usr/share/doc/imp72/LICENSE.pcc.md
+	install -m 644 decus/PROVENANCE.md $(TMP)/usr/share/doc/imp72/PROVENANCE.decus.md
