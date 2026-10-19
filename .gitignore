@@ -15,3 +15,4 @@ debian/debhelper-build-stamp
 debian/*.debhelper.log
 debian/imp72-dbgsym/
 debian/imp72.substvars
+stage0/imp72stage0
