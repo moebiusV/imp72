@@ -35,6 +35,17 @@
  <ATOM> ::= DPROPS('SEM',<A>,<B>)   ::=
      "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT 37777777777B) OR ((B) AND 37777777777B))";
 
+ <ATOM> ::= DPROPS('ATYPE',<A>,<B>) ::=
+     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (7 LS 32)) OR (((B) AND 7) LS 32))";
+ <ATOM> ::= DPROPS('COM',<A>,<B>)   ::=
+     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (3 LS 35)) OR (((B) AND 3) LS 35))";
+ <ATOM> ::= DPROPS('ISNM',<A>,<B>)  ::=
+     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (3 LS 37)) OR (((B) AND 3) LS 37))";
+ <ATOM> ::= DPROPS('LXTY',<A>,<B>)  ::=
+     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (3 LS 39)) OR (((B) AND 3) LS 39))";
+ <ATOM> ::= DPROPS('USE',<A>,<B>)   ::=
+     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (7 LS 41)) OR (((B) AND 7) LS 41))";
+
  <ATOM> ::= SCR(<A>)   ::= "(FREE(GA+(A)) AND 37777777777B)";
  <ATOM> ::= ALT(<A>)   ::= "(FREE(GA+(A)) RS 32)";
  <ATOM> ::= GTYPE(<A>) ::= "((FREE(GA+(A)+1) RS 48) AND 7)";

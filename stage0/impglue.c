@@ -7,6 +7,7 @@
  * current free storage block in FB after the routine, which may have moved it.
  */
 #include <stdint.h>
+#include <stdio.h>
 #include "imp.h"
 
 extern word fb;                         /* the base of free storage, for IMP */
@@ -58,7 +59,7 @@ impfaddex(word *a, word *n)
 word
 imperror(word *n, word *s)
 {
-    imp_error((int)*n, (const char *)s);
+    imp_error((int)*n, s != NULL && *(const char *)s != '\0' ? (const char *)s : NULL);
     return 0;
 }
 
@@ -69,3 +70,29 @@ impfincset(word *a, word *n)
     fincset(*a, *n);
     return 0;
 }
+
+/* the parser's calls (src/parse.imp) */
+word impggoal(word *nt) { word r = ggoal(*nt); sync(); return r; }
+word impgnext(word *q, word *g) { return gnext(*q, *g); }
+word impgnt2tx(word *nt, word *ni, word *gl, word *no) { return *no = gnt2tx(*nt, ni, *gl); }
+word impgmade(word *c, word *g) { return gmade(*c, *g); }
+word impgpout1(word *c, word *n, word *p) { gpout1(*c, *n, *p); sync(); return 0; }
+word impgpout2(word *c, word *g, word *p) { gpout2(*c, *g, *p); sync(); return 0; }
+word impisname(word *s) { return isname(*s); }
+word impercor(word *op, word *np, word *ss) { word r = ercor(*op, *np, *ss); sync(); return r; }
+word impambig(word *p, word *np, word *pn, word *o, word *tr)
+{
+    ambig(*p, np, pn, *o, *tr);
+    sync();
+    return 0;
+}
+word implex(word *s) { word r = lex(s); sync(); return r; }
+word imppline1(word *ol) { pline1(*ol); return 0; }
+word impmsg(word *s) { imp_msg((const char *)s); return 0; }
+word impoutstr(word *s) { fputs((const char *)s, stderr); return 0; }
+word imppartr1(word *cn, word *ct, word *cv, word *p, word *ip, word *o, word *cw)
+{
+    partr1(*cn, *ct, *cv, *p, *ip, *o, *cw);
+    return 0;
+}
+word impcotree(word *k) { if (parse_cotree != NULL) parse_cotree(*k); sync(); return 0; }

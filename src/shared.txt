@@ -14,3 +14,12 @@ grnbitn
 grbitm
 grnbitm
 finam
+psts
+pspn
+pspnt
+psps
+pspst
+psos
+amtime
+pstt
+srtt
