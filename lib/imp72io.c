@@ -333,6 +333,16 @@ tx:
     put(out, len);
 }
 
+/* where PRINT goes when it has no file: stdout, unless the program has said otherwise (the compiler's
+ * own IMP modules print to its listing: stage0/impglue.c sets the hook) */
+FILE *(*imp_defout)(void);
+
+static FILE *
+defout(void)
+{
+    return imp_defout != NULL ? imp_defout() : stdout;
+}
+
 long
 imp_pr(long n, int64_t *p)
 {
@@ -345,7 +355,7 @@ imp_pr(long n, int64_t *p)
         return po.col;
     }
     if (n == 5) {
-        FILE *f = po.fp != NULL ? po.fp : stdout;
+        FILE *f = (po.fp != NULL ? po.fp : defout());
 
         if (po.image) {
             po.col = 0;
@@ -367,7 +377,7 @@ imp_pr(long n, int64_t *p)
     if (n != 0 || p == NULL)
         return po.col;
     if (po.image) {                     /* a word, as it is */
-        fwrite(p, 8, 1, po.fp != NULL ? po.fp : stdout);
+        fwrite(p, 8, 1, (po.fp != NULL ? po.fp : defout()));
         return po.col;
     }
     switch (po.fmt) {

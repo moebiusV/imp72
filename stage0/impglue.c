@@ -20,7 +20,23 @@ word impbitz(word *a) { bitz(a); return 0; }
 word imppushmi(word *v) { pushmi(*v); sync(); return 0; }
 word imppullyu(word *sw) { return pullyu(*sw); }
 word imppout(word *q, word *v) { word r = pout(*q, *v); sync(); return r; }
-word imppname(word *i) { pname(*i); return 0; }
+/* PNAME as the original has it, a PRINT of the name, so that it goes through the same line buffer
+ * as the PRINT statements around it */
+extern long imp_pr(long n, int64_t *p);
+
+word
+imppname(word *i)
+{
+    char buf[128];
+    int64_t w = 0;
+
+    if (*i < 0)
+        return 0;
+    dname_str(*i, buf, sizeof buf);
+    imp_pr(3, &w);
+    imp_pr(0, (int64_t *)(void *)buf);
+    return 0;
+}
 word impdname(word *i, word *j) { return dname(*i, *j); }
 word impmsec(word *unused) { (void)unused; return (word)imp_msec(); }
 
@@ -96,3 +112,14 @@ word imppartr1(word *cn, word *ct, word *cv, word *p, word *ip, word *o, word *c
     return 0;
 }
 word impcotree(word *k) { if (parse_cotree != NULL) parse_cotree(*k); sync(); return 0; }
+word impgconn(word *q, word *g) { return gconn(*q, *g); }
+word impgentry(word *unused) { (void)unused; return gentry(); }
+
+/* the IMP modules' PRINT goes where the C modules' output does: the listing */
+extern FILE *(*imp_defout)(void);
+
+__attribute__((constructor)) static void
+setdefout(void)
+{
+    imp_defout = imp_out;
+}
