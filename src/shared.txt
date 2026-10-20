@@ -5,3 +5,12 @@ prp
 alf
 dm
 dn
+ga
+ng
+nprods
+grnodes
+grntgent
+grnbitn
+grbitm
+grnbitm
+finam

@@ -1697,6 +1697,10 @@ emit_data(void)
             if (nm == v->v)
                 sz = 8 * (long)w;
         }
+        /* a variable that is not declared COMMON belongs to its module: another module's
+         * variable of the same name (INIT, say) is another variable */
+        if (dprop(DP_COM, v->v) == 0)
+            ir_pass("\t.local %s", symname(v->v));
         ir_pass("\t.comm %s,%ld,8", symname(v->v), sz);
     }
     {

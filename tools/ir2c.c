@@ -127,7 +127,7 @@ add(struct set *s, const char *x)
         s->v[s->n++] = xstrdup(x);
 }
 
-static struct set called, datarefs, datadefs, funcs, cfuncs;
+static struct set called, datarefs, datadefs, funcs, cfuncs, locals;
 
 /* the runtime and C functions: they return a C long, not a word */
 static int
@@ -486,10 +486,18 @@ passthrough(char *line)
 
     while (*line == ' ' || *line == '\t')
         line++;
+    if (strncmp(line, ".local ", 7) == 0) {
+        add(&locals, line + 7);
+        return;
+    }
     if (sscanf(line, ".comm %255[^,],%ld", name, &sz) == 2) {
         flushdata();
-        fprintf(datafile, "__attribute__((common, aligned(8))) long long %s[%ld];\n",
-            cname(name), (sz + 7) / 8);
+        if (inset(&locals, name))
+            fprintf(datafile, "static long long %s[%ld] __attribute__((aligned(8)));\n",
+                cname(name), (sz + 7) / 8);
+        else
+            fprintf(datafile, "__attribute__((common, aligned(8))) long long %s[%ld];\n",
+                cname(name), (sz + 7) / 8);
         add(&datadefs, name);
         return;
     }

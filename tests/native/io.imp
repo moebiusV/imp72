@@ -1,3 +1,4 @@
+S IS 4 LONG;
 X IS REAL;
 X_FLT(7)/FLT(4);
 PRINT FLT 8.3,X,/;

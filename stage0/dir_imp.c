@@ -90,13 +90,6 @@ hash(word nm)
     return (unsigned)impl_hash(&nm);
 }
 
-/* FINCSET as IMP calls it */
-word
-impfincset(word *a, word *n)
-{
-    fincset(*a, *n);
-    return 0;
-}
 
 /* The whole name of entry i as a C string (valid until the next call). */
 static const char *

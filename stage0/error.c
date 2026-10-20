@@ -11,7 +11,7 @@
 #include <string.h>
 #include "imp.h"
 
-word finam5;
+word finam[8];                      /* FINAM; finam5 is FINAM[5] */
 FILE *listing;
 word imp_err;
 static void (*fatal)(void);

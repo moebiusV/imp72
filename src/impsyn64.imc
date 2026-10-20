@@ -16,6 +16,31 @@
  <ATOM> ::= FINCSET(<A>,<B>)      ::= "IMPFINCSET(A,B)";
  <ATOM> ::= ERROR(<A>,<B>)        ::= "IMPERROR(A,B)";
 
+ PRP,ALF,GA ARE COMMON;
+
+ <ATOM> ::= DPROP('NAME',<A>)  ::= "ALF+(FREE(PRP+(A)) AND 37777777777B)";
+ <ATOM> ::= DPROP('ENTRY',<A>) ::= "(FREE(PRP+(A)+1) RS 32)";
+ <ATOM> ::= DPROP('NODE',<A>)  ::= "(FREE(PRP+(A)+1) AND 37777777777B)";
+ <ATOM> ::= DPROP('SEM',<A>)   ::= "(FREE(PRP+(A)+2) AND 37777777777B)";
+ <ATOM> ::= DPROP('ATYPE',<A>) ::= "((FREE(PRP+(A)+2) RS 32) AND 7)";
+ <ATOM> ::= DPROP('COM',<A>)   ::= "((FREE(PRP+(A)+2) RS 35) AND 3)";
+ <ATOM> ::= DPROP('ISNM',<A>)  ::= "((FREE(PRP+(A)+2) RS 37) AND 3)";
+ <ATOM> ::= DPROP('LXTY',<A>)  ::= "((FREE(PRP+(A)+2) RS 39) AND 3)";
+ <ATOM> ::= DPROP('USE',<A>)   ::= "((FREE(PRP+(A)+2) RS 41) AND 7)";
+
+ <ATOM> ::= DPROPS('ENTRY',<A>,<B>) ::=
+     "FREES(PRP+(A)+1,(FREE(PRP+(A)+1) AND 37777777777B) OR ((B) LS 32))";
+ <ATOM> ::= DPROPS('NODE',<A>,<B>)  ::=
+     "FREES(PRP+(A)+1,(FREE(PRP+(A)+1) AND NOT 37777777777B) OR ((B) AND 37777777777B))";
+ <ATOM> ::= DPROPS('SEM',<A>,<B>)   ::=
+     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT 37777777777B) OR ((B) AND 37777777777B))";
+
+ <ATOM> ::= SCR(<A>)   ::= "(FREE(GA+(A)) AND 37777777777B)";
+ <ATOM> ::= ALT(<A>)   ::= "(FREE(GA+(A)) RS 32)";
+ <ATOM> ::= GTYPE(<A>) ::= "((FREE(GA+(A)+1) RS 48) AND 7)";
+ <ATOM> ::= GVAL(<A>)  ::= "(FREE(GA+(A)+1) AND 37777777777B)";
+ <ATOM> ::= GNB(<A>)   ::= "((FREE(GA+(A)+1) RS 32) AND 177777B)";
+
  <EXP> ::= FORG+<A>::="FB+8*(A)";
  <EXP> ::= <A>+FORG ::= "FB+8*(A)";
 

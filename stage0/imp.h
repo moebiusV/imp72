@@ -61,7 +61,8 @@ typedef uint64_t uword;
 #define SW_TTYLIST     0x1000000L /* /Y  list source on the terminal */
 #define SW_STATS       0x2000000L /* /Z  count FALLOT calls (FSTATS) */
 
-extern word finam5;               /* FINAM[5] */
+extern word finam[8];              /* FINAM */
+#define finam5 finam[5]           /* FINAM[5]: the switches */
 extern FILE *listing;             /* the PRINT FILE (.LST); NULL if none */
 extern word imp_err;              /* ERR: -1 once any error has been reported */
 FILE *imp_out(void);              /* where PRINT output goes: listing or stdout */
@@ -181,6 +182,12 @@ void graphf(void);
 void gprint(void);
 extern word ga, ng, nprods;                    /* GA, NG, NPRODS */
 /* graph state, for debug.c */
+/* (IMP names have no underscore: _ is assignment; src/graph.imp calls them GRBITM and so on) */
+#define gr_nodes grnodes
+#define gr_ntgent grntgent
+#define gr_nbitn grnbitn
+#define gr_bitm grbitm
+#define gr_nbitm grnbitm
 extern word gr_nodes, gr_ntgent, gr_nbitn, gr_bitm[3], gr_nbitm[3];
 long imp_msec(void);                           /* CALLI(27B,0): run time, ms */
 
