@@ -358,7 +358,7 @@ subbeg(word a)
         addcode(k, sx36(0200000000000L | j), 0);
         addcode(k, 0, j);
         j = subtag(j);
-        addcode(k, sx36(0254L << 24), j);
+        addcode(k, sx36((word)0254 << 24), j);
         addcode(a, sx36(0200000000000L | j), 0);
         remot(freeze(k));
     } else {

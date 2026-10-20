@@ -1232,7 +1232,7 @@ l46:
             FREES(s, sx36(020 | (FREE(s) & ~077L)));
             FREES(s + 1, sx36(FREE(s + 1) | (regof(t) << 18)));
         } else
-            addcode(s, sx36((0270L << 24) + (regof(s) << 12) + ((word)1 << 11)),
+            addcode(s, sx36(((word)0270 << 24) + (regof(s) << 12) + ((word)1 << 11)),
                 regof(t));
     }
     if (tty == 4) {
