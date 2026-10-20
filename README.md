@@ -46,12 +46,15 @@ constants), `PRINT` and `READ` with their formats (`FLT`, `FILE`, `DEVICE`,
 (18 of the 19 modules translate, 14 compile to objects), is in
 `docs/internals/codegen-and-translation.md`.
 
-Self-hosting has started: `tools/stage1.sh` builds `imp72s1`, stage 0 with its
-`stack` module replaced by `src/stack.imp`, the compiler's own source (ported
-to 64 bit words) compiled by `imp72stage0`. `tests/self/stage1.sh` checks that it
-writes the same IR as stage 0 for 22 programs, among them 14 modules of the
-tape. `free`, `ercor`, `dosem` and `impsem` use executed instructions that need
-porting, `impm` is the TOPS-10 interface. See `docs/porting/stack.md`.
+Self-hosting is under way: `tools/stage1.sh` builds `imp72s1`, stage 0 with five of its modules
+(`stack`, `dir`, `graph`, `parse`, `ercor`: the stack and bit matrices, the directory, the syntax graph,
+the Irons parser and the error corrector) replaced by the compiler's own sources in `src/`, ported to 64 bit
+words and compiled by `imp72stage0`. `tests/self/stage1.sh` checks that it writes the same IR as stage 0
+for the native tests, every module of the tape and the ported sources themselves (the stage 1
+compiler compiling its own modules). `free`, `dosem` and `impsem` use executed instructions or jumps
+out of a subroutine that need porting, `lex` reads files, `impm` is the TOPS-10 interface, and the
+modules with the 36 bit formats of the semantics (`entree`, `cotree`, `codegen`) are next. See
+`docs/porting/` (`stack.md`, `dir.md`, `graph.md`, `parse.md`, `ercor.md`).
 
 Packages: `debian/` and `packaging/alpine/APKBUILD` (`packaging/README.md`; only
 the amd64 Debian package has been built here). `.github/workflows/ci.yml`
@@ -304,7 +307,8 @@ be confirmed against the oracle (details in `docs/internals/`):
 - [docs/BUILDING.md](docs/BUILDING.md): building and running
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
 - [docs/internals/c-backend.md](docs/internals/c-backend.md): the C back end
-- [docs/porting/stack.md](docs/porting/stack.md): the first ported module, stage 1
+- [docs/porting/stack.md](docs/porting/stack.md): the first ported module, stage 1; then `dir.md`, `graph.md`,
+  `parse.md`, `ercor.md`
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages
 - [docs/internals/stage0-foundation.md](docs/internals/stage0-foundation.md):
   free storage, stack, directory, lexer
