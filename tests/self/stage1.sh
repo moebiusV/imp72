@@ -29,5 +29,10 @@ for f in decus/*.imc; do
     case $n in syntax|impsyn|rsyn|impm|impsem|dosem|free|ercor) continue ;; esac
     run mod_$n decus/syntax.imc decus/impsyn.imc $f
 done
+# the compiler's own sources, compiled by the compiler that has some of them compiled by itself
+for f in src/*.imp; do
+    n=$(basename $f .imp)
+    run src_$n decus/syntax.imc src/impsyn64.imc $f
+done
 [ $fail = 0 ] && echo ok
 exit $fail
