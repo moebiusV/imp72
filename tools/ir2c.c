@@ -463,10 +463,12 @@ flushdata(void)
 
     if (dlabel != NULL) {
         if (dstring != NULL) {
-            fprintf(datafile, "__attribute__((aligned(8))) char %s[] = \"%s\";\n", cname(dlabel), dstring);
+            fprintf(datafile, "%s__attribute__((aligned(8))) char %s[] = \"%s\";\n",
+                strncmp(dlabel, ".L", 2) == 0 ? "static " : "", cname(dlabel), dstring);
             add(&datadefs, dlabel);
         } else if (ndq > 0) {
-            fprintf(datafile, "__attribute__((aligned(8))) long long %s[] = {", cname(dlabel));
+            fprintf(datafile, "%s__attribute__((aligned(8))) long long %s[] = {",
+                strncmp(dlabel, ".L", 2) == 0 ? "static " : "", cname(dlabel));
             for (i = 0; i < ndq; i++)
                 fprintf(datafile, "%s%lldLL", i ? ", " : "", dquads[i]);
             fprintf(datafile, "};\n");
