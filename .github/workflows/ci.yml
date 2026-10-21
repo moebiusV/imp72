@@ -127,8 +127,12 @@ jobs:
         with:
           prepare: pkg_add gmake python3
           run: |
-            gmake WITH_PCC=no
-            gmake WITH_PCC=no check
+            (gmake WITH_PCC=no && gmake WITH_PCC=no check) > /tmp/o.log 2>&1
+            rc=$?
+            if [ $rc != 0 ]; then
+              echo "::error::openbsd failed: $(grep -i -B2 -A2 'error\|fail\|not found\|undefined' /tmp/o.log | head -c 1800 | tr '\n%' ' _')"
+              exit $rc
+            fi
 
   # the Debian package, built from the source package it makes
   debian-package:
