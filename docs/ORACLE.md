@@ -27,7 +27,7 @@ What can be done by [prebsd](https://github.com/moebiusV/prebsd) is: building th
 with the tape patch), fetching the disks, making the KI10's from Cornwell's tape, keeping local
 copies of all of that, and booting (`prebsd -k` leaves the system running; its console stays held
 by prebsd, the DC lines are ours). imp72 sets `PREBSD=/path` (default `../prebsd`, cloned from the
-`tops10` branch if absent) and does only what is specific to the oracle: the transfer tapes
+repository if absent) and does only what is specific to the oracle: the transfer tapes
 (`tools/pdp10tap.py`), the terminal sessions (`tools/oracle.py`), the exact binaries of the
 compiler and the goldens.
 

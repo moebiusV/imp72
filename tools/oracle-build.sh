@@ -1,8 +1,7 @@
 #!/bin/sh
 # oracle-build.sh: set up the oracle from nothing (the work is idempotent and resumable).
-# prebsd (https://github.com/moebiusV/prebsd, branch tops10; PREBSD=/path, else it is cloned next
-# to this repository) builds the simulators from pinned sources, fetches the TOPS-10 disks, keeps
-# local copies of both, and later boots the system (tools/oracle-boot.sh).  What is here is what
+# prebsd (https://github.com/moebiusV/prebsd, PREBSD=/path, else it is cloned next
+# to this repository) builds the simulators from pinned sources, fetches the TOPS-10 disks, and later boots the system (tools/oracle-boot.sh).  What is here is what
 # it does not do: the DECUS tape for the exact words of the compiler, and the transfer tapes.
 # Downloads go to oracle/dl/<name>/ (untrusted, hashed, never run from there).  See
 # oracle/PROVENANCE.md and docs/ORACLE.md.
@@ -14,7 +13,7 @@ mkdir -p oracle/dl/decus-tape build/oracle oracle/disks oracle/tapes oracle/unit
 
 # 1. prebsd and its KA10 simulator
 PREBSD=${PREBSD:-$root/../prebsd}
-[ -d "$PREBSD" ] || git clone -q -b tops10 https://github.com/moebiusV/prebsd.git "$PREBSD"
+[ -d "$PREBSD" ] || git clone -q https://github.com/moebiusV/prebsd.git "$PREBSD"
 [ -x "$PREBSD/prebsd" ] || (cd "$PREBSD" && { [ -f Makefile ] || ./configure -q; } && make -s)
 [ -x "$PREBSD/simh/bin/pdp10-ka" ] || (cd "$PREBSD" && ./build-simh pdp10-ka)
 

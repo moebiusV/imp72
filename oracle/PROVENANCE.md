@@ -2,9 +2,9 @@
 
 Everything downloaded goes to `oracle/dl/<name>/` (git-ignored; untrusted data, hashed,
 never run from there). `tools/oracle-build.sh` fetches and checks all of it.  The simulators and
-the TOPS-10 disks are prebsd's (<https://github.com/moebiusV/prebsd>, branch `tops10`): its
+the TOPS-10 disks are prebsd's (<https://github.com/moebiusV/prebsd>): its
 `simh.json` pins the simulator sources by commit and `images.json` has the disks' URLs and
-checksums; it keeps local copies of all of them in its `mirror/`.  The rows below are what it
+checksums.  The rows below are what it
 fetches for us.
 
 | What | Where from | SHA-256 |
