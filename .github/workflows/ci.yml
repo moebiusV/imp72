@@ -104,6 +104,32 @@ jobs:
             gmake WITH_PCC=no
             gmake WITH_PCC=no check
 
+  netbsd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: vmactions/netbsd-vm@v1
+        with:
+          prepare: /usr/sbin/pkg_add gmake python312 || /usr/sbin/pkg_add gmake
+          run: |
+            gmake WITH_PCC=no
+            gmake WITH_PCC=no check
+
+  openbsd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: vmactions/openbsd-vm@v1
+        with:
+          prepare: pkg_add gmake python3
+          run: |
+            gmake WITH_PCC=no
+            gmake WITH_PCC=no check
+
   # the Debian package, built from the source package it makes
   debian-package:
     runs-on: ubuntu-latest
