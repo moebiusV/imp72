@@ -58,17 +58,21 @@ stage0:
 	$(MAKE) -C stage0 CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 # Installed layout (imp72stage0 finds its parts relative to its own place):
-#   PREFIX/bin/imp72stage0   PREFIX/lib/imp72/{ir2c,cc1,libimp72.a}
+#   PREFIX/bin/imp72stage0 (also as imp72)   PREFIX/lib/imp72/{ir2c,cc1,libimp72.a}
 #   PREFIX/share/imp72/{syntax.imc,ffi.imc}  PREFIX/share/man/man1/imp72stage0.1
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp72 \
 	    $(DESTDIR)$(PREFIX)/share/imp72 $(DESTDIR)$(PREFIX)/share/man/man1
 	install -m 755 stage0/imp72s0 $(DESTDIR)$(PREFIX)/bin/imp72stage0
+	ln -sf imp72stage0 $(DESTDIR)$(PREFIX)/bin/imp72
 	install -m 755 $(IR2C) $(DESTDIR)$(PREFIX)/lib/imp72/ir2c
 	if [ -x $(CC1) ]; then install -m 755 $(CC1) $(DESTDIR)$(PREFIX)/lib/imp72/cc1; fi
 	install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a
 	install -m 644 decus/syntax.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp72/
 	install -m 644 docs/imp72stage0.1 $(DESTDIR)$(PREFIX)/share/man/man1/imp72stage0.1
+	echo '.so man1/imp72stage0.1' > $(DESTDIR)$(PREFIX)/share/man/man1/imp72.1
+	install -d $(DESTDIR)$(PREFIX)/share/doc/imp72
+	install -m 644 docs/manual/imp72.md docs/FFI.md docs/LANGUAGE-NOTES.md $(DESTDIR)$(PREFIX)/share/doc/imp72/
 
 check: all
 	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)"
@@ -77,6 +81,7 @@ check: all
 	sh tests/native/runc.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/stage1.sh
+	sh tests/manual/run.sh
 
 clean:
 	$(MAKE) -C stage0 clean

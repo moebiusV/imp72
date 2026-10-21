@@ -374,7 +374,7 @@ main(int argc, char **argv)
     const char *name = strrchr(argv[0], '/');
 
     name = name ? name + 1 : argv[0];
-    if (strncmp(name, "imp72stage", 10) == 0)
+    if (strncmp(name, "imp72stage", 10) == 0 || strcmp(name, "imp72") == 0)
         return driver_main(argc, argv);
     return kernel_main(argc, argv);
 }
