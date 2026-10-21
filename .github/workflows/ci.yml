@@ -90,6 +90,20 @@ jobs:
         env:
           IMAGE: ${{ matrix.arch == 'loong64' && 'alpine-loongarch64:edge' || 'alpine:edge' }}
 
+  # FreeBSD, in a VM: the C back end (pcc's cc1 is built where it is supported)
+  freebsd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: vmactions/freebsd-vm@v1
+        with:
+          prepare: pkg install -y gmake binutils python3
+          run: |
+            gmake WITH_PCC=no
+            gmake WITH_PCC=no check
+
   # the Debian package, built from the source package it makes
   debian-package:
     runs-on: ubuntu-latest
