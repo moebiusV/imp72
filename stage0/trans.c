@@ -1700,16 +1700,9 @@ emit_data(void)
         }
         /* a variable that is not declared COMMON belongs to its module: another module's
          * variable of the same name (INIT, say) is another variable */
-#ifdef __APPLE__
-        if (dprop(DP_COM, v->v) == 0)
-            ir_pass("\t.lcomm %s,%ld,3", symname(v->v), sz);   /* Mach-O: no .local */
-        else
-            ir_pass("\t.comm %s,%ld,3", symname(v->v), sz);
-#else
         if (dprop(DP_COM, v->v) == 0)
             ir_pass("\t.local %s", symname(v->v));
         ir_pass("\t.comm %s,%ld,8", symname(v->v), sz);
-#endif
     }
     {
         struct datadef *d;
