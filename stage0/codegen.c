@@ -247,14 +247,14 @@ l72:
         rse = ise = cse = 0;
         if (se & 0200)                          /* a real: all 64 bits, pooled */
             goto pool;
-        if ((op & 0770) == 0310 && (u36(se1) >> 18) == 0) {
+        if ((op & 0770) == 0310 && ((uword)se1 >> 18) == 0) {
             op = 0300 | (op & 7);               /* CAMX to CAIX */
             cse = se1;
             dse = 0;
             goto l6;
         }
         if ((op & 01003) == 0) {
-            if ((j = u36(se1) >> 18) == 0) {
+            if ((j = (word)((uword)se1 >> 18)) == 0) {
                 ic = op >> 8;
                 k = 037 & (op >> 3);
                 if (1 & (u36(immv[ic]) >> k)) {
@@ -838,6 +838,7 @@ word
 conop(word s, word t, word i, word v, word w)
 {
     word co1 = FREE(s + 1), co2 = 0, c, j;
+    int nowrap = 0;
 
     if (t)
         co2 = FREE(t + 1);
@@ -847,7 +848,15 @@ conop(word s, word t, word i, word v, word w)
     case 2: co1 = co1 - co2; break;
     case 3: co1 = co1 * co2; break;
     case 4: co1 = co2 ? co1 / co2 : 0; break;
-    case 5: co1 = ls36(co1, co2); break;
+    case 5:
+        /* a left shift is folded as the program runs it, in 64 bits: the masks and tags that the
+         * ported modules build (7 LS 48) do not fit the 36 bits of the original */
+        if (co2 >= 0 && co2 < 64) {
+            co1 = (word)((uword)co1 << co2);
+            nowrap = 1;
+        } else
+            co1 = ls36(co1, co2);
+        break;
     case 6: co1 = ~co1; break;
     case 7: co1 = co1 & co2; break;
     case 8: co1 = co1 | co2; break;
@@ -857,14 +866,21 @@ conop(word s, word t, word i, word v, word w)
     case 13: co1 = -(word)(co1 >= co2); break;       /* IMP's true is -1 */
     case 14: co1 = -(word)(co1 != co2); break;       /* IMP's true is -1 */
     case 15: co1 = -(word)(co1 > co2); break;       /* IMP's true is -1 */
-    case 16: co1 = ls36(co1, co2); break;
+    case 16:
+        if (co2 >= 0 && co2 < 64) {
+            co1 = (word)((uword)co1 << co2);
+            nowrap = 1;
+        } else
+            co1 = ls36(co1, co2);
+        break;
     case 17: co1 = (word)((u36(co1) << (co2 % 36) | u36(co1) >> (36 - co2 % 36))
         & MASK36); break;
     case 18: co1 = co1 ^ co2; break;
     case 19: co1 = ~(co1 ^ co2); break;
     default: break;
     }
-    co1 = sx36(co1);
+    if (!nowrap || co1 == sx36(co1))
+        co1 = sx36(co1);
     c = i >> 18;
     if (c) {                                    /* special for conditionals */
         /* the chosen arm replaces the whole entry: FREES(S+I,FREE(V+I)) FOR I FROM 2,

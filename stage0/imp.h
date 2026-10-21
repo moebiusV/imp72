@@ -93,6 +93,7 @@ word frelot(word *a, const char *name, word n, void (*fix)(void));
 void fadd(word *a, word *n, word v);       /* FADD(A,N,V) */
 void faddex(word *a, word n);              /* FADDEX */
 void fincset(word a, word n);
+int fcheck(const char *where);              /* debugging: are the headers sane? (IMP_FCHECK) */
 void ftrace(word v);
 void fmap(void);
 void fstats(void);

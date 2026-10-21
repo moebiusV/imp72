@@ -553,3 +553,36 @@ fmap(void)
     }
     fstats();
 }
+
+/* FCHECK(WHERE): walk the arrays and complain, on stderr, about a header that cannot be right: a debugging
+ * aid for the IMP modules, which write into free storage themselves (set IMP_FCHECK to use it). */
+int
+fcheck(const char *where)
+{
+    word x = forgn, nx;
+    int bad = 0;
+
+    if (fmem == NULL)
+        return 0;
+    for (;;) {
+        nx = FWD(x);
+        if (nx == 0)
+            break;
+        if (nx <= x || nx > fend || BACK(nx) != x) {
+            fprintf(stderr, "fcheck %s: bad link at %ld -> %ld\n", where, (long)x, (long)nx);
+            bad = 1;
+            if (getenv("IMP_FCHECK_ABORT"))
+                abort();
+            break;
+        }
+        if (nx != fend && (fmem[nx + 3] < -1 || fmem[nx + 3] > nreloc)) {
+            fprintf(stderr, "fcheck %s: bad relocation slot %ld at array %ld\n", where,
+                (long)fmem[nx + 3], (long)nx);
+            bad = 1;
+            if (getenv("IMP_FCHECK_ABORT"))
+                abort();
+        }
+        x = nx;
+    }
+    return bad;
+}

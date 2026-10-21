@@ -30,13 +30,13 @@
  # THE 36 BIT FORMATS OF THE SEMANTICS (SEMS, THE CODE TREE, THE STACKS): A WORD HOLDS A 36 BIT
    TWO'S COMPLEMENT NUMBER SIGN EXTENDED.  U36 TAKES THE BITS, SX36 MAKES THE WORD, L18 AND R18
    ARE THE 18 BIT HALVES, W18 MAKES A WORD OF THEM. #
- <ATOM> ::= U36(<A>)  ::= "((A) AND 777777777777B)";
- <ATOM> ::= SX36(<A>) ::= "((((A) AND 777777777777B) XOR 400000000000B) - 400000000000B)";
- <ATOM> ::= R18(<A>)  ::= "((A) AND 777777B)";
- <ATOM> ::= L18(<A>)  ::= "((((A) AND 777777777777B) RS 9) RS 9)";
- <ATOM> ::= W18(<A>,<B>) ::= "SX36((((A) LS 9) LS 9) OR ((B) AND 777777B))";
+ <ATOM> ::= U36(<A>)  ::= "((A) AND 0777777777777B)";
+ <ATOM> ::= SX36(<A>) ::= "((((A) AND 0777777777777B) XOR 0400000000000B) - 0400000000000B)";
+ <ATOM> ::= R18(<A>)  ::= "(((A) AND 777776B) OR ((A) AND 1))";   # NOT AND 777777B: THE CODE GENERATOR MAKES THAT HRRZ, 32 BITS HERE #
+ <ATOM> ::= L18(<A>)  ::= "((((A) AND 0777777777777B) RS 9) RS 9)";
+ <ATOM> ::= W18(<A>,<B>) ::= "SX36((((A) LS 9) LS 9) OR R18(B))";
 
- PRP,ALF,GA ARE COMMON;
+ PRP,ALF,GA,CT ARE COMMON;
 
  <ATOM> ::= DPROP('NAME',<A>)  ::= "ALF+(FREE(PRP+(A)) AND HMASK)";
  <ATOM> ::= DPROP('ENTRY',<A>) ::= "(FREE(PRP+(A)+1) RS HSH)";
@@ -66,11 +66,25 @@
  <ATOM> ::= DPROPS('USE',<A>,<B>)   ::=
      "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (7 LS 41)) OR (((B) AND 7) LS 41))";
 
+ <ATOM> ::= LS36(<A>,<B>) ::= "((B) GE 36 => 0 ELSE SX36((A) LS (B)))";   # LS36 OF THE C SIDE, FOR N>=0 #
+
+ # THE CODE TREE: THE LINKS WORD HAS THREE FIELDS OF 20 BITS (SEE ENTREE.IMP) #
+ <ATOM> ::= TMASK ::= "3777777B";
+ <ATOM> ::= TSCR(<A>)   ::= "(FREE(CT+(A)) AND TMASK)";
+ <ATOM> ::= TALT(<A>)   ::= "((FREE(CT+(A)) RS 20) AND TMASK)";
+ <ATOM> ::= TNODEN(<A>) ::= "((FREE(CT+(A)) RS 40) AND TMASK)";
+ <ATOM> ::= STSCR(<A>,<B>)   ::=
+     "FREES(CT+(A),(FREE(CT+(A)) AND NOT TMASK) OR ((B) AND TMASK))";
+ <ATOM> ::= STALT(<A>,<B>)   ::=
+     "FREES(CT+(A),(FREE(CT+(A)) AND NOT (TMASK LS 20)) OR (((B) AND TMASK) LS 20))";
+ <ATOM> ::= STNODEN(<A>,<B>) ::=
+     "FREES(CT+(A),(FREE(CT+(A)) AND NOT (TMASK LS 40)) OR (((B) AND TMASK) LS 40))";
+
  <ATOM> ::= SCR(<A>)   ::= "(FREE(GA+(A)) AND HMASK)";
  <ATOM> ::= ALT(<A>)   ::= "(FREE(GA+(A)) RS HSH)";
- <ATOM> ::= GTYPE(<A>) ::= "((FREE(GA+(A)+1) RS 48) AND 7)";
+ <ATOM> ::= GTYPE(<A>) ::= "((FREE(GA+(A)+1) RS GTSH) AND 7)";
  <ATOM> ::= GVAL(<A>)  ::= "(FREE(GA+(A)+1) AND HMASK)";
- <ATOM> ::= GNB(<A>)   ::= "((FREE(GA+(A)+1) RS HSH) AND 177777B)";
+ <ATOM> ::= GNB(<A>)   ::= "((FREE(GA+(A)+1) RS HSH) AND NBMASK)";
 
  <EXP> ::= FORG+<A>::="FB+8*(A)";
  <EXP> ::= <A>+FORG ::= "FB+8*(A)";

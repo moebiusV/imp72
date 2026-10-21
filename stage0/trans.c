@@ -1638,7 +1638,8 @@ subr(long i0, long i1, int ismain)
             i = insn(i);
             if (skipped)                        /* the skipped instruction is done */
                 ir_label(skipped);
-            lastmove = (op == 0200 || op == 0201 || op == 0202) ? t->ac : 0;
+            lastmove = (op == 0200 || op == 0201 || op == 0202 || op == 0474 || op == 0400
+                || (op >= 0204 && op <= 0207) || (op >= 0210 && op <= 0217)) ? t->ac : 0;
             lastaddr = (op == 0201 && (t->v || t->ind) && !t->ra
                 && !(t->v && (isnumconst(t->v, &cv_) || isstring(t->v)))) ? t->ac : 0;
             break;
