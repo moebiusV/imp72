@@ -209,3 +209,76 @@ word impgraph(word *synt, word *nsynt, word *pn) { word r = graph(*synt, *nsynt,
 word impgmatr(word *tfl) { word r = gmatr(*tfl); sync(); return r; }
 word impgetlist(word *s) { word r = getlist(*s); sync(); return r; }
 word impenstack(word *v) { word r = enstack(*v); sync(); return r; }
+
+/* the lexical analyser's calls (src/lex.imp) */
+extern word lex_srcgetc(void);
+
+word impsrcgetc(word *unused) { (void)unused; return lex_srcgetc(); }
+
+/* DIR of a token held one character to a word, ended by a 0: the argument is the free storage index of the array */
+word
+impdirw(word *tokx)
+{
+    word *tok = &fmem[*tokx];
+    static char *buf;
+    static size_t cap;
+    size_t n = 0;
+
+    for (; ; n++) {
+        if (n + 1 > cap) {
+            char *t = realloc(buf, cap = cap ? cap * 2 : 128);
+
+            if (t == NULL)
+                return 0;
+            buf = t;
+        }
+        buf[n] = (char)tok[n];
+        if (tok[n] == 0)
+            break;
+    }
+    return dir(buf);
+}
+
+static void
+wstr(const word *w, char *dst, size_t max)
+{
+    size_t n = 0;
+
+    while (w[n] != 0 && n + 1 < max) {
+        dst[n] = (char)w[n];
+        n++;
+    }
+    dst[n] = '\0';
+}
+
+/* PLINE(BF,PCT): list a source line, with its paren depth, if asked. */
+word
+impplinew(word *linex, word *depth)
+{
+    static char buf[4096];
+
+    wstr(&fmem[*linex], buf, sizeof buf);
+    if (finam5 & SW_LIST)
+        fprintf(imp_out(), "%3ld %s\n", (long)*depth, buf);
+    if (finam5 & SW_TTYLIST)
+        imp_msg(buf);
+    return 0;
+}
+
+/* PLINE1(OL): the line to the terminal, broken before character number OL */
+word
+impplinelw(word *linex, word *ol)
+{
+    word j = 0;
+    size_t k;
+    static char buf[4096];
+
+    wstr(&fmem[*linex], buf, sizeof buf);
+    for (k = 0; buf[k] != '\0'; k++) {
+        if (++j == *ol)
+            fputc('\n', stderr);
+        fputc(buf[k], stderr);
+    }
+    fputc('\n', stderr);
+    return 0;
+}
