@@ -24,7 +24,7 @@ Two faults in the translator came out of this port:
   the `INIT` of all of them: `STINIT` ran, and `GRAPH` believed it had set itself up. In the original a name that
   is not `COMMON` belongs to its module (the loader links only the COMMON ones). They are now local
   (`.local` in the assembly, `static` in the C output); what the C side shares is declared `COMMON`
-  in the IMP source (`src/shared.txt` lists the names). Mach-O needs `.lcomm` for this, not done.
+  in the IMP source (`src/shared.txt` lists the names). On Mach-O (`__APPLE__`) the translator writes `.lcomm` (untested: no Mac here).
   `tests/native/io.imp` read a line into a one word variable and had only been working because of the
   layout of the commons: it has room now.
 - A parameter array with a variable subscript (see `dir.md`).
