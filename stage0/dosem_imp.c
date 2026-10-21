@@ -25,7 +25,7 @@
  * see ENPROD below.  Its words, like those of SEMS, keep the original
  * layout.
  *
- * Semantic routines are C functions called through sem.c's table; the
+ * Semantic routines are C functions called through the table of sem-pdp10.c; the
  * original jumps to the routine's address.
  */
 #include <stdint.h>

@@ -103,7 +103,7 @@ rsyn(void)
     sync();
 }
 
-/* the by-value entry points of the semantic routines (impsem.c and others call some) */
+/* the by-value entry points of the semantic routines (impsem-pdp10.c and others call some) */
 word synt(word a, word b) { word r; sync(); r = impl_synt(&a, &b); sync(); return r; }
 word sytrm(word a) { word r; sync(); r = impl_sytrm(&a); sync(); return r; }
 word synts(word n) { word r; sync(); r = impl_synts(&n); sync(); return r; }

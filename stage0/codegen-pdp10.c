@@ -1,5 +1,5 @@
 /*
- * codegen.c -- the code generating semantic routines.  Ports decus/code.imc,
+ * codegen-pdp10.c -- the code generating semantic routines.  Ports decus/code.imc,
  * code2.imc and code3.imc: ADDCODE, UNPCK, STORE, FETCH, REGOF, ADDOP, DEWOP,
  * TAG, COPYCO, MCODE, SUBARG, HOOK, CONOP, FREEZE, SUBRCALL, RETURN, ONEWORD,
  * COPPY, DEWFUN, FLOAT, FIX, DATAST, SUBRPAR, OJUMPOP, ADDR, SUBCALL,
@@ -36,7 +36,7 @@
  *                directory index of the variable
  *
  * A register index is not a PDP-10 register: it names an entry of the
- * register array RG (impsem.c), with limits; allocation is left to pcc.
+ * register array RG (impsem-pdp10.c), with limits; allocation is left to pcc.
  */
 #include <string.h>
 #include "imp.h"

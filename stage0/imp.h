@@ -245,7 +245,7 @@ static inline word ls36(word x, word n)
     return n >= 0 ? sx36((word)((uword)x << n)) : sx36(u36(x) >> -n);
 }
 
-/* ---- sem.c, dosem.c: semantic routines and the semantics array ---------- */
+/* ---- sem-pdp10.c, dosem.c: semantic routines and the semantics array ---------- */
 
 /*
  * A semantic routine is called by DOSEM with the words it was given, as
@@ -327,7 +327,7 @@ word sembit(word a);
 word repval(word s, word a);
 word valu(word n, word s);
 
-/* sem.c: the semantic routines of impsem.imc and code2.imc that syntax
+/* sem-pdp10.c: the semantic routines of impsem.imc and code2.imc that syntax
  * statements use when they are read */
 word newlist(word s);
 word enlist(word s);
@@ -337,7 +337,7 @@ word assemc(word a);
 void trans_open(FILE *f);                       /* write pcc IR to f */
 void trans_unit(word a);
 
-/* codegen.c, impsem.c: the code generator (PDP-10 code chains) */
+/* codegen-pdp10.c, impsem-pdp10.c: the code generator (PDP-10 code chains) */
 extern word co, nco, anco;
 void codegen_init(void);
 word addcode(word s, word w1, word w2);
@@ -400,7 +400,7 @@ void opname(word op, char *buf);
 void pcode_chain(word iw);
 void pcode(word s);
 
-/* impsem.c */
+/* impsem-pdp10.c */
 void impsem_init(void);
 word name(word s);
 word tstrn(word dirindex);
