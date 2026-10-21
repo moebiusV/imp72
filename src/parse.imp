@@ -46,7 +46,7 @@ FINAM IS COMMON; TR_FINAM[5] AND 100B;
           FRELOT(O,'P/OUT',100,0));
  NO_1; PN_OPN_1; GOTIT_0;
  GOL_GOAL; GOLE_DPROP('NODE',GOL); J_IMPGGOAL(GOL);
- FREES(P,2); FREES(P+1,J); FREES(P+2,GOLE OR J LS 32); NP_3;
+ FREES(P,2); FREES(P+1,J); FREES(P+2,GOLE OR J LS HSH); NP_3;
  S IS 3 LONG; S[1]_DIR('SYM#'); S[2]_DIR('NAM#');
 
  NEXTS: SYMBOL(S);  PSTS_PSTS+1;
@@ -56,10 +56,10 @@ FINAM IS COMMON; TR_FINAM[5] AND 100B;
              PRINT STG 0,', ',IGR 0,PN,STG 0,' POSSIBLE PARSES.',/);
         PPN_IP_IPP_NPP_PI_0;
  NEXTP: L_P+IP;
-        COFF_FREE(L) AND 37777777777B;
+        COFF_FREE(L) AND HMASK;
         NXIP_IP+COFF+1;
         TR=>(PRINT STG 0,'  PARSE #', IGR 0, PI+1);
-        CGOAL_FREE(L+COFF) AND 37777777777B;
+        CGOAL_FREE(L+COFF) AND HMASK;
         CNODE_FREE(L+1);
  NEXTN: CVAL_GVAL(CNODE);
         TR=>IMPPARTR1(CNODE,GTYPE(CNODE),CVAL,P,IP,O,IP+COFF);
@@ -96,7 +96,7 @@ FINAM IS COMMON; TR_FINAM[5] AND 100B;
                 FREES(K,FREE(K)+1);
                 FREES(K+1,J);
                 I=>POUT(K,-S);
-                FADD(PP,NPP,NGOAL OR CNODE LS 32))) FOR I FROM NAME;
+                FADD(PP,NPP,NGOAL OR CNODE LS HSH))) FOR I FROM NAME;
            GO TO TAKEALT;
 
  NTMADE: NTN_DPROP('NODE',CVAL);
@@ -118,8 +118,8 @@ FINAM IS COMMON; TR_FINAM[5] AND 100B;
                               L_K;
                               FREES(L,FREE(L)-1);
                               NP_NP-1; LL_P+NP;
-                              J_FREE(LL) RS 32;
-                              NGOAL_FREE(LL-1) AND 37777777777B;
+                              J_FREE(LL) RS HSH;
+                              NGOAL_FREE(LL-1) AND HMASK;
                               J_IMPGNEXT(SCR(J),NGOAL);
                               FREES(L+1,J);
                               TR=>(PRINT STG 0,'      GOAL REACHED SO PARSE #',
@@ -152,17 +152,17 @@ FINAM IS COMMON; TR_FINAM[5] AND 100B;
                NP_NOP; PN_OPN; GO TO NEXTS);
 
  #THERE IS JUST 1 PARSE; FEED OUT OUTPUT.#
- (J_FREE(PP) RS 32) => (IMPPUSHMI(0);
-                        L5: J => (J_FREE(O+J); K_J ARS 32;
+ (J_FREE(PP) RS HSH) => (IMPPUSHMI(0);
+                        L5: J => (J_FREE(O+J); K_J ARS HSH;
                                   IMPPUSHMI(K);
-                                  J_J AND 37777777777B; GO TO L5);
+                                  J_J AND HMASK; GO TO L5);
                         FINAM[5] AND 243130160B=>(
 			   K_IMPMSEC(0); PSTT_PSTT+K; SRTT_SRTT-1+K);
                         L6: (K_IMPPULLYU(0)) => (IMPCOTREE(K); GO TO L6);
                         FINAM[5] AND 243130160B=>(
 			   K_IMPMSEC(0); PSTT_PSTT-1+K; SRTT_SRTT+K));
  NO>PSOS=>PSOS_NO; NO_1;
- FREES(PP,FREE(PP) AND 37777777777B);
+ FREES(PP,FREE(PP) AND HMASK);
 
  END1SYM: NPP>PSPS=>PSPS_NPP;    PPN>PSPN=>PSPN_PPN;
           NP>PSPST=>PSPST_NP;    PN>PSPNT=>PSPNT_PN;
@@ -193,8 +193,8 @@ SUBR COPY(QQ,NQQ,QQN) IS (
 SUBR POUT(QQ,VV) IS (#PUTS OUTPUT VV ON PARSE CHAIN AT QQ#
  TR=>(PRINT STG 0,'      '; VV<0=>IMPPNAME(-VV) ELSE (PRINT '[',OCT 0,VV,
          STG 0,']'); PRINT STG 0,' ADDED TO OUTPUT.',/);
- Q_FREE(QQ) RS 32; FREES(QQ,(FREE(QQ) AND 37777777777B) OR (NO LS 32));
- FADD(O,NO,Q OR (VV LS 32)));
+ Q_FREE(QQ) RS HSH; FREES(QQ,(FREE(QQ) AND HMASK) OR (NO LS HSH));
+ FADD(O,NO,Q OR (VV LS HSH)));
 
 SUBR PARSEF() IS (
  FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0); PINIT_0) %%%

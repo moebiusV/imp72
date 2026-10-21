@@ -16,27 +16,47 @@
  <ATOM> ::= FINCSET(<A>,<B>)      ::= "IMPFINCSET(A,B)";
  <ATOM> ::= ERROR(<A>,<B>)        ::= "IMPERROR(A,B)";
 
+ # THE HALVES OF A WORD ARE 32 BITS (SEE DOCS/PORTING).  A SHIFT BY THE CONSTANT 18 IS
+   A HALFWORD MOVE TO THE TRANSLATOR, SO NEVER WRITE ONE; USE THESE. #
+ <ATOM> ::= HSH   ::= "32";                 # THE WIDTH OF A HALF #
+ <ATOM> ::= HMASK ::= "37777777777B";       # THE MASK OF THE RIGHT HALF #
+ <ATOM> ::= GTSH  ::= "48";                 # GRAPH NODE: THE TYPE FIELD, 3 BITS #
+ <ATOM> ::= NBMASK ::= "177777B";           # GRAPH NODE: THE ROW FIELD, 16 BITS AT HSH #
+ <ATOM> ::= HL(<A>) ::= "((A) RS HSH)";              # LEFT HALF, UNSIGNED #
+ <ATOM> ::= HLS(<A>) ::= "((A) ARS HSH)";            # LEFT HALF, SIGNED #
+ <ATOM> ::= HR(<A>) ::= "((A) AND HMASK)";           # RIGHT HALF #
+ <ATOM> ::= HW(<A>,<B>) ::= "(((A) LS HSH) OR ((B) AND HMASK))";   # A WORD FROM TWO HALVES #
+
+ # THE 36 BIT FORMATS OF THE SEMANTICS (SEMS, THE CODE TREE, THE STACKS): A WORD HOLDS A 36 BIT
+   TWO'S COMPLEMENT NUMBER SIGN EXTENDED.  U36 TAKES THE BITS, SX36 MAKES THE WORD, L18 AND R18
+   ARE THE 18 BIT HALVES, W18 MAKES A WORD OF THEM. #
+ <ATOM> ::= U36(<A>)  ::= "((A) AND 777777777777B)";
+ <ATOM> ::= SX36(<A>) ::= "((((A) AND 777777777777B) XOR 400000000000B) - 400000000000B)";
+ <ATOM> ::= R18(<A>)  ::= "((A) AND 777777B)";
+ <ATOM> ::= L18(<A>)  ::= "((((A) AND 777777777777B) RS 9) RS 9)";
+ <ATOM> ::= W18(<A>,<B>) ::= "SX36((((A) LS 9) LS 9) OR ((B) AND 777777B))";
+
  PRP,ALF,GA ARE COMMON;
 
- <ATOM> ::= DPROP('NAME',<A>)  ::= "ALF+(FREE(PRP+(A)) AND 37777777777B)";
- <ATOM> ::= DPROP('ENTRY',<A>) ::= "(FREE(PRP+(A)+1) RS 32)";
- <ATOM> ::= DPROP('NODE',<A>)  ::= "(FREE(PRP+(A)+1) AND 37777777777B)";
- <ATOM> ::= DPROP('SEM',<A>)   ::= "(FREE(PRP+(A)+2) AND 37777777777B)";
- <ATOM> ::= DPROP('ATYPE',<A>) ::= "((FREE(PRP+(A)+2) RS 32) AND 7)";
+ <ATOM> ::= DPROP('NAME',<A>)  ::= "ALF+(FREE(PRP+(A)) AND HMASK)";
+ <ATOM> ::= DPROP('ENTRY',<A>) ::= "(FREE(PRP+(A)+1) RS HSH)";
+ <ATOM> ::= DPROP('NODE',<A>)  ::= "(FREE(PRP+(A)+1) AND HMASK)";
+ <ATOM> ::= DPROP('SEM',<A>)   ::= "(FREE(PRP+(A)+2) AND HMASK)";
+ <ATOM> ::= DPROP('ATYPE',<A>) ::= "((FREE(PRP+(A)+2) RS HSH) AND 7)";
  <ATOM> ::= DPROP('COM',<A>)   ::= "((FREE(PRP+(A)+2) RS 35) AND 3)";
  <ATOM> ::= DPROP('ISNM',<A>)  ::= "((FREE(PRP+(A)+2) RS 37) AND 3)";
  <ATOM> ::= DPROP('LXTY',<A>)  ::= "((FREE(PRP+(A)+2) RS 39) AND 3)";
  <ATOM> ::= DPROP('USE',<A>)   ::= "((FREE(PRP+(A)+2) RS 41) AND 7)";
 
  <ATOM> ::= DPROPS('ENTRY',<A>,<B>) ::=
-     "FREES(PRP+(A)+1,(FREE(PRP+(A)+1) AND 37777777777B) OR ((B) LS 32))";
+     "FREES(PRP+(A)+1,(FREE(PRP+(A)+1) AND HMASK) OR ((B) LS HSH))";
  <ATOM> ::= DPROPS('NODE',<A>,<B>)  ::=
-     "FREES(PRP+(A)+1,(FREE(PRP+(A)+1) AND NOT 37777777777B) OR ((B) AND 37777777777B))";
+     "FREES(PRP+(A)+1,(FREE(PRP+(A)+1) AND NOT HMASK) OR ((B) AND HMASK))";
  <ATOM> ::= DPROPS('SEM',<A>,<B>)   ::=
-     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT 37777777777B) OR ((B) AND 37777777777B))";
+     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT HMASK) OR ((B) AND HMASK))";
 
  <ATOM> ::= DPROPS('ATYPE',<A>,<B>) ::=
-     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (7 LS 32)) OR (((B) AND 7) LS 32))";
+     "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (7 LS HSH)) OR (((B) AND 7) LS HSH))";
  <ATOM> ::= DPROPS('COM',<A>,<B>)   ::=
      "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (3 LS 35)) OR (((B) AND 3) LS 35))";
  <ATOM> ::= DPROPS('ISNM',<A>,<B>)  ::=
@@ -46,11 +66,11 @@
  <ATOM> ::= DPROPS('USE',<A>,<B>)   ::=
      "FREES(PRP+(A)+2,(FREE(PRP+(A)+2) AND NOT (7 LS 41)) OR (((B) AND 7) LS 41))";
 
- <ATOM> ::= SCR(<A>)   ::= "(FREE(GA+(A)) AND 37777777777B)";
- <ATOM> ::= ALT(<A>)   ::= "(FREE(GA+(A)) RS 32)";
+ <ATOM> ::= SCR(<A>)   ::= "(FREE(GA+(A)) AND HMASK)";
+ <ATOM> ::= ALT(<A>)   ::= "(FREE(GA+(A)) RS HSH)";
  <ATOM> ::= GTYPE(<A>) ::= "((FREE(GA+(A)+1) RS 48) AND 7)";
- <ATOM> ::= GVAL(<A>)  ::= "(FREE(GA+(A)+1) AND 37777777777B)";
- <ATOM> ::= GNB(<A>)   ::= "((FREE(GA+(A)+1) RS 32) AND 177777B)";
+ <ATOM> ::= GVAL(<A>)  ::= "(FREE(GA+(A)+1) AND HMASK)";
+ <ATOM> ::= GNB(<A>)   ::= "((FREE(GA+(A)+1) RS HSH) AND 177777B)";
 
  <EXP> ::= FORG+<A>::="FB+8*(A)";
  <EXP> ::= <A>+FORG ::= "FB+8*(A)";
