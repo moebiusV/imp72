@@ -24,8 +24,7 @@ imp72stage0 and compares with the stored goldens.
 ## prebsd
 
 What can be done by [prebsd](https://github.com/moebiusV/prebsd) is: building the simulators (pinned,
-with the tape patch), fetching the disks, making the KI10's from Cornwell's tape, keeping local
-copies of all of that, and booting (`prebsd -k` leaves the system running; its console stays held
+with the tape patch), fetching the disks, making the KI10's from Cornwell's tape, and booting (`prebsd -k` leaves the system running; its console stays held
 by prebsd, the DC lines are ours). imp72 sets `PREBSD=/path` (default `../prebsd`, cloned from the
 repository if absent) and does only what is specific to the oracle: the transfer tapes
 (`tools/pdp10tap.py`), the terminal sessions (`tools/oracle.py`), the exact binaries of the

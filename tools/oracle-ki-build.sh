@@ -4,7 +4,7 @@
 #
 # prebsd (https://github.com/moebiusV/prebsd, PREBSD=/path, else it is cloned
 # next to this repository) builds the simulator from Richard Cornwell's tree, fetches his system
-# tape and restores it to the disks (about twenty minutes the first time; it keeps the result).
+# tape and restores it to the disks (about twenty minutes the first time).
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
