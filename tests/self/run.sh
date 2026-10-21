@@ -7,6 +7,8 @@ cd "$root" || exit 1
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 mkdir -p build/self
 fail=0
+echo "== self glue lint"
+python3 tools/glue-lint.py src/*.imp || { echo "FAILED: glue lint" >&2; exit 1; }
 echo "== self stack"
 stage0/imp72stage0 -c -o build/self/stack.o src/impsyn64.imc src/stack.imp >/dev/null 2>&1 \
     || { echo "FAILED: stack: imp72stage0" >&2; exit 1; }
