@@ -544,3 +544,9 @@ semper(void)
 {
     sempr1(sems, prosem, nsems);
 }
+
+/* for impglue.c: the C setsem registers PAR and STACK itself (dosem_imp.c has the IMP module's) */
+void
+dosem_dsems(void)
+{
+}

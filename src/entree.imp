@@ -52,7 +52,7 @@ SUBR ENTREE(S,CS,SR,PN) IS (
  NEXT: J_FREE(SS); SS_SS+1;
  J<0=>(#IDENTIFIER. CHECK FOR CONSTANT. #
        EATIT_1;
-       KON_IMPCONVC(-J,CONST); KON=>(NOTY_300001000000B OR -J;
+       KON_IMPCONVC(-J,KONV); KON=>(NOTY_300001000000B OR -J;
                             FADD(TBL,NTBL,0);
                             GO TO L11);
        CODEID(-J);
@@ -90,7 +90,7 @@ SUBR ENTREE(S,CS,SR,PN) IS (
                       NOTY_NOTY OR (N1 LS 20) OR (N2 LS 15));
                 L21: J_CODEID(0); GO TO L12);
        NOTY_NOTY OR NTY1;
-       L11: NODE_INSNO(NODE,SX36(NOTY),KON,CONST); #INSERT NODE IN TREE #
+       L11: NODE_INSNO(NODE,SX36(NOTY),KON,KONV); #INSERT NODE IN TREE #
        FADD(PRODS,NPR,NODE);
        GO TO NEXT);
  SS LE ST=>(
@@ -213,21 +213,21 @@ SUBR CODEID(SW) IS (
            IDTB[0]_1352391; IDTB[1]_1107918; IDTB[2]_1107783; IDTB[3]_1417426;
            IDTB[4]_1270477; IDTB[5]_1435972; IDTB[6]_1205202; IDTB[7]_1156692;
            IDTB[8]_1092820; IDTB[9]_1286349; IDTB[10]_1288645);
- SW=>(CHAR_SH_0; LCH_CHAR_-1;
+ SW=>(CHR_SH_0; LCH_CHR_-1;
       IDDIR_SW; IDDIRX_-1;  GO TO CODEIDX);
  NSW_ANS_NAN_NA_0; NA IS 10 LONG;
  LCH=0=>(ANS_0; GO TO CODEIDX);
  N1_N2_-1;
- CHAR LE 0=>(NXCH: LCH=0=>(CHAR_0; GO TO L9);
+ CHR LE 0=>(NXCH: LCH=0=>(CHR_0; GO TO L9);
                    SH<1=>(IDDIRX_IDDIRX+1;
                           ID_IMPDNAME(IDDIR,IDDIRX);
                           SH_29);
-                   LCH_CHAR_177B AND (ID RS SH);
+                   LCH_CHR_177B AND (ID RS SH);
                    SH_SH-7);
   L9: NSW=>GO TO L3;
   (NA=IDTB[C]=>GO TO L2) FOR C FROM 10;
   ANS=0=>(# MAKE NAME #
-          CHAR NE 0 =>CHAR NE 60B =>(NA[NAN]_CHAR OR (NA[NAN] LS 7);
+          CHR NE 0 =>CHR NE 60B =>(NA[NAN]_CHR OR (NA[NAN] LS 7);
                                      (NA[NAN] RS 28)=>(
                           NA[NAN]_NA[NAN] LS 1;
                           (NAN_NAN+1)>9=>ERROR(0,'NAME TOO LONG **');
@@ -237,17 +237,17 @@ SUBR CODEID(SW) IS (
                 L1: (NA[NAN] RS 29)=0=>(NA[NAN]_NA[NAN] LS 7;
                                         GO TO L1));
           ANS_IMPDIRP(NA);
-          CHAR_0; GO TO CODEIDX);
+          CHR_0; GO TO CODEIDX);
  L2: NSW_1; C=10=>C_5; ANS_-(C+1); C>2=>GO TO CODEIDX;
  L3: NSW=5=>GO TO CODEIDX;
- CHAR GE 60B=>CHAR LE 71B=>GO TO (L4,L5,L6,L7) NSW-1;
+ CHR GE 60B=>CHR LE 71B=>GO TO (L4,L5,L6,L7) NSW-1;
  (1 AND NSW)=>GO TO CODEIDX;
  L8: ERROR(1,'NUMBER MISSING OR OUT OF PLACE IN SEMANTICS IDENTIFIER **');
      ANS_0; GO TO CODEIDX;
- L4: N1_10*(CHAR-60B); GO TO L10;
- L5: N1_N1+CHAR-60B; GO TO L10;
- L6: N2_10*(CHAR-60B); L10: NSW_NSW+1; GO TO NXCH;
- L7: N2_N2+CHAR-60B; GO TO L10;
+ L4: N1_10*(CHR-60B); GO TO L10;
+ L5: N1_N1+CHR-60B; GO TO L10;
+ L6: N2_10*(CHR-60B); L10: NSW_NSW+1; GO TO NXCH;
+ L7: N2_N2+CHR-60B; GO TO L10;
  CODEIDX: ANS);
 
 SUBR MATCH(TN,SN,SNONR) IS (

@@ -27,3 +27,17 @@ ct
 nct
 noden
 sbitm
+cs
+ncs
+entries
+prio
+demon
+maxie
+nmaxie
+nc
+sems
+nsems
+prosem
+nprosem
+scratch
+casep

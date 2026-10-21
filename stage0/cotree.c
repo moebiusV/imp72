@@ -419,3 +419,9 @@ l2:
         pstack(cs, i);
     goto doitagainsam;
 }
+
+/* for impglue.c: the C cotree registers its routines itself (cotree_imp.c has the IMP module's) */
+void
+cotree_dsems(void)
+{
+}

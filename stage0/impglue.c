@@ -166,3 +166,28 @@ impdirp(word *na)
     buf[n] = '\0';
     return dir(buf);
 }
+
+/* the semantic stack reducer's calls (src/cotree.imp) */
+extern void cotree_dsems(void);
+
+word impdsems(word *unused) { (void)unused; cotree_dsems(); return 0; }
+word impsemed(word *a) { word r = semed(*a); sync(); return r; }
+word impplies(word *a) { word r = plies(*a); sync(); return r; }
+word impsemget(word *a) { word r = semget(*a); sync(); return r; }
+word impdosem(word *a) { word r = dosem(*a); sync(); return r; }
+word impstinit(word *unused) { word r; (void)unused; r = stinit(); sync(); return r; }
+word impstpop(word *n) { word r = stpop(*n); sync(); return r; }
+word impstack(word *n) { word r = stack(*n); sync(); return r; }
+word imppstack(word *s, word *n) { pstack(*s, *n); sync(); return 0; }
+word impmatch(word *tnp, word *sn, word *snonr) { word r = match(tnp, *sn, *snonr); sync(); return r; }
+
+/* the semantics interpreter's calls (src/dosem.imp) */
+extern void dosem_dsems(void);
+
+word impdsems2(word *unused) { (void)unused; dosem_dsems(); return 0; }
+word impsetstk(word *n, word *a, word *b, word *c) { word r = setstk(*n, *a, *b, *c); sync(); return r; }
+word impcodent(word *a, word *b, word *c, word *f) { codent(*a, *b, *c, *f); sync(); return 0; }
+word impcfudge(word *unused) { (void)unused; cfudge(); return 0; }
+word impsemcall(word *id, word *pars) { word r = semcall(*id, pars); sync(); return r; }
+word impsynarg(word *i) { word r = synarg(*i); sync(); return r; }
+word impnewnameg(word *x) { word r = newname(gname(*x)); sync(); return r; }

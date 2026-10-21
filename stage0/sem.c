@@ -63,6 +63,13 @@ semcall(word id, const word *pars)
         imp_error(0, msg);
         return 0;
     }
+    if (getenv("IMP_SLOG")) {
+        word r = rtn[id - 1].fn(pars);
+
+        fprintf(stderr, "semcall %s %ld %ld %ld %ld %ld -> %ld\n", rtn[id - 1].name, (long)pars[0],
+            (long)pars[1], (long)pars[2], (long)pars[3], (long)pars[4], (long)r);
+        return r;
+    }
     return rtn[id - 1].fn(pars);
 }
 

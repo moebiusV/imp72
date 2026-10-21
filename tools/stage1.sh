@@ -9,7 +9,7 @@ command -v objcopy >/dev/null 2>&1 || { echo "stage1: no objcopy (ELF only)" >&2
 nopie=-no-pie; [ "$(uname)" = Darwin ] && nopie=
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
-modules=${MODULES:-stack dir graph parse ercor entree}
+modules=${MODULES:-stack dir graph parse ercor entree cotree dosem}
 out=build/stage1
 mkdir -p $out
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
