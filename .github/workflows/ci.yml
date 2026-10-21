@@ -43,7 +43,15 @@ jobs:
             echo "::error::make failed: $(grep -i -B1 -A3 'error\|undefined\|not found' /tmp/make.log | head -c 1500 | tr '\n%' ' _')"
             exit $rc
           fi
-      - run: make check
+      - name: make check
+        run: |
+          set +e
+          make check > /tmp/check.log 2>&1
+          rc=$?
+          if [ $rc != 0 ]; then
+            echo "::error::make check failed: $(grep -i -B2 -A2 'fail\|error\|not found' /tmp/check.log | head -c 1800 | tr '\n%' ' _')"
+            exit $rc
+          fi
 
   # Alpine (musl, gcc 15) on every 64 bit architecture it has: natively where the
   # runner is that architecture, else under QEMU user mode, as ada-on-alpine does.
