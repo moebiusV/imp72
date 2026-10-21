@@ -40,7 +40,7 @@ jobs:
           make > /tmp/make.log 2>&1
           rc=$?
           if [ $rc != 0 ]; then
-            echo "::error::make failed: $(tail -c 1500 /tmp/make.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+            echo "::error::make failed: $(grep -i -B1 -A3 'error\|undefined\|not found' /tmp/make.log | head -c 1500 | tr '\n%' ' _')"
             exit $rc
           fi
       - run: make check
