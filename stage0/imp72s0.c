@@ -31,6 +31,9 @@
  */
 /* the compiler driver below uses POSIX (readlink, realpath, mkdtemp) */
 #define _XOPEN_SOURCE 700
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE        /* macOS hides mkdtemp under _XOPEN_SOURCE alone */
+#endif
 #include <ctype.h>
 #include <limits.h>
 #include <stdlib.h>
