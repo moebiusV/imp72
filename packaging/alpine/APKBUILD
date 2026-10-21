@@ -12,6 +12,8 @@ arch="x86_64 x86 aarch64 armv7 ppc64le riscv64 s390x loongarch64"
 license="ISC AND BSD-2-Clause AND BSD-3-Clause"
 # a C compiler and linker are used to assemble and link the programs it makes
 depends="gcc musl-dev"
+# binutils: objcopy, used by the stage 1 test; python3 runs the manual and glue checks
+checkdepends="binutils python3"
 makedepends=""
 subpackages="$pkgname-doc"
 # The compiler uses pcc's pass 2 compiler (cc1), built from this pcc revision
@@ -41,8 +43,8 @@ check() {
 package() {
 	make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" install DESTDIR="$pkgdir" PREFIX=/usr
 	install -d "$pkgdir"/usr/share/doc/$pkgname
-	install -m 644 README.md docs/FFI.md docs/BUILDING.md \
-		"$pkgdir"/usr/share/doc/$pkgname/
+	install -m 644 README.md docs/BUILDING.md docs/ARCHITECTURE.md docs/BOOTSTRAP.md \
+		docs/LANGUAGE-DIFFERENCES.md "$pkgdir"/usr/share/doc/$pkgname/
 	cp -r docs/internals docs/porting "$pkgdir"/usr/share/doc/$pkgname/
 	install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 	install -Dm644 third_party/pcc/LICENSE.md \
@@ -53,7 +55,9 @@ package() {
 
 # The sha512 of the release tarball is for abuild to fill in once the tag v$pkgver
 # exists (run `abuild checksum`); that of pcc is the archive of the revision above.
+# The sha512 of the release tarball is for abuild to fill in once the tag v$pkgver
+# exists (run `abuild checksum`); that of pcc is the archive of the revision above.
 sha512sums="
 0  imp72-0.1.0.tar.gz
-7c96e5951957bfdbee2c1c1d6fe0b201a249300e19aae487fa68fdefc183e4f7a670d7a9f0cb074265d54365d38a77ea184b18d6b442623c4af766b6398bb5ea  pcc-fcc22ee7e1ed23a69524606bf07df8049a959a6c.tar.gz
+9581a872d22e4e96bbc064c493ae5238aa94b959c3d35a3df32b28b628cd9b3c36d6b427f48e6253d3c05decf78ca354e017b2d92081394e44abc222ae441b6d  pcc-2feb7d7db4a73a0e1d41d378f3cc14092e4f81c8.tar.gz
 "

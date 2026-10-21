@@ -23,8 +23,9 @@ compiler (`make WITH_PCC=no`, which is what `auto` means off x86_64). When pcc's
 port for another machine works, that machine gets `cc1` too
 (`docs/porting/pcc-targets.md`). mips64el, which pcc also has a target for, has
 not been tried (no container for it). Only the amd64 build of the Debian package
-has been made (not run through lintian); the Alpine recipe has not been built;
-the container runs build the programs from the repository, not from the packages.
+has been made (not run through lintian); the Alpine recipe was built with `abuild` (x86_64, edge, from a
+`git archive` of the tree standing in for the release tarball), its tests passed, and the package
+compiled and ran a program once installed; the container runs build the programs from the repository, not from the packages.
 
 ## Debian: `debian/`
 
