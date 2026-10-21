@@ -608,3 +608,9 @@ quit:
     if (j != pct)
         rserr(13);
 }
+
+/* for impglue.c: the C rsyn registers its routines itself (rsyn_imp.c has the IMP module's) */
+void
+rsyn_dsems(void)
+{
+}

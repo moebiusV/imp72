@@ -191,3 +191,21 @@ word impcfudge(word *unused) { (void)unused; cfudge(); return 0; }
 word impsemcall(word *id, word *pars) { word r = semcall(*id, pars); sync(); return r; }
 word impsynarg(word *i) { word r = synarg(*i); sync(); return r; }
 word impnewnameg(word *x) { word r = newname(gname(*x)); sync(); return r; }
+
+/* the bootstrap reader's calls (src/rsyn.imp) */
+extern void rsyn_dsems(void);
+
+word impdsemsr(word *unused) { (void)unused; rsyn_dsems(); return 0; }
+word impsetsem(word *ty, word *val) { word r = setsem(*ty, *val); sync(); return r; }
+word impresetsem(word *val, word *a) { resetsem(*val, *a); return 0; }
+word impsemfx1(word *i, word *a, word *na) { word r = semfx1(*i, *a, *na); sync(); return r; }
+word impsemfix(word *i, word *a) { word r = semfix(*i, *a); sync(); return r; }
+word impsemor(word *a, word *n) { semor(*a, *n); return 0; }
+word impcksval(word *v, word *i) { return cksval(*v, *i); }
+word impdocase(word *id, word *semn, word *prodn) { docase(*id, *semn, *prodn); sync(); return 0; }
+word impentree(word *s, word *cs, word *sr, word *pn) { word r = entree(*s, *cs, *sr, *pn); sync(); return r; }
+word impentrca(word *semn) { entrca(*semn); sync(); return 0; }
+word impgraph(word *synt, word *nsynt, word *pn) { word r = graph(*synt, *nsynt, *pn); sync(); return r; }
+word impgmatr(word *tfl) { word r = gmatr(*tfl); sync(); return r; }
+word impgetlist(word *s) { word r = getlist(*s); sync(); return r; }
+word impenstack(word *v) { word r = enstack(*v); sync(); return r; }
