@@ -46,15 +46,18 @@ constants), `PRINT` and `READ` with their formats (`FLT`, `FILE`, `DEVICE`,
 (18 of the 19 modules translate, 14 compile to objects), is in
 `docs/internals/codegen-and-translation.md`.
 
-Self-hosting is under way: `tools/stage1.sh` builds `imp72s1`, stage 0 with five of its modules
-(`stack`, `dir`, `graph`, `parse`, `ercor`: the stack and bit matrices, the directory, the syntax graph,
-the Irons parser and the error corrector) replaced by the compiler's own sources in `src/`, ported to 64 bit
-words and compiled by `imp72stage0`. `tests/self/stage1.sh` checks that it writes the same IR as stage 0
-for the native tests, every module of the tape and the ported sources themselves (the stage 1
-compiler compiling its own modules). `free`, `dosem` and `impsem` use executed instructions or jumps
-out of a subroutine that need porting, `lex` reads files, `impm` is the TOPS-10 interface, and the
-modules with the 36 bit formats of the semantics (`entree`, `cotree`, `codegen`) are next. See
-`docs/porting/` (`stack.md`, `dir.md`, `graph.md`, `parse.md`, `ercor.md`).
+Self-hosting is under way: `tools/stage1.sh` builds `imp72s1`, stage 0 with nine of its modules replaced by the
+compiler's own sources in `src/`, ported to 64 bit words and compiled by `imp72stage0`: `stack` (the semantic stack and
+bit matrices), `dir` (the directory), `graph` (the syntax graph), `parse` (the Irons parser), `ercor` (error correction),
+`entree` (the code tree), `cotree` (the semantic stack reducer), `dosem` (the semantics array and its interpreter) and `rsyn`
+(the reader of the initial syntax). `tests/self/stage1.sh` checks that it writes the same IR as stage 0 for the native
+tests, every module of the tape and the ported sources themselves (the stage 1 compiler compiling its own modules).
+They reach the C modules through `stage0/impglue.c` (arguments by reference; `tools/glue-lint.py` checks that nothing
+bypasses it), the 36 bit formats of the semantics through the helpers of `src/impsyn64.imc`
+(`docs/porting/helpers.md`). Left in C: `free`, `lex` (it reads files), `sem`, `impsem` and `codegen` (the semantic routines
+of the PDP-10 code generator, which become IR builders in `trans.c`), the debug printers, and the driver; `free` uses
+executed instructions and `impm` is the TOPS-10 interface. See `docs/porting/` (`stack.md`, `dir.md`, `graph.md`,
+`parse.md`, `ercor.md`, `entree.md`, `cotree.md`, `dosem.md`, `rsyn.md`).
 
 Packages: `debian/` and `packaging/alpine/APKBUILD` (`packaging/README.md`; only
 the amd64 Debian package has been built here). `.github/workflows/ci.yml`
@@ -308,7 +311,7 @@ be confirmed against the oracle (details in `docs/internals/`):
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
 - [docs/internals/c-backend.md](docs/internals/c-backend.md): the C back end
 - [docs/porting/stack.md](docs/porting/stack.md): the first ported module, stage 1; then `dir.md`, `graph.md`,
-  `parse.md`, `ercor.md`
+  `parse.md`, `ercor.md`, `entree.md`, `cotree.md`, `dosem.md`, `rsyn.md`, and the helpers (`helpers.md`)
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages
 - [docs/internals/stage0-foundation.md](docs/internals/stage0-foundation.md):
   free storage, stack, directory, lexer
