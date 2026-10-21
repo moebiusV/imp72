@@ -28,7 +28,7 @@ ends and, with the C back end, on riscv64, ppc64le, s390x and loongarch64
 (Alpine/musl containers under QEMU, as in `docs/porting/pcc-targets.md`):
 
     make                                     # stage 0, runtime, ir2c, cc1 on amd64 and aarch64
-    stage0/imp72stage0 -o hello tests/native/hello.imp && ./hello
+    stage0/imp72stage0 -o hello tests/native/hello.imp && ./hello    # installed: imp72 -o hello hello.imp
     stage0/imp72stage0 -C -o hello tests/native/hello.imp   # the C back end
     make check
     make install PREFIX=/usr/local
@@ -306,6 +306,9 @@ be confirmed against the oracle (details in `docs/internals/`):
 
 ## Documentation
 
+- [docs/manual/imp72.md](docs/manual/imp72.md): the language manual (the 1973 RUNOFF source, rendered)
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the route to a compiler that compiles itself
+- [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md)
 - [docs/PLAN.md](docs/PLAN.md): the plan, decisions, and the pcc audit
 - [docs/BUILDING.md](docs/BUILDING.md): building and running
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
