@@ -39,7 +39,7 @@
 extern word fb;                         /* the base of free storage, for IMP */
 extern word impl_rsyn(word *), impl_synarg(word *), impl_defcase(word *), impl_rcase(word *, word *),
     impl_quosem(word *), impl_equose(word *), impl_sembit(word *), impl_sytrm(word *), impl_synts(word *),
-    impl_semantics(void), impl_syntax(word *), impl_semr(word *, word *), impl_semp(word *, word *),
+    impl_semantics(word *), impl_syntax(word *), impl_semr(word *, word *), impl_semp(word *, word *),
     impl_synt(word *, word *), impl_valu(word *, word *), impl_repval(word *, word *);
 
 static void
@@ -55,7 +55,7 @@ static word t_equose(const word *p) { return impl_equose(P(0)); }
 static word t_sembit(const word *p) { return impl_sembit(P(0)); }
 static word t_sytrm(const word *p) { return impl_sytrm(P(0)); }
 static word t_synts(const word *p) { return impl_synts(P(0)); }
-static word t_semantics(const word *p) { (void)p; return impl_semantics(); }
+static word t_semantics(const word *p) { return impl_semantics(P(0)); }
 static word t_syntax(const word *p) { return impl_syntax(P(0)); }
 static word t_semr(const word *p) { return impl_semr(P(0), P(1)); }
 static word t_semp(const word *p) { return impl_semp(P(0), P(1)); }
@@ -107,7 +107,7 @@ rsyn(void)
 word synt(word a, word b) { word r; sync(); r = impl_synt(&a, &b); sync(); return r; }
 word sytrm(word a) { word r; sync(); r = impl_sytrm(&a); sync(); return r; }
 word synts(word n) { word r; sync(); r = impl_synts(&n); sync(); return r; }
-word semantics(void) { word r; sync(); r = impl_semantics(); sync(); return r; }
+word semantics(void) { word r, nil = 0; sync(); r = impl_semantics(&nil); sync(); return r; }
 word syntax(word n) { word r; sync(); r = impl_syntax(&n); sync(); return r; }
 word semr(word a, word b) { word r; sync(); r = impl_semr(&a, &b); sync(); return r; }
 word semp(word a, word b) { word r; sync(); r = impl_semp(&a, &b); sync(); return r; }
