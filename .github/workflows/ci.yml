@@ -150,7 +150,8 @@ jobs:
             w() { echo "::warning::$1: $(eval "$2" 2>&1 | dd bs=900 count=1 2>/dev/null | tr '\n%' ' _')"; }
             gmake WITH_PCC=no > /tmp/b.log 2>&1
             export IMP_FORCE_STAGE1=1
-            w stage1build 'sh tools/stage1.sh; echo rc=$?'
+            sh tools/stage1.sh > /tmp/s1.log 2>&1; echo "rc=$?" >> /tmp/s1.log
+            w stage1build 'tail -c 600 /tmp/s1.log'
             w uname 'uname -srm; objcopy --version | head -1; ulimit -a | tr "\n" ";"'
             w run0 'stage0/imp72s0 -c /tmp/x.0 decus/syntax.imc tests/native/hello.imp; echo rc=$?; ls -l /tmp/x.0'
             w run1 'build/stage1/imp72s1 -c /tmp/x.1 decus/syntax.imc tests/native/hello.imp; echo rc=$?'
