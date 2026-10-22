@@ -135,6 +135,40 @@ jobs:
               exit 2
             fi
 
+  # OpenBSD: why a non-PIE imp72s1 crashes (informational)
+  openbsd-crash:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: vmactions/openbsd-vm@v1
+        with:
+          prepare: pkg_add gmake python3 gdb
+          run: |
+            w() { echo "::warning::$1: $(eval "$2" 2>&1 | dd bs=3000 count=1 2>/dev/null | tr '\n%' ' _')"; }
+            gmake WITH_PCC=no > /tmp/b.log 2>&1
+            export IMP_FORCE_STAGE1=1 STAGE1_NOPIE=-no-pie
+            sh tools/stage1.sh > /tmp/s1.log 2>&1
+            B=build/stage1/imp72s1
+            A="-c /tmp/x.1 decus/syntax.imc tests/native/hello.imp"
+            cat > /tmp/g.gdb <<'EOG'
+            run
+            bt 6
+            p $_siginfo.si_signo
+            p $_siginfo._sifields._sigfault.si_addr
+            info registers rip rsp rax rbx rcx rdx rsi rdi r8 r9 r10 r11 r12
+            x/12i $pc-24
+            info symbol $pc
+            EOG
+            w gdbfull "egdb -batch -x /tmp/g.gdb --args $B $A"
+            w mappings "egdb -batch -ex 'break main' -ex run -ex 'info proc mappings' --args $B $A"
+            w objdump "objdump -h $B | grep -i 'text\|data\|bss\|plt\|got\|rel'"
+            w nmdir "nm $B | grep -i ' impl_dir$\| fb$\| DIR$\|__data_start\|_end$\|_etext\|_edata'"
+            w file "file $B; ls -l $B"
+            w asm "objdump -d --start-address=0x$(nm $B | grep ' T impl_dir$' | cut -c1-16) $B | head -60"
+
   # the Debian package, built from the source package it makes
   debian-package:
     runs-on: ubuntu-latest
