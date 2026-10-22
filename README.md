@@ -313,6 +313,7 @@ be confirmed against the oracle (details in `docs/internals/`):
 - [docs/PLAN.md](docs/PLAN.md): the plan, decisions, and the pcc audit
 - [docs/BUILDING.md](docs/BUILDING.md): building and running
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
+- [docs/internals/modules.md](docs/internals/modules.md): the kernel module by module
 - [docs/internals/c-backend.md](docs/internals/c-backend.md): the C back end
 - [docs/porting/stack.md](docs/porting/stack.md): the first ported module, stage 1; then `dir.md`, `graph.md`,
   `parse.md`, `ercor.md`, `entree.md`, `cotree.md`, `dosem.md`, `rsyn.md`, and the helpers (`helpers.md`)
