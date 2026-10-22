@@ -170,12 +170,11 @@ jobs:
             EOT
             cc -O1 -c -o /tmp/t.o /tmp/t.c
             objcopy --redefine-sym f=g_f /tmp/t.o /tmp/t2.o
-            w tiny "cc -no-pie -o /tmp/t4 /tmp/t.o && /tmp/t4; echo tinyorig=$?; cc -no-pie -o /tmp/t5 /tmp/t2.o && /tmp/t5; echo tinyobjcopy=$?; cc -no-pie -Wl,-z,notext -o /tmp/t6 /tmp/t2.o && /tmp/t6; echo notext=$?; cc -o /tmp/t7 /tmp/t2.o && /tmp/t7; echo pie=$?; cc -static -o /tmp/t8 /tmp/t2.o && /tmp/t8; echo static=$?"
-            w elf_tiny_before "python3 tools/elfdump.py /tmp/t.o"
-            w elf_tiny_after "python3 tools/elfdump.py /tmp/t2.o"
-            w elf_dir_before "python3 tools/elfdump.py build/stage1/dir.imp.o"
-            w elf_dir_after "python3 tools/elfdump.py build/stage1/dir.imp2.o"
-            w dynsec "objdump -p /tmp/t5 | sed -n '/Dynamic Section/,\$p' | head -30"
-            w exe_dynsec "objdump -p $B | sed -n '/Dynamic Section/,\$p' | head -30"
-            w tiny_dynrel "objdump -R /tmp/t5; objdump -d /tmp/t5 | grep -B2 -A2 retguard | head -20"
-            w llvm_objcopy "ls /usr/bin | grep -E 'objcopy|llvm' | head; ls /usr/local/bin | grep -E 'objcopy' | head"
+            llvm-objcopy --redefine-sym f=g_f /tmp/t.o /tmp/t3.o
+            w tiny_llvm "cc -no-pie -o /tmp/u1 /tmp/t3.o && /tmp/u1; echo llvm_objcopy_nopie=$?; cc -no-pie -o /tmp/u0 /tmp/t.o && /tmp/u0; echo plain=$?; cc -no-pie -o /tmp/u2 /tmp/t2.o; /tmp/u2; echo gnu_objcopy=$?"
+            w elf_tiny_llvm "python3 tools/elfdump.py /tmp/t3.o"
+            w tiny_trace "cc -no-pie -Wl,--trace-symbol=__retguard_3042 -o /tmp/u2 /tmp/t2.o 2>&1 | head; nm /tmp/u2 | grep -E 'retguard' | head"
+            w tiny_trace_ok "cc -no-pie -Wl,--trace-symbol=__retguard_3042 -o /tmp/u1 /tmp/t3.o 2>&1 | head; nm /tmp/u1 | grep -E 'retguard' | head"
+            rm -rf build/stage1
+            OBJCOPY=llvm-objcopy STAGE1_NOPIE=-no-pie sh tools/stage1.sh > /tmp/s1l.log 2>&1
+            w stage1_llvm_objcopy_nopie "build/stage1/imp72s1 $A; echo rc=$?; file build/stage1/imp72s1"

@@ -29,7 +29,7 @@ for m in $modules; do
     syms=$(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }' | grep -vx -f src/shared.txt || true)
     args=
     for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
-    objcopy $args $out/$m.imp.o $out/$m.imp2.o
+    ${OBJCOPY:-objcopy} $args $out/$m.imp.o $out/$m.imp2.o
     cc -std=c99 -fcommon -O1 $STAGE1_CFLAGS -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
     objs="$objs $out/$m.imp2.o $out/${m}_c.o"
     repl="$repl stage0/$m.o"
