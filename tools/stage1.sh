@@ -9,7 +9,7 @@ command -v objcopy >/dev/null 2>&1 || { echo "stage1: no objcopy (ELF only)" >&2
 # imp72s1 crashes (SIGSEGV on its first program) on OpenBSD 7.x, where stage 0 is fine; the cause is not found
 # (the base objcopy is old, binutils 2.17, which is the first suspect): the test is skipped there
 [ "$(uname)" = OpenBSD ] && [ -z "$IMP_FORCE_STAGE1" ] && { echo "stage1: not working on OpenBSD yet" >&2; exit 77; }
-nopie=-no-pie; [ "$(uname)" = Darwin ] && nopie=
+nopie=${STAGE1_NOPIE--no-pie}; [ "$(uname)" = Darwin ] && nopie=
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-stack dir graph parse ercor entree cotree dosem rsyn lex}
@@ -28,12 +28,12 @@ for m in $modules; do
     args=
     for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
     objcopy $args $out/$m.imp.o $out/$m.imp2.o
-    cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
+    cc -std=c99 -fcommon -O1 $STAGE1_CFLAGS -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
     objs="$objs $out/$m.imp2.o $out/${m}_c.o"
     repl="$repl stage0/$m.o"
 done
 # the C routines that IMP modules call, by reference
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/impglue.c -o $out/impglue.o
+cc -std=c99 -fcommon -O1 $STAGE1_CFLAGS -g -Wall -Wextra -pedantic -Istage0 -c stage0/impglue.c -o $out/impglue.o
 objs="$objs $out/impglue.o"
 keep=
 for o in stage0/*.o; do

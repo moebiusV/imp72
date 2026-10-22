@@ -347,10 +347,11 @@ driver_main(int argc, char **argv)
         if (stop == 'S') {
             snprintf(cmd, sizeof cmd, "cp %s %s", qs(cfile), qs(outname ? outname : strcat(base, ".c")));
         } else if (stop == 'o') {
-            snprintf(cmd, sizeof cmd, "cc -std=gnu99 -w -c -o %s %s", qs(outname ? outname : strcat(base, ".o")), qs(cfile));
+            snprintf(cmd, sizeof cmd, "cc -std=gnu99 -w %s -c -o %s %s", envor("IMP_CFLAGS", ""),
+                qs(outname ? outname : strcat(base, ".o")), qs(cfile));
         } else {
-            snprintf(cmd, sizeof cmd, "cc -std=gnu99 -w -c -o %s %s && cc -o %s %s %s", qs(ofile), qs(cfile),
-                qs(outname ? outname : base), qs(ofile), qs(lib));
+            snprintf(cmd, sizeof cmd, "cc -std=gnu99 -w %s -c -o %s %s && cc -o %s %s %s", envor("IMP_CFLAGS", ""),
+                qs(ofile), qs(cfile), qs(outname ? outname : base), qs(ofile), qs(lib));
         }
         rc = run(cmd);
         goto done;
