@@ -147,7 +147,7 @@ jobs:
         with:
           prepare: pkg_add gmake python3 gdb
           run: |
-            w() { echo "::warning::$1: $(eval "$2" 2>&1 | dd bs=3000 count=1 2>/dev/null | tr '\n%' ' _')"; }
+            w() { echo "::warning::$1: $(eval "$2" 2>&1 | head -n 70 | cut -c1-240 | tr '\n%' ' _')"; }
             gmake WITH_PCC=no > /tmp/b.log 2>&1
             export IMP_FORCE_STAGE1=1 STAGE1_NOPIE=-no-pie
             sh tools/stage1.sh > /tmp/s1.log 2>&1
