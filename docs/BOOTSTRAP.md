@@ -12,7 +12,11 @@ The goal is a compiler written in IMP72 that compiles itself. The route:
    every module of the tape, and the ported sources themselves. That the stage 1 compiler compiles its own modules to the
    IR stage 0 makes of them is the fixed point for the part that is ported (equal IR is equal objects: the back end is the
    same).
-5. **What is not ported** stays in C and is the compiler's back end, as planned: the semantic routines of the PDP-10 code
+5. **Stage 2, the fixed point** (`tools/stage2.sh`, `tests/self/stage2.sh`): `imp72s1` is itself used as the compiler to
+   compile the same modules again, and the objects must be byte-identical to the ones stage 0 made of them. `imp72s2`,
+   linked from them, writes the same IR as stage 0. So the compiler written in IMP compiles itself to what it was
+   compiled to.
+6. **What is not ported** stays in C and is the compiler's back end, as planned: the semantic routines of the PDP-10 code
    generator (`*-pdp10.c`), the translator to IR (`trans.c`, `ir.c`), the free storage manager, the debug printers, the driver.
    The IMP modules reach them through `stage0/impglue.c` (arguments by reference; `tools/glue-lint.py` checks it).
 

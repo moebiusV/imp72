@@ -11,13 +11,15 @@ nopie=${STAGE1_NOPIE--no-pie}; case "$(uname)" in Darwin|OpenBSD) nopie= ;; esac
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-stack dir graph parse ercor entree cotree dosem rsyn lex}
-out=build/stage1
+out=${STAGE_OUT:-build/stage1}
+driver=${STAGE_DRIVER:-stage0/imp72stage0}
+name=${STAGE_NAME:-imp72s1}
 mkdir -p $out
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 objs=
 repl=
 for m in $modules; do
-    stage0/imp72stage0 -c -o $out/$m.imp.o src/impsyn64.imc src/$m.imp >$out/$m.log 2>&1 \
+    $driver -c -o $out/$m.imp.o src/impsyn64.imc src/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "stage1: $m failed" >&2; exit 1; }
     # every symbol the module defines, functions and the common variables, gets
     # the prefix, except the names it shares with the C side (src/shared.txt):
@@ -40,5 +42,5 @@ for o in stage0/*.o; do
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-cc $nopie -o $out/imp72s1 stage0/imp72s0.o $keep $objs build/lib/libimp72.a
-echo "built $out/imp72s1 with the compiler's own: $modules"
+cc $nopie -o $out/$name stage0/imp72s0.o $keep $objs build/lib/libimp72.a
+echo "built $out/$name with the compiler's own: $modules"
