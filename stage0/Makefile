@@ -3,7 +3,7 @@ CC      = cc
 LDFLAGS =
 CFLAGS  = -std=c99 -O1 -g -Wall -Wextra -pedantic
 AR      = ar
-OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o sem-pdp10.o impsem-pdp10.o codegen-pdp10.o pcode.o ir.o trans.o
+OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o sem.o impsem.o codegen.o pcode.o ir.o trans.o
 TESTDIR = ../tests/stage0
 TESTS   = test_free test_stack test_dir test_lex test_parse test_debug test_decl
 

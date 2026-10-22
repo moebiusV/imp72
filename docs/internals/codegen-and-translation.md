@@ -3,7 +3,7 @@
 `imp72stage0 prog.imp` compiles an IMP72 program to a native executable:
 
     stage 0  (imp72s0)   parse, run the semantics of decus/syntax.imc
-       |                  -> PDP-10 code chains          (codegen-pdp10.c, as code.imc)
+       |                  -> PDP-10 code chains          (codegen.c, as code.imc)
     trans.c               -> pcc IR text                  (ir.c)
        |
     cc1                   -> amd64 assembly               (pass 2 of pcc)
@@ -11,8 +11,8 @@
 
 ## The code generator is the original's
 
-`codegen-pdp10.c` ports `code.imc`, `code2.imc`, `code3.imc` (and the subroutine
-routines of `impsem.imc` in `impsem-pdp10.c`). `syntax.imc` is unmodified: its
+`codegen.c` ports `code.imc`, `code2.imc`, `code3.imc` (and the subroutine
+routines of `impsem.imc` in `impsem.c`). `syntax.imc` is unmodified: its
 semantics call `DEWOP`, `ADDOP`, `STORE`, `HOOK`, `SUBCALL` ... with PDP-10
 opcodes as before, and make a chain of instruction words in free array `CO`
 for each stack entry. `imp72s0 -s A` lists the chains (`pcode.c`), in PDP-10
@@ -81,7 +81,7 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
 
 - **Byte fields** `A<S,P>` (size S, P bits from the right): a shift and mask,
   with S and P constants or variables. `BYTEP` makes a descriptor
-  (`bytedescs` in `codegen-pdp10.c`); read as a value it is a one-word byte pointer:
+  (`bytedescs` in `codegen.c`); read as a value it is a one-word byte pointer:
   bits 63-58 size, 57-52 position, low 52 bits the byte address. `<X>`, `<+X>`,
   `LDB`/`DPB`/`IBP`/`ILDB`/`IDPB` work through such a word. Stepping moves to the
   next lower field, or to the next word (address + 8) when there is no room, as

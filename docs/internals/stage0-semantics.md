@@ -2,7 +2,7 @@
 
 Ports of `dosem.imc`, `entree.imc`, `cotree.imc` and `rsyn.imc` (and the bits
 of `impsem.imc` and `code2.imc` that reading syntax needs) to `stage0/dosem.c`,
-`entree.c`, `cotree.c`, `rsyn.c` and `sem-pdp10.c`, with `debug.c` extended with
+`entree.c`, `cotree.c`, `rsyn.c` and `sem.c`, with `debug.c` extended with
 `TPRIN1`, `SEMPR1` and `PSTAC1`, and a driver, `imp72s0`.
 
 **What runs:** `stage0/imp72s0 decus/syntax.imc` reads the whole syntax file of
@@ -25,12 +25,12 @@ them raw.
 ## Semantic routines
 
 The original calls a routine by its address, taken from the 'SEM' property of
-its name. Here the property is the routine's id (1 + its slot in `sem-pdp10.c`'s
+its name. Here the property is the routine's id (1 + its slot in `sem.c`'s
 table). A routine is a function `word fn(const word *p)`; `p` is the array of
 arguments (`PARS` of the original, so that arguments beyond those passed are
 left over from earlier calls, as there).
 
-`sem-pdp10.c` registers every routine the PDP-10 compiler registers with `DSEM`, so
+`sem.c` registers every routine the PDP-10 compiler registers with `DSEM`, so
 that `SEMR` accepts the names in `syntax.imc`; the ones that generate code
 (`code.imc`, `code2.imc`, `code3.imc`, most of `impsem.imc`) are *not ported*
 and stop with `SEMANTIC ROUTINE X IS NOT YET PORTED` if called. Reading syntax
@@ -60,7 +60,7 @@ compiler's. The two `PRODUCTION DUPLICATES` advisories on `syntax.imc` are
 from the production check in `GRAPH`; whether the original prints them is part
 of that comparison.
 
-## Declarations (`impsem-pdp10.c`)
+## Declarations (`impsem.c`)
 
 `impsyn.imc` runs IMP declarations (`ALF IS COMMON;`), so the declaration
 routines of `impsem.imc` are ported: `NAME`, `TSTRN`, `AREG`, `AREG1`, `REG2`,

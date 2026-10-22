@@ -1,5 +1,5 @@
 /*
- * sem-pdp10.c -- the table of semantic routines, and the few that syntax
+ * sem.c -- the table of semantic routines, and the few that syntax
  * statements use when they are read.
  *
  * Ports decus/impsem.imc (NEWLIST, ENLIST, GETLIST) and decus/code2.imc

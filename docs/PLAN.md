@@ -43,7 +43,7 @@ The costs are known. We write a thin per-target layer for call lowering (modeled
 ```
 decus/            tape files verbatim + SHA256SUMS + PROVENANCE.md; binaries (imp.low, imp.shr, implib.lib) fetched + hashed. Never edited.
 third_party/pcc   git submodule -> github moebiusv/pcc, pinned; any pcc fixes go to a branch of that fork
-stage0/           C99 kernel: free.c dir.c stack.c lex.c parse.c graph.c ercor.c entree.c cotree.c dosem.c rsyn.c sem-pdp10.c main.c
+stage0/           C99 kernel: free.c dir.c stack.c lex.c parse.c graph.c ercor.c entree.c cotree.c dosem.c rsyn.c sem.c main.c
 backend/          ir.c (IMP-IR builders = new semantic primitives), abi_amd64.c, abi_aarch64.c, data.c, twopass.c (text IR), cemit.c (C fallback), pccglue.c (globals pcc expects)
 src/              the compiler's IMP sources, ported: syntax.imp (retargeted), impsyn.imp, lex.imp ... rsyn.imp, pmod.imp (reconstructed)
 lib/              libimp72 runtime: PRINT/PMOD, tbin/tprin/traed ports, POSIX shims replacing TOPS-10 UUOs (CALLI, OUTSTR, INIT/LOOKUP/ENTER)

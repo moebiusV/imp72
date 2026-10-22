@@ -21,4 +21,4 @@ and `SEMPER` stay C (`stage0/dosem_imp.c`, which also has the by-value entry poi
 
 Found on the way: a sed that renamed `CHAR` to `CHR` in `entree.imp` and missed `CHAR_0` (an underscore is a word
 character to the regex, an assignment to IMP) left the two names in use and wrecked free storage in a way that looked
-like the new module. `IMP_SLOG=1` logs every semantic routine call (`sem-pdp10.c`), as `IMP_ELOG` does the tree builder's.
+like the new module. `IMP_SLOG=1` logs every semantic routine call (`sem.c`), as `IMP_ELOG` does the tree builder's.

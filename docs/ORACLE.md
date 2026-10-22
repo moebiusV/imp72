@@ -96,7 +96,7 @@ Richard Cornwell's system tape by [prebsd](https://github.com/moebiusV/prebsd)'s
 
 - **Constants.** The original converts `0.25` with its own `FCON`, in 27 bit REAL arithmetic with
   an inexact 1/10, so `0.25`, `0.125`, `0.75` and `0.0625` are one unit in the last place low.
-  `fcon` in `stage0/impsem-pdp10.c` does the same sums. Every real operation result is rounded to a
+  `fcon` in `stage0/impsem.c` does the same sums. Every real operation result is rounded to a
   27 bit mantissa (`fromd` in `trans.c`).
 - **PRINT FLT** follows PMOD's code (`docs/internals/pmod.md`), digits, ties and all.
 - **Zero** prints as `0` in any FLT format. The original never returns from the scientific

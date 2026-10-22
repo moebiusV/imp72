@@ -26,7 +26,7 @@ IMP72 is a small kernel plus a language defined in data. This page is the map; t
   reader of the initial syntax (`rsyn`).
 - **The language** is `decus/syntax.imc`, unmodified: statements `<CLASS> ::= elements ::= semantics` that `rsyn` reads
   first with a small notation of its own and then the parser itself reads, each semantics a call of the semantic routines.
-- **The semantic routines** (`sem-pdp10.c`, `impsem-pdp10.c`, `codegen-pdp10.c`) are the original's, ported: they make PDP-10
+- **The semantic routines** (`sem.c`, `impsem.c`, `codegen.c`) are the original's, ported: they make PDP-10
   code in chains of words, the original's format. Registers are virtual (`R65`); `trans.c` translates the chains to pcc IR
   text, one function at a time, taking the registers as temporaries. `pcode.c` lists a chain as PDP-10 assembly (`-s A`).
 - **Back ends.** `cc1` (pcc's pass 2, built in this tree from the `moebiusv/pcc` fork with `--enable-twopass`) compiles the

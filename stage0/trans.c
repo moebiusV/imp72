@@ -3,7 +3,7 @@
  *
  * Replaces the assembler, register allocator and output module of the
  * original compiler (amod.imc, rmod.imc, omod.imc), which assemble the code
- * chains the semantic routines of codegen-pdp10.c make into PDP-10 object code.
+ * chains the semantic routines of codegen.c make into PDP-10 object code.
  * Here each chain is read as a PDP-10 program over virtual registers and
  * written as pcc IR (ir.h), which pcc compiles for the machine at hand.  The
  * meaning of an instruction is the PDP-10's, with these changes for a 64 bit
