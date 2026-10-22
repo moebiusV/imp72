@@ -13,10 +13,10 @@ mkdir -p $out
 fail=0
 run() {         # name files...
     n=$1; shift
-    stage0/imp72s0 -c $out/$n.0 "$@" >/dev/null 2>&1
-    build/stage1/imp72s1 -c $out/$n.1 "$@" >/dev/null 2>&1
+    stage0/imp72s0 -c $out/$n.0 "$@" >/dev/null 2>&1; r0=$?
+    build/stage1/imp72s1 -c $out/$n.1 "$@" >/dev/null 2>&1; r1=$?
     if cmp -s $out/$n.0 $out/$n.1 && [ -s $out/$n.0 ]; then :; else
-        echo "DIFFERENT: $n" >&2; fail=1
+        echo "DIFFERENT: $n (stage 0 exit $r0, stage 1 exit $r1; fail)" >&2; fail=1
     fi
 }
 for f in tests/native/*.imp; do
