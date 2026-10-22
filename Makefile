@@ -71,6 +71,8 @@ install: all
 	install -m 644 decus/syntax.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp72/
 	install -m 644 docs/imp72stage0.1 $(DESTDIR)$(PREFIX)/share/man/man1/imp72stage0.1
 	echo '.so man1/imp72stage0.1' > $(DESTDIR)$(PREFIX)/share/man/man1/imp72.1
+	install -d $(DESTDIR)$(PREFIX)/share/man/man7
+	install -m 644 docs/manual/imp72.7 $(DESTDIR)$(PREFIX)/share/man/man7/imp72.7
 	install -d $(DESTDIR)$(PREFIX)/share/doc/imp72
 	install -m 644 docs/manual/imp72.md docs/FFI.md docs/LANGUAGE-NOTES.md $(DESTDIR)$(PREFIX)/share/doc/imp72/
 

@@ -306,7 +306,8 @@ be confirmed against the oracle (details in `docs/internals/`):
 
 ## Documentation
 
-- [docs/manual/imp72.md](docs/manual/imp72.md): the language manual (the 1973 RUNOFF source, rendered)
+- [docs/manual/imp72.md](docs/manual/imp72.md), [imp72.7](docs/manual/imp72.7): the language manual, the 1973 RUNOFF source
+  rendered as Markdown and as an mdoc page (`man imp72` section 7 once installed)
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the route to a compiler that compiles itself
 - [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md)
 - [docs/PLAN.md](docs/PLAN.md): the plan, decisions, and the pcc audit
