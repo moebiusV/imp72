@@ -135,38 +135,6 @@ jobs:
               exit 2
             fi
 
-  # OpenBSD: why imp72s1 crashes (W^X? the stack limit? the old objcopy?); informational
-  openbsd-stage1:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - uses: vmactions/openbsd-vm@v1
-        with:
-          prepare: pkg_add gmake python3 gdb
-          run: |
-            w() { echo "::warning::$1: $(eval "$2" 2>&1 | dd bs=900 count=1 2>/dev/null | tr '\n%' ' _')"; }
-            gmake WITH_PCC=no > /tmp/b.log 2>&1
-            export IMP_FORCE_STAGE1=1
-            sh tools/stage1.sh > /tmp/s1.log 2>&1; echo "rc=$?" >> /tmp/s1.log
-            w stage1build 'tail -c 600 /tmp/s1.log'
-            w uname 'uname -srm; objcopy --version | head -1; ulimit -a | tr "\n" ";"'
-            w run0 'stage0/imp72s0 -c /tmp/x.0 decus/syntax.imc tests/native/hello.imp; echo rc=$?; ls -l /tmp/x.0'
-            w run1 'build/stage1/imp72s1 -c /tmp/x.1 decus/syntax.imc tests/native/hello.imp; echo rc=$?'
-            w stack 'ulimit -s 65536; build/stage1/imp72s1 -c /tmp/x.1 decus/syntax.imc tests/native/hello.imp; echo rc=$?'
-            w ktrace 'cd /tmp && ktrace -f /tmp/k.out $OLDPWD/build/stage1/imp72s1 -c /tmp/x.1 $OLDPWD/decus/syntax.imc $OLDPWD/tests/native/hello.imp; kdump -f /tmp/k.out | tail -12'
-            w egdb 'egdb -batch -ex run -ex bt --args build/stage1/imp72s1 -c /tmp/x.1 decus/syntax.imc tests/native/hello.imp'
-            for exp in 'A:IMP_CFLAGS=-fno-strict-aliasing STAGE1_CFLAGS=-fno-strict-aliasing' 'B:IMP_CFLAGS=-O0 STAGE1_CFLAGS=-O0' 'C:STAGE1_NOPIE=' 'D:IMP_CFLAGS=-fPIC STAGE1_NOPIE='; do
-              n=${exp%%:*}; vars=${exp#*:}
-              rm -rf build/stage1
-              env $vars sh tools/stage1.sh > /tmp/e$n.log 2>&1
-              w "exp$n $vars" 'build/stage1/imp72s1 -c /tmp/x.1 decus/syntax.imc tests/native/hello.imp; echo rc=$?'
-            done
-            w gdb 'gdb -batch -ex run -ex bt --args build/stage1/imp72s1 -c /tmp/x.1 decus/syntax.imc tests/native/hello.imp'
-            w readelf 'readelf -lW build/stage1/imp72s1 | grep -i "LOAD\|WX\|STACK\|WXNEEDED"'
-
   # the Debian package, built from the source package it makes
   debian-package:
     runs-on: ubuntu-latest
