@@ -163,11 +163,23 @@ jobs:
             info symbol $pc
             EOG
             w ver "cc --version | head -1; ld --version | head -1; objcopy --version | head -1"
-            w secs_exe "objdump -h $B | grep -i 'retguard\|random\|text\|data\|bss\|openbsd'"
-            w secs_o_before "objdump -h build/stage1/dir.imp.o | grep -i 'retguard\|random\|text\|data\|openbsd'"
-            w secs_o_after "objdump -h build/stage1/dir.imp2.o | grep -i 'retguard\|random\|text\|data\|openbsd'"
-            w secs_c_wrapper "objdump -h build/stage1/dir_c.o | grep -i 'retguard\|random\|openbsd'"
-            w phdr "objdump -p $B | head -40"
-            w retguard_sym "nm $B | grep -c retguard; nm $B | grep retguard_3745"
-            w hash "objdump -d $B | grep -B3 -A3 'retguard_3745' | head -30"
-            w gdb2 "egdb -batch -ex run -ex bt -ex 'x/2i \$pc' -ex 'info registers rip r11' -ex 'x/gx 0x258498' --args $B $A"
+            S="retguard|randomdata|openbsd|\\.text|\\.data|\\.bss|\\.rodata"
+            w secs_exe "objdump -h $B | grep -E '$S'"
+            w secs_before "objdump -h build/stage1/dir.imp.o | grep -E '$S'"
+            w secs_after "objdump -h build/stage1/dir.imp2.o | grep -E '$S'"
+            w secs_wrap "objdump -h build/stage1/dir_c.o | grep -E '$S'"
+            w ktrace "ktrace -f /tmp/k.out $B $A; kdump -f /tmp/k.out | tail -12"
+            w runtimebytes "egdb -batch -ex run -ex 'x/16xb 0x220910' -ex 'info registers rip r11' --args $B $A"
+            w filebytes "objdump -d --start-address=0x220910 --stop-address=0x220920 $B | tail -6"
+            cat > /tmp/t.c <<'EOT'
+            #include <stdio.h>
+            int g;
+            int f(int x) { char b[64]; snprintf(b, sizeof b, "%d", x + g); return b[0]; }
+            int main(void) { printf("%d\n", f(3)); return 0; }
+            EOT
+            cc -O1 -c -o /tmp/t.o /tmp/t.c
+            w tiny_nopie "cc -no-pie -o /tmp/t1 /tmp/t.o && /tmp/t1"
+            objcopy --redefine-sym f=g_f /tmp/t.o /tmp/t2.o
+            w tiny_nopie_objcopy "cc -no-pie -o /tmp/t2 /tmp/t2.o && /tmp/t2"
+            w tiny_pie_objcopy "cc -o /tmp/t3 /tmp/t2.o && /tmp/t3"
+            w tiny_secs "objdump -h /tmp/t.o | grep -E '$S'; echo ---; objdump -h /tmp/t2.o | grep -E '$S'"
