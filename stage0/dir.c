@@ -469,7 +469,9 @@ stcon(word v)
         u = (uword)v;
     if (u == 0)
         return dir("0");
-    snprintf(buf, sizeof buf, "%lloB", (unsigned long long)u);
+    /* a positive number of 36 bits with the top bit set would be read back as a negative one (convc, as on the
+     * PDP-10: 12 octal digits with the top bit set are negative): a leading 0 says it is positive */
+    snprintf(buf, sizeof buf, (v > 0 && u >> 35 && !(u >> 36)) ? "0%lloB" : "%lloB", (unsigned long long)u);
     return dir(buf);
 }
 

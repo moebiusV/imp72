@@ -383,7 +383,8 @@ stcon(word v)
         u = (uword)v;
     if (u == 0)
         return dir("0");
-    snprintf(buf, sizeof buf, "%lloB", (unsigned long long)u);
+    /* as in dir.c: a leading 0 keeps a positive number with bit 35 set from being read back as negative */
+    snprintf(buf, sizeof buf, (v > 0 && u >> 35 && !(u >> 36)) ? "0%lloB" : "%lloB", (unsigned long long)u);
     return dir(buf);
 }
 

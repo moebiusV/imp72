@@ -101,7 +101,10 @@ Richard Cornwell's system tape by [prebsd](https://github.com/moebiusV/prebsd)'s
   expose those artifacts (`lits`, `ties`) have reviewed IEEE goldens in `tests/golden/ieee/`, which `tests/oracle/run.sh`
   uses in place of the original's; the other oracle tests (including `flt`, `fmt`, `reals`) still agree with the original;
   and the real fuzzer (`tools/imp-fuzz-real.py`) differs from the original by design wherever its 27 bit rounding showed
-  (integer and structured fuzzers are unaffected).
+  (integer and structured fuzzers are unaffected). For REAL the reference is now `tools/imp-fuzz-ieee.py`, which
+  evaluates the programs it writes in Python floats and writes the output they must give (FLT formatting
+  re-implemented independently from the rules); `tools/ieee-fuzz.sh SEED COUNT` runs it, and `tests/ieee` runs a few
+  programs in `make check`.
 - **Zero** prints as `0` in any FLT format. The original never returns from the scientific
   form of zero (`FLT -12.4` of 0.0), and a program that overflows 2^127 stops the same way.
 
