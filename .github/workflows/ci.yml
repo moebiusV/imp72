@@ -130,6 +130,7 @@ jobs:
             if ! (gmake WITH_PCC=no && gmake WITH_PCC=no check) > /tmp/o.log 2>&1; then
               echo "::error::openbsd failed: $(grep -i -B2 -A2 'error\|fail\|not found\|undefined' /tmp/o.log | head -c 1800 | tr '\n%' ' _')"
               echo "::error::openbsd tail: $(tail -c 800 /tmp/o.log | tr '\n%' ' _')"
+              echo "::error::openbsd stage1: $(CC1=$PWD/build/pcc/cc/ccom/cc1 sh tools/stage1.sh 2>&1 | head -c 1500 | tr '\n%' ' _')"
               exit 2
             fi
 
