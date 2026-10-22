@@ -14,8 +14,11 @@ for n in $(cat tests/oracle/LIST); do
     stage0/imp72stage0 ${IMP72_FLAGS} -o build/oracle-check/$n "$p" \
         || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }
     (cd build/oracle-check && ./$n > $n.got) || { echo "FAILED: $n: run" >&2; fail=1; continue; }
-    sed 's/[ 	]*$//' build/oracle-check/$n.got | cmp -s - tests/golden/oracle/$n.out \
-        || { diff build/oracle-check/$n.got tests/golden/oracle/$n.out; echo "FAILED: $n: differs from the oracle" >&2; fail=1; continue; }
+    # REAL is IEEE 754 here, the original's 27 bit floating point there: where the two give different numbers
+    # (tests/golden/ieee) the reviewed IEEE output is the golden; everything else is what the original printed
+    g=tests/golden/oracle/$n.out; [ -f tests/golden/ieee/$n.out ] && g=tests/golden/ieee/$n.out
+    sed 's/[ 	]*$//' build/oracle-check/$n.got | cmp -s - $g \
+        || { diff build/oracle-check/$n.got $g; echo "FAILED: $n: differs from the oracle" >&2; fail=1; continue; }
     echo ok
 done
 exit $fail

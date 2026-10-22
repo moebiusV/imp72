@@ -60,3 +60,26 @@ ifix(int64_t *p)
     memcpy(&x, &bits, sizeof x);
     return (long)x;
 }
+
+/* A REAL's word and the IEEE double it holds (lib/imp72.h). */
+double
+imp_real_to_double(int64_t w)
+{
+    int64_t s = w >> 63;                                /* -1 for a negative number */
+    uint64_t bits = (uint64_t)((w ^ s) - s) | ((uint64_t)s & 0x8000000000000000ULL);
+    double d;
+
+    memcpy(&d, &bits, sizeof d);
+    return d;
+}
+
+int64_t
+imp_double_to_real(double d)
+{
+    uint64_t bits;
+    int64_t s;
+
+    memcpy(&bits, &d, sizeof bits);
+    s = (int64_t)bits >> 63;
+    return (int64_t)(((bits & 0x7FFFFFFFFFFFFFFFULL) ^ (uint64_t)s) - (uint64_t)s);
+}

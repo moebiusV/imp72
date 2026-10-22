@@ -104,7 +104,10 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
   `imp.h`), so that integer comparison and negation are the real ones. `FLOAT` is `FSC ac,233` (int to double),
   `FADR`/`FSBR`/`FMPR`/`FDVR` go through the scratch word `imp_fs`, floating
   constants (`FCON`, which uses `strtod` where the original sums digits in REAL
-  arithmetic) are pooled whole.
+  arithmetic) are pooled whole. Results are not rounded to the original's 27 bit mantissa: a REAL is IEEE 754
+  binary64. The word keeps the PDP-10's sign/magnitude encoding because the unmodified `syntax.imc` applies integer
+  compares (`CAM`, `JUMP`) and `MOVN`/`MOVM` to any value, reals included; with the raw IEEE bits those would be wrong for
+  negative numbers, and the translator has no types to tell a real from an integer. C converts with `lib/imp72.h`.
 - **`CALLI`** goes to `imp_calli` in the runtime (a few calls: exit, time).
 
 ## Survey

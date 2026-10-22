@@ -94,11 +94,14 @@ login `[1,2]` password `FAILSA`, set `ORACLE_USER` and `ORACLE_PASS`) is TOPS-10
 Richard Cornwell's system tape by [prebsd](https://github.com/moebiusV/prebsd)'s
 `pdp10/install-ki.sh`. With it:
 
-- **Constants.** The original converts `0.25` with its own `FCON`, in 27 bit REAL arithmetic with
-  an inexact 1/10, so `0.25`, `0.125`, `0.75` and `0.0625` are one unit in the last place low.
-  `fcon` in `stage0/impsem.c` does the same sums. Every real operation result is rounded to a
-  27 bit mantissa (`fromd` in `trans.c`).
-- **PRINT FLT** follows PMOD's code (`docs/internals/pmod.md`), digits, ties and all.
+- **REAL is IEEE 754 here (since 2026-10-22), not the original's 27 bit floating point**, so reals no longer match the
+  original bit for bit. Until then `fcon` and `fromd` reproduced its arithmetic (it converts `0.25` with its own `FCON`,
+  in 27 bit arithmetic with an inexact 1/10, so `0.25`, `0.125`, `0.75` and `0.0625` came out one unit in the last place
+  low, and every result was rounded to 27 bits), and `PRINT FLT` its digits, ties and all. Now: the oracle tests that
+  expose those artifacts (`lits`, `ties`) have reviewed IEEE goldens in `tests/golden/ieee/`, which `tests/oracle/run.sh`
+  uses in place of the original's; the other oracle tests (including `flt`, `fmt`, `reals`) still agree with the original;
+  and the real fuzzer (`tools/imp-fuzz-real.py`) differs from the original by design wherever its 27 bit rounding showed
+  (integer and structured fuzzers are unaffected).
 - **Zero** prints as `0` in any FLT format. The original never returns from the scientific
   form of zero (`FLT -12.4` of 0.0), and a program that overflows 2^127 stops the same way.
 

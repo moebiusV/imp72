@@ -983,16 +983,10 @@ fromd(struct irn *d)
     asg(ir_name("imp_fs", 0, T_DOUBLE), d);
     asg(ir_temp(tb, T_LONG), ir_name("imp_fs", 0, T_LONG));
     asg(ir_temp(ts, T_LONG), ir_bin(IR_RS, T_LONG, ir_temp(tb, T_LONG), ir_icon(63, T_INT)));
-    /* The original's reals have a 27 bit mantissa: round the magnitude of the double to it
-     * (to nearest, a tie away from zero, as the rounded floating point instructions do: add
-     * half a unit and clear the 26 low bits of the 52 bit fraction). */
     {
         int tm = ir_newtemp();
 
         asg(ir_temp(tm, T_LONG), ir_bin(IR_AND, T_LONG, ir_temp(tb, T_LONG), icon(0x7FFFFFFFFFFFFFFFLL)));
-        asg(ir_temp(tm, T_LONG), ir_bin(IR_AND, T_LONG,
-            ir_bin(IR_PLUS, T_LONG, ir_temp(tm, T_LONG), icon(0x2000000LL)),
-            icon(-67108864LL)));
         return ir_bin(IR_MINUS, T_LONG,
             ir_bin(IR_ER, T_LONG, ir_temp(tm, T_LONG), ir_temp(ts, T_LONG)),
             ir_temp(ts, T_LONG));

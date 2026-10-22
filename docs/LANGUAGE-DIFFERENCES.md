@@ -6,8 +6,15 @@ comes from the machine, and from the runtime.
 - **The word is 64 bits.** Integers are 64 bit two's complement, addresses are byte addresses, and `A[I]` scales by 8. Arithmetic
   that overflowed 36 bits does not here. A constant is folded as the program would compute it, in 36 bits for arithmetic
   except left shifts (64). The octal constant `777777777777B` is -1, as on the PDP-10.
-- **Reals** are doubles rounded to the PDP-10's 27 bit mantissa after every operation, with the original's inexact constant
-  conversion and `PRINT FLT` (a port of its print module), so that programs print what the original printed.
+- **Reals** are IEEE 754 binary64, not the PDP-10's 27 bit floating point: arithmetic is in double precision, a constant is
+  the double nearest to it (`0.25` is exact; the original's was one unit low), and `FIX` and `FLOAT` convert exactly.
+  `PRINT FLT m.n` keeps PMOD's layout (no 0 before the point, fixed notation unless it does not fit the field, then
+  `.ddd"e`, a negative width for scientific always) with correctly rounded digits, ties away from zero. So programs with
+  reals print the original's numbers except where its 27 bit arithmetic showed (`0.001` printed as `.99999"-3`).
+  The word of a REAL is the double's sign and magnitude with the magnitude negated for a negative number (the PDP-10's way,
+  so that the compares and negation the code generator applies to any value are right for reals); C code that shares a
+  REAL converts with `imp_real_to_double` and `imp_double_to_real` (`lib/imp72.h`). Not a number and infinity print as
+  `NAN` and `INF`; the original had neither.
 - **Strings** are bytes: a string constant is a C string in a word array (not five 7 bit characters to a word), so its address
   can be passed to C. The characters of a name are packed five to a word inside the compiler (`DNAME`), not in programs.
 - **Byte pointers** are byte addresses; `<s,p>` fields and `BYTEP`, `<+P>` work on 8 bit bytes of words.

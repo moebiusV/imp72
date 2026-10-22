@@ -11,7 +11,7 @@ for p in tests/native/*.imp; do
     if [ -f tests/native/${n}_main.c ]; then
         stage0/imp72stage0 -C -c -o build/nativec/$n.o "$p" \
             || { echo "FAILED: $n: imp72stage0 -C" >&2; fail=1; continue; }
-        cc -o build/nativec/$n tests/native/${n}_main.c build/nativec/$n.o build/lib/libimp72.a \
+        cc -Ilib -o build/nativec/$n tests/native/${n}_main.c build/nativec/$n.o build/lib/libimp72.a \
             || { echo "FAILED: $n: link" >&2; fail=1; continue; }
     else
         stage0/imp72stage0 -C -o build/nativec/$n "$p" \

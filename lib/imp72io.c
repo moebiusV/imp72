@@ -186,151 +186,134 @@ field(const char *s, long w, int zero)
     put(s, n);
 }
 
+/* Add one in the last place of the decimal digit string s (digits only); returns 1 if it grew a digit. */
+static int
+incdec(char *s, int len)
+{
+    int k;
+
+    for (k = len - 1; k >= 0; k--) {
+        if (s[k] == '9')
+            s[k] = '0';
+        else {
+            s[k]++;
+            return 0;
+        }
+    }
+    memmove(s + 1, s, (size_t)len + 1);
+    s[0] = '1';
+    return 1;
+}
+
 /*
- * A real, as the original's PMOD prints it.  This is the FLT part of PMOD's PRN. routine
- * (the compiled IMP, read off the original's code with DDT), instruction for instruction:
- * the number is scaled into .1 <= z < 1 by multiplying by 10^10, 10^-10 and 0.1 (the last two
- * not exact), a rounding quantity 0.5*0.1^(digits-1) is added, and each digit is the last
- * digit of IFIX(z*10) with z multiplied by 10 each time and never reduced.  All the
- * arithmetic is PDP-10 single precision (27 bit mantissa, rounded), so the inexact constants
- * and the rounding of the products show in the last digits, as they do there: 0.001 prints
- * as .99999"-3, 65536.0 with three decimals as 65535.999, and ties go either way.
+ * The double zz written with d digits after the point, rounded half away from zero on its exact decimal value
+ * (printf rounds a tie to even; PMOD and FORTRAN round it up): "iii.ddd", the integer part "0" if it is zero.
+ */
+static void
+fixeddigits(double zz, long d, char *out, size_t cap)
+{
+    char t[1400], dig[1400];
+    char *dot;
+    int ilen, len, nx;
+
+    snprintf(t, sizeof t, "%.*f", (int)d + 40, zz);
+    dot = strchr(t, '.');
+    ilen = (int)(dot - t);
+    memcpy(dig, t, (size_t)ilen);
+    memcpy(dig + ilen, dot + 1, (size_t)d);
+    len = ilen + (int)d;
+    dig[len] = '\0';
+    nx = dot[1 + d];
+    if (nx >= '5')
+        ilen += incdec(dig, len);
+    snprintf(out, cap, "%.*s%s%s", ilen, dig, d ? "." : "", d ? dig + ilen : "");
+}
+
+/* The same in the form D.DDDe+X with d significant digits: digits in dg (d of them), the exponent of 0.DDD in *ex. */
+static void
+scidigits(double zz, long d, char *dg, int *ex)
+{
+    char t[1400];
+    char *e;
+    int k, nx;
+
+    snprintf(t, sizeof t, "%.*e", (int)d - 1 + 40, zz);
+    e = strchr(t, 'e');
+    *ex = atoi(e + 1) + 1;
+    dg[0] = t[0];
+    for (k = 1; k < d; k++)
+        dg[k] = t[1 + k];
+    dg[d] = '\0';
+    nx = t[1 + d];
+    if (nx >= '5' && incdec(dg, (int)d)) {
+        dg[d] = '\0';
+        (*ex)++;
+    }
+}
+
+/*
+ * A real, as PRINT FLT m.n writes it.  The layout is that of the original's PMOD (docs/internals/pmod.md); the
+ * digits are those of the IEEE 754 double, correctly rounded (the original computed them in 27 bit floating
+ * point, with inexact constants, so that 0.001 printed as .99999"-3):
  *
  *  - no 0 before the point; zero is a bare 0;
- *  - fixed notation unless the digits do not fit the field (m wide: the digits and the
- *    point must be fewer than m-1), then .ddd"e with m-7 digits (two, unpadded, when the
- *    field is narrower than 9);
- *  - a negative m is the scientific form always, in -m columns, with n+1 digits.
+ *  - fixed notation (n digits after the point) unless the digits and the point do not fit the field (m wide:
+ *    they must be fewer than m-1), then .ddd"e with m-7 digits (two, unpadded, when the field is narrower
+ *    than 9), where e is the power of ten of the number written as 0.ddd;
+ *  - a negative m is the scientific form always, in -m columns, with n+1 digits;
+ *  - a number that is not finite is INF or NAN.
  */
-static double
-r27(double x)                                   /* a rounded floating point result */
-{
-    uint64_t b, mag;
-
-    memcpy(&b, &x, sizeof b);
-    mag = b & 0x7FFFFFFFFFFFFFFFULL;
-    if (mag == 0 || mag >= 0x7FF0000000000000ULL)
-        return x;
-    mag = (mag + 0x2000000ULL) & ~0x3FFFFFFULL;
-    b = (b & 0x8000000000000000ULL) | mag;
-    memcpy(&x, &b, sizeof b);
-    return x;
-}
-
-/* the constants of PMOD, from their words: 1.0e-10, 0.1, 1.0e10 as 27 bit floats */
-static double
-pdpfloat(uint64_t w)
-{
-    int e = (int)((w >> 27) & 0377) - 128;
-    double f = (double)(w & 0x7FFFFFFULL) / 134217728.0;
-
-    return f * (e >= 0 ? (double)(1ULL << e) : 1.0 / (double)(1ULL << -e));
-}
-
 static void
 printflt(double x, long m, long n)
 {
-    const double c1m10 = pdpfloat(0137667633766ULL), c01 = pdpfloat(0175631463146ULL),
-        c1e10 = pdpfloat(0242452013710ULL);
-    char b[96], out[96];
-    double zz = fabs(x), rnd;
-    long d = n, g, xp, ii, j, k;
-    int exp = 0, sci = 1, i, neg = x < 0, len;
+    char body[512], num[512], *p;
+    double zz = fabs(x);
+    long d = n, g = m > 0 ? m - 1 : m < 0 ? -m - 1 : -1;
+    int fixed = m >= 0, neg = x < 0, len = 0, ex;
 
-    memset(b, ' ', sizeof b);
-    g = m > 0 ? m - 1 : m < 0 ? -m - 1 : -1;
-    if (zz == 0) {
-        b[0] = '0';
-        i = 0;
+    if (d > 60)
+        d = 60;
+    if (m < 0)
+        d = n + 1;
+    if (x != x || zz > 1.7976931348623157e308) {
+        strcpy(body, x != x ? "NAN" : neg ? "-INF" : "INF");
+        len = (int)strlen(body);
         goto tx;
     }
-    while (zz < c01) {
-        exp -= 10;
-        zz = r27(c1e10 * zz);
+    if (zz == 0) {
+        strcpy(body, "0");
+        len = 1;
+        goto tx;
     }
-    while (zz >= c1e10) {
-        exp += 10;
-        zz = r27(c1m10 * zz);
-    }
-    while (zz >= 1.0) {
-        exp++;
-        zz = r27(c01 * zz);
-    }
-    if (m < 0)                                  /* scientific always: one more digit */
-        d = n + 1, sci = 0;
-    j = exp > 0 ? exp * sci : 0;
-    i = (int)((d ? d + 1 : 0) + j);
-    if (g >= 0 && i >= g) {                     /* it does not fit */
-        sci = 0;
-        d = g - 6;
-        if (d <= 1) {
-            d = 2;
-            g = -1;
-        }
-        i = (int)d + 1;
-    }
-    if (d == 0)
-        i++;
-    rnd = 0.5;
-    if (i > 1)
-        for (ii = i - 2; ii >= 0; ii--)
-            rnd = r27(c01 * rnd);
-    while (r27(rnd + zz) >= 1.0)
-        rnd = r27(c01 * rnd);
-    zz = r27(rnd + zz);
-    xp = exp * sci;
-    i = -1;
-    if (neg)
-        b[30 - ++i] = '-';
-    while (xp > 0) {
-        zz = r27(zz * 10.0);
-        b[30 - ++i] = (char)('0' + (long)zz % 10);
-        xp--;
-    }
-    if (d > 0) {
-        b[30 - ++i] = '.';
-        for (j = d - 1; j >= 0; j--) {
-            ++i;
-            if (i >= g && g >= 0)
-                break;
-            if (xp < 0) {
-                b[30 - i] = '0';
-                xp++;
-            } else {
-                zz = r27(zz * 10.0);
-                b[30 - i] = (char)('0' + (long)zz % 10);
+    if (fixed) {
+        int j = 0;
+
+        fixeddigits(zz, d, num, sizeof num);
+        p = num;
+        if (p[0] == '0' && p[1] == '.')
+            p++;
+        while (p[j] >= '0' && p[j] <= '9')
+            j++;
+        if (g >= 0 && (d ? d + 1 : 0) + j >= g) {       /* it does not fit */
+            fixed = 0;
+            d = g - 6;
+            if (d <= 1) {
+                d = 2;
+                g = -1;
             }
+        } else {
+            len = snprintf(body, sizeof body, "%s%s", neg ? "-" : "", p);
+            goto tx;
         }
     }
-    j = 0;
-    if (!sci) {                                 /* the exponent, before the digits in the buffer */
-        j = -1;
-        xp = exp < 0 ? -exp : exp;
-        do {
-            b[++j] = (char)('0' + xp % 10);
-            xp /= 10;
-        } while (xp != 0);
-        if (exp < 0)
-            b[++j] = '-';
-        b[++j] = '"';
-        j++;
-    }
-    for (k = 0; k <= i; k++)
-        b[k + j] = b[30 - i + k];
-    i += (int)j;
+    if (d < 1)
+        d = 1;
+    scidigits(zz, d, num, &ex);
+    len = snprintf(body, sizeof body, "%s.%s\"%d", neg ? "-" : "", num, ex);
 tx:
-    /* PMOD pads while the width g exceeds the index i of the last character, then writes
-     * b[i] down to b[0] with a loop that runs at least once: with nothing to write (i = -1,
-     * a fraction printed with no decimals) that is the word before the buffer, a blank. */
-    for (k = g; k > i; k--)
-        pad(1, fillch);
-    len = 0;
-    k = i;
-    do
-        out[len++] = k >= 0 ? b[k] : ' ';
-    while (--k >= 0);
-    out[len] = '\0';
-    put(out, len);
+    if (g >= 0 && g + 1 > len)
+        pad((int)(g + 1 - len), fillch);
+    put(body, len);
 }
 
 /* where PRINT goes when it has no file: stdout, unless the program has said otherwise (the compiler's

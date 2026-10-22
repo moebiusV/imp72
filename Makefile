@@ -68,6 +68,8 @@ install: all
 	install -m 755 $(IR2C) $(DESTDIR)$(PREFIX)/lib/imp72/ir2c
 	if [ -x $(CC1) ]; then install -m 755 $(CC1) $(DESTDIR)$(PREFIX)/lib/imp72/cc1; fi
 	install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a
+	install -d $(DESTDIR)$(PREFIX)/include
+	install -m 644 lib/imp72.h $(DESTDIR)$(PREFIX)/include/imp72.h
 	install -m 644 decus/syntax.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp72/
 	install -m 644 docs/imp72stage0.1 $(DESTDIR)$(PREFIX)/share/man/man1/imp72stage0.1
 	echo '.so man1/imp72stage0.1' > $(DESTDIR)$(PREFIX)/share/man/man1/imp72.1

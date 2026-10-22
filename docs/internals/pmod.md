@@ -43,6 +43,15 @@ All of it is PDP-10 single precision, 27 bit mantissa, with the rounded instruct
    to write (a fraction with no decimals, `I = -1`) it writes the word before the buffer, a
    blank.
 
+### What this port does instead (IEEE 754, since 2026-10-22)
+
+REAL is a binary64 double here, not 27 bit. `lib/imp72io.c` keeps the layout of steps 3, 4, 7 and 8 (the field width
+`G`, the fit test, the scientific form with `"` and the exponent, the padding) and replaces steps 1 to 2, 5 and 6, the
+scaling and the digit loop with their accumulating errors, by correctly rounded digits of the exact decimal value, ties
+away from zero (so `0.125` with two decimals is `.13`; the original's inexact arithmetic gave `.12` and `.99999"-3` for
+0.001). The description above stays as the record of the original, which `tests/golden/oracle` (the tests that still
+agree with it) and the golden outputs in `tests/golden/ieee` (the ones that differ) document.
+
 Writing this down and porting it made 43 exact-tie rounding cases, the 14 value and format
 rows of `tests/oracle/flt.imp`, `lits` and 18 random programs of real arithmetic agree with
 the original.
