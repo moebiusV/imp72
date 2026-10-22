@@ -7,7 +7,9 @@
 set -e
 command -v objcopy >/dev/null 2>&1 || { echo "stage1: no objcopy (ELF only)" >&2; exit 77; }
 # OpenBSD: a non-PIE link of this program crashes in the first IMP module (the objects are PIC there); link PIE
-nopie=${STAGE1_NOPIE--no-pie}; case "$(uname)" in Darwin|OpenBSD) nopie= ;; esac
+if [ -n "${STAGE1_NOPIE+x}" ]; then nopie=$STAGE1_NOPIE; else
+    case "$(uname)" in Darwin|OpenBSD) nopie= ;; *) nopie=-no-pie ;; esac
+fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-stack dir graph parse ercor entree cotree dosem rsyn lex}
