@@ -1,6 +1,6 @@
 #!/bin/sh
-# Stage 2 test, the fixed point: tools/stage2.sh compiles the compiler's modules with stage 1 and they must be the same
-# objects stage 0 made; imp72s2, linked from them, must write the same IR as stage 0 for the native tests.
+# Stage 2 test, the fixed point: tools/stage2.sh compiles the compiler's modules with stage 1; stage 0, 1 and 2 must write
+# the same C for every module; imp72s2, linked from them, must write the same IR as stage 0 for the native tests.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}

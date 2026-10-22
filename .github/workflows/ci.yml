@@ -135,46 +135,28 @@ jobs:
               exit 2
             fi
 
-  # OpenBSD: why a non-PIE imp72s1 crashes (informational)
-  openbsd-crash:
+  # the Debian package, built from the source package it makes
+  debian-package:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: vmactions/openbsd-vm@v1
-        with:
-          prepare: pkg_add gmake python3 gdb
-          run: |
-            w() { echo "::warning::$1: $(eval "$2" 2>&1 | head -n 70 | cut -c1-240 | tr '\n%' ' _')"; }
-            gmake WITH_PCC=no > /tmp/b.log 2>&1
-            export IMP_FORCE_STAGE1=1 STAGE1_NOPIE=-no-pie
-            sh tools/stage1.sh > /tmp/s1.log 2>&1
-            B=build/stage1/imp72s1
-            A="-c /tmp/x.1 decus/syntax.imc tests/native/hello.imp"
-            cat > /tmp/g.gdb <<'EOG'
-            run
-            bt 6
-            p $_siginfo.si_signo
-            p $_siginfo._sifields._sigfault.si_addr
-            info registers rip rsp rax rbx rcx rdx rsi rdi r8 r9 r10 r11 r12
-            x/12i $pc-24
-            info symbol $pc
-            EOG
-            cat > /tmp/t.c <<'EOT'
-            #include <stdio.h>
-            int g;
-            int f(int x) { char b[64]; snprintf(b, sizeof b, "%d", x + g); return b[0]; }
-            int main(void) { printf("%d\n", f(3)); return 0; }
-            EOT
-            cc -O1 -c -o /tmp/t.o /tmp/t.c
-            objcopy --redefine-sym f=g_f /tmp/t.o /tmp/t2.o
-            llvm-objcopy --redefine-sym f=g_f /tmp/t.o /tmp/t3.o
-            w tiny_llvm "cc -no-pie -o /tmp/u1 /tmp/t3.o && /tmp/u1; echo llvm_objcopy_nopie=$?; cc -no-pie -o /tmp/u0 /tmp/t.o && /tmp/u0; echo plain=$?; cc -no-pie -o /tmp/u2 /tmp/t2.o; /tmp/u2; echo gnu_objcopy=$?"
-            w elf_tiny_llvm "python3 tools/elfdump.py /tmp/t3.o"
-            w tiny_trace "cc -no-pie -Wl,--trace-symbol=__retguard_3042 -o /tmp/u2 /tmp/t2.o 2>&1 | head; nm /tmp/u2 | grep -E 'retguard' | head"
-            w tiny_trace_ok "cc -no-pie -Wl,--trace-symbol=__retguard_3042 -o /tmp/u1 /tmp/t3.o 2>&1 | head; nm /tmp/u1 | grep -E 'retguard' | head"
-            rm -rf build/stage1
-            OBJCOPY=llvm-objcopy STAGE1_NOPIE=-no-pie sh tools/stage1.sh > /tmp/s1l.log 2>&1
-            w stage1_llvm_objcopy_nopie "build/stage1/imp72s1 $A; echo rc=$?; file build/stage1/imp72s1"
+      - run: sudo apt-get update && sudo apt-get install -y build-essential debhelper binutils python3
+      - name: build the package
+        run: |
+          set +e
+          dpkg-buildpackage -us -uc -b > /tmp/dpkg.log 2>&1
+          rc=$?
+          if [ $rc != 0 ]; then
+            echo "::error::dpkg-buildpackage failed ($rc): $(tail -c 1500 /tmp/dpkg.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+            exit $rc
+          fi
+      - run: dpkg-deb -I ../imp72_*_amd64.deb
+      - run: sudo dpkg -i ../imp72_*_amd64.deb
+      - name: compile and run a program with the installed package
+        run: |
+          imp72stage0 -o /tmp/hello tests/native/hello.imp
+          /tmp/hello
+          imp72stage0 -C -o /tmp/hello_c tests/native/hello.imp
+          /tmp/hello_c
