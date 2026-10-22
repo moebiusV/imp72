@@ -5,10 +5,17 @@
 # functions renamed impl_NAME, and stage0/NAME_imp.c adapts the C interface
 # to it.  Run from the top of the tree after `make`.
 set -e
-command -v objcopy >/dev/null 2>&1 || { echo "stage1: no objcopy (ELF only)" >&2; exit 77; }
-# OpenBSD: a non-PIE link of this program crashes in the first IMP module (the objects are PIC there); link PIE
+# Which objcopy renames the symbols.  Prefer LLVM's: OpenBSD's base GNU objcopy is binutils 2.17, which renumbers the
+# symbol table but not the signature index of the COMDAT groups clang emits for RETGUARD, so lld then drops the cookie
+# sections and the cookies resolve to address 0 (every function faults on its first instruction).
+if [ -z "$OBJCOPY" ]; then
+    if command -v llvm-objcopy >/dev/null 2>&1; then OBJCOPY=llvm-objcopy
+    elif command -v objcopy >/dev/null 2>&1; then OBJCOPY=objcopy
+    else echo "stage1: no objcopy (ELF only)" >&2; exit 77; fi
+fi
+# macOS has no ELF objcopy (the test is skipped); elsewhere the link is non-PIE like the pcc-made objects need.
 if [ -n "${STAGE1_NOPIE+x}" ]; then nopie=$STAGE1_NOPIE; else
-    case "$(uname)" in Darwin|OpenBSD) nopie= ;; *) nopie=-no-pie ;; esac
+    case "$(uname)" in Darwin) nopie= ;; *) nopie=-no-pie ;; esac
 fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
@@ -29,7 +36,7 @@ for m in $modules; do
     syms=$(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }' | grep -vx -f src/shared.txt || true)
     args=
     for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
-    ${OBJCOPY:-objcopy} $args $out/$m.imp.o $out/$m.imp2.o
+    $OBJCOPY $args $out/$m.imp.o $out/$m.imp2.o
     cc -std=c99 -fcommon -O1 $STAGE1_CFLAGS -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
     objs="$objs $out/$m.imp2.o $out/${m}_c.o"
     repl="$repl stage0/$m.o"
