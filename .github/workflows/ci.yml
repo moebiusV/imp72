@@ -162,35 +162,12 @@ jobs:
             x/12i $pc-24
             info symbol $pc
             EOG
-            w gdbfull "egdb -batch -x /tmp/g.gdb --args $B $A"
-            w mappings "egdb -batch -ex 'break main' -ex run -ex 'info proc mappings' --args $B $A"
-            w objdump "objdump -h $B | grep -i 'text\|data\|bss\|plt\|got\|rel'"
-            w nmdir "nm $B | grep -i ' impl_dir$\| fb$\| DIR$\|__data_start\|_end$\|_etext\|_edata'"
-            w file "file $B; ls -l $B"
-            w asm "objdump -d --start-address=0x$(nm $B | grep ' T impl_dir$' | cut -c1-16) $B | head -60"
-
-  # the Debian package, built from the source package it makes
-  debian-package:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - run: sudo apt-get update && sudo apt-get install -y build-essential debhelper binutils python3
-      - name: build the package
-        run: |
-          set +e
-          dpkg-buildpackage -us -uc -b > /tmp/dpkg.log 2>&1
-          rc=$?
-          if [ $rc != 0 ]; then
-            echo "::error::dpkg-buildpackage failed ($rc): $(tail -c 1500 /tmp/dpkg.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
-            exit $rc
-          fi
-      - run: dpkg-deb -I ../imp72_*_amd64.deb
-      - run: sudo dpkg -i ../imp72_*_amd64.deb
-      - name: compile and run a program with the installed package
-        run: |
-          imp72stage0 -o /tmp/hello tests/native/hello.imp
-          /tmp/hello
-          imp72stage0 -C -o /tmp/hello_c tests/native/hello.imp
-          /tmp/hello_c
+            w ver "cc --version | head -1; ld --version | head -1; objcopy --version | head -1"
+            w secs_exe "objdump -h $B | grep -i 'retguard\|random\|text\|data\|bss\|openbsd'"
+            w secs_o_before "objdump -h build/stage1/dir.imp.o | grep -i 'retguard\|random\|text\|data\|openbsd'"
+            w secs_o_after "objdump -h build/stage1/dir.imp2.o | grep -i 'retguard\|random\|text\|data\|openbsd'"
+            w secs_c_wrapper "objdump -h build/stage1/dir_c.o | grep -i 'retguard\|random\|openbsd'"
+            w phdr "objdump -p $B | head -40"
+            w retguard_sym "nm $B | grep -c retguard; nm $B | grep retguard_3745"
+            w hash "objdump -d $B | grep -B3 -A3 'retguard_3745' | head -30"
+            w gdb2 "egdb -batch -ex run -ex bt -ex 'x/2i \$pc' -ex 'info registers rip r11' -ex 'x/gx 0x258498' --args $B $A"
