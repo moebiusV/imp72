@@ -130,7 +130,7 @@ jobs:
             if ! (gmake WITH_PCC=no && gmake WITH_PCC=no check) > /tmp/o.log 2>&1; then
               echo "::error::openbsd failed: $(grep -i -B2 -A2 'error\|fail\|not found\|undefined' /tmp/o.log | head -c 1800 | tr '\n%' ' _')"
               echo "::error::openbsd tail: $(tail -c 800 /tmp/o.log | tr '\n%' ' _')"
-              (stage0/imp72s0 -c /tmp/x.0 decus/syntax.imc tests/native/hello.imp; echo "rc0=$?"; ls -l /tmp/x.0; build/stage1/imp72s1 -c /tmp/x.1 decus/syntax.imc tests/native/hello.imp; echo "rc1=$?"; ls -l /tmp/x.1; cmp /tmp/x.0 /tmp/x.1; file build/stage1/imp72s1) > /tmp/d.log 2>&1
+              ( set +e; uname -srm; objcopy --version | head -1; stage0/imp72s0 -c /tmp/x.0 decus/syntax.imc tests/native/hello.imp; echo "rc0=$?"; ls -l /tmp/x.0; build/stage1/imp72s1 -c /tmp/x.1 decus/syntax.imc tests/native/hello.imp; echo "rc1=$?"; ls -l /tmp/x.1; cmp /tmp/x.0 /tmp/x.1; ls build/stage1 | head -30 ) > /tmp/d.log 2>&1
               echo "::error::openbsd diag: $(head -c 1800 /tmp/d.log | tr '\n%' ' _')"
               exit 2
             fi
