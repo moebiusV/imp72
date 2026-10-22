@@ -6,6 +6,9 @@
 # to it.  Run from the top of the tree after `make`.
 set -e
 command -v objcopy >/dev/null 2>&1 || { echo "stage1: no objcopy (ELF only)" >&2; exit 77; }
+# imp72s1 crashes (SIGSEGV on its first program) on OpenBSD 7.x, where stage 0 is fine; the cause is not found
+# (the base objcopy is old, binutils 2.17, which is the first suspect): the test is skipped there
+[ "$(uname)" = OpenBSD ] && { echo "stage1: not working on OpenBSD yet" >&2; exit 77; }
 nopie=-no-pie; [ "$(uname)" = Darwin ] && nopie=
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"

@@ -47,6 +47,7 @@ gets on each module of the original compiler's source.
 Platforms checked in CI (`.github/workflows/ci.yml`): Linux on amd64, i386, arm64, armv7, ppc64le, riscv64, s390x and
 loongarch64 (Alpine, native or under QEMU), Debian amd64 (the package), macOS on Apple silicon (the C back end: pcc's
 aarch64 back end has no Darwin port yet, so `WITH_PCC=auto` leaves it out there; the stage 1 test needs ELF `objcopy`
-and is skipped), and FreeBSD (C back end).
+and is skipped), FreeBSD and NetBSD (C back end), and OpenBSD (C back end; the stage 1 test is skipped there, because
+the stage 1 compiler crashes on its first program and the cause is not found).
 
 Packages: `packaging/README.md`.
