@@ -162,24 +162,19 @@ jobs:
             x/12i $pc-24
             info symbol $pc
             EOG
-            w ver "cc --version | head -1; ld --version | head -1; objcopy --version | head -1"
-            S="retguard|randomdata|openbsd|\\.text|\\.data|\\.bss|\\.rodata"
-            w secs_exe "objdump -h $B | grep -E '$S'"
-            w secs_before "objdump -h build/stage1/dir.imp.o | grep -E '$S'"
-            w secs_after "objdump -h build/stage1/dir.imp2.o | grep -E '$S'"
-            w secs_wrap "objdump -h build/stage1/dir_c.o | grep -E '$S'"
-            w ktrace "ktrace -f /tmp/k.out $B $A; kdump -f /tmp/k.out | tail -12"
-            w runtimebytes "egdb -batch -ex run -ex 'x/16xb 0x220910' -ex 'info registers rip r11' --args $B $A"
-            w filebytes "objdump -d --start-address=0x220910 --stop-address=0x220920 $B | tail -6"
-            cat > /tmp/t.c <<'EOT'
-            #include <stdio.h>
-            int g;
-            int f(int x) { char b[64]; snprintf(b, sizeof b, "%d", x + g); return b[0]; }
-            int main(void) { printf("%d\n", f(3)); return 0; }
-            EOT
-            cc -O1 -c -o /tmp/t.o /tmp/t.c
-            w tiny_nopie "cc -no-pie -o /tmp/t1 /tmp/t.o && /tmp/t1"
-            objcopy --redefine-sym f=g_f /tmp/t.o /tmp/t2.o
-            w tiny_nopie_objcopy "cc -no-pie -o /tmp/t2 /tmp/t2.o && /tmp/t2"
-            w tiny_pie_objcopy "cc -o /tmp/t3 /tmp/t2.o && /tmp/t3"
-            w tiny_secs "objdump -h /tmp/t.o | grep -E '$S'; echo ---; objdump -h /tmp/t2.o | grep -E '$S'"
+            R="retguard"
+            w nm_before "nm build/stage1/dir.imp.o | grep -E '$R' | head -4"
+            w nm_after "nm build/stage1/dir.imp2.o | grep -E '$R' | head -4"
+            w symtab_before "objdump -t build/stage1/dir.imp.o | grep -E '$R' | head -4"
+            w symtab_after "objdump -t build/stage1/dir.imp2.o | grep -E '$R' | head -4"
+            w rel_before "objdump -r build/stage1/dir.imp.o | grep -E '$R' | head -3"
+            w rel_after "objdump -r build/stage1/dir.imp2.o | grep -E '$R' | head -3"
+            w flags_before "objdump -h build/stage1/dir.imp.o | grep -A1 -E 'retguard' | head -8"
+            w flags_after "objdump -h build/stage1/dir.imp2.o | grep -A1 -E 'retguard' | head -8"
+            w exe_dynrel "objdump -R $B | head -20"
+            w exe_dynsym "objdump -T $B | grep -E 'retguard' | head -5; objdump -p $B | grep -iE 'textrel|flags|needed'"
+            w tiny_before "nm /tmp/t.o | grep -E '$R'; objdump -t /tmp/t.o | grep -E '$R'"
+            w tiny_after "nm /tmp/t2.o | grep -E '$R'; objdump -t /tmp/t2.o | grep -E '$R'"
+            w tiny_exe_dynrel "cc -no-pie -o /tmp/t2 /tmp/t2.o; objdump -R /tmp/t2 | head; objdump -p /tmp/t2 | grep -iE 'textrel|flags'"
+            w tiny_nopie_wl "cc -no-pie -Wl,-z,notext -o /tmp/t4 /tmp/t2.o && /tmp/t4"
+            w llvm_objcopy "ls /usr/bin/*objcopy* /usr/local/bin/*objcopy* /usr/local/bin/*/*objcopy* 2>&1 | head; which llvm-objcopy gobjcopy"
