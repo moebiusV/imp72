@@ -870,6 +870,11 @@ conop(word s, word t, word i, word v, word w)
         if (co2 >= 0 && co2 < 64) {
             co1 = (word)((uword)co1 << co2);
             nowrap = 1;
+        } else if (co2 < 0) {
+            /* A ARS B is A ALS -B: an arithmetic right shift keeps the sign (ASH), unlike LS */
+            word n = co2 < -63 ? 63 : -co2;
+
+            co1 = co1 < 0 ? ~(~co1 >> n) : co1 >> n;
         } else
             co1 = ls36(co1, co2);
         break;
