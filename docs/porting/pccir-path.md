@@ -44,6 +44,5 @@ itself and requires the second generation to write the same IR as the first for 
 
 ## What remains
 
-The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Not done: `aarch64` and `i386` (the pcc IR path
-uses the same `ir.c`, so it should work; untried), `PRINT` of the text constants over 8 characters in `LOC`, `EXECUTE`/`CALLI`/`XWD`/`IOWD`
+The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Tried: x86_64 and aarch64 (in a container). Not done: 32 bit machines (i386, armv7: the build of `src/pccir` by the seed crashes there; `make` skips the pcc IR compiler on a 32 bit userland), `PRINT` of the text constants over 8 characters in `LOC`, `EXECUTE`/`CALLI`/`XWD`/`IOWD`
 (PDP-10 only: they are in `syntax64.imc` as the original wrote them and fail with "UNKNOWN OPERATION IN THE CODE").

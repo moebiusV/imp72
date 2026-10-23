@@ -8,7 +8,8 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 cc1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 [ -x "$cc1" ] || { echo "pccir: no pass 2 of pcc: skipped"; exit 77; }
-case $(uname -m) in x86_64|amd64) ;; *) echo "pccir: only tried on x86_64 so far: skipped"; exit 77 ;; esac
+[ "$(getconf LONG_BIT 2>/dev/null)" = 64 ] || [ -n "$PCCIR_ANYARCH" ] || { echo "pcc IR path skipped: 64 bit userland only so far"; exit 77; }
+case $(uname -m) in x86_64|amd64|aarch64|arm64) ;; *) [ -n "$PCCIR_ANYARCH" ] || { echo "pccir: only tried on x86_64 and aarch64 so far (PCCIR_ANYARCH=1 tries it): skipped"; exit 77; } ;; esac
 export CC1=$cc1
 mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex"
 DIRECT_OUT=build/pccir1 DIRECT_LIB=build/lib/libimp72raw.a SRC_MODULES="$mods" tools/direct.sh >build/pccir1.log 2>&1 \

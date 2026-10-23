@@ -4,7 +4,8 @@
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 [ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || { echo "direct tests skipped: no cc1 (make)"; exit 0; }
-case $(uname -m) in x86_64|amd64) ;; *) echo "direct tests skipped: only tried on x86_64 so far"; exit 0 ;; esac
+[ "$(getconf LONG_BIT 2>/dev/null)" = 64 ] || [ -n "$PCCIR_ANYARCH" ] || { echo "pcc IR tests skipped: 64 bit userland only so far"; exit 0; }
+case $(uname -m) in x86_64|amd64|aarch64|arm64) ;; *) [ -n "$PCCIR_ANYARCH" ] || { echo "direct tests skipped: only tried on x86_64 and aarch64 so far (PCCIR_ANYARCH=1 tries it)"; exit 0; } ;; esac
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct tests skipped: no objcopy"; exit 0; }
 [ $rc = 0 ] || { cat build/direct.log >&2; echo "FAILED: direct build" >&2; exit 1; }
