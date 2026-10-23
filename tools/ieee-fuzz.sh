@@ -4,13 +4,14 @@
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root" || exit 1
 seed=${1:-1}; count=${2:-10}
-d=build/ieee-fuzz/$seed
+driver=${DRIVER:-stage0/imp72stage0}               # DRIVER=build/direct/imp72stage-ir for the code generator of src/ir
+d=${FUZZ_OUT:-build/ieee-fuzz}/$seed
 rm -rf $d; mkdir -p $d
 python3 tools/imp-fuzz-ieee.py $seed $count $d || exit 1
 bad=0
 for p in $d/rz*.imp; do
     n=$(basename $p .imp)
-    stage0/imp72stage0 ${IMP72_FLAGS} -o $d/$n $p >$d/$n.log 2>&1 || { echo "$n: does not compile"; head -3 $d/$n.log; bad=1; continue; }
+    $driver ${IMP72_FLAGS} -o $d/$n $p >$d/$n.log 2>&1 || { echo "$n: does not compile"; head -3 $d/$n.log; bad=1; continue; }
     $d/$n | sed 's/[ 	]*$//' > $d/$n.got
     cmp -s $d/$n.got $d/$n.expected || { echo "$n: DIFFERENT"; diff $d/$n.got $d/$n.expected | head -6; bad=1; }
 done
