@@ -26,7 +26,7 @@ const int imp_pccir = 1;                /* the compiler with this code generator
 R1(iinit) R1(areg) R1(reg2) R2(areg1) R1(name) R1(val) R1(sval) R1(stackup) R1(swtch) R1(nsubp) R1(hisreg)
 R1(pairfirst) R1(subreg) R1(tmpreg) R1(samereg) R2(regeq) R2(regsim) R1(reg0) R3(rmatch) R1(subpr0) R1(subprm) R1(subtmpf)
 R1(subbeg) R1(subend) R1(remot) R1(callme) R1(reg2s) R2(decl) R1(declare)
-R1(unpck) R1(regof) R1(fetch) R3(addop) R3(dewop) R1(tag) R2(store) R2(mcode) R1(copyco)
+R1(newlist) R1(enlist) R1(getlist) R1(assemc) R1(unpck) R1(regof) R1(fetch) R3(addop) R3(dewop) R1(tag) R2(store) R2(mcode) R1(copyco) R1(newlist) R1(enlist) R1(getlist) R1(assemc)
 R3(hook) R1(anycode) R3(dewfun) R1(freeze) R1(oneword) R1(coppy) R1(subrcall) R1(return) R1(float) R1(fix) R1(datast)
 R2(subrpar) R5(prinpar) R2(princal) R1(ojumpop) R1(addr) R5(conop) R4(cjump) R1(jop) R3(moveblk)
 R2(subcall) R2(subscript) R4(bytep) R1(demit)
@@ -41,7 +41,7 @@ extern word arr, narr, regn, co, nco, anco;
     return impl_##g(&a, &b, &c, &d, &e); }
 
 ONE(name, name) TWO(areg1, areg1) ONE(areg, areg) ONE(reg2, reg2) ONE(val, val) ONE(sval, sval) TWO(decl, decl)
-ONE(declare, declare) ONE(stackup, stackup) ONE(switch, swtch) ONE(subbeg, subbeg) ONE(subend, subend) ONE(subpr0, subpr0)
+ONE(declare, declare) ONE(newlist, newlist) ONE(enlist, enlist) ONE(assemc, assemc) ONE(stackup, stackup) ONE(switch, swtch) ONE(subbeg, subbeg) ONE(subend, subend) ONE(subpr0, subpr0)
 ONE(remot, remot) ONE(callme, callme) ONE(reg2s, reg2s)
 TWO(store, store) ONE(fetch, fetch) ONE(regof, regof) THREE(dewop, dewop) THREE(addop, addop) ONE(tag, tag) THREE(dewfun, dewfun)
 THREE(hook, hook) ONE(freeze, freeze) ONE(subrcall, subrcall) ONE(return, return) TWO(subrpar, subrpar) FIVE(conop, conop)
@@ -57,6 +57,9 @@ void copyco(word s) { impl_copyco(&s); }
 word anyco(void) { word z = 0; return impl_anycode(&z); }
 word subtmpf(void) { word z = 0; return impl_subtmpf(&z); }
 word imponeword(word *s) { return impl_oneword(s); }       /* entree.imp's call */
+word newlist(word s) { return impl_newlist(&s); }       /* the lists are src/pccir/impsem.imp's; C callers use these */
+word enlist(word s) { return impl_enlist(&s); }
+word getlist(word s) { return impl_getlist(&s); }
 word impsem_narr(void) { word z = 0; impl_iinit(&z); return narr; }
 
 /* LETSYN(S): `LET X = Y` (see impsem.c) */
@@ -302,7 +305,7 @@ irruntime(word v)
 
 word irreset(word z) { (void)z; ir_usedfs = 0; return 0; }
 word irfsused(word z) { (void)z; return ir_usedfs; }
-word irflush(word z) { (void)z; fflush(stdout); return 0; }
+word irflush(word z) { (void)z; fflush(NULL); return 0; }
 
 
 /* ---- the IR builders of ir.c, by value, under names IMP can write (no underscore) ---------------------------------------------- */
@@ -351,17 +354,6 @@ trans_open(FILE *f)
     ir_open(f);
 }
 
-void
-trans_unit(word a)
-{
-    word x = a;
-
-    if (irfile == NULL)
-        return;
-    impl_demit(&x);
-    fflush(irfile);
-}
-
 /* the list of the code of an entry (/A): one line for each record of the chain (docs/porting/pccir-machine.md) */
 void
 pcode(word a)
@@ -392,6 +384,18 @@ pcode(word a)
         }
         r = (word)((uword)h >> 32);
     }
+}
+
+/* sem_init: the routines of the lists, ASSEMC, and the code generator's */
+void
+sem_init(void)
+{
+    dsem("ERROR", NULL);
+    dsem("NEWLIST", w_newlist);
+    dsem("ENLIST", w_enlist);
+    dsem("ASSEMC", w_assemc);
+    impsem_init();
+    codegen_init();
 }
 
 void
