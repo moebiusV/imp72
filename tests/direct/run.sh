@@ -18,6 +18,12 @@ DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=
     || { cat build/direct3.log >&2; echo "FAILED: direct build of the compiler's own modules" >&2; fail=1; }
 NATIVE_OUT=build/native-ir NATIVE_LIB=build/lib/libimp72raw.a NATIVE_CFLAGS=-DIMP_REAL_RAW sh tests/native/run.sh || fail=1
 ORACLE_PCCIR=1 ORACLE_OUT=build/oracle-ir sh tests/oracle/run.sh || fail=1
+# the PDP-10 constructs the original has, as this machine has them (XWD, IOWD, CALLI): programs and their output, which is not the PDP-10's (32 bit halves)
+for p in tests/direct/progs/*.imp; do
+    n=$(basename $p .imp); echo "== pccir $n"
+    build/direct/imp72stage-pccir -o build/native-ir/$n $p >build/native-ir/$n.log 2>&1 || { cat build/native-ir/$n.log; echo "FAILED: $n: compile" >&2; fail=1; continue; }
+    build/native-ir/$n > build/native-ir/$n.got; cmp -s build/native-ir/$n.got tests/direct/progs/$n.out && echo ok || { echo "FAILED: $n: output" >&2; fail=1; }
+done
 if [ -x build/direct3/imp72stage-pccir ]; then
     DRIVER=build/direct3/imp72stage-pccir NATIVE_OUT=build/native-ir3 NATIVE_LIB=build/lib/libimp72raw.a NATIVE_CFLAGS=-DIMP_REAL_RAW sh tests/native/run.sh || fail=1
     DRIVER=build/direct3/imp72stage-pccir ORACLE_PCCIR=1 ORACLE_OUT=build/oracle-ir3 sh tests/oracle/run.sh || fail=1

@@ -100,7 +100,7 @@ void ir_pass(const char *fmt, ...);             /* a line for the assembler */
 struct irn *ir_xshift(int right, struct irn *l, struct irn *r);
 struct irn *ir_xcall(struct irn *fn, struct irn **a, int n, int cret);
 struct irn *ir_param(int k);
-struct irn *ir_todouble(struct irn *w);
+struct irn *ir_todouble(struct irn *w, int k);
 struct irn *ir_fromdouble(struct irn *d);
 extern int ir_usedfs;
 

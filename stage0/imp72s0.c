@@ -226,6 +226,12 @@ run(const char *cmd)
     return system(cmd) == 0 ? 0 : 1;
 }
 
+/* The optimizations of pass 2 of pcc, all on for the compiler with the code generator of src/pccir (IMP72CC1FLAGS= with nothing turns them off); the seed's
+ * translator keeps its doubles in temps, which -xtemps and -xssa mishandle on the i386's x87 stack, so it has the rest. */
+#define CC1OPT_PCCIR "-xtemps -xdeljumps -xdce -xssa -xccp -xscp -xtailcall"
+#define CC1OPT_SEED "-xdeljumps -xdce -xccp -xscp -xtailcall"
+#define CC1OPT (imp_pccir ? CC1OPT_PCCIR : CC1OPT_SEED)
+
 extern const int imp_pccir;                     /* 1 in the compiler with the code generator of src/pccir (pccirsem.c), 0 in flavour0.c */
 
 static int
@@ -380,7 +386,7 @@ driver_main(int argc, char **argv)
         rc = run(cmd);
         goto done;
     }
-    snprintf(cmd, sizeof cmd, "%s < %s > %s", qs(cc1), qs(ir), qs(sfile));
+    snprintf(cmd, sizeof cmd, "%s %s < %s > %s", qs(cc1), (getenv("IMP72CC1FLAGS") != NULL ? getenv("IMP72CC1FLAGS") : CC1OPT), qs(ir), qs(sfile));
     if (run(cmd)) { rc = 1; goto done; }
     if (stop == 'S')
         snprintf(cmd, sizeof cmd, "cp %s %s", qs(sfile), qs(outname ? outname : strcat(base, ".s")));

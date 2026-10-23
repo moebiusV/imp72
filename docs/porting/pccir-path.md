@@ -23,6 +23,14 @@ A REAL word is the bits of the IEEE double (no order preserving encoding), so pr
 tests, the oracle goldens, the IEEE fuzz and a differential fuzz (the old path against this one) with it; `tests/direct/stage2.sh` has it compile
 itself and requires the second generation to write the same IR as the first for every program. Both are part of `make check` (x86_64).
 
+## Optimization
+
+Pass 2 of pcc runs with all its optimizations by default (`-xtemps -xdeljumps -xdce -xssa -xccp -xscp -xtailcall`; `IMP72CC1FLAGS=` sets other flags, an empty value
+none). Two things in the IR make that work: pcc's `deljumps` wants the layout `PROLOG, LABEL, argument moves, LABEL, code, EPILOG`, so each function has a label
+after the argument moves; and a double is never held in a temp (on the i386 `-xtemps` mishandles the x87 stack for them): the word is stored in a scratch word
+`imp_fs0`/`imp_fs1`, read as a double where it is used, and the result is stored in `imp_fsr` and read back as a word. The seed's translator (`trans.c`) still holds doubles in temps,
+so the seed driver leaves out `-xtemps` and `-xssa`.
+
 ## What differs from the original, and why
 
 The rule is that the IMP text stays the original's, and changes only (1) where it emitted PDP-10 instructions, (2) where it relied on 36 bits, (3) for floating point.
@@ -56,7 +64,12 @@ counterpart of (`amod`, `rmod`, `omod`).
 - **The halves of a word are 32 bits, constants written in octal are 36 bits** (`765432107654B` is negative: 36 bit two's complement), a LS count of
   64 or more gives 0, and `X RS 30` of a negative number is a 64 bit logical shift (`tests/golden/pccir/constshifts.out`).
 
+## The PDP-10 constructs
+
+`XWD A,B` is `(A AND HMASK) LS 32 OR (B AND HMASK)` (the halves are 32 bits) and `IOWD A,B` is `XWD -A,B-1`; `CALLI(A,B)` calls the library routine `imp_calli` with the
+code and the AC (an operation of the machine, as the instruction was); `EXECUTE` has no meaning where a word holds no instruction (the tape uses it for the `BLT` and `JSA` of
+its free storage routines, which are `memmove` and a call here), and is an error. `tests/direct/progs/pdp10.imp` tests them.
+
 ## What remains
 
-The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Tried: x86_64 and i386 (the primary targets), and aarch64 (in a container). Not done: armv7 and the others (`make` skips the pcc IR compiler there). On a 32 bit machine a call cannot carry a 64 bit word, so the helpers that IMP calls with `CCALL` (`stage0/pccirsem.c`) take `long`s and a 64 bit value crosses as two halves, and the runtime routines for shifts take addresses, `PRINT` of the text constants over 8 characters in `LOC`, `EXECUTE`/`CALLI`/`XWD`/`IOWD`
-(PDP-10 only: they are in `syntax64.imc` as the original wrote them and fail with "UNKNOWN OPERATION IN THE CODE").
+The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Tried: x86_64 and i386 (the primary targets), and aarch64 (in a container). Not done: armv7 and the others (`make` skips the pcc IR compiler there). On a 32 bit machine a call cannot carry a 64 bit word, so the helpers that IMP calls with `CCALL` (`stage0/pccirsem.c`) take `long`s and a 64 bit value crosses as two halves, and the runtime routines for shifts take addresses, `PRINT` of the text constants over 8 characters in `LOC`, 

@@ -427,24 +427,23 @@ ir_param(int k)
  */
 int ir_usedfs;
 
+/*
+ * The double for the word w, kept in the scratch word imp_fsK (K 0 or 1) and read from memory where it is used, never held in a temp: pass 2 of pcc
+ * (-xtemps) mishandles double temps on the i386, where they live in the x87 stack.  The expression that combines two of them is the value; ir_fromdouble
+ * stores the double it is given in imp_fsr and the word is read back from there.
+ */
 struct irn *
-ir_todouble(struct irn *w)
+ir_todouble(struct irn *w, int k)
 {
-    int c = ir_newtemp();
-
     ir_usedfs = 1;
-    asg(ir_name("imp_fs", 0, T_LONG), w);
-    asg(ir_temp(c, T_DOUBLE), ir_name("imp_fs", 0, T_DOUBLE));
-    return ir_temp(c, T_DOUBLE);
+    asg(ir_name(k ? "imp_fs1" : "imp_fs0", 0, T_LONG), w);
+    return ir_name(k ? "imp_fs1" : "imp_fs0", 0, T_DOUBLE);
 }
 
 struct irn *
 ir_fromdouble(struct irn *d)
 {
-    int c = ir_newtemp();
-
     ir_usedfs = 1;
-    asg(ir_name("imp_fs", 0, T_DOUBLE), d);
-    asg(ir_temp(c, T_LONG), ir_name("imp_fs", 0, T_LONG));
-    return ir_temp(c, T_LONG);
+    asg(ir_name("imp_fsr", 0, T_DOUBLE), d);
+    return ir_name("imp_fsr", 0, T_LONG);
 }

@@ -1587,6 +1587,7 @@ subr(long i0, long i1, int ismain)
             asg(ir_temp(paramtmp[k], T_PLONG), ir_un(IR_UMUL, T_PLONG,
                 ir_bin(IR_PLUS, T_PLONG, ir_reg(R_RBP, T_PLONG), ir_icon(irtgt->stackarg0 + irtgt->argslot * (k - NARGREG), T_LONG))));
     }
+    ir_label(ir_newlabel());                    /* pcc's deljumps: PROLOG, LABEL, argument moves, LABEL, code */
     rettmp = ir_newtemp();
     lastmove = 0;
     lastaddr = 0;

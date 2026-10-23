@@ -24,7 +24,7 @@ const int imp_pccir = 1;                /* the compiler with this code generator
 RT(addop) RT(addr) RT(anycode) RT(areg) RT(areg1) RT(assemc) RT(bytep) RT(callme) 
 RT(cjump) RT(conop) RT(coppy) RT(copyco) RT(datast) RT(decl) RT(declare) RT(demit) 
 RT(dewfun) RT(dewop) RT(enlist) RT(fetch) RT(fix) RT(float) RT(freeze) RT(getlist) 
-RT(hisreg) RT(hook) RT(iinit) RT(jop) RT(mcode) RT(moveblk) RT(n) RT(name) 
+RT(hisreg) RT(hook) RT(iinit) RT(jop) RT(mcode) RT(moveblk) RT(xctop) RT(n) RT(name) 
 RT(newlist) RT(nsubp) RT(ojumpop) RT(oneword) RT(pairfirst) RT(princal) RT(prinpar) RT(reg0) 
 RT(reg2) RT(reg2s) RT(regeq) RT(regof) RT(regsim) RT(remot) RT(return) RT(rmatch) 
 RT(samereg) RT(stackup) RT(store) RT(subbeg) RT(subcall) RT(subend) RT(subpr0) RT(subprm) 
@@ -350,7 +350,7 @@ ixcall(long fn, long a, long n, long cret)
     return W(ir_xcall(N(fn), v, (int)n, (int)cret));
 }
 long ixparam(long k) { return W(ir_param((int)k)); }
-long ixtodouble(long w) { return W(ir_todouble(N(w))); }
+long ixtodouble(long w, long k) { return W(ir_todouble(N(w), (int)k)); }
 long ixfromdouble(long d) { return W(ir_fromdouble(N(d))); }
 
 /* by reference, for the IMP modules (the glue calls of src/pccir) */
@@ -475,4 +475,5 @@ codegen_init(void)
     dsemi("CJUMP", (semifn)impl_cjump);
     dsemi("JOP", (semifn)impl_jop);
     dsemi("MOVEBLK", (semifn)impl_moveblk);
+    dsemi("XCTOP", (semifn)impl_xctop);
 }
