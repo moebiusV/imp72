@@ -33,29 +33,24 @@ for m in $srcmodules; do
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
-# every symbol the modules of src/pccir define, except the ones shared with the C side, gets the prefix in all of them (they call one another by name);
-# the modules of src/ are renamed one by one, as tools/stage1.sh does: what they call and do not define is the C side's (DIR('X') from parse.imp is
-# dir() of C, which takes the string's address), and not another module's routine
+# every symbol the modules define (src/pccir and src/), except the ones shared with the C side, gets the prefix in all of them: they call one another by the
+# tape's names.  What they call and do not define is the C side's
 syms=
-for m in $modules; do
+for m in $modules $srcmodules; do
     syms="$syms $(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }')"
 done
 syms=$(printf '%s\n' $syms | sort -u | grep -vx -f src/shared.txt | grep -vx -f src/pccir/shared.txt || true)
 args=
 for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
 objs=
-for m in $modules; do
+repl=
+for m in $modules $srcmodules; do
     $OBJCOPY $args $out/$m.imp.o $out/$m.imp2.o
     objs="$objs $out/$m.imp2.o"
 done
-repl=
 for m in $srcmodules; do
-    ms=$(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }' | grep -vx -f src/shared.txt | grep -vx -f src/pccir/shared.txt || true)
-    margs=
-    for s in $ms; do margs="$margs --redefine-sym $s=impl_$s"; done
-    $OBJCOPY $margs $out/$m.imp.o $out/$m.imp2.o
     cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
-    objs="$objs $out/$m.imp2.o $out/${m}_c.o"
+    objs="$objs $out/${m}_c.o"
     repl="$repl stage0/$m.o"
 done
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
