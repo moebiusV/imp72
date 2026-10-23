@@ -96,4 +96,12 @@ void ir_cbranch(int op, struct irn *l, struct irn *r, int label);
 void ir_func_end(int retlab, int rettemp);
 void ir_pass(const char *fmt, ...);             /* a line for the assembler */
 
+/* for a front end that makes the IR directly */
+struct irn *ir_xshift(int right, struct irn *l, struct irn *r);
+struct irn *ir_xcall(struct irn *fn, struct irn **a, int n, int cret);
+struct irn *ir_param(int k);
+struct irn *ir_todouble(struct irn *w);
+struct irn *ir_fromdouble(struct irn *d);
+extern int ir_usedfs;
+
 #endif

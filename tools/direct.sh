@@ -1,0 +1,48 @@
+#!/bin/sh
+# direct.sh: build build/direct/imp72d, the kernel with the code generator of src/ir (the translation of the tape's code*.imc and
+# impsem.imc whose instructions are those of pcc IR, docs/porting/ir-machine.md) in place of codegen.c, impsem.c, trans.c and pcode.c.
+# The modules are compiled by imp72stage0 (the compiler with the old code generator), each next to the others: their symbols
+# are renamed impl_NAME (all of them in all the objects, so that the modules call one another by name), except the variables the C
+# side shares (src/ir/shared.txt and src/shared.txt); stage0/irsem.c registers the routines and has the C helpers.  Run from the top
+# of the tree after `make`.  imp72d with the syntax src/ir/syntax64.imc compiles IMP to pcc IR itself.
+set -e
+if [ -z "$OBJCOPY" ]; then
+    if command -v llvm-objcopy >/dev/null 2>&1; then OBJCOPY=llvm-objcopy
+    elif command -v objcopy >/dev/null 2>&1; then OBJCOPY=objcopy
+    else echo "direct: no objcopy (ELF only)" >&2; exit 77; fi
+fi
+root=$(cd "$(dirname "$0")/.." && pwd)
+cd "$root"
+modules=${MODULES:-impsem code code2 code3 demit}
+out=${DIRECT_OUT:-build/direct}
+driver=${DIRECT_DRIVER:-stage0/imp72stage0}
+mkdir -p $out
+export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
+for m in $modules; do
+    $driver -c -o $out/$m.imp.o src/impsyn64.imc src/ir/irsyn.imc src/ir/$m.imp >$out/$m.log 2>&1 \
+        || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
+done
+# every symbol the modules define, except the ones shared with the C side
+syms=
+for m in $modules; do
+    syms="$syms $(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }')"
+done
+syms=$(printf '%s\n' $syms | sort -u | grep -vx -f src/shared.txt | grep -vx -f src/ir/shared.txt || true)
+args=
+for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
+objs=
+for m in $modules; do
+    $OBJCOPY $args $out/$m.imp.o $out/$m.imp2.o
+    objs="$objs $out/$m.imp2.o"
+done
+cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/irsem.c -o $out/irsem.o
+cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIR_DIRECT -c stage0/impglue.c -o $out/impglue.o
+objs="$objs $out/irsem.o $out/impglue.o"
+keep=
+for o in stage0/*.o; do
+    case $o in stage0/imp72s0.o|stage0/codegen.o|stage0/impsem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
+    keep="$keep $o"
+done
+cc -no-pie -o $out/imp72d stage0/imp72s0.o $keep $objs build/lib/libimp72.a
+ln -sf imp72d $out/imp72stage-ir
+echo "built $out/imp72d with the code generator of src/ir: $modules"

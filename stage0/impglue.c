@@ -142,7 +142,9 @@ word impnoteprod(word *p, word *n) { noteprod(*p, *n); sync(); return 0; }
 word impenprod(word *p, word *n, word *s) { enprod(*p, *n, *s); sync(); return 0; }
 word impmatchp(word *p, word *n) { word r = matchp(*p, *n); sync(); return r; }
 word impsameas(word *s, word *k) { word r = sameas(*s, *k); sync(); return r; }
+#ifndef IR_DIRECT
 word imponeword(word *s) { word r = oneword(*s); sync(); return r; }
+#endif
 
 /* DIR of a name packed five characters to a word, as the IMP source builds it */
 word
@@ -210,9 +212,11 @@ word impgetlist(word *s) { word r = getlist(*s); sync(); return r; }
 word impenstack(word *v) { word r = enstack(*v); sync(); return r; }
 
 /* the lexical analyser's calls (src/lex.imp) */
+#ifndef IR_DIRECT
 extern word lex_srcgetc(void);
 
 word impsrcgetc(word *unused) { (void)unused; return lex_srcgetc(); }
+#endif
 
 /* DIR of a token held one character to a word, ended by a 0: the argument is the free storage index of the array */
 word
@@ -282,12 +286,16 @@ impplinelw(word *linex, word *ol)
     return 0;
 }
 
+#ifndef IR_DIRECT
 /* the register and declaration routines' calls (src/impsem.imp) */
 word impaddcode(word *s, word *w1, word *w2) { word r = addcode(*s, *w1, *w2); sync(); return r; }
 word imphook(word *d, word *a, word *b) { word r = hook(*d, *a, *b); sync(); return r; }
 word impfreeze(word *s) { word r = freeze(*s); sync(); return r; }
 word impanyco(word *unused) { (void)unused; return anyco(); }
 word impdewfun(word *s, word *i, word *j) { word r = dewfun(*s, *i, *j); sync(); return r; }
+#endif
 word impnewpar(word *unused) { (void)unused; return newname("PAR"); }
 word impimpm(word *unused) { (void)unused; dir("IMPM."); return 0; }
+#ifndef IR_DIRECT
 word impsubtag(word *n) { return subtag(*n); }
+#endif

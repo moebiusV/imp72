@@ -313,3 +313,138 @@ ir_func_end(int retlab, int rettemp)
     if (irtgt->ippmem)
         fprintf(out, ") 0\n");
 }
+
+/* ---- helpers for a front end that makes the IR directly (src/ir/demit.imp) ----------------------------------------------- */
+
+#define NARGREG (irtgt->narg)
+
+static void
+asg(struct irn *l, struct irn *r)
+{
+    ir_stmt(ir_assign(l, r));
+}
+
+/*
+ * A shift (right: 0 left, 1 logical right, 2 arithmetic right): pcc handles a shift of a temp by an int count assigned back to the same temp, so every shift goes through one: the
+ * result is a fresh temp node.  (A constant on the left, or a shift whose operand is not the destination, is not code pcc can
+ * generate.)  The count is that of C: 0 to 63.
+ */
+struct irn *
+ir_xshift(int right, struct irn *l, struct irn *r)
+{
+    int c = ir_newtemp();
+    struct irn *cnt;
+
+    if (r->op == IR_ICON)
+        cnt = ir_icon(r->lval, T_INT);
+    else {
+        int k = ir_newtemp();
+
+        asg(ir_temp(k, T_LONG), r);
+        cnt = ir_un(IR_SCONV, T_UCHAR, ir_temp(k, T_LONG));  /* pcc: counts are chars */
+    }
+    asg(ir_temp(c, T_LONG), l);
+    if (right == 2)                                     /* arithmetic: the sign is kept */
+        asg(ir_temp(c, T_LONG), ir_bin(IR_RS, T_LONG, ir_temp(c, T_LONG), cnt));
+    else if (right)
+        asg(ir_temp(c, T_LONG), ir_un(IR_SCONV, T_LONG, ir_bin(IR_RS, T_ULONG,
+            ir_un(IR_SCONV, T_ULONG, ir_temp(c, T_LONG)), cnt)));
+    else
+        asg(ir_temp(c, T_LONG), ir_bin(IR_LS, T_LONG, ir_temp(c, T_LONG), cnt));
+    return ir_temp(c, T_LONG);
+}
+
+/*
+ * A call of fn with the arguments a[0..n-1]: in registers and in the outgoing stack area as the machine's procedure call
+ * standard wants, or as FUNARG nodes that pass 2 pushes (i386).  A function of the runtime or of C returns a C `long`: on i386
+ * an int, which is widened to the word (cret).
+ */
+struct irn *
+ir_xcall(struct irn *fn, struct irn **a, int n, int cret)
+{
+    struct irn *cm = NULL, *tree;
+    int k, rt = T_LONG, qual = 0;
+
+    if (irtgt->wordll)                                  /* a word argument: the C long */
+        for (k = 0; k < n; k++)
+            if (!(a[k]->type & T_PTR) && a[k]->type != T_INT)
+                a[k] = ir_un(IR_SCONV, T_INT, a[k]);
+    if (irtgt->fnargs) {
+        for (k = 0; k < n; k++) {
+            struct irn *v = a[k], *f;
+
+            f = ir_un(IR_FUNARG, v->type, v);
+            cm = cm == NULL ? f : ir_bin(IR_CM, T_INT, cm, f);
+        }
+        if (cret)
+            rt = T_INT;
+    } else {
+        /* the arguments beyond the registers go in the outgoing stack area, which pcc reserves for any assignment to memory
+         * in a call's list; they come first, the register ones last */
+        for (k = irtgt->narg; k < n && irtgt->pushargs; k++) {  /* pass 2 pushes from the right: the last first */
+            struct irn *f = ir_un(IR_FUNARG, a[k]->type, a[k]);
+
+            cm = cm == NULL ? f : ir_bin(IR_CM, T_INT, cm, f);
+            qual += irtgt->argslot;
+        }
+        for (k = irtgt->narg; k < n && !irtgt->pushargs; k++) {
+            struct irn *m = ir_un(IR_UMUL, a[k]->type, ir_bin(IR_PLUS, T_PLONG,
+                ir_reg(R_RSP, T_PLONG), ir_icon(irtgt->argslot * (k - irtgt->narg), T_LONG)));
+            struct irn *as = ir_assign(m, a[k]);
+
+            cm = cm == NULL ? as : ir_bin(IR_CM, T_INT, cm, as);
+        }
+        for (k = 0; k < n && k < irtgt->narg; k++) {
+            struct irn *as = ir_assign(ir_reg(irtgt->arg[k], a[k]->type), a[k]);
+
+            cm = cm == NULL ? as : ir_bin(IR_CM, T_INT, cm, as);
+        }
+        if (cret && irtgt->wordll)
+            rt = T_INT;
+        if (cret && n > 0 && strcmp(irtgt->name, "amd64") == 0)   /* varargs: %al = vector registers used */
+            cm = ir_bin(IR_CM, T_INT, cm, ir_assign(ir_reg(R_RAX, T_LONG), ir_icon(0, T_LONG)));
+    }
+    tree = n > 0 ? ir_bin(IR_CALL, rt, fn, cm) : ir_un(IR_UCALL, rt, fn);
+    tree->qual = qual;
+    if (rt != T_LONG)
+        tree = ir_un(IR_SCONV, T_LONG, tree);
+    return tree;
+}
+
+/* the pointer passed as parameter k of the function being made (the arguments are pointers to the values) */
+struct irn *
+ir_param(int k)
+{
+    if (k < NARGREG)
+        return ir_reg(irtgt->arg[k], T_PLONG);
+    return ir_un(IR_UMUL, T_PLONG, ir_bin(IR_PLUS, T_PLONG, ir_reg(R_RBP, T_PLONG),
+        ir_icon(irtgt->stackarg0 + irtgt->argslot * (k - NARGREG), T_LONG)));
+}
+
+/*
+ * A REAL is the 64 bits of an IEEE double kept in a word.  Registers are long temps, so an operation goes through the
+ * scratch word imp_fs: store the long, read it as a double, compute, store the double, read it as a long.
+ */
+int ir_usedfs;
+
+struct irn *
+ir_todouble(struct irn *w)
+{
+    int c = ir_newtemp();
+
+    ir_usedfs = 1;
+    asg(ir_name("imp_fs", 0, T_LONG), w);
+    asg(ir_temp(c, T_DOUBLE), ir_name("imp_fs", 0, T_DOUBLE));
+    return ir_temp(c, T_DOUBLE);
+}
+
+struct irn *
+ir_fromdouble(struct irn *d)
+{
+    int c = ir_newtemp();
+
+    ir_usedfs = 1;
+    asg(ir_name("imp_fs", 0, T_DOUBLE), d);
+    asg(ir_temp(c, T_LONG), ir_name("imp_fs", 0, T_LONG));
+    return ir_temp(c, T_LONG);
+}

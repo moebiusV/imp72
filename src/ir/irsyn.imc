@@ -1,0 +1,45 @@
+# THE MACHINE THE CODE GENERATOR COMPILES TO IS PCC IR (DOCS/PORTING/IR-MACHINE.MD).  THE RECORDS OF A CHAIN, THEIR OPERATIONS, AND THE
+  CODES OF THE IR OPERATORS AND TYPES THAT STAGE0/IR.H HAS, AS MACROS FOR THE MODULES OF SRC/IR. #
+
+ <ATOM> ::= RECW ::= "5";                                   # WORDS IN A RECORD #
+ <ATOM> ::= RNEXT(<A>) ::= "HL(FREE(CO+(A)))";              # THE NEXT RECORD OF THE CHAIN #
+ <ATOM> ::= RKIND(<A>) ::= "(FREE(CO+(A)) AND 377B)";
+ <ATOM> ::= ROP(<A>)   ::= "((FREE(CO+(A)) RS 8) AND 377B)";
+ <ATOM> ::= RRD(<A>)   ::= "FREE(CO+(A)+1)";                # THE ACCUMULATOR (A REGISTER INDEX) #
+ <ATOM> ::= RV0(<A>)   ::= "FREE(CO+(A)+2)";                # THE OPERAND, WORDS 0 AND 1 OF A STACK ENTRY #
+ <ATOM> ::= RV1(<A>)   ::= "FREE(CO+(A)+3)";
+ <ATOM> ::= RX(<A>)    ::= "FREE(CO+(A)+4)";
+
+ <ATOM> ::= KOP ::= "1";                                    # KIND OF A RECORD: AN OPERATION, #
+ <ATOM> ::= KTAG ::= "2";                                   # A TAG (X IS ITS DIRECTORY INDEX), #
+ <ATOM> ::= KWORD ::= "3";                                  # A WORD OF A DATA STATEMENT (V1 IS ITS VALUE) #
+
+ <ATOM> ::= OLOAD ::= "1";    <ATOM> ::= ONEG ::= "2";      <ATOM> ::= OCOMPL ::= "3";    <ATOM> ::= OADDR ::= "4";
+ <ATOM> ::= OSTORE ::= "5";   <ATOM> ::= OADD ::= "6";      <ATOM> ::= OSUB ::= "7";      <ATOM> ::= OMUL ::= "8";
+ <ATOM> ::= ODIV ::= "9";     <ATOM> ::= OMOD ::= "10";     <ATOM> ::= OAND ::= "11";     <ATOM> ::= OANDCA ::= "12";
+ <ATOM> ::= OANDCM ::= "13";  <ATOM> ::= OANDCB ::= "14";   <ATOM> ::= OIOR ::= "15";     <ATOM> ::= OORCA ::= "16";
+ <ATOM> ::= OORCM ::= "17";   <ATOM> ::= OORCB ::= "18";    <ATOM> ::= OXOR ::= "19";     <ATOM> ::= OEQV ::= "20";
+ <ATOM> ::= OLSH ::= "21";    <ATOM> ::= OASH ::= "22";     <ATOM> ::= OROT ::= "23";
+ <ATOM> ::= OFADD ::= "30";   <ATOM> ::= OFSUB ::= "31";    <ATOM> ::= OFMUL ::= "32";    <ATOM> ::= OFDIV ::= "33";
+ <ATOM> ::= OFLOAT ::= "34";  <ATOM> ::= OFIX ::= "35";  <ATOM> ::= ONEGF ::= "36";
+ <ATOM> ::= OJUMP ::= "40";   <ATOM> ::= OJEQ ::= "41";     <ATOM> ::= OJLT ::= "42";     <ATOM> ::= OJLE ::= "43";
+ <ATOM> ::= OJGE ::= "44";    <ATOM> ::= OJGT ::= "45";     <ATOM> ::= OJNE ::= "46";     <ATOM> ::= OFJ ::= "10";   # FJEQ = OJEQ+OFJ #
+ <ATOM> ::= OCALLB ::= "60";  <ATOM> ::= OARG ::= "61";     <ATOM> ::= OCALLE ::= "62";   <ATOM> ::= OPITEM ::= "63";
+ <ATOM> ::= OENTRY ::= "70";  <ATOM> ::= ORET ::= "71";     <ATOM> ::= OPARAM ::= "72";
+
+ # THE OPERATORS AND TYPES OF IR.H #
+ <ATOM> ::= IRNAME ::= "2";   <ATOM> ::= IRICON ::= "4";    <ATOM> ::= IRPLUS ::= "10";   <ATOM> ::= IRMINUS ::= "11";
+ <ATOM> ::= IRDIV ::= "12";   <ATOM> ::= IRMOD ::= "13";    <ATOM> ::= IRMUL ::= "14";    <ATOM> ::= IRAND ::= "15";
+ <ATOM> ::= IROR ::= "16";    <ATOM> ::= IRER ::= "17";     <ATOM> ::= IRLS ::= "18";     <ATOM> ::= IRRS ::= "19";
+ <ATOM> ::= IRCOMPL ::= "20"; <ATOM> ::= IRUMUL ::= "23";   <ATOM> ::= IRUMINUS ::= "24"; <ATOM> ::= IREQ ::= "25";
+ <ATOM> ::= IRNE ::= "26";    <ATOM> ::= IRLE ::= "27";     <ATOM> ::= IRLT ::= "28";     <ATOM> ::= IRGE ::= "29";
+ <ATOM> ::= IRGT ::= "30";    <ATOM> ::= IRSCONV ::= "37";  <ATOM> ::= IRPCONV ::= "38";
+ <ATOM> ::= TUCHAR ::= "3";   <ATOM> ::= TINT ::= "6";      <ATOM> ::= TLONG ::= "8";     <ATOM> ::= TULONG ::= "9";
+ <ATOM> ::= TDOUBLE ::= "13"; <ATOM> ::= TPLONG ::= "40";   <ATOM> ::= TPFTN ::= "296";
+
+ # THE ROUTINES OF THE KERNEL THE MODULES CALL (STAGE0/IRSEM.C, STAGE0/IMPGLUE.C) #
+ <ATOM> ::= ENSTACK(<A>)  ::= "IMPENSTACK(A)";
+ <ATOM> ::= GETLIST(<A>)  ::= "IMPGETLIST(A)";
+ <ATOM> ::= STCON(<A>)    ::= "IRSTCON(A)";
+ <ATOM> ::= CONVC(<A>)    ::= "IRCONVC(A)";
+ <ATOM> ::= CONST         ::= "IRCONST(0)"%%
