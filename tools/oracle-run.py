@@ -45,7 +45,7 @@ def run(progs, outdir, lst=False):
             t.cmd("DELETE PO.,%s.REL" % n)
             t.send("RUN IMP\r")
             t.expect(r"^\*", 60)
-            t.send("%s.IMP%s\r" % (n, "/A/L" if lst else ""))
+            t.send("%s.IMP%s\r" % (n, (os.environ.get("ORACLE_SW", "/A") + "/L") if lst else ""))
             comp = t.expect(r"^\.", 600)
             if lst:                         # the assembly listing only: no link, no run
                 t.send("TYPE %s.LST\r" % n)
