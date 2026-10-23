@@ -30,7 +30,7 @@
 #include <string.h>
 #include "imp.h"
 
-word *fmem;
+word fb;                    /* the address of fmem (imp.h): the base of the arena */
 
 static word fsize;          /* words allocated to fmem */
 static word forgn = 8;      /* FORGN: dummy header at the bottom.  Not 0:
@@ -74,7 +74,7 @@ core(word k)
     if (p == NULL)
         return 0;
     memset(p + fsize, 0, (size_t)(k + 1 - fsize) * sizeof *p);
-    fmem = p;
+    fb = (word)(intptr_t)p;
     fsize = k + 1;
     return 1;
 }

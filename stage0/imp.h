@@ -74,7 +74,8 @@ void imp_fatal_handler(void (*fn)(void));  /* where a fatal error unwinds to */
 
 /* ---- free.c: relocatable free storage (free.imc) ----------------------- */
 
-extern word *fmem;                /* [FORG+...]: the free storage area */
+extern word fb;                   /* the base address of the free storage area: a word, so that the IMP modules (FB) and the C ones share it */
+#define fmem ((word *)(intptr_t)fb)   /* [FORG+...]: the free storage area */
 
 /*
  * FREE and FREES are functions, not macros: `FREES(a, f())` with an f that
