@@ -48,7 +48,7 @@ init(void)
     frelot(&rg, "REGS", 300, NULL);
     regn = 65;
     for (i = 0; i <= 63; i++)
-        FREES(rg + i + 1, (word)((10000L & (i << 7)) | (0101L * (i & 037))));
+        FREES(rg + i + 1, (word)((010000L & (i << 7)) | (0101L * (i & 037))));
     dir("IMPM.");
     subtmpn = 0;
     subtmp = newname("PAR");

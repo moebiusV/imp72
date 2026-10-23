@@ -19,7 +19,7 @@ if [ -n "${STAGE1_NOPIE+x}" ]; then nopie=$STAGE1_NOPIE; else
 fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
-modules=${MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex}
+modules=${MODULES:-free debug impsem stack dir graph parse ercor entree cotree dosem rsyn lex}
 out=${STAGE_OUT:-build/stage1}
 driver=${STAGE_DRIVER:-stage0/imp72stage0}
 name=${STAGE_NAME:-imp72s1}

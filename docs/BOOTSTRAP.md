@@ -7,7 +7,7 @@ The goal is a compiler written in IMP72 that compiles itself. The route:
 2. **The sources are ported** to the 64 bit model one module at a time (`src/*.imp`, notes in `docs/porting/`). A ported module is
    compiled by stage 0 (`imp72stage0`) and links in place of its C counterpart.
 3. **Stage 1** (`tools/stage1.sh` builds `build/stage1/imp72s1`) is stage 0 with the ported modules replaced by their IMP
-   versions compiled by stage 0: `free`, `debug`, `stack`, `dir`, `graph`, `parse`, `ercor`, `entree`, `cotree`, `dosem`, `rsyn`, `lex`.
+   versions compiled by stage 0: `free`, `debug`, `impsem`, `stack`, `dir`, `graph`, `parse`, `ercor`, `entree`, `cotree`, `dosem`, `rsyn`, `lex`.
 4. **The test** (`tests/self/stage1.sh`) requires stage 1 to write the same IR as stage 0 for every program: the native tests,
    every module of the tape, and the ported sources themselves. That the stage 1 compiler compiles its own modules to the
    IR stage 0 makes of them is the fixed point for the part that is ported (equal IR is equal objects: the back end is the
@@ -17,7 +17,7 @@ The goal is a compiler written in IMP72 that compiles itself. The route:
    linked from them, writes the same IR as stage 0. So the compiler written in IMP compiles itself to what it was
    compiled to.
 6. **What is not ported** stays in C and is the compiler's back end, as planned: the semantic routines of the PDP-10 code
-   generator (`sem.c`, `impsem.c`, `codegen.c`), the translator to IR (`trans.c`, `ir.c`), the driver.
+   generator (`sem.c`, `codegen.c`), the translator to IR (`trans.c`, `ir.c`), the driver.
    The IMP modules reach them through `stage0/impglue.c` (arguments by reference; `tools/glue-lint.py` checks it).
 
 Each stage is built in its own directory (`build/stage1/`), and nothing is installed from a stage that has not passed its test.

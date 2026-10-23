@@ -45,3 +45,6 @@ forgn
 fend
 nreloc
 falln
+arr
+narr
+regn

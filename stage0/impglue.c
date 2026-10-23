@@ -281,3 +281,13 @@ impplinelw(word *linex, word *ol)
     fputc('\n', stderr);
     return 0;
 }
+
+/* the register and declaration routines' calls (src/impsem.imp) */
+word impaddcode(word *s, word *w1, word *w2) { word r = addcode(*s, *w1, *w2); sync(); return r; }
+word imphook(word *d, word *a, word *b) { word r = hook(*d, *a, *b); sync(); return r; }
+word impfreeze(word *s) { word r = freeze(*s); sync(); return r; }
+word impanyco(word *unused) { (void)unused; return anyco(); }
+word impdewfun(word *s, word *i, word *j) { word r = dewfun(*s, *i, *j); sync(); return r; }
+word impnewpar(word *unused) { (void)unused; return newname("PAR"); }
+word impimpm(word *unused) { (void)unused; dir("IMPM."); return 0; }
+word impsubtag(word *n) { return subtag(*n); }

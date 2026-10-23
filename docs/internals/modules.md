@@ -19,7 +19,8 @@ compiler that compiles itself.
 | cotree | `cotree.imc` | `cotree.c` | `src/cotree.imp` | `porting/cotree.md` |
 | dosem | `dosem.imc` | `dosem.c` | `src/dosem.imp` | `porting/dosem.md` |
 | rsyn | `rsyn.imc` | `rsyn.c` | `src/rsyn.imp` | `porting/rsyn.md` |
-| sem, impsem, codegen | `impsem.imc`, `code*.imc` | `sem.c`, `impsem.c`, `codegen.c` | no | |
+| impsem | `impsem.imc` | `impsem.c`, `impsem_imp.c` | `src/impsem.imp` | `porting/impsem.md` |
+| sem, codegen | `impsem.imc` (lists), `code*.imc` | `sem.c`, `codegen.c` | no | |
 | trans, ir, pcode | `amod.imc`, `rmod.imc`, `omod.imc` (replaced) | `trans.c`, `ir.c`, `pcode.c` | no | |
 | debug | `debug.imc` | `debug.c`, `debug_imp.c`, `pr.c` | `src/debug.imp` | `porting/debug.md` |
 | pr, error | PMOD (part), `impm.imc` (ERROR, MSG) | `pr.c`, `error.c` | no | |
@@ -114,6 +115,8 @@ semantics` in a tiny notation, making the graph and the semantics array, exactly
 semantic routines too, registered by name, because the bootstrapped syntax calls them for the rest of the file. Ported to IMP.
 
 ## sem, impsem, codegen: the semantic routines
+
+`impsem` is ported to IMP (`docs/porting/impsem.md`); `sem.c` and `codegen.c` are C.
 
 `sem.c` is the table of routines (`dsem(name, fn)`; a routine's id is stored as the `SEM` property of its name) and the
 list routines `NEWLIST`, `ENLIST`, `GETLIST`, plus `ASSEMC`, which hands a finished program to the translator.

@@ -387,6 +387,7 @@ word rmatch(word i, word j, word rn);
 word subpr0(word i);
 word subprm(word i);
 word subtmpf(void);
+word subtag(word n);
 word subbeg(word a);
 word subend(void);
 word remot(word a);
