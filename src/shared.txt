@@ -41,3 +41,7 @@ prosem
 nprosem
 scratch
 casep
+forgn
+fend
+nreloc
+falln

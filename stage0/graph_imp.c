@@ -41,13 +41,7 @@ extern word impl_graph(word *, word *, word *), impl_gmatr(word *), impl_ggoal(w
     impl_gpout1(word *, word *, word *), impl_gpout2(word *, word *, word *),
     impl_graphf(void);
 
-word fb;                            /* the base of free storage, for IMP (stack_imp.c has it too) */
 
-static void
-sync(void)
-{
-    fb = (word)(intptr_t)fmem;
-}
 
 #define NODEWORD(n) FREE(ga + (n) + 1)
 
@@ -70,22 +64,21 @@ gprint(void)
     gprin1();
 }
 
-word graph(word synt, word nsynt, word pnq) { sync(); return impl_graph(&synt, &nsynt, &pnq); }
-word gmatr(word tfl) { sync(); return impl_gmatr(&tfl); }
-word ggoal(word nt) { sync(); return impl_ggoal(&nt); }
+word graph(word synt, word nsynt, word pnq) { return impl_graph(&synt, &nsynt, &pnq); }
+word gmatr(word tfl) { return impl_gmatr(&tfl); }
+word ggoal(word nt) { return impl_ggoal(&nt); }
 word gentry(void) { return impl_gentry(); }
-word gconn(word q, word qgoal) { sync(); return impl_gconn(&q, &qgoal); }
-word gmade(word q, word qgoal) { sync(); return impl_gmade(&q, &qgoal); }
-word galt(word q, word qgoal) { sync(); return impl_galt(&q, &qgoal); }
-word gnext(word q, word qgoal) { sync(); return impl_gnext(&q, &qgoal); }
-word gleap(word nt, word no) { sync(); return impl_gleap(&nt, &no); }
+word gconn(word q, word qgoal) { return impl_gconn(&q, &qgoal); }
+word gmade(word q, word qgoal) { return impl_gmade(&q, &qgoal); }
+word galt(word q, word qgoal) { return impl_galt(&q, &qgoal); }
+word gnext(word q, word qgoal) { return impl_gnext(&q, &qgoal); }
+word gleap(word nt, word no) { return impl_gleap(&nt, &no); }
 
 word
 gnt2t(word nt, word *ni, word gl)
 {
     word no = 0;
 
-    sync();
     return impl_gnt2t(&nt, ni, &gl, &no);
 }
 
@@ -94,10 +87,9 @@ gnt2tx(word nt, word *ni, word gl)
 {
     word no = 0;
 
-    sync();
     return impl_gnt2tx(&nt, ni, &gl, &no);
 }
 
-void gpout1(word cnode, word nnode, word put) { sync(); impl_gpout1(&cnode, &nnode, &put); }
-void gpout2(word cnode, word goal, word put) { sync(); impl_gpout2(&cnode, &goal, &put); }
-void graphf(void) { sync(); impl_graphf(); }
+void gpout1(word cnode, word nnode, word put) { impl_gpout1(&cnode, &nnode, &put); }
+void gpout2(word cnode, word goal, word put) { impl_gpout2(&cnode, &goal, &put); }
+void graphf(void) { impl_graphf(); }

@@ -32,7 +32,6 @@
 #include <string.h>
 #include "imp.h"
 
-extern word fb;                         /* the base of free storage, for IMP */
 extern word casep;
 extern word impl_dosem(word *), impl_setsem(word *, word *), impl_resetsem(word *, word *),
     impl_semfix(word *, word *), impl_semfx1(word *, word *, word *),
@@ -41,11 +40,6 @@ extern word impl_dosem(word *), impl_setsem(word *, word *), impl_resetsem(word 
     impl_snoden(word *), impl_enstack(word *), impl_snarg(word *), impl_semget(word *),
     impl_semed(word *), impl_semor(word *, word *), impl_cksval(word *, word *);
 
-static void
-sync(void)
-{
-    fb = (word)(intptr_t)fmem;
-}
 
 word
 par(word i)
@@ -73,23 +67,23 @@ dosem_dsems(void)
     dsem("STACK", w_stack);
 }
 
-word dosem(word ppo) { word r; sync(); r = impl_dosem(&ppo); sync(); return r; }
-word setsem(word ty, word val) { word r; sync(); r = impl_setsem(&ty, &val); sync(); return r; }
-void resetsem(word val, word a) { sync(); impl_resetsem(&val, &a); }
-word semfix(word i, word a) { word r; sync(); r = impl_semfix(&i, &a); sync(); return r; }
-word semfx1(word i, word a, word na) { word r; sync(); r = impl_semfx1(&i, &a, &na); sync(); return r; }
-void docase(word id, word semn, word prodn) { sync(); impl_docase(&id, &semn, &prodn); sync(); }
-void enprod(word pn, word no, word sem) { sync(); impl_enprod(&pn, &no, &sem); sync(); }
-word matchp(word pn, word n) { sync(); return impl_matchp(&pn, &n); }
-void noteprod(word pn, word n) { sync(); impl_noteprod(&pn, &n); sync(); }
-word plies(word i) { sync(); return impl_plies(&i); }
-word snoden(word i) { sync(); return impl_snoden(&i); }
-word enstack(word v) { word r; sync(); r = impl_enstack(&v); sync(); return r; }
-word snarg(word n) { sync(); return impl_snarg(&n); }
-word semget(word n) { sync(); return impl_semget(&n); }
-word semed(word a) { sync(); return impl_semed(&a); }
-void semor(word a, word n) { sync(); impl_semor(&a, &n); sync(); }
-word cksval(word v, word i) { sync(); return impl_cksval(&v, &i); }
+word dosem(word ppo) { word r; r = impl_dosem(&ppo); return r; }
+word setsem(word ty, word val) { word r; r = impl_setsem(&ty, &val); return r; }
+void resetsem(word val, word a) { impl_resetsem(&val, &a); }
+word semfix(word i, word a) { word r; r = impl_semfix(&i, &a); return r; }
+word semfx1(word i, word a, word na) { word r; r = impl_semfx1(&i, &a, &na); return r; }
+void docase(word id, word semn, word prodn) { impl_docase(&id, &semn, &prodn); }
+void enprod(word pn, word no, word sem) { impl_enprod(&pn, &no, &sem); }
+word matchp(word pn, word n) { return impl_matchp(&pn, &n); }
+void noteprod(word pn, word n) { impl_noteprod(&pn, &n); }
+word plies(word i) { return impl_plies(&i); }
+word snoden(word i) { return impl_snoden(&i); }
+word enstack(word v) { word r; r = impl_enstack(&v); return r; }
+word snarg(word n) { return impl_snarg(&n); }
+word semget(word n) { return impl_semget(&n); }
+word semed(word a) { return impl_semed(&a); }
+void semor(word a, word n) { impl_semor(&a, &n); }
+word cksval(word v, word i) { return impl_cksval(&v, &i); }
 
 void
 semper(void)

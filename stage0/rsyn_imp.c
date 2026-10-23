@@ -36,17 +36,11 @@
 #include <stdint.h>
 #include "imp.h"
 
-extern word fb;                         /* the base of free storage, for IMP */
 extern word impl_rsyn(word *), impl_synarg(word *), impl_defcase(word *), impl_rcase(word *, word *),
     impl_quosem(word *), impl_equose(word *), impl_sembit(word *), impl_sytrm(word *), impl_synts(word *),
     impl_semantics(word *), impl_syntax(word *), impl_semr(word *, word *), impl_semp(word *, word *),
     impl_synt(word *, word *), impl_valu(word *, word *), impl_repval(word *, word *);
 
-static void
-sync(void)
-{
-    fb = (word)(intptr_t)fmem;
-}
 
 #define P(i) ((word *)(uintptr_t)&p[i])
 static word t_defcase(const word *p) { return impl_defcase(P(0)); }
@@ -89,7 +83,6 @@ rsyn_dsems(void)
 word
 synarg(word i)
 {
-    sync();
     return impl_synarg(&i);
 }
 
@@ -98,23 +91,21 @@ rsyn(void)
 {
     word tr = 0;
 
-    sync();
     impl_rsyn(&tr);
-    sync();
 }
 
 /* the by-value entry points of the semantic routines (impsem.c and others call some) */
-word synt(word a, word b) { word r; sync(); r = impl_synt(&a, &b); sync(); return r; }
-word sytrm(word a) { word r; sync(); r = impl_sytrm(&a); sync(); return r; }
-word synts(word n) { word r; sync(); r = impl_synts(&n); sync(); return r; }
-word semantics(void) { word r, nil = 0; sync(); r = impl_semantics(&nil); sync(); return r; }
-word syntax(word n) { word r; sync(); r = impl_syntax(&n); sync(); return r; }
-word semr(word a, word b) { word r; sync(); r = impl_semr(&a, &b); sync(); return r; }
-word semp(word a, word b) { word r; sync(); r = impl_semp(&a, &b); sync(); return r; }
-word quosem(word a) { word r; sync(); r = impl_quosem(&a); sync(); return r; }
-word equose(word a) { word r; sync(); r = impl_equose(&a); sync(); return r; }
-word defcase(word n) { word r; sync(); r = impl_defcase(&n); sync(); return r; }
-word docase_(word a, word f) { word r; sync(); r = impl_rcase(&a, &f); sync(); return r; }
-word sembit(word a) { word r; sync(); r = impl_sembit(&a); sync(); return r; }
-word repval(word s, word a) { word r; sync(); r = impl_repval(&s, &a); sync(); return r; }
-word valu(word n, word s) { word r; sync(); r = impl_valu(&n, &s); sync(); return r; }
+word synt(word a, word b) { word r; r = impl_synt(&a, &b); return r; }
+word sytrm(word a) { word r; r = impl_sytrm(&a); return r; }
+word synts(word n) { word r; r = impl_synts(&n); return r; }
+word semantics(void) { word r, nil = 0; r = impl_semantics(&nil); return r; }
+word syntax(word n) { word r; r = impl_syntax(&n); return r; }
+word semr(word a, word b) { word r; r = impl_semr(&a, &b); return r; }
+word semp(word a, word b) { word r; r = impl_semp(&a, &b); return r; }
+word quosem(word a) { word r; r = impl_quosem(&a); return r; }
+word equose(word a) { word r; r = impl_equose(&a); return r; }
+word defcase(word n) { word r; r = impl_defcase(&n); return r; }
+word docase_(word a, word f) { word r; r = impl_rcase(&a, &f); return r; }
+word sembit(word a) { word r; r = impl_sembit(&a); return r; }
+word repval(word s, word a) { word r; r = impl_repval(&s, &a); return r; }
+word valu(word n, word s) { word r; r = impl_valu(&n, &s); return r; }

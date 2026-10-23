@@ -26,7 +26,6 @@ extern word prp, alf;               /* PRP, ALF: defined by the IMP module */
 extern word dm, dn;                 /* DM, DN: buckets used; overflow nodes */
 extern word impl_hash(word *), impl_dir(word *), impl_dseq(word *), impl_dname(word *, word *);
 
-word fb;                            /* the base of free storage, for IMP (stack_imp.c has it too) */
 word convc_const;                   /* CONST */
 
 static word newnum;                 /* NEWNUM */
@@ -62,7 +61,6 @@ dir(const char *nm)
     }
     for (c = 0; c < nw; c++)
         pk[c] = pack5(nm + 5 * c, len > 5 * c ? len - 5 * c : 0);
-    fb = (word)(intptr_t)fmem;
     return impl_dir(pk);
 }
 
@@ -70,7 +68,6 @@ dir(const char *nm)
 word
 dname(word i, word j)
 {
-    fb = (word)(intptr_t)fmem;
     return impl_dname(&i, &j);
 }
 
@@ -78,7 +75,6 @@ dname(word i, word j)
 word
 dseq(word n)
 {
-    fb = (word)(intptr_t)fmem;
     return impl_dseq(&n);
 }
 
@@ -86,7 +82,6 @@ dseq(word n)
 static unsigned
 hash(word nm)
 {
-    fb = (word)(intptr_t)fmem;
     return (unsigned)impl_hash(&nm);
 }
 

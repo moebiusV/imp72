@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """glue-lint.py FILE.imp...: a ported module must reach the routines of the other modules through the glue
 (stage0/impglue.c, names IMP...), which takes arguments by reference.  Lists the calls of a module that are
-neither its own SUBRs, nor macros of src/impsyn64.imc, nor glue.  Exit 1 if there are any."""
+neither its own SUBRs, nor macros of src/impsyn64.imc, nor glue, nor CCALLs (C called with values on purpose).  Exit 1 if there are any."""
 import re
 import sys
 
@@ -15,7 +15,8 @@ for f in sys.argv[1:]:
     s = re.sub(r"#[^#]*#", "", s)
     calls = set(re.findall(r"(?<![A-Z0-9])([A-Z][A-Z0-9]*)\(", s)) | set(re.findall(r"_([A-Z][A-Z0-9]*)\(", s))
     defs = set(re.findall(r"SUBR ([A-Z0-9]+)", s))
-    extra = sorted(c for c in calls - defs - MACROS if not c.startswith("IMP"))
+    ccalls = set(re.findall(r"CCALL\s+([A-Z][A-Z0-9]*)", s))     # CCALL is the FFI: a C function called with values
+    extra = sorted(c for c in calls - defs - MACROS - ccalls if not c.startswith("IMP"))
     if extra:
         print("%s: calls that bypass the glue: %s" % (f, " ".join(extra)))
         bad = 1

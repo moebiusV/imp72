@@ -18,20 +18,18 @@ extern word impl_stack(word *), impl_stinit(word *), impl_stpop(word *),
     impl_pushmi(word *), impl_pullyu(word *), impl_bits(word *, word *, word *),
     impl_bitz(word *), impl_bitor(word *, word *, word *);
 
-word fb;                                /* the base of free storage, for IMP */
 
-static void sync(void) { fb = (word)(intptr_t)fmem; }
 
-word stack(word n) { sync(); return impl_stack(&n); }
-word stinit(void) { word nil = 0; sync(); return impl_stinit(&nil); }
-word stpop(word n) { sync(); return impl_stpop(&n); }
-word stpush(word a, word b, word c) { sync(); return impl_stpush(&a, &b, &c); }
-word setstk(word n, word a, word b, word c) { sync(); return impl_setstk(&n, &a, &b, &c); }
-void pushmi(word v) { sync(); impl_pushmi(&v); }
-word pullyu(word sw) { sync(); return impl_pullyu(&sw); }
-void bits(word a[3], word i, word j) { sync(); impl_bits(a, &i, &j); }
-void bitz(word a[3]) { sync(); impl_bitz(a); }
-void bitor_(word a[3], word i, word j) { sync(); impl_bitor(a, &i, &j); }
+word stack(word n) { return impl_stack(&n); }
+word stinit(void) { word nil = 0; return impl_stinit(&nil); }
+word stpop(word n) { return impl_stpop(&n); }
+word stpush(word a, word b, word c) { return impl_stpush(&a, &b, &c); }
+word setstk(word n, word a, word b, word c) { return impl_setstk(&n, &a, &b, &c); }
+void pushmi(word v) { impl_pushmi(&v); }
+word pullyu(word sw) { return impl_pullyu(&sw); }
+void bits(word a[3], word i, word j) { impl_bits(a, &i, &j); }
+void bitz(word a[3]) { impl_bitz(a); }
+void bitor_(word a[3], word i, word j) { impl_bitor(a, &i, &j); }
 
 word
 bit(const word a[3], word i, word j)

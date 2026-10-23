@@ -8,7 +8,7 @@ compiler that compiles itself.
 
 | Module | Original | C | IMP | Port notes |
 |---|---|---|---|---|
-| free | `decus/free.imc` | `stage0/free.c` | no (`XCT`, raw memory) | |
+| free | `decus/free.imc` | `stage0/free.c`, `free_imp.c` | `src/free.imp` | `porting/free.md` |
 | dir | `dir.imc` | `dir.c` | `src/dir.imp` | `porting/dir.md` |
 | stack | `stack.imc` | `stack.c` | `src/stack.imp` | `porting/stack.md` |
 | lex | `lex.imc` | `lex.c` | `src/lex.imp` | `porting/lex.md` |
@@ -34,7 +34,7 @@ of `fmem`) is refreshed by the glue after any call that may allocate. Entry poin
 `FADD`, `FALLOT`, `FRELOT`, `FINCSET`, `FADDEX`, `FCLOSE`, `FMAP`, `FSTATS`, `FTRACE`. Differences from `free.imc`: the
 block is a `realloc`ed C heap, not the TOPS-10 low segment; a relocatable array's pointer location is a registry slot,
 since a C address does not fit in a halfword; the 64000 word ceiling on a gap is gone. `IMP_FCHECK` checks the list
-(`docs/porting/helpers.md`).
+(`docs/porting/helpers.md`). Ported to IMP (the allocation routines; the diagnostics stay in C), `docs/porting/free.md`.
 
 ## dir: the directory of names
 

@@ -25,17 +25,11 @@
 #include <string.h>
 #include "imp.h"
 
-extern word fb;                         /* the base of free storage, for IMP */
 extern word impl_lex(word *), impl_lexreset(word *), impl_pline1(word *);
 
 static char *src;                   /* the whole input file */
 static size_t srclen, srcpos;
 
-static void
-sync(void)
-{
-    fb = (word)(intptr_t)fmem;
-}
 
 /* the next byte of the file, or -1 (for IMPSRCGETC) */
 word
@@ -73,9 +67,7 @@ lexin(const char *path)
         srclen += n;
     }
     fclose(f);
-    sync();
     impl_lexreset(&nil);
-    sync();
     return 0;
 }
 
@@ -84,15 +76,12 @@ lex(word *s)
 {
     word r;
 
-    sync();
     r = impl_lex(s);
-    sync();
     return r;
 }
 
 void
 pline1(word ol)
 {
-    sync();
     impl_pline1(&ol);
 }

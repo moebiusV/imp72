@@ -34,15 +34,9 @@
 #include <string.h>
 #include "imp.h"
 
-extern word fb;                         /* the base of free storage, for IMP */
 extern word cs, ncs, entries, prio, demon, maxie, nmaxie, nc;
 extern word impl_cotree(word *);
 
-static void
-sync(void)
-{
-    fb = (word)(intptr_t)fmem;
-}
 
 void
 cfudge(void)
@@ -166,9 +160,7 @@ cotree(word ss)
 {
     word r;
 
-    sync();
     r = impl_cotree(&ss);
-    sync();
     return r;
 }
 

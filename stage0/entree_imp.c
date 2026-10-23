@@ -43,15 +43,9 @@
 #include <stdlib.h>
 #include "imp.h"
 
-extern word fb;                         /* the base of free storage, for IMP */
 extern word impl_entree(word *, word *, word *, word *), impl_match(word *, word *, word *),
     impl_entrca(word *);
 
-static void
-sync(void)
-{
-    fb = (word)(intptr_t)fmem;
-}
 
 #define LK_MASK 0xFFFFFL
 word tscr(word n) { return FREE(ct + n) & LK_MASK; }
@@ -98,11 +92,9 @@ entree(word s, word cs_, word sr, word pn)
 {
     word r;
 
-    sync();
     if (elogging())
         elog_in(s, cs_, sr, pn);
     r = impl_entree(&s, &cs_, &sr, &pn);
-    sync();
     if (elogging())
         elog_out(r);
     return r;
@@ -115,7 +107,6 @@ match(word *tnp, word sn, word snonr)
 
     word tn0 = *tnp;
 
-    sync();
     r = impl_match(tnp, &sn, &snonr);
     if (elogging())
         fprintf(stderr, "match tn=%ld sn=%ld snonr=%ld -> %ld tn=%ld\n", (long)tn0, (long)sn,
@@ -126,9 +117,7 @@ match(word *tnp, word sn, word snonr)
 void
 entrca(word semn)
 {
-    sync();
     impl_entrca(&semn);
-    sync();
 }
 
 void

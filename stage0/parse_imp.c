@@ -7,47 +7,36 @@
 #include <stdint.h>
 #include "imp.h"
 
-extern word fb;                         /* the base of free storage, for IMP */
 extern word impl_parse(word *), impl_pforce(word *), impl_pout(word *, word *), impl_parsef(void);
 extern word psts, pspn, pspnt, psps, pspst, psos, amtime, pstt, srtt;
 
 void (*parse_cotree)(word k);
 
-static void
-sync(void)
-{
-    fb = (word)(intptr_t)fmem;
-}
 
 word
 parse(const char *goal)
 {
     word g = dir(goal), r;
 
-    sync();
     r = impl_parse(&g);
-    sync();
     return r;
 }
 
 void
 pforce(word sy)
 {
-    sync();
     impl_pforce(&sy);
 }
 
 word
 pout(word qq, word vv)
 {
-    sync();
     return impl_pout(&qq, &vv);
 }
 
 void
 parsef(void)
 {
-    sync();
     impl_parsef();
 }
 

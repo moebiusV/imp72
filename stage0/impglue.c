@@ -11,14 +11,12 @@
 #include <stdlib.h>
 #include "imp.h"
 
-extern word fb;                         /* the base of free storage, for IMP */
 
 static void
 sync(void)
 {
     static int check = -1;
 
-    fb = (word)(intptr_t)fmem;
     if (check < 0)
         check = getenv("IMP_FCHECK") != NULL;
     if (check)

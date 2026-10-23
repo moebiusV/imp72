@@ -32,7 +32,8 @@ done
 # the compiler's own sources, compiled by the compiler that has some of them compiled by itself
 for f in src/*.imp; do
     n=$(basename $f .imp)
-    run src_$n decus/syntax.imc src/impsyn64.imc $f
+    x=; [ $n = free ] && x=lib/ffi.imc           # free.imp calls C: CCALL
+    run src_$n decus/syntax.imc $x src/impsyn64.imc $f
 done
 [ $fail = 0 ] && echo ok
 exit $fail
