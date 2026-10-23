@@ -15,6 +15,8 @@
 #include "imp.h"
 #include "ir.h"
 
+const int imp_pccir = 1;                /* the compiler with this code generator (the driver reads it) */
+
 /* the IMP routines, by reference */
 #define R1(n) extern word impl_##n(word *);
 #define R2(n) extern word impl_##n(word *, word *);

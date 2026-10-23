@@ -226,6 +226,8 @@ run(const char *cmd)
     return system(cmd) == 0 ? 0 : 1;
 }
 
+extern const int imp_pccir;                     /* 1 in the compiler with the code generator of src/pccir (pccirsem.c), 0 in flavour0.c */
+
 static int
 driver_main(int argc, char **argv)
 {
@@ -269,6 +271,20 @@ driver_main(int argc, char **argv)
         return 1;
     strcpy(root, dir);
     strcat(root, "/..");
+    if (imp_pccir) {                            /* the compiler of src/pccir: its syntax, its library, pcc */
+        snprintf(syntax, sizeof syntax, "%s/share/imp72/syntax64.imc", root);
+        if (exists(syntax)) {                   /* installed */
+            snprintf(ffi, sizeof ffi, "%s/share/imp72/ffi.imc", root);
+            snprintf(cc1, sizeof cc1, "%s/lib/imp72/cc1", root);
+            snprintf(lib, sizeof lib, "%s/lib/imp72/libimp72raw.a", root);
+        } else {                                /* the source tree: build/DIR/imp72d */
+            snprintf(syntax, sizeof syntax, "%s/../src/pccir/syntax64.imc", root);
+            snprintf(ffi, sizeof ffi, "%s/../lib/ffi.imc", root);
+            snprintf(cc1, sizeof cc1, "%s/pcc/cc/ccom/cc1", root);
+            snprintf(lib, sizeof lib, "%s/lib/libimp72raw.a", root);
+        }
+        ir2c[0] = '\0';
+    } else {
     snprintf(syntax, sizeof syntax, "%s/decus/syntax.imc", root);
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
@@ -282,6 +298,7 @@ driver_main(int argc, char **argv)
         snprintf(ir2c, sizeof ir2c, "%s/lib/imp72/ir2c", root);
         snprintf(lib, sizeof lib, "%s/lib/imp72/libimp72.a", root);
     }
+    }
     override(syntax, sizeof syntax, "IMP72SYNTAX");
     override(ffi, sizeof ffi, "IMP72FFI");
     override(cc1, sizeof cc1, "CC1");
@@ -291,6 +308,13 @@ driver_main(int argc, char **argv)
     backend = exists(cc1) ? envor("IMP72BACKEND", "pcc") : "c";
     if (cback)
         backend = "c";
+    if (imp_pccir) {                            /* the code generator makes pcc IR; the C back end reads another IR */
+        backend = "pcc";
+        if (!exists(cc1)) {
+            fprintf(stderr, "imp72: no pass 2 of pcc (%s)\n", cc1);
+            return 1;
+        }
+    }
 
     snprintf(base, sizeof base, "%s", argv[i]);
     blen = strlen(base);

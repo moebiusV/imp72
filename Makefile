@@ -27,7 +27,9 @@ IR2C     = build/bin/ir2c
 
 LIBRAW = build/lib/libimp72raw.a      # the library for the code generator of src/pccir: a REAL word is the double's own bits
 
-all: stage0 $(LIB) $(LIBRAW) $(IR2C) pcc
+PCCIR = build/pccir2/imp72d          # the compiler with the code generator of src/pccir (tools/pccir.sh), where it can be built
+
+all: stage0 $(LIB) $(LIBRAW) $(IR2C) pcc pccir
 
 $(IR2C): tools/ir2c.c
 	mkdir -p build/bin
@@ -63,17 +65,27 @@ pcc:
 	    $(MAKE) $(CC1); \
 	else echo "pcc not built: imp72stage0 will use the C back end"; fi
 
+# stage 1 by the seed, stage 2 by stage 1 (skipped where pcc or an ELF objcopy is missing, or off x86_64)
+pccir: stage0 $(LIB) $(LIBRAW) pcc
+	@CC1=$(CURDIR)/$(CC1) sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
+
 stage0:
 	$(MAKE) -C stage0 CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 # Installed layout (imp72stage0 finds its parts relative to its own place):
-#   PREFIX/bin/imp72stage0 (also as imp72)   PREFIX/lib/imp72/{ir2c,cc1,libimp72.a}
+#   PREFIX/bin/imp72stage0 (the seed; also as imp72 where the pcc IR compiler cannot be built)   PREFIX/bin/imp72 (the pcc IR compiler)
+#   PREFIX/lib/imp72/{ir2c,cc1,libimp72.a,libimp72raw.a}   PREFIX/share/imp72/syntax64.imc
 #   PREFIX/share/imp72/{syntax.imc,ffi.imc}  PREFIX/share/man/man1/imp72stage0.1
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp72 \
 	    $(DESTDIR)$(PREFIX)/share/imp72 $(DESTDIR)$(PREFIX)/share/man/man1
 	install -m 755 stage0/imp72s0 $(DESTDIR)$(PREFIX)/bin/imp72stage0
-	ln -sf imp72stage0 $(DESTDIR)$(PREFIX)/bin/imp72
+	rm -f $(DESTDIR)$(PREFIX)/bin/imp72
+	if [ -x $(PCCIR) ]; then \
+	    install -m 755 $(PCCIR) $(DESTDIR)$(PREFIX)/bin/imp72; \
+	    install -m 644 $(LIBRAW) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72raw.a; \
+	    install -m 644 src/pccir/syntax64.imc $(DESTDIR)$(PREFIX)/share/imp72/syntax64.imc; \
+	else ln -sf imp72stage0 $(DESTDIR)$(PREFIX)/bin/imp72; fi
 	install -m 755 $(IR2C) $(DESTDIR)$(PREFIX)/lib/imp72/ir2c
 	if [ -x $(CC1) ]; then install -m 755 $(CC1) $(DESTDIR)$(PREFIX)/lib/imp72/cc1; fi
 	install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a
@@ -108,4 +120,4 @@ clean:
 
 distclean: clean
 
-.PHONY: all stage0 pcc check clean distclean install
+.PHONY: all stage0 pcc pccir check clean distclean install

@@ -9,8 +9,8 @@ TESTS   = test_free test_stack test_dir test_lex test_parse test_debug test_decl
 
 all: libstage0.a imp72s0 imp72stage0
 
-imp72s0: imp72s0.o libstage0.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o libstage0.a
+imp72s0: imp72s0.o flavour0.o libstage0.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o flavour0.o libstage0.a
 
 # the compiler is the same program under another name
 imp72stage0: imp72s0

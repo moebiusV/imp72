@@ -9,6 +9,10 @@ by value (`CCALL`).
 
 ## Building and using it
 
+`make` builds it (`tools/pccir.sh`): stage 1 is made by the seed (`stage0/`, the C code generator) from `src/pccir` and the compiler's own IMP
+modules, stage 2 by stage 1, and `make install` installs stage 2 as `bin/imp72` (with `share/imp72/syntax64.imc` and `lib/imp72/libimp72raw.a`);
+the seed stays as `bin/imp72stage0`. Where pcc, an ELF `objcopy` or x86_64 is missing, `imp72` is the seed, as before. By hand:
+
     make
     tools/direct.sh                    # build/direct/imp72d, build/direct/imp72stage-pccir (the driver)
     DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=build/lib/libimp72raw.a \
@@ -38,10 +42,8 @@ itself and requires the second generation to write the same IR as the first for 
 - **The halves of a word are 32 bits, constants written in octal are 36 bits** (`765432107654B` is negative: 36 bit two's complement), a LS count of
   64 or more gives 0, and `X RS 30` of a negative number is a 64 bit logical shift (`tests/golden/pccir/constshifts.out`).
 
-## What remains before the old path can go
+## What remains
 
-The old path (`stage0/codegen.c`, `trans.c`, `pcode.c`, `impsem.c`) is the seed that compiles `src/pccir` the first time. The options are to keep it as
-the trusted stage 0 (the original plan: stage 0 in C, stage 1 compiled by it, stage 2 by stage 1) and make stage 1 the compiler that `make`
-installs, or to commit the IR of `src/pccir` and `src/*.imp` as a seed and drop the C code generator. Not done: `aarch64` and `i386` (the pcc IR path
+The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Not done: `aarch64` and `i386` (the pcc IR path
 uses the same `ir.c`, so it should work; untried), `PRINT` of the text constants over 8 characters in `LOC`, `EXECUTE`/`CALLI`/`XWD`/`IOWD`
 (PDP-10 only: they are in `syntax64.imc` as the original wrote them and fail with "UNKNOWN OPERATION IN THE CODE").
