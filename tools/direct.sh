@@ -43,6 +43,6 @@ for o in stage0/*.o; do
     case $o in stage0/imp72s0.o|stage0/codegen.o|stage0/impsem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
     keep="$keep $o"
 done
-cc -no-pie -o $out/imp72d stage0/imp72s0.o $keep $objs build/lib/libimp72.a
+cc -no-pie -o $out/imp72d stage0/imp72s0.o $keep $objs ${DIRECT_LIB:-build/lib/libimp72.a}
 ln -sf imp72d $out/imp72stage-ir
 echo "built $out/imp72d with the code generator of src/ir: $modules"
