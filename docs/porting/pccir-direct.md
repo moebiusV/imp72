@@ -1,9 +1,9 @@
 # Direct IR: the semantics emit IR, not PDP-10 code
 
-Status, 2026-10-23: built and verified (`tools/direct.sh`, `tests/direct/`). `src/ir/` is the translation of the tape's `code*.imc`, `impsem.imc` and
+Status, 2026-10-23: built and verified (`tools/direct.sh`, `tests/direct/`). `src/pccir/` is the translation of the tape's `code*.imc`, `impsem.imc` and
 `syntax.imc` with the operations of pcc IR in place of the PDP-10's, and `demit.imp` takes the place of `amod`/`rmod`/`omod`. The old path
-(`codegen.c` -> PDP-10 chains -> `trans.c` -> IR) is still in the tree, as the seed that compiles `src/ir` the first time and as the reference the
-new path is compared with; what it takes to remove it is at the end of `docs/porting/ir-path.md`.
+(`codegen.c` -> PDP-10 chains -> `trans.c` -> IR) is still in the tree, as the seed that compiles `src/pccir` the first time and as the reference the
+new path is compared with; what it takes to remove it is at the end of `docs/porting/pccir-path.md`.
 
 ## Why
 

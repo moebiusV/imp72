@@ -1,10 +1,10 @@
 #!/bin/sh
-# direct.sh: build build/direct/imp72d, the kernel with the code generator of src/ir (the translation of the tape's code*.imc and
-# impsem.imc whose instructions are those of pcc IR, docs/porting/ir-machine.md) in place of codegen.c, impsem.c, trans.c and pcode.c.
+# direct.sh: build build/direct/imp72d, the kernel with the code generator of src/pccir (the translation of the tape's code*.imc and
+# impsem.imc whose instructions are those of pcc IR, docs/porting/pccir-machine.md) in place of codegen.c, impsem.c, trans.c and pcode.c.
 # The modules are compiled by imp72stage0 (the compiler with the old code generator), each next to the others: their symbols
 # are renamed impl_NAME (all of them in all the objects, so that the modules call one another by name), except the variables the C
-# side shares (src/ir/shared.txt and src/shared.txt); stage0/irsem.c registers the routines and has the C helpers.  Run from the top
-# of the tree after `make`.  imp72d with the syntax src/ir/syntax64.imc compiles IMP to pcc IR itself.
+# side shares (src/pccir/shared.txt and src/shared.txt); stage0/pccirsem.c registers the routines and has the C helpers.  Run from the top
+# of the tree after `make`.  imp72d with the syntax src/pccir/syntax64.imc compiles IMP to pcc IR itself.
 set -e
 if [ -z "$OBJCOPY" ]; then
     if command -v llvm-objcopy >/dev/null 2>&1; then OBJCOPY=llvm-objcopy
@@ -20,7 +20,7 @@ driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 mkdir -p $out
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 for m in $modules; do
-    $driver -c -o $out/$m.imp.o src/impsyn64.imc src/ir/irsyn.imc src/ir/$m.imp >$out/$m.log 2>&1 \
+    $driver -c -o $out/$m.imp.o src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
@@ -32,14 +32,14 @@ for m in $srcmodules; do
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
-# every symbol the modules of src/ir define, except the ones shared with the C side, gets the prefix in all of them (they call one another by name);
+# every symbol the modules of src/pccir define, except the ones shared with the C side, gets the prefix in all of them (they call one another by name);
 # the modules of src/ are renamed one by one, as tools/stage1.sh does: what they call and do not define is the C side's (DIR('X') from parse.imp is
 # dir() of C, which takes the string's address), and not another module's routine
 syms=
 for m in $modules; do
     syms="$syms $(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }')"
 done
-syms=$(printf '%s\n' $syms | sort -u | grep -vx -f src/shared.txt | grep -vx -f src/ir/shared.txt || true)
+syms=$(printf '%s\n' $syms | sort -u | grep -vx -f src/shared.txt | grep -vx -f src/pccir/shared.txt || true)
 args=
 for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
 objs=
@@ -49,7 +49,7 @@ for m in $modules; do
 done
 repl=
 for m in $srcmodules; do
-    ms=$(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }' | grep -vx -f src/shared.txt | grep -vx -f src/ir/shared.txt || true)
+    ms=$(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }' | grep -vx -f src/shared.txt | grep -vx -f src/pccir/shared.txt || true)
     margs=
     for s in $ms; do margs="$margs --redefine-sym $s=impl_$s"; done
     $OBJCOPY $margs $out/$m.imp.o $out/$m.imp2.o
@@ -57,10 +57,10 @@ for m in $srcmodules; do
     objs="$objs $out/$m.imp2.o $out/${m}_c.o"
     repl="$repl stage0/$m.o"
 done
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/irsem.c -o $out/irsem.o
+cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
 lexflag=; case " $srcmodules " in *" lex "*) lexflag=-DIR_LEX ;; esac
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIR_DIRECT $lexflag -c stage0/impglue.c -o $out/impglue.o
-objs="$objs $out/irsem.o $out/impglue.o"
+objs="$objs $out/pccirsem.o $out/impglue.o"
 keep=
 for o in stage0/*.o; do
     case $o in stage0/imp72s0.o|stage0/codegen.o|stage0/impsem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
@@ -69,5 +69,5 @@ for o in stage0/*.o; do
     [ $skip = 1 ] || keep="$keep $o"
 done
 cc -no-pie -o $out/imp72d stage0/imp72s0.o $keep $objs ${DIRECT_LIB:-build/lib/libimp72.a}
-ln -sf imp72d $out/imp72stage-ir
-echo "built $out/imp72d with the code generator of src/ir: $modules; the compiler's own: $srcmodules"
+ln -sf imp72d $out/imp72stage-pccir
+echo "built $out/imp72d with the code generator of src/pccir: $modules; the compiler's own: $srcmodules"

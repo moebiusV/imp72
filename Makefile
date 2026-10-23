@@ -25,7 +25,7 @@ LIB = build/lib/libimp72.a
 
 IR2C     = build/bin/ir2c
 
-LIBRAW = build/lib/libimp72raw.a      # the library for the code generator of src/ir: a REAL word is the double's own bits
+LIBRAW = build/lib/libimp72raw.a      # the library for the code generator of src/pccir: a REAL word is the double's own bits
 
 all: stage0 $(LIB) $(LIBRAW) $(IR2C) pcc
 

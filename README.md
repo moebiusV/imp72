@@ -46,8 +46,8 @@ constants), `PRINT` and `READ` with their formats (`FLT`, `FILE`, `DEVICE`,
 (18 of the 19 modules translate, 14 compile to objects), is in
 `docs/internals/codegen-and-translation.md`.
 
-The code generator itself exists in two forms: the original's PDP-10 chains turned into IR by `trans.c`, and `src/ir`, its translation to 64 bit IMP
-that generates pcc IR directly (`docs/porting/ir-path.md`; `tools/direct.sh`, `tests/direct/`).
+The code generator itself exists in two forms: the original's PDP-10 chains turned into IR by `trans.c`, and `src/pccir`, its translation to 64 bit IMP
+that generates pcc IR directly (`docs/porting/pccir-path.md`; `tools/direct.sh`, `tests/direct/`).
 
 Self-hosting: `tools/stage1.sh` builds `imp72s1`, stage 0 with thirteen of its modules replaced by the compiler's own
 sources in `src/`, ported to 64 bit words and compiled by `imp72stage0`: `free` (the free storage allocator), `debug` (the

@@ -18,7 +18,7 @@ int main(void) {
     printf("y<x: %ld\n", cmpr(&nil));
     x = imp_double_to_real(-9.0);
     printf("y<x: %ld\n", cmpr(&nil));
-    #ifdef IMP_REAL_RAW             /* the code generator of src/ir: a REAL word is the double's own bits */
+    #ifdef IMP_REAL_RAW             /* the code generator of src/pccir: a REAL word is the double's own bits */
     printf("order: %d %d\n", imp_real_to_double(imp_double_to_real(-2.0)) < imp_real_to_double(imp_double_to_real(-1.0)),
         imp_real_to_double(imp_double_to_real(1.0)) < imp_real_to_double(imp_double_to_real(2.0)));
 #else                           /* the original compiler's order preserving words: integer order is real order */

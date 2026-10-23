@@ -1,7 +1,7 @@
 /*
  * imp72real.h -- a REAL word and the bits of the IEEE 754 double it holds.  The code of the original compiler (decus/syntax.imc and the
  * translator trans.c that reads its chains) applies integer comparison and negation to reals, so a REAL word is the sign and
- * magnitude of the double with the magnitude negated for a negative number (order preserving); the code generator of src/ir keeps
+ * magnitude of the double with the magnitude negated for a negative number (order preserving); the code generator of src/pccir keeps
  * the double's own bits, and its library (libimp72raw.a) is built with IMP_REAL_RAW.
  */
 #ifndef IMP72REAL_H

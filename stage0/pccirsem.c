@@ -1,5 +1,5 @@
 /*
- * irsem.c -- the kernel's side of the code generator that compiles to pcc IR (src/ir/*.imp, docs/porting/ir-machine.md).
+ * pccirsem.c -- the kernel's side of the code generator that compiles to pcc IR (src/pccir/*.imp, docs/porting/pccir-machine.md).
  *
  * The code generating routines, the register and declaration routines and the emitter are IMP modules, compiled by imp72stage0 and
  * linked into imp72d by tools/direct.sh with their symbols renamed impl_NAME.  What is here: the registration of the routines by name
@@ -330,7 +330,7 @@ word ixparam(word k) { return W(ir_param((int)k)); }
 word ixtodouble(word w) { return W(ir_todouble(N(w))); }
 word ixfromdouble(word d) { return W(ir_fromdouble(N(d))); }
 
-/* by reference, for the IMP modules (the glue calls of src/ir) */
+/* by reference, for the IMP modules (the glue calls of src/pccir) */
 word irstcon(word *v) { return stcon(*v); }
 word irconvc(word *c) { return convc(*c); }
 word irconst(word *z) { (void)z; return convc_const; }
@@ -360,7 +360,7 @@ trans_unit(word a)
     fflush(irfile);
 }
 
-/* the list of the code of an entry (/A): one line for each record of the chain (docs/porting/ir-machine.md) */
+/* the list of the code of an entry (/A): one line for each record of the chain (docs/porting/pccir-machine.md) */
 void
 pcode(word a)
 {

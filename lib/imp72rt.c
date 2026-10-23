@@ -82,7 +82,7 @@ imp_double_to_real(double d)
     return real_word(bits);
 }
 
-/* The shifts and the rotation of a word by a variable count (the code generator of src/ir calls them): a positive count is to the
+/* The shifts and the rotation of a word by a variable count (the code generator of src/pccir calls them): a positive count is to the
  * left, a negative one to the right; a logical shift of 64 places or more gives 0. */
 long
 imp_lsh(long x, long n)

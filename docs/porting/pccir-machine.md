@@ -1,10 +1,10 @@
 # The machine the code generator compiles to: pcc IR
 
 The code generating routines of the tape (`code.imc`, `code2.imc`, `code3.imc`) generate PDP-10 instructions into free array `CO`.
-The translation in `src/ir/` generates the operations of the machine this port compiles to, which is the intermediate representation
+The translation in `src/pccir/` generates the operations of the machine this port compiles to, which is the intermediate representation
 of pcc (`stage0/ir.h`): 64 bit words, byte addresses, `double` for REAL, an unlimited supply of virtual registers (IR temporaries), and
 the C procedure call standard. `amod`, `rmod` and `omod` (the assembler, the register allocator and the object writer) are not
-translated: `src/ir/demit.imp` walks the chains and calls `ir.c`, and pcc makes the object file for the machine at hand.
+translated: `src/pccir/demit.imp` walks the chains and calls `ir.c`, and pcc makes the object file for the machine at hand.
 
 The structure of the original is kept: the code of a stack entry is a chain in `CO`, `HOOK` joins chains, `ADDCODE` extends one,
 `DEWOP(OP,R,S)` adds an instruction with accumulator R and the operand S, and the same routines (`STORE`, `FETCH`, `ADDOP`, `CONOP`, ...)
