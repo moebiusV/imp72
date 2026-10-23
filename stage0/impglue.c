@@ -46,6 +46,7 @@ imppname(word *i)
     imp_pr(0, (int64_t *)(void *)buf);
     return 0;
 }
+word impdseq(word *n) { *n = dseq(*n); return *n; }
 word impdname(word *i, word *j) { word r = dname(*i, *j); sync(); return r; }
 word impmsec(word *unused) { (void)unused; return (word)imp_msec(); }
 

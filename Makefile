@@ -86,6 +86,7 @@ check: all
 	CC1=$(CURDIR)/$(CC1) sh tests/self/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/stage1.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/self/stage2.sh
+	CC1=$(CURDIR)/$(CC1) sh tests/self/dumps.sh
 	sh tests/self/objnorm.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/ieee/run.sh
 	sh tests/manual/run.sh

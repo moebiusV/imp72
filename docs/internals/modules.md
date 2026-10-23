@@ -21,7 +21,8 @@ compiler that compiles itself.
 | rsyn | `rsyn.imc` | `rsyn.c` | `src/rsyn.imp` | `porting/rsyn.md` |
 | sem, impsem, codegen | `impsem.imc`, `code*.imc` | `sem.c`, `impsem.c`, `codegen.c` | no | |
 | trans, ir, pcode | `amod.imc`, `rmod.imc`, `omod.imc` (replaced) | `trans.c`, `ir.c`, `pcode.c` | no | |
-| debug, pr, error | `debug.imc`, PMOD (part), `impm.imc` (ERROR, MSG) | `debug.c`, `pr.c`, `error.c` | no | |
+| debug | `debug.imc` | `debug.c`, `debug_imp.c`, `pr.c` | `src/debug.imp` | `porting/debug.md` |
+| pr, error | PMOD (part), `impm.imc` (ERROR, MSG) | `pr.c`, `error.c` | no | |
 | driver | `impm.imc` | `imp72s0.c` | no | |
 
 ## free: free storage
@@ -133,8 +134,9 @@ PDP-10 assembly (`-s A`), standing in for `PCODE1` and `ALIST`. `tools/ir2c.c` t
 
 ## debug, pr, error: services
 
-`debug.c` ports the diagnostic print-outs (`GPRIN1`, `PARTR1`, the table dumps) so that they match the oracle's;
-`pr.c` is the part of PMOD (the formatted print module, `docs/internals/pmod.md`) they use; `error.c` is `ERROR` and `MSG`
+`debug.c` ports the diagnostic print-outs (`GPRIN1`, `PARTR1`, the table dumps) so that they match the oracle's, and
+`src/debug.imp` does so with PRINT, as the original (`docs/porting/debug.md`);
+`pr.c` is the part of PMOD (the formatted print module, `docs/internals/pmod.md`) the C version uses; `error.c` is `ERROR` and `MSG`
 of the driver: `N<=1` sets the error flag (which lists the source from the first error on), `N=0` abandons the compilation.
 
 ## driver: imp72s0.c

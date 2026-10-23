@@ -46,8 +46,9 @@ constants), `PRINT` and `READ` with their formats (`FLT`, `FILE`, `DEVICE`,
 (18 of the 19 modules translate, 14 compile to objects), is in
 `docs/internals/codegen-and-translation.md`.
 
-Self-hosting: `tools/stage1.sh` builds `imp72s1`, stage 0 with eleven of its modules replaced by the compiler's own
-sources in `src/`, ported to 64 bit words and compiled by `imp72stage0`: `free` (the free storage allocator), `stack` (the
+Self-hosting: `tools/stage1.sh` builds `imp72s1`, stage 0 with twelve of its modules replaced by the compiler's own
+sources in `src/`, ported to 64 bit words and compiled by `imp72stage0`: `free` (the free storage allocator), `debug` (the
+diagnostic print-outs), `stack` (the
 semantic stack and bit matrices), `dir` (the directory), `lex` (the lexer), `graph` (the syntax graph), `parse` (the Irons
 parser), `ercor` (error correction), `entree` (the code tree), `cotree` (the semantic stack reducer), `dosem` (the semantics
 array and its interpreter) and `rsyn` (the reader of the initial syntax). `tests/self/stage1.sh` checks that it writes the
@@ -56,9 +57,9 @@ same IR as stage 0 for the native tests, every module of the tape and the ported
 `tools/objnorm.py`) the objects stage 0 made of them. The IMP modules reach the C ones through `stage0/impglue.c`
 (arguments by reference; `tools/glue-lint.py` checks that nothing bypasses it), the 36 bit formats of the semantics through
 the helpers of `src/impsyn64.imc` (`docs/porting/helpers.md`). Left in C: `sem`, `impsem` and `codegen` (the semantic
-routines of the PDP-10 code generator, which make IR through `trans.c`), the debug printers, and the driver. See
+routines of the PDP-10 code generator, which make IR through `trans.c`), and the driver. See
 `docs/porting/` (`stack.md`, `dir.md`, `graph.md`, `parse.md`, `ercor.md`, `entree.md`, `cotree.md`, `dosem.md`, `rsyn.md`,
-`free.md`).
+`free.md`, `debug.md`).
 
 Packages: `debian/` and `packaging/alpine/APKBUILD` (`packaging/README.md`; only
 the amd64 Debian package has been built here). `.github/workflows/ci.yml`

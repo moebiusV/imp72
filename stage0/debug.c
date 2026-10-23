@@ -315,7 +315,7 @@ tprin1(void)
             for (k = j; k <= t; k++) {
                 if (k % 5 == 0)
                     pr_stg(1, " ");
-                pr_igr(1, bit(sbitm, i, k) != 0 ? 1 : 0);
+                pr_igr(1, k < 64 * (sbitm[2] + 1) && bit(sbitm, i, k) != 0 ? 1 : 0);   /* not past the row */
             }
             pr_nl();
         }

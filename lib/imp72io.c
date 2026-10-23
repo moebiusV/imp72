@@ -377,7 +377,11 @@ imp_pr(long n, int64_t *p)
     }
     case 1:
         snprintf(buf, sizeof buf, "%llo", (unsigned long long)*p);
-        field(buf, po.width, 1);
+        if (po.width > 12 && strlen(buf) <= 12) {   /* the manual: over 12, exactly the leftmost n-12 positions are blank */
+            pad((int)po.width - 12, ' ');
+            field(buf, 12, 1);
+        } else
+            field(buf, po.width, 1);
         break;
     case 11: {
         double x;
