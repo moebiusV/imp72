@@ -257,6 +257,8 @@ static inline word ls36(word x, word n)
  */
 typedef word (*semfn)(const word *p);
 void dsem(const char *name, semfn fn);         /* DSEM */
+typedef word (*semifn)(word *, word *, word *, word *, word *);
+void dsemi(const char *name, semifn fn);       /* DSEM of a routine of IMP, which takes its arguments by reference: it is passed pointers to the parameters */
 word semcall(word id, const word *pars);
 void sem_init(void);                           /* register the routines */
 

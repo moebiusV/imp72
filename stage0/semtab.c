@@ -18,6 +18,7 @@
 static struct semrtn {
     const char *name;
     semfn fn;
+    semifn ifn;                         /* or a routine of IMP */
 } *rtn;
 static word nrtn, crtn;
 
@@ -43,16 +44,40 @@ dsem(const char *name, semfn fn)
     }
     rtn[nrtn].name = name;
     rtn[nrtn].fn = fn;
+    rtn[nrtn].ifn = NULL;
     nrtn++;
     dprops(DP_SEM, d, nrtn);
+}
+
+void
+dsemi(const char *name, semifn fn)
+{
+    dsem(name, NULL);
+    rtn[dprop(DP_SEM, dir(name)) - 1].ifn = fn;
 }
 
 word
 semcall(word id, const word *pars)
 {
+    static int chk = -1;
+
+    if (chk < 0)
+        chk = getenv("IMP_FCHECK") != NULL;
+    if (chk && id >= 1 && id <= nrtn && fcheck(rtn[id - 1].name) != 0)
+        fprintf(stderr, "(after the semantic routine before %s)\n", rtn[id - 1].name);
     if (id < 1 || id > nrtn) {
         imp_error(0, "ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE.");
         return 0;
+    }
+    if (rtn[id - 1].ifn != NULL) {              /* IMP passes by reference: a copy of the parameters, for the routine may change them */
+        word a[5], r;
+
+        memcpy(a, pars, sizeof a);
+        r = rtn[id - 1].ifn(&a[0], &a[1], &a[2], &a[3], &a[4]);
+        if (getenv("IMP_SLOG"))
+            fprintf(stderr, "semcall %s %ld %ld %ld %ld %ld -> %ld\n", rtn[id - 1].name, (long)pars[0], (long)pars[1],
+                (long)pars[2], (long)pars[3], (long)pars[4], (long)r);
+        return r;
     }
     if (rtn[id - 1].fn == NULL) {
         char msg[96];

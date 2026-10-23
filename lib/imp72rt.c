@@ -82,42 +82,42 @@ imp_double_to_real(double d)
     return real_word(bits);
 }
 
-/* The shifts and the rotation of a word by a variable count (the code generator of src/pccir calls them): a positive count is to the
- * left, a negative one to the right; a logical shift of 64 places or more gives 0. */
-long
-imp_lsh(long x, long n)
+/* The shifts and the rotation of a word by a variable count (the code generator of src/pccir calls them): a positive count is to the left, a negative one to
+ * the right; a logical shift of 64 places or more gives 0.  The arguments and the result are the addresses of 64 bit words (a 32 bit machine passes a long as
+ * 32 bits, and a call cannot carry a word). */
+void
+imp_lsh(int64_t *px, int64_t *pn, int64_t *pr)
 {
-    if (n >= 64 || n <= -64)
-        return 0;
-    return n >= 0 ? (long)((unsigned long)x << n) : (long)((unsigned long)x >> -n);
+    int64_t x = *px, n = *pn;
+
+    *pr = (n >= 64 || n <= -64) ? 0 : n >= 0 ? (int64_t)((uint64_t)x << n) : (int64_t)((uint64_t)x >> -n);
 }
 
-long
-imp_ash(long x, long n)
+void
+imp_ash(int64_t *px, int64_t *pn, int64_t *pr)
 {
-    if (n >= 64)
-        return 0;
-    if (n >= 0)
-        return (long)((unsigned long)x << n);
-    return x >> (n <= -64 ? 63 : -n);
+    int64_t x = *px, n = *pn;
+
+    *pr = n >= 64 ? 0 : n >= 0 ? (int64_t)((uint64_t)x << n) : x >> (n <= -64 ? 63 : -n);
+}
+
+void
+imp_rot(int64_t *px, int64_t *pn, int64_t *pr)
+{
+    uint64_t u = (uint64_t)*px;
+    int n = (int)(*pn & 63);
+
+    *pr = n == 0 ? *px : (int64_t)((u << n) | (u >> (64 - n)));
 }
 
 /* MOVE B THROUGH N TO A: N+1 words from b to a, ascending, as BLT does (the arguments are pointers) */
 long
-imp_blk(long *a, long *b, long *n)
+imp_blk(int64_t *a, int64_t *b, int64_t *n)
 {
-    long i;
+    int64_t i;
 
     for (i = 0; i <= *n; i++)
         a[i] = b[i];
     return 0;
 }
 
-long
-imp_rot(long x, long n)
-{
-    unsigned long u = (unsigned long)x;
-
-    n &= 63;
-    return n == 0 ? x : (long)((u << n) | (u >> (64 - n)));
-}

@@ -17,6 +17,7 @@ modules=${MODULES:-impsem code code2 code3 demit}
 srcmodules=${SRC_MODULES:-}                   # modules of src/ (free debug stack dir ...) built with them, in place of the C ones, as tools/stage1.sh does
 out=${DIRECT_OUT:-build/direct}
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
+case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
 mkdir -p $out
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 for m in $modules; do

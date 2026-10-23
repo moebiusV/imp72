@@ -42,7 +42,7 @@ word ct, nct, noden = -1, sbitm[3];
 static word prods, nprods_, tbl, ntbl, ply;
 static int init;
 
-#define LK_MASK 0xFFFFFL
+#define LK_MASK ((word)0xFFFFFL)
 word tscr(word n) { return FREE(ct + n) & LK_MASK; }
 word talt(word n) { return (FREE(ct + n) >> 20) & LK_MASK; }
 word tnoden(word n) { return (FREE(ct + n) >> 40) & LK_MASK; }

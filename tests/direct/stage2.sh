@@ -5,8 +5,7 @@
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 [ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || { echo "direct stage 2 skipped: no cc1 (make)"; exit 0; }
-[ "$(getconf LONG_BIT 2>/dev/null)" = 64 ] || [ -n "$PCCIR_ANYARCH" ] || { echo "pcc IR tests skipped: 64 bit userland only so far"; exit 0; }
-case $(uname -m) in x86_64|amd64|aarch64|arm64) ;; *) [ -n "$PCCIR_ANYARCH" ] || { echo "direct stage 2 skipped: only tried on x86_64 and aarch64 so far (PCCIR_ANYARCH=1 tries it)"; exit 0; } ;; esac
+case $(uname -m) in x86_64|amd64|i?86|aarch64|arm64) ;; *) [ -n "$PCCIR_ANYARCH" ] || { echo "direct stage 2 skipped: only tried on x86_64, i386 and aarch64 so far (PCCIR_ANYARCH=1 tries it)"; exit 0; } ;; esac
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct stage 2 skipped: no objcopy"; exit 0; }

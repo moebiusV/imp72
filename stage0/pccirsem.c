@@ -18,36 +18,20 @@
 const int imp_pccir = 1;                /* the compiler with this code generator (the driver reads it) */
 
 /* the IMP routines, by reference */
-#define R1(n) extern word impl_##n(word *);
-#define R2(n) extern word impl_##n(word *, word *);
-#define R3(n) extern word impl_##n(word *, word *, word *);
-#define R4(n) extern word impl_##n(word *, word *, word *, word *);
-#define R5(n) extern word impl_##n(word *, word *, word *, word *, word *);
-R1(iinit) R1(areg) R1(reg2) R2(areg1) R1(name) R1(val) R1(sval) R1(stackup) R1(swtch) R1(nsubp) R1(hisreg)
-R1(pairfirst) R1(subreg) R1(tmpreg) R1(samereg) R2(regeq) R2(regsim) R1(reg0) R3(rmatch) R1(subpr0) R1(subprm) R1(subtmpf)
-R1(subbeg) R1(subend) R1(remot) R1(callme) R1(reg2s) R2(decl) R1(declare)
-R1(newlist) R1(enlist) R1(getlist) R1(assemc) R1(unpck) R1(regof) R1(fetch) R3(addop) R3(dewop) R1(tag) R2(store) R2(mcode) R1(copyco) R1(newlist) R1(enlist) R1(getlist) R1(assemc)
-R3(hook) R1(anycode) R3(dewfun) R1(freeze) R1(oneword) R1(coppy) R1(subrcall) R1(return) R1(float) R1(fix) R1(datast)
-R2(subrpar) R5(prinpar) R2(princal) R1(ojumpop) R1(addr) R5(conop) R4(cjump) R1(jop) R3(moveblk)
-R2(subcall) R2(subscript) R4(bytep) R1(demit)
+/* the IMP routines (src/pccir/*.imp, symbols renamed impl_NAME): they take their arguments by reference; the table of semantic routines calls them with
+ * pointers into the parameters (dsemi) */
+#define RT(n) extern word impl_##n();
+RT(addop) RT(addr) RT(anycode) RT(areg) RT(areg1) RT(assemc) RT(bytep) RT(callme) 
+RT(cjump) RT(conop) RT(coppy) RT(copyco) RT(datast) RT(decl) RT(declare) RT(demit) 
+RT(dewfun) RT(dewop) RT(enlist) RT(fetch) RT(fix) RT(float) RT(freeze) RT(getlist) 
+RT(hisreg) RT(hook) RT(iinit) RT(jop) RT(mcode) RT(moveblk) RT(n) RT(name) 
+RT(newlist) RT(nsubp) RT(ojumpop) RT(oneword) RT(pairfirst) RT(princal) RT(prinpar) RT(reg0) 
+RT(reg2) RT(reg2s) RT(regeq) RT(regof) RT(regsim) RT(remot) RT(return) RT(rmatch) 
+RT(samereg) RT(stackup) RT(store) RT(subbeg) RT(subcall) RT(subend) RT(subpr0) RT(subprm) 
+RT(subrcall) RT(subreg) RT(subrpar) RT(subscript) RT(subtmpf) RT(sval) RT(swtch) RT(tag) 
+RT(tmpreg) RT(unpck) RT(val) 
 
 extern word arr, narr, regn, co, nco, anco;
-
-#define ONE(f, g) static word w_##f(const word *p) { word a = p[0]; return impl_##g(&a); }
-#define TWO(f, g) static word w_##f(const word *p) { word a = p[0], b = p[1]; return impl_##g(&a, &b); }
-#define THREE(f, g) static word w_##f(const word *p) { word a = p[0], b = p[1], c = p[2]; return impl_##g(&a, &b, &c); }
-#define FOUR(f, g) static word w_##f(const word *p) { word a = p[0], b = p[1], c = p[2], d = p[3]; return impl_##g(&a, &b, &c, &d); }
-#define FIVE(f, g) static word w_##f(const word *p) { word a = p[0], b = p[1], c = p[2], d = p[3], e = p[4]; \
-    return impl_##g(&a, &b, &c, &d, &e); }
-
-ONE(name, name) TWO(areg1, areg1) ONE(areg, areg) ONE(reg2, reg2) ONE(val, val) ONE(sval, sval) TWO(decl, decl)
-ONE(declare, declare) ONE(newlist, newlist) ONE(enlist, enlist) ONE(assemc, assemc) ONE(stackup, stackup) ONE(switch, swtch) ONE(subbeg, subbeg) ONE(subend, subend) ONE(subpr0, subpr0)
-ONE(remot, remot) ONE(callme, callme) ONE(reg2s, reg2s)
-TWO(store, store) ONE(fetch, fetch) ONE(regof, regof) THREE(dewop, dewop) THREE(addop, addop) ONE(tag, tag) THREE(dewfun, dewfun)
-THREE(hook, hook) ONE(freeze, freeze) ONE(subrcall, subrcall) ONE(return, return) TWO(subrpar, subrpar) FIVE(conop, conop)
-ONE(float, float) ONE(fix, fix) ONE(ojumpop, ojumpop) ONE(datast, datast) FIVE(prinpar, prinpar) TWO(princal, princal)
-ONE(addr, addr) ONE(copy, coppy) TWO(subscript, subscript) TWO(subcall, subcall) FOUR(bytep, bytep) FOUR(cjump, cjump)
-ONE(jop, jop) THREE(moveblk, moveblk)
 
 /* the parts of the kernel that call the code generator, by value: the cotree matcher compares and copies code, the statement
  * reducer tells whether there is any */
@@ -155,38 +139,56 @@ static word w_fcon(const word *p) { return fcon(p[0], p[1], p[2]); }
 
 /* ---- what the IMP code calls by value (CCALL) ---------------------------------------------------------------------------------- */
 
-/* an integer as the bits of the double, and back (a REAL is the bits of an IEEE double) */
-word
-diri2d(word i)
+/* An integer as the bits of the double, and back (a REAL is the bits of an IEEE double).  A 64 bit value crosses a CCALL as two longs (a 32 bit
+ * machine passes a long as 32 bits): its low half, which is never negative, and its high half; the result comes by halves too. */
+static int64_t
+join(long lo, long hi)
 {
-    double d = (double)i;
-    word w;
+    return (int64_t)(((uint64_t)(uint32_t)hi << 32) | (uint64_t)(uint32_t)lo);
+}
+
+static long diresult[2];
+
+long
+diri2d(long lo, long hi)
+{
+    double d = (double)join(lo, hi);
+    uint64_t w;
 
     memcpy(&w, &d, sizeof w);
-    return w;
+    diresult[0] = (long)(w & 0xFFFFFFFFU);
+    diresult[1] = (long)(w >> 32);
+    return diresult[0];
 }
 
-word
-dird2i(word w)
+long
+dird2i(long lo, long hi)
 {
+    uint64_t w = (uint64_t)join(lo, hi);
     double d;
+    int64_t v;
 
     memcpy(&d, &w, sizeof d);
-    return (word)d;
+    v = (int64_t)d;
+    diresult[0] = (long)((uint64_t)v & 0xFFFFFFFFU);
+    diresult[1] = (long)((uint64_t)v >> 32);
+    return diresult[0];
 }
+
+long dirhigh(long z) { (void)z; return diresult[1]; }              /* the high half of the last result of diri2d, dird2i or irstrval */
 
 /* The assembler name of directory entry v: lower case, characters an assembler would not take as _xx. */
 static char **symcache;
-static word nsymcache;
+static long nsymcache;
 
 const char *
-irsymname(word v)
+irsymname(long v)
 {
     char buf[128], out[300];
     size_t i, k = 0;
 
     if (v >= nsymcache) {
-        word n = v + 64;
+        long n = v + 64;
 
         symcache = realloc(symcache, (size_t)n * sizeof *symcache);
         memset(symcache + nsymcache, 0, (size_t)(n - nsymcache) * sizeof *symcache);
@@ -212,8 +214,8 @@ irsymname(word v)
 }
 
 /* 0 a variable or function, 1 a text constant, 2 a number */
-word
-irkind(word v)
+long
+irkind(long v)
 {
     char buf[40];
 
@@ -227,9 +229,10 @@ irkind(word v)
     return 0;
 }
 
-/* The value of a text constant: its first 8 characters, the first in the low byte, so that the word is the start of the string in memory. */
-word
-irstrval(word v)
+/* The value of a text constant: its first 8 characters, the first in the low byte, so that the word is the start of the string in memory.  The low half is
+ * the result; dirhigh() has the high one. */
+long
+irstrval(long v)
 {
     char buf[40];
     uint64_t x = 0;
@@ -238,11 +241,13 @@ irstrval(word v)
     dname_str(v, buf, sizeof buf);
     for (k = 1; k < 9 && buf[k]; k++)
         x |= (uint64_t)(unsigned char)buf[k] << (8 * (k - 1));
-    return (word)x;
+    diresult[0] = (long)(x & 0xFFFFFFFFU);
+    diresult[1] = (long)(x >> 32);
+    return diresult[0];
 }
 
 const char *
-irlabname(word l)
+irlabname(long l)
 {
     char *s = malloc(24);
 
@@ -251,8 +256,8 @@ irlabname(word l)
 }
 
 /* the body of a pooled constant: the text, or the number */
-word
-irpoolemit(word v)
+long
+irpoolemit(long v)
 {
     char buf[400];
 
@@ -284,56 +289,69 @@ irpoolemit(word v)
 }
 
 /* 1 for the print routine, 2 for the read routine, else 0 */
-word
-irfnkind(word v)
+long
+irfnkind(long v)
 {
     const char *nm = irsymname(v);
 
     return strcmp(nm, "prn_2e") == 0 ? 1 : strcmp(nm, "red_2e") == 0 ? 2 : 0;
 }
 
-word ircval(word v) { return is_cval(v); }
+long ircval(long v) { return is_cval(v); }
 
-/* a routine of the runtime library, which returns a C long, not a word */
-word
-irruntime(word v)
+/* a routine of the runtime library, which returns a C long, not a long */
+long
+irruntime(long v)
 {
     const char *nm = irsymname(v);
 
     return strcmp(nm, "ifix") == 0 || strcmp(nm, "fini") == 0 || strncmp(nm, "imp_", 4) == 0;
 }
 
-word irreset(word z) { (void)z; ir_usedfs = 0; return 0; }
-word irfsused(word z) { (void)z; return ir_usedfs; }
-word irflush(word z) { (void)z; fflush(NULL); return 0; }
+long irreset(long z) { (void)z; ir_usedfs = 0; return 0; }
+long irfsused(long z) { (void)z; return ir_usedfs; }
+long irflush(long z) { (void)z; fflush(NULL); return 0; }
 
 
 /* ---- the IR builders of ir.c, by value, under names IMP can write (no underscore) ---------------------------------------------- */
 
-#define N(x) ((struct irn *)(x))
-#define W(x) ((word)(x))
-word ixnewtemp(word z) { (void)z; return W(ir_newtemp()); }
-word ixnewlabel(word z) { (void)z; return W(ir_newlabel()); }
-word ixtemp(word n, word t) { return W(ir_temp((int)n, (int)t)); }
-word ixicon(word v, word t) { return W(ir_icon(v, (int)t)); }
-word ixsym(word nm, word off, word t) { return W(ir_sym((const char *)nm, off, (int)t)); }
-word ixname(word nm, word off, word t) { return W(ir_name((const char *)nm, off, (int)t)); }
-word ixun(word op, word t, word l) { return W(ir_un((int)op, (int)t, N(l))); }
-word ixbin(word op, word t, word l, word r) { return W(ir_bin((int)op, (int)t, N(l), N(r))); }
-word ixassign(word l, word r) { return W(ir_assign(N(l), N(r))); }
-word ixderef(word a, word t) { return W(ir_deref(N(a), (int)t)); }
-word ixstmt(word n) { ir_stmt(N(n)); return 0; }
-word ixlabel(word n) { ir_label((int)n); return 0; }
-word ixgoto(word n) { ir_goto((int)n); return 0; }
-word ixcbranch(word op, word l, word r, word lab) { ir_cbranch((int)op, N(l), N(r), (int)lab); return 0; }
-word ixfuncbegin(word nm, word vis) { ir_func_begin((const char *)nm, (int)vis); return 0; }
-word ixfuncend(word retlab, word rettemp) { ir_func_end((int)retlab, (int)rettemp); return 0; }
-word ixpass(word fmt, word a, word b, word c) { ir_pass((const char *)fmt, a, b, c); return 0; }
-word ixshift(word right, word l, word r) { return W(ir_xshift((int)right, N(l), N(r))); }
-word ixcall(word fn, word a, word n, word cret) { return W(ir_xcall(N(fn), (struct irn **)a, (int)n, (int)cret)); }
-word ixparam(word k) { return W(ir_param((int)k)); }
-word ixtodouble(word w) { return W(ir_todouble(N(w))); }
-word ixfromdouble(word d) { return W(ir_fromdouble(N(d))); }
+#define N(x) ((struct irn *)(intptr_t)(x))
+#define CS(x) ((const char *)(intptr_t)(x))
+#define W(x) ((long)(intptr_t)(x))
+long ixnewtemp(long z) { (void)z; return W(ir_newtemp()); }
+long ixnewlabel(long z) { (void)z; return W(ir_newlabel()); }
+long ixtemp(long n, long t) { return W(ir_temp((int)n, (int)t)); }
+long ixicon(long lo, long hi, long t) { return W(ir_icon(join(lo, hi), (int)t)); }
+long ixquad(long lo, long hi) { ir_pass(" .quad %lld", (long long)join(lo, hi)); return 0; }
+long ixsym(long nm, long off, long t) { return W(ir_sym(CS(nm), off, (int)t)); }
+long ixname(long nm, long off, long t) { return W(ir_name(CS(nm), off, (int)t)); }
+long ixun(long op, long t, long l) { return W(ir_un((int)op, (int)t, N(l))); }
+long ixbin(long op, long t, long l, long r) { return W(ir_bin((int)op, (int)t, N(l), N(r))); }
+long ixassign(long l, long r) { return W(ir_assign(N(l), N(r))); }
+long ixderef(long a, long t) { return W(ir_deref(N(a), (int)t)); }
+long ixstmt(long n) { ir_stmt(N(n)); return 0; }
+long ixlabel(long n) { ir_label((int)n); return 0; }
+long ixgoto(long n) { ir_goto((int)n); return 0; }
+long ixcbranch(long op, long l, long r, long lab) { ir_cbranch((int)op, N(l), N(r), (int)lab); return 0; }
+long ixfuncbegin(long nm, long vis) { ir_func_begin(CS(nm), (int)vis); return 0; }
+long ixfuncend(long retlab, long rettemp) { ir_func_end((int)retlab, (int)rettemp); return 0; }
+long ixpass(long fmt, long a, long b, long c) { ir_pass(CS(fmt), a, b, c); return 0; }
+long ixshift(long right, long l, long r) { return W(ir_xshift((int)right, N(l), N(r))); }
+/* the arguments are an array of IMP words (64 bits each, whatever the machine), holding pointers */
+long
+ixcall(long fn, long a, long n, long cret)
+{
+    const int64_t *w = (const int64_t *)(intptr_t)a;
+    struct irn *v[16];
+    long k;
+
+    for (k = 0; k < n && k < 16; k++)
+        v[k] = (struct irn *)(intptr_t)w[k];
+    return W(ir_xcall(N(fn), v, (int)n, (int)cret));
+}
+long ixparam(long k) { return W(ir_param((int)k)); }
+long ixtodouble(long w) { return W(ir_todouble(N(w))); }
+long ixfromdouble(long d) { return W(ir_fromdouble(N(d))); }
 
 /* by reference, for the IMP modules (the glue calls of src/pccir) */
 word irstcon(word *v) { return stcon(*v); }
@@ -391,9 +409,9 @@ void
 sem_init(void)
 {
     dsem("ERROR", NULL);
-    dsem("NEWLIST", w_newlist);
-    dsem("ENLIST", w_enlist);
-    dsem("ASSEMC", w_assemc);
+    dsemi("NEWLIST", (semifn)impl_newlist);
+    dsemi("ENLIST", (semifn)impl_enlist);
+    dsemi("ASSEMC", (semifn)impl_assemc);
     impsem_init();
     codegen_init();
 }
@@ -401,25 +419,25 @@ sem_init(void)
 void
 impsem_init(void)
 {
-    dsem("NAME", w_name);
-    dsem("AREG1", w_areg1);
-    dsem("AREG", w_areg);
-    dsem("REG2", w_reg2);
-    dsem("VAL", w_val);
-    dsem("SVAL", w_sval);
-    dsem("DECL", w_decl);
-    dsem("DECLARE", w_declare);
-    dsem("STACKUP", w_stackup);
-    dsem("SWITCH", w_switch);
+    dsemi("NAME", (semifn)impl_name);
+    dsemi("AREG1", (semifn)impl_areg1);
+    dsemi("AREG", (semifn)impl_areg);
+    dsemi("REG2", (semifn)impl_reg2);
+    dsemi("VAL", (semifn)impl_val);
+    dsemi("SVAL", (semifn)impl_sval);
+    dsemi("DECL", (semifn)impl_decl);
+    dsemi("DECLARE", (semifn)impl_declare);
+    dsemi("STACKUP", (semifn)impl_stackup);
+    dsemi("SWITCH", (semifn)impl_swtch);
     dsem("LETSYN", w_letsyn);
-    dsem("SUBBEG", w_subbeg);
-    dsem("SUBEND", w_subend);
-    dsem("SUBPR0", w_subpr0);
-    dsem("REMOT", w_remot);
-    dsem("CALLME", w_callme);
+    dsemi("SUBBEG", (semifn)impl_subbeg);
+    dsemi("SUBEND", (semifn)impl_subend);
+    dsemi("SUBPR0", (semifn)impl_subpr0);
+    dsemi("REMOT", (semifn)impl_remot);
+    dsemi("CALLME", (semifn)impl_callme);
     dsem("CVAL", w_cval);
     dsem("FCON", w_fcon);
-    dsem("REG2S", w_reg2s);
+    dsemi("REG2S", (semifn)impl_reg2s);
 }
 
 void
@@ -430,31 +448,31 @@ codegen_init(void)
     if (done)
         return;
     done = 1;
-    dsem("STORE", w_store);
-    dsem("FETCH", w_fetch);
-    dsem("REGOF", w_regof);
-    dsem("DEWOP", w_dewop);
-    dsem("ADDOP", w_addop);
-    dsem("TAG", w_tag);
-    dsem("DEWFUN", w_dewfun);
-    dsem("HOOK", w_hook);
-    dsem("FREEZE", w_freeze);
-    dsem("SUBRCALL", w_subrcall);
-    dsem("RETURN", w_return);
-    dsem("SUBRPAR", w_subrpar);
-    dsem("CONOP", w_conop);
-    dsem("FLOAT", w_float);
-    dsem("FIX", w_fix);
-    dsem("OJUMPOP", w_ojumpop);
-    dsem("DATAST", w_datast);
-    dsem("PRINPAR", w_prinpar);
-    dsem("PRINCAL", w_princal);
-    dsem("ADDR", w_addr);
-    dsem("COPY", w_copy);
-    dsem("SUBSCRIPT", w_subscript);
-    dsem("SUBCALL", w_subcall);
-    dsem("BYTEP", w_bytep);
-    dsem("CJUMP", w_cjump);
-    dsem("JOP", w_jop);
-    dsem("MOVEBLK", w_moveblk);
+    dsemi("STORE", (semifn)impl_store);
+    dsemi("FETCH", (semifn)impl_fetch);
+    dsemi("REGOF", (semifn)impl_regof);
+    dsemi("DEWOP", (semifn)impl_dewop);
+    dsemi("ADDOP", (semifn)impl_addop);
+    dsemi("TAG", (semifn)impl_tag);
+    dsemi("DEWFUN", (semifn)impl_dewfun);
+    dsemi("HOOK", (semifn)impl_hook);
+    dsemi("FREEZE", (semifn)impl_freeze);
+    dsemi("SUBRCALL", (semifn)impl_subrcall);
+    dsemi("RETURN", (semifn)impl_return);
+    dsemi("SUBRPAR", (semifn)impl_subrpar);
+    dsemi("CONOP", (semifn)impl_conop);
+    dsemi("FLOAT", (semifn)impl_float);
+    dsemi("FIX", (semifn)impl_fix);
+    dsemi("OJUMPOP", (semifn)impl_ojumpop);
+    dsemi("DATAST", (semifn)impl_datast);
+    dsemi("PRINPAR", (semifn)impl_prinpar);
+    dsemi("PRINCAL", (semifn)impl_princal);
+    dsemi("ADDR", (semifn)impl_addr);
+    dsemi("COPY", (semifn)impl_coppy);
+    dsemi("SUBSCRIPT", (semifn)impl_subscript);
+    dsemi("SUBCALL", (semifn)impl_subcall);
+    dsemi("BYTEP", (semifn)impl_bytep);
+    dsemi("CJUMP", (semifn)impl_cjump);
+    dsemi("JOP", (semifn)impl_jop);
+    dsemi("MOVEBLK", (semifn)impl_moveblk);
 }
