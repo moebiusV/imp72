@@ -57,35 +57,20 @@ dseq(word n)
     return impl_dseq(&n);
 }
 
-/* The whole name of entry i as a C string (valid until the next call). */
+/* The name of entry i as a C string: the words of ALF hold its characters, the first in the low byte, and end with a NUL (valid until the arena moves). */
 static const char *
 fullname(word i, size_t limit)
 {
-    static char *buf;
-    static size_t cap;
-    word j, w;
+    static char buf[4096];
     size_t n = 0;
-    int c;
+    word j = HR(FREE(prp + i));
 
-    for (j = 0;; j++) {
-        w = dname(i, j);
-        for (c = 0; c < 5; c++) {
-            char ch = (char)((w >> (29 - 7 * c)) & 0x7F);
-            if (ch == '\0' || n >= limit)
-                goto done;
-            if (n + 2 > cap) {
-                char *t = realloc(buf, cap = cap ? cap * 2 : 64);
-                if (t == NULL)
-                    goto done;
-                buf = t;
-            }
-            buf[n++] = ch;
-        }
+    for (; n < limit && n + 1 < sizeof buf; n++) {
+        buf[n] = ((const char *)&fmem[alf + j])[n];
+        if (buf[n] == '\0')
+            break;
     }
-done:
-    if (buf == NULL && (buf = malloc(cap = 64)) == NULL)
-        return "";
-    buf[n] = '\0';
+    buf[n < sizeof buf ? n : sizeof buf - 1] = '\0';
     return buf;
 }
 

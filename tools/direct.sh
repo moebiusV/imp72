@@ -14,7 +14,7 @@ fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-impsem code code2 code3 demit}
-srcmodules=${SRC_MODULES:-}                   # modules of src/ (free debug stack dir ...) built with them, in place of the C ones, as tools/stage1.sh does
+srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says

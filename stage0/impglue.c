@@ -33,21 +33,6 @@ word imppout(word *q, word *v) { word r = pout(*q, *v); sync(); return r; }
  * as the PRINT statements around it */
 extern long imp_pr(long n, int64_t *p);
 
-word
-imppname(word *i)
-{
-    char buf[128];
-    int64_t w = 0;
-
-    if (*i < 0)
-        return 0;
-    dname_str(*i, buf, sizeof buf);
-    imp_pr(3, &w);
-    imp_pr(0, (int64_t *)(void *)buf);
-    return 0;
-}
-word impdseq(word *n) { *n = dseq(*n); return *n; }
-word impdname(word *i, word *j) { word r = dname(*i, *j); sync(); return r; }
 word impmsec(word *unused) { (void)unused; return (word)imp_msec(); }
 
 /* the free storage routines, as IMP calls them (FALLOT is IMPFALLOT and so on: src/impsyn64.imc) */
@@ -135,43 +120,17 @@ setdefout(void)
 }
 
 /* the code tree builder's calls (src/entree.imp) */
-word impconvc(word *c, word *k) { word r = convc(*c); *k = convc_const; sync(); return r; }
 word impsnarg(word *s) { word r = snarg(*s); sync(); return r; }
 word impsnoden(word *s) { word r = snoden(*s); sync(); return r; }
 word impnoteprod(word *p, word *n) { noteprod(*p, *n); sync(); return 0; }
 word impenprod(word *p, word *n, word *s) { enprod(*p, *n, *s); sync(); return 0; }
 word impmatchp(word *p, word *n) { word r = matchp(*p, *n); sync(); return r; }
-word impsameas(word *s, word *k) { word r = sameas(*s, *k); sync(); return r; }
 #ifndef IR_DIRECT
 word imponeword(word *s) { word r = oneword(*s); sync(); return r; }
 #endif
 
-/* DIR of a name packed five characters to a word, as the IMP source builds it */
-word
-impdirp(word *na)
-{
-    char buf[64];
-    int n = 0, i;
-
-    for (; n < 60; na++) {
-        for (i = 0; i < 5; i++) {
-            char ch = (char)((*na >> (29 - 7 * i)) & 0x7F);
-
-            if (ch == '\0') {
-                buf[n] = '\0';
-                return dir(buf);
-            }
-            buf[n++] = ch;
-        }
-    }
-    buf[n] = '\0';
-    return dir(buf);
-}
-
 /* the semantic stack reducer's calls (src/cotree.imp) */
-extern void cotree_dsems(void);
 
-word impdsems(word *unused) { (void)unused; cotree_dsems(); return 0; }
 word impsemed(word *a) { word r = semed(*a); sync(); return r; }
 word impplies(word *a) { word r = plies(*a); sync(); return r; }
 word impsemget(word *a) { word r = semget(*a); sync(); return r; }
@@ -179,24 +138,16 @@ word impdosem(word *a) { word r = dosem(*a); sync(); return r; }
 word impstinit(word *unused) { word r; (void)unused; r = stinit(); sync(); return r; }
 word impstpop(word *n) { word r = stpop(*n); sync(); return r; }
 word impstack(word *n) { word r = stack(*n); sync(); return r; }
-word imppstack(word *s, word *n) { pstack(*s, *n); sync(); return 0; }
 word impmatch(word *tnp, word *sn, word *snonr) { word r = match(tnp, *sn, *snonr); sync(); return r; }
 
 /* the semantics interpreter's calls (src/dosem.imp) */
-extern void dosem_dsems(void);
 
-word impdsems2(word *unused) { (void)unused; dosem_dsems(); return 0; }
 word impsetstk(word *n, word *a, word *b, word *c) { word r = setstk(*n, *a, *b, *c); sync(); return r; }
-word impcodent(word *a, word *b, word *c, word *f) { codent(*a, *b, *c, *f); sync(); return 0; }
-word impcfudge(word *unused) { (void)unused; cfudge(); return 0; }
 word impsemcall(word *id, word *pars) { word r = semcall(*id, pars); sync(); return r; }
 word impsynarg(word *i) { word r = synarg(*i); sync(); return r; }
-word impnewnameg(word *x) { word r = newname(gname(*x)); sync(); return r; }
 
 /* the bootstrap reader's calls (src/rsyn.imp) */
-extern void rsyn_dsems(void);
 
-word impdsemsr(word *unused) { (void)unused; rsyn_dsems(); return 0; }
 word impsetsem(word *ty, word *val) { word r = setsem(*ty, *val); sync(); return r; }
 word impresetsem(word *val, word *a) { resetsem(*val, *a); return 0; }
 word impsemfx1(word *i, word *a, word *na) { word r = semfx1(*i, *a, *na); sync(); return r; }
@@ -217,30 +168,6 @@ extern word lex_srcgetc(void);
 
 word impsrcgetc(word *unused) { (void)unused; return lex_srcgetc(); }
 #endif
-
-/* DIR of a token held one character to a word, ended by a 0: the argument is the free storage index of the array */
-word
-impdirw(word *tokx)
-{
-    word *tok = &fmem[*tokx];
-    static char *buf;
-    static size_t cap;
-    size_t n = 0;
-
-    for (; ; n++) {
-        if (n + 1 > cap) {
-            char *t = realloc(buf, cap = cap ? cap * 2 : 128);
-
-            if (t == NULL)
-                return 0;
-            buf = t;
-        }
-        buf[n] = (char)tok[n];
-        if (tok[n] == 0)
-            break;
-    }
-    return dir(buf);
-}
 
 static void
 wstr(const word *w, char *dst, size_t max)
