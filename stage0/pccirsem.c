@@ -71,7 +71,7 @@ static int ncval;
 word
 ccall_mark(word a)
 {
-    word d = L18(FREE(a));
+    word d = HL(FREE(a));
     int i;
 
     for (i = 0; i < ncval; i++)
@@ -103,8 +103,8 @@ fcon(word a, word b, word e)
     double v;
     word bits;
 
-    dname_str(L18(FREE(a)), ai, sizeof ai);
-    dname_str(L18(FREE(b)), bi, sizeof bi);
+    dname_str(HL(FREE(a)), ai, sizeof ai);
+    dname_str(HL(FREE(b)), bi, sizeof bi);
     for (p = ai; *p; p++)
         if (*p < '0' || *p > '9')
             goto bad;

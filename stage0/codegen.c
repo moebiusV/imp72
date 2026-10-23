@@ -38,6 +38,7 @@
  * A register index is not a PDP-10 register: it names an entry of the
  * register array RG (impsem.c), with limits; allocation is left to pcc.
  */
+#include <stdlib.h>
 #include <string.h>
 #include "imp.h"
 
@@ -451,6 +452,18 @@ l1:
     hook(s, t, s);
     dewop(0202, regof(t), s);
     return s;
+}
+
+/* IMP72WIDE=1: the program is written for 64 bit words (the compiler's own sources), so its constants are folded in 64 bits; otherwise the folding wraps at the
+ * 36 bits of the original, as the oracle does */
+static int
+imp_wide(void)
+{
+    static int w = -1;
+
+    if (w < 0)
+        w = getenv("IMP72WIDE") != NULL;
+    return w;
 }
 
 /* ---- copying and comparing code ---------------------------------------- */
@@ -884,7 +897,7 @@ conop(word s, word t, word i, word v, word w)
     case 19: co1 = ~(co1 ^ co2); break;
     default: break;
     }
-    if (!nowrap || co1 == sx36(co1))
+    if (!imp_wide() && (!nowrap || co1 == sx36(co1)))
         co1 = sx36(co1);
     c = i >> 18;
     if (c) {                                    /* special for conditionals */

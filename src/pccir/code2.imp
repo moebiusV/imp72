@@ -53,7 +53,7 @@ SUBR DEWFUN(S,I,J) IS (
 SUBR CONOP(S,T,I,V,W) IS (
  CO1,CO2,II,C,J,N ARE LOCAL;
  CO1_FREE(S+1); T NE 0 => CO2_FREE(T+1);
- II_R18(I);
+ II_HR(I);
  (FREE(S) AND 300B)=200B => (II=0 => (CO1_CO1 XOR (1 LS 63); GO TO CXC)
                               ELSE (ERROR(1,'OPERATION ON A REAL CONSTANT. '); GO TO CXC));
  GO TO (C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19) II;
@@ -77,7 +77,7 @@ SUBR CONOP(S,T,I,V,W) IS (
  C17:CO1_CO1 LROT CO2; GO TO CX;
  C18:CO1_CO1 XOR CO2; GO TO CX;
  C19:CO1_CO1 EQV CO2; GO TO CX;
- CX: (C_(I RS 9) RS 9)=>(                      # SPECIAL DEALIE FOR CONDITIONALS #
+CX: (C_I RS 32)=>(                      # SPECIAL DEALIE FOR CONDITIONALS #
                    C=1=>(CO1=0=>GO TO CXC;
                          FREES(S+J,FREE(V+J)) FOR J FROM 2;
                          GO TO CXT);
@@ -85,7 +85,7 @@ SUBR CONOP(S,T,I,V,W) IS (
                             ELSE(FREES(S+J,FREE(V+J)) FOR J FROM 2);
                          GO TO CXT));
  CXC: FREES(S+1,CO1);
- J_FREE(S); FREES(S,R18(J));
+ J_FREE(S); FREES(S,HR(J));
  T=>HOOK(S,T,S);
  CXT: S);
 
@@ -106,7 +106,7 @@ SUBR CJUMP(OP,P,R,S) IS (
  (FREE(R) AND 300B)=200B => F_1;
  F NE 0 => (O_OP+OFJ; FLOAT(P); FLOAT(R));
  FETCH(P);
- ADDREC(R,KOP,O,REGOF(P),FREE(R),FREE(R+1),L18(FREE(S)));
+ ADDREC(R,KOP,O,REGOF(P),FREE(R),FREE(R+1),HL(FREE(S)));
  HOOK(P,P,R));
 
 # MOVE B THROUGH N TO A: N+1 WORDS FROM B TO A, ASCENDING (THE LIBRARY ROUTINE IMP_BLK, CALLED LIKE ANY SUBROUTINE: THE ARGUMENTS ARE POINTERS) #
@@ -142,12 +142,12 @@ SUBR COPPY(S) IS (
 SUBR SUBRCALL(T) IS (
  TT,DD,J ARE LOCAL;
  SUBPR0(0);
- TT_FREE(T); DD_L18(TT);
+ TT_FREE(T); DD_HL(TT);
  DPROP('COM',DD) NE 2 => DPROPS('COM',DD,1);
  ADDREC(T,KOP,OCALLB,0,FREE(T),FREE(T+1),0);
  J_AREG1(140B,0);
- FREES(T,SX36(2 OR (TT AND (NOT 77B))));
- FREES(T+1,SX36((J LS 9) LS 9));
+ FREES(T,(2 OR (TT AND (NOT 77B))));
+ FREES(T+1,(J LS 32));
  T);
 
 # RETURN(S): RETURN THE VALUE OF S FROM THE CURRENT SUBROUTINE #
@@ -163,40 +163,40 @@ SUBR FLOAT(S) IS (
  (SF AND 300B) NE 200B => (
      (SF AND 77B)=4 => (W1_FREE(S+1); LO_CCALL DIRI2D(HR(W1),HL(W1)); HI_CCALL DIRHIGH(0);          # A CONSTANT: THE DOUBLE'S BITS #
                         FREES(S+1,HW(HI,LO));
-                        FREES(S,SX36((204B OR (SF AND 777000B))));
+                        FREES(S,((204B OR (SF AND 777000B))));
                         RETURN S);
      FETCH(S);
      J_REGOF(S);
      ADDREC(S,KOP,OFLOAT,J,FREE(S),FREE(S+1),0);
-     FREES(S,SX36((202B OR (SF AND (NOT 377B))))));
+     FREES(S,((202B OR (SF AND (NOT 377B))))));
  S);
 
 # FIX(S): INSURE THAT S IS AN INTEGER #
 SUBR FIX(S) IS (
  SF,J,W1,LO,HI ARE LOCAL;
  SF_FREE(S);
- (SF AND 300B)=0 => (FREES(S,SX36(SF OR 100B)); RETURN S);       # NO TYPE (A PARAMETER): AN INTEGER #
+ (SF AND 300B)=0 => (FREES(S,(SF OR 100B)); RETURN S);       # NO TYPE (A PARAMETER): AN INTEGER #
  (SF AND 300B) NE 100B => (
      (SF AND 77B)=4 => (W1_FREE(S+1); LO_CCALL DIRD2I(HR(W1),HL(W1)); HI_CCALL DIRHIGH(0);
                         FREES(S+1,HW(HI,LO));
-                        FREES(S,SX36((104B OR (SF AND 777000B))));
+                        FREES(S,((104B OR (SF AND 777000B))));
                         RETURN S);
      FETCH(S);
      J_REGOF(S);
      ADDREC(S,KOP,OFIX,J,FREE(S),FREE(S+1),0);
-     FREES(S,SX36((102B OR (SF AND (NOT 377B))))));
+     FREES(S,((102B OR (SF AND (NOT 377B))))));
  S);
 
 # DATAST(B): CONSTANT WORDS FOR A DATA STATEMENT #
 SUBR DATAST(B) IS (
  A,I,J,K ARE LOCAL;
  A_ENSTACK(IRDIR0(0));
- FREES(A,SX36((4 OR (FREE(A) AND (NOT 77B)))));
+ FREES(A,((4 OR (FREE(A) AND (NOT 77B)))));
  DS1: GETLIST(B) => (
         FREE(B+2) => (ERROR(1,'NON-CONSTANT EXPRESSION IN DATA STATEMENT.'); GO TO DS1);
         I_FREE(B);
-        I<6,0>=4 => L18(I)=0 => (ADDREC(A,KWORD,0,0,0,FREE(B+1),0); GO TO DS1);
-        I_L18(I);
+        I<6,0>=4 => HL(I)=0 => (ADDREC(A,KWORD,0,0,0,FREE(B+1),0); GO TO DS1);
+        I_HL(I);
         (J_CONVC(I)) NE 0 => (J<0 => (ADDREC(A,KWORD,0,0,0,CONST,0); GO TO DS1);
                               I_FREE(J);
                               ADDREC(A,KWORD,0,0,0,FREE(J+K),0) FOR K IN 1,1,I;
@@ -224,7 +224,7 @@ SUBR PRINPAR(N,AA,B,C,D) IS (
  N=11 => (
     (FREE(A) AND 77B)=4 => (FREE(B) AND 77B)=4 => (
         FREES(A+1,((FREE(A+1) AND HMASK) OR (FREE(B+1) LS HSH)));
-        FREES(A,R18(FREE(A)));
+        FREES(A,HR(FREE(A)));
         GO TO PP1);
     I_REGOF(DEWOP(OLOAD,AREG1(1,13B),A));
     J_REGOF(DEWOP(OLOAD,AREG1(1,13B),B));
@@ -240,13 +240,13 @@ SUBR PRINPAR(N,AA,B,C,D) IS (
   SA_SUBARG(T,PPS[K]);
   (FREE(SA) AND 77B)=4 => (
      K>0 => (                                # PROJECT AND PROGRAMMER: A DECIMAL CONSTANT READ AS OCTAL #
-        CONVC(L18(FREE(SA))); J_CONST;
+        CONVC(HL(FREE(SA))); J_CONST;
         SH_0; SV_0;
         PP11: J NE 0 => (KK_J/10;
                          (KK_J-(10*KK))>7 => ERROR(1,'NON-OCTAL PJ OR PN **');
                          SV_SV OR (KK_J-(10*KK)) LS SH; SH_SH+3;
                          J_J/10; GO TO PP11);
-        FREES(SA,SX36(4 OR ((STCON(SV) LS 9) LS 9)));
+        FREES(SA,(4 OR (STCON(SV) LS 32)));
         FREES(SA+1,0)));
   ADDREC(T,KOP,OPITEM,0,FREE(SA),FREE(SA+1),N);
   PP10: PPS[K]=0 => 0 ELSE HOOK(A,SA,A)) FOR K IN 0,1,2;

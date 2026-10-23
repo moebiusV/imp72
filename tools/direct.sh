@@ -19,6 +19,7 @@ out=${DIRECT_OUT:-build/direct}
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
 mkdir -p $out
+export IMP72WIDE=1                          # the seed folds the constants of the tape in 64 bits
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 for m in $modules; do
     $driver -c -o $out/$m.imp.o src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \

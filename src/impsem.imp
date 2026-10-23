@@ -58,40 +58,40 @@ SUBR NAME(S) IS (
  D,J,ATY,K,I,R16 ARE LOCAL;
  IINIT(0);
  (FREE(S) AND 77B) NE 1 => RETURN S;
- D_L18(FREE(S));
+ D_HL(FREE(S));
  ATY_(DPROP('ATYPE',D) LS 6);
  ATY=0 => (DPROPS('ATYPE',D,1); ATY_(1 LS 6));
- (K_TSTRN(D)) GE 0 => (FREES(S,SX36(2 OR ATY));
+ (K_TSTRN(D)) GE 0 => (FREES(S,(2 OR ATY));
                        K_AREG(K+40B);
-                       FREES(S+1,SX36((K LS 9) LS 9));
+                       FREES(S+1,(K LS 32));
                        RETURN S);
- IMPCONVC(D,KONV) NE 0 => (FREES(S,SX36((ATY OR 4) OR ((D LS 9) LS 9)));
+ IMPCONVC(D,KONV) NE 0 => (FREES(S,((ATY OR 4) OR (D LS 32)));
                            FREES(S+1,KONV);
                            RETURN S);
  NLOCV NE 0 => (I_NLOCV-1;
   NL1: I GE 0 => (J_FREE(LOCV+I);
-                  D=L18(J) => (D_R18(J);
+                  D=HL(J) => (D_HR(J);
                                ATY_(DPROP('ATYPE',D) LS 6);
                                NSUBPAR NE 0 => (I_NSUBPAR-1;
                                 NL2: I GE 0 => (J_FREE(SUBPAR+I);
-                                                D=J => (FREES(S,SX36(ATY OR 20B));
+                                                D=J => (FREES(S,(ATY OR 20B));
                                                         R16_AREG(16B);
-                                                        FREES(S+1,SX36((0400000000000B OR I) OR ((R16 LS 9) LS 9)));
+                                                        FREES(S+1,((0400000000000B OR I) OR (R16 LS 32)));
                                                         RETURN S);
                                                 I_I-1; GO TO NL2));
                                GO TO NL3);
                   I_I-1; GO TO NL1));
  NL3: NREGDEC NE 0 => (I_NREGDEC-1;
   NL4: I GE 0 => (J_FREE(REGDEC+I);
-                  D=R18(J) => (FREES(S,SX36(ATY OR 2));
-                               FREES(S+1,SX36(J XOR R18(J)));          # THE LEFT PART OF J: NOT 'J AND NOT 777777B', WHICH THE TRANSLATOR MAKES A HALFWORD MOVE #
+                  D=HR(J) => (FREES(S,(ATY OR 2));
+                               FREES(S+1,(J XOR HR(J)));          # THE LEFT PART OF J: NOT 'J AND NOT 777777B', WHICH THE TRANSLATOR MAKES A HALFWORD MOVE #
                                RETURN S);
                   I_I-1; GO TO NL4));
- FREES(S,SX36(((10B OR ATY)) OR ((D LS 9) LS 9)));
+ FREES(S,(((10B OR ATY)) OR (D LS 32)));
  FREES(S+1,0);
  S);
 
-SUBR VAL(S) IS R18(FREE(S+1));
+SUBR VAL(S) IS HR(FREE(S+1));
 
 SUBR SVAL(N) IS (J_IMPENSTACK(0); FREES(J+1,N); J);
 
@@ -122,7 +122,7 @@ SUBR SAMEREG(J) IS (
  K ARE LOCAL;
  TMPREG(J)=0 => RETURN J;
  K_FREE(RG+J);
- AREG1((77B AND (U36(K) RS 6)),(77B AND K)));
+ AREG1((77B AND (K RS 6)),(77B AND K)));
 
 SUBR REGEQ(I,J) IS (
  II,JJ ARE LOCAL;
@@ -131,7 +131,7 @@ SUBR REGEQ(I,J) IS (
  I=0 => RETURN 0;
  J=0 => RETURN 0;
  II_FREE(RG+I); JJ_FREE(RG+J);
- (37B AND II)=(37B AND (U36(II) RS 6)) => (II=JJ => RETURN 1);
+ (37B AND II)=(37B AND (II RS 6)) => (II=JJ => RETURN 1);
  0);
 
 SUBR REGSIM(I,J) IS (
@@ -152,7 +152,7 @@ SUBR RMATCH(I,J,RN) IS (
  IINIT(0);
  K_FREE(RG+RN);
  J LT (37B AND K) => RETURN 0;
- I GT (37B AND (U36(K) RS 6)) => RETURN 0;
+ I GT (37B AND (K RS 6)) => RETURN 0;
  1);
 
 # SUBPR0(I): 0 AT SUBROUTINE CALLS, 1 AT THE END OF A PARAMETER LIST; KEEPS TRACK OF WHEN THE CALL TEMPORARIES CAN BE REUSED #
@@ -165,7 +165,7 @@ SUBR SUBPRM(I) IS (
  J ARE LOCAL;
  IINIT(0);
  J_IMPENSTACK(0);
- FREES(J,SX36(10B OR ((SUBTMP LS 9) LS 9)));
+ FREES(J,(10B OR (SUBTMP LS 32)));
  FREES(J+1,SUBTMPK);
  SUBTMPK_SUBTMPK+1;
  SUBTMPK>SUBTMPN => SUBTMPN_SUBTMPK;
@@ -173,7 +173,7 @@ SUBR SUBPRM(I) IS (
 
 SUBR SUBTMPF(NIL) IS (
  IINIT(0);
- SUBTMPN NE 0 => (FADD(ARR,NARR,SX36(SUBTMP OR ((SUBTMPN LS 9) LS 9)));
+ SUBTMPN NE 0 => (FADD(ARR,NARR,(SUBTMP OR (SUBTMPN LS 32)));
                   SUBTMP_IMPNEWPAR(0);
                   SUBTMPN_0; SUBTMPK_0);
  0);
@@ -184,23 +184,23 @@ SUBR SUBBEG(A) IS (
  IINIT(0);
  SUBRTN NE 0 => ERROR(1,'NESTED SUBROUTINES.');
  SUBRTN_1;
- J_L18(FREE(A));
+ J_HL(FREE(A));
  DPROPS('COM',J,2);
  IMPANYCO(0)=0 => IMPM_0;
  (FINAM[5] AND 400000B) NE 0 => RNTRNT_1 ELSE RNTRNT_0;
  RNTRNT NE 0 => (K_IMPENSTACK(0);
-                 IMPADDCODE(K,SX36(200000000000B OR J),0);
+                 IMPADDCODE(K,(200000000000B OR J),0);
                  IMPADDCODE(K,0,J);
                  J_IMPSUBTAG(J);
-                 IMPADDCODE(K,SX36(254B LS 24),J);
-                 IMPADDCODE(A,SX36(200000000000B OR J),0);
+                 IMPADDCODE(K,(254B LS 24),J);
+                 IMPADDCODE(A,(200000000000B OR J),0);
                  REMOT(IMPFREEZE(K)))
-  ELSE (IMPADDCODE(A,SX36(200000000000B OR J),0);
+  ELSE (IMPADDCODE(A,(200000000000B OR J),0);
         IMPADDCODE(A,0,J));
  K_IMPENSTACK(0);
- SB1: IMPGETLIST(K) NE 0 => (I_L18(FREE(K));
+ SB1: IMPGETLIST(K) NE 0 => (I_HL(FREE(K));
                              J_IMPNEWNAMEG(I);
-                             FADD(LOCV,NLOCV,SX36(J OR ((I LS 9) LS 9)));
+                             FADD(LOCV,NLOCV,(J OR (I LS 32)));
                              FADD(SUBPAR,NSUBPAR,J);
                              GO TO SB1);
  SUBTMPF(0);
@@ -216,14 +216,14 @@ SUBR REMOT(A) IS (
  FREES(A+2,0);
  A);
 
-SUBR CALLME(A) IS (RELNM_L18(FREE(A)); A);
+SUBR CALLME(A) IS (RELNM_HL(FREE(A)); A);
 
 SUBR REG2S(S) IS (
  J,F,R ARE LOCAL;
  J_FREE(S+1);
- F_(3777B AND L18(J));                      # THE REGISTER FIELD, BITS 18-28 #
+ F_(3777B AND HL(J));                      # THE REGISTER FIELD, BITS 18-28 #
  R_REG2(F);
- FREES(S+1,SX36((J XOR ((F LS 9) LS 9)) OR ((R LS 9) LS 9)));    # CLEAR THE FIELD WITH XOR, NOT AND NOT #
+ FREES(S+1,((J XOR (F LS 32)) OR (R LS 32)));    # CLEAR THE FIELD WITH XOR, NOT AND NOT #
  S);
 
 # DECL(I,S): NOTE ONE PROPERTY OF A DECLARATION: 0 A SYNONYM FOR THE REGISTER NAMED AT S, 1 A LENGTH (S IS A CONSTANT), 2 AND OVER A
@@ -233,7 +233,7 @@ SUBR DECL(I,S) IS (
  IINIT(0);
  I>1 => (PROPS_(PROPS OR (1 LS I)); RETURN 0);
  I=0 => (PREGSYN NE 0 => ERROR(1,'TWO REGISTERS IN SAME DECLARATION.');
-         J_L18(FREE(S));
+         J_HL(FREE(S));
          (K_TSTRN(J)) GE 0 => PREGSYN_AREG(K+40B)
           ELSE ERROR(1,'ANTECEDENT NOT A HARDWARE REGISTER IN SYNONYM DECLARATION.');
          RETURN 0);
@@ -248,37 +248,37 @@ SUBR DECLARE(S) IS (
  IINIT(0);
  T_IMPENSTACK(0);
  DL1: IMPGETLIST(S)=0 => GO TO DLX;
- J_L18(FREE(S));
+ J_HL(FREE(S));
  JJ_0;
  NLOCV NE 0 => (I_NLOCV-1;
   DL2: I GE 0 => (K_FREE(LOCV+I);
-                  J=L18(K) => (J_R18(K); GO TO DL3);
+                  J=HL(K) => (J_HR(K); GO TO DL3);
                   I_I-1; GO TO DL2));
  DL3: (PROPS AND 2048) NE 0 => (OLD_J;                   # LOCAL #
                                 J_IMPNEWNAMEG(J);
-                                FADD(LOCV,NLOCV,SX36(J OR ((OLD LS 9) LS 9))));
+                                FADD(LOCV,NLOCV,(J OR (OLD LS 32))));
  NREGDEC NE 0 => (I_NREGDEC-1;
   DL4: I GE 0 => (K_FREE(REGDEC+I);
-                  J=R18(K) => (JJ_L18(K); GO TO DL5);
+                  J=HR(K) => (JJ_HL(K); GO TO DL5);
                   I_I-1; GO TO DL4));
  DL5: (K_TSTRN(J)) GE 0 => JJ_AREG(K+40B);
  PREGSYN NE 0 => (JJ_PREGSYN;
-                  FADD(REGDEC,NREGDEC,SX36(J OR ((JJ LS 9) LS 9))));
+                  FADD(REGDEC,NREGDEC,(J OR (JJ LS 32))));
  (PROPS AND 4) NE 0 => JJ=0 => DPROPS('COM',J,1);
  (PROPS AND 8) NE 0 => DPROPS('ATYPE',J,2);
  (PROPS AND 16) NE 0 => DPROPS('ATYPE',J,1);
  (PROPS AND 32) NE 0 => (JJ=0 => (JJ_AREG1(101B,15B);               # REGISTER #
-                                  FADD(REGDEC,NREGDEC,SX36(J OR ((JJ LS 9) LS 9))));
+                                  FADD(REGDEC,NREGDEC,(J OR (JJ LS 32))));
                          IMPDEWFUN(T,5,JJ));
  (PROPS AND 64) NE 0 => JJ NE 0 => IMPDEWFUN(T,6,JJ);               # RESERVED #
  (PROPS AND 128) NE 0 => JJ NE 0 => IMPDEWFUN(T,9,JJ);              # SCRATCH #
  (PROPS AND 256) NE 0 => JJ NE 0 => IMPDEWFUN(T,10,JJ);             # PROTECTED #
  (PROPS AND 512) NE 0 => JJ NE 0 => IMPDEWFUN(T,8,JJ);              # AVAILABLE #
  (PROPS AND 1024) NE 0 => JJ NE 0 => (I_NREGDEC-1;                  # RELEASED #
-   DL6: I GE 0 => (J=R18(FREE(REGDEC+I)) => FREES(REGDEC+I,0);
+   DL6: I GE 0 => (J=HR(FREE(REGDEC+I)) => FREES(REGDEC+I,0);
                    I_I-1; GO TO DL6);
    IMPDEWFUN(T,8,JJ));
- PLONG NE 0 => JJ=0 => FADD(ARR,NARR,SX36(J OR ((PLONG LS 9) LS 9)));
+ PLONG NE 0 => JJ=0 => FADD(ARR,NARR,(J OR (PLONG LS 32)));
  JJ NE 0 => (PLONG OR (PROPS AND 28)) NE 0 => ERROR(1,'PROPERTY DECLARED IS NOT APPLICABLE TO REGISTER.');
  JJ=0 => (PROPS AND 1984) NE 0 => ERROR(1,'PROPERTY MAY ONLY BE DECLARED FOR REGISTERS.');
  GO TO DL1;
