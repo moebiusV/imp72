@@ -127,4 +127,14 @@ SUBR SUBARG(S,PP) IS (
                      FREES(P,SX36((R18(SE) OR ((J LS 9) LS 9)))));
            FREES(P+1,0);
            RETURN P);
- P) %%
+ P);
+
+SUBR CODEI(NIL) IS (
+  DSEM('STORE',STORE);
+  DSEM('FETCH',FETCH);
+  DSEM('REGOF',REGOF);
+  DSEM('DEWOP',DEWOP);
+  DSEM('ADDOP',ADDOP);
+  DSEM('TAG',TAG);
+  CODE2I(0);
+  0)%%

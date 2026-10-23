@@ -64,4 +64,9 @@ SUBR BYTEP(A,S,P,FLAG) IS (
  FADD(BDESC,NBD,FREE(P)); FADD(BDESC,NBD,FREE(P+1));
  HOOK(A,HOOK(P,P,S),A);
  FREES(A+1,0); FREES(A,SX36(110B OR ((TD LS 9) LS 9)));
- A) %%
+ A);
+
+SUBR CODE3I(NIL) IS (DSEM('SUBSCRIPT',SUBSCRIPT);
+                     DSEM('SUBCALL',SUBCALL);
+                     DSEM('BYTEP',BYTEP);
+                     0)%%
