@@ -120,7 +120,9 @@
          (ADDOP(PAR(1),Y,Z) ELSE
          "A0IGRCON*B0IGRCON"=>CONOP(A,B,PAR(2)) ELSE
          "A0FLT*B"   =>ADDOP(PAR(0),A,FLOAT(B)) ELSE
-         "A*B0FLT"   =>ADDOP(PAR(0),FLOAT(A),B));
+         "A*B0FLT"   =>ADDOP(PAR(0),FLOAT(A),B) ELSE
+         "A0IGRREG*B0IGR"   =>ADDOP(PAR(1),B,A) ELSE
+         "A*B0CON" =>ADDOP(PAR(1),B,A));
 
  <EXP> ::= <ATOM,A> + <EXP,B> ::= CASE (30,6,1) OF CAOPS;
 
@@ -141,12 +143,16 @@
      "    A0CON AND NOT B0CON" => CONOP(A,CONOP(B,0,6),PAR(4)) ELSE
      "NOT A0CON AND NOT B0CON" => CONOP(CONOP(A,0,6),CONOP(B,0,6),PAR(4)) ELSE
              "    A0REG AND     B      " => ADDOP(PAR(0),B,A) ELSE
+             "    A     AND     B0CON" => ADDOP(PAR(0),B,A) ELSE
              "    A     AND     B      " => ADDOP(PAR(0),A,B) ELSE
              "NOT A0REG AND     B      " => ADDOP(PAR(1),B,A) ELSE
+             "NOT A     AND     B0CON" => ADDOP(PAR(1),B,A) ELSE
              "NOT A     AND     B      " => ADDOP(PAR(2),A,B) ELSE
              "    A0REG AND NOT B      " => ADDOP(PAR(2),B,A) ELSE
+             "    A     AND NOT B0CON" => ADDOP(PAR(2),B,A) ELSE
              "    A     AND NOT B      " => ADDOP(PAR(1),A,B) ELSE
              "NOT A0REG AND NOT B      " => ADDOP(PAR(3),B,A) ELSE
+             "NOT A     AND NOT B0CON" => ADDOP(PAR(3),B,A) ELSE
              "NOT A     AND NOT B      " => ADDOP(PAR(3),A,B));
 
  <EXP> ::= <ATOM,A>  OR <EXP,B> ::= CASE(15,16,17,18,8) OF LOGIC;

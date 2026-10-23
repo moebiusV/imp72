@@ -23,6 +23,20 @@ A REAL word is the bits of the IEEE double (no order preserving encoding), so pr
 tests, the oracle goldens, the IEEE fuzz and a differential fuzz (the old path against this one) with it; `tests/direct/stage2.sh` has it compile
 itself and requires the second generation to write the same IR as the first for every program. Both are part of `make check` (x86_64).
 
+## What differs from the original, and why
+
+The rule is that the IMP text stays the original's, and changes only (1) where it emitted PDP-10 instructions, (2) where it relied on 36 bits, (3) for floating point.
+`src/pccir/syntax64.imc` differs from `decus/syntax.imc` in: the opcodes (now operation numbers); the rules that made PDP-10 only forms (self and both
+mode stores, `AOS`/`SOS`, `CAI`/`SKIP`/`JUMP` skips over one-word statements, register pairs for `IDIV`, `HRRZ`/`HLLZ` for `AND 777777B`, `BLT` setup, the
+`CON18` immediate tests, which are `CON` here); `<L>` and `<R>` are 32 bit halves; the byte rules go through `BYTEP`'s descriptors. The routines of `code*.imp` and
+`impsem.imp` differ from `code*.imc` and `impsem.imc` in: the records they add instead of instruction words (`ADDREC` for `ADDCODE`); no `RCOCHK`, `OCHK`, `OPCODE`
+(they read PDP-10 instruction words); `DEWOP` has no immediate/self/both modes or user register protection; `SUBARG` and `SUBSCRIPT` make a copy of a register before
+adding to it (a temporary of the IR is not a register that may be changed); `BYTEP`, `PRINPAR` (FLT) and `MOVE ... THROUGH` build their operations from the IR's; the
+halves and fields of a stack entry are taken with `L18`/`R18`/`SX36` (it keeps the 36 bit layout); `FLOAT`, `FIX` and the constant negation use the IEEE double's bits.
+Two small things are not of those three kinds, and are here for the 64 bit machine: `CONOP` does not divide by zero, and `ADDREC` copies its arguments before the arena can
+move. Where the code is written around a bug of the seed compiler (`demit.imp`: expressions built in steps), it is the new module `demit.imp`, which the original has no
+counterpart of (`amod`, `rmod`, `omod`).
+
 ## What it found (and the rules for writing IMP that this compiler compiles)
 
 - **The old compiler compiles this code, and it has its own limits.** A routine's call arguments are in static temporaries; an expression like

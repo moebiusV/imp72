@@ -195,7 +195,7 @@ SUBR DATAST(B) IS (
  DS1: GETLIST(B) => (
         FREE(B+2) => (ERROR(1,'NON-CONSTANT EXPRESSION IN DATA STATEMENT.'); GO TO DS1);
         I_FREE(B);
-        (I AND 77B)=4 => L18(I)=0 => (ADDREC(A,KWORD,0,0,0,FREE(B+1),0); GO TO DS1);
+        I<6,0>=4 => L18(I)=0 => (ADDREC(A,KWORD,0,0,0,FREE(B+1),0); GO TO DS1);
         I_L18(I);
         (J_CONVC(I)) NE 0 => (J<0 => (ADDREC(A,KWORD,0,0,0,CONST,0); GO TO DS1);
                               I_FREE(J);
