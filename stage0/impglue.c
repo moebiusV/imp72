@@ -212,7 +212,7 @@ word impgetlist(word *s) { word r = getlist(*s); sync(); return r; }
 word impenstack(word *v) { word r = enstack(*v); sync(); return r; }
 
 /* the lexical analyser's calls (src/lex.imp) */
-#ifndef IR_DIRECT
+#if !defined(IR_DIRECT) || defined(IR_LEX)
 extern word lex_srcgetc(void);
 
 word impsrcgetc(word *unused) { (void)unused; return lex_srcgetc(); }

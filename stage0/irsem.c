@@ -54,6 +54,7 @@ word mcode(word s, word t) { return impl_mcode(&s, &t); }
 void copyco(word s) { impl_copyco(&s); }
 word anyco(void) { word z = 0; return impl_anycode(&z); }
 word subtmpf(void) { word z = 0; return impl_subtmpf(&z); }
+word imponeword(word *s) { return impl_oneword(s); }       /* entree.imp's call */
 word impsem_narr(void) { word z = 0; impl_iinit(&z); return narr; }
 
 /* LETSYN(S): `LET X = Y` (see impsem.c) */

@@ -14,6 +14,7 @@ fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-impsem code code2 code3 demit}
+srcmodules=${SRC_MODULES:-}                   # modules of src/ (free debug stack dir ...) built with them, in place of the C ones, as tools/stage1.sh does
 out=${DIRECT_OUT:-build/direct}
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 mkdir -p $out
@@ -22,7 +23,18 @@ for m in $modules; do
     $driver -c -o $out/$m.imp.o src/impsyn64.imc src/ir/irsyn.imc src/ir/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
-# every symbol the modules define, except the ones shared with the C side
+oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
+for m in $srcmodules; do
+    x=; case $m in free) x=lib/ffi.imc ;; esac
+    d=$driver
+    case " $oldmodules " in *" $m "*) d="env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0" ;; esac
+    $d -c -o $out/$m.imp.o $x src/impsyn64.imc src/$m.imp >$out/$m.log 2>&1 \
+        || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
+done
+allmodules="$modules $srcmodules"
+# every symbol the modules of src/ir define, except the ones shared with the C side, gets the prefix in all of them (they call one another by name);
+# the modules of src/ are renamed one by one, as tools/stage1.sh does: what they call and do not define is the C side's (DIR('X') from parse.imp is
+# dir() of C, which takes the string's address), and not another module's routine
 syms=
 for m in $modules; do
     syms="$syms $(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }')"
@@ -35,14 +47,27 @@ for m in $modules; do
     $OBJCOPY $args $out/$m.imp.o $out/$m.imp2.o
     objs="$objs $out/$m.imp2.o"
 done
+repl=
+for m in $srcmodules; do
+    ms=$(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }' | grep -vx -f src/shared.txt | grep -vx -f src/ir/shared.txt || true)
+    margs=
+    for s in $ms; do margs="$margs --redefine-sym $s=impl_$s"; done
+    $OBJCOPY $margs $out/$m.imp.o $out/$m.imp2.o
+    cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
+    objs="$objs $out/$m.imp2.o $out/${m}_c.o"
+    repl="$repl stage0/$m.o"
+done
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/irsem.c -o $out/irsem.o
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIR_DIRECT -c stage0/impglue.c -o $out/impglue.o
+lexflag=; case " $srcmodules " in *" lex "*) lexflag=-DIR_LEX ;; esac
+cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIR_DIRECT $lexflag -c stage0/impglue.c -o $out/impglue.o
 objs="$objs $out/irsem.o $out/impglue.o"
 keep=
 for o in stage0/*.o; do
     case $o in stage0/imp72s0.o|stage0/codegen.o|stage0/impsem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
-    keep="$keep $o"
+    skip=0
+    for r in $repl; do [ "$o" = "$r" ] && skip=1; done
+    [ $skip = 1 ] || keep="$keep $o"
 done
 cc -no-pie -o $out/imp72d stage0/imp72s0.o $keep $objs ${DIRECT_LIB:-build/lib/libimp72.a}
 ln -sf imp72d $out/imp72stage-ir
-echo "built $out/imp72d with the code generator of src/ir: $modules"
+echo "built $out/imp72d with the code generator of src/ir: $modules; the compiler's own: $srcmodules"
