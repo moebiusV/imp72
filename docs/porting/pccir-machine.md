@@ -53,8 +53,13 @@ KIND 1 is an operation, 2 a tag (`X` = its directory index), 3 a constant word o
     51 .. 56 FJEQ .. FJNE                                    the same on doubles
     60 CALLB begin a call of the function named by V        61 ARG the address of V is the next argument
     62 CALLE end the call; RD receives its value (0: none)  63 PITEM print list item: X = the format code, V its operand
+    64 CALLI  RD = imp_calli(V, RD) (the monitor call V with the AC RD)    65 APPLY  call the routine whose address is V (no arguments)
     70 ENTRY the subroutine named by V begins (its formal parameters: X of them)       71 RET return RD
 
 The operand V is read the way the entry says: TY 2 the register, TY 4 the constant, TY 8 the word of the variable DI plus the offset,
 TY 16 the same indexed by the register and indirect if bit 35 is set. The address of a variable is its byte address; the offset and the
 index register count words when there is a variable (`V[I]` is `&V + 8*I`) and bytes when there is none (`[P+3]` is `P+3` bytes).
+
+## Original modules
+
+Every module of decus/ compiles with the pcc IR compiler except impm.imc, whose ERROR jumps from a subroutine into the main program (GO TO FIN), a non-local jump of the PDP-10; src/impm.imp is its port. REMOTE code is emitted with its routine (ops 66 HRLM, 67 HRRM map HRL/HRR of impsyn.imc; 68 marks remote code); a GO TO to a tag outside the routine is an error naming the tag.

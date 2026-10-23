@@ -308,6 +308,17 @@ irruntime(long v)
     return strcmp(nm, "ifix") == 0 || strcmp(nm, "fini") == 0 || strncmp(nm, "imp_", 4) == 0;
 }
 
+/* the error for a GO TO a tag that is not in the subroutine, with the tag's name */
+long
+irtagerr(long d)
+{
+    char msg[160];
+
+    snprintf(msg, sizeof msg, "GO TO %s, WHICH IS NOT IN THE SUBROUTINE.", irsymname(d));
+    imp_error(1, msg);
+    return 0;
+}
+
 long irreset(long z) { (void)z; ir_usedfs = 0; return 0; }
 long irfsused(long z) { (void)z; return ir_usedfs; }
 long irflush(long z) { (void)z; fflush(NULL); return 0; }

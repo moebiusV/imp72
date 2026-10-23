@@ -24,7 +24,7 @@
  <ATOM> ::= OFLOAT ::= "34";  <ATOM> ::= OFIX ::= "35";  <ATOM> ::= ONEGF ::= "36";
  <ATOM> ::= OJUMP ::= "40";   <ATOM> ::= OJEQ ::= "41";     <ATOM> ::= OJLT ::= "42";     <ATOM> ::= OJLE ::= "43";
  <ATOM> ::= OJGE ::= "44";    <ATOM> ::= OJGT ::= "45";     <ATOM> ::= OJNE ::= "46";     <ATOM> ::= OFJ ::= "10";   # FJEQ = OJEQ+OFJ #
- <ATOM> ::= OCALLB ::= "60";  <ATOM> ::= OCALLI ::= "64";  <ATOM> ::= OARG ::= "61";     <ATOM> ::= OCALLE ::= "62";   <ATOM> ::= OPITEM ::= "63";
+ <ATOM> ::= OCALLB ::= "60";  <ATOM> ::= OCALLI ::= "64";  <ATOM> ::= OAPPLY ::= "65";  <ATOM> ::= OHRLM ::= "66";  <ATOM> ::= OREMOTE ::= "68";  <ATOM> ::= OHRRM ::= "67";  <ATOM> ::= OARG ::= "61";     <ATOM> ::= OCALLE ::= "62";   <ATOM> ::= OPITEM ::= "63";
  <ATOM> ::= OENTRY ::= "70";  <ATOM> ::= ORET ::= "71";     <ATOM> ::= OPARAM ::= "72";
 
  # THE OPERATORS AND TYPES OF IR.H #
