@@ -99,6 +99,7 @@ check: all
 	sh tests/self/objnorm.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/ieee/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/direct/run.sh
+	CC1=$(CURDIR)/$(CC1) sh tests/direct/stage2.sh
 	sh tests/manual/run.sh
 
 clean:

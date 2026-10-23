@@ -5,6 +5,7 @@
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 [ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || { echo "direct stage 2 skipped: no cc1 (make)"; exit 0; }
+case $(uname -m) in x86_64|amd64) ;; *) echo "direct stage 2 skipped: only tried on x86_64 so far"; exit 0 ;; esac
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct stage 2 skipped: no objcopy"; exit 0; }
