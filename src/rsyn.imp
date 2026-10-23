@@ -88,7 +88,7 @@ SUBR RSYN(TR) IS (
 
 SUBR RSERR(N) IS (
  PLINE1(CL);
- IMPMSG('?ERROR IN INITIAL SYNTAX');
+ MSG('?ERROR IN INITIAL SYNTAX');
  ERROR(0,0));
 SUBR STX(J) IS (CL_LEX(J); SETSTK(1,(1 OR (J LS 32)),0,0));
 SUBR ADDCHAR(S,C) IS (
@@ -225,7 +225,7 @@ SUBR SYNTAX(N) IS (N=2=>(SEMK=SEMN=>SEMK_SETSEM(0,NNA LS 32);
                    (N OR NNA-1)=>(SEMN_PRODN_SEMK;
                                   RESETSEM(NNA,SEMK);
                                   N=0=>SEMANTICS(0));
-                   PRODN_SEMN_IMPGRAPH(SN,NSN-1,SEMN);
+                   PRODN_SEMN_GRAPH(SN,NSN-1,SEMN);
                    GMATR(0);
                    SNITT_0;
                    SYNXX: 0);

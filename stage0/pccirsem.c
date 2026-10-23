@@ -428,22 +428,13 @@ pcode(word a)
 }
 
 /* the semantic routines that stay C (the registration of the others is the tape's: IMPSEM, CODEI) */
-static void
-csems(void)
+long
+csems(long z)
 {
+    (void)z;
     dsem("ERROR", NULL);
     dsem("LETSYN", w_letsyn);
     dsem("CVAL", w_cval);
     dsem("FCON", w_fcon);
 }
 
-/* sem_init: IMPSEM and CODEI of the tape register the semantic routines */
-void
-sem_init(void)
-{
-    word z = 0;
-
-    csems();
-    impl_impsem(&z);
-    impl_codei(&z);
-}
