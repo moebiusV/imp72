@@ -357,12 +357,36 @@ trans_unit(word a)
     fflush(irfile);
 }
 
-/* the list of the code of an entry in PDP-10 terms (/A): there is none */
+/* the list of the code of an entry (/A): one line for each record of the chain (docs/porting/ir-machine.md) */
 void
 pcode(word a)
 {
-    (void)a;
-    fprintf(imp_out(), "(THE CODE IS NOT LISTED: IT IS PCC IR)\n");
+    static const char *const opn[72] = { "?", "LOAD", "NEG", "COMPL", "ADDR", "STORE", "ADD", "SUB", "MUL", "DIV", "MOD",
+        "AND", "ANDCA", "ANDCM", "ANDCB", "IOR", "ORCA", "ORCM", "ORCB", "XOR", "EQV", "LSH", "ASH", "ROT", "?", "?", "?", "?", "?",
+        "?", "FADD", "FSUB", "FMUL", "FDIV", "FLOAT", "FIX", "FNEG", "?", "?", "?", "JUMP", "JEQ", "JLT", "JLE", "JGE", "JGT",
+        "JNE", "?", "?", "?", "?", "FJEQ", "FJLT", "FJLE", "FJGE", "FJGT", "FJNE", "?", "?", "?", "?", "?", "CALLB", "ARG",
+        "CALLE", "PITEM", "?", "?", "?", "?", "ENTRY", "RET" };
+    word r = (word)((uword)FREE(a + 2) >> 32);
+    FILE *f = imp_out();
+
+    while (r) {
+        word h = FREE(co + r), op = (h >> 8) & 0xff, kind = h & 0xff;
+        char nm[16], d[40];
+
+        if (kind == 2)
+            fprintf(f, "%6ld  TAG    %s\n", (long)r, (dname_str(FREE(co + r + 4), d, sizeof d), d));
+        else if (kind == 3)
+            fprintf(f, "%6ld  WORD   %ld\n", (long)r, (long)FREE(co + r + 3));
+        else {
+            if (op < 72 && opn[op][0] != '?')
+                snprintf(nm, sizeof nm, "%s", opn[op]);
+            else
+                snprintf(nm, sizeof nm, "%ld", (long)op);
+            fprintf(f, "%6ld  %-6s R%ld  V %lo,%lo  X %ld\n", (long)r, nm, (long)FREE(co + r + 1), (long)(FREE(co + r + 2) & 0777777777777L),
+                (long)(FREE(co + r + 3) & 0777777777777L), (long)FREE(co + r + 4));
+        }
+        r = (word)((uword)h >> 32);
+    }
 }
 
 void

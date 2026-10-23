@@ -25,7 +25,9 @@ LIB = build/lib/libimp72.a
 
 IR2C     = build/bin/ir2c
 
-all: stage0 $(LIB) $(IR2C) pcc
+LIBRAW = build/lib/libimp72raw.a      # the library for the code generator of src/ir: a REAL word is the double's own bits
+
+all: stage0 $(LIB) $(LIBRAW) $(IR2C) pcc
 
 $(IR2C): tools/ir2c.c
 	mkdir -p build/bin
@@ -38,6 +40,13 @@ $(LIB): lib/imp72rt.c lib/imp72io.c lib/imp72main.c
 	$(CC) -std=c99 $(CFLAGS) -c -o build/lib/imp72main.o lib/imp72main.c
 	rm -f $(LIB)
 	ar rcs $(LIB) build/lib/imp72rt.o build/lib/imp72io.o build/lib/imp72main.o
+
+$(LIBRAW): lib/imp72rt.c lib/imp72io.c lib/imp72main.c lib/imp72real.h
+	mkdir -p build/lib
+	$(CC) -std=c99 -DIMP_REAL_RAW $(CFLAGS) -c -o build/lib/imp72rt_raw.o lib/imp72rt.c
+	$(CC) -std=c99 -DIMP_REAL_RAW $(CFLAGS) -c -o build/lib/imp72io_raw.o lib/imp72io.c
+	rm -f $(LIBRAW)
+	ar rcs $(LIBRAW) build/lib/imp72rt_raw.o build/lib/imp72io_raw.o build/lib/imp72main.o
 
 $(CC1):
 	mkdir -p $(PCCBUILD)

@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "imp72real.h"
 
 #define MAXFILES 4
 
@@ -385,7 +386,7 @@ imp_pr(long n, int64_t *p)
         break;
     case 11: {
         double x;
-        int64_t e = *p, s = e >> 63, bits = ((e ^ s) - s) | (s & (int64_t)0x8000000000000000ULL);
+        uint64_t bits = real_bits(*p);
 
         memcpy(&x, &bits, sizeof x);
         printflt(x, po.fltm, po.fltn);

@@ -7,6 +7,7 @@ cd "$root" || exit 1
 [ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || { echo "native tests skipped: no cc1 (make)"; exit 0; }
 driver=${DRIVER:-stage0/imp72stage0}              # DRIVER=build/direct/imp72stage-ir with IMP72SYNTAX=src/ir/syntax64.imc: the code generator of src/ir
 out=${NATIVE_OUT:-build/native}
+lib=${NATIVE_LIB:-build/lib/libimp72.a}          # NATIVE_LIB=build/lib/libimp72raw.a for the code generator of src/ir
 mkdir -p $out
 fail=0
 for p in tests/native/*.imp; do
@@ -17,7 +18,7 @@ for p in tests/native/*.imp; do
         $driver -c -o $out/$n.o "$p" \
             || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }
         cc -no-pie -Ilib -o $out/$n tests/native/${n}_main.c $out/$n.o \
-            build/lib/libimp72.a || { echo "FAILED: $n: link" >&2; fail=1; continue; }
+            $lib || { echo "FAILED: $n: link" >&2; fail=1; continue; }
     else
         $driver -o $out/$n "$p" \
             || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "imp72real.h"
 
 /*
  * CALLI(code, ac): the TOPS-10 monitor calls the compiler's sources make.
@@ -54,7 +55,7 @@ imp_blt(char *dst, char *src, long bytes)
 long
 ifix(int64_t *p)
 {
-    int64_t e = *p, s = e >> 63, bits = ((e ^ s) - s) | (s & (int64_t)0x8000000000000000ULL);
+    uint64_t bits = real_bits(*p);
     double x;
 
     memcpy(&x, &bits, sizeof x);
@@ -65,8 +66,7 @@ ifix(int64_t *p)
 double
 imp_real_to_double(int64_t w)
 {
-    int64_t s = w >> 63;                                /* -1 for a negative number */
-    uint64_t bits = (uint64_t)((w ^ s) - s) | ((uint64_t)s & 0x8000000000000000ULL);
+    uint64_t bits = real_bits(w);
     double d;
 
     memcpy(&d, &bits, sizeof d);
@@ -77,9 +77,36 @@ int64_t
 imp_double_to_real(double d)
 {
     uint64_t bits;
-    int64_t s;
 
     memcpy(&bits, &d, sizeof bits);
-    s = (int64_t)bits >> 63;
-    return (int64_t)(((bits & 0x7FFFFFFFFFFFFFFFULL) ^ (uint64_t)s) - (uint64_t)s);
+    return real_word(bits);
+}
+
+/* The shifts and the rotation of a word by a variable count (the code generator of src/ir calls them): a positive count is to the
+ * left, a negative one to the right; a logical shift of 64 places or more gives 0. */
+long
+imp_lsh(long x, long n)
+{
+    if (n >= 64 || n <= -64)
+        return 0;
+    return n >= 0 ? (long)((unsigned long)x << n) : (long)((unsigned long)x >> -n);
+}
+
+long
+imp_ash(long x, long n)
+{
+    if (n >= 64)
+        return 0;
+    if (n >= 0)
+        return (long)((unsigned long)x << n);
+    return x >> (n <= -64 ? 63 : -n);
+}
+
+long
+imp_rot(long x, long n)
+{
+    unsigned long u = (unsigned long)x;
+
+    n &= 63;
+    return n == 0 ? x : (long)((u << n) | (u >> (64 - n)));
 }
