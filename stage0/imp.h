@@ -147,7 +147,7 @@ extern word prp, alf;                      /* the PRP and ALF array pointers */
 
 /* CONVC / STCON / NEWNAME (also in dir.imc) */
 word convc(word c);                        /* 0, -1 (numeric), or string array */
-extern word convc_const;                   /* CONST */
+extern word convc_const __asm__("const");   /* CONST: the symbol IMP names it (src/shared.txt) */
 word stcon(word v);
 word newname(const char *s);
 

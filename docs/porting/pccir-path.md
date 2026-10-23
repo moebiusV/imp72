@@ -67,10 +67,12 @@ counterpart of (`amod`, `rmod`, `omod`).
 ## The PDP-10 constructs
 
 `XWD A,B` is `(A AND HMASK) LS 32 OR (B AND HMASK)` (the halves are 32 bits) and `IOWD A,B` is `XWD -A,B-1`; `CALLI(A,B)` calls the library routine `imp_calli` with the
-code and the AC (an operation of the machine, as the instruction was); `EXECUTE A` (the PDP-10's XCT, the operation 65 of the machine) does the instruction in the word A: the library's `imp_xct` decodes it in the 36 bit format, with the
-registers 0R to 15R as its accumulators (the code stores the ones it uses in `imp_ac` before and loads them after). It does MOVE, MOVEI, MOVEM, MOVES, MOVN, MOVM, EXCH, ASH, LSH,
-ADD, SUB, the boolean and halfword groups, CALLI, TTCALL (OUTCHR, OUTSTR) and RELEAS; another instruction is an error at run time, for the rest work on 18 bit addresses (the
-`BLT` and `JSA` that the tape's free storage routines execute are `memmove` and a call here). `HRL` and `HRR` of impsyn.imc are the operations 66 and 67. `tests/direct/progs/pdp10.imp` and `execute.imp` test them.
+code and the AC (an operation of the machine, as the instruction was); `EXECUTE A` does the one instruction of the machine that the word A holds (what XCT does, and what the tape uses it for: a block move, a call, a monitor
+service built at run time). The machine is the pcc IR machine, so the word is one of its instructions: the operation in bits 56-63 (the numbers of
+`pccir-machine.md`), the accumulator in 52-55, the index register in 48-51, bit 47 for an immediate operand, and the address or number in the low 47 bits. The
+library's `imp_xct` does it, with the registers 0R to 15R as the accumulators (the code stores the ones it uses in `imp_ac` before and loads them after). It does the
+operations on integers and CALLI; jumps and floating point are an error at run time. The places in the tape that built a PDP-10 word for EXECUTE are changed
+to build this one as they are translated. `tests/direct/progs/pdp10.imp` and `execute.imp` test them.
 
 ## What remains
 

@@ -40,149 +40,69 @@ imp_calli(long code, long ac)
 
 
 /*
- * EXECUTE (the PDP-10's XCT): imp_xct(w) does the instruction in the word w, in the 36 bit format (opcode 9 bits at 27, AC at 23,
- * indirect at 22, index at 18, address in the right 18).  The accumulators are the words of imp_ac, which the compiled code fills
- * from its registers before the call and reads back after.  An address is as in compiled code: the index register holds a byte
- * address and the address field counts words from it (without an index register the address is a number).  Done: MOVE, MOVEI, MOVEM,
- * MOVES, MOVN, MOVM, EXCH, ASH, LSH, ADD, SUB, the boolean group, the halfword group (halves are 32 bits), CALLI, TTCALL (OUTCHR,
- * OUTSTR) and RELEAS; any other instruction is an error, for the PDP-10's other instructions work on its 18 bit addresses.
+ * EXECUTE: imp_xct(w) does the one instruction of the pcc IR machine (docs/porting/pccir-machine.md) that the word w holds, the way the
+ * compiled program would have done it where it stands.  An instruction word has the operation in bits 56-63 (the numbers of the
+ * machine: 1 LOAD, 2 NEG, 3 COMPL, 4 ADDR, 5 STORE, 6 ADD ... 20 EQV, 21 LSH, 22 ASH, 23 ROT, 28 ADDX, 64 CALLI), the accumulator
+ * in bits 52-55, the index register in bits 48-51, bit 47 set for an immediate operand, and in bits 0-46 the address or the number
+ * (signed).  The accumulators are the words of imp_ac, which the compiled code fills from its registers 0R to 15R before the
+ * call and reads back after.  As in compiled code an address is a byte address: with an index register it is that register plus
+ * 8 times the address field (a word index), without one it is the field itself; an immediate operand is the field plus the
+ * index register.  The floating point operations and the jumps are not done: they need the program's own registers and tags.
  */
 int64_t imp_ac[16];
-
-/* one of the halfword instructions (500 to 577) on the words src and dst: bit 2 of the opcode crosses the halves, bit 5 says the
- * destination is the right half, bits 3-4 what happens to the other half (kept, zero, ones, the sign of the moved half) */
-static int64_t
-xhalf(unsigned op, int64_t src, int64_t dst)
-{
-    uint64_t m = 0xFFFFFFFFu, s = (uint64_t)src, d = (uint64_t)dst, h, other;
-    int fromleft = ((op >> 2) & 1) == ((op >> 5) & 1), toright = (op >> 5) & 1;
-
-    h = fromleft ? (s >> 32) & m : s & m;
-    switch ((op >> 3) & 3) {
-    case 0: other = toright ? d & ~m : d & m; break;
-    case 1: other = 0; break;
-    case 2: other = toright ? ~m : m; break;
-    default: other = (h & 0x80000000u) ? (toright ? ~m : m) : 0; break;
-    }
-    if (toright)
-        return (int64_t)((other & ~m) | h);
-    return (int64_t)((other & m) | (h << 32));
-}
 
 void
 imp_xct(int64_t w)
 {
-    unsigned op = (unsigned)((w >> 27) & 0777), a = (unsigned)((w >> 23) & 15), x = (unsigned)((w >> 18) & 15);
-    int64_t y = w & 0777777, e, *m, v, r;
+    unsigned op = (unsigned)(((uint64_t)w >> 56) & 0xFF), a = (unsigned)((w >> 52) & 15), x = (unsigned)((w >> 48) & 15);
+    int64_t f = w & 0x7FFFFFFFFFFFL, v, r, *m;
+    int imm = (w >> 47) & 1;
 
-    if (w & (1 << 22)) {
-        fprintf(stderr, "EXECUTE: indirect instruction words are not supported\n");
+    if (f & 0x400000000000L)
+        f -= 0x800000000000L;
+    m = (int64_t *)(intptr_t)(x ? imp_ac[x] + 8 * f : f);
+    v = imm ? f + (x ? imp_ac[x] : 0) : (op == 4 || op == 5 ? 0 : *m);
+    switch (op) {
+    case 1: imp_ac[a] = v; return;
+    case 2: imp_ac[a] = -v; return;
+    case 3: imp_ac[a] = ~v; return;
+    case 4: imp_ac[a] = (int64_t)(intptr_t)m; return;
+    case 5: *m = imp_ac[a]; return;
+    case 6: imp_ac[a] += v; return;
+    case 7: imp_ac[a] -= v; return;
+    case 8: imp_ac[a] *= v; return;
+    case 9: imp_ac[a] = v ? imp_ac[a] / v : 0; return;
+    case 10: imp_ac[a] = v ? imp_ac[a] % v : 0; return;
+    case 11: imp_ac[a] &= v; return;
+    case 12: imp_ac[a] = ~imp_ac[a] & v; return;
+    case 13: imp_ac[a] = imp_ac[a] & ~v; return;
+    case 14: imp_ac[a] = ~imp_ac[a] & ~v; return;
+    case 15: imp_ac[a] |= v; return;
+    case 16: imp_ac[a] = ~imp_ac[a] | v; return;
+    case 17: imp_ac[a] = imp_ac[a] | ~v; return;
+    case 18: imp_ac[a] = ~imp_ac[a] | ~v; return;
+    case 19: imp_ac[a] ^= v; return;
+    case 20: imp_ac[a] = ~(imp_ac[a] ^ v); return;
+    case 21:
+    case 22:
+        r = v;
+        if (r >= 64 || r <= -64)
+            imp_ac[a] = op == 22 && r < 0 && imp_ac[a] < 0 ? -1 : 0;
+        else if (r >= 0)
+            imp_ac[a] = (int64_t)((uint64_t)imp_ac[a] << r);
+        else
+            imp_ac[a] = op == 22 ? imp_ac[a] >> -r : (int64_t)((uint64_t)imp_ac[a] >> -r);
+        return;
+    case 23:
+        r = ((v % 64) + 64) % 64;
+        imp_ac[a] = r ? (int64_t)(((uint64_t)imp_ac[a] << r) | ((uint64_t)imp_ac[a] >> (64 - r))) : imp_ac[a];
+        return;
+    case 28: imp_ac[a] += 8 * v; return;
+    case 64: imp_ac[a] = imp_calli((long)v, (long)imp_ac[a]); return;
+    default:
+        fprintf(stderr, "EXECUTE: the operation %u of the machine cannot be done from a word\n", op);
         exit(1);
     }
-    if (y & 0400000)
-        y -= 01000000;
-    e = y + (x ? imp_ac[x] : 0);                        /* the effective address as a number */
-    m = (int64_t *)(intptr_t)(x ? imp_ac[x] + 8 * y : 8 * y);   /* and as the address of a word */
-    if (op == 047) {                                    /* CALLI */
-        imp_ac[a] = imp_calli((long)e, (long)imp_ac[a]);
-        return;
-    }
-    if (op == 051) {                                    /* TTCALL */
-        if (a == 1)
-            putchar((int)(*m & 0177));
-        else if (a == 3)
-            fputs((const char *)m, stdout);
-        return;
-    }
-    if (op == 071)                                      /* RELEAS */
-        return;
-    if (op >= 0200 && op < 0220) {                      /* MOVE, MOVS, MOVN, MOVM and their modes */
-        int fn = (op >> 2) & 3, mode = op & 3;
-
-        if (fn == 1) {
-            fprintf(stderr, "EXECUTE: MOVS is not supported\n");
-            exit(1);
-        }
-        v = mode == 1 ? e : (mode == 2 ? imp_ac[a] : *m);
-        if (fn == 2)
-            v = -v;
-        else if (fn == 3 && v < 0)
-            v = -v;
-        if (mode == 2)
-            *m = v;
-        else if (mode == 3) {
-            *m = v;
-            if (a)
-                imp_ac[a] = v;
-        } else
-            imp_ac[a] = v;
-        return;
-    }
-    if (op == 0250) {                                   /* EXCH */
-        v = *m;
-        *m = imp_ac[a];
-        imp_ac[a] = v;
-        return;
-    }
-    if (op == 0240 || op == 0242) {                     /* ASH, LSH */
-        r = (int)e;
-        if (r >= 64 || r <= -64)
-            imp_ac[a] = 0;
-        else if (op == 0240)
-            imp_ac[a] = r >= 0 ? (int64_t)((uint64_t)imp_ac[a] << r) : imp_ac[a] >> -r;
-        else
-            imp_ac[a] = r >= 0 ? (int64_t)((uint64_t)imp_ac[a] << r) : (int64_t)((uint64_t)imp_ac[a] >> -r);
-        return;
-    }
-    if (op >= 0270 && op < 0300) {                      /* ADD, SUB */
-        int mode = op & 3, sub = op >= 0274;
-        int64_t b = mode == 1 ? e : *m;
-
-        r = sub ? imp_ac[a] - b : imp_ac[a] + b;
-        if (mode == 2 || mode == 3)
-            *m = r;
-        if (mode != 2)
-            imp_ac[a] = r;
-        return;
-    }
-    if (op >= 0400 && op < 0500) {                      /* the boolean group: 16 functions in 4 modes */
-        int f = (op - 0400) >> 2, mode = op & 3;
-        int64_t ac = imp_ac[a], b = mode == 1 ? e : (mode == 2 ? ac : *m), q = mode == 2 ? *m : ac;
-
-        if (mode == 2)
-            ac = *m, b = imp_ac[a];
-        else
-            q = ac;
-        r = 0;
-        if (f & 1)
-            r |= q & b;
-        if (f & 2)
-            r |= ~q & b;
-        if (f & 4)
-            r |= q & ~b;
-        if (f & 8)
-            r |= ~q & ~b;
-        if (mode == 2 || mode == 3)
-            *m = r;
-        if (mode != 2)
-            imp_ac[a] = r;
-        return;
-    }
-    if (op >= 0500 && op < 0600) {                      /* the halfword group */
-        int mode = op & 3;
-        int64_t src = mode == 1 ? e & 0xFFFFFFFF : (mode == 2 ? imp_ac[a] : *m);
-        int64_t dst = mode == 2 ? *m : imp_ac[a];
-        int64_t out;
-
-        out = xhalf(op, src, dst);
-        if (mode == 2 || mode == 3)
-            *m = out;
-        if (mode != 2)
-            imp_ac[a] = out;
-        return;
-    }
-    fprintf(stderr, "EXECUTE: the instruction %o is not supported\n", op);
-    exit(1);
 }
 
 /* BLT: copy bytes words from src to dst (the ranges may overlap, as the
