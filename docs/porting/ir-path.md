@@ -25,9 +25,11 @@ itself and requires the second generation to write the same IR as the first for 
   `CCALL F(A,G(H(B)),C)` (a call in the argument of a call in the argument of a call) can overwrite one of them: build such expressions step by
   step in locals. A constant expression is folded in 36 bits: `(1 LS 52)-1` is -1, `NOT (63 LS 52)` is wrong; compute wide masks as the
   program runs. `X AND NOT 777777B` and `AND 777777B` are halfword moves (32 bits here): use `XOR R18(X)` and `R18`.
-- **`[P+8]` is the word 8 WORDS after P, not 8 bytes.** `src/free.imp` meant bytes and had been writing its registry 64 bytes off: harmless until
-  the layout of memory changed. The offset of an address with a register counts words (`[P+1]` is the next word); an address without a variable or a
-  register is absolute.
+- **`[X+8]` is 8 words or 8 bytes depending on the form of X.** With a variable or a register `I` the rule `[I+J0CON]` makes it `[J][I]`, and the
+  offset J counts words (`[P+8]` is 64 bytes after P); the old code generator folds the sum of `[(P+16)+1]` into an add of bytes, and the IR
+  path (whose rules lost the `CON18` alternatives) makes it words. `src/free.imp` wrote `[(RELP+16*SL)+8]` for the second word of a 16 byte entry,
+  which is bytes on the old path and 64 bytes on the new one, and the registry broke only on the new layout of memory. It now computes the address
+  in a variable (`QQ_RELP+16*SL; QQ_QQ+8; [QQ]_S`), which means the same on both. Write `[X]` with a pointer variable when you mean bytes.
 - **An argument `FREE(X)` is passed by reference, as a pointer into the arena, and the arena moves** (`realloc`) when a routine that allocates is
   called. `ADDREC` copies its arguments first.
 - **Cross-module calls**: the modules of `src/ir` call one another by name (all their symbols are renamed `impl_NAME` together); a module of `src/`
