@@ -319,6 +319,18 @@ irtagerr(long d)
     return 0;
 }
 
+/* the name of the jump buffer of tag d: a GO TO from another routine is a longjmp to it (see EXPORTTAGS in src/pccir/demit.imp) */
+long
+irjbname(long d)
+{
+    char buf[200], *s;
+
+    snprintf(buf, sizeof buf, "imp_jb_%s", irsymname(d));
+    s = malloc(strlen(buf) + 1);
+    strcpy(s, buf);
+    return (long)s;
+}
+
 long irreset(long z) { (void)z; ir_usedfs = 0; return 0; }
 long irfsused(long z) { (void)z; return ir_usedfs; }
 long irflush(long z) { (void)z; fflush(NULL); return 0; }

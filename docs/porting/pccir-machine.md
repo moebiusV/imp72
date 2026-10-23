@@ -62,4 +62,6 @@ index register count words when there is a variable (`V[I]` is `&V + 8*I`) and b
 
 ## Original modules
 
-Every module of decus/ compiles with the pcc IR compiler except impm.imc, whose ERROR jumps from a subroutine into the main program (GO TO FIN), a non-local jump of the PDP-10; src/impm.imp is its port. REMOTE code is emitted with its routine (ops 66 HRLM, 67 HRRM map HRL/HRR of impsyn.imc; 68 marks remote code); a GO TO to a tag outside the routine is an error naming the tag.
+Every module of decus/ compiles with the pcc IR compiler. REMOTE code is emitted with its routine (ops 66 HRLM, 67 HRRM map HRL/HRR of impsyn.imc; 68 marks remote code).
+
+A GO TO to a tag of another routine (ERROR of impm.imc goes to FIN of the main program) is a longjmp: the routine that has the tag takes a `_setjmp` into `imp_jb_<tag>` at its entry, and the jumping routine calls `longjmp` on it. Like the PDP-10 jump it does not return, and it needs the routine with the tag to be still running (the main program is). A GO TO to a tag that no routine has is an error naming the tag.
