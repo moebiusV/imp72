@@ -334,6 +334,8 @@ word irstcon(word *v) { return stcon(*v); }
 word irconvc(word *c) { return convc(*c); }
 word irconst(word *z) { (void)z; return convc_const; }
 word irdir0(word *z) { (void)z; return dir("0"); }
+word irnewnamex(word *s) { return newname((const char *)*s); }
+word irdirsx(word *s) { return dir((const char *)*s); }
 
 /* ---- the translator's interface, for the driver and sem.c ---------------------------------------------------------------------- */
 

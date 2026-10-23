@@ -2,7 +2,7 @@
  RULES ARE THE ORIGINAL'S; THE OPERATIONS THEY GIVE THE CODE GENERATOR ARE THOSE OF THE MACHINE OF DOCS/PORTING/IR-MACHINE.MD (NUMBERS, FOR THE
  SEMANTICS CANNOT NAME A MACRO OF SRC/IR/IRSYN.IMC): 1 LOAD, 2 NEG, 3 COMPL, 4 ADDR, 5 STORE, 6 ADD, 7 SUB, 8 MUL, 9 DIV, 10 MOD, 11 AND, 12 ANDCA,
  13 ANDCM, 14 ANDCB, 15 IOR, 16 ORCA, 17 ORCM, 18 ORCB, 19 XOR, 20 EQV, 21 LSH, 22 ASH, 23 ROT, 30 FADD, 31 FSUB, 32 FMUL, 33 FDIV, 34 FLOAT, 35 FIX,
- 36 FNEG, 40 JUMP.  THE OPTIMIZATIONS FOR THE PDP-10 (IMMEDIATE, SELF AND BOTH MODES, HALFWORDS, SKIPS, REGISTER PAIRS) ARE LEFT OUT: PCC DOES THEM.#
+ 24 LDB, 25 DPB, 26 ILDB, 27 IDPB, 36 FNEG, 40 JUMP.  THE OPTIMIZATIONS FOR THE PDP-10 (IMMEDIATE, SELF AND BOTH MODES, HALFWORDS, SKIPS, REGISTER PAIRS) ARE LEFT OUT: PCC DOES THEM.#
 
 
 # SYNTAX BOOTSTRAPPED BY MODULE RSYN #
@@ -303,21 +303,17 @@
  <ATOM> ::= FLT(<A>) ::= FLOAT(A);
 
  <BYTE>  ::= <VBL,A> '<' <B> , <C> > ::= BYTEP(A,B,C,0);
- <ATOM>  ::= <ION,A> '<' <B> , <C> > ::= DEWOP(135B,AREG1(1,15B),BYTEP(A,B,C,1))
-			ELSE "A<18,0>"  => DEWOP(550B,AREG1(1,15B),A)
-                          ELSE "A<18,18>" => DEWOP(554B,AREG1(1,15B),A);
- <EXP>   ::= <BYTE,A> _ <B>          ::= ADDOP(137B,A,B) ELSE
-                          "A<18,0>_B" => ADDOP(542B,A,B) ELSE
-                          "A<18,18>_B"=> ADDOP(506B,A,B);
+ <ATOM>  ::= <ION,A> '<' <B> , <C> > ::= DEWOP(24,AREG1(1,15B),BYTEP(A,B,C,1));
+ <EXP>   ::= <BYTE,A> _ <B>          ::= ADDOP(25,A,B);
  <ATOM>  ::= BYTEP <BYTE,A>;
  <BYTE>  ::= '<' <EXP,A> >;
- <ATOM>  ::= '<' <EXP,A> >           ::= DEWOP(135B,AREG1(1,15B),A);
- <ATOM>  ::= '<' + <VBL,A> >         ::= DEWOP(134B,AREG1(1,15B),A);
- <EXP>   ::= '<' + <VBL,A> > _ <B>   ::= ADDOP(136B,A,B);
- <ATOM>  ::= <ION,A> '<' R >         ::= DEWOP(550B,AREG1(1,15B),A);
- <ATOM>  ::= <ION,A> '<' L >         ::= DEWOP(554B,AREG1(1,15B),A);
- <EXP>   ::= <VBL,A> '<' R > _ <B>   ::= ADDOP(542B,A,B);
- <EXP>   ::= <VBL,A> '<' L > _ <B>   ::= ADDOP(506B,A,B);
+ <ATOM>  ::= '<' <EXP,A> >           ::= DEWOP(24,AREG1(1,15B),A);
+ <ATOM>  ::= '<' + <VBL,A> >         ::= DEWOP(26,AREG1(1,15B),A);
+ <EXP>   ::= '<' + <VBL,A> > _ <B>   ::= ADDOP(27,A,B);
+ <ATOM>  ::= <ION,A> '<' R >         ::= "A<32,0>";              # THE HALVES OF A WORD ARE 32 BITS #
+ <ATOM>  ::= <ION,A> '<' L >         ::= "A<32,32>";
+ <EXP>   ::= <VBL,A> '<' R > _ <B>   ::= "A<32,0>_B";
+ <EXP>   ::= <VBL,A> '<' L > _ <B>   ::= "A<32,32>_B";
 
 
  <ST> ::= EXECUTE <A> ::= DEWOP(256B,0,A);

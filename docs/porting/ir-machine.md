@@ -42,6 +42,7 @@ KIND 1 is an operation, 2 a tag (`X` = its directory index), 3 a constant word o
     11 AND  12 ANDCA (~RD & V)  13 ANDCM (RD & ~V)  14 ANDCB (~RD & ~V)
     15 IOR  16 ORCA (~RD | V)   17 ORCM (RD | ~V)   18 ORCB (~RD | ~V)
     19 XOR  20 EQV (~(RD ^ V))
+    28 ADDX RD = RD + 8*V (a word index added to a pointer)
     21 LSH  RD shifted logically by the signed count V (left if positive; a count of 64 or more gives 0)
     22 ASH  the same, arithmetic (right shifts keep the sign)
     23 ROT  rotated left by V (64 bit)

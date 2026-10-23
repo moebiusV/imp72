@@ -19,7 +19,7 @@
  <ATOM> ::= ODIV ::= "9";     <ATOM> ::= OMOD ::= "10";     <ATOM> ::= OAND ::= "11";     <ATOM> ::= OANDCA ::= "12";
  <ATOM> ::= OANDCM ::= "13";  <ATOM> ::= OANDCB ::= "14";   <ATOM> ::= OIOR ::= "15";     <ATOM> ::= OORCA ::= "16";
  <ATOM> ::= OORCM ::= "17";   <ATOM> ::= OORCB ::= "18";    <ATOM> ::= OXOR ::= "19";     <ATOM> ::= OEQV ::= "20";
- <ATOM> ::= OLSH ::= "21";    <ATOM> ::= OASH ::= "22";     <ATOM> ::= OROT ::= "23";
+ <ATOM> ::= OLSH ::= "21";    <ATOM> ::= OASH ::= "22";     <ATOM> ::= OROT ::= "23";   <ATOM> ::= OADDX ::= "28";   <ATOM> ::= OLDB ::= "24";    <ATOM> ::= ODPB ::= "25";     <ATOM> ::= OILDB ::= "26";    <ATOM> ::= OIDPB ::= "27";
  <ATOM> ::= OFADD ::= "30";   <ATOM> ::= OFSUB ::= "31";    <ATOM> ::= OFMUL ::= "32";    <ATOM> ::= OFDIV ::= "33";
  <ATOM> ::= OFLOAT ::= "34";  <ATOM> ::= OFIX ::= "35";  <ATOM> ::= ONEGF ::= "36";
  <ATOM> ::= OJUMP ::= "40";   <ATOM> ::= OJEQ ::= "41";     <ATOM> ::= OJLT ::= "42";     <ATOM> ::= OJLE ::= "43";
@@ -42,4 +42,6 @@
  <ATOM> ::= GETLIST(<A>)  ::= "IMPGETLIST(A)";
  <ATOM> ::= STCON(<A>)    ::= "IRSTCON(A)";
  <ATOM> ::= CONVC(<A>)    ::= "IRCONVC(A)";
- <ATOM> ::= CONST         ::= "IRCONST(0)"%%
+ <ATOM> ::= CONST         ::= "IRCONST(0)";
+ <ATOM> ::= IRNEWNAME(<A>) ::= "IRNEWNAMEX(A)";
+ <ATOM> ::= IRDIRS(<A>)    ::= "IRDIRSX(A)"%%

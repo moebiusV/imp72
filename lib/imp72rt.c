@@ -102,6 +102,17 @@ imp_ash(long x, long n)
     return x >> (n <= -64 ? 63 : -n);
 }
 
+/* MOVE B THROUGH N TO A: N+1 words from b to a, ascending, as BLT does (the arguments are pointers) */
+long
+imp_blk(long *a, long *b, long *n)
+{
+    long i;
+
+    for (i = 0; i <= *n; i++)
+        a[i] = b[i];
+    return 0;
+}
+
 long
 imp_rot(long x, long n)
 {
