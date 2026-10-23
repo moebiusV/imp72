@@ -6,8 +6,8 @@ apples to apples:
   - OpenBSD's RETGUARD: every function has a cookie `__retguard_N` with N random per compile, in its own section
     `.openbsd.randomdata.retguard.N` and COMDAT group.  The cookie symbols are all called `__retguard`, their sections
     and groups are left out, and a relocation against one names `__retguard`.
-  - the build identification: .comment, .note.*, .GCC.command.line, .gnu_debuglink, and the debug sections' contents
-    (paths and producer strings; -g objects carry the temporary directory of the compile).
+  - the build identification: .comment, .note.*, .GCC.command.line, .gnu_debuglink, and the debug sections' sizes and
+    contents (paths and producer strings; -g objects carry the directory of the compile, and the sections that hold it vary in size).
   - the order of sections and symbols (sorted by name), and the section and symbol numbers.
 Everything else - the bytes of every other section, the symbols with their binding, type, visibility, section and
 value, and every relocation with its type, symbol and addend - is printed.  Handles 32 and 64 bit, either byte order,
@@ -79,7 +79,7 @@ def norm(path):
     out = ["ELF class=%d data=%s" % (cls, "LE" if e == "<" else "BE")]
     for s in sorted([s for s in secs if keep(s) and s["type"] not in (2, 3, 4, 9)], key=lambda s: s["n"]):
         if DEBUG.match(s["n"]):
-            out.append("section %s type=%d size=%d (contents not compared)" % (s["n"], s["type"], s["size"]))
+            out.append("section %s type=%d (size and contents not compared)" % (s["n"], s["type"]))
             continue
         body = b"" if s["type"] == 8 else d[s["off"]:s["off"] + s["size"]]
         out.append("section %s type=%d flags=0x%x align=%d size=%d %s" % (s["n"], s["type"], s["flags"], s["align"], s["size"],
