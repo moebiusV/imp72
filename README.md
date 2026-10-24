@@ -25,9 +25,10 @@ machine code for amd64, i386 and aarch64. The language, `PRINT` and `READ`, real
 (IEEE 754), `CCALL` to C functions, and the programs of the test suite work, and
 their output matches what the original compiler's programs print on a
 simulated TOPS-10 (`docs/ORACLE.md`), apart from the word size and IEEE 754.
-The seed, a port of the compiler to C in `stage0/`, builds the first stage from `src/`; that stage compiles `src/` again into the
-second, which writes the same IR as the first for every test program; the
-second is what is installed.
+The build has three steps. The seed, a C port of the compiler in `stage0/`,
+compiles `src/` into stage 1. Stage 1 compiles `src/` again into stage 2, and
+stage 2 writes the same IR as stage 1 for every test program. Stage 2 is the
+compiler that is installed.
 
 Translated to IMP so far: free storage, the directory, the lexer, the syntax
 graph, the parser, error correction, the code tree, the semantic stack
@@ -57,12 +58,38 @@ modules (`docs/porting/tape64-status.md`).
 
 ## Contents
 
+- [From the PDP-10 to amd64](#from-the-pdp-10-to-amd64)
 - [How IMP72 works](#how-imp72-works)
 - [Repository layout](#repository-layout)
 - [Building and running](#building-and-running)
 - [Design decisions](#design-decisions)
 - [Documentation](#documentation)
 - [Provenance and licence](#provenance-and-licence)
+
+## From the PDP-10 to amd64
+
+The compiler was written in IMP for the PDP-10 and compiles IMP for the PDP-10.
+Its source is a tape from 1973: 36-bit words, 18-bit halves, five 7-bit
+characters to a word, floating point with a 27-bit fraction, code generated as
+PDP-10 instructions and assembled by routines written in IMP too.
+
+The first step was to get the original running as it was. It runs under TOPS-10
+on a simulated KA10, and everything after that is checked against what it
+prints.
+
+The second was a seed: a port of the kernel to C, which reads the original
+`syntax.imc` unchanged. Its code generator still makes PDP-10 instructions, but
+a translator turns them into pcc's intermediate representation, and pcc makes
+the machine code. That compiler can compile IMP programs for a modern machine,
+and it can compile the tape's own modules.
+
+The third step is the one still under way: translating the tape itself, module
+by module, into IMP for a 64-bit machine. The word becomes 64 bits and the
+halves 32; names are eight characters to a word, as a C string is; reals are
+IEEE 754; the code generator emits pcc IR instead of PDP-10 instructions. The
+seed compiles the translated modules into a first compiler, the first compiler
+compiles them again, and when the two agree the C seed is no longer needed to
+build the compiler.
 
 ## How IMP72 works
 
