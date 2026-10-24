@@ -8,6 +8,8 @@ fail=0
 for p in tests/native/*.imp; do
     n=$(basename "$p" .imp)
     echo "== native C $n"
+    # printf's %ld takes 32 bits where the word is 64: ffi2 only holds with a 64 bit long
+    if [ "$n" = ffi2 ] && [ "$(getconf LONG_BIT)" != 64 ]; then echo "skipped: long is not 64 bits"; continue; fi
     if [ -f tests/native/${n}_main.c ]; then
         stage0/imp72stage0 -C -c -o build/nativec/$n.o "$p" \
             || { echo "FAILED: $n: imp72stage0 -C" >&2; fail=1; continue; }

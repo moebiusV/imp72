@@ -40,7 +40,7 @@ imp_calli(long code, long ac)
 
 
 /*
- * EXECUTE: imp_xct(w) does the one instruction of the pcc IR machine (docs/porting/pccir-machine.md) that the word w holds, the way the
+ * EXECUTE: imp_xct() does the one instruction of the pcc IR machine (docs/porting/pccir-machine.md) that the word imp_xw holds, the way the
  * compiled program would have done it where it stands.  An instruction word has the operation in bits 56-63 (the numbers of the
  * machine: 1 LOAD, 2 NEG, 3 COMPL, 4 ADDR, 5 STORE, 6 ADD ... 20 EQV, 21 LSH, 22 ASH, 23 ROT, 28 ADDX, 64 CALLI), the accumulator
  * in bits 52-55, the index register in bits 48-51, bit 47 set for an immediate operand, and in bits 0-46 the address or the number
@@ -50,10 +50,12 @@ imp_calli(long code, long ac)
  * index register.  The floating point operations and the jumps are not done: they need the program's own registers and tags.
  */
 int64_t imp_ac[16];
+int64_t imp_xw;
 
 void
-imp_xct(int64_t w)
+imp_xct(void)
 {
+    int64_t w = imp_xw;
     unsigned op = (unsigned)(((uint64_t)w >> 56) & 0xFF), a = (unsigned)((w >> 52) & 15), x = (unsigned)((w >> 48) & 15);
     int64_t f = w & 0x7FFFFFFFFFFFL, v, r, *m;
     int imm = (w >> 47) & 1;
