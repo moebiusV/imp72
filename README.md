@@ -48,6 +48,9 @@ the tables and the driver program.
 2. Translate what is still C: `LETSYN`, `CVAL`, `FCON`, the `/A` code listing
    and `HELPD`. The table of semantic routines stays C (it holds addresses).
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
+   Also put back the tape's names where the port renamed them, starting with
+   `FCORE` (the tape's `CORE`); check the free-storage routines against
+   `decus/free.imc`.
 4. Compare the compiler's dumps (directory, code tree, semantics array, graph)
    with the original's, and the `/A` listings.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
