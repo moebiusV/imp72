@@ -37,12 +37,14 @@ routines, the code generator (`src/pccir/`), the diagnostic print-outs, and the
 driver program. Its words are 64 bits wide, names are eight characters to a
 word, and `EXECUTE` runs an instruction of the pcc IR machine.
 
-The compiler, the seed, the stages and the tests (`make check`) are known to work on amd64; i386, aarch64 and the
-other architectures have not been run since the translation of the tables and the driver program.
+`make check` passes on amd64 and i386, and the build and tests ran clean on
+arm64, armv7 and, through the C back end, riscv64, ppc64le and s390x. loong64,
+mips64le and the BSDs and macOS have not been run since the translation of
+the tables and the driver program.
 
 **What is next.**
 
-1. Run `make check` on i386, aarch64 and the rest, and get CI green on every architecture.
+1. Run the remaining platforms (loong64, mips64le, the BSDs, macOS) and get CI green everywhere.
 2. Translate what is still C: `LETSYN`, `CVAL`, `FCON`, the `/A` code listing
    and `HELPD`. The table of semantic routines stays C (it holds addresses).
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
