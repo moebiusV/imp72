@@ -18,37 +18,31 @@ adding such statements.
 
 ## Status
 
-**Where the project is.** The compiler compiles IMP to pcc's intermediate
-representation, and pcc's pass 2 makes machine code for amd64, i386 and aarch64.
-The language, `PRINT` and `READ`, reals (IEEE 754), `CCALL` to C functions, and
-the programs of the test suite work, and their output matches what the original
-compiler's programs print on a simulated TOPS-10 (`docs/ORACLE.md`), apart from
-the word size and IEEE 754.
-
+**Where the project is.** The compiler is the original's source, translated to
+64-bit IMP in `src/` (the tape itself is kept untouched in `decus/`). It
+compiles IMP to pcc's intermediate representation, and pcc's pass 2 makes
+machine code for amd64, i386 and aarch64. The language, `PRINT` and `READ`, reals
+(IEEE 754), `CCALL` to C functions, and the programs of the test suite work, and
+their output matches what the original compiler's programs print on a
+simulated TOPS-10 (`docs/ORACLE.md`), apart from the word size and IEEE 754.
 The build has three steps. The seed, a C port of the compiler in `stage0/`,
 compiles `src/` into stage 1. Stage 1 compiles `src/` again into stage 2, and
 stage 2 writes the same IR as stage 1 for every test program. Stage 2 is the
 compiler that is installed.
 
-Translated to IMP so far: the kernel modules (free storage, the directory, the
-lexer, the syntax graph, the parser, error correction, the code tree, the
-semantic stack reducer, the semantics interpreter, `RSYN`, the diagnostic
-print-outs), the register and declaration routines, and the code generator
-(`src/pccir/`). The kernel modules still keep the original's 36-bit table
-formats and five-character name packing, and reach the C that is left through
-`stage0/impglue.c`. The driver program, the lexer's file reading and the
-registration of the semantic routines are still C.
+Translated to IMP so far: free storage, the directory, the lexer, the syntax
+graph, the parser, error correction, the code tree, the semantic stack
+reducer, the semantics interpreter, `RSYN`, the register and declaration
+routines, the code generator (`src/pccir/`), the diagnostic print-outs, and the
+driver program. Its words are 64 bits wide, names are eight characters to a
+word, and `EXECUTE` runs an instruction of the pcc IR machine.
 
-The branch `tape64` carries the rest of the translation: 64-bit table layouts,
-names of eight characters to a word, the driver program (`src/impm.imp`), the
-registration of the semantic routines and the free storage routines under the
-tape's names, all in IMP. It is not merged: its last fully tested commit is
-`3f6cde0`, and the next one hangs on one of the compiler's own modules
-(`docs/porting/tape64-status.md` on that branch).
+The compiler, the seed, the stages and the tests (`make check`) are known to work on amd64; i386, aarch64 and the
+other architectures have not been run since the translation of the tables and the driver program.
 
 **What is next.**
 
-1. Find the hang on `tape64`, then merge it and get CI green on every architecture.
+1. Run `make check` on i386, aarch64 and the rest, and get CI green on every architecture.
 2. Translate what is still C: `LETSYN`, `CVAL`, `FCON`, the `/A` code listing
    and `HELPD`. The table of semantic routines stays C (it holds addresses).
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
@@ -124,7 +118,7 @@ IMP expressions have **no operator precedence** (`A+B*C` is `A+(B*C)`), and
 
     decus/          the DECUS 10-198 tape, unchanged, with hashes
                     (SHA256SUMS, SHA256SUMS.bin) and PROVENANCE.md
-    src/            the compiler's sources in IMP: the kernel modules,
+    src/            the compiler's sources in 64-bit IMP: the kernel modules,
                     impsyn64.imc (the syntax they are written in)
     src/pccir/      the code generator, the syntax file syntax64.imc, demit.imp
     stage0/         the seed: a C port of the compiler that builds the first
@@ -162,10 +156,9 @@ an object. The exit status is 1 if an error (not an advisory) was reported.
 
 **The word.** The IMP word is 64 bits, halves are 32 bits, pointers are byte
 addresses and `A[i]` scales by 8, so IMP data and C data are the same data.
-Strings are NUL-terminated bytes. On this branch the compiler's own tables (code
-tree, semantics array, stack entries) and the name directory still use the
-original's 36-bit formats and five-character packing; `tape64` lays them out for
-64 bits and keeps eight characters to a word.
+Strings are NUL-terminated bytes; the name directory keeps eight characters to
+a word, the first in the low byte. The tables of the compiler (code tree,
+semantics array, stack entries) have fields laid out for 64 bits.
 
 **Reals** are IEEE 754 doubles.
 
@@ -196,10 +189,9 @@ the exact words are in `decus/exact/`.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the route to a compiler that compiles itself
 - [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md)
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
-- [docs/BUILDING.md](docs/BUILDING.md), [docs/PLAN.md](docs/PLAN.md), [docs/ORACLE.md](docs/ORACLE.md)
+- [docs/BUILDING.md](docs/BUILDING.md), [docs/ORACLE.md](docs/ORACLE.md)
 - [docs/porting/pccir-path.md](docs/porting/pccir-path.md), [pccir-machine.md](docs/porting/pccir-machine.md): the code generator and its machine
-- [docs/porting/tape64-status.md](docs/porting/tape64-status.md): the state of the `tape64` branch
-- [docs/porting/](docs/porting/): one note per module (`free.md`, `dir.md`, `lex.md`, `graph.md`, `parse.md`, `ercor.md`, `entree.md`, `cotree.md`, `dosem.md`, `rsyn.md`, `impsem.md`, `debug.md`, `stack.md`)
+- [docs/porting/modules.md](docs/porting/modules.md): the modules and what differs from the tape; [layouts.md](docs/porting/layouts.md): the layout of the compiler's words
 - [docs/internals/](docs/internals/): the kernel module by module; the C back end
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages
 

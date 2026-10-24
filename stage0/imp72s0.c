@@ -42,6 +42,17 @@
 #include "imp.h"
 #include "ir.h"
 
+extern const int imp_pccir;                     /* 1 in the compiler with the code generator of src/pccir (pccirsem.c), 0 in flavour0.c */
+extern int impk_main(int, char **);
+
+#ifdef IMP_IMPK
+/* the driver program of the compiler is the tape's (src/impm.imp) */
+static int
+kernel_main(int argc, char **argv)
+{
+    return impk_main(argc, argv);
+}
+#else
 static void
 cotree_hook(word k)
 {
@@ -133,6 +144,8 @@ kernel_main(int argc, char **argv)
         fclose(listing);
     return (finam5 & SW_ERRORS) ? 1 : 0;
 }
+
+#endif
 
 /* ---- the compiler: the kernel, then a back end ----------------------------- */
 
@@ -232,7 +245,6 @@ run(const char *cmd)
 #define CC1OPT_SEED "-xdeljumps -xdce -xccp -xscp -xtailcall"
 #define CC1OPT (imp_pccir ? CC1OPT_PCCIR : CC1OPT_SEED)
 
-extern const int imp_pccir;                     /* 1 in the compiler with the code generator of src/pccir (pccirsem.c), 0 in flavour0.c */
 
 static int
 driver_main(int argc, char **argv)

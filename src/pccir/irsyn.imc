@@ -37,15 +37,7 @@
  <ATOM> ::= TUCHAR ::= "3";   <ATOM> ::= TINT ::= "6";      <ATOM> ::= TLONG ::= "8";     <ATOM> ::= TULONG ::= "9";
  <ATOM> ::= TDOUBLE ::= "13"; <ATOM> ::= TPLONG ::= "40";   <ATOM> ::= TPFTN ::= "296";
 
- # THE ROUTINES OF THE KERNEL THE MODULES CALL (STAGE0/IRSEM.C, STAGE0/IMPGLUE.C) #
- <ATOM> ::= ENSTACK(<A>)  ::= "IMPENSTACK(A)";
- <ATOM> ::= GETLIST(<A>)  ::= "IMPGETLIST(A)";
- <ATOM> ::= STCON(<A>)    ::= "IRSTCON(A)";
- <ATOM> ::= CONVC(<A>)    ::= "IRCONVC(A)";
- <ATOM> ::= CONST         ::= "IRCONST(0)";
- <ATOM> ::= IRNEWNAME(<A>) ::= "IRNEWNAMEX(A)";
- <ATOM> ::= IRDIRS(<A>)    ::= "IRDIRSX(A)"%%
 
  # THE HALFWORD STORES OF IMPSYN.IMC: HRL AND HRR (THE TAPE'S ADDOP(506B,..) AND ADDOP(542B,..) ARE HRLM AND HRRM, THE OPERATIONS OF THIS MACHINE) #
  <EXP>  ::= HRL(<VBL,A>,<EXP,B>) ::= ADDOP(66,A,B);
- <EXP>  ::= HRR(<VBL,A>,<EXP,B>) ::= ADDOP(67,A,B);
+ <EXP>  ::= HRR(<VBL,A>,<EXP,B>) ::= ADDOP(67,A,B)%%

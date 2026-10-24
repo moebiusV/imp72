@@ -798,6 +798,14 @@ shift(const struct ti *t, int kind)
     if (t->v == 0 && !t->ix && !t->ind && !t->ra) {
         word y0 = t->c & 0400000 ? t->c - 01000000 : t->c;
 
+        if (y0 >= 64) {                                 /* a count of a word or more shifts everything out */
+            asg(rv(t->ac), icon(0));
+            return;
+        }
+        if (y0 <= -64) {
+            asg(rv(t->ac), kind == 1 ? ir_bin(IR_RS, T_LONG, rv(t->ac), ir_icon(63, T_INT)) : icon(0));
+            return;
+        }
         if (y0 >= 0)
             asg(rv(t->ac), ir_bin(IR_LS, T_LONG, rv(t->ac), ir_icon(y0, T_INT)));
         else
@@ -807,16 +815,24 @@ shift(const struct ti *t, int kind)
         return;
     }
     {
-        int lpos = ir_newlabel(), ldone = ir_newlabel(), cnt = ir_newtemp();
+        int lpos = ir_newlabel(), ldone = ir_newlabel(), cnt = ir_newtemp(), lrs = ir_newlabel(), lls = ir_newlabel();
 
         y = immvalue(t);
         asg(ir_temp(cnt, T_LONG), y);
         ir_cbranch(IR_GE, ir_temp(cnt, T_LONG), icon(0), lpos);
+        ir_cbranch(IR_GT, ir_temp(cnt, T_LONG), icon(-64), lrs);
+        asg(rv(t->ac), kind == 1 ? ir_bin(IR_RS, T_LONG, rv(t->ac), ir_icon(63, T_INT)) : icon(0));
+        ir_goto(ldone);
+        ir_label(lrs);
         asg(rv(t->ac), ir_un(IR_SCONV, T_LONG,
             ir_bin(IR_RS, ty, ir_un(IR_SCONV, ty, rv(t->ac)),
             ir_un(IR_SCONV, T_UCHAR, ir_un(IR_UMINUS, T_LONG, ir_temp(cnt, T_LONG))))));
         ir_goto(ldone);
         ir_label(lpos);
+        ir_cbranch(IR_LT, ir_temp(cnt, T_LONG), icon(64), lls);
+        asg(rv(t->ac), icon(0));
+        ir_goto(ldone);
+        ir_label(lls);
         asg(rv(t->ac), ir_bin(IR_LS, T_LONG, rv(t->ac),
             ir_un(IR_SCONV, T_UCHAR, ir_temp(cnt, T_LONG))));
         ir_label(ldone);

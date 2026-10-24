@@ -208,7 +208,7 @@
  <ST> ::= <EXP,A> <RELOP,EQ> <EXP,B>;
  <ST> ::= <EXP,A> <RELOP,EQ> <EXP,B> => <ST,C> ::=
 
-   EQ/"P0CON=R0CON=>S"             =>CONOP(P,R,1000010B+VAL(STACK(1)),S) ELSE
+   EQ/"P0CON=R0CON=>S"             =>CONOP(P,R,4294967304+VAL(STACK(1)),S) ELSE
    EQ/"P=R=>GO TO S0VAR"           =>CJUMP(JOP(VAL(STACK(1))),P,R,S) ELSE
    LOCAL IF IN EQ/"NOT(A=B)=>GO TO IF; C; IF: 0";
 
@@ -227,7 +227,7 @@
                          "NOT (P GT Q)=>GO TO R" => "P LE Q=>GO TO R";
 
  <ST> ::= <EXP,A> <RELOP,EQ> <EXP,B> => <ST,C> ELSE <ST,D> ::=
-       EQ/"A0CON=B0CON=>C ELSE D"=>CONOP(A,B,2000010B+VAL(STACK(1)),C,D) ELSE
+       EQ/"A0CON=B0CON=>C ELSE D"=>CONOP(A,B,8589934600+VAL(STACK(1)),C,D) ELSE
        LOCAL ELSE,I IN EQ/"I IS REGISTER,SCRATCH;
 			A=B=>(I_C; GO TO ELSE); I_D; ELSE: I IS
 			PROTECTED; I";

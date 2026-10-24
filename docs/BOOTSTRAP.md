@@ -1,28 +1,19 @@
 # Bootstrap
 
-The goal is a compiler written in IMP72 that compiles itself. The route:
+The compiler is written in IMP, so building it takes a compiler. The route:
 
-1. **Stage 0** is the compiler's kernel in C (`stage0/`), strict C99, buildable with pcc itself. It reads `decus/syntax.imc`
-   and compiles IMP72 programs.
-2. **The sources are ported** to the 64 bit model one module at a time (`src/*.imp`, notes in `docs/porting/`). A ported module is
-   compiled by stage 0 (`imp72stage0`) and links in place of its C counterpart.
-3. **Stage 1** (`tools/stage1.sh` builds `build/stage1/imp72s1`) is stage 0 with the ported modules replaced by their IMP
-   versions compiled by stage 0: `free`, `debug`, `impsem`, `stack`, `dir`, `graph`, `parse`, `ercor`, `entree`, `cotree`, `dosem`, `rsyn`, `lex`.
-4. **The test** (`tests/self/stage1.sh`) requires stage 1 to write the same IR as stage 0 for every program: the native tests,
-   every module of the tape, and the ported sources themselves. That the stage 1 compiler compiles its own modules to the
-   IR stage 0 makes of them is the fixed point for the part that is ported (equal IR is equal objects: the back end is the
-   same).
-5. **Stage 2, the fixed point** (`tools/stage2.sh`, `tests/self/stage2.sh`): `imp72s1` is itself used as the compiler to
-   compile the same modules again, and the objects must be byte-identical to the ones stage 0 made of them. `imp72s2`,
-   linked from them, writes the same IR as stage 0. So the compiler written in IMP compiles itself to what it was
-   compiled to.
-6. **What is not ported** stays in C and is the compiler's back end, as planned: the semantic routines of the PDP-10 code
-   generator (`sem.c`, `codegen.c`), the translator to IR (`trans.c`, `ir.c`), the driver.
-   The IMP modules reach them through `stage0/impglue.c` (arguments by reference; `tools/glue-lint.py` checks it).
+1. **The seed** (`stage0/`) is a port of the compiler to C99, buildable with pcc itself. It reads the original `decus/syntax.imc`
+   and compiles IMP to pcc IR (its code generator makes PDP-10 code chains that `trans.c` translates).
+2. **Stage 1** is the compiler's own sources, `src/*.imp` and `src/pccir/*.imp`, compiled by the seed
+   (`tools/direct.sh`) and linked with the little C that is left (`stage0/ir.c`, `sys.c`, `semtab.c`, `pccirsem.c`) and
+   the runtime. Constants of the sources are folded in 64 bits by the seed (`IMP72WIDE=1`).
+3. **Stage 2** is the same sources compiled by stage 1 (`tools/pccir.sh`). `tests/direct/stage2.sh` requires stage 2 to
+   write the same IR as stage 1 for the native tests, the oracle programs and every module of the sources. Stage 2 is
+   installed.
 
-Each stage is built in its own directory (`build/stage1/`), and nothing is installed from a stage that has not passed its test.
-A port that fails does not replace a module: `MODULES='stack dir' tools/stage1.sh` builds a stage 1 with only those.
+Each stage is built in its own directory (`build/direct`, `build/pccir1`, `build/pccir2`), and nothing is installed from a
+stage that has not passed its test.
 
-To port another module: copy the C or IMP source, write it against the helpers of `src/impsyn64.imc`, give it a by-value C
-interface (`stage0/NAME_imp.c`) and glue for what it calls, add it to `modules=` in `tools/stage1.sh`, and make
-`tests/self/stage1.sh` pass. `docs/porting/` has what went wrong in each port.
+What the compiler still takes from C: the builder of the pcc IR (`ir.c`), the table of semantic routines (it holds
+addresses), `FCON`, `LETSYN`, `CVAL`, the `/A` listing, and the operating system's part (`sys.c`: arguments, the listing
+file, the terminal). The rest is IMP.

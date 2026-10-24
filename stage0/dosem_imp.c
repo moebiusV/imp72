@@ -38,34 +38,8 @@ extern word impl_dosem(word *), impl_setsem(word *, word *), impl_resetsem(word 
     impl_docase(word *, word *, word *), impl_enprod(word *, word *, word *),
     impl_matchp(word *, word *), impl_noteprod(word *, word *), impl_plies(word *),
     impl_snoden(word *), impl_enstack(word *), impl_snarg(word *), impl_semget(word *),
-    impl_semed(word *), impl_semor(word *, word *), impl_cksval(word *, word *);
+    impl_semed(word *), impl_semor(word *, word *), impl_cksval(word *, word *), impl_semper(word *);
 
-
-word
-par(word i)
-{
-    return FREE(casep + i);
-}
-
-static word
-w_par(const word *p)
-{
-    return par(p[0]);
-}
-
-static word
-w_stack(const word *p)
-{
-    return stack(p[0]);
-}
-
-/* the semantic routines that SETSEM enters in the table of DSEM (called through impglue.c) */
-void
-dosem_dsems(void)
-{
-    dsem("PAR", w_par);
-    dsem("STACK", w_stack);
-}
 
 word dosem(word ppo) { word r; r = impl_dosem(&ppo); return r; }
 word setsem(word ty, word val) { word r; r = impl_setsem(&ty, &val); return r; }
@@ -88,5 +62,7 @@ word cksval(word v, word i) { return impl_cksval(&v, &i); }
 void
 semper(void)
 {
-    sempr1(sems, prosem, nsems);
+    word z = 0;
+
+    impl_semper(&z);
 }

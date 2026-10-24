@@ -21,7 +21,7 @@ const int imp_pccir = 1;                /* the compiler with this code generator
 /* the IMP routines (src/pccir/*.imp, symbols renamed impl_NAME): they take their arguments by reference; the table of semantic routines calls them with
  * pointers into the parameters (dsemi) */
 #define RT(n) extern word impl_##n();
-RT(addop) RT(addr) RT(anycode) RT(areg) RT(areg1) RT(assemc) RT(bytep) RT(callme) 
+RT(impsem) RT(codei) RT(addop) RT(addr) RT(anycode) RT(areg) RT(areg1) RT(assemc) RT(bytep) RT(callme) 
 RT(cjump) RT(conop) RT(coppy) RT(copyco) RT(datast) RT(decl) RT(declare) RT(demit) 
 RT(dewfun) RT(dewop) RT(enlist) RT(fetch) RT(fix) RT(float) RT(freeze) RT(getlist) 
 RT(hisreg) RT(hook) RT(iinit) RT(jop) RT(mcode) RT(moveblk) RT(n) RT(name) 
@@ -71,7 +71,7 @@ static int ncval;
 word
 ccall_mark(word a)
 {
-    word d = L18(FREE(a));
+    word d = HL(FREE(a));
     int i;
 
     for (i = 0; i < ncval; i++)
@@ -103,8 +103,8 @@ fcon(word a, word b, word e)
     double v;
     word bits;
 
-    dname_str(L18(FREE(a)), ai, sizeof ai);
-    dname_str(L18(FREE(b)), bi, sizeof bi);
+    dname_str(HL(FREE(a)), ai, sizeof ai);
+    dname_str(HL(FREE(b)), bi, sizeof bi);
     for (p = ai; *p; p++)
         if (*p < '0' || *p > '9')
             goto bad;
@@ -427,75 +427,14 @@ pcode(word a)
     }
 }
 
-/* sem_init: the routines of the lists, ASSEMC, and the code generator's */
-void
-sem_init(void)
+/* the semantic routines that stay C (the registration of the others is the tape's: IMPSEM, CODEI) */
+long
+csems(long z)
 {
+    (void)z;
     dsem("ERROR", NULL);
-    dsemi("NEWLIST", (semifn)impl_newlist);
-    dsemi("ENLIST", (semifn)impl_enlist);
-    dsemi("ASSEMC", (semifn)impl_assemc);
-    impsem_init();
-    codegen_init();
-}
-
-void
-impsem_init(void)
-{
-    dsemi("NAME", (semifn)impl_name);
-    dsemi("AREG1", (semifn)impl_areg1);
-    dsemi("AREG", (semifn)impl_areg);
-    dsemi("REG2", (semifn)impl_reg2);
-    dsemi("VAL", (semifn)impl_val);
-    dsemi("SVAL", (semifn)impl_sval);
-    dsemi("DECL", (semifn)impl_decl);
-    dsemi("DECLARE", (semifn)impl_declare);
-    dsemi("STACKUP", (semifn)impl_stackup);
-    dsemi("SWITCH", (semifn)impl_swtch);
     dsem("LETSYN", w_letsyn);
-    dsemi("SUBBEG", (semifn)impl_subbeg);
-    dsemi("SUBEND", (semifn)impl_subend);
-    dsemi("SUBPR0", (semifn)impl_subpr0);
-    dsemi("REMOT", (semifn)impl_remot);
-    dsemi("CALLME", (semifn)impl_callme);
     dsem("CVAL", w_cval);
     dsem("FCON", w_fcon);
-    dsemi("REG2S", (semifn)impl_reg2s);
 }
 
-void
-codegen_init(void)
-{
-    static int done;
-
-    if (done)
-        return;
-    done = 1;
-    dsemi("STORE", (semifn)impl_store);
-    dsemi("FETCH", (semifn)impl_fetch);
-    dsemi("REGOF", (semifn)impl_regof);
-    dsemi("DEWOP", (semifn)impl_dewop);
-    dsemi("ADDOP", (semifn)impl_addop);
-    dsemi("TAG", (semifn)impl_tag);
-    dsemi("DEWFUN", (semifn)impl_dewfun);
-    dsemi("HOOK", (semifn)impl_hook);
-    dsemi("FREEZE", (semifn)impl_freeze);
-    dsemi("SUBRCALL", (semifn)impl_subrcall);
-    dsemi("RETURN", (semifn)impl_return);
-    dsemi("SUBRPAR", (semifn)impl_subrpar);
-    dsemi("CONOP", (semifn)impl_conop);
-    dsemi("FLOAT", (semifn)impl_float);
-    dsemi("FIX", (semifn)impl_fix);
-    dsemi("OJUMPOP", (semifn)impl_ojumpop);
-    dsemi("DATAST", (semifn)impl_datast);
-    dsemi("PRINPAR", (semifn)impl_prinpar);
-    dsemi("PRINCAL", (semifn)impl_princal);
-    dsemi("ADDR", (semifn)impl_addr);
-    dsemi("COPY", (semifn)impl_coppy);
-    dsemi("SUBSCRIPT", (semifn)impl_subscript);
-    dsemi("SUBCALL", (semifn)impl_subcall);
-    dsemi("BYTEP", (semifn)impl_bytep);
-    dsemi("CJUMP", (semifn)impl_cjump);
-    dsemi("JOP", (semifn)impl_jop);
-    dsemi("MOVEBLK", (semifn)impl_moveblk);
-}

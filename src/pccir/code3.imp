@@ -18,34 +18,34 @@ SUBR SUBSCRIPT(S,T) IS (
  TTY=20B => FREE(T+1) LT 0 => (DEWOP(OLOAD,AREG1(1,15B),T); TTY_2);
  S=0 => (TTY NE 2 => TTY NE 4 => (FREE(T+1) LT 0 => (DEWOP(OLOAD,AREG1(1,15B),T);
                                                        TTY_20B;
-                                                       FREES(T,SX36((20B OR (FREE(T) AND 77B)))))
-                                  ELSE FREES(T+1,SX36(FREE(T+1) OR (1 LS 35))));
+                                                       FREES(T,((20B OR (FREE(T) AND 77B)))))
+                                  ELSE FREES(T+1,(FREE(T+1) OR (1 LS 63))));
          TE_20B OR (FREE(T) AND (NOT 77B));
          TTY=4 => (TE_10B OR (TE AND 777700B);
-                   FREES(T+1,R18(FREE(T+1))));
-         FREES(T,SX36(TE)); RETURN T);
+                   FREES(T+1,HR(FREE(T+1))));
+         FREES(T,TE); RETURN T);
  TTY NE 2 => TTY NE 4 => (DEWOP(OLOAD,AREG1(1,15B),T); TTY_2);
  STY_FREE(S) AND 77B;
  STY=20B => FREE(S+1) LT 0 => (DEWOP(OADDR,AREG1(1,15B),S); STY_20B;
-                               FREES(S,SX36((20B OR (FREE(S) AND 700B)))));
+                               FREES(S,((20B OR (FREE(S) AND 700B)))));
  STY=2 => (ERROR(1,'SUBSCRIPTED REGISTER - IGNORED. '); RETURN S);
  STY=4 => (SEE_FREE(S) AND (NOT 77B);
-           L18(SEE)=0 => (ERROR(2,'CALCULATED CONSTANT IS SUBSCRIPTED. ');
+           HL(SEE)=0 => (ERROR(2,'CALCULATED CONSTANT IS SUBSCRIPTED. ');
                           I_STCON(FREE(S+1));
-                          SEE_(((I LS 9) LS 9) OR R18(SEE)));
-           FREES(S,SX36((SEE OR 10B))); FREES(S+1,0));
- TTY=2 => (STY NE 20B => (FREES(S,SX36((20B OR (FREE(S) AND (NOT 77B)))));
-                          FREES(S+1,SX36(FREE(S+1) OR ((REGOF(T) LS 9) LS 9))))
+                          SEE_((I LS 32) OR HR(SEE)));
+           FREES(S,((SEE OR 10B))); FREES(S+1,0));
+ TTY=2 => (STY NE 20B => (FREES(S,((20B OR (FREE(S) AND (NOT 77B)))));
+                          FREES(S+1,(FREE(S+1) OR (REGOF(T) LS 32))))
            ELSE (R0_REGOF(S);
-                 R0=0 => FREES(S+1,SX36(FREE(S+1) OR ((REGOF(T) LS 9) LS 9)))
+                 R0=0 => FREES(S+1,(FREE(S+1) OR (REGOF(T) LS 32)))
                   ELSE (# ADD THE INDEX TO A COPY OF THE REGISTER: IT MAY BE A PARAMETER'S OR A USER'S #
                         K_AREG1(1,15B);
-                        ADDREC(S,KOP,OLOAD,K,SX36(2),SX36((R0 LS 9) LS 9),0);
+                        ADDREC(S,KOP,OLOAD,K,2,(R0 LS 32),0);
                         FREES(S+1,REGFIELD(FREE(S+1),R0,K));
-                        L18(FREE(S))=0 => ADDREC(S,KOP,OADDX,K,FREE(T),FREE(T+1),0)       # A POINTER IN A REGISTER: THE INDEX IS IN WORDS #
+                        HL(FREE(S))=0 => ADDREC(S,KOP,OADDX,K,FREE(T),FREE(T+1),0)       # A POINTER IN A REGISTER: THE INDEX IS IN WORDS #
                          ELSE ADDREC(S,KOP,OADD,K,FREE(T),FREE(T+1),0))));
- TTY=4 => (SC_R18(R18(FREE(S+1))+FREE(T+1));
-           FREES(S+1,SX36((SC OR (FREE(S+1) XOR R18(FREE(S+1)))))));      # THE REGISTER AND THE INDIRECT BIT KEPT: NOT AND NOT 777777B, A HALFWORD MOVE #
+ TTY=4 => (SC_HR(HR(FREE(S+1))+FREE(T+1));
+           FREES(S+1,(SC OR (FREE(S+1) AND NOT HMASK))));      # THE REGISTER AND THE INDIRECT BIT KEPT #
  HOOK(S,T,S));
 
 # BYTEP(A,S,P,FLAG): THE BYTE A<S,P> (S BITS WITH THE LOW BIT AT BIT P).  THE ORIGINAL BUILDS A PDP-10 BYTE POINTER AS CONSTANT CODE; HERE THE ENTRY IS A VARIABLE
@@ -53,7 +53,7 @@ SUBR SUBSCRIPT(S,T) IS (
   A CONSTANT).  THE OPERATIONS LOAD BYTE, DEPOSIT BYTE AND MOVE (THE POINTER'S VALUE) READ IT IN DEMIT #
 SUBR BYTEP(A,S,P,FLAG) IS (
  TD ARE LOCAL;
- TD_IRNEWNAME(LOC('BYTE'));
+ TD_NEWNAME('BYTE');
  NAME(ENSTACK(TD));
  (FREE(P) AND 77B) NE 4 => FETCH(P);
  (FREE(S) AND 77B) NE 4 => FETCH(S);
@@ -63,5 +63,10 @@ SUBR BYTEP(A,S,P,FLAG) IS (
  FADD(BDESC,NBD,FREE(S)); FADD(BDESC,NBD,FREE(S+1));
  FADD(BDESC,NBD,FREE(P)); FADD(BDESC,NBD,FREE(P+1));
  HOOK(A,HOOK(P,P,S),A);
- FREES(A+1,0); FREES(A,SX36(110B OR ((TD LS 9) LS 9)));
- A) %%
+ FREES(A+1,0); FREES(A,(110B OR (TD LS 32)));
+ A);
+
+SUBR CODE3I(NIL) IS (DSEM('SUBSCRIPT',SUBSCRIPT);
+                     DSEM('SUBCALL',SUBCALL);
+                     DSEM('BYTEP',BYTEP);
+                     0)%%

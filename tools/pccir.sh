@@ -10,7 +10,7 @@ cc1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 [ -x "$cc1" ] || { echo "pccir: no pass 2 of pcc: skipped"; exit 77; }
 case $(uname -m) in x86_64|amd64|i?86|aarch64|arm64) ;; *) [ -n "$PCCIR_ANYARCH" ] || { echo "pccir: only tried on x86_64, i386 and aarch64 so far (PCCIR_ANYARCH=1 tries it): skipped"; exit 77; } ;; esac
 export CC1=$cc1
-mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex"
+mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex impm"
 DIRECT_OUT=build/pccir1 DIRECT_LIB=build/lib/libimp72raw.a SRC_MODULES="$mods" tools/direct.sh >build/pccir1.log 2>&1 \
     || { r=$?; [ $r = 77 ] && { echo "pccir: skipped"; exit 77; }; cat build/pccir1.log >&2; exit $r; }
 DIRECT_OUT=build/pccir2 DIRECT_DRIVER=build/pccir1/imp72stage-pccir DIRECT_LIB=build/lib/libimp72raw.a SRC_MODULES="$mods" \

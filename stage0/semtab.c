@@ -59,12 +59,6 @@ dsemi(const char *name, semifn fn)
 word
 semcall(word id, const word *pars)
 {
-    static int chk = -1;
-
-    if (chk < 0)
-        chk = getenv("IMP_FCHECK") != NULL;
-    if (chk && id >= 1 && id <= nrtn && fcheck(rtn[id - 1].name) != 0)
-        fprintf(stderr, "(after the semantic routine before %s)\n", rtn[id - 1].name);
     if (id < 1 || id > nrtn) {
         imp_error(0, "ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE.");
         return 0;
@@ -97,3 +91,10 @@ semcall(word id, const word *pars)
     return rtn[id - 1].fn(pars);
 }
 
+
+/* DOSEM calls the semantic routine by its id, with the parameters by reference (the original jumps to an address it patches into a JSA) */
+word
+impsemcall(word *id, word *pars)
+{
+    return semcall(*id, pars);
+}

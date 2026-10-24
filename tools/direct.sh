@@ -14,11 +14,12 @@ fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-impsem code code2 code3 demit}
-srcmodules=${SRC_MODULES:-}                   # modules of src/ (free debug stack dir ...) built with them, in place of the C ones, as tools/stage1.sh does
+srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex impm}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
 mkdir -p $out
+export IMP72WIDE=1                          # the seed folds the constants of the tape in 64 bits
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 for m in $modules; do
     $driver -c -o $out/$m.imp.o src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
@@ -33,42 +34,39 @@ for m in $srcmodules; do
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
-# every symbol the modules of src/pccir define, except the ones shared with the C side, gets the prefix in all of them (they call one another by name);
-# the modules of src/ are renamed one by one, as tools/stage1.sh does: what they call and do not define is the C side's (DIR('X') from parse.imp is
-# dir() of C, which takes the string's address), and not another module's routine
+# every symbol the modules define (src/pccir and src/), except the ones shared with the C side, gets the prefix in all of them: they call one another by the
+# tape's names.  What they call and do not define is the C side's
 syms=
-for m in $modules; do
+for m in $modules $srcmodules; do
     syms="$syms $(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }')"
 done
 syms=$(printf '%s\n' $syms | sort -u | grep -vx -f src/shared.txt | grep -vx -f src/pccir/shared.txt || true)
 args=
 for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
 objs=
-for m in $modules; do
+repl=
+for m in $modules $srcmodules; do
     $OBJCOPY $args $out/$m.imp.o $out/$m.imp2.o
     objs="$objs $out/$m.imp2.o"
 done
-repl=
 for m in $srcmodules; do
-    ms=$(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }' | grep -vx -f src/shared.txt | grep -vx -f src/pccir/shared.txt || true)
-    margs=
-    for s in $ms; do margs="$margs --redefine-sym $s=impl_$s"; done
-    $OBJCOPY $margs $out/$m.imp.o $out/$m.imp2.o
-    cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
-    objs="$objs $out/$m.imp2.o $out/${m}_c.o"
+    if [ -f stage0/${m}_imp.c ]; then
+        cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
+        objs="$objs $out/${m}_c.o"
+    fi
     repl="$repl stage0/$m.o"
 done
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
-lexflag=; case " $srcmodules " in *" lex "*) lexflag=-DIR_LEX ;; esac
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIR_DIRECT $lexflag -c stage0/impglue.c -o $out/impglue.o
-objs="$objs $out/pccirsem.o $out/impglue.o"
+cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/sys.c -o $out/sys.o
+cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIMP_IMPK -c stage0/imp72s0.c -o $out/imp72s0.o
+objs="$objs $out/pccirsem.o $out/sys.o"
 keep=
 for o in stage0/*.o; do
-    case $o in stage0/imp72s0.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
+    case $o in stage0/imp72s0.o|stage0/error.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
     skip=0
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-cc -no-pie -o $out/imp72d stage0/imp72s0.o $keep $objs ${DIRECT_LIB:-build/lib/libimp72.a}
+cc -no-pie -o $out/imp72d $out/imp72s0.o $keep $objs ${DIRECT_LIB:-build/lib/libimp72.a}
 ln -sf imp72d $out/imp72stage-pccir
 echo "built $out/imp72d with the code generator of src/pccir: $modules; the compiler's own: $srcmodules"
