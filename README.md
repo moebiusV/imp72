@@ -37,14 +37,12 @@ routines, the code generator (`src/pccir/`), the diagnostic print-outs, and the
 driver program. Its words are 64 bits wide, names are eight characters to a
 word, and `EXECUTE` runs an instruction of the pcc IR machine.
 
-The work is on the branch `tape64`, which is not merged yet. Its last fully
-tested commit is `3f6cde0`; the next one renames the free storage routines to
-the tape's names and the compiler built from it hangs on one of its own
-modules (`docs/porting/tape64-status.md`).
+The compiler, the seed, the stages and the tests (`make check`) are known to work on amd64; i386, aarch64 and the
+other architectures have not been run since the translation of the tables and the driver program.
 
 **What is next.**
 
-1. Find that hang, then merge `tape64` and get CI green on every architecture.
+1. Run `make check` on i386, aarch64 and the rest, and get CI green on every architecture.
 2. Translate what is still C: `LETSYN`, `CVAL`, `FCON`, the `/A` code listing
    and `HELPD`. The table of semantic routines stays C (it holds addresses).
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
@@ -191,10 +189,9 @@ the exact words are in `decus/exact/`.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the route to a compiler that compiles itself
 - [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md)
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
-- [docs/BUILDING.md](docs/BUILDING.md), [docs/PLAN.md](docs/PLAN.md), [docs/ORACLE.md](docs/ORACLE.md)
+- [docs/BUILDING.md](docs/BUILDING.md), [docs/ORACLE.md](docs/ORACLE.md)
 - [docs/porting/pccir-path.md](docs/porting/pccir-path.md), [pccir-machine.md](docs/porting/pccir-machine.md): the code generator and its machine
-- [docs/porting/tape64-status.md](docs/porting/tape64-status.md): the state of the `tape64` branch
-- [docs/porting/](docs/porting/): one note per module (`free.md`, `dir.md`, `lex.md`, `graph.md`, `parse.md`, `ercor.md`, `entree.md`, `cotree.md`, `dosem.md`, `rsyn.md`, `impsem.md`, `debug.md`, `stack.md`)
+- [docs/porting/modules.md](docs/porting/modules.md): the modules and what differs from the tape; [layouts.md](docs/porting/layouts.md): the layout of the compiler's words
 - [docs/internals/](docs/internals/): the kernel module by module; the C back end
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages
 

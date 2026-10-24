@@ -133,3 +133,9 @@ impk_main(int argc, char **argv)
     impcloselist(0);
     return rc;
 }
+
+long
+impfclose(FILE *f)
+{
+    return fclose(f);
+}

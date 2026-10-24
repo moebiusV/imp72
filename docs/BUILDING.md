@@ -1,52 +1,42 @@
 # Building and running
 
-Stage 0 is C99 with no dependencies beyond libc.
-
-    cd stage0
-    make            # libstage0.a and the driver, imp72s0
-    make check      # unit tests, and the syntax file read in full
-    ./imp72s0 ../decus/syntax.imc
-    ./imp72s0 -s TSX -o dump.txt ../decus/syntax.imc    # code tree, semantics, graph
-
-`-s` takes the letters of the original's compiler switches (see the header of
-`imp72s0.c`); dumps go to the `-o` file, else standard output. The exit status
-is 1 if an error (not an advisory) was reported.
-
-Any C99 compiler: `make CC=pcc`, `make CC=clang`. With pcc see
-`docs/porting/pcc-notes.md` (the headers it lacks, linking, musl).
-
-Under a sanitizer:
-
-    make clean
-    make check CFLAGS="-std=c99 -O1 -g -fsanitize=address,undefined"
-
-## The whole system
-
-    make                  # stage 0, the runtime, ir2c, and on amd64 pcc's cc1
+    make                  # the seed, the runtime, pcc's pass 2 (cc1), then stage 1 and stage 2
     make check            # all the tests (a few minutes)
     make install PREFIX=/usr DESTDIR=/tmp/root
 
-Make variables: `CC`, `CFLAGS`, `LDFLAGS`, `DESTDIR`, `PREFIX`, and
-`WITH_PCC=yes|no|auto` (auto: build pcc's cc1 on x86_64 only). The submodule
-`third_party/pcc` must be checked out (`git submodule update --init`).
+The seed (`stage0/`) is C99 with no dependencies beyond libc, and builds with any C99 compiler
+(`make CC=pcc`, `make CC=clang`; with pcc see `docs/porting/pcc-notes.md`). The compiler is built in three steps
+(`docs/BOOTSTRAP.md`): the seed compiles `src/` into stage 1, stage 1 compiles `src/` again into stage 2, and stage 2
+is installed as `bin/imp72` with `share/imp72/syntax64.imc` and `lib/imp72/libimp72raw.a`. The seed stays as
+`bin/imp72stage0`. The steps need pcc's pass 2 (built on x86_64, i386 and aarch64), an ELF `objcopy` and a C compiler for
+the assembler and the link; where one is missing `imp72` is the seed.
 
-`stage0/imp72stage0` works from the source tree and from an installed one. Without
-`cc1` it uses the C back end; `-C` chooses it anywhere. Programs:
+Make variables: `CC`, `CFLAGS`, `LDFLAGS`, `DESTDIR`, `PREFIX`, and `WITH_PCC=yes|no|auto` (auto: build pcc's cc1 where
+its back end works). The submodule `third_party/pcc` must be checked out (`git submodule update --init`).
 
-    stage0/imp72stage0 -o prog prog.imp                 # executable
-    stage0/imp72stage0 -c -o prog.o prog.imp            # object, to link with C
-    stage0/imp72stage0 -C -S -o prog.c prog.imp         # the C text
+By hand:
 
-Tests: `make -C stage0 check` (units, the syntax file, code listings),
-`tests/native/run.sh` (pcc) and `runc.sh` (C back end) compile and run the
-programs of `tests/native/` and compare their output, `tests/self/run.sh` the
-ported modules, `tests/self/stage1.sh` stage 1 against stage 0 (it needs ELF
-`objcopy`). `tools/survey.sh` and `tools/modules.sh` report how far stage 0
-gets on each module of the original compiler's source.
+    tools/pccir.sh                     # stage 1 in build/pccir1, stage 2 in build/pccir2/imp72d
+    tools/direct.sh                    # the compiler built by the seed: build/direct/imp72d and imp72stage-pccir
+    build/direct/imp72stage-pccir -o hello tests/native/hello.imp
+    build/direct/imp72d -s TSX -o dump.txt -c ir.txt src/pccir/syntax64.imc lib/ffi.imc prog.imp
+
+`imp72d` is the compiler proper (`src/impm.imp`): options `-s LETTERS` (the original's switches), `-o FILE` (listing and
+dumps), `-c FILE` (the pcc IR), `-T TARGET`, then the syntax file and the files to compile. `imp72stage-pccir` and
+`imp72` are the same program with the driver around it (`-S`, `-c`, `-o`): they find the syntax file and the library,
+run pcc's pass 2, assemble and link.
+
+The seed alone: `cd stage0 && make`, then `./imp72s0 -s TSX -o dump.txt ../decus/syntax.imc`, or
+`stage0/imp72stage0 -o prog prog.imp` (pcc, or `-C` for the C back end).
+
+Tests: `tests/native/run.sh` and `runc.sh` compile and run the programs of `tests/native/` (pcc and the C back end) and
+compare their output; `tests/oracle/run.sh` compares with what the original compiler printed (`docs/ORACLE.md`);
+`tests/direct/run.sh` runs them, the IEEE fuzz and a differential fuzz through the compiler built by the seed, and
+`tests/direct/stage2.sh` requires stage 2 to write the same IR as stage 1 for every program; `make -C stage0 check` runs the
+seed's unit tests.
 
 Platforms checked in CI (`.github/workflows/ci.yml`): Linux on amd64, i386, arm64, armv7, ppc64le, riscv64, s390x and
-loongarch64 (Alpine, native or under QEMU), Debian amd64 (the package), macOS on Apple silicon (the C back end: pcc's
-aarch64 back end has no Darwin port yet, so `WITH_PCC=auto` leaves it out there; the stage 1 test needs ELF `objcopy`
-and is skipped), FreeBSD and NetBSD (C back end), and OpenBSD (C back end; the stage 1 compiler is linked PIE there, a non-PIE link of it crashes).
+loongarch64 (Alpine, native or under QEMU), Debian amd64 (the package), macOS on Apple silicon, FreeBSD, NetBSD and
+OpenBSD. Where pcc's back end or an ELF `objcopy` is missing the seed's C back end is used.
 
 Packages: `packaging/README.md`.

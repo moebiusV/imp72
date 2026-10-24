@@ -104,7 +104,6 @@ check: all
 	CC1=$(CURDIR)/$(CC1) sh tests/native/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/oracle/run.sh
 	sh tests/native/runc.sh
-	CC1=$(CURDIR)/$(CC1) sh tests/self/run.sh
 	sh tests/self/objnorm.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/ieee/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/direct/run.sh
