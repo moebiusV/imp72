@@ -57,10 +57,9 @@ for m in $srcmodules; do
     repl="$repl stage0/$m.o"
 done
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/impglue.c -o $out/impglue.o
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/sys.c -o $out/sys.o
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIMP_IMPK -c stage0/imp72s0.c -o $out/imp72s0.o
-objs="$objs $out/pccirsem.o $out/impglue.o $out/sys.o"
+objs="$objs $out/pccirsem.o $out/sys.o"
 keep=
 for o in stage0/*.o; do
     case $o in stage0/imp72s0.o|stage0/error.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac

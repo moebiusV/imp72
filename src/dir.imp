@@ -148,7 +148,7 @@ SUBR CONVC(C) IS (
  CC_0;
  W_DNAME(C,CC);
  # CHECK FOR STRING, WHICH IS ONLY MULTI-WORD CASE.#
- (W AND 377B)=47B=>(JNIT=0=>(JNIT_1; CFR_FALLOT('CONST',10)#FIXED#);
+ (W AND 377B)=47B=>(JNIT=0=>(JNIT_1; CFR_FNEW('CONST',10)#FIXED#);
                  NCFR_1;
                   T1: WW_W RS 8;
                       (W RS 56)=>(

@@ -6,13 +6,9 @@
  <VBL>  ::= FREE(<A>)         ::= "[FB+8*(A)]";
  <ATOM> ::= FREES(<A>,<B>)    ::= "[FB+8*(A)]_B";
  <ATOM> ::= FLEN(<A>)         ::= "[FB+8*(A-2)]<R>";
- <ATOM> ::= FADD(<A>,<B>,<C>) ::= "FLEN(A) LE B=>IMPFADDEX(A,B);
+ <ATOM> ::= FADD(<A>,<B>,<C>) ::= "FLEN(A) LE B=>FADDEX(A,B);
                                    FREES(A+B,C);
                                    B_B+1; A";
- <ATOM> ::= FALLOT(<A>,<B>)       ::= "IMPFALLOT(A,B)";
- <ATOM> ::= FRELOT(<A>,<B>,<C>,<D>) ::= "IMPFRELOT(A,B,C,D)";
- <ATOM> ::= FADDEX(<A>,<B>)       ::= "IMPFADDEX(A,B)";
- <ATOM> ::= FINCSET(<A>,<B>)      ::= "IMPFINCSET(A,B)";
  <ATOM> ::= DSEM(<A>,<B>)         ::= "CCALL DSEMI(LOC(A),LOC(B))";    # THE TABLE OF SEMANTIC ROUTINES IS A TABLE OF ADDRESSES (STAGE0/SEMTAB.C) #
 
  # THE HALVES OF A WORD ARE 32 BITS. #
