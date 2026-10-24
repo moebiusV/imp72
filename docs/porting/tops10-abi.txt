@@ -1,0 +1,42 @@
+Yes, TOPS-10 had libraries and a very strict, standardized application binary interface (ABI), though the terminology of the 1960s and 1970s differed slightly from modern conventions. [1] (https://en.wikipedia.org/wiki/TOPS-10), [2] (https://bitsavers.trailing-edge.com/pdf/dec/pdp10/TOPS10/1972_PDP-10_Users_Handbook/01_introToSoftware.pdf)
+
+Because it ran on the 36-bit DEC PDP-10 mainframe architecture, established standards were critical for allowing multiple programming languages to coexist and talk to each other. [1] (https://en.wikipedia.org/wiki/PDP-10), [2] (https://timereshared.com/tops-10-programming/)
+
+
+
+Libraries in TOPS-10
+
+
+
+TOPS-10 relied heavily on code libraries for compiler support and system access:
+
+• The SYS: Library: Files and system executables were routinely organized under a dedicated logical device name called SYS:. [1] (https://timereshared.com/tops-10-files-and-directories/)
+
+• Subroutine & Object Libraries: Standard compilers like Fortran-10, COBOL-68, and BLISS used static relocatable object files (typically ending in .REL) which were bundled into libraries. [1] (https://github.com/orgs/PDP-10/repositories), [2] (https://timereshared.com/tops-10-programming/)
+
+• Linkers: Program libraries were managed and stitched together into final executables using the system's LINK-10 (or LOADER) utility. [1] (https://bitsavers.trailing-edge.com/pdf/dec/pdp10/TOPS10/1972_PDP-10_Users_Handbook/01_introToSoftware.pdf)
+
+
+
+The TOPS-10 Calling Conventions and ABI
+
+
+
+While the term "ABI" wasn't widely used at the time, TOPS-10 defined a rigid binary interface standard that functioned exactly like a modern ABI. It allowed compiled binaries to share data segments and interact safely: [1] (https://gunkies.org/wiki/TOPS-10)
+
+• The Accumulator (Register) Convention: The PDP-10 architecture features 16 general-purpose registers (called Accumulators or ACs). The ABI strictly dictated their use:
+
+	• AC0 and AC1: Used to return values from functions.
+
+	• AC16 (16₈): Designated as the Pushdown Pointer (stack pointer).
+
+	• AC17 (17₈): Traditionally reserved for referencing the argument list. [1] (https://en.wikipedia.org/wiki/PDP-10)
+
+• Standard Call Mechanism (PUSHJ / POPJ): Functions were called using a stack-based mechanism (PUSHJ to push the program counter onto the stack and jump) and returned using POPJ. [1] (https://wiki.sdf.org/doku.php?id=vintage_systems:tops-10_survival_guide)
+
+• The Monitor Call API (UUO Interface): Operating system calls were achieved using software interrupts called UUOs (Unimplemented User Operations). These were hardware instructions that the processor trapped and passed to the TOPS-10 kernel ("the Monitor"). This binary call boundary acted as the kernel-user space ABI. [1] (https://en.wikipedia.org/wiki/TOPS-10)
+
+Because of this strict binary consistency, it was commonplace for a program written in MACRO-10 (assembly) to call subroutines compiled in Fortran seamlessly. [1] (https://bitsavers.trailing-edge.com/pdf/dec/pdp10/TOPS10/1972_PDP-10_Users_Handbook/01_introToSoftware.pdf), [2] (https://timereshared.com/tops-10-programming/)
+
+If you are exploring vintage software, let me know if you are looking to link specific language binaries or if you need help with UUO system calls under a PDP-10 emulator like SIMH.
+
