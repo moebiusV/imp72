@@ -48,7 +48,7 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 | routine | why |
 |---|---|
 | `DORGFIX`, `GORGFIX`, `TORGFIX` | they re-aimed byte pointers into `PRP`, `GA` and `CT` after the low segment moved; fields here are macros over an index |
-| `DATE`, `TIME`, `TMPCOR`, `GETMP`, `OPENOUT`, `PEEKAT`, `RLEAS`, `TMPFL` | the date and time of the banner, and the TOPS-10 files and core-file chaining of the command loop; Unix has no counterpart (the banner has no date) |
+| `TMPCOR`, `GETMP`, `OPENOUT`, `PEEKAT`, `RLEAS`, `TMPFL` | the TOPS-10 core files and chaining of the command loop (a program leaves its command line in core for the next one), and the files of its log; Unix has no counterpart |
 | `OCHK`, `OPCODE`, `RCOCHK` | the PDP-10 assembler and the search of the code for register use; pcc allocates the registers |
 | `SUBTAG`, `PARAMETERS` | nothing on the tape calls them |
 
@@ -77,6 +77,11 @@ compilation ends the session unless the switch `C` is given, and a fatal error e
 characters and the extension 7 (the tape's are 6 and 3); `FILE` is tried as given and then with `.imp` and `.imc`; the output
 `REL` is the pcc IR (`REL.ir`) and `LST` a listing (`LST.lst`, written when `LST` is given); the device and the project and
 programmer number are read and ignored; `\PGM` runs `PGM` with the shell and returns to the prompt where the tape chains to
-it; the line editing of the terminal is the system's, so `GETTY` ends a line at a newline and has no echo of its own; the switches
-`R`, `U` and `V` (re-entrant code, saving the compiler) are not in `HELP`. `INCHWL` and `RUNPGM` are routines of the tape's
+it; the line editing of the terminal is the system's, so `GETTY` ends a line at a newline and has no echo of its own; a line is
+at most 130 characters (the tape's `BF` is 17 words of 5, 85 characters, without a check). The banner has the date, from
+`DATE` of the tape written over byte pointers (`CALLI(14B)` gives the date as the monitor does). `R` is accepted and is always so:
+the code is read-only in the text segment and the data are apart, which is what the tape's two segments are for. `U` and `V` ask the
+monitor to save the compiler with the syntax just compiled (`SSAVE`); Unix has no save of a process image, and the purpose (a
+compiler for an extended language) is met by naming the file of syntax and declarations on the next run, so `U` and `V` say so and
+end the session. `imp72 -i` runs the same session from the installed driver. `INCHWL` and `RUNPGM` are routines of the tape's
 library, written here over `getchar` and `system`.

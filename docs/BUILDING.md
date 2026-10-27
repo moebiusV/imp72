@@ -21,7 +21,7 @@ By hand:
     build/direct/imp72stage-pccir -o hello tests/native/hello.imp
     build/direct/imp72d -s TSX -o dump.txt -c ir.txt src/pccir/syntax64.imc lib/ffi.imc prog.imp
 
-`imp72d` is the compiler proper (`src/impm.imp`): options `-i` (the tape's commands from the terminal), `-s LETTERS` (the original's switches), `-o FILE` (listing and
+`imp72d` is the compiler proper (`src/impm.imp`): options `-i` (the tape's commands from the terminal; `imp72 -i` does the same), `-s LETTERS` (the original's switches), `-o FILE` (listing and
 dumps), `-c FILE` (the pcc IR), `-T TARGET`, then the syntax file and the files to compile. `imp72stage-pccir` and
 `imp72` are the same program with the driver around it (`-S`, `-c`, `-o`): they find the syntax file and the library,
 run pcc's pass 2, assemble and link.

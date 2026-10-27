@@ -253,13 +253,15 @@ driver_main(int argc, char **argv)
         sfile[PATH_MAX + 8], ofile[PATH_MAX + 8], cmd[8 * PATH_MAX], base[PATH_MAX];
     char syntax[PATH_MAX], ffi[PATH_MAX], cc1[PATH_MAX], ir2c[PATH_MAX], lib[PATH_MAX];
     const char *outname = NULL, *sw = NULL, *backend;
-    int stop = 'x', cback = 0, i = 1, rc = 0, nfiles, k;
+    int stop = 'x', cback = 0, interactive = 0, i = 1, rc = 0, nfiles, k;
     char **kargv;
     size_t blen;
 
     while (i < argc && argv[i][0] == '-' && argv[i][1] != '\0') {
         if (strcmp(argv[i], "-C") == 0)
             cback = 1;
+        else if (strcmp(argv[i], "-i") == 0)
+            interactive = 1;
         else if (strcmp(argv[i], "-S") == 0)
             stop = 'S';
         else if (strcmp(argv[i], "-c") == 0)
@@ -274,8 +276,13 @@ driver_main(int argc, char **argv)
         }
         i++;
     }
-    if (i >= argc) {
-        fputs("usage: imp72stage0 [-C] [-S | -c] [-o OUT] [-s LETTERS] FILE.imp ...\n", stderr);
+    if (i >= argc && !interactive) {
+        fputs("usage: imp72stage0 [-C] [-S | -c] [-o OUT] [-s LETTERS] FILE.imp ...\n"
+              "       imp72 -i [-s LETTERS] [FILE.imp ...]     the commands of the original, from the terminal\n", stderr);
+        return 2;
+    }
+    if (interactive && !imp_pccir) {
+        fputs("imp72stage0: -i is for the compiler written in IMP (imp72)\n", stderr);
         return 2;
     }
     nfiles = argc - i;
@@ -322,6 +329,32 @@ driver_main(int argc, char **argv)
     override(cc1, sizeof cc1, "CC1");
     override(ir2c, sizeof ir2c, "IR2C");
     override(lib, sizeof lib, "IMP72LIB");
+    if (interactive) {                          /* the tape's driver: the syntax, the files named, then the commands from the terminal */
+        kargv = calloc((size_t)(argc - i) + 10, sizeof *kargv);
+        k = 0;
+        imp_quiet = 1;
+        kargv[k++] = "imp72s0";
+        kargv[k++] = "-i";
+        if (sw != NULL) {
+            kargv[k++] = "-s";
+            kargv[k++] = (char *)sw;
+        }
+#if defined(__aarch64__) || defined(__arm64__)
+        kargv[k++] = "-T";
+        kargv[k++] = "aarch64";
+#elif defined(__i386__)
+        kargv[k++] = "-T";
+        kargv[k++] = "i386";
+#elif defined(__arm__)
+        kargv[k++] = "-T";
+        kargv[k++] = "arm";
+#endif
+        kargv[k++] = syntax;
+        kargv[k++] = ffi;
+        for (; i < argc; i++)
+            kargv[k++] = argv[i];
+        return kernel_main(k, kargv);
+    }
     /* the back end: pcc where cc1 was built, else the C one */
     backend = exists(cc1) ? envor("IMP72BACKEND", "pcc") : "c";
     if (cback)

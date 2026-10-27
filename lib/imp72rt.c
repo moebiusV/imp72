@@ -23,6 +23,12 @@ imp_calli(long code, long ac)
     case 012:
         fflush(stdout);
         exit(0);
+    case 014: {                         /* the date, as the monitor gives it: ((year-1964)*12 + month-1)*31 + day-1 */
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+
+        return tm == NULL ? 0 : ((tm->tm_year + 1900 - 1964) * 12L + tm->tm_mon) * 31 + tm->tm_mday - 1;
+    }
     case 023: {
         time_t t = time(NULL);
         struct tm *tm = localtime(&t);
