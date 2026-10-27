@@ -45,10 +45,15 @@ the tables and the driver program.
 **What is next.**
 
 1. Run the remaining platforms (loong64, mips64le, the BSDs, macOS) and get CI green everywhere.
-2. Translate what is still C: `LETSYN`, `CVAL`, `FCON`, the `/A` code listing
-   and `HELPD`. The table of semantic routines stays C (it holds addresses).
+2. Translate what is still C: `LETSYN`, `CVAL`, `FCON`, `ERRSRT` (the `ERROR`
+   semantic routine), the `/A` code listing (`PCODE`, `PCODE1`), `HELPD`, the
+   parser trace `PARTRA` (`/G`), the dumps `GPRINT` and `TPRINT` (`/X`, `/T`),
+   and `FORMARG` (check that `rsyn.imp` does the same test). The table of
+   semantic routines stays C (it holds addresses).
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
-   Check the routines the port added or dropped against `decus/*.imc`.
+   Where the port departs from the tape for no good reason, go back to the
+   tape: `DIRW`, `PUTC` and `NEWNAMEG` in `dir` (the lexer keeps a token a
+   character to a word; the tape packs it), and the added `free` routines.
 4. Compare the compiler's dumps (directory, code tree, semantics array, graph)
    with the original's, and the `/A` listings.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
