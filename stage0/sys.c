@@ -3,9 +3,11 @@
  * the file of pcc IR, the terminal.  The routines are called from IMP with CCALL, by value, and take C strings.  The ERROR and MSG of
  * the tape are IMP (impm.imp); imp_error and imp_msg are for the C that is left (semtab.c, ir.c, pccirsem.c).
  */
+#define _DEFAULT_SOURCE 1
 #include <setjmp.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/mman.h>
 #include "ir.h"
 #include "imp.h"
 
@@ -138,4 +140,51 @@ long
 impfclose(FILE *f)
 {
     return fclose(f);
+}
+
+/*
+ * The low segment of the tape's free storage grows in place (CORE sets its size and nothing moves), so the addresses of the arrays, and the byte pointers
+ * into them, stay.  Here the address space for the arena is reserved once, without access, and CORE makes more of it usable.
+ */
+#ifndef MAP_ANON
+#define MAP_ANON MAP_ANONYMOUS
+#endif
+#ifndef MAP_NORESERVE
+#define MAP_NORESERVE 0
+#endif
+static char *core_base;
+static size_t core_reserved, core_usable;
+
+long
+impcorebase(long z)
+{
+    size_t r = sizeof(void *) > 4 ? (size_t)1 << 34 : (size_t)1 << 28;
+    void *p;
+
+    (void)z;
+    if (core_base != NULL)
+        return (long)core_base;
+    for (; r >= ((size_t)1 << 24); r >>= 1)
+        if ((p = mmap(NULL, r, PROT_NONE, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0)) != MAP_FAILED) {
+            core_base = p;
+            core_reserved = r;
+            return (long)core_base;
+        }
+    return 0;
+}
+
+/* make the first nbytes of the arena usable (zero to begin with); 1 for success */
+long
+impcoreset(long nbytes)
+{
+    size_t want = ((size_t)nbytes + 65535) & ~(size_t)65535;
+
+    if (core_base == NULL || want > core_reserved)
+        return 0;
+    if (want > core_usable) {
+        if (mprotect(core_base + core_usable, want - core_usable, PROT_READ | PROT_WRITE) != 0)
+            return 0;
+        core_usable = want;
+    }
+    return 1;
 }

@@ -52,14 +52,16 @@ the tables and the driver program.
    semantic routines stays C (it holds addresses).
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
    Restore the tape where a departure is marked provisional in
-   `docs/porting/modules.md` (the lexer's packed token, `DIRW`, `PUTC`, and the
-   `free` routines that are inline on the tape); the byte pointer is now a byte
-   address, so the lexer can go back to the tape.
+   `docs/porting/modules.md` (the `free` routines that are inline on the tape).
 4. Compare the compiler's dumps (directory, code tree, semantics array, graph)
    with the original's, and the `/A` listings.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
    installed, and bring the Makefile, CI and docs in line.
-6. Later: pcc as a library inside the compiler (IR in, a pointer to the compiled
+6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study (do
+   not implement) UTF-8 symbols for operators and C's syntax for strings and
+   characters, and write up the recommendations and the impact on the code. The
+   syntax of IMP72 does not change until the study is done and decided.
+7. Later: pcc as a library inside the compiler (IR in, a pointer to the compiled
    function out); an LLVM IR back end if pcc proves too limited; a build for
    the 36-bit PDP-10 itself.
 

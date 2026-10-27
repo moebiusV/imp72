@@ -75,18 +75,6 @@ SUBR DSEQ(N) IS (
                             NMARK_N));
 N);
 
-# DIRW(TOK): DIR OF THE TOKEN IN FREE ARRAY TOK, ONE CHARACTER TO A WORD, ENDED BY A 0 (THE LEXICAL ANALYSER MAKES IT SO) #
-SUBR DIRW(TOK) IS (
- NMV IS 100 LONG;
- C,N,K,W ARE LOCAL;
- N_0; K_0; W_0;
- DW1: C_FREE(TOK+N);
- W_W OR ((C AND 377B) LS (8*(N AND 7)));
- C=0 => (NMV[K]_W; GO TO DW2);
- N_N+1; (N AND 7)=0 => (NMV[K]_W; K_K+1; W_0);
- GO TO DW1;
- DW2: DIR(NMV[0]));
-
 SUBR PNAME(DJ) IS (DJ GE 0=>PRINT STG 0,FREE(ALF+HR(FREE(PRP+DJ))));
 
 SUBR DNAME(DI,J) IS FREE(ALF+J+HR(FREE(PRP+DI)));
@@ -189,27 +177,21 @@ SUBR CONVC(C) IS (
 # STCON(V): THE DIRECTORY ENTRY OF THE CONSTANT V, NAMED BY ITS OCTAL DIGITS (22 FOR A 64 BIT NUMBER, WITHOUT THE LEADING ZEROS) AND A B #
 SUBR STCON(V) IS (SCW IS 4 LONG;
                   SCW[0]_SCW[1]_SCW[2]_SCW[3]_0;
-                  NS_0; F_0;
+                  K_BYTEP SCW<7,36>; F_0;
                   ((J_(V RS (3*I)) AND 7) NE 0 => F_1;
-                   F => PUTC(SCW,NS,60B+J)) FOR I IN 21,-1,0;
-                  F=0 => PUTC(SCW,NS,60B);
-                  PUTC(SCW,NS,102B);
+                   F => <+K>_60B+J) FOR I IN 21,-1,0;
+                  F=0 => <+K>_60B;
+                  <+K>_102B;
                   DIR(SCW));
-
-# PUTC(A,N,C): THE CHARACTER C AS CHARACTER N (FROM 0) OF THE NAME IN THE VECTOR A; N GOES UP BY ONE #
-SUBR PUTC(A,N,C) IS (
- A[N RS 3]_A[N RS 3] OR (C LS (8*(N AND 7)));
- N_N+1);
 
 SUBR NEWNAME(I) IS (
  NMF IS 3 LONG;
  NMF_((I AND 37777777777B) LS 8) OR 45B; NMF[1]_NMF[2]_0;
- N_0;
- T7: ((NMF RS (8*N)) AND 377B) NE 0 => (N_N+1; GO TO T7);
+ K_BYTEP NMF<7,36>; WHILE <+K> DO 0; K_K-1;
  J_NEWNUM_NEWNUM+1; TP_100000;
  T10: (J/TP)=0=>(TP_TP/10; GO TO T10);
  T8: JJ_J/TP;
-     PUTC(NMF,N,60B+JJ);
+     <+K>_60B+JJ;
      J_J-TP*JJ; TP_TP/10;
      TP => GO TO T8;
  DIR(NMF))%%
