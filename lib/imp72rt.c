@@ -179,6 +179,63 @@ imp_rot(int64_t *px, int64_t *pn, int64_t *pr)
     *pr = n == 0 ? *px : (int64_t)((u << n) | (u >> (64 - n)));
 }
 
+/*
+ * Byte pointers.  A pointer to characters (the tape's BYTEP A<7,36>) is a byte address: IBP adds 1, LDB reads the byte there, DPB writes the low 8 bits
+ * of the value to it (a character is a byte, UTF-8).  Any other pointer names a bit field and keeps the layout of the PDP-10's, in one word: bits 63-58
+ * the size, 57-52 the position (the low bit of the field, counted from the right), the rest the byte address of the word; IBP moves to the next lower
+ * field of the same size, or to the next word.  A byte address is below 2**47, so the size bits tell the two apart.  The pointer is in imp_bpp and the
+ * byte in imp_bpv, for a call cannot carry a word (a 32 bit machine passes a long as 32 bits).
+ */
+int64_t imp_bpp, imp_bpv;
+
+void
+imp_ibp(void)
+{
+    uint64_t p = (uint64_t)imp_bpp;
+    int size = (int)(p >> 58), pos = (int)((p >> 52) & 63), np;
+
+    if (size == 0) {
+        imp_bpp = (int64_t)(p + 1);
+        return;
+    }
+    np = pos - size;
+    if (np < 0) {
+        np = 64 - size;
+        p += 8;
+    }
+    imp_bpp = (int64_t)((p & ~(63ULL << 52)) | ((uint64_t)np << 52));
+}
+
+void
+imp_ldb(void)
+{
+    uint64_t p = (uint64_t)imp_bpp;
+    int size = (int)(p >> 58), pos = (int)((p >> 52) & 63);
+
+    if (size == 0) {
+        imp_bpv = *(unsigned char *)(intptr_t)p;
+        return;
+    }
+    imp_bpv = (int64_t)(((uint64_t)*(int64_t *)(intptr_t)(p & 0xFFFFFFFFFFFFFULL) >> pos) & (size >= 64 ? ~0ULL : (1ULL << size) - 1));
+}
+
+void
+imp_dpb(void)
+{
+    uint64_t p = (uint64_t)imp_bpp;
+    int size = (int)(p >> 58), pos = (int)((p >> 52) & 63);
+    uint64_t m;
+    int64_t *w;
+
+    if (size == 0) {
+        *(unsigned char *)(intptr_t)p = (unsigned char)imp_bpv;
+        return;
+    }
+    m = (size >= 64 ? ~0ULL : (1ULL << size) - 1) << pos;
+    w = (int64_t *)(intptr_t)(p & 0xFFFFFFFFFFFFFULL);
+    *w = (int64_t)(((uint64_t)*w & ~m) | (((uint64_t)imp_bpv << pos) & m));
+}
+
 /* MOVE B THROUGH N TO A: N+1 words from b to a, ascending, as BLT does (the arguments are pointers) */
 long
 imp_blk(int64_t *a, int64_t *b, int64_t *n)

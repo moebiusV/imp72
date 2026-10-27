@@ -430,6 +430,7 @@ immvalue(const struct ti *t)
 /* ---- byte fields --------------------------------------------------------- */
 
 static void asg(struct irn *l, struct irn *r);
+static struct irn *mkcall(struct irn *fn, struct irn **a, int n, int cret);
 
 /*
  * Shifts for the field code.  pcc handles a shift of a temp by an int count
@@ -501,14 +502,11 @@ fieldmask(const struct bytedesc *d)
 }
 
 /*
- * A byte pointer held in a variable or register is one word: bits 63..58 the
- * size, 57..52 the position (bits from the right, as in A<S,P>), and the low
- * 52 bits the byte address of the word that holds the field.  Incrementing
- * moves to the next lower field of the same size, or to the next word
- * (address + 8) when there is no room, as <+X> does on the PDP-10 with 64
- * bits in the word in place of 36.
+ * A pointer to characters (BYTEP A<7,36>, the tape's, or A<8,64>) is a byte address: the byte before the first of A, for a step comes before the
+ * access.  Any other byte pointer, held in a variable or register, is one word: bits 63..58 the size, 57..52 the position (bits from the right, as
+ * in A<S,P>), and the low 52 bits the byte address of the word that holds the field.  IBP, LDB and DPB through a pointer are the routines imp_ibp,
+ * imp_ldb and imp_dpb of the runtime (lib/imp72rt.c), which tell the two apart, on the words imp_bpp (the pointer) and imp_bpv (the byte).
  */
-#define BPADDR 0xFFFFFFFFFFFFFLL
 
 static struct bytedesc *
 bytedescof(word v)
@@ -545,6 +543,8 @@ bytepvalue(const struct bytedesc *d)
 
     decodeop(d, &u);
     a = ir_un(IR_PCONV, T_LONG, effaddr(&u));
+    if (d->sconst && d->pconst && ((d->s == 7 && d->p == 36) || (d->s == 8 && d->p == 64)))
+        return ir_bin(IR_MINUS, T_LONG, a, icon(1));
     a = ir_bin(IR_OR, T_LONG, a, SHL(d->sconst ? icon(d->s) : rv(d->s), icon(58)));
     return ir_bin(IR_OR, T_LONG, a, SHL(d->pconst ? icon(d->p) : rv(d->p), icon(52)));
 }
@@ -562,90 +562,58 @@ tmpof(struct irn *e)
 /* IR nodes are freed with their statement, so each use needs its own */
 #define TMP(c) ir_temp((c), T_LONG)
 
-static struct irn *
-bp_size(int pt)
+/* a call of a runtime routine without arguments: imp_ibp, imp_ldb, imp_dpb */
+static void
+bpcall(const char *name)
 {
-    return ir_bin(IR_AND, T_LONG, SHR(ir_temp(pt, T_LONG), icon(58)), icon(63));
+    ir_stmt(mkcall(ir_sym(name, 0, T_PFTN), NULL, 0, 0));
 }
 
-static struct irn *
-bp_pos(int pt)
+static void
+bp_in(const struct ti *t)
 {
-    return ir_bin(IR_AND, T_LONG, SHR(ir_temp(pt, T_LONG), icon(52)), icon(63));
+    asg(ir_name("imp_bpp", 0, T_LONG), opvalue(t));
 }
 
-static struct irn *
-bp_word(int pt)
+static void
+bp_out(const struct ti *t)
 {
-    return ir_deref(ir_un(IR_PCONV, T_PLONG,
-        ir_bin(IR_AND, T_LONG, ir_temp(pt, T_LONG), icon(BPADDR))), T_LONG);
+    asg(oplvalue(t), ir_name("imp_bpp", 0, T_LONG));
 }
 
-static struct irn *
-bp_mask(int pt)
-{
-    return ir_bin(IR_MINUS, T_LONG, SHL(icon(1), bp_size(pt)), icon(1));
-}
-
-/* IBP: step the pointer in the operand to the next field */
-static int
+/* IBP: step the pointer in the operand to the next byte or field */
+static void
 bp_step(const struct ti *t)
 {
-    int pt = ir_newtemp(), np = ir_newtemp(), lok = ir_newlabel();
-
-    asg(ir_temp(pt, T_LONG), opvalue(t));
-    asg(ir_temp(np, T_LONG), ir_bin(IR_MINUS, T_LONG, bp_pos(pt), bp_size(pt)));
-    ir_cbranch(IR_GE, ir_temp(np, T_LONG), icon(0), lok);
-    asg(ir_temp(np, T_LONG), ir_bin(IR_MINUS, T_LONG, icon(64), bp_size(pt)));
-    asg(ir_temp(pt, T_LONG), ir_bin(IR_PLUS, T_LONG, ir_temp(pt, T_LONG), icon(8)));
-    ir_label(lok);
-    asg(ir_temp(pt, T_LONG), ir_bin(IR_OR, T_LONG,
-        ir_bin(IR_AND, T_LONG, ir_temp(pt, T_LONG), icon(~(63LL << 52))),
-        SHL(ir_temp(np, T_LONG), icon(52))));
-    asg(oplvalue(t), ir_temp(pt, T_LONG));
-    return pt;
+    bp_in(t);
+    bpcall("imp_ibp");
+    bp_out(t);
 }
 
 /* LDB/ILDB through a pointer in the operand */
 static void
 ldb_dyn(const struct ti *t, int step)
 {
-    int pt;
-
-    if (step)
-        pt = bp_step(t);
-    else {
-        pt = ir_newtemp();
-        asg(ir_temp(pt, T_LONG), opvalue(t));
+    bp_in(t);
+    if (step) {
+        bpcall("imp_ibp");
+        bp_out(t);
     }
-    {
-        int w = tmpof(bp_word(pt)), p = tmpof(bp_pos(pt)), m = tmpof(bp_mask(pt));
-
-        asg(rv(t->ac), ir_bin(IR_AND, T_LONG, SHR(TMP(w), TMP(p)), TMP(m)));
-    }
+    bpcall("imp_ldb");
+    asg(rv(t->ac), ir_name("imp_bpv", 0, T_LONG));
 }
 
 /* DPB/IDPB through a pointer in the operand */
 static void
 dpb_dyn(const struct ti *t, int step)
 {
-    int pt;
-
-    if (step)
-        pt = bp_step(t);
-    else {
-        pt = ir_newtemp();
-        asg(ir_temp(pt, T_LONG), opvalue(t));
+    asg(ir_name("imp_bpv", 0, T_LONG), rv(t->ac));
+    bp_in(t);
+    if (step) {
+        bpcall("imp_ibp");
+        bp_out(t);
     }
-    {
-        int p = tmpof(bp_pos(pt)), k = tmpof(bp_mask(pt)), m, v;
-
-        m = tmpof(SHL(TMP(k), TMP(p)));
-        v = tmpof(SHL(rv(t->ac), TMP(p)));
-        asg(bp_word(pt), ir_bin(IR_OR, T_LONG,
-            ir_bin(IR_AND, T_LONG, bp_word(pt), ir_un(IR_COMPL, T_LONG, TMP(m))),
-            ir_bin(IR_AND, T_LONG, TMP(v), TMP(m))));
-    }
+    bpcall("imp_dpb");
 }
 
 /* LDB ac,field: the field, right justified */

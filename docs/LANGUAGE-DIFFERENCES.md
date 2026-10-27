@@ -17,7 +17,7 @@ comes from the machine, and from the runtime.
   `NAN` and `INF`; the original had neither.
 - **Strings** are bytes: a string constant is a C string in a word array (not five 7 bit characters to a word), so its address
   can be passed to C. The characters of a name are packed five to a word inside the compiler (`DNAME`), not in programs.
-- **Byte pointers** are byte addresses; `<s,p>` fields and `BYTEP`, `<+P>` work on 8 bit bytes of words.
+- **Byte pointers** to characters (`BYTEP A<7,36>`) are byte addresses and a character is a byte (UTF-8); `<s,p>` fields and other `BYTEP` pointers work on the bits of the word.
 - **Halves** (`HRRZ`, `A AND 777777B`, `RS 18`) are 32 bits.
 - **Variables** that are not `COMMON` belong to their module (compilation unit); `COMMON` ones are global symbols that C can
   name. See `docs/FFI.md`.

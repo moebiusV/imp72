@@ -1140,6 +1140,16 @@ princal(word a, word b)
 }
 
 
+/* the directory entry v is a text constant ('...') */
+static int
+istext(word v)
+{
+    char buf[4];
+
+    dname_str(v, buf, sizeof buf);
+    return buf[0] == '\'';
+}
+
 /*
  * BYTEP(A,S,P,FLAG): the byte pointer for the field of size s at position p
  * of a (A<S,P>).  The original builds a PDP-10 byte pointer word as constant
@@ -1178,6 +1188,12 @@ bytep(word a, word s, word p, word flag)
             ise |= 04000;
             dd = rse;
             r = 0;
+        } else if (tse == 4) {              /* A<S,P> of a constant (BYTEP 'HI'<7,36>): the pooled constant, in memory */
+            ise = 0;
+            r = 0;
+            if (!(dse && istext(dse)))    /* a text constant is its own pooled string; a number is pooled by its value */
+                dd = stcon(se1);
+            cse = 0;
         }
         d->a0 = sx36(ise | r);
         d->a1 = sx36(dd | (cse << 18));

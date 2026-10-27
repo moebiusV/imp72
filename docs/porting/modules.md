@@ -56,8 +56,13 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 
 **Not yet translated (still C)**: `ERRSRT`, `LETSYN`, `CVAL`, `FCON`, `PCODE`, `PCODE1`, `HELPD`, `PARTRA`, `GPRINT`, `TPRINT`, `FORMARG`.
 
+**The byte pointer is a byte address.** `BYTEP A<7,36>` (the tape's pointer to the characters of A; `A<8,64>` also) is the byte
+address of the byte before the first of A, `<+P>` adds 1 and then reads or writes the byte there, and a character is a byte
+(UTF-8, never masked to 7 bits). Any other `BYTEP A<S,P>` names a bit field and keeps the layout of the PDP-10's pointer in one
+word (size, position, word address), because no byte address can name it; the two are told apart by the size bits, which a byte
+address (below 2**47) never has. `lib/imp72rt.c` has `imp_ibp`, `imp_ldb` and `imp_dpb`, which both compilers call.
+
 **Provisional: the lexer.** The tape's lexer keeps the line and the token packed (`<+PC>`, `<+K>`) and passes the packed
-token to `DIR`. Here they are one character to a word, and `DIRW` packs the name. The tape's way works on this compiler
-(`BYTEP A<7,36>` and `<+P>` run, as `tests/native/bytes.imp` shows), but the byte pointer is a PDP-10 field, five 7-bit
-characters in the low 36 bits of a word, not a byte address, and the names of `DIR` are eight bytes to a word. When the
-byte pointer is a byte address (the plan in `docs/LANGUAGE-DIFFERENCES.md`), the lexer, `DIR` and `PUTC` return to the tape.
+token to `DIR`. Here they are one character to a word, and `DIRW` packs the name. With the byte pointer a byte address the
+tape's way is available (a token is `FREE(TOKE)` read byte by byte, and `DIR` takes it as it is); the lexer, `DIRW` and `PUTC`
+are to go back to it, and the class table `ISTAB` (128 entries on the tape) must take the bytes of UTF-8.

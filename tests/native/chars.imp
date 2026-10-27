@@ -1,0 +1,12 @@
+V IS 4 LONG;
+K_BYTEP V<7,36>;
+<+K>_101B; <+K>_102B; <+K>_303B; <+K>_251B; <+K>_0;
+PRINT OCT 0,V[0],/;
+P_BYTEP V<7,36>;
+WHILE (C_<+P>) DO PRINT IGR 0,C,/;
+PRINT IGR 0,CCALL STRLEN(LOC(V)),/;
+Q_BYTEP 'HI'<7,36>;
+S_<+Q>; T_<+Q>; U_<+Q>;
+PRINT IGR 0,S,/,IGR 0,T,/,IGR 0,U,/;
+FINI(0)
+%%
