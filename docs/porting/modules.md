@@ -78,10 +78,21 @@ characters and the extension 7 (the tape's are 6 and 3); `FILE` is tried as give
 `REL` is the pcc IR (`REL.ir`) and `LST` a listing (`LST.lst`, written when `LST` is given); the device and the project and
 programmer number are read and ignored; `\PGM` runs `PGM` with the shell and returns to the prompt where the tape chains to
 it; the line editing of the terminal is the system's, so `GETTY` ends a line at a newline and has no echo of its own; a line is
-at most 130 characters (the tape's `BF` is 17 words of 5, 85 characters, without a check). The banner has the date, from
+at most 136 characters (the tape's `BF` is 17 words, of 5 characters there and 8 here, and had no check; `BF` has a word more for the `%` and the end). The banner has the date, from
 `DATE` of the tape written over byte pointers (`CALLI(14B)` gives the date as the monitor does). `R` is accepted and is always so:
-the code is read-only in the text segment and the data are apart, which is what the tape's two segments are for. `U` and `V` ask the
-monitor to save the compiler with the syntax just compiled (`SSAVE`); Unix has no save of a process image, and the purpose (a
-compiler for an extended language) is met by naming the file of syntax and declarations on the next run, so `U` and `V` say so and
-end the session. `imp72 -i` runs the same session from the installed driver. `INCHWL` and `RUNPGM` are routines of the tape's
+the code is read-only in the text segment and the data are apart, which is what the tape's two segments are for. `U` and `V` save the
+compiler with the syntax and declarations it has compiled (see the image below). `imp72 -i` runs the same session from the installed driver. `INCHWL` and `RUNPGM` are routines of the tape's
 library, written here over `getchar` and `system`.
+
+**The image (`U`, `V`, `-I`).** On TOPS-10 `/U` exits to the monitor, whose `SSAVE` writes the core image of the compiler; the next run
+starts with the language that was compiled. Here `NAME_/U` (or `/V`, the same: the image has no code, so there is no high segment to
+keep) writes `NAME.img` and ends the session, and `imp72d -I NAME.img [FILE ...]` (or `imp72 -I NAME.img FILE.imp`) starts from it,
+with no syntax file. The image is the state of the language, not of the process: the free storage (the directory, the syntax graph, the
+code tree, the semantics array, all the compiler's tables), the variables of the compiler's modules, the names called with values, and the
+order of the semantic routines. The modules are compiled with `IMP72MODULE` set (`tools/direct.sh`), and each variable leaves a record
+(address, size, `module:name`) in the section `impvars` (`ir_varrec`); `stage0/image.c` writes and reads those, so an image is for the build
+that made it and says so if it is not (a hash of the list). The arena is always at the same address (`stage0/sys.c`), so the pointers into it
+that the lexer keeps stay good. Not in the image: the driver module (`impm`), the file the lexer has open, and the registry of the arrays
+that move, which is made again from the names of the variables. Started from an image, a run does what the head of `RSYN` and the first
+`COTREE` do (`RSYNI`), so that the routines they enter are in the table; the table is put in the image's order by name, and a name that this
+run has not entered is an error. ELF only (the section and `dl_iterate_phdr`).

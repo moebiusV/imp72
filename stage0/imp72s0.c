@@ -252,7 +252,7 @@ driver_main(int argc, char **argv)
     char dir[PATH_MAX], root[PATH_MAX], tmp[PATH_MAX], ir[PATH_MAX + 8], cfile[PATH_MAX + 8],
         sfile[PATH_MAX + 8], ofile[PATH_MAX + 8], cmd[8 * PATH_MAX], base[PATH_MAX];
     char syntax[PATH_MAX], ffi[PATH_MAX], cc1[PATH_MAX], ir2c[PATH_MAX], lib[PATH_MAX];
-    const char *outname = NULL, *sw = NULL, *backend;
+    const char *outname = NULL, *sw = NULL, *backend, *image = NULL;
     int stop = 'x', cback = 0, interactive = 0, i = 1, rc = 0, nfiles, k;
     char **kargv;
     size_t blen;
@@ -270,6 +270,8 @@ driver_main(int argc, char **argv)
             outname = argv[++i];
         else if (strcmp(argv[i], "-s") == 0 && i + 1 < argc)
             sw = argv[++i];
+        else if (strcmp(argv[i], "-I") == 0 && i + 1 < argc)
+            image = argv[++i];
         else {
             fprintf(stderr, "imp72stage0: unknown option %s\n", argv[i]);
             return 2;
@@ -349,8 +351,13 @@ driver_main(int argc, char **argv)
         kargv[k++] = "-T";
         kargv[k++] = "arm";
 #endif
-        kargv[k++] = syntax;
-        kargv[k++] = ffi;
+        if (image != NULL) {
+            kargv[k++] = "-I";
+            kargv[k++] = (char *)image;
+        } else {
+            kargv[k++] = syntax;
+            kargv[k++] = ffi;
+        }
         for (; i < argc; i++)
             kargv[k++] = argv[i];
         return kernel_main(k, kargv);
@@ -383,7 +390,7 @@ driver_main(int argc, char **argv)
     snprintf(ofile, sizeof ofile, "%s/p.o", tmp);
 
     /* the kernel, in this process */
-    kargv = calloc((size_t)nfiles + 8, sizeof *kargv);
+    kargv = calloc((size_t)nfiles + 10, sizeof *kargv);
     k = 0;
     kargv[k++] = "imp72s0";
     if (sw != NULL) {
@@ -406,8 +413,13 @@ driver_main(int argc, char **argv)
     }
     kargv[k++] = "-c";
     kargv[k++] = ir;
-    kargv[k++] = syntax;
-    kargv[k++] = ffi;
+    if (image != NULL) {                        /* a compiler saved by U or V: its language is in the image */
+        kargv[k++] = "-I";
+        kargv[k++] = (char *)image;
+    } else {
+        kargv[k++] = syntax;
+        kargv[k++] = ffi;
+    }
     for (; nfiles > 0; nfiles--, i++)
         kargv[k++] = argv[i];
     if (kernel_main(k, kargv) != 0) {

@@ -447,3 +447,27 @@ ir_fromdouble(struct irn *d)
     asg(ir_name("imp_fsr", 0, T_DOUBLE), d);
     return ir_name("imp_fsr", 0, T_LONG);
 }
+
+/*
+ * The compiler's own modules (IMP72MODULE names the one being compiled) say where each of their variables is: a record of its address, its size and
+ * its name, MODULE:SYMBOL, in the section impvars.  The image that the switches U and V save (stage0/image.c) is made of them and of the free storage.
+ */
+void
+ir_varrec(const char *sym, long size)
+{
+    const char *mod = getenv("IMP72MODULE");
+    const char *w = irtgt->wordll ? ".long" : ".quad";
+    static int n;
+
+    if (mod == NULL || *mod == '\0')
+        return;
+    ir_pass("\t.section .rodata");
+    ir_pass(".LIV%d:", n);
+    ir_pass("\t.asciz \"%s:%s\"", mod, sym);
+    ir_pass("\t.section impvars,\"aw\"");
+    ir_pass("\t%s %s", w, sym);
+    ir_pass("\t%s %ld", w, size);
+    ir_pass("\t%s .LIV%d", w, n);
+    ir_pass("\t.data");
+    n++;
+}

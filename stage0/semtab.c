@@ -98,3 +98,30 @@ impsemcall(word *id, word *pars)
 {
     return semcall(*id, pars);
 }
+
+/* for the image: the names of the routines in the order of their ids, and the table made again in the order of an image's (the ids are in its tables) */
+word dsem_count(void) { return nrtn; }
+const char *dsem_name(word i) { return rtn[i].name; }
+
+int
+dsem_remap(char **names, word n)
+{
+    struct semrtn *t = calloc((size_t)n + 1, sizeof *t);
+    word i, j;
+
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < nrtn; j++)
+            if (rtn[j].name != NULL && strcmp(rtn[j].name, names[i]) == 0)
+                break;
+        if (j == nrtn) {
+            fprintf(stderr, "imp72: the image uses the routine %s, which this run has not entered\n", names[i]);
+            free(t);
+            return 0;
+        }
+        t[i] = rtn[j];
+    }
+    free(rtn);
+    rtn = t;
+    nrtn = crtn = n;
+    return 1;
+}

@@ -1682,6 +1682,7 @@ emit_data(void)
         if (dprop(DP_COM, v->v) == 0)
             ir_pass("\t.local %s", symname(v->v));
         ir_pass("\t.comm %s,%ld,8", symname(v->v), sz);
+        ir_varrec(symname(v->v), sz);
     }
     {
         struct datadef *d;

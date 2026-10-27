@@ -95,6 +95,7 @@ void ir_goto(int label);
 void ir_cbranch(int op, struct irn *l, struct irn *r, int label);
 void ir_func_end(int retlab, int rettemp);
 void ir_pass(const char *fmt, ...);             /* a line for the assembler */
+void ir_varrec(const char *sym, long size);     /* where a variable of one of the compiler's own modules is (IMP72MODULE), for the image of U and V */
 
 /* for a front end that makes the IR directly */
 struct irn *ir_xshift(int right, struct irn *l, struct irn *r);

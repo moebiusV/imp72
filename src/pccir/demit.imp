@@ -501,7 +501,8 @@ SUBR EDATA(NIL) IS (
   Q=0 => (SZ_8;
           NARR>0 => ((W_FREE(ARR+J); HR(W)=D => SZ_8*HL(W)) FOR J IN 0,1,NARR-1);
           DPROP('COM',D)=0 => CCALL IXPASS(LOC(' .local %s'),CCALL IRSYMNAME(D));
-          CCALL IXPASS(LOC(' .comm %s,%ld,8'),CCALL IRSYMNAME(D),SZ))) FOR I IN 0,1,NUSED-1;
+          CCALL IXPASS(LOC(' .comm %s,%ld,8'),CCALL IRSYMNAME(D),SZ);
+          CCALL IRVARREC(CCALL IRSYMNAME(D),SZ))) FOR I IN 0,1,NUSED-1;
  NXT>0 => (CCALL IXPASS(LOC(' .comm %s,512,16'),CCALL IRJBNAME(FREE(XTAGS+I))) FOR I IN 0,1,NXT-1);
  NDDL>0 => (
   CCALL IXPASS(LOC(' .data'));

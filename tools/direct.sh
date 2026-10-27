@@ -22,7 +22,7 @@ mkdir -p $out
 export IMP72WIDE=1                          # the seed folds the constants of the tape in 64 bits
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 for m in $modules; do
-    $driver -c -o $out/$m.imp.o src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
+    IMP72MODULE=$m $driver -c -o $out/$m.imp.o src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
@@ -30,7 +30,7 @@ for m in $srcmodules; do
     x=; case $m in free) x=lib/ffi.imc ;; esac
     d=$driver
     case " $oldmodules " in *" $m "*) d="env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0" ;; esac
-    $d -c -o $out/$m.imp.o $x src/impsyn64.imc src/$m.imp >$out/$m.log 2>&1 \
+    IMP72MODULE=$m $d -c -o $out/$m.imp.o $x src/impsyn64.imc src/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
@@ -58,8 +58,9 @@ for m in $srcmodules; do
 done
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/sys.c -o $out/sys.o
+cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/image.c -o $out/image.o
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIMP_IMPK -c stage0/imp72s0.c -o $out/imp72s0.o
-objs="$objs $out/pccirsem.o $out/sys.o"
+objs="$objs $out/pccirsem.o $out/sys.o $out/image.o"
 keep=
 for o in stage0/*.o; do
     case $o in stage0/imp72s0.o|stage0/error.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac

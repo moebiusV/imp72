@@ -162,13 +162,15 @@ long
 impcorebase(long z)
 {
     size_t r = sizeof(void *) > 4 ? (size_t)1 << 34 : (size_t)1 << 28;
+    /* the same place every time, so that an image of the compiler (U and V, image.c) can be put back where its pointers into the arena are good */
+    void *hint = sizeof(void *) > 4 ? (void *)((size_t)1 << 44) : (void *)(size_t)0x20000000;
     void *p;
 
     (void)z;
     if (core_base != NULL)
         return (long)core_base;
     for (; r >= ((size_t)1 << 24); r >>= 1)
-        if ((p = mmap(NULL, r, PROT_NONE, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0)) != MAP_FAILED) {
+        if ((p = mmap(hint, r, PROT_NONE, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0)) != MAP_FAILED) {
             core_base = p;
             core_reserved = r;
             return (long)core_base;
@@ -190,4 +192,20 @@ impcoreset(long nbytes)
         core_usable = want;
     }
     return 1;
+}
+
+/* the arena, for the image: where it is and how much of it is usable; and, to load an image, the arena at its old place with at least nbytes usable */
+void *
+imp_core_info(size_t *usable)
+{
+    *usable = core_usable;
+    return core_base;
+}
+
+int
+imp_core_at(void *base, size_t nbytes)
+{
+    if (impcorebase(0) == 0 || (void *)core_base != base)
+        return 0;
+    return impcoreset((long)nbytes) != 0;
 }

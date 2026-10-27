@@ -298,6 +298,7 @@ irfnkind(long v)
 }
 
 long ircval(long v) { return is_cval(v); }
+long irvarrec(const char *sym, long size) { ir_varrec(sym, size); return 0; }
 
 /* a routine of the runtime library, which returns a C long, not a long */
 long
@@ -438,3 +439,26 @@ csems(long z)
     dsem("FCON", w_fcon);
 }
 
+/* the state of this file that the image keeps: the names called with values; the cache of assembler names is made again */
+int ir_cval_get(word *out, int max)
+{
+    int i;
+
+    for (i = 0; i < ncval && i < max; i++)
+        out[i] = cvalnames[i];
+    return ncval;
+}
+
+void ir_cval_set(const word *in, int n)
+{
+    int i;
+
+    for (i = 0; i < n && i < 64; i++)
+        cvalnames[i] = in[i];
+    ncval = n < 64 ? n : 64;
+    for (i = 0; i < nsymcache; i++)
+        free(symcache[i]);
+    free(symcache);
+    symcache = NULL;
+    nsymcache = 0;
+}
