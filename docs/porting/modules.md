@@ -22,3 +22,42 @@ the layout of the tables is `layouts.md`; a name is eight characters to a word; 
 Still C: `stage0/ir.c` (the builder of pcc IR), `stage0/sys.c` (arguments, the listing, the terminal), `stage0/semtab.c`
 (the table of semantic routines), `stage0/pccirsem.c` (the routines `CCALL` reaches, `FCON`, `LETSYN`, `CVAL`, the `/A`
 listing).
+
+## Departures from the tape
+
+Every routine the port added or dropped, and the one thing the tape had that differs, with the reason. A departure is
+either **forced** (the 64-bit word, the IR machine, a Unix instead of a TOPS-10 service) or **provisional** (done for
+convenience; the tape's way is to be restored). Nothing is renamed: where a tape name appears, it means what it meant.
+
+**Added**
+
+| routine | module | why | |
+|---|---|---|---|
+| `FNEW` | `free` | `FALLOT(A,N)` tells a name from an array by `A RS 18`; an eight-character name in a 64-bit word cannot be told from an index. `FALLOT` and `FRELOT` keep the tape's meaning and call it | forced |
+| `FPLACE`, `FRELEASE`, `FCOUNT`, `FALOTN` | `free` | pieces of the tape's `FALLOT` and `FFIXER` that are routines here (the tape has them in line, with `GO TO` into the middle) | provisional: inline them as the tape has them |
+| `FBACK`, `FFWD`, `FLENX`, `FSETB`, `FSETF`, `FSETL` | `free` | the tape's `[X]<L>`, `[X]<R>`, `[X+2]<R>` and assignments to them; the IR machine has no halfword operations | forced |
+| `DIRW` | `dir` | the lexer keeps a token a character to a word; `DIR` takes eight characters to a word | provisional, with the lexer below |
+| `PUTC` | `dir` | `NEWNAME` and `STCON` stepped a byte pointer (`<+P>`) over the packed name | provisional: use the byte pointer once it is a byte address |
+| `LEXRES`'s state | `lex` | see the lexer below | |
+| `IMPK`, `USAGE`, `SETSW` | `impm` | the tape's driver reads commands from the terminal; this one takes the command line | forced (Unix) |
+| `IINIT`, `PAIRFIRST` | `pccir/impsem` | `IINIT` is the initialisation that the tape does where the routines are defined (the 64-bit module sets its tables when first called); `PAIRFIRST` tests whether the register of a pair comes first, which `HISREG` did by looking at the code | forced: no register pairs |
+| `REGFIELD` | `pccir/code` | the register field of an entry word, written in the tape as a byte-pointer field | forced |
+| `ADDREC`, `SETNEXT`, `JOP`, `CJUMP`, `MOVEBLK` | `pccir/code2` | `ADDCODE` of the tape adds a PDP-10 instruction word; `ADDREC` adds a record of the IR machine. The others are the tape's jump and block-move code with the machine's operations | forced |
+| `demit.imp` | | replaces `amod`, `rmod` and `omod` (the PDP-10 assembler): the chains become pcc IR | forced |
+
+**Dropped**
+
+| routine | why |
+|---|---|
+| `DORGFIX`, `GORGFIX`, `TORGFIX` | they re-aimed byte pointers into `PRP`, `GA` and `CT` after the low segment moved; fields here are macros over an index |
+| `GETTY`, `READCMD`, `LEXSAV` and the terminal handling in `impm`: `DATE`, `TIME`, `TMPCOR`, `GETMP`, `INCHWL`, `OPENIN`, `OPENOUT`, `PEEKAT`, `RLEAS`, `RUNPGM`, `TMPFL`, `PUTN`, `PUTO`, `PUTSW` | the TOPS-10 command loop and its files, replaced by the command line and `fopen` (Unix) |
+| `OCHK`, `OPCODE`, `RCOCHK` | the PDP-10 assembler and the search of the code for register use; pcc allocates the registers |
+| `SUBTAG`, `PARAMETERS` | nothing on the tape calls them |
+
+**Not yet translated (still C)**: `ERRSRT`, `LETSYN`, `CVAL`, `FCON`, `PCODE`, `PCODE1`, `HELPD`, `PARTRA`, `GPRINT`, `TPRINT`, `FORMARG`.
+
+**Provisional: the lexer.** The tape's lexer keeps the line and the token packed (`<+PC>`, `<+K>`) and passes the packed
+token to `DIR`. Here they are one character to a word, and `DIRW` packs the name. The tape's way works on this compiler
+(`BYTEP A<7,36>` and `<+P>` run, as `tests/native/bytes.imp` shows), but the byte pointer is a PDP-10 field, five 7-bit
+characters in the low 36 bits of a word, not a byte address, and the names of `DIR` are eight bytes to a word. When the
+byte pointer is a byte address (the plan in `docs/LANGUAGE-DIFFERENCES.md`), the lexer, `DIR` and `PUTC` return to the tape.

@@ -51,9 +51,10 @@ the tables and the driver program.
    and `FORMARG` (check that `rsyn.imp` does the same test). The table of
    semantic routines stays C (it holds addresses).
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
-   Where the port departs from the tape for no good reason, go back to the
-   tape: `DIRW`, `PUTC` and `NEWNAMEG` in `dir` (the lexer keeps a token a
-   character to a word; the tape packs it), and the added `free` routines.
+   Restore the tape where a departure is marked provisional in
+   `docs/porting/modules.md` (the lexer's packed token, `DIRW`, `PUTC`, and the
+   `free` routines that are inline on the tape); this waits on the byte pointer
+   becoming a byte address.
 4. Compare the compiler's dumps (directory, code tree, semantics array, graph)
    with the original's, and the `/A` listings.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
