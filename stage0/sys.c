@@ -6,6 +6,7 @@
 #define _DEFAULT_SOURCE 1
 #include <setjmp.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 #include "ir.h"
@@ -30,6 +31,8 @@ long impisquiet(long z) { (void)z; return imp_quiet; }
 long imphaslist(long z) { (void)z; return listing != NULL; }
 void impoutstr(const char *s) { fputs(s, stderr); }
 void impoutchr(long c) { fputc((int)c, stderr); }
+long impgetch(long z) { (void)z; return getchar(); }
+long impsystem(const char *cmd) { return system(cmd); }
 
 FILE *
 imp_out(void)

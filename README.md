@@ -58,9 +58,11 @@ the tables and the driver program.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
    installed, and bring the Makefile, CI and docs in line.
 6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study (do
-   not implement) UTF-8 symbols for operators and C's syntax for strings and
-   characters, and write up the recommendations and the impact on the code. The
-   syntax of IMP72 does not change until the study is done and decided.
+   not implement) three things, and write up the recommendations and the impact
+   on the code: UTF-8 symbols for operators; C's syntax for strings and
+   characters; and the tape's channel I/O (`INIT`, `LOOKUP`, `INPUT`, the
+   buffer header) kept as it is with `fopen` and `putc` underneath. The syntax of
+   IMP72 does not change until the study is done and decided.
 7. Later: pcc as a library inside the compiler (IR in, a pointer to the compiled
    function out); an LLVM IR back end if pcc proves too limited; a build for
    the 36-bit PDP-10 itself.

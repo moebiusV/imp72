@@ -51,6 +51,10 @@ SUBR LEX(S) IS (
      CSV_C;
      S_DIR(FREE(TOKE)); IC);
 
+SUBR LEXSAV() IS (PC0_PC; IC0_IC; SKIP0_SKIP; CSV0_CSV; ISANM0_ISANM; SKIP_0);
+
+SUBR LEXRES() IS (PC_PC0; IC_IC0; SKIP_SKIP0; CSV_CSV0; ISANM_ISANM0);
+
 SUBR NEXTCHAR() IS (
  (ITOKE_ITOKE+1) GE LTOKE=>(
 	TOKE_FALLOT(OTOKE_TOKE,(17+LTOKE_LTOKE+50)/8);
@@ -83,4 +87,52 @@ SUBR PLINE1(OL) IS (TFL=0=>(TFL_-1; RC_QC; J_0;
 
 SUBR PLINE(BF,PCT) IS (
  FINAM[5] AND 4000B => PRINT IGR 3,PCT,STG 0,' ',BF,/;
- FINAM[5] AND 100000000B => MSG(BF))%%
+ FINAM[5] AND 100000000B => MSG(BF));
+
+SUBR GETTY(BF) IS (OUTSTR('*');
+                   Q_BYTEP BF<7,36>; N_0;
+                   PL: C_INCHWL(0);
+                       C<0 => RETURN -1;
+                       C=041B => C_134B;
+                       C GE 040B => (N<130 => (<+Q>_C; N_N+1));
+                       C NE 12B => GO TO PL;
+                   <+Q>_045B; <+Q>_0);
+
+SUBR READCMD(BF,FINAM,FREL,FLST,DEV,RPGM) IS (
+# REL,LST_DEV:FILE.EXT[PJ,PG]/A/B...(AB...)PGM\% #
+ FINAM[I]_0 FOR I FROM 5; DEV_'DSK';
+ FREL_FREL[1]_FLST_FLST[1]_0;
+ KEY IS 8 LONG; K_BYTEP ',_.[/(%'<7,36>;
+ KEY[I]_DIR(<+K>) FOR I IN 1,1,7;
+ CMA_KEY[1]; LAR_KEY[2];
+ COL_DIR(':'); BSL_DIR('\');
+ LEXSAV(); PC_BYTEP BF<7,36>;
+ L0: LEX(S);
+ L1: (S=KEY[I] => GO TO L2) FOR I IN 7,-1,1;
+ L2: GO TO (K00,K1,K2,K3,K4,K5,K6,K7) I;
+ K00: LEX(S1);
+     S1=BSL => (K_GNAME(S); RPGM[I]_[K+8*I] FOR I FROM 3; GO TO L0);
+     S1=CMA => (PUTN(FREL,S,1); S_S1; GO TO L1);
+     S1=LAR => (PUTN(FREL,S,1); GO TO L0);
+     S1=COL => (PUTN(DEV,S,0); LEX(S); LEX(S1));
+     PUTN(FINAM,S,1); S_S1; GO TO L1;
+ K1: LEX(S); S=LAR=> GO TO L0;
+     PUTN(FLST,S,1); GO TO L0;
+ K2: GO TO L0;
+ K3: LEX(S); PUTN(FINAM[2],S,0); GO TO L0;
+ K4: LEX(S); PUTO(FINAM[3],S); LEX(S);
+     LEX(S); PUTO(FINAM[4],S); LEX(S); GO TO L0;
+ K5: LEX(S); PUTSW(FINAM[5],S); GO TO L0;
+ K6: LEX(S); PUTSW(FINAM[5],S); LEX(S); GO TO L0;
+ K7: FLST => FINAM[5]_FINAM[5] OR 4000B;
+     FREL=0 => (FREL_FINAM; FREL[1]_FINAM[1]);
+     FLST=0 => (FLST_FINAM; FLST[1]_FINAM[1]);
+     LEXRES());
+
+SUBR PUTN(X,S,N) IS (K_GNAME(S); X[I]_[K+8*I] FOR I FROM N);
+
+SUBR PUTO(X,S) IS (X_0; K_GNAME(S); K_BYTEP [K]<7,36>;
+                   WHILE I_<+K> DO X_(X LS 3)+I-060B);
+
+SUBR PUTSW(X,S) IS (K_GNAME(S); K_BYTEP [K]<7,36>;
+                    WHILE I_<+K> DO X_X OR 1 LS 37B AND I-101B)%%
