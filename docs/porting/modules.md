@@ -34,7 +34,6 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 | routine | module | why | |
 |---|---|---|---|
 | `FNEW` | `free` | `FALLOT(A,N)` tells a name from an array by `A RS 18`; an eight-character name in a 64-bit word cannot be told from an index. `FALLOT` and `FRELOT` keep the tape's meaning and call it | forced |
-| `FPLACE`, `FRELEASE`, `FCOUNT`, `FALOTN` | `free` | pieces of the tape's `FALLOT` and `FFIXER` that are routines here (the tape has them in line, with `GO TO` into the middle) | provisional: inline them as the tape has them |
 | `FBACK`, `FFWD`, `FLENX`, `FSETB`, `FSETF`, `FSETL` | `free` | the tape's `[X]<L>`, `[X]<R>`, `[X+2]<R>` and assignments to them; the IR machine has no halfword operations | forced |
 | `IMPK`, `USAGE`, `SETSW` | `impm` | the command line: the files are named as arguments and the switches are `-s LETTERS`; the tape reads one command from the terminal. Both are kept: `IMPK` is the one-shot mode and `-i` is the tape's | forced (Unix) |
 | `COMPIL`, `MKNAME` | `impm` | the compile that the tape has inline in the main program, which the two modes share; `MKNAME` builds a file name string from the name and extension words (`OPENIN` of the tape does it in its library) | provisional: inline `COMPIL` |

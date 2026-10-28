@@ -50,26 +50,28 @@ the tables and the driver program.
 **What is next.**
 
 1. Run the remaining platforms (loong64, mips64le, the BSDs, macOS) and get CI green everywhere.
-2. What is C in `imp72` after this is the system part (`sys.c`, `image.c`, the driver), the table of
-   semantic routines (it holds addresses), the helpers of `pccirsem.c` and the back ends; the C kernel in
-   `stage0/` is the trusted seed and stays.
+2. Leave no C in `imp72` but the seed (`stage0/`, the trusted stage 0) and the glue to LLVM ORC
+   (`llvmorc.c`): the system part (`sys.c`, `image.c`, the driver), the table of semantic routines,
+   the helpers of `pccirsem.c`, the wrappers (`*_imp.c`) and the back-end drivers become IMP, calling the C library and
+   the operating system through `CCALL`.
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
    Restore the tape where a departure is marked provisional in
-   `docs/porting/modules.md` (the `free` routines that are inline on the tape).
+   `docs/porting/modules.md` (`COMPIL`, inline in the tape's main program).
 4. Compare the compiler's dumps (directory, code tree, semantics array, graph)
    with the original's, and the `/A` listings.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
    installed, and bring the Makefile, CI and docs in line.
 6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study in
-   depth (do not implement) five things, and write up the recommendations and
+   depth (do not implement) six things, and write up the recommendations and
    the impact on the code: UTF-8 symbols for operators; C's syntax for strings
    and characters; the tape's channel I/O (`INIT`, `LOOKUP`, `INPUT`, the buffer
    header) kept as it is with `fopen` and `putc` underneath; the type that a
    routine returns, `int64_t` for an IMP routine against `long` for a C function
-   called with `CCALL`, and whether C's return types should be declared; and
+   called with `CCALL`, and whether C's return types should be declared;
    NUL-terminated C strings in IMP against strings that carry their length (the
-   preference is for the latter). The syntax of IMP72 does not change until the
-   study is done and decided.
+   preference is for the latter); and file names that match Unix's limits (the
+   tape's six characters and three of the extension, where `MKNAME` allows 15 and 7). The syntax
+   of IMP72 does not change until the study is done and decided.
 7. Later: a function pointer from the compiler for a single definition
    (`libimp72`, over ORC); a build for the 36-bit PDP-10 itself.
 
