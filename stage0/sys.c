@@ -4,6 +4,7 @@
  * the tape are IMP (impm.imp); imp_error and imp_msg are for the C that is left (semtab.c, ir.c, pccirsem.c).
  */
 #define _DEFAULT_SOURCE 1
+#define _BSD_SOURCE 1                   /* (before glibc 2.19 the name of it) */
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>

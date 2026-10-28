@@ -117,7 +117,7 @@ static int
 iscfunc(const char *nm)
 {
     return inset(&cfuncs, nm) || strcmp(nm, "ifix") == 0 || strcmp(nm, "fini") == 0 ||
-        strncmp(nm, "imp_", 4) == 0;
+        (strncmp(nm, "imp_", 4) == 0 && strcmp(nm, "imp_main") == 0 ? 0 : strncmp(nm, "imp_", 4) == 0);
 }
 
 /* ---- trees ---------------------------------------------------------------- */

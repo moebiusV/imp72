@@ -70,6 +70,7 @@ if [ "${WITH_LLVM:-yes}" != no ]; then
         llvmflags="-DHAVE_LLVM $($lc --cflags | sed 's/-std=[^ ]*//g; s/-W[^ ]*//g; s/-pedantic//g; s/-f[^ ]*//g; s/-O[0-9]//g; s/-g[ 0-9a-z]*//g')"
         llvmlibs="$($lc --link-shared --libs 2>/dev/null || $lc --libs) -Wl,-rpath,$($lc --libdir) -L$($lc --libdir) -rdynamic"
         cc -std=gnu99 -O1 -g -DIR2LL_LIB -c tools/ir2ll.c -o $out/ir2ll.o
+        grep -q LLVMOrcCreateNewThreadSafeContextFromLLVMContext "$($lc --includedir)/llvm-c/Orc.h" && llvmflags="$llvmflags -DHAVE_ORC_FROM_CONTEXT"
         cc -std=gnu99 -O1 -g $llvmflags -c stage0/llvmorc.c -o $out/llvmorc.o
         llvmobjs="$out/ir2ll.o $out/llvmorc.o"
     fi
@@ -83,6 +84,6 @@ for o in stage0/*.o; do
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-cc -no-pie -o $out/imp72d $out/imp72s0.o $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
+cc $(sh tools/nopie.sh) -o $out/imp72d $out/imp72s0.o $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
 ln -sf imp72d $out/imp72stage-pccir
 echo "built $out/imp72d with the code generator of src/pccir: $modules; the compiler's own: $srcmodules"

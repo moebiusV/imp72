@@ -12,6 +12,7 @@ apples to apples:
 Everything else - the bytes of every other section, the symbols with their binding, type, visibility, section and
 value, and every relocation with its type, symbol and addend - is printed.  Handles 32 and 64 bit, either byte order,
 REL and RELA."""
+import binascii
 import re
 import struct
 import sys
@@ -83,7 +84,7 @@ def norm(path):
             continue
         body = b"" if s["type"] == 8 else d[s["off"]:s["off"] + s["size"]]
         out.append("section %s type=%d flags=0x%x align=%d size=%d %s" % (s["n"], s["type"], s["flags"], s["align"], s["size"],
-                                                                      body.hex()))
+                                                                      binascii.hexlify(body).decode()))
     rows = []
     for k, (n, bind, typ, vis, shndx, val, sz) in syms.items():
         if RETGUARD.match(n) or (typ == 3) or k == 0:

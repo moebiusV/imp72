@@ -126,9 +126,19 @@ llvm_run(const char *ir, size_t n, const char *entry, long *result)
     if ((e = LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&gen, LLVMOrcLLJITGetGlobalPrefix(jit), NULL, NULL)) != NULL)
         return error("the symbols of the program", e);
     LLVMOrcJITDylibAddGenerator(jd, gen);
+#ifdef HAVE_ORC_FROM_CONTEXT                                      /* newer LLVM: the context is made first, then given to ORC */
+    {
+        LLVMContextRef ctx = LLVMContextCreate();
+
+        if ((m = parse(ctx, ir, n)) == NULL)
+            return 1;
+        tsc = LLVMOrcCreateNewThreadSafeContextFromLLVMContext(ctx);
+    }
+#else
     tsc = LLVMOrcCreateNewThreadSafeContext();
     if ((m = parse(LLVMOrcThreadSafeContextGetContext(tsc), ir, n)) == NULL)
         return 1;
+#endif
     tsm = LLVMOrcCreateNewThreadSafeModule(m, tsc);
     LLVMOrcDisposeThreadSafeContext(tsc);
     if ((e = LLVMOrcLLJITAddLLVMIRModule(jit, jd, tsm)) != NULL)

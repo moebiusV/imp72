@@ -21,9 +21,11 @@ adding such statements.
 **Where the project is.** The compiler is the original's source, translated to
 64-bit IMP in `src/` (the tape itself is kept untouched in `decus/`). It
 compiles IMP to pcc's intermediate representation, which a back end turns
-into machine code: LLVM IR for clang (the default), C for any C compiler, or pcc's
-pass 2 where pcc is built (`make WITH_PCC=yes`, `--backend=pcc`). The compiler
-builds and compiles itself on little- and big-endian hosts. The language, `PRINT` and `READ`, reals
+into machine code: LLVM IR (the default; in the compiler's own process through
+the LLVM C API where it is installed, else through clang), C for any C compiler, or
+pcc's pass 2 where pcc is built (`make WITH_PCC=yes`, `--backend=pcc`).
+`imp72 --run prog.imp` compiles a program with ORC and runs it in the process.
+The compiler builds and compiles itself on little- and big-endian 64-bit hosts. The language, `PRINT` and `READ`, reals
 (IEEE 754), `CCALL` to C functions, and the programs of the test suite work, and
 their output matches what the original compiler's programs print on a
 simulated TOPS-10 (`docs/ORACLE.md`), apart from the word size and IEEE 754.
@@ -65,9 +67,9 @@ the tables and the driver program.
    characters; and the tape's channel I/O (`INIT`, `LOOKUP`, `INPUT`, the
    buffer header) kept as it is with `fopen` and `putc` underneath. The syntax of
    IMP72 does not change until the study is done and decided.
-7. Later: pcc as a library inside the compiler (IR in, a pointer to the compiled
-   function out); an LLVM IR back end if pcc proves too limited; a build for
-   the 36-bit PDP-10 itself.
+7. Later: a function pointer from the compiler for a single definition
+   (`libimp72`, over ORC); big-endian 32-bit hosts (tried on none yet); a build
+   for the 36-bit PDP-10 itself.
 
 ## Contents
 

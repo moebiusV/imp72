@@ -12,11 +12,13 @@ fail=0
 for p in tests/native/*.imp; do
     n=$(basename "$p" .imp)
     echo "== native $n"
+    # printf's %ld takes 32 bits where the word is 64: ffi2 only holds with a 64 bit long
+    if [ "$n" = ffi2 ] && [ "$(getconf LONG_BIT)" != 64 ]; then echo "skipped: long is not 64 bits"; continue; fi
     CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}; export CC1
     if [ -f tests/native/${n}_main.c ]; then
         $driver -c -o $out/$n.o "$p" \
             || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }
-        cc -no-pie -Ilib $NATIVE_CFLAGS -o $out/$n tests/native/${n}_main.c $out/$n.o \
+        cc $(sh tools/nopie.sh) -Ilib $NATIVE_CFLAGS -o $out/$n tests/native/${n}_main.c $out/$n.o \
             $lib || { echo "FAILED: $n: link" >&2; fail=1; continue; }
     else
         $driver -o $out/$n "$p" \
