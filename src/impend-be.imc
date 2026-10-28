@@ -1,0 +1,17 @@
+# THE BYTE ORDER OF THE MACHINE THE COMPILER RUNS ON: BIG ENDIAN.  A NAME, OR A TEXT CONSTANT, IS A STRING OF CHARACTERS IN THE BYTES OF A WORD, THE FIRST AT THE FIRST ADDRESS, WHICH IS THE HIGH
+ BYTE HERE.  SEE IMPEND-LE.IMC. #
+
+ <ATOM> ::= CHR0(<A>)         ::= "((A) RS 56)";
+ <ATOM> ::= CHR(<A>,<K>)      ::= "(((A) RS (56-8*(K))) AND 377B)";
+ <ATOM> ::= REST(<A>)         ::= "((A) LS 8)";
+ <ATOM> ::= PREP(<A>,<C>)     ::= "(((A) RS 8) OR ((C) LS 56))";
+ <ATOM> ::= LASTC(<A>)        ::= "((A) AND 377B)";
+ <ATOM> ::= FRONTLAST(<A>)    ::= "((A) RS 56)";
+ <ATOM> ::= PFX4(<A>)         ::= "(((A) RS 32) LS 32)";
+ <ATOM> ::= CHAT(<C>,<K>)      ::= "((C) LS (56-8*(K)))";
+ <ATOM> ::= CODE(<A>)         ::= "((A) RS 56)";
+ <ATOM> ::= CHFIRST           ::= "56";
+ <ATOM> ::= CHSTEP            ::= "-8";
+ <ATOM> ::= CHBEYOND         ::= "-8";                               # THE SHIFT BEFORE THE FIRST OF A WORD, AND THE TEST THAT A SHIFT HAS PASSED THE LAST #
+ <ATOM> ::= CHPAST(<A>)       ::= "((A)<0)";
+ <ATOM> ::= CHEND             ::= "0"%%

@@ -4,8 +4,6 @@
 # modules, the ones of src/pccir among them.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-[ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || { echo "direct stage 2 skipped: no cc1 (make)"; exit 0; }
-case $(uname -m) in x86_64|amd64|i?86|aarch64|arm64) ;; *) [ -n "$PCCIR_ANYARCH" ] || { echo "direct stage 2 skipped: only tried on x86_64, i386 and aarch64 so far (PCCIR_ANYARCH=1 tries it)"; exit 0; } ;; esac
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct stage 2 skipped: no objcopy"; exit 0; }
@@ -25,7 +23,7 @@ run() {         # name files...
     fi
 }
 for f in tests/native/*.imp tests/oracle/*.imp; do run $(basename $(dirname $f))_$(basename $f .imp) $f; done
-for f in src/*.imp; do run src_$(basename $f .imp) src/impsyn64.imc $f; done
-for f in src/pccir/*.imp; do run ir_$(basename $f .imp) src/impsyn64.imc src/pccir/irsyn.imc $f; done
+for f in src/*.imp; do run src_$(basename $f .imp) $(sh tools/endian.sh) src/impsyn64.imc $f; done
+for f in src/pccir/*.imp; do run ir_$(basename $f .imp) $(sh tools/endian.sh) src/impsyn64.imc src/pccir/irsyn.imc $f; done
 [ $fail = 0 ] && echo "direct stage 2: the code generator compiled by itself writes the same IR for every program"
 exit $fail

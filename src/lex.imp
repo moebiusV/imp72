@@ -68,8 +68,8 @@ SUBR NEXTCHAR() IS (
          C_CCALL IMPGETC(SRCFP);
          C<0 => ERROR(0,'PREMATURE END OF INPUT FILE');
 	 C NE 12B=>(C=><+PC>_C;
-	         C='(' => PCT_PCT+1;
-	         C=')' => PCT_PCT-1;
+	         C=CODE('(') => PCT_PCT+1;
+	         C=CODE(')') => PCT_PCT-1;
 		GO TO GCHRS);
          <+PC>_0; PC_QC; IC_TFL_0;
          PLINE(FREE(LINE),OPCT); C_12B);
@@ -103,7 +103,7 @@ SUBR READCMD(BF,FINAM,FREL,FLST,DEV,RPGM) IS (
  FINAM[I]_0 FOR I FROM 5; DEV_'DSK';
  FREL_FREL[1]_FLST_FLST[1]_0;
  KEY IS 8 LONG; K_BYTEP ',_.[/(%'<7,36>;
- KEY[I]_DIR(<+K>) FOR I IN 1,1,7;
+ KEY[I]_DIR(CHAT(<+K>,0)) FOR I IN 1,1,7;
  CMA_KEY[1]; LAR_KEY[2];
  COL_DIR(':'); BSL_DIR('\');
  LEXSAV(); PC_BYTEP BF<7,36>;

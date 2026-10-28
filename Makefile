@@ -18,22 +18,27 @@ PREFIX   = /usr/local
 # pcc's code generator is used where pcc works and the translator has a table
 # for it: amd64 and aarch64.
 # yes, no, or auto (yes on x86_64 and aarch64).  Elsewhere imp72stage0 uses the C back end.
-WITH_PCC = auto
+WITH_PCC = no
 PCCCONF  =		# extra arguments for pcc's configure (--build=i686-pc-linux-musl in a 32 bit userland)
 
 LIB = build/lib/libimp72.a
 
 IR2C     = build/bin/ir2c
+IR2LL    = build/bin/ir2ll
 
 LIBRAW = build/lib/libimp72raw.a      # the library for the code generator of src/pccir: a REAL word is the double's own bits
 
 PCCIR = build/pccir2/imp72d          # the compiler with the code generator of src/pccir (tools/pccir.sh), where it can be built
 
-all: stage0 $(LIB) $(LIBRAW) $(IR2C) pcc pccir
+all: stage0 $(LIB) $(LIBRAW) $(IR2C) $(IR2LL) pcc pccir
 
 $(IR2C): tools/ir2c.c
 	mkdir -p build/bin
 	$(CC) -std=gnu99 $(CFLAGS) $(LDFLAGS) -o $(IR2C) tools/ir2c.c
+
+$(IR2LL): tools/ir2ll.c
+	mkdir -p build/bin
+	$(CC) -std=gnu99 $(CFLAGS) $(LDFLAGS) -o $(IR2LL) tools/ir2ll.c
 
 $(LIB): lib/imp72rt.c lib/imp72io.c lib/imp72main.c
 	mkdir -p build/lib
@@ -63,9 +68,9 @@ $(CC1):
 pcc:
 	@if [ "$(WITH_PCC)" = yes ] || { [ "$(WITH_PCC)" = auto ] && { [ "`uname -s`" != Darwin ] && case "`uname -m`" in x86_64|aarch64|arm64|i?86|armv[67]*) true;; *) false;; esac; }; }; then \
 	    $(MAKE) $(CC1); \
-	else echo "pcc not built: imp72stage0 will use the C back end"; fi
+	else echo "pcc not built (WITH_PCC=yes builds it): the back end is LLVM where there is a clang, else C"; fi
 
-# stage 1 by the seed, stage 2 by stage 1 (skipped where pcc or an ELF objcopy is missing, or off x86_64)
+# stage 1 by the seed, stage 2 by stage 1 (skipped where an ELF objcopy is missing); the back end is LLVM (clang) or C, pcc if asked for
 pccir: stage0 $(LIB) $(LIBRAW) pcc
 	@CC1=$(CURDIR)/$(CC1) sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 
@@ -74,7 +79,7 @@ stage0:
 
 # Installed layout (imp72stage0 finds its parts relative to its own place):
 #   PREFIX/bin/imp72stage0 (the seed; also as imp72 where the pcc IR compiler cannot be built)   PREFIX/bin/imp72 (the pcc IR compiler)
-#   PREFIX/lib/imp72/{ir2c,cc1,libimp72.a,libimp72raw.a}   PREFIX/share/imp72/syntax64.imc
+#   PREFIX/lib/imp72/{ir2c,ir2ll,cc1,libimp72.a,libimp72raw.a}   PREFIX/share/imp72/syntax64.imc
 #   PREFIX/share/imp72/{syntax.imc,ffi.imc}  PREFIX/share/man/man1/imp72stage0.1
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp72 \
@@ -87,6 +92,7 @@ install: all
 	    install -m 644 src/pccir/syntax64.imc $(DESTDIR)$(PREFIX)/share/imp72/syntax64.imc; \
 	else ln -sf imp72stage0 $(DESTDIR)$(PREFIX)/bin/imp72; fi
 	install -m 755 $(IR2C) $(DESTDIR)$(PREFIX)/lib/imp72/ir2c
+	install -m 755 $(IR2LL) $(DESTDIR)$(PREFIX)/lib/imp72/ir2ll
 	if [ -x $(CC1) ]; then install -m 755 $(CC1) $(DESTDIR)$(PREFIX)/lib/imp72/cc1; fi
 	install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a
 	install -d $(DESTDIR)$(PREFIX)/include

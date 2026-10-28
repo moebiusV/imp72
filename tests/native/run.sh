@@ -4,7 +4,6 @@
 # of the repository (make check does); CC1 names the pass 2 compiler.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-[ -x "${CC1:-build/pcc/cc/ccom/cc1}" ] || { echo "native tests skipped: no cc1 (make)"; exit 0; }
 driver=${DRIVER:-stage0/imp72stage0}              # DRIVER=build/direct/imp72stage-pccir with IMP72SYNTAX=src/pccir/syntax64.imc: the code generator of src/pccir
 out=${NATIVE_OUT:-build/native}
 lib=${NATIVE_LIB:-build/lib/libimp72.a}          # NATIVE_LIB=build/lib/libimp72raw.a for the code generator of src/pccir

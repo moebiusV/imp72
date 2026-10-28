@@ -47,7 +47,7 @@ SUBR DIR(NM) IS (
              FRELOT(PRP,'PRP',2100,0); FINCSET(PRP,90); NPRP_1536;
              FRELOT(ALF,'ALF',900,0); FINCSET(ALF,45); NALF_1);
  H_HASH(NM[0]); HN_2; N_0;
-L0: (NM[N] RS 56) => (N_N+1; GO TO L0);
+L0: LASTC(NM[N]) => (N_N+1; GO TO L0);
 L1: (I_H*3)=0 => I_3;
 L2: Q_FREE(PRP+I);
  J_HR(Q);
@@ -104,7 +104,7 @@ L7: DSEQ(N);
 SUBR RADI50(N) IS (
  NX_DNAME(N,0);
  VAL_0;
- (C_377B AND (NX RS (8*P));
+ (C_CHR(NX,P);
   C=0 => GO TO RDX;
   C=56B=>(K_37; GO TO UCH);  #.#
   C=44B=>(K_38; GO TO UCH);  #$#
@@ -136,19 +136,19 @@ SUBR CONVC(C) IS (
  CC_0;
  W_DNAME(C,CC);
  # CHECK FOR STRING, WHICH IS ONLY MULTI-WORD CASE.#
- (W AND 377B)=47B=>(JNIT=0=>(JNIT_1; CFR_FNEW('CONST',10)#FIXED#);
+ CHR0(W)=47B=>(JNIT=0=>(JNIT_1; CFR_FNEW('CONST',10)#FIXED#);
                  NCFR_1;
-                  T1: WW_W RS 8;
-                      (W RS 56)=>(
+                  T1: WW_REST(W);
+                      LASTC(W)=>(
                            CC_CC+1;
                            W_DNAME(C,CC);
-                           WW_WW OR ((W AND 377B) LS 56));
+                           WW_WW OR FRONTLAST(W));
                       FADD(CFR,NCFR,WW);
-                      (WW RS 56)=>GO TO T1;
+                      LASTC(WW)=>GO TO T1;
                   FREES(CFR,NCFR-1);
                   CONST_FREE(CFR+1);
                   VAL_CFR; GO TO CONVX);
- (WW_W AND 377B)<60B=>GO TO CONVX; WW>71B=>GO TO CONVX;
+ (WW_CHR0(W))<60B=>GO TO CONVX; WW>71B=>GO TO CONVX;
  # PICK IT APART #
  GO TO T2;
  NXW: CC_CC+1;
@@ -160,7 +160,7 @@ SUBR CONVC(C) IS (
        BAS_-1;
        CH>100B=>CH LE 132B=>(CH_CH-7; GO TO T5);
        GO TO CONVX;
-       T4: 0) FOR N IN 0,8,56;
+       T4: 0) FOR N IN CHFIRST,CHSTEP,CHEND;
       GO TO NXW;
  T3: J_NC-1;
  B_10;
@@ -186,7 +186,7 @@ SUBR STCON(V) IS (SCW IS 4 LONG;
 
 SUBR NEWNAME(I) IS (
  NMF IS 3 LONG;
- NMF_((I AND 37777777777B) LS 8) OR 45B; NMF[1]_NMF[2]_0;
+ NMF_PREP(PFX4(I),45B); NMF[1]_NMF[2]_0;
  K_BYTEP NMF<7,36>; WHILE <+K> DO 0; K_K-1;
  J_NEWNUM_NEWNUM+1; TP_100000;
  T10: (J/TP)=0=>(TP_TP/10; GO TO T10);

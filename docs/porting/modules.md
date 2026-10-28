@@ -96,3 +96,20 @@ that the lexer keeps stay good. Not in the image: the driver module (`impm`), th
 that move, which is made again from the names of the variables. Started from an image, a run does what the head of `RSYN` and the first
 `COTREE` do (`RSYNI`), so that the routines they enter are in the table; the table is put in the image's order by name, and a name that this
 run has not entered is an error. ELF only (the section and `dl_iterate_phdr`).
+
+**Byte order.** The compiler builds and compiles itself on little- and big-endian hosts. A word is native, so `LOC` of an array of
+integers means the same to C everywhere. A name, and a text constant, is a string in the bytes of a word, the first character at
+the first address: the low byte on a little-endian host, the high byte on a big-endian one. The modules say what they mean with
+macros (`CHR0`, `CHR`, `REST`, `PREP`, `LASTC`, `FRONTLAST`, `PFX4`, `CHAT`, `CODE`, `CHFIRST`, `CHSTEP`, `CHEND`, `CHBEYOND`,
+`CHPAST`) that `src/impend-le.imc` and `src/impend-be.imc` define, and `tools/endian.sh` names the file for the host the compiler is
+built on (`tools/direct.sh` puts it in front of every module). `CODE('(')` is the character code of a text constant of one character
+(the tape's `'(' RS 29`). The seed's `strvalue` (`stage0/trans.c`) and `CONVC` of `dir.imp` make a text constant's word in memory
+order. Where the IMP source gave a character code to a name (`DIR(CHAT(<+K>,0))` in `READCMD`) or took the first character out of
+a name word (`CHR0(DNAME(N,0))`), it says so with those macros; a byte pointer needs none. An image (`U`, `V`) is for the byte
+order and the build that made it.
+
+**Back ends.** The code generator writes pcc IR (lowered for amd64: the arguments of a call in rdi, rsi, ..., the result in rax)
+whatever the host, and three programs read it: `tools/ir2ll.c` (LLVM IR; clang makes the object; the default where there is a
+clang), `tools/ir2c.c` (C, for the host's cc) and pcc's pass 2. `--backend=NAME` or `IMP72BACKEND` chooses; `IMP72LLVMCC` names the
+clang. The records that name the compiler's own variables for the image are a section `impvars` (`ir_varrec`), written by pcc as
+assembler and by the other two as data.

@@ -97,8 +97,8 @@ SUBR STX(J) IS (CL_LEX(J); SETSTK(1,(1 OR (J LS 32)),0,0));
 SUBR ADDCHAR(S,C) IS (
  CC_C;
  FOO IS 11 LONG; NF_0;
- L6: CCC_DNAME(S,NF); FOO[NF]_(CCC LS 8) OR CC;
-     (CC_CCC RS 56)=>((NF_NF+1)>9=>
+ L6: CCC_DNAME(S,NF); FOO[NF]_PREP(CCC,CC);
+     (CC_LASTC(CCC))=>((NF_NF+1)>9=>
                            ERROR(1,'IN ADDCHAR - NAME > 80 CHARACTERS **');
                          GO TO L6);
  FOO[NF+1]_0;
@@ -107,8 +107,8 @@ SUBR SYTRM(A) IS SYNT(SYTERM(A),-1);
 SUBR SYTERM(S) IS ( #IF S IS A SINGLE QUOTED CHARACTER, REMOVES QUOTE. #
  R_FREE(S); Q_HL(R);
  Q_DNAME(Q,0);
- (Q AND 377B)=47B=>((Q RS 16)=0=>(((Q RS 8) AND 377B)=>(
-                       Q_DIR(Q RS 8);
+ CHR0(Q)=47B=>(REST(REST(Q))=0=>(CHR(Q,1)=>(
+                       Q_DIR(REST(Q));
                        FREES(S,(HR(R) OR (Q LS 32))))));
  S);
 SUBR SYNT(A,B) IS (
@@ -127,7 +127,7 @@ SUBR SYNT(A,B) IS (
  L17: FADD(SN,NSN,R);
  A);
 SUBR SYNTS(N) IS (
- ND_(43B LS 24) OR DNAME(-N,0);
+ ND_CHAT(43B,3) OR DNAME(-N,0);
  FADD(SN,NSN,DIR(ND));
  FADD(NA,NNA,-1);
  0);

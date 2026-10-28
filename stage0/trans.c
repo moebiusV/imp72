@@ -248,18 +248,19 @@ isstring(word v)
     return buf[0] == '\'';
 }
 
-/* The value of a text constant: its first 8 characters, the first in the low
- * byte, so that the word is the start of the string in memory. */
+/* The value of a text constant: its first 8 characters as the bytes of a word in memory order, so that the word is the start of the string in memory. */
 static long long
 strvalue(word v)
 {
     char buf[40];
-    unsigned long long x = 0;
+    unsigned char b[8] = { 0 };
+    unsigned long long x;
     int k;
 
     dname_str(v, buf, sizeof buf);
     for (k = 1; k < 9 && buf[k]; k++)
-        x |= (unsigned long long)(unsigned char)buf[k] << (8 * (k - 1));
+        b[k - 1] = (unsigned char)buf[k];
+    memcpy(&x, b, sizeof x);                    /* the bytes of the string, in memory order: the first is the low byte on a little endian machine */
     return (long long)x;
 }
 

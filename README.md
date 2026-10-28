@@ -2,7 +2,7 @@
 
 IMP72 on modern Unix: Ned Irons's extensible systems language, as implemented
 by Walter Bilofsky for the PDP-10 (DECUS 10-198, 1973), compiled to native code
-for Linux, the BSDs and macOS through [pcc](https://github.com/moebiusv/pcc),
+for Linux, the BSDs and macOS through LLVM (or C, or [pcc](https://github.com/moebiusv/pcc)),
 and calling C and ELF objects through the C ABI.
 
 Almost none of the language is built in. A small kernel (a lexer, Irons's
@@ -20,8 +20,10 @@ adding such statements.
 
 **Where the project is.** The compiler is the original's source, translated to
 64-bit IMP in `src/` (the tape itself is kept untouched in `decus/`). It
-compiles IMP to pcc's intermediate representation, and pcc's pass 2 makes
-machine code for amd64, i386 and aarch64. The language, `PRINT` and `READ`, reals
+compiles IMP to pcc's intermediate representation, which a back end turns
+into machine code: LLVM IR for clang (the default), C for any C compiler, or pcc's
+pass 2 where pcc is built (`make WITH_PCC=yes`, `--backend=pcc`). The compiler
+builds and compiles itself on little- and big-endian hosts. The language, `PRINT` and `READ`, reals
 (IEEE 754), `CCALL` to C functions, and the programs of the test suite work, and
 their output matches what the original compiler's programs print on a
 simulated TOPS-10 (`docs/ORACLE.md`), apart from the word size and IEEE 754.

@@ -11,7 +11,7 @@ url="https://github.com/moebiusV/imp72"
 arch="x86_64 x86 aarch64 armv7 ppc64le riscv64 s390x loongarch64"
 license="ISC AND BSD-2-Clause AND BSD-3-Clause"
 # a C compiler and linker are used to assemble and link the programs it makes
-depends="gcc musl-dev"
+depends="clang gcc musl-dev"
 # binutils: objcopy, used by the stage 1 test; python3 runs the manual and glue checks
 checkdepends="binutils python3"
 makedepends=""

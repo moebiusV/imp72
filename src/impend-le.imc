@@ -1,0 +1,17 @@
+# THE BYTE ORDER OF THE MACHINE THE COMPILER RUNS ON: LITTLE ENDIAN.  A NAME, OR A TEXT CONSTANT, IS A STRING OF CHARACTERS IN THE BYTES OF A WORD, THE FIRST AT THE FIRST ADDRESS, WHICH IS THE LOW
+ BYTE HERE.  THE MODULES SAY WHAT THEY MEAN WITH THESE, SO THAT THE SAME TEXT COMPILES ON A BIG ENDIAN MACHINE (IMPEND-BE.IMC).  A IS A WORD OF CHARACTERS, K THE NUMBER OF A CHARACTER (FROM 0), C A CHARACTER. #
+
+ <ATOM> ::= CHR0(<A>)         ::= "((A) AND 377B)";                   # THE FIRST CHARACTER #
+ <ATOM> ::= CHR(<A>,<K>)      ::= "(((A) RS (8*(K))) AND 377B)";      # CHARACTER K #
+ <ATOM> ::= REST(<A>)         ::= "((A) RS 8)";                       # WITHOUT THE FIRST CHARACTER #
+ <ATOM> ::= PREP(<A>,<C>)     ::= "(((A) LS 8) OR (C))";              # C IN FRONT OF A, THE LAST CHARACTER OF A GONE (LASTC OF A) #
+ <ATOM> ::= LASTC(<A>)        ::= "((A) RS 56)";                      # THE LAST CHARACTER #
+ <ATOM> ::= FRONTLAST(<A>)    ::= "(((A) AND 377B) LS 56)";           # THE FIRST CHARACTER OF A AS THE LAST OF A WORD #
+ <ATOM> ::= PFX4(<A>)         ::= "((A) AND 37777777777B)";           # THE FIRST FOUR CHARACTERS #
+ <ATOM> ::= CHAT(<C>,<K>)      ::= "((C) LS (8*(K)))";                 # THE CHARACTER C AS CHARACTER K OF A WORD OF ZEROS #
+ <ATOM> ::= CODE(<A>)         ::= "(A)";                              # THE CHARACTER CODE OF A TEXT CONSTANT OF ONE CHARACTER #
+ <ATOM> ::= CHFIRST           ::= "0";                                # THE SHIFTS THAT REACH THE CHARACTERS OF A WORD IN ORDER: FOR N IN CHFIRST,CHSTEP,CHEND #
+ <ATOM> ::= CHSTEP            ::= "8";
+ <ATOM> ::= CHBEYOND         ::= "64";                               # THE SHIFT BEFORE THE FIRST OF A WORD, AND THE TEST THAT A SHIFT HAS PASSED THE LAST #
+ <ATOM> ::= CHPAST(<A>)       ::= "((A)>56)";
+ <ATOM> ::= CHEND             ::= "56"%%

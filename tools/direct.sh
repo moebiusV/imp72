@@ -20,9 +20,12 @@ driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
 mkdir -p $out
 export IMP72WIDE=1                          # the seed folds the constants of the tape in 64 bits
+# the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
+endf=$(sh tools/endian.sh)
+export IMP72ENDIAN=$endf
 export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 for m in $modules; do
-    IMP72MODULE=$m $driver -c -o $out/$m.imp.o src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
+    IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
@@ -30,7 +33,7 @@ for m in $srcmodules; do
     x=; case $m in free) x=lib/ffi.imc ;; esac
     d=$driver
     case " $oldmodules " in *" $m "*) d="env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0" ;; esac
-    IMP72MODULE=$m $d -c -o $out/$m.imp.o $x src/impsyn64.imc src/$m.imp >$out/$m.log 2>&1 \
+    IMP72MODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn64.imc src/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"

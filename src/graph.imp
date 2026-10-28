@@ -156,7 +156,7 @@ SUBR NEWNO(DS,RTS,TYP,ID) IS (
    1 AND 2.#
  TY_TYP;
  (TY AND 5)=4=>(NR_DNAME(ID,0); TY_TY AND 3;
-                (NR AND 377B) NE 43B => TY_1);
+                CHR0(NR) NE 43B => TY_1);
  PTRS_RTS OR DS LS HSH;
  (TY AND 1)=0=>(#WE HAVE NONTERMINAL - CHECK IT HAS CIRCLED NODE #
                 N1_DPROP('ENTRY',ID);

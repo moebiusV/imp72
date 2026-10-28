@@ -461,6 +461,7 @@ ir_varrec(const char *sym, long size)
 
     if (mod == NULL || *mod == '\0')
         return;
+    ir_pass("# varrec %s %ld %s:%s", sym, size, mod, sym);           /* for ir2c and ir2ll, which make the record themselves */
     ir_pass("\t.section .rodata");
     ir_pass(".LIV%d:", n);
     ir_pass("\t.asciz \"%s:%s\"", mod, sym);

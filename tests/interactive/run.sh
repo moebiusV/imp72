@@ -25,7 +25,7 @@ w=${INTERACTIVE_IMP72:-build/pccir2/imp72stage-pccir}
 if [ -x "$w" ]; then
     mkdir -p $out/w && cp tests/native/hello.imp $out/w/
     ( cd $out/w && printf 'hello/C\nx_/U\n' | CC1=$root/build/pcc/cc/ccom/cc1 $root/$w -i >session.out 2>&1 )
-    if [ "$(uname -m)" = x86_64 ] && [ "$(getconf LONG_BIT)" = 64 ]; then       # the driver compiles for the machine it is on; the reference is for amd64
+    if [ "$IMP72BACKEND" = c ] || [ "$IMP72BACKEND" = llvm ] || [ ! -x "${CC1:-$root/build/pcc/cc/ccom/cc1}" ] || { [ "$(uname -m)" = x86_64 ] && [ "$(getconf LONG_BIT)" = 64 ]; }; then       # the driver compiles for the machine it is on; the reference is for amd64
         cmp -s $out/w/hello.ir $out/hello.ref || { echo "FAILED: interactive: imp72 -i: hello.ir differs" >&2; fail=1; }
     else
         [ -s $out/w/hello.ir ] || { echo "FAILED: interactive: imp72 -i: no hello.ir" >&2; fail=1; }

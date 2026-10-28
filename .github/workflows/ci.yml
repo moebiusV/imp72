@@ -6,17 +6,19 @@ on:
   pull_request:
 
 jobs:
-  # amd64: pcc's code generator and the C back end, all the tests
+  # amd64: the LLVM back end (clang is on the runner) and, with pcc built, pcc's, all the tests
   linux-amd64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - run: make
+      - run: make WITH_PCC=yes
       - run: make check
+      - run: IMP72BACKEND=pcc make check
+      - run: IMP72BACKEND=c make check
 
-  # arm64: the C back end (pcc does not work on aarch64 yet)
+  # arm64: the LLVM back end
   linux-arm64:
     runs-on: ubuntu-24.04-arm
     steps:
@@ -55,7 +57,7 @@ jobs:
 
   # Alpine (musl, gcc 15) on every 64 bit architecture it has: natively where the
   # runner is that architecture, else under QEMU user mode, as ada-on-alpine does.
-  # x86_64 also builds pcc's cc1 against musl; the others use the C back end.
+  # the back end is LLVM (clang from apk); 386 and arm/v7 also build pcc's cc1 against musl and run the tests through it too.
   alpine:
     runs-on: ${{ matrix.runner }}
     strategy:

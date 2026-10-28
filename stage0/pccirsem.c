@@ -235,12 +235,14 @@ long
 irstrval(long v)
 {
     char buf[40];
-    uint64_t x = 0;
+    unsigned char b[8] = { 0 };
+    uint64_t x;
     int k;
 
     dname_str(v, buf, sizeof buf);
     for (k = 1; k < 9 && buf[k]; k++)
-        x |= (uint64_t)(unsigned char)buf[k] << (8 * (k - 1));
+        b[k - 1] = (unsigned char)buf[k];
+    memcpy(&x, b, sizeof x);                    /* in memory order */
     diresult[0] = (long)(x & 0xFFFFFFFFU);
     diresult[1] = (long)(x >> 32);
     return diresult[0];

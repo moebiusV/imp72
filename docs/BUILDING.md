@@ -1,6 +1,6 @@
 # Building and running
 
-    make                  # the seed, the runtime, pcc's pass 2 (cc1), then stage 1 and stage 2
+    make                  # the seed, the runtime, the back ends' tools, then stage 1 and stage 2
     make check            # all the tests (a few minutes)
     make install PREFIX=/usr DESTDIR=/tmp/root
 
@@ -8,11 +8,10 @@ The seed (`stage0/`) is C99 with no dependencies beyond libc, and builds with an
 (`make CC=pcc`, `make CC=clang`; with pcc see `docs/porting/pcc-notes.md`). The compiler is built in three steps
 (`docs/BOOTSTRAP.md`): the seed compiles `src/` into stage 1, stage 1 compiles `src/` again into stage 2, and stage 2
 is installed as `bin/imp72` with `share/imp72/syntax64.imc` and `lib/imp72/libimp72raw.a`. The seed stays as
-`bin/imp72stage0`. The steps need pcc's pass 2 (built on x86_64, i386 and aarch64), an ELF `objcopy` and a C compiler for
+`bin/imp72stage0`. The steps need a back end (clang for LLVM IR, or the host's C compiler for the C one, or pcc's pass 2), an ELF `objcopy` and a C compiler for
 the assembler and the link; where one is missing `imp72` is the seed.
 
-Make variables: `CC`, `CFLAGS`, `LDFLAGS`, `DESTDIR`, `PREFIX`, and `WITH_PCC=yes|no|auto` (auto: build pcc's cc1 where
-its back end works). The submodule `third_party/pcc` must be checked out (`git submodule update --init`).
+Make variables: `CC`, `CFLAGS`, `LDFLAGS`, `DESTDIR`, `PREFIX`, and `WITH_PCC=yes|no` (no by default: build pcc's cc1 too, for `--backend=pcc`). The submodule `third_party/pcc` must be checked out (`git submodule update --init`).
 
 By hand:
 
@@ -28,6 +27,10 @@ run pcc's pass 2, assemble and link.
 
 The seed alone: `cd stage0 && make`, then `./imp72s0 -s TSX -o dump.txt ../decus/syntax.imc`, or
 `stage0/imp72stage0 -o prog prog.imp` (pcc, or `-C` for the C back end).
+
+Back ends: `--backend=llvm|c|pcc` on the `imp72` command, or `IMP72BACKEND`. The default is `llvm` where there is a `clang` (or
+`clang-NN`) on the path, else `c`; `IMP72LLVMCC` names another clang. `pcc` needs `make WITH_PCC=yes`. `tools/ir2ll.c` and
+`tools/ir2c.c` are built by `make`.
 
 Tests: `tests/native/run.sh` and `runc.sh` compile and run the programs of `tests/native/` (pcc and the C back end) and
 compare their output; `tests/oracle/run.sh` compares with what the original compiler printed (`docs/ORACLE.md`);

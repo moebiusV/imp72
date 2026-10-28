@@ -60,7 +60,7 @@ SUBR IMPK(NIL) IS (
           DATE(HITHERE[2],CALLI(14B,0));
           MSG(HITHERE);
           GETTY(BF)<0 => GO TO FIN;
-          BF<8,0>='?' => (MSG('TYPE /H FOR HELP.'); GO TO AGAINSAM);
+          CHR0(BF)=CODE('?') => (MSG('TYPE /H FOR HELP.'); GO TO AGAINSAM);
           READCMD(BF,FINAM,GREL,GLST,DEV,RPGM);
           FINAM[5] AND 200B => (HELP(0); GO TO AGAINSAM);
           GREL => (FREL_GREL; FREL[1]_GREL[1]);
