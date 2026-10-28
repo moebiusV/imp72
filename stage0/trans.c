@@ -58,7 +58,7 @@ enum { K_INSN, K_TAG, K_SPEC, K_CONST };
 struct ti {
     int kind;
     word op, ac, ix, v, c, fn;
-    int ind, ra;
+    int ind, ra, real;
 };
 
 static struct ti *tis;
@@ -119,6 +119,7 @@ collect(word iw)
         t->ix = 03777 & u36(w);
         t->ind = (u36(w) >> 33) & 1;
         t->ra = (u36(w) >> 11) & 1;
+        t->real = (w & REALOP) != 0;
         t->v = w2 & MASK18;
         t->c = L18(w2);
         iw += 2;
@@ -683,6 +684,8 @@ cmpop(int c)
 }
 
 /* jump to label if (l cond r), cond as the low 3 bits of the opcode */
+static int realcmp;                             /* the compare in hand is of reals */
+static int tod(struct irn *x);
 static void
 jcond(int c, struct irn *l, struct irn *r, int label)
 {
@@ -690,6 +693,12 @@ jcond(int c, struct irn *l, struct irn *r, int label)
         return;
     if ((c & 7) == 4) {                         /* always */
         ir_goto(label);
+        return;
+    }
+    if (realcmp) {                              /* a real compare: the words are the bits of doubles */
+        int a = tod(l), b = tod(r);
+
+        ir_cbranch(cmpop(c), ir_temp(a, T_DOUBLE), ir_temp(b, T_DOUBLE), label);
         return;
     }
     ir_cbranch(cmpop(c), l, r, label);
@@ -941,41 +950,24 @@ static int usedfs;
 static int
 tod(struct irn *x)
 {
-    int c = ir_newtemp(), te = ir_newtemp(), ts = ir_newtemp();
+    int c = ir_newtemp();
 
     usedfs = 1;
-    /* the word is the sign and magnitude of the double with the magnitude
-     * negated for a negative number (as on the PDP-10): integer order and
-     * integer negation are the real ones.  Back to the double's bits: */
-    asg(ir_temp(te, T_LONG), x);
-    asg(ir_temp(ts, T_LONG), ir_bin(IR_RS, T_LONG, ir_temp(te, T_LONG), ir_icon(63, T_INT)));
-    asg(ir_name("imp_fs", 0, T_LONG), ir_bin(IR_OR, T_LONG,
-        ir_bin(IR_MINUS, T_LONG, ir_bin(IR_ER, T_LONG, ir_temp(te, T_LONG), ir_temp(ts, T_LONG)),
-            ir_temp(ts, T_LONG)),
-        ir_bin(IR_AND, T_LONG, ir_temp(ts, T_LONG), icon((long long)0x8000000000000000ULL))));
+    asg(ir_name("imp_fs", 0, T_LONG), x);               /* the word is the double's own bits */
     asg(ir_temp(c, T_DOUBLE), ir_name("imp_fs", 0, T_DOUBLE));
     return c;
 }
 
-/* the word for the double d: a statement leaves it in temps; the value is the
- * expression that combines them */
+/* the word for the double d: a statement leaves it in a temp; the value is the temp */
 static struct irn *
 fromd(struct irn *d)
 {
-    int tb = ir_newtemp(), ts = ir_newtemp();
+    int tb = ir_newtemp();
 
     usedfs = 1;
     asg(ir_name("imp_fs", 0, T_DOUBLE), d);
     asg(ir_temp(tb, T_LONG), ir_name("imp_fs", 0, T_LONG));
-    asg(ir_temp(ts, T_LONG), ir_bin(IR_RS, T_LONG, ir_temp(tb, T_LONG), ir_icon(63, T_INT)));
-    {
-        int tm = ir_newtemp();
-
-        asg(ir_temp(tm, T_LONG), ir_bin(IR_AND, T_LONG, ir_temp(tb, T_LONG), icon(0x7FFFFFFFFFFFFFFFLL)));
-        return ir_bin(IR_MINUS, T_LONG,
-            ir_bin(IR_ER, T_LONG, ir_temp(tm, T_LONG), ir_temp(ts, T_LONG)),
-            ir_temp(ts, T_LONG));
-    }
+    return ir_temp(tb, T_LONG);
 }
 
 /* FADR/FSBR/FMPR/FDVR (144, 154, 164, 174 + mode) */
@@ -1293,7 +1285,9 @@ insn(long i)
             v = ir_bin(IR_OR, T_LONG, \
                 ir_bin(IR_LS, T_LONG, rhalf(ir_temp(tmp, T_LONG)), ir_icon(32, T_INT)), \
                 lhalf(ir_temp(tmp, T_LONG))); } \
+        else if (f == 2 && t->real) v = ir_bin(IR_ER, T_LONG, x, icon((long long)0x8000000000000000ULL)); /* -X of a real: the sign bit */ \
         else if (f == 2) v = ir_un(IR_UMINUS, T_LONG, x); \
+        else if (t->real) v = ir_bin(IR_AND, T_LONG, x, icon(0x7FFFFFFFFFFFFFFFLL)); \
         else { /* absolute value */ \
             asg(ir_temp(tmp, T_LONG), x); \
             l = ir_newlabel(); \
@@ -1487,7 +1481,9 @@ insn(long i)
         return i;
     }
     if (op >= 0300 && op <= 0317) {             /* CAI, CAM: compare, skip */
+        realcmp = t->real;
         skipnext(rv(t->ac), (op & 010) ? opvalue(t) : immvalue(t), (int)(op & 7));
+        realcmp = 0;
         return i;
     }
     if (op >= 0320 && op <= 0327) {             /* JUMP */
@@ -1495,7 +1491,9 @@ insn(long i)
             tfail("TRANS: JUMP TO A COMPUTED ADDRESS");
             return i;
         }
+        realcmp = t->real;
         jcond((int)(op & 7), rv(t->ac), icon(0), taglabel(t->v));
+        realcmp = 0;
         return i;
     }
     if (op >= 0330 && op <= 0337) {             /* SKIP */
@@ -1504,7 +1502,9 @@ insn(long i)
         asg(ir_temp(tmp, T_LONG), opvalue(t));
         if (t->ac)
             asg(rv(t->ac), ir_temp(tmp, T_LONG));
+        realcmp = t->real;
         skipnext(ir_temp(tmp, T_LONG), icon(0), (int)(op & 7));
+        realcmp = 0;
         return i;
     }
     if (op >= 0340 && op <= 0377) {             /* AOJ AOS SOJ SOS */

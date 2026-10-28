@@ -99,15 +99,15 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
 - **More than 6 arguments:** the extra pointers go in the outgoing stack area
   (an assignment to `0(%rsp)+8k` in the call's list, which pcc reserves), and
   the callee reads them at `16(%rbp)+8k`.
-- **Reals** are IEEE doubles in a word, encoded as on the PDP-10: the sign and
-  magnitude with the magnitude negated for a negative number (`real_enc` in
-  `imp.h`), so that integer comparison and negation are the real ones. `FLOAT` is `FSC ac,233` (int to double),
+- **Reals** are IEEE doubles in a word: the double's own bits. `FLOAT` is `FSC ac,233` (int to double),
   `FADR`/`FSBR`/`FMPR`/`FDVR` go through the scratch word `imp_fs`, floating
   constants (`FCON`, which uses `strtod` where the original sums digits in REAL
   arithmetic) are pooled whole. Results are not rounded to the original's 27 bit mantissa: a REAL is IEEE 754
-  binary64. The word keeps the PDP-10's sign/magnitude encoding because the unmodified `syntax.imc` applies integer
-  compares (`CAM`, `JUMP`) and `MOVN`/`MOVM` to any value, reals included; with the raw IEEE bits those would be wrong for
-  negative numbers, and the translator has no types to tell a real from an integer. C converts with `lib/imp72.h`.
+  binary64. The unmodified `syntax.imc` applies integer compares (`CAM`, `JUMP`, `SKIP`) and `MOVN`/`MOVM` to any value, reals
+  included, which the PDP-10's format allows and raw IEEE bits do not. `dewop` (codegen.c) knows the type of its operand and sets
+  `REALOP` (bit 23 of the instruction word, free in the PDP-10 layout) on such an instruction when the operand is real; `trans.c`
+  compares the two as doubles, negates by the sign bit and takes the absolute value by clearing it, and `conop` folds real
+  constants as doubles. C converts with `lib/imp72.h` (the identity).
 - **`CALLI`** goes to `imp_calli` in the runtime (a few calls: exit, time).
 
 ## Survey

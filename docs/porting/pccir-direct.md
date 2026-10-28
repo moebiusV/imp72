@@ -10,7 +10,7 @@ new path is compared with; what it takes to remove it is at the end of `docs/por
 Today `syntax.imc` calls `DEWOP(254B,...)`, `ADDOP(164B,...)`, `CONOP(...,1000010B+...)` and the like. The routines of `codegen.c` build
 PDP-10 instruction words (opcode, AC, index register, address, immediate/self/both modes, halfword moves) in code chains, and `trans.c`
 (1776 lines) reads each chain as a PDP-10 program and writes IR. Every 36-vs-64 bit difference is a special case in that translator
-(halves are 32 bits, `AND NOT 777777B` is a halfword move, reals are an order-preserving encoding so that integer compares work on them (the seed still does this; the code generator of `src/pccir` compares reals as doubles),
+(halves are 32 bits, `AND NOT 777777B` is a halfword move, an integer compare or negation of a real is marked by `dewop` (`REALOP`) and made floating point,
 immediate floating operands are untranslated, byte pointers are emulated). None of that is wanted: pcc already does register allocation,
 immediates, peepholes and instruction selection.
 

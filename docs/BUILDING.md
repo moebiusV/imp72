@@ -7,7 +7,7 @@
 The seed (`stage0/`) is C99 with no dependencies beyond libc, and builds with any C99 compiler
 (`make CC=pcc`, `make CC=clang`; with pcc see `docs/porting/pcc-notes.md`). The compiler is built in three steps
 (`docs/BOOTSTRAP.md`): the seed compiles `src/` into stage 1, stage 1 compiles `src/` again into stage 2, and stage 2
-is installed as `bin/imp72` with `share/imp72/syntax64.imc` and `lib/imp72/libimp72raw.a`. The seed stays as
+is installed as `bin/imp72` with `share/imp72/syntax64.imc` and `lib/imp72/libimp72.a`. The seed stays as
 `bin/imp72stage0`. The steps need a back end (clang for LLVM IR, or the host's C compiler for the C one, or pcc's pass 2), an ELF `objcopy` and a C compiler for
 the assembler and the link; where one is missing `imp72` is the seed.
 

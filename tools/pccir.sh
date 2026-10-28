@@ -16,8 +16,8 @@ pcc)  [ -x "$cc1" ] || { echo "pccir: no pass 2 of pcc: skipped"; exit 77; } ;;
 esac
 export CC1=$cc1
 mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex impm"
-DIRECT_OUT=build/pccir1 DIRECT_LIB=build/lib/libimp72raw.a SRC_MODULES="$mods" tools/direct.sh >build/pccir1.log 2>&1 \
+DIRECT_OUT=build/pccir1 DIRECT_LIB=build/lib/libimp72.a SRC_MODULES="$mods" tools/direct.sh >build/pccir1.log 2>&1 \
     || { r=$?; [ $r = 77 ] && { echo "pccir: skipped"; exit 77; }; cat build/pccir1.log >&2; exit $r; }
-DIRECT_OUT=build/pccir2 DIRECT_DRIVER=build/pccir1/imp72stage-pccir DIRECT_LIB=build/lib/libimp72raw.a SRC_MODULES="$mods" \
+DIRECT_OUT=build/pccir2 DIRECT_DRIVER=build/pccir1/imp72stage-pccir DIRECT_LIB=build/lib/libimp72.a SRC_MODULES="$mods" \
     tools/direct.sh >build/pccir2.log 2>&1 || { cat build/pccir2.log >&2; exit 1; }
 echo "built build/pccir2/imp72d: the compiler with the pcc IR code generator, compiled by itself"

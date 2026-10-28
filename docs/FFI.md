@@ -32,8 +32,8 @@ are pointers to the elements, which is what `qsort` passes), `CCALL PRINTF(LOC('
 string constant (a string constant is bytes, so its address is a C string), and a `COMMON` array that
 the C side sorts and reads.
 
-A `REAL` shared with C (a `COMMON REAL`, an array of them) is an IEEE 754 double in a word that is not the double's own
-bits (the sign and magnitude, with the magnitude negated for a negative number, as on the PDP-10): C code converts with
+A `REAL` shared with C (a `COMMON REAL`, an array of them) is an IEEE 754 double in a word that is the double's own
+bits: C code converts (the identity, which keeps the code right if the word changes) with
 `imp_real_to_double` and `imp_double_to_real` from `lib/imp72.h` (`tests/native/realffi.imp`).
 
 Not yet: `REAL` arguments and results by value (SSE registers), more than six

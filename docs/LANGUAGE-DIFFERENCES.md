@@ -15,9 +15,9 @@ comes from the machine, and from the runtime.
   floating compares, negates them by flipping the sign bit and does arithmetic in doubles, as it makes the constants it
   once wrote as 36 bit all-ones into -1. The PDP-10 format sorts as a two's complement integer, so the original's code
   generator compared and negated a real with the integer instructions; `imp72stage0`, the seed, translates that code
-  generator instruction by instruction and therefore keeps a word that behaves so (the double's sign and magnitude with the
-  magnitude negated for a negative number, `lib/imp72real.h`). C code that shares a REAL converts with
-  `imp_real_to_double` and `imp_double_to_real` (`lib/imp72.h`), which is the identity for `imp72`. Not a number and
+  generator instruction by instruction and marks those instructions on a real operand (`REALOP`, bit 23 of the instruction word),
+  which `trans.c` makes floating point, so its word is the double's own bits too (`lib/imp72real.h`). C code that shares a REAL converts
+  with `imp_real_to_double` and `imp_double_to_real` (`lib/imp72.h`), which are the identity. Not a number and
   infinity print as `NAN` and `INF`; the original had neither.
 - **Strings** are bytes: a string constant is a C string in a word array (not five 7 bit characters to a word), so its address
   can be passed to C. The characters of a name are packed eight to a word inside the compiler (`DNAME`), the first at the first address, not in programs.

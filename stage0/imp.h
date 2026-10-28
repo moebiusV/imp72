@@ -417,14 +417,10 @@ word fcon(word a, word b, word e);
 word ccall_mark(word a);
 int is_cval(word d);
 
-/* A REAL in a word: the double's sign and magnitude with the magnitude negated
- * for a negative number, so integer order and negation are the real ones. */
-static inline word real_enc(word bits)
-{
-    word s = bits >> 63;                /* -1 if negative */
-
-    return ((bits & 0x7FFFFFFFFFFFFFFFL) ^ s) - s;
-}
+/* A REAL in a word is the 64 bits of the IEEE 754 double.  The code of the original compiler compares and negates a real with the integer
+ * instructions; dewop marks those instructions on a real operand with REALOP (bit 23 of the instruction word, which the PDP-10 layout
+ * leaves free), and trans.c makes them floating point. */
+#define REALOP 040000000L
 word pairfirst(word j);
 
 #endif

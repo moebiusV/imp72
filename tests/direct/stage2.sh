@@ -8,8 +8,8 @@ export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct stage 2 skipped: no objcopy"; exit 0; }
 [ $rc = 0 ] || { cat build/direct.log >&2; echo "FAILED: direct build" >&2; exit 1; }
-export IMP72SYNTAX=$root/src/pccir/syntax64.imc IMP72FFI=$root/lib/ffi.imc IMP72LIB=$root/build/lib/libimp72raw.a
-DIRECT_OUT=build/direct2 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=build/lib/libimp72raw.a tools/direct.sh >build/direct2.log 2>&1 \
+export IMP72SYNTAX=$root/src/pccir/syntax64.imc IMP72FFI=$root/lib/ffi.imc IMP72LIB=$root/build/lib/libimp72.a
+DIRECT_OUT=build/direct2 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=build/lib/libimp72.a tools/direct.sh >build/direct2.log 2>&1 \
     || { cat build/direct2.log >&2; echo "FAILED: direct stage 2 build" >&2; exit 1; }
 out=build/direct2/ir
 mkdir -p $out

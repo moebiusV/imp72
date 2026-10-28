@@ -10,16 +10,16 @@ by value (`CCALL`).
 ## Building and using it
 
 `make` builds it (`tools/pccir.sh`): stage 1 is made by the seed (`stage0/`, the C code generator) from `src/pccir` and the compiler's own IMP
-modules, stage 2 by stage 1, and `make install` installs stage 2 as `bin/imp72` (with `share/imp72/syntax64.imc` and `lib/imp72/libimp72raw.a`);
+modules, stage 2 by stage 1, and `make install` installs stage 2 as `bin/imp72` (with `share/imp72/syntax64.imc` and `lib/imp72/libimp72.a`);
 the seed stays as `bin/imp72stage0`. Where pcc, an ELF `objcopy` or x86_64 is missing, `imp72` is the seed, as before. By hand:
 
     make
     tools/direct.sh                    # build/direct/imp72d, build/direct/imp72stage-pccir (the driver)
-    DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=build/lib/libimp72raw.a \
+    DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=build/lib/libimp72.a \
         SRC_MODULES="free debug stack dir graph parse ercor entree cotree dosem rsyn lex" tools/direct.sh   # the compiler's own modules, too
-    IMP72SYNTAX=src/pccir/syntax64.imc IMP72LIB=build/lib/libimp72raw.a build/direct/imp72stage-pccir -o hello tests/native/hello.imp
+    IMP72SYNTAX=src/pccir/syntax64.imc IMP72LIB=build/lib/libimp72.a build/direct/imp72stage-pccir -o hello tests/native/hello.imp
 
-A REAL word is the bits of the IEEE double (no order preserving encoding), so programs link `libimp72raw.a`. `tests/direct/run.sh` runs the native
+A REAL word is the bits of the IEEE double, as in the seed's programs, so both link `libimp72.a`. `tests/direct/run.sh` runs the native
 tests, the oracle goldens, the IEEE fuzz and a differential fuzz (the old path against this one) with it; `tests/direct/stage2.sh` has it compile
 itself and requires the second generation to write the same IR as the first for every program. Both are part of `make check` (x86_64).
 

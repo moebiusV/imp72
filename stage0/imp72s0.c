@@ -354,12 +354,12 @@ driver_main(int argc, char **argv)
         if (exists(syntax)) {                   /* installed */
             snprintf(ffi, sizeof ffi, "%s/share/imp72/ffi.imc", root);
             snprintf(cc1, sizeof cc1, "%s/lib/imp72/cc1", root);
-            snprintf(lib, sizeof lib, "%s/lib/imp72/libimp72raw.a", root);
+            snprintf(lib, sizeof lib, "%s/lib/imp72/libimp72.a", root);
         } else {                                /* the source tree: build/DIR/imp72d */
             snprintf(syntax, sizeof syntax, "%s/../src/pccir/syntax64.imc", root);
             snprintf(ffi, sizeof ffi, "%s/../lib/ffi.imc", root);
             snprintf(cc1, sizeof cc1, "%s/pcc/cc/ccom/cc1", root);
-            snprintf(lib, sizeof lib, "%s/lib/libimp72raw.a", root);
+            snprintf(lib, sizeof lib, "%s/lib/libimp72.a", root);
         }
         snprintf(ir2c, sizeof ir2c, "%s/lib/imp72/ir2c", root);
         if (!exists(ir2c))

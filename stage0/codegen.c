@@ -224,7 +224,7 @@ word ochk_(word opc) { return ochk(opc); }
 word
 dewop(word opp, word rr, word s)
 {
-    word op = opp, r = rr, j, k, ise, ic;
+    word op = opp, r = rr, j, k, ise, ic, isreal;
 
     if (r <= 0) {
         r = -rr;
@@ -243,6 +243,7 @@ dewop(word opp, word rr, word s)
     }
 l72:
     unpck(s);
+    isreal = (se & 0300) == 0200;
     ise = 0100000000000L & (u36(se1) >> 2);
     if (tse == 4) {                             /* a constant: immediate? */
         rse = ise = cse = 0;
@@ -286,6 +287,8 @@ pool:
         rse = 0;
     }
 l6:
+    if (isreal && ((opp & 0700) == 0300 || (opp >= 0210 && opp <= 0217)))     /* compare, skip, jump, negate, absolute value of a real */
+        ise |= REALOP;
     addcode(s, sx36(ise | rse | (r << 12) | (op << 24)), dse | (cse << 18));
     if (r && subreg(r) == 0) {
         FREES(s, sx36(2 | (se & 0777700L)));
@@ -855,6 +858,42 @@ conop(word s, word t, word i, word v, word w)
 
     if (t)
         co2 = FREE(t + 1);
+    if ((FREE(s) & 0300) == 0200 || (t && (FREE(t) & 0300) == 0200)) {      /* a real constant: the words are the bits of doubles */
+        double d1, d2, r = 0;
+        int rel = 0;
+
+        if ((FREE(s) & 0300) == 0200)
+            memcpy(&d1, &co1, sizeof d1);
+        else
+            d1 = (double)co1;
+        if (t && (FREE(t) & 0300) == 0200)
+            memcpy(&d2, &co2, sizeof d2);
+        else
+            d2 = (double)co2;
+        switch (i & MASK18) {
+        case 0: r = -d1; break;
+        case 1: r = d1 + d2; break;
+        case 2: r = d1 - d2; break;
+        case 3: r = d1 * d2; break;
+        case 4: r = d2 != 0 ? d1 / d2 : 0; break;
+        case 9: rel = 1; co1 = -(word)(d1 < d2); break;
+        case 10: rel = 1; co1 = -(word)(d1 == d2); break;
+        case 11: rel = 1; co1 = -(word)(d1 <= d2); break;
+        case 13: rel = 1; co1 = -(word)(d1 >= d2); break;
+        case 14: rel = 1; co1 = -(word)(d1 != d2); break;
+        case 15: rel = 1; co1 = -(word)(d1 > d2); break;
+        default:
+            imp_error(1, "OPERATION ON A REAL CONSTANT. ");
+            rel = 1;
+            break;
+        }
+        if (!rel) {
+            memcpy(&co1, &r, sizeof co1);
+            FREES(s, sx36((FREE(s) & ~0377L) | 0204));                      /* the result is a real */
+        } else
+            FREES(s, sx36((FREE(s) & ~0377L) | 0104));                      /* a comparison is an integer */
+        goto folded;
+    }
     switch (i & MASK18) {
     case 0: co1 = -co1; break;
     case 1: co1 = co1 + co2; break;
@@ -899,6 +938,7 @@ conop(word s, word t, word i, word v, word w)
     }
     if (!imp_wide() && (!nowrap || co1 == sx36(co1)))
         co1 = sx36(co1);
+folded:
     c = i >> 18;
     if (c) {                                    /* special for conditionals */
         /* the chosen arm replaces the whole entry: FREES(S+I,FREE(V+I)) FOR I FROM 2,
@@ -941,7 +981,6 @@ float_(word s)
             word bits;
 
             memcpy(&bits, &x, sizeof bits);
-            bits = real_enc(bits);
             FREES(s + 1, bits);
             FREES(s, sx36(0204 | (sf & 0777000L)));
             return s;
@@ -974,9 +1013,8 @@ fix_(word s)
     if ((sf & 0300) != 0100) {
         if ((sf & 077) == 4) {
             double x;
-            word v = FREE(s + 1), sg = v >> 63;
+            word v = FREE(s + 1);
 
-            v = ((v ^ sg) - sg) | (sg & (word)0x8000000000000000UL);     /* undo real_enc */
             memcpy(&x, &v, sizeof x);
             FREES(s + 1, (word)x);
             FREES(s, sx36(0104 | (sf & 0777000L)));
