@@ -62,12 +62,16 @@ the tables and the driver program.
    with the original's, and the `/A` listings.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
    installed, and bring the Makefile, CI and docs in line.
-6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study (do
-   not implement) three things, and write up the recommendations and the impact
-   on the code: UTF-8 symbols for operators; C's syntax for strings and
-   characters; and the tape's channel I/O (`INIT`, `LOOKUP`, `INPUT`, the
-   buffer header) kept as it is with `fopen` and `putc` underneath. The syntax of
-   IMP72 does not change until the study is done and decided.
+6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study in
+   depth (do not implement) five things, and write up the recommendations and
+   the impact on the code: UTF-8 symbols for operators; C's syntax for strings
+   and characters; the tape's channel I/O (`INIT`, `LOOKUP`, `INPUT`, the buffer
+   header) kept as it is with `fopen` and `putc` underneath; the type that a
+   routine returns, `int64_t` for an IMP routine against `long` for a C function
+   called with `CCALL`, and whether C's return types should be declared; and
+   NUL-terminated C strings in IMP against strings that carry their length (the
+   preference is for the latter). The syntax of IMP72 does not change until the
+   study is done and decided.
 7. Later: a function pointer from the compiler for a single definition
    (`libimp72`, over ORC); a build for the 36-bit PDP-10 itself.
 
