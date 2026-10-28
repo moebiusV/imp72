@@ -256,47 +256,12 @@ run(const char *cmd)
 #define CC1OPT (imp_pccir ? CC1OPT_PCCIR : CC1OPT_SEED)
 
 
-/* The clang that turns LLVM IR into an object: IMP72LLVMCC, else clang, else the newest clang-NN on the path. */
-static const char *
-findclang(char *buf, size_t n)
-{
-    const char *e = getenv("IMP72LLVMCC"), *path = getenv("PATH");
-    char name[24], cand[PATH_MAX];
-    int v;
-
-    if (e != NULL && *e != '\0')
-        return e;
-    if (path == NULL)
-        return NULL;
-    for (v = 40; v >= 11; v--) {
-        const char *p = path;
-
-        if (v == 40)
-            snprintf(name, sizeof name, "clang");
-        else
-            snprintf(name, sizeof name, "clang-%d", v);
-        while (*p != '\0') {
-            size_t len = strcspn(p, ":");
-
-            snprintf(cand, sizeof cand, "%.*s/%s", (int)len, p, name);
-            if (access(cand, X_OK) == 0) {
-                snprintf(buf, n, "%s", name);
-                return buf;
-            }
-            p += len;
-            if (*p == ':')
-                p++;
-        }
-    }
-    return NULL;
-}
-
 static int
 driver_main(int argc, char **argv)
 {
     char dir[PATH_MAX], root[PATH_MAX], tmp[PATH_MAX], ir[PATH_MAX + 8], cfile[PATH_MAX + 8],
         sfile[PATH_MAX + 8], ofile[PATH_MAX + 8], cmd[8 * PATH_MAX], base[PATH_MAX];
-    char syntax[PATH_MAX], ffi[PATH_MAX], cc1[PATH_MAX], ir2c[PATH_MAX], ir2ll[PATH_MAX], lib[PATH_MAX];
+    char syntax[PATH_MAX], ffi[PATH_MAX], cc1[PATH_MAX], ir2c[PATH_MAX], lib[PATH_MAX];
     const char *outname = NULL, *sw = NULL, *backend, *image = NULL, *bname = NULL;
     int jit = 0;
     int stop = 'x', cback = 0, interactive = 0, i = 1, rc = 0, nfiles, k;
@@ -369,13 +334,7 @@ driver_main(int argc, char **argv)
         snprintf(ir2c, sizeof ir2c, "%s/lib/imp72/ir2c", root);
         if (!exists(ir2c))
             snprintf(ir2c, sizeof ir2c, "%s/bin/ir2c", root);
-        snprintf(ir2ll, sizeof ir2ll, "%s/lib/imp72/ir2ll", root);
-        if (!exists(ir2ll))
-            snprintf(ir2ll, sizeof ir2ll, "%s/bin/ir2ll", root);
     } else {
-        snprintf(ir2ll, sizeof ir2ll, "%s/build/bin/ir2ll", root);
-        if (!exists(ir2ll))
-            snprintf(ir2ll, sizeof ir2ll, "%s/lib/imp72/ir2ll", root);
     snprintf(syntax, sizeof syntax, "%s/decus/syntax.imc", root);
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
@@ -394,7 +353,6 @@ driver_main(int argc, char **argv)
     override(ffi, sizeof ffi, "IMP72FFI");
     override(cc1, sizeof cc1, "CC1");
     override(ir2c, sizeof ir2c, "IR2C");
-    override(ir2ll, sizeof ir2ll, "IR2LL");
     override(lib, sizeof lib, "IMP72LIB");
     if (interactive) {                          /* the tape's driver: the syntax, the files named, then the commands from the terminal */
         kargv = calloc((size_t)(argc - i) + 10, sizeof *kargv);
@@ -427,14 +385,15 @@ driver_main(int argc, char **argv)
             kargv[k++] = argv[i];
         return kernel_main(k, kargv);
     }
-    /* the back end: --backend=NAME or IMP72BACKEND (llvm, c, pcc); else LLVM where there is a clang, else the C one, else pcc where cc1 was built */
-    {
-        char cl[64];
-
-        backend = envor("IMP72BACKEND", "");
-        if (*backend == '\0')
-            backend = findclang(cl, sizeof cl) != NULL && exists(ir2ll) ? "llvm" : exists(ir2c) ? "c" : exists(cc1) ? "pcc" : "c";
-    }
+    /* the back end: --backend=NAME or IMP72BACKEND (llvm, c, pcc); else LLVM, which is in the process (no file, no other program but the linker) where this compiler
+     * was built with the LLVM libraries, else the C one, else pcc where cc1 was built */
+    backend = envor("IMP72BACKEND", "");
+    if (*backend == '\0')
+#ifdef HAVE_LLVM
+        backend = "llvm";
+#else
+        backend = exists(ir2c) ? "c" : exists(cc1) ? "pcc" : "c";
+#endif
     if (bname != NULL)
         backend = bname;
     if (jit)
@@ -445,6 +404,12 @@ driver_main(int argc, char **argv)
         fprintf(stderr, "imp72: no back end %s (pcc, c or llvm)\n", backend);
         return 2;
     }
+#ifndef HAVE_LLVM
+    if (strcmp(backend, "llvm") == 0) {
+        fputs("imp72: this compiler was built without the LLVM libraries: --backend=c (or pcc)\n", stderr);
+        return 2;
+    }
+#endif
     if (imp_pccir && strcmp(backend, "pcc") == 0 && !exists(cc1)) {
         fprintf(stderr, "imp72: no pass 2 of pcc (%s): --backend=c or --backend=llvm\n", cc1);
         return 1;
@@ -520,7 +485,7 @@ driver_main(int argc, char **argv)
         goto done;
     }
 #ifdef HAVE_LLVM
-    if ((strcmp(backend, "llvm") == 0 || jit) && getenv("IMP72LLVMSPAWN") == NULL) {   /* LLVM in the process: no ir2ll and no clang */
+    if (strcmp(backend, "llvm") == 0 || jit) {      /* LLVM in the process */
         FILE *irf = fopen(ir, "r"), *mem;
         char *buf = NULL;
         size_t len = 0;
@@ -567,32 +532,6 @@ driver_main(int argc, char **argv)
         goto done;
     }
 #endif
-    if (strcmp(backend, "llvm") == 0) {
-        char llfile[PATH_MAX + 8];
-        char clbuf[64];
-        const char *llcc = findclang(clbuf, sizeof clbuf);
-
-        if (llcc == NULL) {
-            fputs("imp72: no clang for the LLVM back end (IMP72LLVMCC names one; or --backend=c)\n", stderr);
-            rc = 1;
-            goto done;
-        }
-
-        snprintf(llfile, sizeof llfile, "%s/p.ll", tmp);
-        snprintf(cmd, sizeof cmd, "%s%s < %s > %s", qs(ir2ll), sizeof(void *) == 4 ? " -p32" : "", qs(ir), qs(llfile));
-        if (run(cmd)) { rc = 1; goto done; }
-        if (stop == 'S') {
-            snprintf(cmd, sizeof cmd, "cp %s %s", qs(llfile), qs(outname ? outname : strcat(base, ".ll")));
-        } else if (stop == 'o') {
-            snprintf(cmd, sizeof cmd, "%s -c -O1 -w %s -o %s %s", llcc, envor("IMP_CFLAGS", ""),
-                qs(outname ? outname : strcat(base, ".o")), qs(llfile));
-        } else {
-            snprintf(cmd, sizeof cmd, "%s -c -O1 -w %s -o %s %s && cc -o %s %s %s", llcc, envor("IMP_CFLAGS", ""),
-                qs(ofile), qs(llfile), qs(outname ? outname : base), qs(ofile), qs(lib));
-        }
-        rc = run(cmd);
-        goto done;
-    }
     snprintf(cmd, sizeof cmd, "%s %s < %s > %s", qs(cc1), (getenv("IMP72CC1FLAGS") != NULL ? getenv("IMP72CC1FLAGS") : CC1OPT), qs(ir), qs(sfile));
     if (run(cmd)) { rc = 1; goto done; }
     if (stop == 'S')

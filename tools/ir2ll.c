@@ -1067,20 +1067,3 @@ ir2ll_run(FILE *in, FILE *out, int p32)
     fputs(body, outp);
     return 0;
 }
-
-#ifndef IR2LL_LIB
-int
-main(int argc, char **argv)
-{
-    int i, p32 = 0;
-
-    for (i = 1; i < argc; i++)
-        if (strcmp(argv[i], "-p32") == 0)
-            p32 = 1;
-        else {
-            fprintf(stderr, "usage: ir2ll [-p32] < pcc-ir > module.ll\n");
-            return 2;
-        }
-    return ir2ll_run(stdin, stdout, p32);
-}
-#endif

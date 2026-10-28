@@ -6,11 +6,11 @@ set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 cc1=${CC1:-$root/build/pcc/cc/ccom/cc1}
-# the back end is the driver's to choose (LLVM where there is a clang, else the C one; pcc only when asked for): IMP72BACKEND=llvm, c or pcc forces one
+# the back end is the driver's to choose (LLVM in the process where the seed was built with the LLVM libraries, else the C one; pcc only when asked for): IMP72BACKEND=llvm, c or pcc forces one
 case ${IMP72BACKEND:-} in
-"")   [ -x "$root/build/bin/ir2c" ] || { echo "pccir: no ir2c (make): skipped"; exit 77; } ;;
+"")   ldd "$root/stage0/imp72s0" 2>/dev/null | grep -qi llvm || [ -x "$root/build/bin/ir2c" ] || { echo "pccir: no LLVM and no ir2c (make): skipped"; exit 77; } ;;
 c)    [ -x "$root/build/bin/ir2c" ] || { echo "pccir: no ir2c (make): skipped"; exit 77; } ;;
-llvm) [ -x "$root/build/bin/ir2ll" ] || { echo "pccir: no ir2ll (make): skipped"; exit 77; } ;;
+llvm) ldd "$root/stage0/imp72s0" 2>/dev/null | grep -qi llvm || { echo "pccir: the seed was built without the LLVM libraries: skipped"; exit 77; } ;;
 pcc)  [ -x "$cc1" ] || { echo "pccir: no pass 2 of pcc: skipped"; exit 77; } ;;
 *)    echo "pccir: no back end $IMP72BACKEND (llvm, c, pcc)" >&2; exit 2 ;;
 esac

@@ -108,8 +108,7 @@ a name word (`CHR0(DNAME(N,0))`), it says so with those macros; a byte pointer n
 order and the build that made it.
 
 **Back ends.** The code generator writes pcc IR (lowered for amd64: the arguments of a call in rdi, rsi, ..., the result in rax)
-whatever the host, and three programs read it: `tools/ir2ll.c` (LLVM IR; clang makes the object; the default where there is a
-clang), `tools/ir2c.c` (C, for the host's cc) and pcc's pass 2. `--backend=NAME` or `IMP72BACKEND` chooses; `IMP72LLVMCC` names the
-clang. With the LLVM C API installed the compiler links `libLLVM` and does the `llvm` back end in the process (`llvm_object`, `llvm_run` in
+whatever the host, and three programs read it: `tools/ir2ll.c` (LLVM IR; the default where the compiler was built with the LLVM libraries),
+`tools/ir2c.c` (C, for the host's cc) and pcc's pass 2. `--backend=NAME` or `IMP72BACKEND` chooses. The compiler links `libLLVM` and does the `llvm` back end in the process, with no clang (`llvm_object`, `llvm_run` in
 `stage0/llvmorc.c`, `ir2ll_run`): `imp72 --run` compiles a program with ORC and calls its `imp_main`. The records that name the compiler's own variables for the image are a section `impvars` (`ir_varrec`), written by pcc as
 assembler and by the other two as data.

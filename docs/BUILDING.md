@@ -8,7 +8,7 @@ The seed (`stage0/`) is C99 with no dependencies beyond libc, and builds with an
 (`make CC=pcc`, `make CC=clang`; with pcc see `docs/porting/pcc-notes.md`). The compiler is built in three steps
 (`docs/BOOTSTRAP.md`): the seed compiles `src/` into stage 1, stage 1 compiles `src/` again into stage 2, and stage 2
 is installed as `bin/imp72` with `share/imp72/syntax64.imc` and `lib/imp72/libimp72.a`. The seed stays as
-`bin/imp72stage0`. The steps need a back end (clang for LLVM IR, or the host's C compiler for the C one, or pcc's pass 2), an ELF `objcopy` and a C compiler for
+`bin/imp72stage0`. The steps need a back end (LLVM, linked into the compilers, or the host's C compiler for the C one, or pcc's pass 2), an ELF `objcopy` and a C compiler for
 the assembler and the link; where one is missing `imp72` is the seed.
 
 Make variables: `CC`, `CFLAGS`, `LDFLAGS`, `DESTDIR`, `PREFIX`, and `WITH_PCC=yes|no` (no by default: build pcc's cc1 too, for `--backend=pcc`). The submodule `third_party/pcc` must be checked out (`git submodule update --init`).
@@ -28,15 +28,15 @@ run pcc's pass 2, assemble and link.
 The seed alone: `cd stage0 && make`, then `./imp72s0 -s TSX -o dump.txt ../decus/syntax.imc`, or
 `stage0/imp72stage0 -o prog prog.imp` (pcc, or `-C` for the C back end).
 
-LLVM in the process: where `llvm-config` and the LLVM C API headers are installed (`llvm-NN-dev`, `llvm-dev`), `tools/direct.sh` links
-`libLLVM` into the compilers it builds (`WITH_LLVM=no` leaves it out; `LLVM_CONFIG` names another `llvm-config`). Then the `llvm` back
-end makes the object with the host's target machine, with no `ir2ll` and no `clang` process (`IMP72LLVMSPAWN=1` brings them back), and
-`imp72 --run prog.imp` compiles the program with ORC (LLJIT) and runs it in the process, finding the runtime and the C library in the
-program itself.
+LLVM in the process: where `llvm-config` and the LLVM C API headers are installed (`llvm-NN-dev`, `llvm-dev`), `tools/llvm.sh` gives the flags
+and the seed (`stage0`) and the compilers `tools/direct.sh` builds link `libLLVM` (`WITH_LLVM=no` leaves it out; `LLVM_CONFIG` names another
+`llvm-config`). The `llvm` back end then makes the object with the host's target machine in the process: there is no clang, and no `ir2ll`
+program, in it. `imp72 --run prog.imp` compiles the program with ORC (LLJIT) and runs it in the process, finding the runtime and the C
+library in the program itself. The only program the `llvm` back end starts is the system's `cc`, to link an executable (`-c` and `-S` start none).
 
-Back ends: `--backend=llvm|c|pcc` on the `imp72` command, or `IMP72BACKEND`. The default is `llvm` where there is a `clang` (or
-`clang-NN`) on the path, else `c`; `IMP72LLVMCC` names another clang. `pcc` needs `make WITH_PCC=yes`. `tools/ir2ll.c` and
-`tools/ir2c.c` are built by `make`.
+Back ends: `--backend=llvm|c|pcc` on the `imp72` command, or `IMP72BACKEND`. The default is `llvm` where the compiler was built with the LLVM
+libraries, else `c` (`--backend=llvm` then says so). `pcc` needs `make WITH_PCC=yes`. `tools/ir2c.c` is built by `make`; `tools/ir2ll.c` is
+part of the compiler.
 
 Tests: `tests/native/run.sh` and `runc.sh` compile and run the programs of `tests/native/` (pcc and the C back end) and
 compare their output; `tests/oracle/run.sh` compares with what the original compiler printed (`docs/ORACLE.md`);

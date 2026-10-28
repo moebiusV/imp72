@@ -60,24 +60,19 @@ for m in $srcmodules; do
     repl="$repl stage0/$m.o"
 done
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
-# LLVM in the process (stage0/llvmorc.c, tools/ir2ll.c as a function) where the LLVM C API is installed: WITH_LLVM=no leaves it out
-llvmflags=; llvmlibs=; llvmobjs=
-if [ "${WITH_LLVM:-yes}" != no ]; then
-    lc=${LLVM_CONFIG:-$(command -v llvm-config 2>/dev/null || ls /usr/lib/llvm-*/bin/llvm-config /usr/lib/llvm*/bin/llvm-config 2>/dev/null | sort -V | tail -1)}
-    if [ -n "$lc" ] && [ -x "$lc" ] && [ -f "$($lc --includedir)/llvm-c/LLJIT.h" ]; then
-        llvmflags="-DHAVE_LLVM $($lc --cflags | sed 's/-std=[^ ]*//g; s/-W[^ ]*//g; s/-pedantic//g; s/-f[^ ]*//g; s/-O[0-9]//g; s/-g[ 0-9a-z]*//g')"
-        llvmlibs="$($lc --link-shared --libs 2>/dev/null || $lc --libs) -Wl,-rpath,$($lc --libdir) -L$($lc --libdir) -rdynamic"
-        cc -std=gnu99 -O1 -g -DIR2LL_LIB -c tools/ir2ll.c -o $out/ir2ll.o
-        grep -q LLVMOrcCreateNewThreadSafeContextFromLLVMContext "$($lc --includedir)/llvm-c/Orc.h" && llvmflags="$llvmflags -DHAVE_ORC_FROM_CONTEXT"
-        cc -std=gnu99 -O1 -g $llvmflags -c stage0/llvmorc.c -o $out/llvmorc.o
-        llvmobjs="$out/ir2ll.o $out/llvmorc.o"
-    fi
+# LLVM in the process (stage0/llvmorc.c, tools/ir2ll.c as a function) where the LLVM C API is installed (tools/llvm.sh; WITH_LLVM=no leaves it out)
+llvmflags=$(sh tools/llvm.sh cflags); llvmlibs=; llvmobjs=
+if [ -n "$llvmflags" ]; then
+    llvmlibs=$(sh tools/llvm.sh libs)
+    cc -std=gnu99 -O1 -g -DIR2LL_LIB -c tools/ir2ll.c -o $out/ir2ll.o
+    cc -std=gnu99 -O1 -g $llvmflags -c stage0/llvmorc.c -o $out/llvmorc.o
+    llvmobjs="$out/ir2ll.o $out/llvmorc.o"
 fi
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 $llvmflags -DIMP_IMPK -c stage0/imp72s0.c -o $out/imp72s0.o
 objs="$objs $out/pccirsem.o"
 keep=
 for o in stage0/*.o; do
-    case $o in stage0/imp72s0.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
+    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
     skip=0
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"

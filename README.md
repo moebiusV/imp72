@@ -22,7 +22,7 @@ adding such statements.
 64-bit IMP in `src/` (the tape itself is kept untouched in `decus/`). It
 compiles IMP to pcc's intermediate representation, which a back end turns
 into machine code: LLVM IR (the default; in the compiler's own process through
-the LLVM C API where it is installed, else through clang), C for any C compiler, or
+the LLVM C API: there is no clang in it, and it is built where the LLVM libraries are installed), C for any C compiler, or
 pcc's pass 2 where pcc is built (`make WITH_PCC=yes`, `--backend=pcc`).
 `imp72 --run prog.imp` compiles a program with ORC and runs it in the process.
 The compiler builds and compiles itself on little- and big-endian hosts, 32 and 64 bit
