@@ -13,7 +13,7 @@ if [ -z "$OBJCOPY" ]; then
 fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
-modules=${MODULES:-impsem code code2 code3 demit}
+modules=${MODULES:-impsem code code2 code3 demit ix}
 srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex impm}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
@@ -78,7 +78,7 @@ cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 $llvmflags -DIMP_IM
 objs="$objs $out/pccirsem.o $out/image.o"
 keep=
 for o in stage0/*.o; do
-    case $o in stage0/imp72s0.o|stage0/error.o|stage0/pr.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
+    case $o in stage0/imp72s0.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
     skip=0
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"

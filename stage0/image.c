@@ -25,10 +25,10 @@ extern struct impvar __stop_impvars[] __attribute__((weak));
 
 extern void *imp_core_info(size_t *usable);
 extern int imp_core_at(void *base, size_t nbytes);
-extern void ir_symreset(void);
+extern word symc, nsymc;                         /* src/pccir/ix.imp's cache of the assembler names, by directory index */
 
 #define MAGIC "IMP72IMG"
-#define VERSION 2
+#define VERSION 3
 
 struct imghdr {
     char magic[8];
@@ -78,7 +78,8 @@ writable(const struct impvar *v)
 static int
 skipped(const char *name)                           /* not kept in the image */
 {
-    return strncmp(name, "impm:", 5) == 0 || strcmp(name, "lex:srcfp") == 0 || strcmp(name, "free:relp") == 0;
+    return strncmp(name, "impm:", 5) == 0 || strncmp(name, "ix:", 3) == 0 || strcmp(name, "demit:usedfs") == 0 || strcmp(name, "lex:srcfp") == 0
+        || strcmp(name, "free:relp") == 0;
 }
 
 static void
@@ -321,7 +322,8 @@ impimgload(const char *path)
     arena = (unsigned char *)(uintptr_t)h.base;
     if (fread(arena, 1, (size_t)h.used, f) != (size_t)h.used)
         goto bad;
-    ir_symreset();
+    if (symc != 0)                                   /* the directory is another: the names are made again */
+        memset((void *)(uintptr_t)symc, 0, (size_t)nsymc * 8);
     {
         uint64_t n, k;
         char **names;

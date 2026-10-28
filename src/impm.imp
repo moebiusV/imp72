@@ -8,7 +8,7 @@ FREL,FLST,GREL,GLST ARE 2 LONG;
 BF IS 18 LONG;                                    # 17 WORDS OF THE ORIGINAL, OF 8 CHARACTERS: 136 COLUMNS, AND A WORD FOR THE % AND THE END #
 RPGM IS 4 LONG;
 NMB IS 6 LONG;
-LISTING,QUIET ARE COMMON;                         # THE LISTING (A FILE) OR 0, AND THE DRIVER'S WISH FOR NO CHATTER: THE C THAT REMAINS SETS AND READS THEM (SRC/SHARED.TXT) #
+LISTING,QUIET,IRF ARE COMMON;                         # THE LISTING (A FILE) OR 0, AND THE DRIVER'S WISH FOR NO CHATTER: THE C THAT REMAINS SETS AND READS THEM (SRC/SHARED.TXT) #
 ARGVP IS 1 LONG;                                   # THE COMMAND LINE: THE ARRAY OF POINTERS TO ITS WORDS #
 CB IS 2 LONG;
 
@@ -35,7 +35,7 @@ SUBR IMPK(NARGS,AV) IS (
                                                                           ARGI_ARGI+2; GO TO OPT);
                                       CCALL STRCMP(ARGP,LOC('-c'))=0 => (IMPOPENIR(ARGJ)<0 => RETURN 1;
                                                                           ARGI_ARGI+2; GO TO OPT);
-                                      CCALL STRCMP(ARGP,LOC('-T'))=0 => (CCALL IXSETTARGET(ARGJ)=0 =>
+                                      CCALL STRCMP(ARGP,LOC('-T'))=0 => (IXSETTARGET(ARGJ)=0 =>
                                                                             (OUTSTR('imp72: no target '); OUTCS(ARGJ); OUTCHR(12B); RETURN 2);
                                                                           ARGI_ARGI+2; GO TO OPT));
                      RETURN USAGE(0)));
@@ -195,12 +195,13 @@ SUBR IMPCLOSELIST(Z) IS (
  LISTING_0;
  0);
 
-# THE FILE OF PCC IR: - IS THE STANDARD OUTPUT (A FILE OF 0 TO TRANSOPEN) #
+# THE FILE OF PCC IR: - IS THE STANDARD OUTPUT #
 SUBR IMPOPENIR(P) IS (
  FF ARE LOCAL;
  FF_0;
- CCALL STRCMP(P,LOC('-')) NE 0 => (FF_CCALL FOPEN(P,LOC('w')); FF=0 => (CCALL PERROR(P); RETURN 0-1));
- CCALL TRANSOPEN(FF);
+ CCALL STRCMP(P,LOC('-'))=0 => FF_CCALL FDOPEN(1,LOC('w')) ELSE FF_CCALL FOPEN(P,LOC('w'));
+ FF=0 => (CCALL PERROR(P); RETURN 0-1);
+ IRF_FF;
  0);
 
 # WHERE THE PRINT STATEMENTS OF THE MODULES GO: THE LISTING, OR THE STANDARD OUTPUT IF THERE IS NONE (0) #

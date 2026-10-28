@@ -51,3 +51,5 @@ regn
 const
 listing
 quiet
+symc
+nsymc
