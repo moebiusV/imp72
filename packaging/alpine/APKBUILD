@@ -14,7 +14,7 @@ license="ISC AND BSD-2-Clause AND BSD-3-Clause"
 depends="clang gcc musl-dev"
 # binutils: objcopy, used by the stage 1 test; python3 runs the manual and glue checks
 checkdepends="binutils python3"
-makedepends=""
+makedepends="llvm-dev"
 subpackages="$pkgname-doc"
 # The compiler uses pcc's pass 2 compiler (cc1), built from this pcc revision
 # (the submodule third_party/pcc of the release, which GitHub's tarball leaves

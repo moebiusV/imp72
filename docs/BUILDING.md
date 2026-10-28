@@ -28,6 +28,12 @@ run pcc's pass 2, assemble and link.
 The seed alone: `cd stage0 && make`, then `./imp72s0 -s TSX -o dump.txt ../decus/syntax.imc`, or
 `stage0/imp72stage0 -o prog prog.imp` (pcc, or `-C` for the C back end).
 
+LLVM in the process: where `llvm-config` and the LLVM C API headers are installed (`llvm-NN-dev`, `llvm-dev`), `tools/direct.sh` links
+`libLLVM` into the compilers it builds (`WITH_LLVM=no` leaves it out; `LLVM_CONFIG` names another `llvm-config`). Then the `llvm` back
+end makes the object with the host's target machine, with no `ir2ll` and no `clang` process (`IMP72LLVMSPAWN=1` brings them back), and
+`imp72 --run prog.imp` compiles the program with ORC (LLJIT) and runs it in the process, finding the runtime and the C library in the
+program itself.
+
 Back ends: `--backend=llvm|c|pcc` on the `imp72` command, or `IMP72BACKEND`. The default is `llvm` where there is a `clang` (or
 `clang-NN`) on the path, else `c`; `IMP72LLVMCC` names another clang. `pcc` needs `make WITH_PCC=yes`. `tools/ir2ll.c` and
 `tools/ir2c.c` are built by `make`.

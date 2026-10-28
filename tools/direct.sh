@@ -62,7 +62,19 @@ done
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/sys.c -o $out/sys.o
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/image.c -o $out/image.o
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -DIMP_IMPK -c stage0/imp72s0.c -o $out/imp72s0.o
+# LLVM in the process (stage0/llvmorc.c, tools/ir2ll.c as a function) where the LLVM C API is installed: WITH_LLVM=no leaves it out
+llvmflags=; llvmlibs=; llvmobjs=
+if [ "${WITH_LLVM:-yes}" != no ]; then
+    lc=${LLVM_CONFIG:-$(command -v llvm-config 2>/dev/null || ls /usr/lib/llvm-*/bin/llvm-config /usr/lib/llvm*/bin/llvm-config 2>/dev/null | sort -V | tail -1)}
+    if [ -n "$lc" ] && [ -x "$lc" ] && [ -f "$($lc --includedir)/llvm-c/LLJIT.h" ]; then
+        llvmflags="-DHAVE_LLVM $($lc --cflags | sed 's/-std=[^ ]*//g; s/-W[^ ]*//g; s/-pedantic//g; s/-f[^ ]*//g; s/-O[0-9]//g; s/-g[ 0-9a-z]*//g')"
+        llvmlibs="$($lc --link-shared --libs 2>/dev/null || $lc --libs) -Wl,-rpath,$($lc --libdir) -L$($lc --libdir) -rdynamic"
+        cc -std=gnu99 -O1 -g -DIR2LL_LIB -c tools/ir2ll.c -o $out/ir2ll.o
+        cc -std=gnu99 -O1 -g $llvmflags -c stage0/llvmorc.c -o $out/llvmorc.o
+        llvmobjs="$out/ir2ll.o $out/llvmorc.o"
+    fi
+fi
+cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 $llvmflags -DIMP_IMPK -c stage0/imp72s0.c -o $out/imp72s0.o
 objs="$objs $out/pccirsem.o $out/sys.o $out/image.o"
 keep=
 for o in stage0/*.o; do
@@ -71,6 +83,6 @@ for o in stage0/*.o; do
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-cc -no-pie -o $out/imp72d $out/imp72s0.o $keep $objs ${DIRECT_LIB:-build/lib/libimp72.a}
+cc -no-pie -o $out/imp72d $out/imp72s0.o $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
 ln -sf imp72d $out/imp72stage-pccir
 echo "built $out/imp72d with the code generator of src/pccir: $modules; the compiler's own: $srcmodules"

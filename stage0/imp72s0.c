@@ -42,6 +42,11 @@
 #include "imp.h"
 #include "ir.h"
 
+#ifdef HAVE_LLVM
+extern int ir2ll_run(FILE *in, FILE *out, int p32);                 /* tools/ir2ll.c */
+extern int llvm_object(const char *ir, size_t n, const char *path);  /* stage0/llvmorc.c: the LLVM back end in the process */
+extern int llvm_run(const char *ir, size_t n, const char *entry, long *result);
+#endif
 extern const int imp_pccir;                     /* 1 in the compiler with the code generator of src/pccir (pccirsem.c), 0 in flavour0.c */
 extern int impk_main(int, char **);
 
@@ -288,6 +293,7 @@ driver_main(int argc, char **argv)
         sfile[PATH_MAX + 8], ofile[PATH_MAX + 8], cmd[8 * PATH_MAX], base[PATH_MAX];
     char syntax[PATH_MAX], ffi[PATH_MAX], cc1[PATH_MAX], ir2c[PATH_MAX], ir2ll[PATH_MAX], lib[PATH_MAX];
     const char *outname = NULL, *sw = NULL, *backend, *image = NULL, *bname = NULL;
+    int jit = 0;
     int stop = 'x', cback = 0, interactive = 0, i = 1, rc = 0, nfiles, k;
     char **kargv;
     size_t blen;
@@ -309,12 +315,20 @@ driver_main(int argc, char **argv)
             image = argv[++i];
         else if (strncmp(argv[i], "--backend=", 10) == 0)
             bname = argv[i] + 10;
+        else if (strcmp(argv[i], "--run") == 0)
+            jit = 1;
         else {
             fprintf(stderr, "imp72stage0: unknown option %s\n", argv[i]);
             return 2;
         }
         i++;
     }
+#ifndef HAVE_LLVM
+    if (jit) {
+        fputs("imp72: --run needs the LLVM libraries (this compiler was built without them)\n", stderr);
+        return 2;
+    }
+#endif
     if (i >= argc && !interactive) {
         fputs("usage: imp72stage0 [-C] [-S | -c] [-o OUT] [-s LETTERS] FILE.imp ...\n"
               "       imp72 -i [-s LETTERS] [FILE.imp ...]     the commands of the original, from the terminal\n", stderr);
@@ -418,6 +432,8 @@ driver_main(int argc, char **argv)
     }
     if (bname != NULL)
         backend = bname;
+    if (jit)
+        backend = "llvm";
     if (cback)
         backend = "c";
     if (strcmp(backend, "pcc") != 0 && strcmp(backend, "c") != 0 && strcmp(backend, "llvm") != 0) {
@@ -498,6 +514,54 @@ driver_main(int argc, char **argv)
         rc = run(cmd);
         goto done;
     }
+#ifdef HAVE_LLVM
+    if ((strcmp(backend, "llvm") == 0 || jit) && getenv("IMP72LLVMSPAWN") == NULL) {   /* LLVM in the process: no ir2ll and no clang */
+        FILE *irf = fopen(ir, "r"), *mem;
+        char *buf = NULL;
+        size_t len = 0;
+
+        if (irf == NULL || (mem = open_memstream(&buf, &len)) == NULL) {
+            perror(ir);
+            rc = 1;
+            goto done;
+        }
+        if (ir2ll_run(irf, mem, (int)(sizeof(void *) == 4)) != 0) {
+            rc = 1;
+            goto done;
+        }
+        fclose(mem);
+        fclose(irf);
+        if (jit) {                                  /* compile and run: the main program is imp_main */
+            long r = 0;
+
+            if (llvm_run(buf, len, "imp_main", &r) != 0) {
+                rc = 1;
+                goto done;
+            }
+            fflush(NULL);
+            rc = 0;
+            goto done;
+        }
+        if (stop == 'S') {
+            FILE *o = fopen(outname ? outname : strcat(base, ".ll"), "w");
+
+            if (o == NULL || fwrite(buf, 1, len, o) != len || fclose(o) != 0) {
+                rc = 1;
+                goto done;
+            }
+            goto done;
+        }
+        if (llvm_object(buf, len, stop == 'o' ? (outname ? outname : strcat(base, ".o")) : ofile) != 0) {
+            rc = 1;
+            goto done;
+        }
+        if (stop != 'o') {
+            snprintf(cmd, sizeof cmd, "cc -o %s %s %s", qs(outname ? outname : base), qs(ofile), qs(lib));
+            rc = run(cmd);
+        }
+        goto done;
+    }
+#endif
     if (strcmp(backend, "llvm") == 0) {
         char llfile[PATH_MAX + 8];
         char clbuf[64];

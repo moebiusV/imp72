@@ -1,0 +1,140 @@
+/*
+ * llvmorc.c -- the LLVM back end in the process: the module of LLVM IR that ir2ll_run (tools/ir2ll.c) writes becomes an object file with the
+ * target machine of the host, or is compiled by ORC (LLJIT) and run, without a clang or a file in between.  Built when the LLVM C API is there
+ * (-DHAVE_LLVM; tools/direct.sh looks for llvm-config).  The runtime library and the C library are found in the program itself, which is linked
+ * with -rdynamic for the purpose.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <llvm-c/Core.h>
+#include <llvm-c/Error.h>
+#include <llvm-c/IRReader.h>
+#include <llvm-c/LLJIT.h>
+#include <llvm-c/Orc.h>
+#include <llvm-c/Target.h>
+#include <llvm-c/TargetMachine.h>
+#include <llvm-c/Transforms/PassBuilder.h>
+
+static int ninit;
+
+static int
+init(void)
+{
+    if (ninit)
+        return 0;
+    if (LLVMInitializeNativeTarget() || LLVMInitializeNativeAsmPrinter() || LLVMInitializeNativeAsmParser()) {
+        fputs("imp72: LLVM has no code generator for this machine\n", stderr);
+        return 1;
+    }
+    ninit = 1;
+    return 0;
+}
+
+static int
+error(const char *what, LLVMErrorRef e)
+{
+    char *m = LLVMGetErrorMessage(e);
+
+    fprintf(stderr, "imp72: LLVM: %s: %s\n", what, m);
+    LLVMDisposeErrorMessage(m);
+    return 1;
+}
+
+/* the module of the text ir (n bytes) in context ctx */
+static LLVMModuleRef
+parse(LLVMContextRef ctx, const char *ir, size_t n)
+{
+    LLVMMemoryBufferRef mb = LLVMCreateMemoryBufferWithMemoryRangeCopy(ir, n, "module");
+    LLVMModuleRef m = NULL;
+    char *msg = NULL;
+
+    if (LLVMParseIRInContext(ctx, mb, &m, &msg)) {                  /* (the buffer is consumed) */
+        fprintf(stderr, "imp72: LLVM: the module does not parse: %s\n", msg != NULL ? msg : "");
+        LLVMDisposeMessage(msg);
+        return NULL;
+    }
+    return m;
+}
+
+/* the module m for the host, optimised, as an object file */
+int
+llvm_object(const char *ir, size_t n, const char *path)
+{
+    LLVMContextRef ctx;
+    LLVMModuleRef m;
+    LLVMTargetRef tgt;
+    LLVMTargetMachineRef tm;
+    LLVMTargetDataRef dl;
+    LLVMPassBuilderOptionsRef pbo;
+    LLVMErrorRef e;
+    char *triple, *cpu, *feat, *msg = NULL;
+    int rc = 1;
+
+    if (init())
+        return 1;
+    ctx = LLVMContextCreate();
+    if ((m = parse(ctx, ir, n)) == NULL)
+        goto done;
+    triple = LLVMGetDefaultTargetTriple();
+    cpu = LLVMGetHostCPUName();
+    feat = LLVMGetHostCPUFeatures();
+    if (LLVMGetTargetFromTriple(triple, &tgt, &msg)) {
+        fprintf(stderr, "imp72: LLVM: %s\n", msg);
+        LLVMDisposeMessage(msg);
+        goto done;
+    }
+    tm = LLVMCreateTargetMachine(tgt, triple, cpu, feat, LLVMCodeGenLevelDefault, LLVMRelocPIC, LLVMCodeModelDefault);
+    LLVMSetTarget(m, triple);
+    dl = LLVMCreateTargetDataLayout(tm);
+    LLVMSetModuleDataLayout(m, dl);
+    pbo = LLVMCreatePassBuilderOptions();
+    if ((e = LLVMRunPasses(m, "default<O1>", tm, pbo)) != NULL) {
+        error("the optimiser", e);
+        goto done;
+    }
+    LLVMDisposePassBuilderOptions(pbo);
+    if (LLVMTargetMachineEmitToFile(tm, m, (char *)path, LLVMObjectFile, &msg)) {
+        fprintf(stderr, "imp72: LLVM: %s: %s\n", path, msg);
+        LLVMDisposeMessage(msg);
+        goto done;
+    }
+    rc = 0;
+done:
+    return rc;
+}
+
+/* the module compiled by ORC and its function entry (no arguments) called; the result of the call in *result */
+int
+llvm_run(const char *ir, size_t n, const char *entry, long *result)
+{
+    LLVMOrcLLJITRef jit;
+    LLVMOrcJITDylibRef jd;
+    LLVMOrcDefinitionGeneratorRef gen;
+    LLVMOrcThreadSafeContextRef tsc;
+    LLVMOrcThreadSafeModuleRef tsm;
+    LLVMOrcExecutorAddress addr;
+    LLVMModuleRef m;
+    LLVMErrorRef e;
+
+    if (init())
+        return 1;
+    if ((e = LLVMOrcCreateLLJIT(&jit, NULL)) != NULL)
+        return error("the JIT", e);
+    jd = LLVMOrcLLJITGetMainJITDylib(jit);
+    if ((e = LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&gen, LLVMOrcLLJITGetGlobalPrefix(jit), NULL, NULL)) != NULL)
+        return error("the symbols of the program", e);
+    LLVMOrcJITDylibAddGenerator(jd, gen);
+    tsc = LLVMOrcCreateNewThreadSafeContext();
+    if ((m = parse(LLVMOrcThreadSafeContextGetContext(tsc), ir, n)) == NULL)
+        return 1;
+    tsm = LLVMOrcCreateNewThreadSafeModule(m, tsc);
+    LLVMOrcDisposeThreadSafeContext(tsc);
+    if ((e = LLVMOrcLLJITAddLLVMIRModule(jit, jd, tsm)) != NULL)
+        return error("adding the module", e);
+    if ((e = LLVMOrcLLJITLookup(jit, &addr, entry)) != NULL)
+        return error(entry, e);
+    *result = ((long (*)(void))(size_t)addr)();
+    return 0;
+}

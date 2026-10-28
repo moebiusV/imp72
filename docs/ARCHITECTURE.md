@@ -34,7 +34,9 @@ IMP72 is a small kernel plus a language defined in data. This page is the map; t
   `tools/ir2ll.c` turns the IR into a module of LLVM IR and clang makes the object, for every target LLVM has, big-endian ones
   included. `c`: `tools/ir2c.c` turns it into C for the host's cc. `pcc`: `cc1`, pcc's pass 2, built from the `moebiusv/pcc`
   fork with `make WITH_PCC=yes`, for amd64, aarch64 and i386. All three read the same IR (as lowered for amd64: the arguments
-  of a call in registers, the result in rax), so the compiler's output does not depend on the back end or on the host.
+  of a call in registers, the result in rax), so the compiler's output does not depend on the back end or on the host. Where the LLVM
+  libraries are installed the `llvm` back end runs in the compiler's own process (`stage0/llvmorc.c`: the module is parsed, optimised
+  and emitted by the C API, or compiled by ORC and run: `imp72 --run`).
 - **Runtime** (`lib/`): `PRINT` and `READ` with their formats, `FINI`, the C entry `main`, the library routines the
   generated code calls (`imp_lsh`, `imp_xct`, `imp_calli`, ...) and the FFI of `lib/ffi.imc`.
 
