@@ -25,16 +25,15 @@ extern struct impvar __stop_impvars[] __attribute__((weak));
 
 extern void *imp_core_info(size_t *usable);
 extern int imp_core_at(void *base, size_t nbytes);
-extern int ir_cval_get(word *out, int max);
-extern void ir_cval_set(const word *in, int n);
+extern void ir_symreset(void);
 
 #define MAGIC "IMP72IMG"
-#define VERSION 1
+#define VERSION 2
 
 struct imghdr {
     char magic[8];
     uint32_t version, ptrsize;
-    uint64_t build, base, used, nvars, ncval, nreloc;
+    uint64_t build, base, used, nvars, nreloc;
 };
 
 static struct impvar *vars;                         /* every variable once, with its biggest size */
@@ -190,7 +189,6 @@ impimgsave(const char *path)
     void *base = imp_core_info(&usable);
     uint64_t nreloc;
     unsigned char *relp;
-    word cv[64];
     FILE *f;
 
     if (__start_impvars == NULL || __start_impvars == __stop_impvars || base == NULL) {
@@ -213,7 +211,6 @@ impimgsave(const char *path)
     for (i = 0; i < nvars; i++)
         if (!skipped(vars[i].name))
             h.nvars++;
-    h.ncval = (uint64_t)ir_cval_get(cv, 64);
     h.nreloc = nreloc;
     if ((f = fopen(path, "wb")) == NULL) {
         perror(path);
@@ -231,7 +228,6 @@ impimgsave(const char *path)
             fwrite(vars[i].addr, 1, vars[i].size, f);
         }
     fwrite(base, 1, used, f);
-    fwrite(cv, sizeof cv[0], h.ncval, f);
     {                                               /* the routines in the order of their ids, which the tables carry */
         uint64_t n = (uint64_t)dsem_count();
         uint64_t k;
@@ -279,7 +275,6 @@ impimgload(const char *path)
     FILE *f;
     size_t i;
     unsigned char *arena, *relp;
-    word cv[64];
 
     if (__start_impvars == NULL || __start_impvars == __stop_impvars) {
         fputs("imp72: this compiler cannot load an image\n", stderr);
@@ -326,9 +321,7 @@ impimgload(const char *path)
     arena = (unsigned char *)(uintptr_t)h.base;
     if (fread(arena, 1, (size_t)h.used, f) != (size_t)h.used)
         goto bad;
-    if (fread(cv, sizeof cv[0], (size_t)h.ncval, f) != (size_t)h.ncval)
-        goto bad;
-    ir_cval_set(cv, (int)h.ncval);
+    ir_symreset();
     {
         uint64_t n, k;
         char **names;

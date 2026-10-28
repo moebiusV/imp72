@@ -46,96 +46,16 @@ word enlist(word s) { return impl_enlist(&s); }
 word getlist(word s) { return impl_getlist(&s); }
 word impsem_narr(void) { word z = 0; impl_iinit(&z); return narr; }
 
-/* LETSYN(S): `LET X = Y` (see impsem.c) */
-word
-letsyn(word s)
+/* STRTOD for FCON (src/pccir/impsem.imp): the double of the text s, as its bits in *out (a call cannot carry a double, nor on a 32 bit machine a 64 bit word) */
+void
+impstrtod(const char *s, int64_t *out)
 {
-    word max = FREE(s + 1), j, k;
+    double v = strtod(s, NULL);
+    int64_t bits;
 
-    synt(enstack(dir("VBL")), 0);
-    sytrm(enstack(-FREE(max)));
-    syntax(1);
-    for (j = max; (k = FREE(j + 1)) != 0; j++)
-        FREES(j, k);
-    FREES(j, 0);
-    equose(s);
-    newlist(0);
-    semantics();
-    return enstack(0);
-}
-
-/* CVAL(A): the name A is a C function that takes its arguments by value */
-static word cvalnames[64];
-static int ncval;
-
-word
-ccall_mark(word a)
-{
-    word d = HL(FREE(a));
-    int i;
-
-    for (i = 0; i < ncval; i++)
-        if (cvalnames[i] == d)
-            return a;
-    if (ncval < 64)
-        cvalnames[ncval++] = d;
-    return a;
-}
-
-int
-is_cval(word d)
-{
-    int i;
-
-    for (i = 0; i < ncval; i++)
-        if (cvalnames[i] == d)
-            return 1;
-    return 0;
-}
-
-/* FCON(A,B,E): the floating constant A.B"E: the nearest IEEE 754 double; its bits are the word (no encoding here) */
-word
-fcon(word a, word b, word e)
-{
-    char ai[64], bi[64], txt[160];
-    const char *p;
-    int ex = 0;
-    double v;
-    word bits;
-
-    dname_str(HL(FREE(a)), ai, sizeof ai);
-    dname_str(HL(FREE(b)), bi, sizeof bi);
-    for (p = ai; *p; p++)
-        if (*p < '0' || *p > '9')
-            goto bad;
-    for (p = bi; *p; p++)
-        if (*p < '0' || *p > '9')
-            goto bad;
-    if (e) {
-        if ((FREE(e) & 077) != 4)
-            goto bad;
-        ex = (int)FREE(e + 1);
-        if (ex > 308 || ex < -330) {
-            imp_error(1, "EXPONENT OUT OF RANGE.");
-            ex = 0;
-        }
-    }
-    snprintf(txt, sizeof txt, "%s.%se%d", ai[0] ? ai : "0", bi[0] ? bi : "0", ex);
-    v = strtod(txt, NULL);
-    goto done;
-bad:
-    imp_error(1, "ILLEGAL CHARACTER IN FLOATING CONSTANT.");
-    v = 0;
-done:
     memcpy(&bits, &v, sizeof bits);
-    FREES(a, 0204);
-    FREES(a + 1, bits);
-    return a;
+    *out = bits;
 }
-
-static word w_letsyn(const word *p) { return letsyn(p[0]); }
-static word w_cval(const word *p) { return ccall_mark(p[0]); }
-static word w_fcon(const word *p) { return fcon(p[0], p[1], p[2]); }
 
 /* ---- what the IMP code calls by value (CCALL) ---------------------------------------------------------------------------------- */
 
@@ -299,7 +219,6 @@ irfnkind(long v)
     return strcmp(nm, "prn_2e") == 0 ? 1 : strcmp(nm, "red_2e") == 0 ? 2 : 0;
 }
 
-long ircval(long v) { return is_cval(v); }
 long irvarrec(const char *sym, long size) { ir_varrec(sym, size); return 0; }
 
 /* a routine of the runtime library, which returns a C long, not a long */
@@ -430,34 +349,12 @@ pcode(word a)
     }
 }
 
-/* the semantic routines that stay C (the registration of the others is the tape's: IMPSEM, CODEI) */
-long
-csems(long z)
+/* the cache of assembler names is made again after an image is loaded (the directory is another) */
+void
+ir_symreset(void)
 {
-    (void)z;
-    dsem("ERROR", NULL);
-    dsem("LETSYN", w_letsyn);
-    dsem("CVAL", w_cval);
-    dsem("FCON", w_fcon);
-}
+    long i;
 
-/* the state of this file that the image keeps: the names called with values; the cache of assembler names is made again */
-int ir_cval_get(word *out, int max)
-{
-    int i;
-
-    for (i = 0; i < ncval && i < max; i++)
-        out[i] = cvalnames[i];
-    return ncval;
-}
-
-void ir_cval_set(const word *in, int n)
-{
-    int i;
-
-    for (i = 0; i < n && i < 64; i++)
-        cvalnames[i] = in[i];
-    ncval = n < 64 ? n : 64;
     for (i = 0; i < nsymcache; i++)
         free(symcache[i]);
     free(symcache);
