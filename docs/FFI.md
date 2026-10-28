@@ -21,6 +21,11 @@ the C registers (up to six) and returns its `long` result. `LOC(X)` is the
 address of X, to pass pointers. The `%al` count for variadic functions is set
 to zero. A plain `NAME(A, B)` call remains by reference.
 
+What a function returns: an IMP routine returns a word (`int64_t`; on a 32-bit host the word is a `long long`), so a C caller declares it
+`int64_t`, never `long`. A C function called with `CCALL` is assumed to return a `long`, the integer of a pointer's size: a pointer or a
+`long` comes back right, an `int` may have undefined upper bits on a 64-bit host and a `double` is not in the integer register, so call
+those through a small C function that returns a `long` (a real passes as its bits, `imp_double_to_real`).
+
 Examples that run in the suite (`tests/native/ffi2.imp`): `CCALL STRLEN(P)` with a pointer
 from C, `CCALL QSORT(LOC(ARR),N,8,LOC(CMP))` with an IMP `SUBR` as the comparison (its parameters
 are pointers to the elements, which is what `qsort` passes), `CCALL PRINTF(LOC('...'),A,B)` with a
