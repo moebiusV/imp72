@@ -19,7 +19,7 @@ const int imp_pccir = 1;                /* the compiler with this code generator
 
 /* the IMP routines, by reference */
 /* the IMP routines (src/pccir/*.imp, symbols renamed impl_NAME): they take their arguments by reference; the table of semantic routines calls them with
- * pointers into the parameters (dsemi) */
+ * pointers into the parameters */
 #define RT(n) extern word impl_##n();
 RT(impsem) RT(codei) RT(addop) RT(addr) RT(anycode) RT(areg) RT(areg1) RT(assemc) RT(bytep) RT(callme) 
 RT(cjump) RT(conop) RT(coppy) RT(copyco) RT(datast) RT(decl) RT(declare) RT(demit) 

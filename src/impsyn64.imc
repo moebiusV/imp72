@@ -9,7 +9,6 @@
  <ATOM> ::= FADD(<A>,<B>,<C>) ::= "FLEN(A) LE B=>FADDEX(A,B);
                                    FREES(A+B,C);
                                    B_B+1; A";
- <ATOM> ::= DSEM(<A>,<B>)         ::= "CCALL DSEMI(LOC(A),LOC(B))";    # THE TABLE OF SEMANTIC ROUTINES IS A TABLE OF ADDRESSES (STAGE0/SEMTAB.C) #
 
  # THE HALVES OF A WORD ARE 32 BITS. #
  <ATOM> ::= HSH   ::= "32";                 # THE WIDTH OF A HALF #

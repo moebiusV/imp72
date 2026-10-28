@@ -28,7 +28,7 @@ extern int imp_core_at(void *base, size_t nbytes);
 extern word symc, nsymc;                         /* src/pccir/ix.imp's cache of the assembler names, by directory index */
 
 #define MAGIC "IMP72IMG"
-#define VERSION 3
+#define VERSION 4
 
 struct imghdr {
     char magic[8];
@@ -78,7 +78,8 @@ writable(const struct impvar *v)
 static int
 skipped(const char *name)                           /* not kept in the image */
 {
-    return strncmp(name, "impm:", 5) == 0 || strncmp(name, "ix:", 3) == 0 || strcmp(name, "demit:usedfs") == 0 || strcmp(name, "lex:srcfp") == 0
+    return strncmp(name, "impm:", 5) == 0 || strncmp(name, "ix:", 3) == 0 || strcmp(name, "demit:usedfs") == 0
+        || strcmp(name, "dir:rtn") == 0 || strcmp(name, "dir:nrtn") == 0 || strcmp(name, "dir:crtn") == 0 || strcmp(name, "lex:srcfp") == 0
         || strcmp(name, "free:relp") == 0;
 }
 
@@ -103,6 +104,17 @@ collect(void)
         if (i == nvars)
             vars[nvars++] = *r;
     }
+}
+
+static word zero_;
+extern word impl_semcount(word *), impl_semname(word *), impl_semremap(word *, word *);       /* src/dir.imp's table of the semantic routines */
+
+static const char *
+semname(word k)
+{
+    word kk = k;
+
+    return (const char *)(uintptr_t)impl_semname(&kk);
 }
 
 static struct impvar *
@@ -178,9 +190,6 @@ owner(uintptr_t a, uintptr_t *off)
     return NULL;
 }
 
-extern word dsem_count(void);
-extern const char *dsem_name(word i);
-extern int dsem_remap(char **names, word n);
 
 long
 impimgsave(const char *path)
@@ -230,15 +239,15 @@ impimgsave(const char *path)
         }
     fwrite(base, 1, used, f);
     {                                               /* the routines in the order of their ids, which the tables carry */
-        uint64_t n = (uint64_t)dsem_count();
+        uint64_t n = (uint64_t)impl_semcount(&zero_);
         uint64_t k;
 
         fwrite(&n, sizeof n, 1, f);
         for (k = 0; k < n; k++) {
-            uint32_t len = (uint32_t)strlen(dsem_name((word)k)) + 1;
+            uint32_t len = (uint32_t)strlen(semname((word)k)) + 1;
 
             fwrite(&len, sizeof len, 1, f);
-            fwrite(dsem_name((word)k), 1, len, f);
+            fwrite(semname((word)k), 1, len, f);
         }
     }
     for (i = 0; i < nreloc; i++) {                  /* the registry of the arrays that move: the variable that points at each, as a name and an offset */
@@ -340,9 +349,13 @@ impimgload(const char *path)
             if (fread(names[k], 1, len, f) != len)
                 goto bad;
         }
-        if (!dsem_remap(names, (word)n)) {
-            fclose(f);
-            return 0;
+        {
+            word nw = (word)n, nm = (word)(uintptr_t)names;
+
+            if (!impl_semremap(&nm, &nw)) {
+                fclose(f);
+                return 0;
+            }
         }
     }
     relp = malloc(16 * ((size_t)h.nreloc + 1));

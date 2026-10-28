@@ -328,3 +328,14 @@ impfclose(FILE *f)
 {
     return fclose(f);
 }
+
+/* a call through an address, for the table of semantic routines of the IMP compiler (src/dir.imp SEMCALL): the routine is an IMP routine, which takes its
+ * arguments by reference; it gets pointers to a copy of the five parameters, which it may change */
+int64_t
+impsemcall(void *fn, const int64_t *pars)
+{
+    int64_t a[5];
+
+    memcpy(a, pars, sizeof a);
+    return ((int64_t (*)(int64_t *, int64_t *, int64_t *, int64_t *, int64_t *))fn)(&a[0], &a[1], &a[2], &a[3], &a[4]);
+}
