@@ -50,10 +50,10 @@ the tables and the driver program.
 **What is next.**
 
 1. Run the remaining platforms (loong64, mips64le, the BSDs, macOS) and get CI green everywhere.
-2. Leave no C in `imp72` but the seed (`stage0/`, the trusted stage 0) and the glue to LLVM ORC
-   (`llvmorc.c`): the system part (`sys.c`, `image.c`, the driver), the table of semantic routines,
-   the helpers of `pccirsem.c`, the wrappers (`*_imp.c`) and the back-end drivers become IMP, calling the C library and
-   the operating system through `CCALL`.
+2. `imp72` is IMP now but for the seed (`stage0/`, the trusted stage 0), the glue to LLVM ORC (`stage0/llvmorc.c`,
+   `tools/ir2ll.c`), the runtime library (`lib/`) and the C back end `tools/ir2c.c`: the driver, the system part, the
+   image, the table of semantic routines, the IR builders and the names are IMP over `CCALL`
+   (`docs/porting/c-to-imp.md`). What is left to decide is the runtime library (and `ir2c`).
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
    Restore the tape where a departure is marked provisional in
    `docs/porting/modules.md` (`COMPIL`, inline in the tape's main program).

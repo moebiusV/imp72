@@ -3,7 +3,7 @@
 # impsem.imc whose instructions are those of pcc IR, docs/porting/pccir-machine.md) in place of codegen.c, impsem.c, trans.c and pcode.c.
 # The modules are compiled by imp72stage0 (the compiler with the old code generator), each next to the others: their symbols
 # are renamed impl_NAME (all of them in all the objects, so that the modules call one another by name), except the variables the C
-# side shares (src/pccir/shared.txt and src/shared.txt); stage0/pccirsem.c registers the routines and has the C helpers.  Run from the top
+# side shares (src/pccir/shared.txt and src/shared.txt); there is no C of the compiler's in the result but the LLVM glue and the library.  Run from the top
 # of the tree after `make`.  imp72d with the syntax src/pccir/syntax64.imc compiles IMP to pcc IR itself.
 set -e
 if [ -z "$OBJCOPY" ]; then
@@ -14,7 +14,7 @@ fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-impsem code code2 code3 demit ix}
-srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm}   # the modules of src/ (the rest of the compiler)
+srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm driver}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
@@ -53,30 +53,25 @@ for m in $modules $srcmodules; do
     objs="$objs $out/$m.imp2.o"
 done
 for m in $srcmodules; do
-    if [ -f stage0/${m}_imp.c ]; then
-        cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/${m}_imp.c -o $out/${m}_c.o
-        objs="$objs $out/${m}_c.o"
-    fi
     repl="$repl stage0/$m.o"
 done
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
-# LLVM in the process (stage0/llvmorc.c, tools/ir2ll.c as a function) where the LLVM C API is installed (tools/llvm.sh; WITH_LLVM=no leaves it out)
+# LLVM in the process (stage0/llvmorc.c, tools/ir2ll.c as a function) where the LLVM C API is installed (tools/llvm.sh; WITH_LLVM=no leaves it out): llvmorc.c is
+# compiled either way, and without the libraries its entries say there is no LLVM
 llvmflags=$(sh tools/llvm.sh cflags); llvmlibs=; llvmobjs=
+cc -std=gnu99 -O1 -g $llvmflags -c stage0/llvmorc.c -o $out/llvmorc.o
+llvmobjs="$out/llvmorc.o"
 if [ -n "$llvmflags" ]; then
     llvmlibs=$(sh tools/llvm.sh libs)
     cc -std=gnu99 -O1 -g -DIR2LL_LIB -c tools/ir2ll.c -o $out/ir2ll.o
-    cc -std=gnu99 -O1 -g $llvmflags -c stage0/llvmorc.c -o $out/llvmorc.o
-    llvmobjs="$out/ir2ll.o $out/llvmorc.o"
+    llvmobjs="$llvmobjs $out/ir2ll.o"
 fi
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 $llvmflags -DIMP_IMPK -c stage0/imp72s0.c -o $out/imp72s0.o
-objs="$objs $out/pccirsem.o"
 keep=
 for o in stage0/*.o; do
-    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
+    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
     skip=0
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-cc $(sh tools/nopie.sh) -o $out/imp72d $out/imp72s0.o $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
+cc $(sh tools/nopie.sh) -o $out/imp72d $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
 ln -sf imp72d $out/imp72stage-pccir
 echo "built $out/imp72d with the code generator of src/pccir: $modules; the compiler's own: $srcmodules"

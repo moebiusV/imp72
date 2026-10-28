@@ -424,3 +424,19 @@ impsemcall(void *fn, const int64_t *pars)
     memcpy(a, pars, sizeof a);
     return ((int64_t (*)(int64_t *, int64_t *, int64_t *, int64_t *, int64_t *))fn)(&a[0], &a[1], &a[2], &a[3], &a[4]);
 }
+
+/* the machine pcc's pass 2 is for when the compiler runs on this one, if not amd64 (src/driver.imp passes it as -T); 0 for amd64 */
+const char *
+imphosttarget(long z)
+{
+    (void)z;
+#if defined(__aarch64__) || defined(__arm64__)
+    return "aarch64";
+#elif defined(__i386__)
+    return "i386";
+#elif defined(__arm__)
+    return "arm";
+#else
+    return 0;
+#endif
+}

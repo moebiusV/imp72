@@ -33,6 +33,7 @@ SUBR IMGSKIP(NP) IS (
  CCALL STRNCMP(NP,LOC('impm:'),5)=0 => RETURN 1;
  CCALL STRNCMP(NP,LOC('ix:'),3)=0 => RETURN 1;
  CCALL STRNCMP(NP,LOC('image:'),6)=0 => RETURN 1;
+ CCALL STRNCMP(NP,LOC('driver:'),7)=0 => RETURN 1;
  CCALL STRCMP(NP,LOC('demit:usedfs'))=0 => RETURN 1;
  CCALL STRCMP(NP,LOC('dir:rtn'))=0 => RETURN 1;
  CCALL STRCMP(NP,LOC('dir:nrtn'))=0 => RETURN 1;

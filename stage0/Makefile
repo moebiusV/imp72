@@ -13,8 +13,8 @@ TESTS   = test_free test_stack test_dir test_lex test_parse test_debug test_decl
 
 all: libstage0.a imp72s0 imp72stage0
 
-imp72s0: imp72s0.o flavour0.o $(LLVMOBJS) libstage0.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o flavour0.o $(LLVMOBJS) libstage0.a $(LLVMLIBS)
+imp72s0: imp72s0.o $(LLVMOBJS) libstage0.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o $(LLVMOBJS) libstage0.a $(LLVMLIBS)
 
 imp72s0.o: imp72s0.c imp.h ir.h
 	$(CC) $(CFLAGS) $(LLVMCFLAGS) -c imp72s0.c

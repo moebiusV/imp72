@@ -61,7 +61,7 @@ pccir: stage0 $(LIB) pcc
 	@CC1=$(CURDIR)/$(CC1) sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 
 stage0:
-	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; \
+	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; \
 	$(MAKE) -C stage0 CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo"
 
 # Installed layout (imp72stage0 finds its parts relative to its own place):
@@ -91,7 +91,7 @@ install: all
 	install -m 644 docs/manual/imp72.md docs/FFI.md docs/LANGUAGE-NOTES.md $(DESTDIR)$(PREFIX)/share/doc/imp72/
 
 check: all
-	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; \
+	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; \
 	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo"
 	CC1=$(CURDIR)/$(CC1) sh tests/native/run.sh
 	CC1=$(CURDIR)/$(CC1) sh tests/oracle/run.sh

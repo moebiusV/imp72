@@ -4,10 +4,12 @@
  * (-DHAVE_LLVM; tools/direct.sh looks for llvm-config).  The runtime library and the C library are found in the program itself, which is linked
  * with -rdynamic for the purpose.
  */
+#define _GNU_SOURCE 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef HAVE_LLVM
 #include <llvm-c/Core.h>
 #include <llvm-c/Error.h>
 #include <llvm-c/IRReader.h>
@@ -148,3 +150,63 @@ llvm_run(const char *ir, size_t n, const char *entry, long *result)
     *result = ((long (*)(void))(size_t)addr)();
     return 0;
 }
+
+extern int ir2ll_run(FILE *in, FILE *out, int p32);                 /* tools/ir2ll.c */
+
+/* the module of LLVM IR for the pcc IR in the file ir, as text in *buf (n bytes) */
+static int
+module(const char *ir, char **buf, size_t *n)
+{
+    FILE *irf = fopen(ir, "r"), *mem;
+    int rc;
+
+    if (irf == NULL || (mem = open_memstream(buf, n)) == NULL) {
+        perror(ir);
+        return 1;
+    }
+    rc = ir2ll_run(irf, mem, (int)(sizeof(void *) == 4));
+    fclose(mem);
+    fclose(irf);
+    return rc;
+}
+
+/* The entries of the driver (src/driver.imp), which calls them with CCALL, so no underscores: 0 for success. */
+long llvmhave(long z) { (void)z; return 1; }
+
+long
+llvmobj(const char *ir, const char *out)                            /* the object of the program */
+{
+    char *buf = NULL;
+    size_t n = 0;
+
+    return module(ir, &buf, &n) != 0 || llvm_object(buf, n, out) != 0;
+}
+
+long
+llvmsave(const char *ir, const char *out)                           /* the module as text (-S) */
+{
+    char *buf = NULL;
+    size_t n = 0;
+    FILE *o;
+
+    if (module(ir, &buf, &n) != 0)
+        return 1;
+    return (o = fopen(out, "w")) == NULL || fwrite(buf, 1, n, o) != n || fclose(o) != 0;
+}
+
+long
+llvmrun(const char *ir)                                             /* compile with ORC and run: the main program is imp_main */
+{
+    char *buf = NULL;
+    size_t n = 0;
+    long r = 0;
+
+    return module(ir, &buf, &n) != 0 || llvm_run(buf, n, "imp_main", &r) != 0;
+}
+
+#else
+long llvmhave(long z) { (void)z; return 0; }
+long llvmobj(const char *ir, const char *out) { (void)ir; (void)out; return 1; }
+long llvmsave(const char *ir, const char *out) { (void)ir; (void)out; return 1; }
+long llvmrun(const char *ir) { (void)ir; return 1; }
+#endif
