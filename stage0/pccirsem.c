@@ -46,21 +46,9 @@ word enlist(word s) { return impl_enlist(&s); }
 word getlist(word s) { return impl_getlist(&s); }
 word impsem_narr(void) { word z = 0; impl_iinit(&z); return narr; }
 
-/* STRTOD for FCON (src/pccir/impsem.imp): the double of the text s, as its bits in *out (a call cannot carry a double, nor on a 32 bit machine a 64 bit word) */
-void
-impstrtod(const char *s, int64_t *out)
-{
-    double v = strtod(s, NULL);
-    int64_t bits;
-
-    memcpy(&bits, &v, sizeof bits);
-    *out = bits;
-}
-
 /* ---- what the IMP code calls by value (CCALL) ---------------------------------------------------------------------------------- */
 
-/* An integer as the bits of the double, and back (a REAL is the bits of an IEEE double).  A 64 bit value crosses a CCALL as two longs (a 32 bit
- * machine passes a long as 32 bits): its low half, which is never negative, and its high half; the result comes by halves too. */
+/* the result of irstrval comes by halves (a 32 bit machine passes a long as 32 bits): its low half, which is never negative, and its high half */
 static int64_t
 join(long lo, long hi)
 {
@@ -69,33 +57,7 @@ join(long lo, long hi)
 
 static long diresult[2];
 
-long
-diri2d(long lo, long hi)
-{
-    double d = (double)join(lo, hi);
-    uint64_t w;
-
-    memcpy(&w, &d, sizeof w);
-    diresult[0] = (long)(w & 0xFFFFFFFFU);
-    diresult[1] = (long)(w >> 32);
-    return diresult[0];
-}
-
-long
-dird2i(long lo, long hi)
-{
-    uint64_t w = (uint64_t)join(lo, hi);
-    double d;
-    int64_t v;
-
-    memcpy(&d, &w, sizeof d);
-    v = (int64_t)d;
-    diresult[0] = (long)((uint64_t)v & 0xFFFFFFFFU);
-    diresult[1] = (long)((uint64_t)v >> 32);
-    return diresult[0];
-}
-
-long dirhigh(long z) { (void)z; return diresult[1]; }              /* the high half of the last result of diri2d, dird2i or irstrval */
+long dirhigh(long z) { (void)z; return diresult[1]; }              /* the high half of the last result of irstrval */
 
 /* The assembler name of directory entry v: lower case, characters an assembler would not take as _xx. */
 static char **symcache;

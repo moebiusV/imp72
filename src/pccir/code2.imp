@@ -158,11 +158,12 @@ SUBR RETURN(S) IS (
 
 # FLOAT(S): INSURE THAT S IS REAL #
 SUBR FLOAT(S) IS (
- SF,J,W1,LO,HI ARE LOCAL;
+ X IS REAL;
+ SF,J,B ARE LOCAL;
  SF_FREE(S);
  (SF AND 300B) NE 200B => (
-     (SF AND 77B)=4 => (W1_FREE(S+1); LO_CCALL DIRI2D(HR(W1),HL(W1)); HI_CCALL DIRHIGH(0);          # A CONSTANT: THE DOUBLE'S BITS #
-                        FREES(S+1,HW(HI,LO));
+     (SF AND 77B)=4 => (X_FLT(FREE(S+1));          # A CONSTANT: THE DOUBLE'S BITS #
+                        CCALL MEMCPY(LOC(B),LOC(X),8); FREES(S+1,B);       # (A REAL PASSED AS AN ARGUMENT IS FIXED: THE BITS GO THROUGH B) #
                         FREES(S,((204B OR (SF AND 777000B))));
                         RETURN S);
      FETCH(S);
@@ -173,12 +174,12 @@ SUBR FLOAT(S) IS (
 
 # FIX(S): INSURE THAT S IS AN INTEGER #
 SUBR FIX(S) IS (
- SF,J,W1,LO,HI ARE LOCAL;
+ X IS REAL;
+ SF,J,B ARE LOCAL;
  SF_FREE(S);
  (SF AND 300B)=0 => (FREES(S,(SF OR 100B)); RETURN S);       # NO TYPE (A PARAMETER): AN INTEGER #
  (SF AND 300B) NE 100B => (
-     (SF AND 77B)=4 => (W1_FREE(S+1); LO_CCALL DIRD2I(HR(W1),HL(W1)); HI_CCALL DIRHIGH(0);
-                        FREES(S+1,HW(HI,LO));
+     (SF AND 77B)=4 => (B_FREE(S+1); CCALL MEMCPY(LOC(X),LOC(B),8); FREES(S+1,FIX(X));
                         FREES(S,((104B OR (SF AND 777000B))));
                         RETURN S);
      FETCH(S);
