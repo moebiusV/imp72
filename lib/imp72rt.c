@@ -3,8 +3,11 @@
  * monitor calls the compiler's own sources make (CALLI), BLT and IFIX.  PRINT,
  * READ and FINI are in imp72io.c.
  */
+#define _DEFAULT_SOURCE 1
+#define _BSD_SOURCE 1                   /* (before glibc 2.19 the name of it) */
 #include <stdint.h>
 #include <stdio.h>
+#include <sys/mman.h>
 #include <stdlib.h>
 #include <string.h>
 #include "imp72real.h"
@@ -253,3 +256,75 @@ imp_blk(int64_t *a, int64_t *b, int64_t *n)
     return 0;
 }
 
+/* the arena of the IMP compiler's free storage (src/free.imp, CORE), which has to be here for the system's constants: */
+/*
+ * The low segment of the tape's free storage grows in place (CORE sets its size and nothing moves), so the addresses of the arrays, and the byte pointers
+ * into them, stay.  Here the address space for the arena is reserved once, without access, and CORE makes more of it usable.
+ */
+#ifndef MAP_ANON
+#define MAP_ANON MAP_ANONYMOUS
+#endif
+#ifndef MAP_NORESERVE
+#define MAP_NORESERVE 0
+#endif
+static char *core_base;
+static size_t core_reserved, core_usable;
+
+long
+impcorebase(long z)
+{
+    size_t r = sizeof(void *) > 4 ? (size_t)1 << 34 : (size_t)1 << 28;
+    /* the same place every time, so that an image of the compiler (U and V, image.c) can be put back where its pointers into the arena are good */
+    void *hint = sizeof(void *) > 4 ? (void *)((size_t)1 << 44) : (void *)(size_t)0x20000000;
+    void *p;
+
+    (void)z;
+    if (core_base != NULL)
+        return (long)core_base;
+    for (; r >= ((size_t)1 << 24); r >>= 1)
+        if ((p = mmap(hint, r, PROT_NONE, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0)) != MAP_FAILED) {
+            core_base = p;
+            core_reserved = r;
+            return (long)core_base;
+        }
+    return 0;
+}
+
+/* make the first nbytes of the arena usable (zero to begin with); 1 for success */
+long
+impcoreset(long nbytes)
+{
+    size_t want = ((size_t)nbytes + 65535) & ~(size_t)65535;
+
+    if (core_base == NULL || want > core_reserved)
+        return 0;
+    if (want > core_usable) {
+        if (mprotect(core_base + core_usable, want - core_usable, PROT_READ | PROT_WRITE) != 0)
+            return 0;
+        core_usable = want;
+    }
+    return 1;
+}
+
+/* the arena, for the image: where it is and how much of it is usable; and, to load an image, the arena at its old place with at least nbytes usable */
+void *
+imp_core_info(size_t *usable)
+{
+    *usable = core_usable;
+    return core_base;
+}
+
+int
+imp_core_at(void *base, size_t nbytes)
+{
+    if (impcorebase(0) == 0 || (void *)core_base != base)
+        return 0;
+    return impcoreset((long)nbytes) != 0;
+}
+
+/* fclose for the IMP compiler: its tape routine FCLOSE (src/free.imp) is the name a CCALL of the C library's would meet */
+long
+impfclose(FILE *f)
+{
+    return fclose(f);
+}

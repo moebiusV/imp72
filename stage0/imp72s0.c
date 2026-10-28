@@ -42,6 +42,11 @@
 #include "imp.h"
 #include "ir.h"
 
+#ifdef IMP_IMPK
+extern word quiet;                              /* src/impm.imp's */
+#define imp_quiet quiet
+#endif
+
 #ifdef HAVE_LLVM
 extern int ir2ll_run(FILE *in, FILE *out, int p32);                 /* tools/ir2ll.c */
 extern int llvm_object(const char *ir, size_t n, const char *path);  /* stage0/llvmorc.c: the LLVM back end in the process */

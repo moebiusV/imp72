@@ -288,6 +288,10 @@ pcode(word a)
     impl_pcode(&a, &n);
 }
 
+/* the driver's (src/impm.imp): the file of the IR (0 for the standard output) and the machine the IR is for */
+long transopen(long f) { trans_open(f != 0 ? (FILE *)(intptr_t)f : stdout); return 0; }
+long ixsettarget(long nm) { return ir_settarget((const char *)(intptr_t)nm); }
+
 /* the cache of assembler names is made again after an image is loaded (the directory is another) */
 void
 ir_symreset(void)

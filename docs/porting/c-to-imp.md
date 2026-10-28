@@ -40,7 +40,7 @@ implementation for `imp72` and the seed keeps its own.
 ## The order
 
 1. `pccirsem.c`'s numeric helpers: **done** for `impstrtod` (`FCON` calls `SSCANF`), `diri2d` and `dird2i` (`FLOAT` and `FIX` of a constant use `FLT` and `FIX` on a `REAL`; a `REAL` passed as an argument is made an integer by `IFIX`, so the bits go through an integer with `MEMCPY`). `dirhigh` stays until `irstrval` moves (step 3).
-2. `sys.c`: `IMPK` already is IMP (`src/impm.imp`); the files, `ERROR`, `MSG` and the arena (`CCALL MMAP`) next to it.
+2. `sys.c`: **done**, and the file is gone. The command line (`IMPARGV`, `IMPBYTE`), the listing and IR files (`IMPOPENLIST`, `IMPCLOSELIST`, `IMPOPENIR`; `fopen`, `perror`), `OUTSTR`/`OUTCHR` (`write` to the standard error), `INCHWL`, `RUNPGM`, the end of a fatal `ERROR` (the listing closed and `exit(1)`, where the tape goes to `FIN`; no `longjmp`) are in `src/impm.imp`, calling the C library with `CCALL`. The state the C that remains reads (`listing`, `quiet`) is IMP `COMMON` (`src/shared.txt`). What stays C: the arena's `mmap`/`mprotect` (`impcorebase`, `impcoreset`, `imp_core_info`, `imp_core_at`) and `impfclose` moved to the library (`lib/imp72rt.c`), because the flags of `mmap` differ by system and the tape's `FCLOSE` shadows the C library's in a `CCALL`; the library's default output has a setter, `impsetdefout`, that the driver calls with `LOC(LISTOUT)`; `stage0/impm_imp.c` has `impk_main`, `imp_error` and `imp_msg` for the C that is left, and goes with it.
 3. The IR builders (`ir.c`) as IMP, into the IR text directly (`src/pccir/ix.imp`), then `pccirsem.c`'s names (`IRSYMNAME` ...).
 4. The call through an address (`ffi.imc`), then `semtab.c`.
 5. `image.c`.

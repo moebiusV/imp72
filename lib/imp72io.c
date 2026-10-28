@@ -318,13 +318,22 @@ tx:
 }
 
 /* where PRINT goes when it has no file: stdout, unless the program has said otherwise (the compiler's
- * own IMP modules print to its listing: stage0/impglue.c sets the hook) */
+ * own IMP modules print to its listing: src/impm.imp sets the hook with impsetdefout) */
 FILE *(*imp_defout)(void);
+
+/* the hook, from IMP (the compiler's driver, src/impm.imp): the function takes no argument and returns the file, or 0 for the standard output */
+void
+impsetdefout(FILE *(*f)(void))
+{
+    imp_defout = f;
+}
 
 static FILE *
 defout(void)
 {
-    return imp_defout != NULL ? imp_defout() : stdout;
+    FILE *f = imp_defout != NULL ? imp_defout() : NULL;
+
+    return f != NULL ? f : stdout;
 }
 
 long

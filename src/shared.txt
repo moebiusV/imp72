@@ -49,3 +49,5 @@ arr
 narr
 regn
 const
+listing
+quiet
