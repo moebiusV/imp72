@@ -3,6 +3,7 @@
  * monitor calls the compiler's own sources make (CALLI), BLT and IFIX.  PRINT,
  * READ and FINI are in imp72io.c.
  */
+#define _GNU_SOURCE 1
 #define _DEFAULT_SOURCE 1
 #define _BSD_SOURCE 1                   /* (before glibc 2.19 the name of it) */
 #include <stdint.h>
@@ -306,21 +307,105 @@ impcoreset(long nbytes)
     return 1;
 }
 
-/* the arena, for the image: where it is and how much of it is usable; and, to load an image, the arena at its old place with at least nbytes usable */
-void *
-imp_core_info(size_t *usable)
+/* the arena, for the image (src/image.imp): how much of it is usable; and, to load an image, the arena at its old place with at least nbytes usable */
+long impcoreused(long z) { (void)z; return (long)core_usable; }
+
+long
+impcoreat(long base, long nbytes)
 {
-    *usable = core_usable;
-    return core_base;
+    if (impcorebase(0) == 0 || (long)core_base != base)
+        return 0;
+    return impcoreset(nbytes) != 0;
 }
 
-int
-imp_core_at(void *base, size_t nbytes)
+long impptrsize(long z) { (void)z; return (long)sizeof(void *); }
+
+/*
+ * The variables of the compiler's own modules (src/pccir/ix.imp IRVARREC): a record of the address, the size and the name, MODULE:SYMBOL, in the section impvars,
+ * which the linker bounds with __start_impvars and __stop_impvars.  Only what lies in the writable part of the program is a variable (a name that a module uses
+ * and does not define is a variable of the module to the compiler, whatever it is, a routine of another module, say); each variable once, with its biggest size.
+ * impvarlist(out, max) writes up to max records of three words (address, size, pointer to the name) and returns how many there are, or -1 if there is no table.
+ */
+#ifdef __ELF__
+#include <link.h>
+struct impvar {
+    void *addr;
+    uintptr_t size;
+    const char *name;
+};
+extern struct impvar __start_impvars[] __attribute__((weak));
+extern struct impvar __stop_impvars[] __attribute__((weak));
+
+static struct { uintptr_t lo, hi; } wr[16];
+static int nwr;
+
+static int
+phdr(struct dl_phdr_info *info, size_t size, void *data)
 {
-    if (impcorebase(0) == 0 || (void *)core_base != base)
-        return 0;
-    return impcoreset((long)nbytes) != 0;
+    int i;
+
+    (void)size;
+    (void)data;
+    for (i = 0; i < info->dlpi_phnum && nwr < 16; i++)
+        if (info->dlpi_phdr[i].p_type == PT_LOAD && (info->dlpi_phdr[i].p_flags & PF_W)) {
+            wr[nwr].lo = (uintptr_t)info->dlpi_addr + info->dlpi_phdr[i].p_vaddr;
+            wr[nwr].hi = wr[nwr].lo + info->dlpi_phdr[i].p_memsz;
+            nwr++;
+        }
+    return 1;                                       /* the first object is the program */
 }
+
+static int
+writable(const struct impvar *v)
+{
+    int i;
+
+    if (nwr == 0)
+        dl_iterate_phdr(phdr, NULL);
+    for (i = 0; i < nwr; i++)
+        if ((uintptr_t)v->addr >= wr[i].lo && (uintptr_t)v->addr + v->size <= wr[i].hi)
+            return 1;
+    return 0;
+}
+
+long
+impvarlist(int64_t *out, long max)
+{
+    struct impvar *r;
+    long n = 0, i;
+
+    if (__start_impvars == NULL || __start_impvars == __stop_impvars)
+        return -1;
+    for (r = __start_impvars; r < __stop_impvars; r++) {
+        if (!writable(r))
+            continue;
+        for (i = 0; i < n; i++)
+            if (out != NULL && out[3 * i] == (int64_t)(uintptr_t)r->addr) {
+                if ((int64_t)r->size > out[3 * i + 1])
+                    out[3 * i + 1] = (int64_t)r->size;
+                break;
+            }
+        if (out == NULL) {                          /* counting: the same test, on the records seen so far */
+            struct impvar *q;
+
+            for (q = __start_impvars; q < r; q++)
+                if (q->addr == r->addr && writable(q))
+                    break;
+            if (q != r)
+                continue;
+            n++;
+        } else if (i == n && n < max) {
+            out[3 * n] = (int64_t)(uintptr_t)r->addr;
+            out[3 * n + 1] = (int64_t)r->size;
+            out[3 * n + 2] = (int64_t)(uintptr_t)r->name;
+            n++;
+        }
+    }
+    return n;
+}
+#else
+long impvarlist(int64_t *out, long max) { (void)out; (void)max; return -1; }
+#endif
 
 /* fclose for the IMP compiler: its tape routine FCLOSE (src/free.imp) is the name a CCALL of the C library's would meet */
 long

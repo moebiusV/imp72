@@ -14,7 +14,7 @@ fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-impsem code code2 code3 demit ix}
-srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex impm}   # the modules of src/ (the rest of the compiler)
+srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
@@ -60,7 +60,6 @@ for m in $srcmodules; do
     repl="$repl stage0/$m.o"
 done
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/pccirsem.c -o $out/pccirsem.o
-cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 -c stage0/image.c -o $out/image.o
 # LLVM in the process (stage0/llvmorc.c, tools/ir2ll.c as a function) where the LLVM C API is installed: WITH_LLVM=no leaves it out
 llvmflags=; llvmlibs=; llvmobjs=
 if [ "${WITH_LLVM:-yes}" != no ]; then
@@ -75,7 +74,7 @@ if [ "${WITH_LLVM:-yes}" != no ]; then
     fi
 fi
 cc -std=c99 -fcommon -O1 -g -Wall -Wextra -pedantic -Istage0 $llvmflags -DIMP_IMPK -c stage0/imp72s0.c -o $out/imp72s0.o
-objs="$objs $out/pccirsem.o $out/image.o"
+objs="$objs $out/pccirsem.o"
 keep=
 for o in stage0/*.o; do
     case $o in stage0/imp72s0.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/flavour0.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac

@@ -15,7 +15,7 @@ pcc)  [ -x "$cc1" ] || { echo "pccir: no pass 2 of pcc: skipped"; exit 77; } ;;
 *)    echo "pccir: no back end $IMP72BACKEND (llvm, c, pcc)" >&2; exit 2 ;;
 esac
 export CC1=$cc1
-mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex impm"
+mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm"
 DIRECT_OUT=build/pccir1 DIRECT_LIB=build/lib/libimp72.a SRC_MODULES="$mods" tools/direct.sh >build/pccir1.log 2>&1 \
     || { r=$?; [ $r = 77 ] && { echo "pccir: skipped"; exit 77; }; cat build/pccir1.log >&2; exit $r; }
 DIRECT_OUT=build/pccir2 DIRECT_DRIVER=build/pccir1/imp72stage-pccir DIRECT_LIB=build/lib/libimp72.a SRC_MODULES="$mods" \
