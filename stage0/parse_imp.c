@@ -8,7 +8,7 @@
 #include <string.h>
 #include "imp.h"
 
-extern word impl_parse(word *), impl_pforce(word *), impl_pout(word *, word *), impl_parsef(void);
+extern word impl_pstats(word *), impl_parse(word *), impl_pforce(word *), impl_pout(word *, word *), impl_parsef(void);
 extern word psts, pspn, pspnt, psps, pspst, psos, amtime, pstt, srtt;
 
 void (*parse_cotree)(word k);
@@ -45,14 +45,7 @@ parsef(void)
 void
 pstats(void)
 {
-    FILE *f = imp_out();
+    word z = 0;
 
-    fprintf(f, "PARSE TIME %ld MSEC., %ld INPUT SYMBOLS.\n"
-        "   MAX. PARSE BRANCHING %ld/%ld\n"
-        "   MAX. PARSE SPACE %ld+%ld, MAX. OUTPUT SPACE %ld\n",
-        (long)pstt, (long)psts, (long)pspnt, (long)pspn, (long)pspst, (long)psps, (long)psos);
-    if (amtime)
-        fprintf(f, "AMBIG %ld MS.\n", (long)amtime);
-    if (srtt > 0)
-        fprintf(f, "SEMANTIC ROUTINES TIME %ld MS.\n", (long)srtt);
+    impl_pstats(&z);
 }

@@ -120,8 +120,10 @@ entrca(word semn)
     impl_entrca(&semn);
 }
 
+extern word impl_tprint(void);
+
 void
 tprint(void)
 {
-    tprin1();
+    impl_tprint();
 }

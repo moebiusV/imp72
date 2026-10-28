@@ -50,11 +50,9 @@ the tables and the driver program.
 **What is next.**
 
 1. Run the remaining platforms (loong64, mips64le, the BSDs, macOS) and get CI green everywhere.
-2. Translate what is still C: `LETSYN`, `CVAL`, `FCON`, `ERRSRT` (the `ERROR`
-   semantic routine), the `/A` code listing (`PCODE`, `PCODE1`), `HELPD`, the
-   parser trace `PARTRA` (`/G`), the dumps `GPRINT` and `TPRINT` (`/X`, `/T`),
-   and `FORMARG` (check that `rsyn.imp` does the same test). The table of
-   semantic routines stays C (it holds addresses).
+2. What is C in `imp72` after this is the system part (`sys.c`, `image.c`, the driver), the table of
+   semantic routines (it holds addresses), the helpers of `pccirsem.c` and the back ends; the C kernel in
+   `stage0/` is the trusted seed and stays.
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
    Restore the tape where a departure is marked provisional in
    `docs/porting/modules.md` (the `free` routines that are inline on the tape).

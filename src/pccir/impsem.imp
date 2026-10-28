@@ -268,7 +268,7 @@ SUBR GETLIST(S) IS (
 SUBR ASSEMC(A) IS (
  ANYCODE(0) NE 0 => (SUBTMPF(0);
                      (FINAM[5] AND 1) NE 0 => (PRINT /,STG 0,'** CODE PRODUCED BY PROGRAM',/;
-                                               CCALL PCODE(A));
+                                               PCODE(A,77777777777B));
                      DEMIT(A));
  0);
 

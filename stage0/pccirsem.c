@@ -29,7 +29,7 @@ RT(newlist) RT(nsubp) RT(ojumpop) RT(oneword) RT(pairfirst) RT(princal) RT(prinp
 RT(reg2) RT(reg2s) RT(regeq) RT(regof) RT(regsim) RT(remot) RT(return) RT(rmatch) 
 RT(samereg) RT(stackup) RT(store) RT(subbeg) RT(subcall) RT(subend) RT(subpr0) RT(subprm) 
 RT(subrcall) RT(subreg) RT(subrpar) RT(subscript) RT(subtmpf) RT(sval) RT(swtch) RT(tag) 
-RT(tmpreg) RT(unpck) RT(val) 
+RT(tmpreg) RT(unpck) RT(val) RT(pcode) 
 
 extern word arr, narr, regn, co, nco, anco;
 
@@ -317,36 +317,13 @@ trans_open(FILE *f)
     ir_open(f);
 }
 
-/* the list of the code of an entry (/A): one line for each record of the chain (docs/porting/pccir-machine.md) */
+/* the list of the code of an entry (/A): PCODE of src/pccir/code3.imp, all the lines of the chain */
 void
 pcode(word a)
 {
-    static const char *const opn[72] = { "?", "LOAD", "NEG", "COMPL", "ADDR", "STORE", "ADD", "SUB", "MUL", "DIV", "MOD",
-        "AND", "ANDCA", "ANDCM", "ANDCB", "IOR", "ORCA", "ORCM", "ORCB", "XOR", "EQV", "LSH", "ASH", "ROT", "?", "?", "?", "?", "?",
-        "?", "FADD", "FSUB", "FMUL", "FDIV", "FLOAT", "FIX", "FNEG", "?", "?", "?", "JUMP", "JEQ", "JLT", "JLE", "JGE", "JGT",
-        "JNE", "?", "?", "?", "?", "FJEQ", "FJLT", "FJLE", "FJGE", "FJGT", "FJNE", "?", "?", "?", "?", "?", "CALLB", "ARG",
-        "CALLE", "PITEM", "?", "?", "?", "?", "ENTRY", "RET" };
-    word r = (word)((uword)FREE(a + 2) >> 32);
-    FILE *f = imp_out();
+    word n = 0x7fffffff;
 
-    while (r) {
-        word h = FREE(co + r), op = (h >> 8) & 0xff, kind = h & 0xff;
-        char nm[16], d[40];
-
-        if (kind == 2)
-            fprintf(f, "%6ld  TAG    %s\n", (long)r, (dname_str(FREE(co + r + 4), d, sizeof d), d));
-        else if (kind == 3)
-            fprintf(f, "%6ld  WORD   %ld\n", (long)r, (long)FREE(co + r + 3));
-        else {
-            if (op < 72 && opn[op][0] != '?')
-                snprintf(nm, sizeof nm, "%s", opn[op]);
-            else
-                snprintf(nm, sizeof nm, "%ld", (long)op);
-            fprintf(f, "%6ld  %-6s R%ld  V %lo,%lo  X %ld\n", (long)r, nm, (long)FREE(co + r + 1), (long)(FREE(co + r + 2) & 0777777777777L),
-                (long)(FREE(co + r + 3) & 0777777777777L), (long)FREE(co + r + 4));
-        }
-        r = (word)((uword)h >> 32);
-    }
+    impl_pcode(&a, &n);
 }
 
 /* the cache of assembler names is made again after an image is loaded (the directory is another) */

@@ -2,7 +2,7 @@ TWOSEG;
 CO,NCO,ANCO ARE COMMON;
 BDESC,NBD ARE COMMON;
 #THIS IS FILE CODE3, HOLDING OVERFLOW FROM CODE2, THE TRANSLATION OF DECUS/CODE3.IMC FOR THE 64 BIT PORT (SEE CODE2).  PCODE, THE LISTING OF THE
- CODE, IS NOT TRANSLATED; BYTEP IS NOT YET.#
+ CODE, AND PCODE1 ARE AT THE END; BYTEP IS NOT YET.#
 
 SUBR SUBCALL(A,B) IS (
  A_SUBRCALL(NAME(A));
@@ -65,6 +65,54 @@ SUBR BYTEP(A,S,P,FLAG) IS (
  HOOK(A,HOOK(P,P,S),A);
  FREES(A+1,0); FREES(A,(110B OR (TD LS 32)));
  A);
+
+# PCODE(S,NS): LIST THE CODE OF THE ENTRY S, UP TO NS LINES (NS=0: 15).  THE ORIGINAL LISTS THE PDP-10 INSTRUCTIONS OF THE CHAIN; HERE A RECORD OF THE CHAIN IS AN
+  OPERATION OF PCC IR (DOCS/PORTING/PCCIR-MACHINE.MD): ITS NUMBER, THE OPERATION, THE REGISTER, THE TWO FIELDS (OCTAL) AND THE EXTRA WORD.  THE TABLE OF THE NAMES
+  OF THE OPERATIONS IS THAT OF DEMIT, ONE TO A WORD (A TEXT CONSTANT OF SEVEN CHARACTERS AND ITS NUL).  THE ORIGINAL TESTS WHETHER PCODE1 IS LOADED; IT ALWAYS IS HERE. #
+SUBR PCODE(S,NS) IS PCODE1(S,NS);
+
+SUBR PCODE1(S,NS) IS (
+ R,H,OP,KD,N,K ARE LOCAL;
+ (N_NS)=0=>N_15;
+ R_FREE(S+2) RS 32; K_0;
+ L3: R=0=>RETURN 0;
+ K GE N=>RETURN 0;
+ H_FREE(CO+R); OP_(H RS 8) AND 377B; KD_H AND 377B;
+ PRINT IGR 6,R,STG 0,'  ';
+ KD=2=>(PRINT STG 0,'TAG    '; PNAME(FREE(CO+R+4)); PRINT /; GO TO L8);
+ KD=3=>(PRINT STG 0,'WORD   ',IGR 0,FREE(CO+R+3),/; GO TO L8);
+ OP<72 => (CHR0(OPN[OP]) NE CODE('?') => (PRINT STG 6,OPN[OP]; GO TO L9));
+ PRINT IGR 0,OP;
+ OP<10=>PRINT STG 5,'      ' ELSE (OP<100=>PRINT STG 4,'      ' ELSE PRINT STG 3,'      ');
+ L9: PRINT STG 0,' R',IGR 0,FREE(CO+R+1),STG 0,'  V ',OCT 0,FREE(CO+R+2) AND 777777777777B,STG 0,',',
+          OCT 0,FREE(CO+R+3) AND 777777777777B,STG 0,'  X ',IGR 0,FREE(CO+R+4),/;
+ L8: R_H RS 32; K_K+1; GO TO L3);
+
+OPN: DATA(
+          '?      ','LOAD   ','NEG    ',
+          'COMPL  ','ADDR   ','STORE  ',
+          'ADD    ','SUB    ','MUL    ',
+          'DIV    ','MOD    ','AND    ',
+          'ANDCA  ','ANDCM  ','ANDCB  ',
+          'IOR    ','ORCA   ','ORCM   ',
+          'ORCB   ','XOR    ','EQV    ',
+          'LSH    ','ASH    ','ROT    ',
+          '?      ','?      ','?      ',
+          '?      ','?      ','?      ',
+          'FADD   ','FSUB   ','FMUL   ',
+          'FDIV   ','FLOAT  ','FIX    ',
+          'FNEG   ','?      ','?      ',
+          '?      ','JUMP   ','JEQ    ',
+          'JLT    ','JLE    ','JGE    ',
+          'JGT    ','JNE    ','?      ',
+          '?      ','?      ','?      ',
+          'FJEQ   ','FJLT   ','FJLE   ',
+          'FJGE   ','FJGT   ','FJNE   ',
+          '?      ','?      ','?      ',
+          '?      ','?      ','CALLB  ',
+          'ARG    ','CALLE  ','PITEM  ',
+          '?      ','?      ','?      ',
+          '?      ','ENTRY  ','RET    ');
 
 SUBR CODE3I(NIL) IS (DSEM('SUBSCRIPT',SUBSCRIPT);
                      DSEM('SUBCALL',SUBCALL);

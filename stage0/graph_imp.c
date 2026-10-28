@@ -57,11 +57,13 @@ imp_msec(void)
     return (long)(clock() * 1000 / CLOCKS_PER_SEC);
 }
 
-/* GPRINT: dump the graph (GPRIN1 of debug.c). */
+/* GPRINT: dump the graph (src/graph.imp). */
+extern word impl_gprint(void);
+
 void
 gprint(void)
 {
-    gprin1();
+    impl_gprint();
 }
 
 word graph(word synt, word nsynt, word pnq) { return impl_graph(&synt, &nsynt, &pnq); }

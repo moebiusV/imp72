@@ -52,7 +52,7 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 | `OCHK`, `OPCODE`, `RCOCHK` | the PDP-10 assembler and the search of the code for register use; pcc allocates the registers |
 | `SUBTAG`, `PARAMETERS` | nothing on the tape calls them |
 
-**Not yet translated (still C)**: `ERRSRT`, `LETSYN`, `CVAL`, `FCON`, `PCODE`, `PCODE1`, `HELPD`, `PARTRA`, `GPRINT`, `TPRINT`, `FORMARG`.
+**Still C**: nothing of the tape's routines is only in C in the compiler `imp72` (the seed `imp72stage0` is the C kernel, `stage0/`, by design). `PCODE` and `PCODE1` (the `/A` listing) are in `src/pccir/code3.imp` and list the records of the pcc IR chain, not PDP-10 instructions; `HELPD`, `GPRINT`, `TPRINT` and `PARTRA` call the tape's debugging routines directly (the tape tests whether the debugging module is loaded; it always is here); `FORMARG` is in `src/rsyn.imp` (nothing calls it, on the tape either).
 
 **The byte pointer is a byte address.** `BYTEP A<7,36>` (the tape's pointer to the characters of A; `A<8,64>` also) is the byte
 address of the byte before the first of A, `<+P>` adds 1 and then reads or writes the byte there, and a character is a byte

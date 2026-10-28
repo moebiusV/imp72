@@ -30,6 +30,8 @@ if [ -x "$w" ]; then
     else
         [ -s $out/w/hello.ir ] || { echo "FAILED: interactive: imp72 -i: no hello.ir" >&2; fail=1; }
     fi
+    ( cd $out/w && printf '/D\n' | $root/$w -i >dswitch.out 2>&1 )
+    grep -q 'D = TYPE THIS LIST OF DEBUGGING SWITCHES' $out/w/dswitch.out || { echo "FAILED: interactive: imp72 -i: /D did not list the debugging switches" >&2; fail=1; }
     grep -q 'SAVED' $out/w/session.out || { echo "FAILED: interactive: imp72 -i: /U did not save" >&2; fail=1; }
 fi
 [ $fail = 0 ] && echo ok
