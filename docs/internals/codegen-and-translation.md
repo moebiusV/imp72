@@ -72,7 +72,7 @@ of date, which does not matter: ours writes the format its reader reads.
 `PRINT` makes a call of `PRN.` followed by the print list as constant words,
 each `N << 24 | offset` plus the address of the item's operand (`PRINPAR`,
 `PRINCAL`, ported). `trans.c` turns the list into a call of
-`imp_pr(n, p)` per item, which `lib/imp72rt.c` implements: IGR, OCT, STG
+`imp_pr(n, p)` per item, which `lib/imp72io.imp` implements: IGR, OCT, STG
 formats, `/`, TAB, FILL, kept between items and statements as in the manual.
 `FINI(0)` is `fini`. A computed operand's address goes through a `%CALn` word
 (an `HRRM` into it stores the whole address).

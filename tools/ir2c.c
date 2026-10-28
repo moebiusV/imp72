@@ -150,14 +150,13 @@ static int nvarrec;
 static struct { char *name; long size; int local; } comms[4096];
 static int ncomm;
 
-/* the runtime and C functions (CCALL's, marked `# cfunc`, and the runtime's imp_*): they return a C long, not a word; what the IR defines returns a word */
+/* the C functions (CCALL's, marked `# cfunc`): they return a C long, not a word; what the IR defines, and the runtime library (written in IMP), returns a word */
 static int
 iscfunc(const char *nm)
 {
     if (inset(&funcs, nm))                      /* defined in IMP here (imp_main, say): it returns a word */
         return 0;
-    return inset(&cfuncs, nm) || strcmp(nm, "ifix") == 0 || strcmp(nm, "fini") == 0 ||
-        strncmp(nm, "imp_", 4) == 0;
+    return inset(&cfuncs, nm);
 }
 
 /* ---- trees ---------------------------------------------------------------- */

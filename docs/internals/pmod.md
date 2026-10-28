@@ -4,7 +4,7 @@
 sources of PMOD are not on the tape). It was compiled by the IMP compiler itself, so its
 code is readable: labels such as `%IF19#`, `%WH21#`, `%FOR54#` are the compiler's. The
 disassembly, from DDT on the KI10 oracle, is in [pmod-disassembly.txt](pmod-disassembly.txt);
-`lib/imp72io.c` follows it where output must be the same.
+`lib/imp72io.imp` follows it where output must be the same.
 
 ## Items
 
@@ -45,7 +45,7 @@ All of it is PDP-10 single precision, 27 bit mantissa, with the rounded instruct
 
 ### What this port does instead (IEEE 754, since 2026-10-22)
 
-REAL is a binary64 double here, not 27 bit. `lib/imp72io.c` keeps the layout of steps 3, 4, 7 and 8 (the field width
+REAL is a binary64 double here, not 27 bit. `lib/imp72io.imp` keeps the layout of steps 3, 4, 7 and 8 (the field width
 `G`, the fit test, the scientific form with `"` and the exponent, the padding) and replaces steps 1 to 2, 5 and 6, the
 scaling and the digit loop with their accumulating errors, by correctly rounded digits of the exact decimal value, ties
 away from zero (so `0.125` with two decimals is `.13`; the original's inexact arithmetic gave `.12` and `.99999"-3` for

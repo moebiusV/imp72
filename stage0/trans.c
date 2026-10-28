@@ -506,8 +506,8 @@ fieldmask(const struct bytedesc *d)
 /*
  * A pointer to characters (BYTEP A<7,36>, the tape's, or A<8,64>) is a byte address: the byte before the first of A, for a step comes before the
  * access.  Any other byte pointer, held in a variable or register, is one word: bits 63..58 the size, 57..52 the position (bits from the right, as
- * in A<S,P>), and the low 52 bits the byte address of the word that holds the field.  IBP, LDB and DPB through a pointer are the routines imp_ibp,
- * imp_ldb and imp_dpb of the runtime (lib/imp72rt.c), which tell the two apart, on the words imp_bpp (the pointer) and imp_bpv (the byte).
+ * in A<S,P>), and the low 52 bits the byte address of the word that holds the field.  IBP, LDB and DPB through a pointer are the routines impibp,
+ * impldb and impdpb of the runtime (lib/imp72rt.imp), which tell the two apart, on the words impbpp (the pointer) and impbpv (the byte).
  */
 
 static struct bytedesc *
@@ -574,21 +574,38 @@ bpcall(const char *name)
 static void
 bp_in(const struct ti *t)
 {
-    asg(ir_name("imp_bpp", 0, T_LONG), opvalue(t));
+    asg(ir_name("impbpp", 0, T_LONG), opvalue(t));
 }
 
 static void
 bp_out(const struct ti *t)
 {
-    asg(oplvalue(t), ir_name("imp_bpp", 0, T_LONG));
+    asg(oplvalue(t), ir_name("impbpp", 0, T_LONG));
+}
+
+/*
+ * IMP72CHARPTR in the environment says that every byte pointer held in a variable is a pointer to characters (a byte address): the stepping, loading and storing
+ * are then done in line instead of by impibp, impldb and impdpb.  The runtime library (lib/imp72rt.imp, imp72io.imp, tools/mklib.sh) is compiled so: those
+ * routines are the ones that would call themselves.
+ */
+static int charptr(void) { return getenv("IMP72CHARPTR") != NULL; }
+
+static struct irn *
+bytelval(struct irn *addr)
+{
+    return ir_deref(ir_un(IR_PCONV, T_PTR | T_UCHAR, addr), T_UCHAR);
 }
 
 /* IBP: step the pointer in the operand to the next byte or field */
 static void
 bp_step(const struct ti *t)
 {
+    if (charptr()) {
+        asg(oplvalue(t), ir_bin(IR_PLUS, T_LONG, opvalue(t), icon(1)));
+        return;
+    }
     bp_in(t);
-    bpcall("imp_ibp");
+    bpcall("impibp");
     bp_out(t);
 }
 
@@ -596,26 +613,38 @@ bp_step(const struct ti *t)
 static void
 ldb_dyn(const struct ti *t, int step)
 {
+    if (charptr()) {
+        if (step)
+            asg(oplvalue(t), ir_bin(IR_PLUS, T_LONG, opvalue(t), icon(1)));
+        asg(rv(t->ac), ir_un(IR_SCONV, T_LONG, bytelval(opvalue(t))));
+        return;
+    }
     bp_in(t);
     if (step) {
-        bpcall("imp_ibp");
+        bpcall("impibp");
         bp_out(t);
     }
-    bpcall("imp_ldb");
-    asg(rv(t->ac), ir_name("imp_bpv", 0, T_LONG));
+    bpcall("impldb");
+    asg(rv(t->ac), ir_name("impbpv", 0, T_LONG));
 }
 
 /* DPB/IDPB through a pointer in the operand */
 static void
 dpb_dyn(const struct ti *t, int step)
 {
-    asg(ir_name("imp_bpv", 0, T_LONG), rv(t->ac));
+    if (charptr()) {
+        if (step)
+            asg(oplvalue(t), ir_bin(IR_PLUS, T_LONG, opvalue(t), icon(1)));
+        asg(bytelval(opvalue(t)), ir_un(IR_SCONV, T_UCHAR, rv(t->ac)));
+        return;
+    }
+    asg(ir_name("impbpv", 0, T_LONG), rv(t->ac));
     bp_in(t);
     if (step) {
-        bpcall("imp_ibp");
+        bpcall("impibp");
         bp_out(t);
     }
-    bpcall("imp_dpb");
+    bpcall("impdpb");
 }
 
 /* LDB ac,field: the field, right justified */
@@ -1010,12 +1039,9 @@ fsc(const struct ti *t)
 #define NARGREG (irtgt->narg)
 
 
-/* the routines of the runtime library, which return a C long, not a word */
-static int
-isruntime(const char *nm)
-{
-    return strcmp(nm, "ifix") == 0 || strcmp(nm, "fini") == 0 || strncmp(nm, "imp_", 4) == 0;
-}
+/* the cells of the runtime library (lib/imp72io.imp, imp72rt.imp) that carry the arguments of its calls: the library is IMP, which takes its arguments by reference */
+static struct irn *cell(int k) { return ir_name("impca", 8 * k, T_LONG); }
+static struct irn *cella(int k) { return ir_sym("impca", 8 * k, T_PLONG); }
 
 /*
  * A call of fn with the arguments a[0..n-1]: in registers and in the
@@ -1098,7 +1124,7 @@ argptr(const struct ti *t)
 /*
  * A call of the print routine, PRN.: the words after it are a print list, each
  * N << 24 | offset plus the address of the variable named in it (of the %CAL
- * word that has been given an address).  It becomes a call of imp_pr(n, p)
+ * word that has been given an address).  It becomes a call of imppr(n, p), by reference through the cells impca,
  * for each item, a routine of the runtime library that keeps the format.
  */
 static long
@@ -1141,12 +1167,16 @@ printcall(long i, int rd)
         {
             struct irn *av[2];
 
-            av[0] = icon(n);
-            av[1] = p;
-            tree = mkcall(ir_sym(rd ? "imp_rd" : "imp_pr", 0, T_PFTN), av, 2, 1);
+            if (last != NULL) {                 /* the cells are the next call's */
+                ir_stmt(last);
+                last = NULL;
+            }
+            asg(cell(0), icon(n));
+            asg(cell(1), (p->type & T_PTR) ? ir_un(IR_PCONV, T_LONG, p) : p);
+            av[0] = cella(0);
+            av[1] = cella(1);
+            tree = mkcall(ir_sym(rd ? "imprd" : "imppr", 0, T_PFTN), av, 2, 0);
         }
-        if (last != NULL)
-            ir_stmt(last);
         last = tree;
     }
     if (j < nti && tis[j].kind == K_SPEC && tis[j].fn == 2) {
@@ -1237,7 +1267,7 @@ call(long i)
             av[k] = args[k];
         if (byval)                      /* tell the C back end the callee is C's, with C's longs */
             ir_pass("\t# cfunc %s", nm);
-        tree = mkcall(tree, av, nargs, byval || isruntime(nm));
+        tree = mkcall(tree, av, nargs, byval);
     }
     if (res >= 0)
         asg(ir_temp(res, T_LONG), tree);
@@ -1415,12 +1445,15 @@ insn(long i)
         {
             struct irn *av[3];
 
-            av[0] = ir_temp(bltdst[t->ac], T_LONG);
-            av[1] = ir_temp(bltsrc[t->ac], T_LONG);
-            av[2] = ir_bin(IR_PLUS, T_LONG,
+            asg(cell(0), ir_temp(bltdst[t->ac], T_LONG));
+            asg(cell(1), ir_temp(bltsrc[t->ac], T_LONG));
+            asg(cell(2), ir_bin(IR_PLUS, T_LONG,
                 ir_bin(IR_MINUS, T_LONG, immvalue(t), ir_temp(bltdst[t->ac], T_LONG)),
-                icon(8));
-            tree = mkcall(ir_sym("imp_blt", 0, T_PFTN), av, 3, 1);
+                icon(8)));
+            av[0] = cella(0);
+            av[1] = cella(1);
+            av[2] = cella(2);
+            tree = mkcall(ir_sym("impblt", 0, T_PFTN), av, 3, 0);
         }
         ir_stmt(tree);
         return i;
@@ -1462,9 +1495,11 @@ insn(long i)
         struct irn *r = t->ac ? rv(t->ac) : icon(0);
         struct irn *av[2], *tree;
 
-        av[0] = immvalue(t);
-        av[1] = r;
-        tree = mkcall(ir_sym("imp_calli", 0, T_PFTN), av, 2, 1);
+        asg(cell(0), immvalue(t));
+        asg(cell(1), r);
+        av[0] = cella(0);
+        av[1] = cella(1);
+        tree = mkcall(ir_sym("impcalli", 0, T_PFTN), av, 2, 0);
 
         if (t->ac)
             asg(rv(t->ac), tree);

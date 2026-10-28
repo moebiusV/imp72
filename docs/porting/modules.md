@@ -57,7 +57,7 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 address of the byte before the first of A, `<+P>` adds 1 and then reads or writes the byte there, and a character is a byte
 (UTF-8, never masked to 7 bits). Any other `BYTEP A<S,P>` names a bit field and keeps the layout of the PDP-10's pointer in one
 word (size, position, word address), because no byte address can name it; the two are told apart by the size bits, which a byte
-address (below 2**47) never has. `lib/imp72rt.c` has `imp_ibp`, `imp_ldb` and `imp_dpb`, which both compilers call.
+address (below 2**47) never has. `lib/imp72rt.imp` has `impibp`, `impldb` and `impdpb`, which both compilers call.
 
 **The lexer is the tape's.** The line and the token are packed, a character to a byte, and stepped with byte pointers (`<+PC>`, `<+K>`),
 and the token is passed to `DIR` as it is. What differs, and why: `LEXIN(NAME)` opens the file with `fopen` and `NEXTCHAR` reads it with

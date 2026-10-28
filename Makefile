@@ -33,13 +33,8 @@ $(IR2C): tools/ir2c.c
 	mkdir -p build/bin
 	$(CC) -std=gnu99 $(CFLAGS) $(LDFLAGS) -o $(IR2C) tools/ir2c.c
 
-$(LIB): lib/imp72rt.c lib/imp72io.c lib/imp72main.c lib/imp72real.h
-	mkdir -p build/lib
-	$(CC) -std=c99 $(CFLAGS) -c -o build/lib/imp72rt.o lib/imp72rt.c
-	$(CC) -std=c99 $(CFLAGS) -c -o build/lib/imp72io.o lib/imp72io.c
-	$(CC) -std=c99 $(CFLAGS) -c -o build/lib/imp72main.o lib/imp72main.c
-	rm -f $(LIB)
-	ar rcs $(LIB) build/lib/imp72rt.o build/lib/imp72io.o build/lib/imp72main.o
+$(LIB): stage0 $(IR2C) tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.c lib/imp72main.c
+	CFLAGS="$(CFLAGS)" sh tools/mklib.sh
 
 $(CC1):
 	mkdir -p $(PCCBUILD)

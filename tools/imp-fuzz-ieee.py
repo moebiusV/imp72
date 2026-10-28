@@ -7,7 +7,7 @@ itself, in Python floats (binary64, the same operations in the same order), and 
 print next to it: DIR/rzNN.imp and DIR/rzNN.expected.  tools/ieee-fuzz.sh compiles, runs and compares.
 
 The program prints each value as FIX of 16 times, 128 times and the value (FIX truncates toward zero), and with
-PRINT FLT in two random formats.  FLT is written here a second time, independently of lib/imp72io.c, from the
+PRINT FLT in two random formats.  FLT is written here a second time, independently of lib/imp72io.imp, from the
 rules in docs/internals/pmod.md and LANGUAGE-DIFFERENCES.md: no 0 before the point; fixed notation with n digits
 after the point unless the digits and the point do not fit the field (m wide: fewer than m-1), then .ddd"e with
 m-7 digits (two, unpadded, when that is under 2); a negative m is scientific always, in -m columns, n+1 digits;
@@ -91,7 +91,7 @@ def fix(x):
 
 
 def flt(x, m, n):
-    """PRINT FLT m.n of x, independently of lib/imp72io.c."""
+    """PRINT FLT m.n of x, independently of lib/imp72io.imp."""
     neg = x < 0
     ax = abs(Decimal(x))
     d = n
