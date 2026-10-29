@@ -9,7 +9,7 @@ set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-impsem code code2 code3 demit ix}
-srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm driver llvm llvmgen}   # the modules of src/ (the rest of the compiler)
+srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver llvm llvmgen}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 mkdir -p "$out"
 imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.imp, built below by the driver)
@@ -52,14 +52,11 @@ done
 for m in $srcmodules; do
     repl="$repl stage0/$m.o"
 done
-# LLVM in the process (src/llvm.imp, and tools/ir2ll.c as a function until it is IMP too): the compiler needs the LLVM C API (tools/llvm.sh), and links lld's driver (stage0/impld.cpp) where lld is
-# a library
+# LLVM in the process (src/llvm.imp, and the IR writer src/ir2ll.imp and src/ir2llx.imp): the compiler needs the LLVM C API (tools/llvm.sh), and links lld's driver (stage0/impld.cpp) where lld is a
+# library.  There is no C of the compiler's but that
 llvmflags=$(sh tools/llvm.sh cflags); llvmlibs=; llvmobjs=
 [ -n "$llvmflags" ] || { echo "direct: imp72 needs the LLVM libraries (llvm-config, tools/llvm.sh)" >&2; exit 1; }
 llvmlibs=$(sh tools/llvm.sh libs)
-cc -std=gnu99 -O1 -g -DIR2LL_LIB -c tools/ir2ll.c -o $out/ir2ll.o
-cc -std=gnu99 -O1 -g -c stage0/ir2llrun_shim.c -o $out/ir2llrun_shim.o                       # (until ir2ll is IMP)
-llvmobjs="$out/ir2ll.o $out/ir2llrun_shim.o"
 case $llvmflags in *HAVE_LLD*) c++ -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/impld.cpp -o $out/impld.o; llvmobjs="$llvmobjs $out/impld.o" ;; esac
 keep=
 for o in stage0/*.o; do

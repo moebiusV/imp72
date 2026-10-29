@@ -22,7 +22,7 @@ implementation for `imp72` and the seed keeps its own.
 | `stage0/imp72s0.c` | 616 | the driver: options, the back end choice, `--run`, `-I`, spawning `ir2c`/`cc1` and the linker `cc` (the clang is gone: `llvm_object` and `llvm_run` do the LLVM back end in the process) | `fork`/`system`/`exec`, `mkdtemp`, `readlink`, `realpath`, the calls into `llvmorc.c` | the seed's driver is the same file |
 | `stage0/pr.c`, `flavour0.c` | ~90 | `PRINT`'s items for the C that prints; `impk_main` | | yes |
 | `lib/imp72io.imp`, `imp72rt.imp` (were `imp72io.c`, `imp72rt.c`), `imp72sys.c`, `imp72main.imp` | | the runtime library every compiled program links: `PRINT`/`READ`/files (the tape's `PMOD`, `TBIN`, `TPRIN`, `TRAED`), `IFIX`, `fini`, `main` | stdio | yes: the seed's programs link it |
-| `stage0/llvmorc.c`, `tools/ir2ll.c` | 150, ~700 | **to move to IMP**: the ORC glue and the LLVM IR writer; the seed keeps its own `llvmorc.c` | the LLVM C API (`CCALL`) | llvmorc.c: yes |
+| `stage0/llvmorc.c`, `tools/ir2ll.c` | 262, ~1100 | **done**: the ORC glue (`src/llvm.imp`) and the LLVM IR writer (`src/ir2ll.imp`, `src/ir2llx.imp`) are IMP in `imp72`; the seed keeps its own C | the LLVM C API (`CCALL`) | yes |
 
 ## What the move needs
 
@@ -51,7 +51,7 @@ process, and LLVM is the only back end). What IMP taught: an array in IMP is the
 
 Each step: the build and `make check` pass before the next; the C it replaces is deleted from `imp72`'s link (and stays in the
 seed where the seed uses it).
-8. The glue to LLVM's C API: **done**, as `src/llvm.imp` (the ORC JIT, the object file, `-S`; the seed keeps `stage0/llvmorc.c`). The calls are `CCALL`s of the C API's functions, which needed two things of the FFI and the build.
+8a. The glue to LLVM's C API: **done**, as `src/llvm.imp` (the ORC JIT, the object file, `-S`; the seed keeps `stage0/llvmorc.c`). The calls are `CCALL`s of the C API's functions, which needed two things of the FFI and the build.
    *Names*: the symbol of a name was always lower case, and the C API's are `LLVMGetHostCPUName`; **a name with a lower case letter in it is now a foreign name exactly as written** (both code generators, `docs/FFI.md`;
    no IMP source had one), a name in capitals only is lower case as before. *The preprocessor*: what C chose with `#ifdef` is a module the build writes for the LLVM at hand, `tools/llvm.sh imp` (`llvmgen`):
    `LLVMNATIVEINIT` (the initialisation of the native target is an inline function of a header, so the target's own initialisers are called, named by the macros of `llvm-config.h`), `LVTSC` (how ORC takes a
@@ -64,6 +64,15 @@ seed where the seed uses it).
    Left: `lib/imp72sys.c` (the standard files, which are macros or variables of the system; the arena's `mmap`, whose flags differ; the section bounds, linker symbols with underscores; two calls through an address) and
    `lib/imphost.c` (`uname`, `dl_iterate_phdr`, `dladdr` and `readdir`, whose structures differ by system) say what only C can say; `impldhave`/`impld` are `stage0/impld.cpp`.
    `impfclose`, `impsetdefout` and the cells `impca` of `imp72sys.c` are IMP now (`lib/imp72io.imp`, `lib/imp72rt.imp`). `tests/native/*_main.c` are C by purpose (C calling IMP); whether they stay is for the user.
+8b. The LLVM IR writer (`tools/ir2ll.c`): **done**, as `src/ir2ll.imp` (the entry `IR2LLRUN(IN,OUT,P32)`, the reading, the data and the functions) and `src/ir2llx.imp` (the expressions and the statements; two files because of the limit of
+   2047 registers a compilation, see below), listed in `tools/direct.sh`, `tools/pccir.sh` and `tests/direct/run.sh`; `tools/ir2ll.c` is no longer linked into `imp72`, only into the seed. `src/llvm.imp` calls it, so there is no C shim. The output is the C's byte for byte: `tests/direct/ir2ll.sh` (in `make check`) gives the IR of the native tests, the oracle programs and the modules of the compiler, and the random IR of `tools/ir2ll-fuzz.py` (every operator, type, call shape and
+   directive), to both writers, for pointers of 64 and of 32 bits, and compares what they write, errors included (checked once on 190 IR files and 600 random ones, and in the i386 container; the only difference is the message about a tree cut off
+   by the end of the file, where the C prints what its stack had). Unlike the C, the state of a run is started again each time (the C keeps its sets of names from one run to the next). The text is built in buffers of its own, `open_memstream` having an underscore,
+   and a number is written by a decimal writer that needs no 64 bit argument; the scanning of the numbers and words (`sscanf` and `strtoll` of the C) is done by hand, so that it is the same on a 32 bit host.
+   What IMP taught here: **a compilation can name only 2047 registers** (`REGN` of `src/pccir/impsem.imp` is never given back and the index is 11 bits in the records), and past it the code is wrong without a word:
+   a formal argument was read from a temporary that nothing set, in the last routine of a long file (`AREG1` says so now); an array of 262144 words (2^18) is silently one byte, so keep arrays below that;
+   in `X AND Y => S` and `X OR Y => S` the `=>` takes only Y (`X AND (Y => S)`), so the whole condition is in parentheses: `((X) AND (Y)) => S`; labels are global to the compilation, not to the routine (a label twice is not an error and jumps to the wrong place);
+   `(( A AND K)=K) =>` is called ambiguous; a routine that calls itself (the expressions here) pushes what it needs on a stack of its own and takes its arguments into variables at once.
 9. The link: `src/driver.imp` links the executable with lld in the process (`LNK`: lld's driver through `CCALL IMPLD`, the files of the C library
    found by `TRYDIR` and `TRYDL`), for every system and architecture in its tables (Linux, FreeBSD, NetBSD, OpenBSD, macOS); a build without the lld library runs `ld.lld` as a program (`IMPRUNLD`), never `cc`. lld has no C
    interface, so `stage0/impld.cpp` (about 15 lines of C++, the one C++ file of the tree) gives its driver the plain C names `impld` and `impldhave`;
