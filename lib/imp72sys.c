@@ -43,6 +43,15 @@ long impcallout(long f) { return (long)(intptr_t)((void *(*)(void))(intptr_t)f)(
 #else
 #define ARENA_PROT PROT_NONE
 #endif
+/* the arena has to be at the same address every time, for the images: the address as asked, or the call fails, where the system has a flag for that (FreeBSD randomises even a
+ * hint; Linux has MAP_FIXED_NOREPLACE); where it has not, or does not know the flag, the hint */
+#if defined(MAP_EXCL)
+#define ARENA_EXACT (MAP_FIXED | MAP_EXCL)
+#elif defined(MAP_FIXED_NOREPLACE)
+#define ARENA_EXACT MAP_FIXED_NOREPLACE
+#else
+#define ARENA_EXACT 0
+#endif
 static char *core_base;
 static size_t core_reserved, core_usable;
 
@@ -57,14 +66,18 @@ impcorebase(long z)
     (void)z;
     if (core_base != NULL)
         return (long)core_base;
-    for (; r >= ((size_t)1 << 24); r >>= 1)
-        if ((p = mmap(hint, r, ARENA_PROT, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0)) != MAP_FAILED) {
-            core_base = p;
-            core_reserved = r;
-            if (getenv("IMP72COREDEBUG") != NULL)
-                fprintf(stderr, "core: asked for %zu bytes at %p, got them at %p\n", r, hint, p);
-            return (long)core_base;
-        }
+    for (; r >= ((size_t)1 << 24); r >>= 1) {
+        int exact;
+
+        for (exact = ARENA_EXACT != 0; exact >= 0; exact--)
+            if ((p = mmap(hint, r, ARENA_PROT, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE | (exact ? ARENA_EXACT : 0), -1, 0)) != MAP_FAILED) {
+                core_base = p;
+                core_reserved = r;
+                if (getenv("IMP72COREDEBUG") != NULL)
+                    fprintf(stderr, "core: asked for %zu bytes at %p%s, got them at %p\n", r, hint, exact ? " (exactly)" : "", p);
+                return (long)core_base;
+            }
+    }
     return 0;
 }
 
