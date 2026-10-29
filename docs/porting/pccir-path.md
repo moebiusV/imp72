@@ -1,6 +1,6 @@
-# The pcc IR path: the code generator that compiles to pcc IR
+# The IR path: the code generator that compiles to IR
 
-`src/pccir/` holds the translation of the tape's code generator into 64 bit IMP, for the machine that is pcc IR (`pccir-machine.md`; the design is in
+`src/pccir/` holds the translation of the tape's code generator into 64 bit IMP, for the machine that is IR (`pccir-machine.md`; the design is in
 `pccir-direct.md`). Files: `code.imp`, `code2.imp`, `code3.imp` (`code.imc`, `code2.imc`, `code3.imc`), `impsem.imp` (the register and declaration
 routines of `impsem.imc`), `demit.imp` (what `amod`, `rmod` and `omod` did: the chains of records to IR, through `stage0/ir.c`), `irsyn.imc` (macros),
 `syntax64.imc` (`decus/syntax.imc` with the operations of that machine; no immediate, self or both modes, halfwords, skips or register pairs).
@@ -11,7 +11,7 @@ by value (`CCALL`).
 
 `make` builds it (`tools/pccir.sh`): stage 1 is made by the seed (`stage0/`, the C code generator) from `src/pccir` and the compiler's own IMP
 modules, stage 2 by stage 1, and `make install` installs stage 2 as `bin/imp72` (with `share/imp72/syntax64.imc` and `lib/imp72/libimp72.a`);
-the seed stays as `bin/imp72stage0`. Where pcc, an ELF `objcopy` or x86_64 is missing, `imp72` is the seed, as before. By hand:
+the seed stays as `bin/imp72stage0`. Where the LLVM libraries or an ELF `objcopy` are missing, `imp72` is the seed, as before. By hand:
 
     make
     tools/direct.sh                    # build/direct/imp72d, build/direct/imp72stage-pccir (the driver)
@@ -25,11 +25,10 @@ itself and requires the second generation to write the same IR as the first for 
 
 ## Optimization
 
-Pass 2 of pcc runs with all its optimizations by default (`-xtemps -xdeljumps -xdce -xssa -xccp -xscp -xtailcall`; `IMP72CC1FLAGS=` sets other flags, an empty value
-none). Two things in the IR make that work: pcc's `deljumps` wants the layout `PROLOG, LABEL, argument moves, LABEL, code, EPILOG`, so each function has a label
-after the argument moves; and a double is never held in a temp (on the i386 `-xtemps` mishandles the x87 stack for them): the word is stored in a scratch word
-`imp_fs0`/`imp_fs1`, read as a double where it is used, and the result is stored in `imp_fsr` and read back as a word. The seed's translator (`trans.c`) still holds doubles in temps,
-so the seed driver leaves out `-xtemps` and `-xssa`.
+LLVM optimises the module in the process with `default<O1>` (`stage0/llvmorc.c`). Two properties of the IR were made for pcc's pass 2, which has gone: each
+function has a label after the argument moves (`PROLOG, LABEL, argument moves, LABEL, code, EPILOG`), and a double is never held in a temp: the word is stored in a
+scratch word `imp_fs0`/`imp_fs1`, read as a double where it is used, and the result is stored in `imp_fsr` and read back as a word. Whether `ir2ll` still needs
+them is not recorded here; the seed's translator (`trans.c`) holds doubles in temps.
 
 ## What differs from the original, and why
 
@@ -68,7 +67,7 @@ counterpart of (`amod`, `rmod`, `omod`).
 
 `XWD A,B` is `(A AND HMASK) LS 32 OR (B AND HMASK)` (the halves are 32 bits) and `IOWD A,B` is `XWD -A,B-1`; `CALLI(A,B)` calls the library routine `imp_calli` with the
 code and the AC (an operation of the machine, as the instruction was); `EXECUTE A` does the one instruction of the machine that the word A holds (what XCT does, and what the tape uses it for: a block move, a call, a monitor
-service built at run time). The machine is the pcc IR machine, so the word is one of its instructions: the operation in bits 56-63 (the numbers of
+service built at run time). The machine is the IR machine, so the word is one of its instructions: the operation in bits 56-63 (the numbers of
 `pccir-machine.md`), the accumulator in 52-55, the index register in 48-51, bit 47 for an immediate operand, and the address or number in the low 47 bits. The
 library's `imp_xct` does it, with the registers 0R to 15R as the accumulators (the code stores the ones it uses in `imp_ac` before and loads them after). It does the
 operations on integers and CALLI; jumps and floating point are an error at run time. The places in the tape that built a PDP-10 word for EXECUTE are changed
@@ -76,4 +75,4 @@ to build this one as they are translated. `tests/direct/progs/pdp10.imp` and `ex
 
 ## What remains
 
-The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Tried: x86_64 and i386 (the primary targets), and aarch64 (in a container). Not done: armv7 and the others (`make` skips the pcc IR compiler there). On a 32 bit machine a call cannot carry a 64 bit word, so the helpers that IMP calls with `CCALL` (`stage0/pccirsem.c`) take `long`s and a 64 bit value crosses as two halves, and the runtime routines for shifts take addresses, `PRINT` of the text constants over 8 characters in `LOC`, 
+The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Tried: x86_64 and i386 (the primary targets), and aarch64 (in a container). Not done: armv7 and the others (`make` skips the IR compiler there; these were run with the back ends of the time, before LLVM was the only one). On a 32 bit machine a call cannot carry a 64 bit word, so the helpers that IMP calls with `CCALL` (`stage0/pccirsem.c`) take `long`s and a 64 bit value crosses as two halves, and the runtime routines for shifts take addresses, `PRINT` of the text constants over 8 characters in `LOC`, 

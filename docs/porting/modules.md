@@ -15,11 +15,11 @@ the layout of the tables is `layouts.md`; a name is eight characters to a word; 
 | `graph`, `parse`, `ercor` | halves of 32 bits; the parser takes its goal as a name; `PSTATS` is IMP |
 | `entree`, `cotree`, `dosem`, `rsyn` | the layouts of `layouts.md`; the semantic routines register themselves with `DSEM`, which enters their addresses in a table in C (`stage0/semtab.c`) where the tape patches the address into a `JSA`; |
 | `debug` | the print-outs use `PRINT`; the dumps show the layouts of this machine |
-| `impsem`, `code`, `code2`, `code3` | they make chains of records of the pcc IR machine instead of PDP-10 words (`pccir-path.md`); `EXECUTE` runs one instruction of that machine; `HRL` and `HRR` are the operations 66 and 67 |
-| `demit` | takes the place of `amod`, `rmod` and `omod`: chains to pcc IR through `stage0/ir.c`; a `GO TO` to a tag of another routine is a `longjmp` |
+| `impsem`, `code`, `code2`, `code3` | they make chains of records of the IR machine instead of PDP-10 words (`pccir-path.md`); `EXECUTE` runs one instruction of that machine; `HRL` and `HRR` are the operations 66 and 67 |
+| `demit` | takes the place of `amod`, `rmod` and `omod`: chains to IR through `stage0/ir.c`; a `GO TO` to a tag of another routine is a `longjmp` |
 | `impm` | the driver program: the command line (`IMPK`) as well as the tape's commands from the terminal (`-i`: `GETTY`, `READCMD`, the loop `AGAINSAM`); `ERROR`, `MSG` and `OUTSTR` writing to standard error; a fatal error returns to the driver through `impfatal` where the tape goes to `FIN` |
 
-Still C: `stage0/ir.c` (the builder of pcc IR), `stage0/sys.c` (arguments, the listing, the terminal), `stage0/semtab.c`
+Still C: `stage0/ir.c` (the builder of IR), `stage0/sys.c` (arguments, the listing, the terminal), `stage0/semtab.c`
 (the table of semantic routines), `stage0/pccirsem.c` (the routines `CCALL` reaches, `FCON`, `LETSYN`, `CVAL`, the `/A`
 listing).
 
@@ -40,7 +40,7 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 | `IINIT`, `PAIRFIRST` | `pccir/impsem` | `IINIT` is the initialisation that the tape does where the routines are defined (the 64-bit module sets its tables when first called); `PAIRFIRST` tests whether the register of a pair comes first, which `HISREG` did by looking at the code | forced: no register pairs |
 | `REGFIELD` | `pccir/code` | the register field of an entry word, written in the tape as a byte-pointer field | forced |
 | `ADDREC`, `SETNEXT`, `JOP`, `CJUMP`, `MOVEBLK` | `pccir/code2` | `ADDCODE` of the tape adds a PDP-10 instruction word; `ADDREC` adds a record of the IR machine. The others are the tape's jump and block-move code with the machine's operations | forced |
-| `demit.imp` | | replaces `amod`, `rmod` and `omod` (the PDP-10 assembler): the chains become pcc IR | forced |
+| `demit.imp` | | replaces `amod`, `rmod` and `omod` (the PDP-10 assembler): the chains become IR | forced |
 
 **Dropped**
 
@@ -48,10 +48,10 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 |---|---|
 | `DORGFIX`, `GORGFIX`, `TORGFIX` | they re-aimed byte pointers into `PRP`, `GA` and `CT` after the low segment moved; fields here are macros over an index |
 | `TMPCOR`, `GETMP`, `OPENOUT`, `PEEKAT`, `RLEAS`, `TMPFL` | the TOPS-10 core files and chaining of the command loop (a program leaves its command line in core for the next one), and the files of its log; Unix has no counterpart |
-| `OCHK`, `OPCODE`, `RCOCHK` | the PDP-10 assembler and the search of the code for register use; pcc allocates the registers |
+| `OCHK`, `OPCODE`, `RCOCHK` | the PDP-10 assembler and the search of the code for register use; LLVM allocates the registers |
 | `SUBTAG`, `PARAMETERS` | nothing on the tape calls them |
 
-**Still C**: nothing of the tape's routines is only in C in the compiler `imp72` (the seed `imp72stage0` is the C kernel, `stage0/`, by design). `PCODE` and `PCODE1` (the `/A` listing) are in `src/pccir/code3.imp` and list the records of the pcc IR chain, not PDP-10 instructions; `HELPD`, `GPRINT`, `TPRINT` and `PARTRA` call the tape's debugging routines directly (the tape tests whether the debugging module is loaded; it always is here); `FORMARG` is in `src/rsyn.imp` (nothing calls it, on the tape either).
+**Still C**: nothing of the tape's routines is only in C in the compiler `imp72` (the seed `imp72stage0` is the C kernel, `stage0/`, by design). `PCODE` and `PCODE1` (the `/A` listing) are in `src/pccir/code3.imp` and list the records of the IR chain, not PDP-10 instructions; `HELPD`, `GPRINT`, `TPRINT` and `PARTRA` call the tape's debugging routines directly (the tape tests whether the debugging module is loaded; it always is here); `FORMARG` is in `src/rsyn.imp` (nothing calls it, on the tape either).
 
 **The byte pointer is a byte address.** `BYTEP A<7,36>` (the tape's pointer to the characters of A; `A<8,64>` also) is the byte
 address of the byte before the first of A, `<+P>` adds 1 and then reads or writes the byte there, and a character is a byte
@@ -74,7 +74,7 @@ address space once (`stage0/sys.c`) and makes more of it usable; `realloc` would
 the prompt `*` and a command `REL,LST_FILE.EXT[PJ,PG]/A/B...(AB...)PGM\`, as the tape's `READCMD` takes it. As on the tape one
 compilation ends the session unless the switch `C` is given, and a fatal error ends it. What differs: the file name is 15
 characters and the extension 7 (the tape's are 6 and 3); `FILE` is tried as given and then with `.imp` and `.imc`; the output
-`REL` is the pcc IR (`REL.ir`) and `LST` a listing (`LST.lst`, written when `LST` is given); the device and the project and
+`REL` is the IR (`REL.ir`) and `LST` a listing (`LST.lst`, written when `LST` is given); the device and the project and
 programmer number are read and ignored; `\PGM` runs `PGM` with the shell and returns to the prompt where the tape chains to
 it; the line editing of the terminal is the system's, so `GETTY` ends a line at a newline and has no echo of its own; a line is
 at most 136 characters (the tape's `BF` is 17 words, of 5 characters there and 8 here, and had no check; `BF` has a word more for the `%` and the end). The banner has the date, from
@@ -107,8 +107,6 @@ order. Where the IMP source gave a character code to a name (`DIR(CHAT(<+K>,0))`
 a name word (`CHR0(DNAME(N,0))`), it says so with those macros; a byte pointer needs none. An image (`U`, `V`) is for the byte
 order and the build that made it.
 
-**Back ends.** The code generator writes pcc IR (lowered for amd64: the arguments of a call in rdi, rsi, ..., the result in rax)
-whatever the host, and three programs read it: `tools/ir2ll.c` (LLVM IR; the default where the compiler was built with the LLVM libraries),
-`tools/ir2c.c` (C, for the host's cc) and pcc's pass 2. `--backend=NAME` or `IMP72BACKEND` chooses. The compiler links `libLLVM` and does the `llvm` back end in the process, with no clang (`llvm_object`, `llvm_run` in
-`stage0/llvmorc.c`, `ir2ll_run`): `imp72 --run` compiles a program with ORC and calls its `imp_main`. The records that name the compiler's own variables for the image are a section `impvars` (`ir_varrec`), written by pcc as
-assembler and by the other two as data.
+**Back ends.** The code generator writes IR (lowered for amd64: the arguments of a call in rdi, rsi, ..., the result in rax)
+whatever the host, and `tools/ir2ll.c` reads it (LLVM IR; LLVM is the only back end). The compiler links `libLLVM` and does the `llvm` back end in the process, with no clang (`llvm_object`, `llvm_run` in
+`stage0/llvmorc.c`, `ir2ll_run`): `imp72 --run` compiles a program with ORC and calls its `imp_main`. The records that name the compiler's own variables for the image are a section `impvars` (`ir_varrec`), written as data by the LLVM back end.

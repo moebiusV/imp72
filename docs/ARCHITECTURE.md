@@ -15,8 +15,8 @@ IMP72 is a small kernel plus a language defined in data. This page is the map; t
                                               dosem: the semantic routines of the syntax file run
                                                                  │  (impsem, code, code2, code3: chains of IR records)
                                                                  ▼
-                                   demit: chains ──► pcc IR ──► ir2ll ──► LLVM (in the process) ──► object ──► executable
-                                              └──► ir2c ──► cc            └──► pcc pass 2 (cc1) (WITH_PCC=yes)
+                                   demit: chains ──► IR ──► ir2ll ──► LLVM (in the process) ──► object ──► executable
+                                                                                  └──► ORC: --run
 ```
 
 - **Kernel** (`decus/` is the original, `src/` its translation to 64-bit IMP, `stage0/` the seed, a port to C): the lexer
@@ -28,15 +28,12 @@ IMP72 is a small kernel plus a language defined in data. This page is the map; t
   `<CLASS> ::= elements ::= semantics` that `rsyn` reads first with a small notation of its own and then the parser itself
   reads, each semantics a call of the semantic routines.
 - **The semantic routines** (`src/impsem`, `src/pccir/`) keep their names from the original. They build chains of records
-  in free array `CO`, whose operations are those of the pcc IR machine (`docs/porting/pccir-machine.md`); registers are
+  in free array `CO`, whose operations are those of the IR machine (`docs/porting/pccir-machine.md`); registers are
   temporaries. `demit.imp` turns a chain into IR trees through `stage0/ir.c` one function at a time.
-- **Back ends**, chosen by `--backend=NAME` or `IMP72BACKEND` (the default is `llvm` where the compiler was built with the LLVM libraries, else `c`). `llvm`:
-  `tools/ir2ll.c` turns the IR into a module of LLVM IR and LLVM, in the compiler's own process, makes the object, for every target LLVM has, big-endian ones
-  included. `c`: `tools/ir2c.c` turns it into C for the host's cc. `pcc`: `cc1`, pcc's pass 2, built from the `moebiusv/pcc`
-  fork with `make WITH_PCC=yes`, for amd64, aarch64 and i386. All three read the same IR (as lowered for amd64: the arguments
-  of a call in registers, the result in rax), so the compiler's output does not depend on the back end or on the host. Where the LLVM
-  libraries are installed the `llvm` back end runs in the compiler's own process (`stage0/llvmorc.c`: the module is parsed, optimised
-  and emitted by the C API, or compiled by ORC and run: `imp72 --run`).
+- **Back end**: LLVM, and only LLVM. `tools/ir2ll.c` turns the IR into a module of LLVM IR, and LLVM, in the compiler's own process
+  (`stage0/llvmorc.c`: the module is parsed, optimised and emitted by the C API, or compiled by ORC and run: `imp72 --run`), makes
+  the object for every target LLVM has, big-endian ones included. The IR is lowered for one machine (the arguments of a call in
+  registers, the result in rax), so the compiler's output does not depend on the host.
 - **Runtime** (`lib/`): `PRINT` and `READ` with their formats, `FINI`, the C entry `main`, the library routines the
   generated code calls (`imp_lsh`, `imp_xct`, `imp_calli`, ...) and the FFI of `lib/ffi.imc`.
 

@@ -1,10 +1,10 @@
-# The machine the code generator compiles to: pcc IR
+# The machine the code generator compiles to: IR
 
 The code generating routines of the tape (`code.imc`, `code2.imc`, `code3.imc`) generate PDP-10 instructions into free array `CO`.
 The translation in `src/pccir/` generates the operations of the machine this port compiles to, which is the intermediate representation
-of pcc (`stage0/ir.h`): 64 bit words, byte addresses, `double` for REAL, an unlimited supply of virtual registers (IR temporaries), and
+of the compiler (`stage0/ir.h`; its text is that of pcc's pass 2, where it comes from): 64 bit words, byte addresses, `double` for REAL, an unlimited supply of virtual registers (IR temporaries), and
 the C procedure call standard. `amod`, `rmod` and `omod` (the assembler, the register allocator and the object writer) are not
-translated: `src/pccir/demit.imp` walks the chains and calls `ir.c`, and pcc makes the object file for the machine at hand.
+translated: `src/pccir/demit.imp` walks the chains and calls `ir.c`, and LLVM (`tools/ir2ll.c`) makes the object file for the machine at hand.
 
 The structure of the original is kept: the code of a stack entry is a chain in `CO`, `HOOK` joins chains, `ADDCODE` extends one,
 `DEWOP(OP,R,S)` adds an instruction with accumulator R and the operand S, and the same routines (`STORE`, `FETCH`, `ADDOP`, `CONOP`, ...)
@@ -62,6 +62,6 @@ index register count words when there is a variable (`V[I]` is `&V + 8*I`) and b
 
 ## Original modules
 
-Every module of decus/ compiles with the pcc IR compiler. REMOTE code is emitted with its routine (ops 66 HRLM, 67 HRRM map HRL/HRR of impsyn.imc; 68 marks remote code).
+Every module of decus/ compiles with the IR compiler. REMOTE code is emitted with its routine (ops 66 HRLM, 67 HRRM map HRL/HRR of impsyn.imc; 68 marks remote code).
 
 A GO TO to a tag of another routine (ERROR of impm.imc goes to FIN of the main program) is a longjmp: the routine that has the tag takes a `_setjmp` into `imp_jb_<tag>` at its entry, and the jumping routine calls `longjmp` on it. Like the PDP-10 jump it does not return, and it needs the routine with the tag to be still running (the main program is). A GO TO to a tag that no routine has is an error naming the tag.

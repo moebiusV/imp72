@@ -1,7 +1,7 @@
 # Direct IR: the semantics emit IR, not PDP-10 code
 
 Status, 2026-10-23: built and verified (`tools/direct.sh`, `tests/direct/`). `src/pccir/` is the translation of the tape's `code*.imc`, `impsem.imc` and
-`syntax.imc` with the operations of pcc IR in place of the PDP-10's, and `demit.imp` takes the place of `amod`/`rmod`/`omod`. The old path
+`syntax.imc` with the operations of IR in place of the PDP-10's, and `demit.imp` takes the place of `amod`/`rmod`/`omod`. The old path
 (`codegen.c` -> PDP-10 chains -> `trans.c` -> IR) is still in the tree, as the seed that compiles `src/pccir` the first time and as the reference the
 new path is compared with; what it takes to remove it is at the end of `docs/porting/pccir-path.md`.
 
@@ -11,7 +11,7 @@ Today `syntax.imc` calls `DEWOP(254B,...)`, `ADDOP(164B,...)`, `CONOP(...,100001
 PDP-10 instruction words (opcode, AC, index register, address, immediate/self/both modes, halfword moves) in code chains, and `trans.c`
 (1776 lines) reads each chain as a PDP-10 program and writes IR. Every 36-vs-64 bit difference is a special case in that translator
 (halves are 32 bits, `AND NOT 777777B` is a halfword move, an integer compare or negation of a real is marked by `dewop` (`REALOP`) and made floating point,
-immediate floating operands are untranslated, byte pointers are emulated). None of that is wanted: pcc already does register allocation,
+immediate floating operands are untranslated, byte pointers are emulated). None of that is wanted: LLVM already does register allocation,
 immediates, peepholes and instruction selection.
 
 ## What is kept
@@ -22,8 +22,8 @@ immediates, peepholes and instruction selection.
   word 1 = register / constant, word 2 = code. The pattern predicates (`0CON`, `0REG`, `0IGR`, `0FLT`, `0VAR`, `0MEM`) are about this
   layout and keep meaning what they mean. (`0CON18` has no meaning without immediates: patterns that test it are dropped.)
 - `src/impsyn64.imc` and the module sources.
-- `ir.c` (the IR text writer, 315 lines) and the pcc / C back ends behind it: this is the C back end, and the only C that stays for code
-  generation. IMP calls it through `CCALL` (a pointer is a 64 bit word).
+- `ir.c` (the IR text writer, 315 lines), then the only C that stayed for code generation. IMP calls it through `CCALL` (a pointer is a
+  64 bit word). Since then `src/pccir/ix.imp` has taken its place in `imp72`; the seed keeps `ir.c`.
 
 ## What changes
 

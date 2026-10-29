@@ -36,7 +36,7 @@ that `SEMR` accepts the names in `syntax.imc`; the ones that generate code
 and stop with `SEMANTIC ROUTINE X IS NOT YET PORTED` if called. Reading syntax
 statements calls only `HOOK`, `ASSEMC`, `NEWLIST`, `ENLIST`, `GETLIST` among
 them, for entries without code attached (`HOOK` and `ASSEMC` stop if code is
-attached). They are replaced when the compiler switches to pcc IR.
+attached). They are replaced when the compiler switches to IR.
 
 ## Differences and decisions
 
@@ -72,4 +72,4 @@ code and is still a stub.
 ## Next
 
 The semantic routines that generate code (`code*.imc`, the rest of
-`impsem.imc`), which the switch to pcc IR replaces.
+`impsem.imc`), which the switch to IR replaces.

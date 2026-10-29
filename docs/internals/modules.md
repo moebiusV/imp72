@@ -127,13 +127,12 @@ instruction words (instruction, constant, link, special function) with virtual r
 bits. The registers are those of the original's array `RG`. Not ported: the PDP-10 assembler, register allocator and
 object module (below). These files are the modern-platform port; a 36 bit PDP-10 build would be a separate thing.
 
-## trans, ir, pcode: from code chains to pcc IR
+## trans, ir, pcode: from code chains to IR
 
-`trans.c` reads each code chain as a PDP-10 program over virtual registers and writes pcc IR (`ir.c` writes the text),
+`trans.c` reads each code chain as a PDP-10 program over virtual registers and writes IR (`ir.c` writes the text),
 one function at a time; the meaning of an instruction is the PDP-10's with the changes for a 64 bit machine with byte
 addresses (`docs/internals/codegen-and-translation.md`). It replaces `amod`, `rmod` and `omod`. `pcode.c` lists a chain as
-PDP-10 assembly (`-s A`), standing in for `PCODE1` and `ALIST`. `tools/ir2c.c` turns the same IR into C (the C back end,
-`docs/internals/c-backend.md`).
+PDP-10 assembly (`-s A`), standing in for `PCODE1` and `ALIST`.
 
 ## debug, pr, error: services
 
@@ -145,5 +144,5 @@ of the driver: `N<=1` sets the error flag (which lists the source from the first
 ## driver: imp72s0.c
 
 Two programs in one binary, by its name: `imp72s0` (the kernel: read the bootstrap syntax with RSYN, then compile files;
-`-s` switches, `-c` IR) and `imp72stage0`/`imp72` (the compiler: syntax and `ffi.imc`, then pcc's `cc1` or the C back end
-to an executable, an object, assembly or C). It finds its parts relative to itself, in the tree or installed.
+`-s` switches, `-c` IR) and `imp72stage0`/`imp72` (the compiler: syntax and `ffi.imc`, then LLVM in the process
+to an executable, an object or LLVM IR). It finds its parts relative to itself, in the tree or installed.

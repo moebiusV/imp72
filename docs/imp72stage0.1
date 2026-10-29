@@ -39,18 +39,11 @@ Variables are common symbols.
 .Pp
 Unless told otherwise,
 .Nm
-compiles with the code generator of pcc where it was built
-.Pq amd64, aarch64 and i386 hosts
-and with the host's C compiler elsewhere.
+makes the machine code with LLVM, in its own process.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl C
-Use the C back end: the program is turned into C and compiled by the host's
-C compiler.
-This is the only back end on hosts that pcc does not build for.
 .It Fl S
-Stop after generating assembly
-.Pq with Fl C , No C .
+Stop after writing the LLVM IR.
 .It Fl c
 Stop after generating the object file.
 .It Fl o Ar output
@@ -67,14 +60,6 @@ semantics,
 .Ql X
 syntax graph.
 .El
-.Sh ENVIRONMENT
-.Bl -tag -width Ds
-.It Ev IMP72BACKEND
-.Ql c
-or
-.Ql pcc ,
-to choose the back end.
-.El
 .Sh FILES
 .Bl -tag -width Ds
 .It Pa /usr/share/imp72/syntax.imc
@@ -89,8 +74,7 @@ The compiler proper, the back ends and the runtime library
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
-.Xr cc 1 ,
-.Xr pcc 1
+.Xr cc 1
 .Pp
 .Pa /usr/share/doc/imp72/
 .Sh AUTHORS

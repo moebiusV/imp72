@@ -1,13 +1,13 @@
-# Code generation and translation to pcc IR
+# Code generation and translation to IR
 
 `imp72stage0 prog.imp` compiles an IMP72 program to a native executable:
 
     stage 0  (imp72s0)   parse, run the semantics of decus/syntax.imc
        |                  -> PDP-10 code chains          (codegen.c, as code.imc)
-    trans.c               -> pcc IR text                  (ir.c)
+    trans.c               -> IR text                  (ir.c)
        |
-    cc1                   -> amd64 assembly               (pass 2 of pcc)
-    cc                    -> object; linked with build/lib/libimp72.a
+    ir2ll + LLVM          -> object                       (in the process)
+    cc                    -> linked with build/lib/libimp72.a
 
 ## The code generator is the original's
 
@@ -34,7 +34,7 @@ through the pool); `FIX` takes an argument of no arithmetic type as an integer
 ## Translation (`trans.c`)
 
 The chain of the whole program is read as a PDP-10 program over virtual
-registers (an index into the register array `RG` is a pcc `TEMP`; pcc
+registers (an index into the register array `RG` is an IR `TEMP`; LLVM
 allocates). A subroutine starts at a tag followed by a zero word naming it
 (`SF0 ADD2:` / `000 ADD2`); the statements before the first subroutine are the
 main program, the function `imp_main`.
@@ -61,11 +61,10 @@ way round, by passing pointers.
 **Skips.** `CAMG R,X` skips the next instruction if R>X: it becomes a
 conditional branch to a label after the next instruction.
 
-**IR.** `ir.c` writes the text `mip/reader.c` of pcc reads: a node to a line,
-preorder; `!` prolog, `^` label, `%` epilog, `*` text for the assembler.
-`cc1` is pass 2 of the fork built with `--enable-twopass` (the top-level
-`make` does it, needing no yacc or lex); the writer of that fork's pass 1 is out
-of date, which does not matter: ours writes the format its reader reads.
+**IR.** `ir.c` writes the IR as text: a node to a line, preorder; `!` prolog,
+`^` label, `%` epilog, `*` text. The format is that of a compiler's pass 2 (pcc's,
+which is where it comes from); `tools/ir2ll.c` reads it and writes LLVM IR, and
+LLVM makes the object in the process.
 
 ## PRINT and the runtime
 
@@ -86,8 +85,8 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
   `LDB`/`DPB`/`IBP`/`ILDB`/`IDPB` work through such a word. Stepping moves to the
   next lower field, or to the next word (address + 8) when there is no room, as
   on the PDP-10 but with 64 bits in the word.
-- **Variable shifts:** pcc's amd64 table takes a variable shift count only as
-  an unsigned char, in a tree with one variable shift and a temp as the
+- **Variable shifts:** the shift count of a variable shift is an unsigned char
+  (a restriction that came from pcc's amd64 table and is kept), in a tree with one variable shift and a temp as the
   operand, so `shiftop` (`trans.c`) goes through temps.
 - **Computed `GO TO (L0,L1,...) N`:** `JRST table(N)` followed by the table of
   `JRST` words becomes a chain of compares.
@@ -97,7 +96,7 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
 - **`DATA` words** (a tag followed by constants in the code) become initialised
   data named for the tag.
 - **More than 6 arguments:** the extra pointers go in the outgoing stack area
-  (an assignment to `0(%rsp)+8k` in the call's list, which pcc reserves), and
+  (an assignment to `0(%rsp)+8k` in the call's list, the outgoing stack area), and
   the callee reads them at `16(%rbp)+8k`.
 - **Reals** are IEEE doubles in a word: the double's own bits. `FLOAT` is `FSC ac,233` (int to double),
   `FADR`/`FSBR`/`FMPR`/`FDVR` go through the scratch word `imp_fs`, floating
