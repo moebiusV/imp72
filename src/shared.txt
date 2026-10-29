@@ -53,4 +53,4 @@ listing
 quiet
 symc
 nsymc
-imp_main
+impmain

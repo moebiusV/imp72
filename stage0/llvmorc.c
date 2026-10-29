@@ -239,13 +239,13 @@ llvmsave(const char *ir, const char *out)                           /* the modul
 }
 
 long
-llvmrun(const char *ir)                                             /* compile with ORC and run: the main program is imp_main */
+llvmrun(const char *ir)                                             /* compile with ORC and run: the main program is impmain */
 {
     char *buf = NULL;
     size_t n = 0;
     long r = 0;
 
-    return module(ir, &buf, &n) != 0 || llvm_run(buf, n, "imp_main", &r) != 0;
+    return module(ir, &buf, &n) != 0 || llvm_run(buf, n, "impmain", &r) != 0;
 }
 
 #else

@@ -109,4 +109,4 @@ order and the build that made it.
 
 **Back ends.** The code generator writes IR (lowered for amd64: the arguments of a call in rdi, rsi, ..., the result in rax)
 whatever the host, and `tools/ir2ll.c` reads it (LLVM IR; LLVM is the only back end). The compiler links `libLLVM` and does the `llvm` back end in the process, with no clang (`llvm_object`, `llvm_run` in
-`stage0/llvmorc.c`, `ir2ll_run`): `imp72 --run` compiles a program with ORC and calls its `imp_main`. The records that name the compiler's own variables for the image are a section `impvars` (`ir_varrec`), written as data by the LLVM back end.
+`stage0/llvmorc.c`, `ir2ll_run`): `imp72 --run` compiles a program with ORC and calls its `impmain`. The records that name the compiler's own variables for the image are a section `impvars` (`ir_varrec`), written as data by the LLVM back end.

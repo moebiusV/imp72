@@ -18,7 +18,7 @@ PCCIR = build/pccir2/imp72d          # the compiler with the code generator of s
 
 all: stage0 $(LIB) pccir
 
-$(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.c lib/imp72main.c
+$(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.c lib/imp72main.imp
 	CFLAGS="$(CFLAGS)" sh tools/mklib.sh
 
 # stage 1 by the seed, stage 2 by stage 1 (skipped where the LLVM libraries are missing)

@@ -1599,7 +1599,7 @@ subr(long i0, long i1, int ismain)
     pendskip = 0;
     if (!ismain && nfnames < 512)
         fnames[nfnames++] = name;
-    ir_func_begin(ismain ? "imp_main" : symname(name), 1);
+    ir_func_begin(ismain ? "impmain" : symname(name), 1);
     retlab = ir_newlabel();
     for (k = 0; k < nparams; k++) {
         paramtmp[k] = ir_newtemp();

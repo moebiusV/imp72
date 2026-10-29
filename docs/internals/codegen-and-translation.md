@@ -37,7 +37,7 @@ The chain of the whole program is read as a PDP-10 program over virtual
 registers (an index into the register array `RG` is an IR `TEMP`; LLVM
 allocates). A subroutine starts at a tag followed by a zero word naming it
 (`SF0 ADD2:` / `000 ADD2`); the statements before the first subroutine are the
-main program, the function `imp_main`.
+main program, the function `impmain`.
 
 **Words, addresses.** A word is 64 bits, a halfword (`HRRZ`, `<L>`, `<R>`)
 32. The address of a variable is its byte address. In an instruction that

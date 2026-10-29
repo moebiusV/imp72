@@ -610,7 +610,7 @@ driver_main(int argc, char **argv)
     fflush(NULL);
 
     {                                               /* LLVM in the process */
-        if (jit) {                                  /* compile and run: the main program is imp_main */
+        if (jit) {                                  /* compile and run: the main program is impmain */
             rc = llvmrun(ir) != 0;
             fflush(NULL);
         } else if (stop == 'S')
