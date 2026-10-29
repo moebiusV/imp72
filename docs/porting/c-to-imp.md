@@ -59,3 +59,8 @@ seed where the seed uses it).
    found by `TRYDIR` and `TRYDL`), for every system and architecture in its tables (Linux, FreeBSD, NetBSD, OpenBSD, macOS); a build without the lld library runs `ld.lld` as a program (`IMPRUNLD`), never `cc`. lld has no C
    interface, so `stage0/impld.cpp` (about 15 lines of C++, the one C++ file of the tree) gives its driver the plain C names `impld` and `impldhave`;
    `llvmorc.c` has stubs for a build without lld. The loader and the C library are found by what this program runs with (`lib/imphost.c`).
+10. `tools/imprename.imp` (was `tools/imprename.c`): the part of `nm` and `objcopy` that `tools/direct.sh` used, in IMP, for ELF (32 and 64 bit, either byte order) and Mach-O, compiled by the driver that builds
+    the stage in hand. Checked byte for byte against the C it replaced on the 22 modules. What IMP taught: `ELSE` after a chain of conditions is ambiguous, so the inner test is parenthesised; an empty string
+    literal is not allowed; the main program comes before the `SUBR`s and the last `SUBR` has no semicolon; and a **bug of the code generator**: in `X[J-1]` the constant -8 of the address is encoded in 21 bits
+    (`0x1ffff8` where `-8` is meant), so the program crashes; `K_J-1; X[K]` does not.
+

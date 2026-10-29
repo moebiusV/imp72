@@ -8,7 +8,7 @@ The seed (`stage0/`) is C99 and needs libc and the LLVM C API (below); it builds
 (`make CC=clang`, `make CC=gcc`). The compiler is built in three steps
 (`docs/BOOTSTRAP.md`): the seed compiles `src/` into stage 1, stage 1 compiles `src/` again into stage 2, and stage 2
 is installed as `bin/imp72` with `share/imp72/syntax64.imc` and `lib/imp72/libimp72.a`. The seed stays as
-`bin/imp72stage0`. The steps need the LLVM libraries (linked into the compilers); what the build used of `nm` and `objcopy` is `tools/imprename.c`, for ELF and Mach-O. Where lld is installed as a
+`bin/imp72stage0`. The steps need the LLVM libraries (linked into the compilers); what the build used of `nm` and `objcopy` is `tools/imprename.imp` (IMP, compiled by the driver in use), for ELF and Mach-O. Where lld is installed as a
 library too (`liblld-NN-dev`, `lld-dev`, Homebrew's `lld`; the same version as LLVM), the driver links executables in the process; otherwise it runs `ld.lld` (`ld64.lld`) as a
 program, found in the `PATH` and then in the `bin` directory of the LLVM it was built with (OpenBSD's own linker is lld and has no library). It never runs `cc`.
 

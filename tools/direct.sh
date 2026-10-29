@@ -12,8 +12,7 @@ modules=${MODULES:-impsem code code2 code3 demit ix}
 srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm driver}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 mkdir -p "$out"
-imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.c)
-cc -std=c99 -O1 -o "$imprename" tools/imprename.c
+imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.imp, built below by the driver)
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
 mkdir -p $out
@@ -21,6 +20,7 @@ export IMP72WIDE=1                          # the seed folds the constants of th
 # the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
 endf=$(sh tools/endian.sh)
 export IMP72ENDIAN=$endf
+$driver -o "$imprename" tools/imprename.imp >$out/imprename.log 2>&1 || { cat $out/imprename.log >&2; echo "direct: imprename failed" >&2; exit 1; }
 for m in $modules; do
     IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }

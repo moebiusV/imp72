@@ -71,7 +71,7 @@ translation of the tables and the driver program.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
    installed, and bring the Makefile, CI and docs in line.
 6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study in
-   depth (do not implement) seven things, and write up the recommendations and
+   depth (do not implement) eight things, and write up the recommendations and
    the impact on the code: UTF-8 symbols for operators; C's syntax for strings
    and characters; the tape's channel I/O (`INIT`, `LOOKUP`, `INPUT`, the buffer
    header) kept as it is with `fopen` and `putc` underneath; the type that a
@@ -79,7 +79,8 @@ translation of the tables and the driver program.
    called with `CCALL`, and whether C's return types should be declared;
    NUL-terminated C strings in IMP against strings that carry their length (the
    preference is for the latter); file names that match Unix's limits (the
-   tape's six characters and three of the extension, where `MKNAME` allows 15 and 7); and assignment
+   tape's six characters and three of the extension, where `MKNAME` allows 15 and 7); the empty string `''`, which is a
+   syntax error today (a program that needs an empty C string passes the address of a zero byte), and whether it should be a literal; and assignment
    written `:=` in place of `_`, which then joins the characters of a name, so that IMP names are ELF and C
    names (the sources, tests and oracle programs would be converted once; `decus/` stays as it is). The syntax
    of IMP72 does not change until the study is done and decided.
