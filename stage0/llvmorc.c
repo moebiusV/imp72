@@ -210,3 +210,9 @@ long llvmobj(const char *ir, const char *out) { (void)ir; (void)out; return 1; }
 long llvmsave(const char *ir, const char *out) { (void)ir; (void)out; return 1; }
 long llvmrun(const char *ir) { (void)ir; return 1; }
 #endif
+
+/* lld in the process is stage0/impld.cpp, built where lld is installed (-DHAVE_LLD, tools/llvm.sh); without it the driver links with the system's cc */
+#ifndef HAVE_LLD
+long impldhave(long z) { (void)z; return 0; }
+long impld(long argc, const char **argv) { (void)argc; (void)argv; return 1; }
+#endif

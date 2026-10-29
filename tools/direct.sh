@@ -63,10 +63,11 @@ if [ -n "$llvmflags" ]; then
     llvmlibs=$(sh tools/llvm.sh libs)
     cc -std=gnu99 -O1 -g -DIR2LL_LIB -c tools/ir2ll.c -o $out/ir2ll.o
     llvmobjs="$llvmobjs $out/ir2ll.o"
+    case $llvmflags in *HAVE_LLD*) c++ -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/impld.cpp -o $out/impld.o; llvmobjs="$llvmobjs $out/impld.o" ;; esac
 fi
 keep=
 for o in stage0/*.o; do
-    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
+    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/impld.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
     skip=0
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"

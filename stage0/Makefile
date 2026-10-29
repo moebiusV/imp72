@@ -3,6 +3,7 @@ CC      = cc
 LDFLAGS =
 CFLAGS  = -std=c99 -O1 -g -Wall -Wextra -pedantic
 AR      = ar
+CXX     = c++
 # the LLVM back end in the process (the top Makefile passes these where the LLVM libraries are installed: tools/llvm.sh)
 LLVMCFLAGS =
 LLVMLIBS   =
@@ -21,6 +22,9 @@ imp72s0.o: imp72s0.c imp.h ir.h
 
 llvmorc.o: llvmorc.c
 	$(CC) -std=gnu99 -O1 -g $(LLVMCFLAGS) -c llvmorc.c
+
+impld.o: impld.cpp
+	$(CXX) -std=c++17 -O1 -g -fno-rtti $(LLVMCFLAGS) -c impld.cpp
 
 ir2ll.o: ../tools/ir2ll.c
 	$(CC) -std=gnu99 -O1 -g -DIR2LL_LIB -c ../tools/ir2ll.c

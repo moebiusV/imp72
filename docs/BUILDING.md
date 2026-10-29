@@ -8,8 +8,8 @@ The seed (`stage0/`) is C99 and needs libc and the LLVM C API (below); it builds
 (`make CC=clang`, `make CC=gcc`). The compiler is built in three steps
 (`docs/BOOTSTRAP.md`): the seed compiles `src/` into stage 1, stage 1 compiles `src/` again into stage 2, and stage 2
 is installed as `bin/imp72` with `share/imp72/syntax64.imc` and `lib/imp72/libimp72.a`. The seed stays as
-`bin/imp72stage0`. The steps need the LLVM libraries (linked into the compilers) and an ELF `objcopy`; the driver runs the
-system's `cc` to link an executable.
+`bin/imp72stage0`. The steps need the LLVM libraries (linked into the compilers) and an ELF `objcopy`. Where lld is installed as a
+library too (`liblld-NN-dev`, the same version as LLVM), the driver links executables in the process; otherwise it runs the system's `cc`.
 
 Make variables: `CC`, `CFLAGS`, `LDFLAGS`, `DESTDIR`, `PREFIX`.
 
@@ -34,7 +34,9 @@ LLVM in the process: where `llvm-config` and the LLVM C API headers are installe
 and the seed (`stage0`) and the compilers `tools/direct.sh` builds link `libLLVM` (`WITH_LLVM=no` leaves it out; `LLVM_CONFIG` names another
 `llvm-config`). The `llvm` back end then makes the object with the host's target machine in the process: there is no clang, and no `ir2ll`
 program, in it. `imp72 --run prog.imp` compiles the program with ORC (LLJIT) and runs it in the process, finding the runtime and the C
-library in the program itself. The only program the `llvm` back end starts is the system's `cc`, to link an executable (`-c` and `-S` start none).
+library in the program itself. The link is lld in the process (`stage0/impld.cpp`, built where `tools/llvm.sh` finds `liblldELF.a` and its headers) on Linux for
+x86-64 and aarch64, with the C library's files looked for in `/usr/lib/<triple>`, `/usr/lib64` and `/usr/lib`; on any other system, or without lld, the only program the
+`llvm` back end starts is the system's `cc`, to link an executable (`-c`, `-S` and `--run` start none).
 
 LLVM is the only back end; a compiler built without the LLVM libraries says so and stops. `tools/ir2ll.c` is part of the compiler.
 

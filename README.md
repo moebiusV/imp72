@@ -26,8 +26,9 @@ pcc is used), which the LLVM back end turns into machine code in the compiler's
 own process through the LLVM C API: there is no clang, no host C compiler and no
 other process in the compiling, and the compiler is built where the LLVM libraries
 are installed. `imp72 --run prog.imp` compiles a program with ORC and runs it in the process;
-to write an executable file the driver still joins the object with the runtime library by running the system's `cc`
-(ORC links in memory; whether the file is to be written in the process is open).
+to write an executable file the driver links the object with the runtime library with lld, also in the process
+(`stage0/impld.cpp`, a few lines of C++ that give lld's driver a C name), on Linux for x86-64 and aarch64; elsewhere
+it still runs the system's `cc` for the link.
 The compiler builds and compiles itself on little- and big-endian hosts, 32 and 64 bit
 (tried on amd64, i386, arm64, s390x and a 32-bit big-endian PowerPC under emulation). The language, `PRINT` and `READ`, reals
 (IEEE 754), `CCALL` to C functions, and the programs of the test suite work, and
@@ -58,7 +59,9 @@ translation of the tables and the driver program.
    already the driver, the system part, the image, the table of semantic routines, the IR builders and the names, and the
    runtime library (PRINT, READ, FINI and the rest) in IMP over `CCALL`. Left to move: the glue to LLVM's C API
    (`stage0/llvmorc.c`, `tools/ir2ll.c`) and the little C that says what only C can (`lib/imp72sys.c`,
-   `lib/imp72main.c`) (`docs/porting/c-to-imp.md`).
+   `lib/imp72main.c`) (`docs/porting/c-to-imp.md`). `stage0/impld.cpp` stays: lld has no C interface.
+   Linking in the process is done for Linux on x86-64 and aarch64 only (the files of the C library are looked
+   for in the usual places); the other systems need their own lists.
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
    Restore the tape where a departure is marked provisional in
    `docs/porting/modules.md` (`COMPIL`, inline in the tape's main program).
