@@ -15,5 +15,5 @@ w=${CI_IMP72:-build/pccir2/imp72stage-pccir}
     else
         echo "imp72-host: no compiler to ask ($w)"
     fi
-} 2>&1 | tr '\n%' '|_' | cut -c1-3000 | { read -r line; printf '::notice::%s host: %s\n' "$name" "$line"; }
+} 2>&1 | tr '\n%' '|_' | cut -c1-3000 | { cat; echo; } | { read -r line; printf '::notice::%s host: %s\n' "$name" "$line"; }
 exit 0
