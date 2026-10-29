@@ -457,15 +457,15 @@ l1:
     return s;
 }
 
-/* IMP72WIDE=1: the program is written for 64 bit words (the compiler's own sources), so its constants are folded in 64 bits; otherwise the folding wraps at the
- * 36 bits of the original, as the oracle does */
+/* The words are 64 bits and the constants are folded in 64 bits.  IMP72NARROW=1 folds them as the 36 bit original does (wrapping at 36 bits), for the tape's own modules and the
+ * oracle's programs, when it is wanted.  (IMP72WIDE=1, which was how 64 bits were asked for, is the default now and means nothing.) */
 static int
 imp_wide(void)
 {
     static int w = -1;
 
     if (w < 0)
-        w = getenv("IMP72WIDE") != NULL;
+        w = getenv("IMP72NARROW") == NULL;
     return w;
 }
 
@@ -895,16 +895,23 @@ conop(word s, word t, word i, word v, word w)
         goto folded;
     }
     switch (i & MASK18) {
-    case 0: co1 = -co1; break;
-    case 1: co1 = co1 + co2; break;
-    case 2: co1 = co1 - co2; break;
-    case 3: co1 = co1 * co2; break;
-    case 4: co1 = co2 ? co1 / co2 : 0; break;
+    /* two's complement, wrapping at 64 bits: done unsigned, where a signed overflow is undefined in C */
+    case 0: co1 = (word)(0 - (uword)co1); break;
+    case 1: co1 = (word)((uword)co1 + (uword)co2); break;
+    case 2: co1 = (word)((uword)co1 - (uword)co2); break;
+    case 3: co1 = (word)((uword)co1 * (uword)co2); break;
+    case 4: co1 = co2 == 0 ? 0 : (co2 == -1 ? (word)(0 - (uword)co1) : co1 / co2); break;       /* toward zero; INT64_MIN / -1 would trap */
     case 5:
         /* a left shift is folded as the program runs it, in 64 bits: the masks and tags that the
          * ported modules build (7 LS 48) do not fit the 36 bits of the original */
         if (co2 >= 0 && co2 < 64) {
             co1 = (word)((uword)co1 << co2);
+            nowrap = 1;
+        } else if (imp_wide() && co2 >= 64) {               /* all the bits are shifted out */
+            co1 = 0;
+            nowrap = 1;
+        } else if (imp_wide() && co2 < 0) {                 /* A RS B is A LS -B: logical, the zeros come in from the left, over the 64 bits */
+            co1 = co2 > -64 ? (word)((uword)co1 >> (-co2)) : 0;
             nowrap = 1;
         } else
             co1 = ls36(co1, co2);
@@ -930,8 +937,14 @@ conop(word s, word t, word i, word v, word w)
         } else
             co1 = ls36(co1, co2);
         break;
-    case 17: co1 = (word)((u36(co1) << (co2 % 36) | u36(co1) >> (36 - co2 % 36))
-        & MASK36); break;
+    case 17:
+        if (imp_wide()) {                                   /* rotate left over the 64 bits (a negative count rotates right) */
+            unsigned n = (unsigned)(co2 & 63);
+
+            co1 = n ? (word)(((uword)co1 << n) | ((uword)co1 >> (64 - n))) : co1;
+        } else
+            co1 = (word)((u36(co1) << (co2 % 36) | u36(co1) >> (36 - co2 % 36)) & MASK36);
+        break;
     case 18: co1 = co1 ^ co2; break;
     case 19: co1 = ~(co1 ^ co2); break;
     default: break;

@@ -7,7 +7,6 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 out=${LIBOUT:-build/lib}
 mkdir -p "$out"
-export IMP72WIDE=1                          # the seed folds the constants in 64 bits
 export IMP72CHARPTR=1                       # a byte pointer in a variable points at characters: no calls of the routines this library is made of
 endf=$(sh tools/endian.sh)
 # one source: the files are two modules of one program (a program ends at its first %%)

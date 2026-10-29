@@ -18,7 +18,7 @@ for n in $(cat tests/oracle/LIST); do
     # REAL is IEEE 754 here, the original's 27 bit floating point there: where the two give different numbers
     # (tests/golden/ieee) the reviewed IEEE output is the golden; everything else is what the original printed
     g=tests/golden/oracle/$n.out; [ -f tests/golden/ieee/$n.out ] && g=tests/golden/ieee/$n.out
-    [ -n "$ORACLE_PCCIR" ] && [ -f tests/golden/pccir/$n.out ] && g=tests/golden/pccir/$n.out      # word sizes: 64 bit words give other numbers than 36 bit ones
+    [ -f tests/golden/pccir/$n.out ] && g=tests/golden/pccir/$n.out      # word sizes: 64 bit words give other numbers than 36 bit ones (both generators are 64 bit now)
     sed 's/[ 	]*$//' $out/$n.got | cmp -s - $g \
         || { diff $out/$n.got $g; echo "FAILED: $n: differs from the oracle" >&2; fail=1; continue; }
     echo ok

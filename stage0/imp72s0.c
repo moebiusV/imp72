@@ -438,6 +438,72 @@ link_exe(const char *out, const char *ofile, const char *lib)
     return rc;
 }
 
+/* The words are 64 bits, so a shift by 18 is a shift by 18, an AND with 777777B keeps 18 bits and a field of 18 bits is 18 bits.  The original syntax has rules for these as the PDP-10's
+ * halves of 18 bits (HRLZ, HLRZ, HRRZ, HLLZ, HRRM, HRLM: "A LS 18", "A AND NOT 777777B", "A<18,0>", ...), which the seed would make halves of 32 bits: a copy of the syntax
+ * without them goes to the temporary directory (src/pccir/syntax64.imc has not got them either).  IMP72NARROW=1 keeps them, for the tape's own modules.  0 if the copy was made. */
+static const char *const halfrules[] = {
+    "\"A LS 18\" =>", "\"A LS 777777777756B\" =>",                                    /* each of these lines is an alternative that ends with ELSE: it goes */
+    "\"A AND 000000777777B\"=>", "\"A AND 777777000000B\"=>", "\"A AND NOT 777777B\" =>",
+    NULL
+};
+static const char *const fieldrules[] = {                                           /* these end a statement: the line before them gets its ; and loses its ELSE */
+    "ELSE \"A<18,0>\"  =>", "ELSE \"A<18,18>\" =>", "\"A<18,0>_B\" =>", "\"A<18,18>_B\"=>",
+    NULL
+};
+
+static int
+hasany(const char *line, const char *const *pats)
+{
+    for (; *pats != NULL; pats++)
+        if (strstr(line, *pats) != NULL)
+            return 1;
+    return 0;
+}
+
+static int
+wide_syntax(const char *in, const char *out)
+{
+    FILE *f = fopen(in, "r"), *g;
+    char line[4096], prev[4096];
+    int have = 0;
+
+    if (f == NULL)
+        return 1;
+    if ((g = fopen(out, "w")) == NULL) {
+        fclose(f);
+        return 1;
+    }
+    prev[0] = '\0';
+    while (fgets(line, sizeof line, f) != NULL) {
+        if (hasany(line, halfrules))
+            continue;
+        if (hasany(line, fieldrules)) {
+            if (strchr(line, ';') != NULL && have) {                                /* the last one of them: the statement ends on the line before */
+                size_t n = strlen(prev);
+
+                while (n > 0 && (prev[n - 1] == '\n' || prev[n - 1] == '\r' || prev[n - 1] == ' ' || prev[n - 1] == '\t'))
+                    prev[--n] = '\0';
+                if (n >= 4 && strcmp(prev + n - 4, "ELSE") == 0) {
+                    n -= 4;
+                    while (n > 0 && prev[n - 1] == ' ')
+                        n--;
+                    prev[n] = '\0';
+                }
+                strcat(prev, ";\n");
+            }
+            continue;
+        }
+        if (have)
+            fputs(prev, g);
+        strcpy(prev, line);
+        have = 1;
+    }
+    if (have)
+        fputs(prev, g);
+    fclose(f);
+    return fclose(g) != 0;
+}
+
 static int
 driver_main(int argc, char **argv)
 {
@@ -510,6 +576,13 @@ driver_main(int argc, char **argv)
     if (mkdtemp(tmp) == NULL) {
         perror("mkdtemp");
         return 1;
+    }
+    if (getenv("IMP72NARROW") == NULL) {
+        static char wsyn[PATH_MAX + 16];
+
+        snprintf(wsyn, sizeof wsyn, "%s/syntax.imc", tmp);
+        if (wide_syntax(syntax, wsyn) == 0)
+            snprintf(syntax, sizeof syntax, "%s", wsyn);
     }
     snprintf(ir, sizeof ir, "%s/p.ir", tmp);
     snprintf(ofile, sizeof ofile, "%s/p.o", tmp);

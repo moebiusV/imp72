@@ -336,6 +336,8 @@ effaddr(const struct ti *t)
     struct irn *e;
     word cc = t->c;
 
+    if (cc >= 0400000 && cc < 01000000)         /* the address field has 18 bits, and a displacement is signed: X[J-1] is the field 0777777 (-1), whatever the word it is added to is */
+        cc -= 01000000;
     if (t->ra) {
         tfail("TRANS: ADDRESS OF A REGISTER");
         return icon(0);
@@ -498,7 +500,7 @@ static struct irn *
 fieldmask(const struct bytedesc *d)
 {
     if (d->sconst)
-        return icon(d->s >= 63 ? -1LL : (1LL << d->s) - 1);
+        return icon(d->s >= 64 ? -1LL : (long long)(((unsigned long long)1 << d->s) - 1));       /* 2**s-1: all the bits only from 64 up */
     return ir_bin(IR_MINUS, T_LONG,
         SHL(icon(1), rv(d->s)), icon(1));
 }

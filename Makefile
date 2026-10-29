@@ -68,6 +68,7 @@ check: all
 	sh tests/image/run.sh
 	sh tests/orc/run.sh
 	sh tests/link/run.sh
+	sh tests/fuzz64/run.sh
 	sh tests/manual/run.sh
 
 clean:

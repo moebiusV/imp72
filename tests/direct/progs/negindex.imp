@@ -1,0 +1,14 @@
+X IS 12 LONG;
+I,J,K,S ARE COMMON;
+I_0;
+L1: I<12 => (X[I]_100+I; I_I+1; GO TO L1);
+J_5; K_3;
+S_X[J-1]; PRINT STG 0,'X[J-1]=',IGR 0,S,/;
+S_X[J-K]; PRINT STG 0,'X[J-K]=',IGR 0,S,/;
+S_X[J+1]; PRINT STG 0,'X[J+1]=',IGR 0,S,/;
+S_X[(2*J)-3]; PRINT STG 0,'X[2J-3]=',IGR 0,S,/;
+X[J-2]_7; PRINT STG 0,'X[3]=',IGR 0,X[3],/;
+X[J-1]_X[J-1]+X[K-3]; PRINT STG 0,'X[4]=',IGR 0,X[4],/;
+S_X[J-5]; PRINT STG 0,'X[J-5]=',IGR 0,S,/;
+FINI(0)
+%%

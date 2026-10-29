@@ -6,7 +6,7 @@ The compiler is written in IMP, so building it takes a compiler. The route:
    and compiles IMP to the IR (its code generator makes PDP-10 code chains that `trans.c` translates).
 2. **Stage 1** is the compiler's own sources, `src/*.imp` and `src/pccir/*.imp`, compiled by the seed
    (`tools/direct.sh`) and linked with the LLVM glue (`stage0/llvmorc.c`, `tools/ir2ll.c`) and the runtime library; the main program is
-   `src/driver.imp`. Constants of the sources are folded in 64 bits by the seed (`IMP72WIDE=1`).
+   `src/driver.imp`. The seed folds constants in 64 bits, and compiles shifts, `AND` masks and bit-fields as 64 bit words (`IMP72NARROW=1` gives the tape's 36 bit rules back, for its own modules).
 3. **Stage 2** is the same sources compiled by stage 1 (`tools/pccir.sh`; the name is the IR's old one). `tests/direct/stage2.sh` requires stage 2 to
    write the same IR as stage 1 for the native tests, the oracle programs and every module of the sources. Stage 2 is
    installed.
