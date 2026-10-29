@@ -194,18 +194,29 @@ impsemcall(void *fn, const int64_t *pars)
     return ((int64_t (*)(int64_t *, int64_t *, int64_t *, int64_t *, int64_t *))fn)(&a[0], &a[1], &a[2], &a[3], &a[4]);
 }
 
-/* the machine pcc's pass 2 is for when the compiler runs on this one, if not amd64 (src/driver.imp passes it as -T); 0 for amd64 */
+/* the architecture the compiler runs on, for the link (src/driver.imp: LNK): x86_64, i386, aarch64, arm, ppc64le, s390x, riscv64, loongarch64, else "" */
 const char *
-imphosttarget(long z)
+imphostarch(long z)
 {
     (void)z;
-#if defined(__aarch64__) || defined(__arm64__)
-    return "aarch64";
+#if defined(__x86_64__)
+    return "x86_64";
 #elif defined(__i386__)
     return "i386";
+#elif defined(__aarch64__) || defined(__arm64__)
+    return "aarch64";
 #elif defined(__arm__)
     return "arm";
+#elif defined(__powerpc64__) && defined(__LITTLE_ENDIAN__)
+    return "ppc64le";
+#elif defined(__s390x__)
+    return "s390x";
+#elif defined(__riscv) && __riscv_xlen == 64
+    return "riscv64";
+#elif defined(__loongarch64)
+    return "loongarch64";
 #else
-    return 0;
+    return "";
 #endif
 }
+

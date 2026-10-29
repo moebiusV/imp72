@@ -12,7 +12,7 @@ license="ISC AND BSD-2-Clause AND BSD-3-Clause"
 depends="gcc musl-dev"
 # binutils: objcopy, used by the stage 1 test; python3 runs the manual and glue checks
 checkdepends="binutils python3"
-makedepends="llvm-dev"
+makedepends="llvm-dev lld-dev"
 subpackages="$pkgname-doc"
 source="$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz"
 builddir="$srcdir/$pkgname-$pkgver"

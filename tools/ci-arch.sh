@@ -8,4 +8,4 @@ arch=$1; shift
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(dirname "$here")
 image=${IMAGE:-alpine:edge}
-exec docker run --rm ${CI_CPUSET:+--cpuset-cpus $CI_CPUSET} --platform linux/$arch -v "$root":/src:ro -v "$here/ci-container.sh":/in.sh:ro "$image" sh /in.sh "$@"
+exec docker run --rm ${LINK_ONLY:+-e LINK_ONLY=1} ${CI_CPUSET:+--cpuset-cpus $CI_CPUSET} --platform linux/$arch -v "$root":/src:ro -v "$here/ci-container.sh":/in.sh:ro "$image" sh /in.sh "$@"

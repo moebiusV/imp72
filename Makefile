@@ -65,6 +65,7 @@ check: all
 	sh tests/interactive/run.sh
 	sh tests/image/run.sh
 	sh tests/orc/run.sh
+	sh tests/link/run.sh
 	sh tests/manual/run.sh
 
 clean:
