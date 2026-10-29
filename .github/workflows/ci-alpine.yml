@@ -29,24 +29,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # which architectures this push runs: all, unless the commit message has [ci:...] tags: [ci:alpine] is all of them, [ci:loong64] only that one, any other tag none (a job-level
+  # "if" cannot look at the matrix, so the matrix itself is made here)
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - id: m
+        env:
+          EVENT: ${{ github.event_name }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          all='[{"arch":"amd64","runner":"ubuntu-latest","qemu":false},{"arch":"arm64","runner":"ubuntu-24.04-arm","qemu":false},{"arch":"ppc64le","runner":"ubuntu-latest","qemu":true},{"arch":"riscv64","runner":"ubuntu-latest","qemu":true},{"arch":"s390x","runner":"ubuntu-latest","qemu":true},{"arch":"loong64","runner":"ubuntu-latest","qemu":true},{"arch":"386","runner":"ubuntu-latest","qemu":false},{"arch":"arm/v7","runner":"ubuntu-latest","qemu":true}]'
+          loong='[{"arch":"loong64","runner":"ubuntu-latest","qemu":true}]'
+          case "$EVENT" in push) ;; *) MSG= ;; esac
+          case "$MSG" in
+            *"[ci:alpine]"*) m=$all ;;
+            *"[ci:loong64]"*) m=$loong ;;
+            *"[ci:"*) m='[]' ;;
+            *) m=$all ;;
+          esac
+          echo "matrix=$m" >> "$GITHUB_OUTPUT"
+          echo "matrix: $m"
+
   # Alpine (musl, gcc 15) on every 64 bit architecture it has: natively where the
   # runner is that architecture, else under QEMU user mode, as ada-on-alpine does.
   # the back end is LLVM (llvm-dev from apk)
   alpine:
-    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:alpine]') || (contains(github.event.head_commit.message, '[ci:loong64]') && matrix.arch == 'loong64')"
+    needs: plan
+    if: needs.plan.outputs.matrix != '[]'
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - {arch: amd64,   runner: ubuntu-latest,    qemu: false}
-          - {arch: arm64,   runner: ubuntu-24.04-arm, qemu: false}
-          - {arch: ppc64le, runner: ubuntu-latest,    qemu: true}
-          - {arch: riscv64, runner: ubuntu-latest,    qemu: true}
-          - {arch: s390x,   runner: ubuntu-latest,    qemu: true}
-          - {arch: loong64, runner: ubuntu-latest,    qemu: true}
-          - {arch: 386,     runner: ubuntu-latest,    qemu: false}
-          - {arch: arm/v7,  runner: ubuntu-latest,    qemu: true}
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
     # the job as a whole may take longer than any stage, and a stage has its own limit: one that hangs is stopped by the limit of its step, and the steps after it (the work kept,
     # the summary, the logs) still run
     timeout-minutes: 340
