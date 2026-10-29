@@ -21,7 +21,7 @@ all: stage0 $(LIB) pccir
 $(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.c lib/imp72main.c
 	CFLAGS="$(CFLAGS)" sh tools/mklib.sh
 
-# stage 1 by the seed, stage 2 by stage 1 (skipped where an ELF objcopy is missing)
+# stage 1 by the seed, stage 2 by stage 1 (skipped where the LLVM libraries are missing)
 pccir: stage0 $(LIB)
 	@sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 

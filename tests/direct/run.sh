@@ -4,7 +4,7 @@
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 tools/direct.sh >build/direct.log 2>&1; rc=$?
-[ $rc = 77 ] && { echo "direct tests skipped: no objcopy"; exit 0; }
+[ $rc = 77 ] && { echo "direct tests skipped: the seed has no LLVM"; exit 0; }
 [ $rc = 0 ] || { cat build/direct.log >&2; echo "FAILED: direct build" >&2; exit 1; }
 export IMP72SYNTAX=$root/src/pccir/syntax64.imc IMP72FFI=$root/lib/ffi.imc IMP72LIB=$root/build/lib/libimp72.a
 export DRIVER=build/direct/imp72stage-pccir

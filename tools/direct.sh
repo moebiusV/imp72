@@ -6,16 +6,14 @@
 # side shares (src/pccir/shared.txt and src/shared.txt); there is no C of the compiler's in the result but the LLVM glue and the library.  Run from the top
 # of the tree after `make`.  imp72d with the syntax src/pccir/syntax64.imc compiles IMP to pcc IR itself.
 set -e
-if [ -z "$OBJCOPY" ]; then
-    if command -v llvm-objcopy >/dev/null 2>&1; then OBJCOPY=llvm-objcopy
-    elif command -v objcopy >/dev/null 2>&1; then OBJCOPY=objcopy
-    else echo "direct: no objcopy (ELF only)" >&2; exit 77; fi
-fi
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-impsem code code2 code3 demit ix}
 srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm driver}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
+mkdir -p "$out"
+imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.c)
+cc -std=c99 -O1 -o "$imprename" tools/imprename.c
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
 case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
 mkdir -p $out
@@ -40,15 +38,14 @@ allmodules="$modules $srcmodules"
 # tape's names.  What they call and do not define is the C side's
 syms=
 for m in $modules $srcmodules; do
-    syms="$syms $(nm $out/$m.imp.o | awk '$2 ~ /^[TCBD]$/ { print $3 }')"
+    syms="$syms $($imprename -d $out/$m.imp.o)"
 done
 syms=$(printf '%s\n' $syms | sort -u | grep -vx -f src/shared.txt | grep -vx -f src/pccir/shared.txt || true)
-args=
-for s in $syms; do args="$args --redefine-sym $s=impl_$s"; done
+for s in $syms; do echo "$s impl_$s"; done > $out/rename.map
 objs=
 repl=
 for m in $modules $srcmodules; do
-    $OBJCOPY $args $out/$m.imp.o $out/$m.imp2.o
+    $imprename -f $out/rename.map $out/$m.imp.o $out/$m.imp2.o
     objs="$objs $out/$m.imp2.o"
 done
 for m in $srcmodules; do

@@ -29,8 +29,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # macOS on Apple silicon: the LLVM back end (Homebrew's llvm); the stage 1 test needs ELF objcopy
-  # and is skipped
+  # macOS on Apple silicon: the LLVM back end (Homebrew's llvm and lld)
   macos-arm64:
     if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:macos]')"
     runs-on: macos-14
