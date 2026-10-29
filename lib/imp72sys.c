@@ -1,7 +1,7 @@
 /*
  * imp72sys.c -- what the runtime library of IMP72 programs and the IMP compiler ask of the C library and the system that C alone can say: the standard
- * files, the arena's address space (the flags of mmap are the system's), the section that holds the compiler's own variables, a call through a
- * function pointer, and the cells that carry the arguments of a runtime call.  The runtime itself (PRINT, READ, FINI, CALLI, BLT, IFIX, the shifts,
+ * files, the arena's address space (the flags of mmap are the system's), the section that holds the compiler's own variables, and a call through a
+ * function pointer.  The runtime itself (PRINT, READ, FINI, CALLI, BLT, IFIX, the shifts,
  * the byte pointers) is IMP: lib/imp72io.imp and lib/imp72rt.imp.
  */
 #define _GNU_SOURCE 1
@@ -13,17 +13,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* the cells that carry the arguments of a call of the runtime: the compiled code stores them there and passes their addresses (IMP takes its arguments by reference) */
-int64_t impca[4];
-
 /* the standard files, which an IMP program cannot name */
 long impstdout(long z) { (void)z; return (long)(intptr_t)stdout; }
 long impstdin(long z) { (void)z; return (long)(intptr_t)stdin; }
 
-/* where PRINT goes when it has no file: the function (an IMP routine, or any that returns a FILE *) the driver says, else the standard output (lib/imp72io.imp) */
-extern long rtldefout;
-
-void impsetdefout(void *f) { rtldefout = (long)(intptr_t)f; }
+/* where PRINT goes when it has no file: the function (an IMP routine, or any that returns a FILE *) the driver says (impsetdefout, in lib/imp72io.imp), else the standard output; the call
+ * of it is a call through an address */
 long impcallout(long f) { return (long)(intptr_t)((void *(*)(void))(intptr_t)f)(); }
 
 /* the arena of the IMP compiler's free storage (src/free.imp, CORE), which has to be here for the system's constants: */
@@ -231,13 +226,6 @@ impvarlist(int64_t *out, long max)
 #else
 long impvarlist(int64_t *out, long max) { (void)out; (void)max; return -1; }
 #endif
-
-/* fclose for the IMP compiler: its tape routine FCLOSE (src/free.imp) is the name a CCALL of the C library's would meet */
-long
-impfclose(FILE *f)
-{
-    return fclose(f);
-}
 
 /* a call through an address, for the table of semantic routines of the IMP compiler (src/dir.imp SEMCALL): the routine is an IMP routine, which takes its
  * arguments by reference; it gets pointers to a copy of the five parameters, which it may change */

@@ -51,10 +51,19 @@ process, and LLVM is the only back end). What IMP taught: an array in IMP is the
 
 Each step: the build and `make check` pass before the next; the C it replaces is deleted from `imp72`'s link (and stays in the
 seed where the seed uses it).
-8. What is left, in this order: the glue to LLVM's C API moves to IMP (`llvmorc.c`,
-   `ir2ll.c`: the calls are `CCALL`s of `LLVM...` functions, with pointers and words, no doubles); `lib/imp72sys.c`
-   (the standard files, the call through a function pointer, `mmap`, the section bounds) move to IMP where
-   `CCALL` can say it. `tests/native/*_main.c` are C by purpose (C calling IMP); whether they stay is for the user.
+8. The glue to LLVM's C API: **done**, as `src/llvm.imp` (the ORC JIT, the object file, `-S`; the seed keeps `stage0/llvmorc.c`). The calls are `CCALL`s of the C API's functions, which needed two things of the FFI and the build.
+   *Names*: the symbol of a name was always lower case, and the C API's are `LLVMGetHostCPUName`; **a name with a lower case letter in it is now a foreign name exactly as written** (both code generators, `docs/FFI.md`;
+   no IMP source had one), a name in capitals only is lower case as before. *The preprocessor*: what C chose with `#ifdef` is a module the build writes for the LLVM at hand, `tools/llvm.sh imp` (`llvmgen`):
+   `LLVMNATIVEINIT` (the initialisation of the native target is an inline function of a header, so the target's own initialisers are called, named by the macros of `llvm-config.h`), `LVTSC` (how ORC takes a
+   context: with `LLVMOrcCreateNewThreadSafeContextFromLLVMContext` or without), and `IMPLD`/`IMPLDHAVE` where there is no lld library. The enums of the C API are their numbers. The two things that C did
+   with a function pointer and a memory stream are a call of the library's `IMPSEMCALL` (the entry of the JIT is called through an address) and files: `ir2ll` writes the text of the module to a file next to the IR
+   (`IR.ll`), which LLVM reads, because `open_memstream` has an underscore. `imp72` needs the LLVM libraries now (the checks for a build without them are gone from the driver; the seed still has the stubs). What IMP taught:
+   a C function returns an `int` in half a register, so the answers of the `LLVMBool` kind are masked to 32 bits; `fclose` of a `CCALL` in the compiler is the tape's `FCLOSE` (the library's `IMPFCLOSE` is the C one);
+   `_` ends a name, so `open_memstream`, `dl_iterate_phdr` and the like cannot be named; a variable that no routine of a module uses is not made (`IMPCA` of the library needed `IMPCACLEAR`); and the symbol
+   of a routine that the build does not rename is the plain one.
+   Left: `lib/imp72sys.c` (the standard files, which are macros or variables of the system; the arena's `mmap`, whose flags differ; the section bounds, linker symbols with underscores; two calls through an address) and
+   `lib/imphost.c` (`uname`, `dl_iterate_phdr`, `dladdr` and `readdir`, whose structures differ by system) say what only C can say; `impldhave`/`impld` are `stage0/impld.cpp`.
+   `impfclose`, `impsetdefout` and the cells `impca` of `imp72sys.c` are IMP now (`lib/imp72io.imp`, `lib/imp72rt.imp`). `tests/native/*_main.c` are C by purpose (C calling IMP); whether they stay is for the user.
 9. The link: `src/driver.imp` links the executable with lld in the process (`LNK`: lld's driver through `CCALL IMPLD`, the files of the C library
    found by `TRYDIR` and `TRYDL`), for every system and architecture in its tables (Linux, FreeBSD, NetBSD, OpenBSD, macOS); a build without the lld library runs `ld.lld` as a program (`IMPRUNLD`), never `cc`. lld has no C
    interface, so `stage0/impld.cpp` (about 15 lines of C++, the one C++ file of the tree) gives its driver the plain C names `impld` and `impldhave`;

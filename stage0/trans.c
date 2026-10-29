@@ -131,13 +131,14 @@ collect(word iw)
 static char **symcache;
 static word nsymcache;
 
-/* The assembler name of directory entry v: lower case, characters an
- * assembler would not take as _xx. */
+/* The assembler name of directory entry v: lower case (unless the name has a
+ * lower case letter: then as it is), characters an assembler would not take as _xx. */
 static const char *
 symname(word v)
 {
     char buf[128], out[300];
     size_t i, k = 0;
+    int exact = 0;
 
     if (v >= nsymcache) {
         word n = v + 64;
@@ -149,11 +150,16 @@ symname(word v)
     if (symcache[v] != NULL)
         return symcache[v];
     dname_str(v, buf, sizeof buf);
+    for (i = 0; buf[i]; i++)
+        if (buf[i] >= 'a' && buf[i] <= 'z')
+            exact = 1;                  /* a name with a lower case letter is a foreign name as it is written (LLVMGetHostCPUName) */
     for (i = 0; buf[i] && k + 4 < sizeof out; i++) {
         unsigned char ch = (unsigned char)buf[i];
 
-        if (ch >= 'A' && ch <= 'Z')
+        if (ch >= 'A' && ch <= 'Z' && !exact)
             out[k++] = (char)(ch + 'a' - 'A');
+        else if (ch >= 'A' && ch <= 'Z')
+            out[k++] = (char)ch;
         else if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_')
             out[k++] = (char)ch;
         else

@@ -7,7 +7,7 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 # the back end is LLVM, in the process: the seed must have been built with the LLVM libraries
 sh "$root/tools/llvm.sh" cflags | grep -q HAVE_LLVM || { echo "pccir: the seed was built without the LLVM libraries: skipped"; exit 77; }
-mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm driver"
+mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm driver llvm llvmgen"
 DIRECT_OUT=build/pccir1 DIRECT_LIB=build/lib/libimp72.a SRC_MODULES="$mods" tools/direct.sh >build/pccir1.log 2>&1 \
     || { r=$?; [ $r = 77 ] && { echo "pccir: skipped"; exit 77; }; cat build/pccir1.log >&2; exit $r; }
 DIRECT_OUT=build/pccir2 DIRECT_DRIVER=build/pccir1/imp72stage-pccir DIRECT_LIB=build/lib/libimp72.a SRC_MODULES="$mods" \

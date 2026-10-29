@@ -58,10 +58,9 @@ translation of the tables and the driver program.
 
 1. Run the remaining platforms (loong64, mips64le, the BSDs, macOS) and get CI green everywhere.
 2. All C is IMP but the seed (`stage0/` and its tests, the trusted stage 0, which stays C and builds stage 1). `imp72` has
-   already the driver, the system part, the image, the table of semantic routines, the IR builders and the names, and the
-   runtime library (PRINT, READ, FINI and the rest) in IMP over `CCALL`. Left to move: the glue to LLVM's C API
-   (`stage0/llvmorc.c`, `tools/ir2ll.c`) and the little C that says what only C can (`lib/imp72sys.c`,
-   `lib/imp72main.c`) (`docs/porting/c-to-imp.md`). `stage0/impld.cpp` stays: lld has no C interface.
+   already the driver, the system part, the image, the table of semantic routines, the IR builders and the names, the
+   glue to LLVM's C API (`src/llvm.imp`), `main`, and the runtime library (PRINT, READ, FINI and the rest) in IMP over `CCALL`. Left to move:
+   the IR writer for LLVM (`tools/ir2ll.c`) and the little C that says what only C can (`lib/imp72sys.c`, `lib/imphost.c`) (`docs/porting/c-to-imp.md`). `stage0/impld.cpp` stays: lld has no C interface.
    The link (lld, library or program) is the same C-library-independent table for every system; `lib/imphost.c` finds the loader and the C library.
 3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
    Restore the tape where a departure is marked provisional in

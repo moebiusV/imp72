@@ -5,7 +5,7 @@
 A `SUBR` is a C function. IMP72 passes arguments by reference, as FORTRAN
 does, so each parameter is a pointer to a 64-bit word (`long *`), and the
 result is a `long`. `SUBR ADD2(A,B) IS A+B` is `long add2(long *, long *)`.
-Names are lower case. More than six parameters go on the stack as the C ABI
+Names are lower case, except a name with a lower case letter in it, which is a foreign name exactly as written (`CCALL LLVMGetHostCPUName(0)` calls `LLVMGetHostCPUName`, not `llvmgethostcpuname`). More than six parameters go on the stack as the C ABI
 puts pointers. A variable declared `COMMON` is a global symbol, so C can declare it
 `extern long x;` (`X IS COMMON;`, or `A IS COMMON,8 LONG;` for an array); any other variable belongs
 to its module, as in the original, and C cannot see it. See `tests/native/*_main.c`.
