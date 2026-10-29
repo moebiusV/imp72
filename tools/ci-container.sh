@@ -10,6 +10,7 @@ stage=$1; shift
 w=/work
 logs=$w/logs
 mkdir -p $logs
+chmod a+rwx $logs 2>/dev/null                  # (the host writes its own logs there too, and reads these: the container is root)
 log=$logs/$stage.log
 status=$logs/$stage.status
 hb=$logs/$stage.heartbeat
@@ -20,7 +21,7 @@ fi
 rm -f $status
 : > $hb
 hbpid=
-trap 'rc=$?; [ -n "$hbpid" ] && kill $hbpid 2>/dev/null; [ -s $status ] || echo "died (exit $rc)" > $status' EXIT
+trap 'rc=$?; [ -n "$hbpid" ] && kill $hbpid 2>/dev/null; [ -s $status ] || echo "died (exit $rc)" > $status; chmod -R a+rwX $logs 2>/dev/null' EXIT
 stamp() { date -u +%H:%M:%S; }
 { echo "== $(stamp) $stage on $(uname -m), $(nproc) cpus"; df -h $w | tail -1; free -m | sed -n 2p; } >> $log 2>&1
 ( while :; do { echo "-- $(stamp)"; free -m | sed -n 2p; ps -o pid,rss,etime,args 2>/dev/null | sort -k2 -nr | head -5 | cut -c1-150; } >> $hb 2>&1; sleep 30; done ) &
