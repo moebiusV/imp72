@@ -92,7 +92,7 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
   `JRST` words becomes a chain of compares.
 - **`BLT`** (`MOVE B THROUGH N TO A`): `HRLI`/`HRRI` also leave the whole
   addresses in shadow temps, as a 32-bit half cannot hold a pointer; `BLT`
-  calls `imp_blt` (`memmove`).
+  calls `impblt`, which copies a word at a time upward as the PDP-10 does (with the ranges overlapping and the destination above the source the words copied are the words already copied: a word stored and BLT'd through an array fills it; `memmove` would not).
 - **`DATA` words** (a tag followed by constants in the code) become initialised
   data named for the tag.
 - **More than 6 arguments:** the extra pointers go in the outgoing stack area

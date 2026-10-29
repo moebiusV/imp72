@@ -75,3 +75,13 @@ the build and the log of every stage are kept in a work directory (`tmp/ci-ARCH`
 stage fails. A stage that finished leaves a stamp and is skipped when asked for again; one that failed leaves none and runs again, `make` going on from the objects it has. So
 "Re-run failed jobs" on the same commit goes on from where the last run stopped. Each failed stage writes its own annotations, the tails of the logs are in the summary of the job, and
 the logs are uploaded as an artifact (`logs-*`).
+
+### The fuzzers of the arithmetic
+
+`tests/fuzz64/run.sh` (in `make check`) compiles random programs with both code generators, the seed and imp72, and compares what they print with an answer worked out in Python from the rules of the 64 bit word, never from a compiler. Three generators:
+
+- `tools/imp-fuzz64.py`: integers (`+ - * /`, `AND OR XOR NOT`, comparisons, shifts), array indexing with offsets, bit-fields read and stored, over values from around every width a word has had.
+- `tools/imp-fuzz-bytes.py`: byte pointers (`BYTEP P[k]<S,Q>` and the pointer to characters `<7,36>`: `<X>`, `<X>_E`, `<+X>`, `<+X>_E`, the step to the next field and to the next word) and block moves (`MOVE A THROUGH N TO B`, overlapping, a word at a time upward as BLT does).
+- `tools/imp-fuzz-real2.py`: REAL over the whole double (denormals to overflow, signs of zero, infinities), the bits of the result (`[LOC(V)]`), the six comparisons, `FLT` of integers around 2**53 and 2**63, `FIX`. No NaN is generated (the machines' default NaN differs), nor `FIX` past 2**63 (x86 and aarch64 differ).
+
+`tools/fuzz64.sh DRIVER SEED COUNT` runs one (`GEN=imp-fuzz-bytes.py`), and `tools/fuzz64-reduce.py` boils a wrong integer program down to the smallest wrong sub-expression. `tools/ieee-fuzz.sh` checks the printed text of REAL values (`PRINT FLT`). These need Python 3 and are skipped where there is none.

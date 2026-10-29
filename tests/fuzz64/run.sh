@@ -7,10 +7,13 @@ cd "$root" || exit 1
 echo "== fuzz64"
 fail=0
 count=${FUZZ64_COUNT:-24}
+# the integer arithmetic, the byte pointers and block moves, and the bits of REAL arithmetic over the whole range of the double (each its own generator of tools/)
 for drv in stage0/imp72stage0 ${FUZZ64_IMP72:-build/pccir2/imp72stage-pccir}; do
     [ -x "$drv" ] || { echo "fuzz64: no $drv: skipped"; continue; }
-    for seed in 101 102; do
-        sh tools/fuzz64.sh $drv $seed $count > build/fuzz64.log 2>&1 || { echo "FAILED: fuzz64: $drv seed $seed" >&2; cat build/fuzz64.log >&2; fail=1; }
+    for gen in imp-fuzz64.py imp-fuzz-bytes.py imp-fuzz-real2.py; do
+        for seed in 101 102; do
+            GEN=$gen sh tools/fuzz64.sh $drv $seed $count > build/fuzz64.log 2>&1 || { echo "FAILED: fuzz64: $gen $drv seed $seed" >&2; cat build/fuzz64.log >&2; fail=1; }
+        done
     done
 done
 [ $fail = 0 ] && echo ok
