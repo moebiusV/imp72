@@ -42,5 +42,6 @@ libs)
     # the -dev package's symlink through the run path, which carries no information about the shared library)
     rp="-Wl,-rpath,$($lc --libdir)"; [ -n "$LLVM_NO_RPATH" ] && rp=
     l=; [ "$(uname -s)" = OpenBSD ] && l="$cxxlib"; haslld && { l="-L$lldlib -l$lldname -llldCommon $cxxlib"; [ -n "$lldstatic" ] && l="$l -lz -lzstd"; [ -z "$lldstatic" ] && [ "$lldlib" != /usr/lib ] && [ -z "$LLVM_NO_RPATH" ] && l="$l -Wl,-rpath,$lldlib"; }
+    [ "$(uname -s)" = Linux ] && l="$l -ldl"                                  # dladdr, for older glibc (src/driver.imp finds the C library with it)
     echo "$l $($lc --link-shared --libs 2>/dev/null || $lc --libs) $rp -L$($lc --libdir) -rdynamic" ;;
 esac

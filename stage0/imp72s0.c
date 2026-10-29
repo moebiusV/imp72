@@ -235,6 +235,9 @@ extern long impldhave(long z);
 extern const char *imphostos(long z);
 extern const char *imphostarch(long z);
 extern long impfindlib(long out, long dir, long prefix);
+extern long imphostinterp(long out);
+extern long imphostlibc(long out);
+extern long imphostcrtdir(long out);
 
 static const char *ldv[40];
 static int ldn;
@@ -306,29 +309,33 @@ static int
 lnklin(const char *ha, const char *out, const char *ofile, const char *lib)
 {
     size_t k;
-    int ok, wh;
+    int ok = 0, wh;
 
-    for (k = 0; k < sizeof archtab / sizeof archtab[0] && strcmp(ha, archtab[k].arch) != 0; k++)
-        ;
-    if (k == sizeof archtab / sizeof archtab[0])
-        return 9;
-    snprintf(mad, sizeof mad, "/usr/lib/%s", archtab[k].tri);
-    wh = 1;
-    ok = trydir(mad);
-    if (!ok)
-        ok = trydir("/usr/lib64");
-    if (!ok) {
-        wh = 2;
-        ok = trydir("/usr/lib");
+    if (imphostcrtdir((long)(intptr_t)mad) && imphostinterp((long)(intptr_t)dlp))       /* what this program's own loader found */
+        ok = trydir(mad);
+    if (!ok) {                                  /* else the table of the architectures (a program with no loader of its own) */
+        for (k = 0; k < sizeof archtab / sizeof archtab[0] && strcmp(ha, archtab[k].arch) != 0; k++)
+            ;
+        if (k == sizeof archtab / sizeof archtab[0])
+            return 9;
+        snprintf(mad, sizeof mad, "/usr/lib/%s", archtab[k].tri);
+        wh = 1;
+        ok = trydir(mad);
+        if (!ok)
+            ok = trydir("/usr/lib64");
+        if (!ok) {
+            wh = 2;
+            ok = trydir("/usr/lib");
+        }
+        if (!ok)
+            return 9;
+        if (wh == 1)
+            ok = trydl(archtab[k].dlg) || trydl(archtab[k].dlm);
+        else
+            ok = trydl(archtab[k].dlm) || trydl(archtab[k].dlg);
+        if (!ok)
+            return 9;
     }
-    if (!ok)
-        return 9;
-    if (wh == 1)
-        ok = trydl(archtab[k].dlg) || trydl(archtab[k].dlm);
-    else
-        ok = trydl(archtab[k].dlm) || trydl(archtab[k].dlg);
-    if (!ok)
-        return 9;
     ladd("ld.lld"); ladd("-o"); ladd(out); ladd("-dynamic-linker"); ladd(dlp);
     ladd(c1p); ladd(c2p); ladd(ofile); ladd(lib); ladd("-L"); ladd(libd); ladd("-lc"); ladd(c3p);
     return runld();
@@ -353,10 +360,12 @@ lnkbsd(const char *os, const char *ha, const char *out, const char *ofile, const
         return 9;
     if (wh && (!havef(c2p, "/usr/lib", "crti.o") || !havef(c3p, "/usr/lib", "crtn.o")))
         return 9;
-    if (obsd && !impfindlib((long)(intptr_t)lcp, (long)(intptr_t)"/usr/lib", (long)(intptr_t)"libc.so."))
+    if (obsd && !imphostlibc((long)(intptr_t)lcp) && !impfindlib((long)(intptr_t)lcp, (long)(intptr_t)"/usr/lib", (long)(intptr_t)"libc.so."))
         return 9;
+    if (!imphostinterp((long)(intptr_t)dlp))    /* the loader this program has, else the system's */
+        snprintf(dlp, sizeof dlp, "%s", dl);
     havef(rtp, "/usr/lib", "libcompiler_rt.a");
-    ladd("ld.lld"); ladd("--eh-frame-hdr"); ladd("-dynamic-linker"); ladd(dl); ladd("-o"); ladd(out);
+    ladd("ld.lld"); ladd("--eh-frame-hdr"); ladd("-dynamic-linker"); ladd(dlp); ladd("-o"); ladd(out);
     ladd(c1p);
     if (wh)
         ladd(c2p);

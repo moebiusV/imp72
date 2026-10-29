@@ -1,8 +1,16 @@
 /*
- * imphost.c -- what the link needs to know of the machine it runs on: the system (imphostos), the architecture (imphostarch) and the newest version of a library that is
- * only there with its version (impfindlib).  src/driver.imp calls them with CCALL; the seed's driver, stage0/imp72s0.c, links this file in, and links the same way.
+ * imphost.c -- what the link needs to know of the machine it runs on: the system (imphostos), the architecture (imphostarch), where this very program found its dynamic
+ * linker (imphostinterp) and its C library (imphostlibc), the directory of the C library's crt files that goes with it (imphostcrtdir), and the newest version of a library that
+ * is only there with its version (impfindlib).  The compiler runs on the system it makes programs for, so what its own loader did is what the programs it makes need.
+ * src/driver.imp calls them with CCALL; the seed's driver, stage0/imp72s0.c, links this file in, and links the same way.
  */
+#define _GNU_SOURCE
 #include <dirent.h>
+#ifndef __APPLE__
+#include <dlfcn.h>
+#include <link.h>
+#endif
+#include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,4 +102,87 @@ impfindlib(long out, long dir, long prefix)
         return 0;
     snprintf((char *)(intptr_t)out, 4096, "%s/%s", (const char *)(intptr_t)dir, best);
     return 1;
+}
+
+#ifndef __APPLE__
+static int
+interp_cb(struct dl_phdr_info *info, size_t size, void *data)
+{
+    int i;
+
+    (void)size;
+    for (i = 0; i < info->dlpi_phnum; i++)
+        if (info->dlpi_phdr[i].p_type == PT_INTERP) {
+            snprintf((char *)data, 4096, "%s", (const char *)(uintptr_t)(info->dlpi_addr + info->dlpi_phdr[i].p_vaddr));
+            break;
+        }
+    return 1;                                   /* the first object is the program itself */
+}
+#endif
+
+/* the dynamic linker this program was started with (its PT_INTERP) into the buffer OUT, 4096 bytes; 1 if it has one (a static program, and macOS, have none) */
+long
+imphostinterp(long out)
+{
+    char *o = (char *)(intptr_t)out;
+
+    *o = '\0';
+#ifndef __APPLE__
+    dl_iterate_phdr(interp_cb, o);
+#endif
+    return *o != '\0';
+}
+
+/* the file of the C library this program uses (the shared object that has getenv), into the buffer OUT; 1 if it is a file: libc.so.6, libc.so.97.1, ld-musl-x86_64.so.1 */
+long
+imphostlibc(long out)
+{
+    char *o = (char *)(intptr_t)out;
+
+    *o = '\0';
+#ifndef __APPLE__
+    {
+        Dl_info dl;
+
+        if (dladdr((const void *)(uintptr_t)getenv, &dl) != 0 && dl.dli_fname != NULL && dl.dli_fname[0] == '/')
+            snprintf(o, 4096, "%s", dl.dli_fname);
+    }
+#endif
+    return *o != '\0';
+}
+
+static int
+hascrt(const char *d)
+{
+    char p[4096];
+
+    snprintf(p, sizeof p, "%s/crt1.o", d);
+    if (access(p, R_OK) == 0)
+        return 1;
+    snprintf(p, sizeof p, "%s/crt0.o", d);
+    return access(p, R_OK) == 0;
+}
+
+/* the directory of crt1.o (crt0.o) that goes with the C library in use: where the library is, or the same under /usr (/lib/x86_64-linux-gnu has the library, and
+ * /usr/lib/x86_64-linux-gnu the crt files; /lib64 and /usr/lib64; /lib and /usr/lib), else /usr/lib; into the buffer OUT; 1 if one has them */
+long
+imphostcrtdir(long out)
+{
+    char *o = (char *)(intptr_t)out, libc[4096], d[4096], u[4100];
+    char *slash;
+
+    *o = '\0';
+    if (!imphostlibc((long)(intptr_t)libc))
+        return 0;
+    if ((slash = strrchr(libc, '/')) == NULL)
+        return 0;
+    snprintf(d, sizeof d, "%.*s", (int)(slash - libc), libc);
+    snprintf(u, sizeof u, "/usr%s", d);
+    if (hascrt(d))
+        snprintf(o, 4096, "%s", d);
+    else if (hascrt(u))
+        snprintf(o, 4096, "%s", u);
+    else if (hascrt("/usr/lib"))
+        snprintf(o, 4096, "/usr/lib");
+    return *o != '\0';
 }
