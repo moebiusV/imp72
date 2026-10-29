@@ -64,6 +64,7 @@ check: all
 	sh tests/ieee/run.sh
 	sh tests/direct/run.sh
 	sh tests/direct/stage2.sh
+	sh tests/direct/ir2ll.sh
 	sh tests/interactive/run.sh
 	sh tests/image/run.sh
 	sh tests/orc/run.sh

@@ -1,0 +1,402 @@
+#THIS IS FILE IR2LLX, THE EXPRESSIONS AND STATEMENTS OF THE LLVM IR WRITER (SRC/IR2LL.IMP IS THE REST): THE CODE GENERATOR OF THIS COMPILER CAN NAME ONLY 2047 REGISTERS IN A COMPILATION (A FIELD OF 11 BITS, SEE
+ AREG1 IN SRC/PCCIR/IMPSEM.IMP), SO THE WRITER IS IN TWO FILES.  WHAT THEY SHARE IS COMMON; THE DECLARATIONS ARE THE SAME IN BOTH.#
+
+IRLIN,IRLOUTP,IRLP32,IRLSP,IRLCH,IRLTOP,IRLEND,IRLNVR,IRLNCM,IRLNDQ,IRLDLABEL,IRLDSTRING,IRLUSEJ,IRLNVAL,IRLTERM,IRLNDEAD,IRLNT,IRLMAXARG,IRLPOS,IRLV,IRLLEN ARE COMMON;
+IRLBB,IRLBL,IRLBC ARE COMMON,6 LONG;
+IRLSETV IS COMMON,24576 LONG;
+IRLSETN IS COMMON,6 LONG;
+IRLTT IS COMMON,8192 LONG;
+IRLSTM IS COMMON,100000 LONG;
+IRLLAB IS COMMON,100000 LONG;
+IRLSTK IS COMMON,200000 LONG;
+IRLDQ IS COMMON,4096 LONG;
+IRLVRS,IRLVRN,IRLVRZ ARE COMMON,4096 LONG;
+IRLCMN,IRLCMZ,IRLCML ARE COMMON,4096 LONG;
+IRLLINE IS COMMON,80 LONG;
+IRLHDR IS COMMON,90 LONG;
+IRLFNM IS COMMON,33 LONG;
+IRLTOKB IS COMMON,70 LONG;
+IRLSYMB IS COMMON,33 LONG;
+IRLNMB IS COMMON,38 LONG;
+IRLDG IS COMMON,24 LONG;
+IRLZERO IS COMMON,2 LONG;
+IRLSTP IS COMMON,260 LONG;
+
+# V OF THE TYPE FRM AS THE TYPE TYT #
+SUBR IRLCONV(V,FRM,TYT) IS (
+ LF,LT2,R,F,T2,OPN,VV ARE LOCAL;
+ VV_V; F_FRM; T2_TYT;
+ LF_IRLLTYPE(F); LT2_IRLLTYPE(T2);
+ CCALL STRCMP(LF,LT2)=0 => RETURN VV;
+ R_IRLNEWVAL(0);
+ IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = '));
+ F=13 => (OPN_LOC('fptosi'); IRLISU(T2) NE 0 => OPN_LOC('fptoui');
+          IRLPS(0,OPN); IRLPC(0,32); IRLPS(0,LF); IRLPC(0,32); IRLPS(0,VV); IRLPS(0,LOC(' to ')); IRLPS(0,LT2); IRLE(0); RETURN R);
+ T2=13 => (OPN_LOC('sitofp'); IRLISU(F) NE 0 => OPN_LOC('uitofp');
+           IRLPS(0,OPN); IRLPC(0,32); IRLPS(0,LF); IRLPC(0,32); IRLPS(0,VV); IRLPS(0,LOC(' to double')); IRLE(0); RETURN R);
+ IRLBITS(T2)>IRLBITS(F) => (OPN_LOC('sext'); IRLISU(F) NE 0 => OPN_LOC('zext');
+                            IRLPS(0,OPN); IRLPC(0,32); IRLPS(0,LF); IRLPC(0,32); IRLPS(0,VV); IRLPS(0,LOC(' to ')); IRLPS(0,LT2); IRLE(0); RETURN R);
+ IRLPS(0,LOC('trunc ')); IRLPS(0,LF); IRLPC(0,32); IRLPS(0,VV); IRLPS(0,LOC(' to ')); IRLPS(0,LT2); IRLE(0);
+ R);
+
+# AN ADDRESS CONSTANT: SYMBOL + OFFSET, AS AN I64 #
+SUBR IRLSYMADDR(NAME,OFF) IS (
+ P,Q,Z,NM,OF ARE LOCAL;
+ NM_NAME; OF_OFF;
+ P_IRLNEWVAL(0); Q_IRLNEWVAL(0);
+ IRLI(0); IRLPS(0,P); IRLPS(0,LOC(' = getelementptr i8, ptr ')); IRLGN(0,NM); IRLPS(0,LOC(', i64 ')); IRLPN(0,OF); IRLE(0);
+ IRLP32 NE 0 => (Z_IRLNEWVAL(0);
+                 IRLI(0); IRLPS(0,Q); IRLPS(0,LOC(' = ptrtoint ptr ')); IRLPS(0,P); IRLPS(0,LOC(' to i32')); IRLE(0);
+                 IRLI(0); IRLPS(0,Z); IRLPS(0,LOC(' = zext i32 ')); IRLPS(0,Q); IRLPS(0,LOC(' to i64')); IRLE(0);
+                 RETURN Z);
+ IRLI(0); IRLPS(0,Q); IRLPS(0,LOC(' = ptrtoint ptr ')); IRLPS(0,P); IRLPS(0,LOC(' to i64')); IRLE(0);
+ Q);
+
+# THE ARGUMENT SLOT OF A REGISTER, OR -1 #
+SUBR IRLARGSLOT(REG) IS (
+ R ARE LOCAL;
+ R_REG;
+ R=5 => RETURN 0;
+ R=4 => RETURN 1;
+ R=1 => RETURN 2;
+ R=2 => RETURN 3;
+ R=8 => RETURN 4;
+ R=9 => RETURN 5;
+ 0-1);
+
+# AN ARGUMENT SLOT ABOVE THE SIXTH: *(RBP + 16 + 8K); K + 6, ELSE -1 #
+SUBR IRLSTACKP(NN) IS (
+ N,P,Q ARE LOCAL;
+ N_NN;
+ [N] NE 23 => RETURN 0-1;
+ P_[N+5];
+ [P] NE 10 => RETURN 0-1;
+ Q_[P+5];
+ [Q] NE 6 => RETURN 0-1;
+ [Q+3] NE 6 => RETURN 0-1;
+ Q_[P+6];
+ [Q] NE 4 => RETURN 0-1;
+ ((([Q+2]-16)/8)+6));
+
+# THE ARGUMENT K OF THE FUNCTION, AS AN I64 (AN ADDRESS: ZERO EXTENDED) #
+SUBR IRLPARAM(KK) IS (
+ K,R ARE LOCAL;
+ K_KK;
+ K>IRLMAXARG => IRLMAXARG_K;
+ IRLP32=0 => RETURN IRLVN(97,K);
+ R_IRLNEWVAL(0);
+ IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = zext i32 %a')); IRLPN(0,K); IRLPS(0,LOC(' to i64')); IRLE(0);
+ R);
+
+# A POINTER FOR THE ADDRESS (AN I64) #
+SUBR IRLTOPTR(A) IS (
+ P,AA ARE LOCAL;
+ AA_A;
+ P_IRLNEWVAL(0);
+ IRLI(0); IRLPS(0,P); IRLPS(0,LOC(' = inttoptr i64 ')); IRLPS(0,AA); IRLPS(0,LOC(' to ptr')); IRLE(0);
+ P);
+
+# THE VALUE OF A CONSTANT NODE #
+SUBR IRLXICON(NN) IS (
+ N,T,NM ARE LOCAL;
+ N_NN; T_[N+1]; NM_[N+4];
+ NM NE 0 => (IRLINSET(0,NM)=0 => IRLADD(1,NM);
+             RETURN IRLCONV(IRLSYMADDR(NM,[N+2]),8,T));
+ IRLRST(3);
+ T=13 => (IRLPN(3,[N+2]); IRLPS(3,LOC('.0')); RETURN IRLSVE(0));
+ T=6 => (IRLPN(3,IRLSX32([N+2])); RETURN IRLSVE(0));
+ T=3 => (IRLPN(3,[N+2] AND 255); RETURN IRLSVE(0));
+ IRLPN(3,[N+2]);
+ IRLSVE(0));
+
+# ---- THE EXPRESSIONS ---- #
+# THE POINTER TO THE PLACE A NAME, TEMP OR UMUL NODE NAMES #
+SUBR IRLPLACE(NN) IS (
+ N,OP,P,A ARE LOCAL;
+ N_NN; OP_[N];
+ OP=2 => (IRLADD(1,[N+4]);
+          P_IRLNEWVAL(0);
+          IRLI(0); IRLPS(0,P); IRLPS(0,LOC(' = getelementptr i8, ptr ')); IRLGN(0,[N+4]); IRLPS(0,LOC(', i64 ')); IRLPN(0,[N+2]); IRLE(0);
+          RETURN P);
+ OP=8 => RETURN IRLVN(116,[N+3]);
+ OP=23 => (A_IRLEXPR([N+5]);
+           RETURN IRLTOPTR(A));
+ IRLDIE(LOC('not an lvalue'),LOC(IRLZERO));
+ 0);
+
+# THE VALUE OF A NAME, TEMP OR UMUL NODE: A LOAD #
+SUBR IRLLOAD(NN) IS (
+ N,P,R,T,TT ARE LOCAL;
+ N_NN;
+ IRLPUSH(N);
+ P_IRLPLACE(N);
+ N_IRLPOP(0);
+ R_IRLNEWVAL(0); T_[N+1];
+ [N]=8 => (TT_[N+3]-100; TT_IRLTT[TT];
+           IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = load'));
+           IRLUSEJ NE 0 => IRLPS(0,LOC(' volatile'));
+           IRLPC(0,32); IRLPS(0,IRLLTYPE(TT)); IRLPS(0,LOC(', ptr ')); IRLPS(0,P); IRLPS(0,LOC(', align ')); IRLPS(0,IRLLALIGN(TT)); IRLE(0);
+           RETURN IRLCONV(R,TT,T));
+ IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = load ')); IRLPS(0,IRLLTYPE(T)); IRLPS(0,LOC(', ptr ')); IRLPS(0,P); IRLPS(0,LOC(', align ')); IRLPS(0,IRLLALIGN(T)); IRLE(0);
+ R);
+
+# STORE THE VALUE V OF THE TYPE VT IN THE PLACE D NAMES #
+SUBR IRLSTORE(DD,VV,VVT) IS (
+ D,V,VT,P,TT,DT ARE LOCAL;
+ D_DD; V_VV; VT_VVT;
+ IRLPUSH(D); IRLPUSH(V); IRLPUSH(VT);
+ P_IRLPLACE(D);
+ VT_IRLPOP(0); V_IRLPOP(0); D_IRLPOP(0);
+ [D]=8 => (TT_[D+3]-100; TT_IRLTT[TT]; DT_[D+1];
+           V_IRLCONV(IRLCONV(V,VT,DT),DT,TT);
+           IRLI(0); IRLPS(0,LOC('store'));
+           IRLUSEJ NE 0 => IRLPS(0,LOC(' volatile'));
+           IRLPC(0,32); IRLPS(0,IRLLTYPE(TT)); IRLPC(0,32); IRLPS(0,V); IRLPS(0,LOC(', ptr ')); IRLPS(0,P); IRLPS(0,LOC(', align ')); IRLPS(0,IRLLALIGN(TT)); IRLE(0);
+           RETURN 0);
+ DT_[D+1];
+ V_IRLCONV(V,VT,DT);
+ IRLI(0); IRLPS(0,LOC('store ')); IRLPS(0,IRLLTYPE(DT)); IRLPC(0,32); IRLPS(0,V); IRLPS(0,LOC(', ptr ')); IRLPS(0,P); IRLPS(0,LOC(', align ')); IRLPS(0,IRLLALIGN(DT)); IRLE(0);
+ 0);
+
+# THE VALUE OF THE EXPRESSION NN AS THE TYPE TT: CONV(EXPR(N), N->TYPE, TT) #
+SUBR IRLEXC(NN,TT) IS (
+ N,TY,V,T2 ARE LOCAL;
+ N_NN; TY_[N+1]; T2_TT;
+ IRLPUSH(TY); IRLPUSH(T2);
+ V_IRLEXPR(N);
+ T2_IRLPOP(0); TY_IRLPOP(0);
+ IRLCONV(V,TY,T2));
+
+# A COMPARISON: AN I1 #
+SUBR IRLCOMPARE(NN) IS (
+ N,LTY,CT,OP,L,R,C,X ARE LOCAL;
+ N_NN; OP_[N]; X_[N+5]; LTY_[X+1];
+ OP GE 31 => (IRLPUSH(N);
+              L_IRLEXC([N+5],9);
+              N_IRLPOP(0);
+              IRLPUSH(N); IRLPUSH(L);
+              R_IRLEXC([N+6],9);
+              L_IRLPOP(0); N_IRLPOP(0);
+              OP_[N];
+              C_IRLNEWVAL(0);
+              IRLI(0); IRLPS(0,C); IRLPS(0,LOC(' = icmp '));
+              OP=31 => IRLPS(0,LOC('ule'));
+              OP=32 => IRLPS(0,LOC('ult'));
+              OP=33 => IRLPS(0,LOC('uge'));
+              OP=34 => IRLPS(0,LOC('ugt'));
+              IRLPS(0,LOC(' i64 ')); IRLPS(0,L); IRLPS(0,LOC(', ')); IRLPS(0,R); IRLE(0);
+              RETURN C);
+ CT_8;
+ LTY=6 => CT_6;
+ IRLISU(LTY) NE 0 => CT_9;
+ LTY=13 => CT_13;
+ IRLPUSH(N); IRLPUSH(CT);
+ L_IRLEXC([N+5],CT);
+ CT_IRLPOP(0); N_IRLPOP(0);
+ IRLPUSH(N); IRLPUSH(CT); IRLPUSH(L);
+ R_IRLEXC([N+6],CT);
+ L_IRLPOP(0); CT_IRLPOP(0); N_IRLPOP(0);
+ OP_[N];
+ C_IRLNEWVAL(0);
+ IRLI(0); IRLPS(0,C);
+ CT=13 => (IRLPS(0,LOC(' = fcmp '));
+           OP=25 => IRLPS(0,LOC('oeq'));
+           OP=26 => IRLPS(0,LOC('une'));
+           OP=27 => IRLPS(0,LOC('ole'));
+           OP=28 => IRLPS(0,LOC('olt'));
+           OP=29 => IRLPS(0,LOC('oge'));
+           OP=30 => IRLPS(0,LOC('ogt'));
+           IRLPS(0,LOC(' double ')); IRLPS(0,L); IRLPS(0,LOC(', ')); IRLPS(0,R); IRLE(0);
+           RETURN C);
+ IRLPS(0,LOC(' = icmp '));
+ OP=25 => IRLPS(0,LOC('eq'));
+ OP=26 => IRLPS(0,LOC('ne'));
+ IRLISU(CT) NE 0 => (OP=27 => IRLPS(0,LOC('ule'));
+                     OP=28 => IRLPS(0,LOC('ult'));
+                     OP=29 => IRLPS(0,LOC('uge'));
+                     OP=30 => IRLPS(0,LOC('ugt')))
+   ELSE (OP=27 => IRLPS(0,LOC('sle'));
+         OP=28 => IRLPS(0,LOC('slt'));
+         OP=29 => IRLPS(0,LOC('sge'));
+         OP=30 => IRLPS(0,LOC('sgt')));
+ IRLPC(0,32); IRLPS(0,IRLLTYPE(CT)); IRLPC(0,32); IRLPS(0,L); IRLPS(0,LOC(', ')); IRLPS(0,R); IRLE(0);
+ C);
+
+# THE TYPES OF THE FIXED PARAMETERS OF A CALL, "(I64, I64" AND THE REST: ", ...)" IF DOTS, ELSE ")" #
+SUBR IRLFT(NN,DOTS) IS (
+ J,N,DT ARE LOCAL;
+ N_NN; DT_DOTS;
+ IRLPC(0,40);
+ J_0;
+ FT1: J<N => (J>0 => IRLPS(0,LOC(', ')); IRLPS(0,IRLIPT(0)); J_J+1; GO TO FT1);
+ DT NE 0 => IRLPS(0,LOC(', ...)')) ELSE IRLPC(0,41);
+ 0);
+
+# A CALL: THE VALUE IS AN I64.  THE FRAME ON THE STACK HAS THE ARGUMENT NODES (0..63), THE LIST OF THEM (64..127) AND THEIR VALUES (128..191) #
+SUBR IRLCALLEXPR(NN) IS (
+ N,FN,A,C,K,NL,TOP,SL,D,X,NARGS,V,NM,R,Z,NF,CF,P,Q,Y ARE LOCAL;
+ N_NN; FN_[N+5];
+ [FN]=4 => ([FN+4] NE 0 => GO TO CE1);
+ IRLDIE(LOC('call of a computed function'),LOC(IRLZERO));
+ CE1: NM_[FN+4];
+ IRLADD(0,NM);
+ CCALL STRCMP(NM,LOC('_setjmp'))=0 => IRLUSEJ_1;
+ CCALL STRCMP(NM,LOC('setjmp'))=0 => IRLUSEJ_1;
+ A_IRLSP; IRLSP_IRLSP+192;
+ IRLSP GE 199000 => IRLDIE(LOC('tree too deep'),LOC(IRLZERO));
+ Q_LOC(IRLSTK); Q_Q+(8*A);
+ CCALL MEMSET(Q,0,1536);
+ TOP_0-1; NL_0;
+ [N]=41 => (C_[N+6];
+            CE2: [C]=48 => (X_[C+6]; IRLSTK[(A+64)+NL]_X; NL_NL+1; C_[C+5]; GO TO CE2);
+            IRLSTK[(A+64)+NL]_C; NL_NL+1;
+            K_NL-1;
+            CE3: K<0 => GO TO CE5;
+            X_IRLSTK[(A+64)+K];
+            [X] NE 49 => IRLDIE(LOC('argument is not an assignment'),NM);
+            D_[X+5];
+            [D]=6 => ([D+3]=0 => GO TO CE4;
+                      SL_IRLARGSLOT([D+3]);
+                      SL<0 => IRLDIE(LOC('argument register'),NM);
+                      GO TO CE6);
+            [D]=23 => (P_[D+5];
+                       [P]=10 => (Q_[P+5];
+                                  [Q]=6 => ([Q+3]=7 => (Y_[P+6]; SL_6+([Y+2]/8); GO TO CE6))));
+            IRLDIE(LOC('argument destination'),NM);
+            CE6: IRLSTK[A+SL]_[X+6];
+            SL>TOP => TOP_SL;
+            CE4: K_K-1; GO TO CE3;
+            CE5: 0);
+ NARGS_TOP+1;
+ K_0;
+ CE7: K<NARGS => (X_IRLSTK[A+K];
+                  X=0 => IRLDIE(LOC('missing argument'),NM);
+                  IRLPUSH(A); IRLPUSH(K); IRLPUSH(NARGS); IRLPUSH(NM);
+                  V_IRLEXC(X,8);
+                  NM_IRLPOP(0); NARGS_IRLPOP(0); K_IRLPOP(0); A_IRLPOP(0);
+                  IRLP32 NE 0 => (Z_IRLNEWVAL(0);
+                                  IRLI(0); IRLPS(0,Z); IRLPS(0,LOC(' = trunc i64 ')); IRLPS(0,V); IRLPS(0,LOC(' to i32')); IRLE(0);
+                                  V_Z);
+                  IRLSTK[(A+128)+K]_V;
+                  K_K+1; GO TO CE7);
+ CF_IRLISC(NM);
+ NF_IRLVARF(NM);
+ R_IRLNEWVAL(0);
+ NF>0 => (IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = call i32 ')); IRLFT(NF,1); IRLPC(0,32); IRLGN(0,NM); IRLPC(0,40);
+          K_0;
+          CE8: K<NARGS => (K>0 => IRLPS(0,LOC(', ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,IRLSTK[(A+128)+K]); K_K+1; GO TO CE8);
+          IRLPC(0,41); IRLE(0);
+          Z_IRLNEWVAL(0);
+          IRLI(0); IRLPS(0,Z); IRLPS(0,LOC(' = sext i32 ')); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
+          IRLSP_A;
+          RETURN Z);
+ CF NE 0 => (Z_IRLNEWVAL(0);
+             IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = call ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLFT(NARGS,0); IRLPC(0,32); IRLGN(0,NM); IRLPC(0,40);
+             K_0;
+             CE9: K<NARGS => (K>0 => IRLPS(0,LOC(', ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,IRLSTK[(A+128)+K]); K_K+1; GO TO CE9);
+             IRLPC(0,41);
+             ((CCALL STRCMP(NM,LOC('_setjmp'))=0) OR (CCALL STRCMP(NM,LOC('setjmp'))=0)) => IRLPS(0,LOC(' returns_twice'));
+             IRLE(0);
+             IRLP32 NE 0 => (IRLI(0); IRLPS(0,Z); IRLPS(0,LOC(' = sext i32 ')); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
+                             IRLSP_A;
+                             RETURN Z);
+             IRLSP_A;
+             RETURN R);
+ IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = call i64 ')); IRLFT(NARGS,0); IRLPC(0,32); IRLGN(0,NM); IRLPC(0,40);
+ K_0;
+ CE10: K<NARGS => (K>0 => IRLPS(0,LOC(', ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,IRLSTK[(A+128)+K]); K_K+1; GO TO CE10);
+ IRLPC(0,41); IRLE(0);
+ IRLSP_A;
+ R);
+
+# THE VALUE OF AN EXPRESSION, AS ITS OWN TYPE #
+SUBR IRLEXPR(NN) IS (
+ N,T,L,R,V,OP,S,C,OPN,LT3 ARE LOCAL;
+ N_NN; T_[N+1]; OP_[N];
+ OP=4 => RETURN IRLXICON(N);
+ OP=2 => RETURN IRLLOAD(N);
+ OP=8 => RETURN IRLLOAD(N);
+ OP=6 => (S_IRLARGSLOT([N+3]);
+          S<0 => IRLDIE(LOC('register not translated'),LOC(IRLZERO));
+          RETURN IRLCONV(IRLPARAM(S),8,T));
+ OP=23 => (S_IRLSTACKP(N);
+           S GE 0 => RETURN IRLCONV(IRLPARAM(S),8,T);
+           RETURN IRLLOAD(N));
+ ((OP=41) OR (OP=42)) => (IRLPUSH(T);
+                        V_IRLCALLEXPR(N);
+                        T_IRLPOP(0);
+                        RETURN IRLCONV(V,8,T));
+ ((OP=37) OR (OP=38)) => RETURN IRLEXC([N+5],T);
+ OP=24 => (IRLPUSH(T);
+           L_IRLEXC([N+5],T);
+           T_IRLPOP(0);
+           V_IRLNEWVAL(0);
+           IRLI(0); IRLPS(0,V);
+           T=13 => (IRLPS(0,LOC(' = fneg double ')); IRLPS(0,L); IRLE(0); RETURN V);
+           IRLPS(0,LOC(' = sub ')); IRLPS(0,IRLLTYPE(T)); IRLPS(0,LOC(' 0, ')); IRLPS(0,L); IRLE(0);
+           RETURN V);
+ OP=20 => (IRLPUSH(T);
+           L_IRLEXC([N+5],T);
+           T_IRLPOP(0);
+           V_IRLNEWVAL(0);
+           IRLI(0); IRLPS(0,V); IRLPS(0,LOC(' = xor ')); IRLPS(0,IRLLTYPE(T)); IRLPC(0,32); IRLPS(0,L); IRLPS(0,LOC(', -1')); IRLE(0);
+           RETURN V);
+ ((OP GE 25) AND (OP LE 34)) => (IRLPUSH(T);
+                               C_IRLCOMPARE(N);
+                               T_IRLPOP(0);
+                               V_IRLNEWVAL(0);
+                               IRLI(0); IRLPS(0,V); IRLPS(0,LOC(' = zext i1 ')); IRLPS(0,C); IRLPS(0,LOC(' to ')); IRLPS(0,IRLLTYPE(T)); IRLE(0);
+                               RETURN V);
+ IRLPUSH(N); IRLPUSH(T);
+ L_IRLEXC([N+5],T);
+ T_IRLPOP(0); N_IRLPOP(0);
+ IRLPUSH(N); IRLPUSH(T); IRLPUSH(L);
+ R_IRLEXC([N+6],T);
+ L_IRLPOP(0); T_IRLPOP(0); N_IRLPOP(0);
+ OP_[N];
+ V_IRLNEWVAL(0);
+ OP=10 => (OPN_LOC('add'); T=13 => OPN_LOC('fadd'); GO TO EXBIN);
+ OP=11 => (OPN_LOC('sub'); T=13 => OPN_LOC('fsub'); GO TO EXBIN);
+ OP=14 => (OPN_LOC('mul'); T=13 => OPN_LOC('fmul'); GO TO EXBIN);
+ OP=12 => (OPN_LOC('sdiv'); IRLISU(T) NE 0 => OPN_LOC('udiv'); T=13 => OPN_LOC('fdiv'); GO TO EXBIN);
+ OP=13 => (T=13 => IRLDIE(LOC('integer operator on a real'),LOC(IRLZERO));
+           OPN_LOC('srem'); IRLISU(T) NE 0 => OPN_LOC('urem'); GO TO EXBIN);
+ ((OP=15) OR (OP=16) OR (OP=17)) => (T=13 => IRLDIE(LOC('integer operator on a real'),LOC(IRLZERO));
+                                   OPN_LOC('xor'); OP=15 => OPN_LOC('and'); OP=16 => OPN_LOC('or'); GO TO EXBIN);
+ ((OP=18) OR (OP=19)) => (S_IRLNEWVAL(0);
+                        IRLI(0); IRLPS(0,S); IRLPS(0,LOC(' = and ')); IRLPS(0,IRLLTYPE(T)); IRLPC(0,32); IRLPS(0,R); IRLPS(0,LOC(', ')); IRLPN(0,IRLBITS(T)-1); IRLE(0);
+                        OPN_LOC('ashr'); IRLISU(T) NE 0 => OPN_LOC('lshr'); OP=18 => OPN_LOC('shl');
+                        IRLI(0); IRLPS(0,V); IRLPS(0,LOC(' = ')); IRLPS(0,OPN); IRLPC(0,32); IRLPS(0,IRLLTYPE(T)); IRLPC(0,32); IRLPS(0,L); IRLPS(0,LOC(', ')); IRLPS(0,S); IRLE(0);
+                        RETURN V);
+ IRLERRN(LOC('ir2ll: operator '),OP);
+ RETURN 0;
+ EXBIN: IRLI(0); IRLPS(0,V); IRLPS(0,LOC(' = ')); IRLPS(0,OPN); IRLPC(0,32); IRLPS(0,IRLLTYPE(T)); IRLPC(0,32); IRLPS(0,L); IRLPS(0,LOC(', ')); IRLPS(0,R); IRLE(0);
+ V);
+
+# ---- THE STATEMENTS ---- #
+SUBR IRLSTMT(NN) IS (
+ N,OP,D,V,C,X,Y,NX,VT ARE LOCAL;
+ N_NN; OP_[N];
+ OP=49 => (D_[N+5]; X_[N+6];
+           (([D]=6) AND ([D+3]=0)) => (V_IRLEXC(X,8);
+                                     IRLI(0); IRLPS(0,LOC('ret i64 ')); IRLPS(0,V); IRLTE(0);
+                                     RETURN 0);
+           V_IRLEXPR(X); VT_[X+1];
+           IRLSTORE(D,V,VT);
+           RETURN 0);
+ OP=35 => (NX_IRLVN(110,IRLNVAL); IRLNVAL_IRLNVAL+1;
+           X_[N+5];
+           (([X] GE 25) AND ([X] LE 34)) => (C_IRLCOMPARE(X); GO TO CB1);
+           V_IRLEXC(X,8); C_IRLNEWVAL(0);
+           IRLI(0); IRLPS(0,C); IRLPS(0,LOC(' = icmp ne i64 ')); IRLPS(0,V); IRLPS(0,LOC(', 0')); IRLE(0);
+           CB1: Y_[N+6];
+           IRLI(0); IRLPS(0,LOC('br i1 ')); IRLPS(0,C); IRLPS(0,LOC(', label %L')); IRLPN(0,[Y+2]); IRLPS(0,LOC(', label ')); IRLPS(0,NX); IRLTE(0);
+           Y_NX+1; IRLPS(0,Y); IRLPC(0,58); IRLPC(0,10); IRLTERM_0;
+           RETURN 0);
+ OP=54 => (Y_[N+5];
+           IRLI(0); IRLPS(0,LOC('br label %L')); IRLPN(0,[Y+2]); IRLTE(0);
+           RETURN 0);
+ ((OP=41) OR (OP=42)) => (V_IRLCALLEXPR(N); RETURN 0);
+ IRLERRN(LOC('ir2ll: statement '),OP);
+ 0)
+%%

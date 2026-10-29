@@ -30,7 +30,7 @@ IMP72 is a small kernel plus a language defined in data. This page is the map; t
 - **The semantic routines** (`src/impsem`, `src/pccir/`) keep their names from the original. They build chains of records
   in free array `CO`, whose operations are those of the IR machine (`docs/porting/pccir-machine.md`); registers are
   temporaries. `demit.imp` turns a chain into IR trees through `stage0/ir.c` one function at a time.
-- **Back end**: LLVM, and only LLVM. `tools/ir2ll.c` turns the IR into a module of LLVM IR, and LLVM, in the compiler's own process
+- **Back end**: LLVM, and only LLVM. `src/ir2ll.imp` (the seed: `tools/ir2ll.c`) turns the IR into a module of LLVM IR, and LLVM, in the compiler's own process
   (`stage0/llvmorc.c`: the module is parsed, optimised and emitted by the C API, or compiled by ORC and run: `imp72 --run`), makes
   the object for every target LLVM has, big-endian ones included. The IR is lowered for one machine (the arguments of a call in
   registers, the result in rax), so the compiler's output does not depend on the host.

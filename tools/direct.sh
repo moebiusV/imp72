@@ -9,7 +9,7 @@ set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 modules=${MODULES:-impsem code code2 code3 demit ix}
-srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm driver}   # the modules of src/ (the rest of the compiler)
+srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 mkdir -p "$out"
 imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.imp, built below by the driver)
@@ -50,15 +50,15 @@ done
 for m in $srcmodules; do
     repl="$repl stage0/$m.o"
 done
-# LLVM in the process (stage0/llvmorc.c, tools/ir2ll.c as a function) where the LLVM C API is installed (tools/llvm.sh; WITH_LLVM=no leaves it out): llvmorc.c is
+# LLVM in the process (stage0/llvmorc.c; the IR writer is src/ir2ll.imp and src/ir2llx.imp, which stage0/ir2ll_shim.c lets llvmorc.c call as ir2ll_run) where the LLVM C API is installed (tools/llvm.sh; WITH_LLVM=no leaves it out): llvmorc.c is
 # compiled either way, and without the libraries its entries say there is no LLVM
 llvmflags=$(sh tools/llvm.sh cflags); llvmlibs=; llvmobjs=
 cc -std=gnu99 -O1 -g $llvmflags -c stage0/llvmorc.c -o $out/llvmorc.o
 llvmobjs="$out/llvmorc.o"
 if [ -n "$llvmflags" ]; then
     llvmlibs=$(sh tools/llvm.sh libs)
-    cc -std=gnu99 -O1 -g -DIR2LL_LIB -c tools/ir2ll.c -o $out/ir2ll.o
-    llvmobjs="$llvmobjs $out/ir2ll.o"
+    cc -std=gnu99 -O1 -g -c stage0/ir2ll_shim.c -o $out/ir2ll_shim.o
+    llvmobjs="$llvmobjs $out/ir2ll_shim.o"
     case $llvmflags in *HAVE_LLD*) c++ -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/impld.cpp -o $out/impld.o; llvmobjs="$llvmobjs $out/impld.o" ;; esac
 fi
 keep=

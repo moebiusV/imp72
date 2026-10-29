@@ -63,7 +63,7 @@ conditional branch to a label after the next instruction.
 
 **IR.** `ir.c` writes the IR as text: a node to a line, preorder; `!` prolog,
 `^` label, `%` epilog, `*` text. The format is that of a compiler's pass 2 (pcc's,
-which is where it comes from); `tools/ir2ll.c` reads it and writes LLVM IR, and
+which is where it comes from); `src/ir2ll.imp` (the seed: `tools/ir2ll.c`) reads it and writes LLVM IR, and
 LLVM makes the object in the process.
 
 ## PRINT and the runtime
