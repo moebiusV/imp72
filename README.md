@@ -67,7 +67,9 @@ translation of the tables and the driver program.
    Restore the tape where a departure is marked provisional in
    `docs/porting/modules.md` (`COMPIL`, inline in the tape's main program).
 4. Compare the compiler's dumps (directory, code tree, semantics array, graph)
-   with the original's, and the `/A` listings.
+   with the original's, and the `/A` listings. Done for `dr.imp` and the 19 programs of the oracle
+   (`tests/oracle/dumps.sh`, [docs/ORACLE.md](docs/ORACLE.md)); open: the name `U` of the original's directory, the
+   order of colliding names in it, and more programs for the dumps.
 5. Make the seed-to-stage-2 build the only way the compiler is built and
    installed, and bring the Makefile, CI and docs in line.
 6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study in

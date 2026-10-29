@@ -1,0 +1,416 @@
+   IMP 1.5    20-AUG-73      DR.IMP[1,2]      27-APR-79   06:48
+
+  0 X_5; Y_X+1000;
+  0 PRINT STG 0,'HI',IGR 0,Y,/;
+  0 FINI(0)
+  0 %%
+
+ASSEMBLY TIME = 0   MSEC.
+ 12 WORDS OBJECT CODE
+ 0 WORDS VECTOR STORAGE,   2 WORDS SCALAR STORAGE,   2 CONSTANTS
+
+PARSE TIME 0 MSEC., 29 INPUT SYMBOLS.
+   MAX. PARSE BRANCHING 6/2
+   MAX. PARSE SPACE 30+12, MAX. OUTPUT SPACE 11
+COMPILATION TIME 0 MSEC.; 29000 TOKENS/SEC.
+DIRECTORY HASHED INTO 333 BOXES.  OVERFLOW IS 64.
+HASH CODE   TOKEN
+    001    DEWFUN
+    002    LS
+    006    EQ
+    005    RED.
+    006    476B
+           437B
+    007    SPI
+    004    OCT
+    013    A0VARMEM
+    016    ST
+    022    137B
+           BYTEP
+    024    NEWLIST
+    026    IS
+           UT
+    024    SAU
+    027    IMAGE
+    032    SUBPR0
+    036    OR
+           ELIST
+    037    SUBRPAR
+    051    #ATOM
+    057    AREG1
+    062    DR
+    061    CALL
+    062    NLIST
+    066    407B
+    071    SUBRCALL
+    076    256B
+    075    SUBBEG
+    076    IOWD
+           ELSE
+    100    SVAL
+    103    S0VAR
+           R REQUIRES TEXT CONSTANT OPERAND.
+    101    #SQUOTE
+    103    VAL
+    105    #BYTE
+    106    #PG
+    110    TWOSEG
+    112    PLIST
+    117    P0VARMEM
+    115    AREG
+    117    P0VARMEMREG
+    122    136B
+    124    #ELIST
+    127    'HI
+    125    COND
+    126    RESERVED
+    125    EXECUTE
+    131    CAOPS
+    137    #RELOP
+    136    GT
+    137    ION
+    143    NAM
+    147    ADDR
+    150    LET
+    152    CASENAM
+    155    REG2S
+    160    D0CNG35
+    162    506B
+           LT
+    163    VBL
+    164    SSP
+    165    #SUBP
+    172    RS
+    174    QUOSEM
+    176    SEMR
+    177    SEMP
+    174    SCRATCH
+    202    164B
+           574B
+    203    #PROP
+    206    SYM#
+           IMPM.
+    212    PRINCAL
+           TAG
+    210    "
+    214    MAXWELL
+    220    #SPI
+    222    174B
+           135B
+           #STL
+    223    MAXEND
+    224    %
+    226    464B
+    230    SETPRI
+    233    SQUOTE
+    234    EXP
+    236    274B
+    240    (
+    242    144B
+           554B
+    243    CALLI
+    244    )
+    245    FILL
+    246    454B
+    244    PRINT
+    250    *
+    251    ATOM
+    253    CALLME
+    254    PRINPAR
+           +
+    260    ,
+    262    154B
+           505B
+           BYTE
+           LOCAL
+    264    #ST
+    266    444B
+    264    -
+    270    .
+    274    /
+    276    SUBP
+           254B
+    277    SUBR
+    300    0
+           NOT
+    304    FCON
+    305    NCAOPS
+    306    434B
+    304    1
+    310    2
+    313    REG2
+    314    3
+    317    ILDB
+    315    EQUOSE
+           '%
+    320    4
+    323    %TMP2
+    322    134B
+    320    FLT
+    323    #SYM
+    324    5
+    325    THROUGH
+           FROM
+    330    COPY
+           6
+    333    SWITCH
+    334    #SAU
+           7
+    337    #SMP
+    340    8
+    342    514B
+    344    FREEZE
+    346    CND
+    344    SEMBIT
+           #NLIST
+           9
+    350    :
+    354    ;
+    356    AND
+           204B
+    354    ARS
+    360    <
+    362    504B
+    364    =
+    366    404B
+           CASE
+    370    >
+    375    #EXP
+    400    #NAM
+    403    I0REG
+    400    UNTIL
+    403    A0FLT
+    404    A
+    406    433B
+    404    #PLIST
+    407    STL
+    410    B
+    412    LOC
+    413    PROTECTED
+    414    C
+    417    B0FLT
+           COMMON
+    416    223B
+    414    SHIFTS
+    415    55B
+    417    DEWOP
+    414    ALS
+    420    D
+    424    E
+    430    XOR
+    432    XWD
+    436    777777000000B
+    435    15B
+    436    777777B
+           777777777756B
+    443    A0REG
+           IFIX
+    444    I
+    446    S0WRD
+           413B
+    447    FINI
+    450    SUBEND
+    451    47B
+    450    J
+           DATA
+    456    242B
+    455    ';
+    456    DECLARE
+    462    P0CON
+           542B
+           PG
+    460    L
+    465    SUBCALL
+    472    R0CON18
+    473    WHILE
+    471    SUBSCRIPT
+    472    R0CON
+    470    N
+    475    ':
+    476    HOOK
+    477    ERROR
+    500    #VBL
+    501    NAME
+    500    P
+    504    ASSEMC
+    505    18
+    506    IF
+    504    SPT
+    507    SPL
+    504    Q
+    510    R
+    514    S
+    515    IDPB
+    516    GE
+    522    #CSM
+           OJUMPOP
+    520    REGISTER
+    524    #CASENAM
+    525    19
+    526    I0CON
+           I0CON0729
+           I0CON1422
+           I0CON2115
+           I0CON2808
+           I0CON3501
+    524    #QUOSEM
+    527    SYN
+    524    U
+    530    V
+    531    29
+    532    J0CON
+    534    #SSP
+    535    '<
+    536    273B
+           OF
+    535    11B
+    540    INTEGER
+    542    LE
+           D0CON35
+    540    X
+           FOR
+           PITEM
+    544    STORE
+    547    P0REG
+           X0FLT
+    546    GOLST
+           #PITEM
+           ME
+    544    Y
+    547    SYTRM
+    550    LONG
+    551    DEFCASE
+    552    NE
+           DEVICE
+    550    Z
+    551    VALU
+    554    [
+    556    MOVE
+           ARE
+    557    R0REG
+    560    \
+    562    NAM#
+    560    READ
+    564    REAL
+    567    QUODEF
+    566    A0CON12
+           A0CON
+    567    CSM
+    564    ]
+    572    B0CON
+    571    REGOF
+    572    B0CON18
+           #QUODEF
+    574    _
+    575    ENLIST
+           SYNT
+    601    FIX
+    603    PROP
+    606    470B
+    611    RROT
+    612    360B
+    614    EQV
+    617    P0IGRVARMEM
+    616    DATAST
+    617    P0IGRREG
+    622    AVAILABLE
+           #SPL
+    623    #SPN
+    624    ENSTACK
+    625    %PAR1
+    626    460B
+    624    SMP
+    625    15
+    627    SYM
+    624    RELOP
+    632    370B
+    633    FLOAT
+    636    #SPT
+           270B
+           RETURN
+    642    550B
+    641    FILE
+    642    TO
+    645    16
+    650    PRIORITY
+    652    340B
+    650    LOGIC
+    654    DECL
+    656    201B
+           240B
+    663    RELEASED
+    666    #GOLST
+    665    17
+    666    440B
+    667    2000010B
+    671    REPVAL
+    672    350B
+    673    1000010B
+    677    1230B
+           000000777777B
+    703    C0IGR
+    707    B0IGRCON
+           B0IGR
+    705    10
+    706    430B
+           STG
+           IN
+    707    SPN
+    713    A0IGRREG
+           A0IGR
+           A0IGRVARMEM
+    711    ADDOP
+    712    TAB
+           320B
+    713    A0IGRCON
+    716    220B
+    722    #SYN
+    726    420B
+    727    #IO
+    725    11
+    726    IO
+           SMA
+    727    #SMA
+    730    PAR
+    733    1000
+    732    330B
+    733    SYNTS
+    730    #COND
+    734    REMOT
+    736    WH
+           230B
+    734    REMOTE
+           IGR
+    742    DO
+           510B
+    743    VALUE
+    746    410B
+    747    J0IGR
+    753    I0IGRREG0115
+           I0IGRVARMEM
+           I0IGRVAR
+           I0IGR
+    752    300B
+    751    22
+    753    SEMANTICS
+    756    241B
+           200B
+           GO
+    754    MODE
+    760    CONOP
+    761    STACKUP
+    762    541B
+    761    FETCH
+           STACK
+           LROT
+    763    LETSYN
+    760    #ION
+    765    13
+    772    310B
+    776    251B
+           210B
+    777    SYNTAX
+    774    PRN.
+           IMP
+2 CALLS TO BITS, 0 CALLS TO BIT, 1 CALLS TO BITOR.
+FREE STORAGE 17408 WORDS: 6753 - 41777

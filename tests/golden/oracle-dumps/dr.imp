@@ -1,0 +1,4 @@
+X_5; Y_X+1000;
+PRINT STG 0,'HI',IGR 0,Y,/;
+FINI(0)
+%%

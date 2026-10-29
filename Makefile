@@ -60,6 +60,7 @@ check: all
 	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
 	sh tests/native/run.sh
 	sh tests/oracle/run.sh
+	sh tests/oracle/dumps.sh
 	sh tests/ieee/run.sh
 	sh tests/direct/run.sh
 	sh tests/direct/stage2.sh

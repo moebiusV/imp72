@@ -210,9 +210,10 @@ partr1(word cnode, word ctyp, word cval, word p, word ip, word o, word cw)
  * stuff word in octal, and a gloss of it.
  *
  * The matrix is printed 75 columns at a time.  The original's width is
- * 36 * (1 + SBITM[2]) columns for its 36 bit words; here the matrix has
- * 64 bit words, so the number of columns printed is 36 * the number of 36 bit
- * words that would hold the columns of this matrix, at least 5.
+ * 36 * (1 + SBITM[2]) columns for its 36 bit words, 5 words to begin with and
+ * more when a bit beyond them is set; here the matrix has 64 bit words, so the
+ * number of columns printed is 36 * the number of 36 bit words that the highest
+ * column set needs, at least 5.
  */
 void
 tprin1(void)
@@ -294,7 +295,15 @@ tprin1(void)
     pr_stg(0, "CODE TREE BIT MATRIX:");
     pr_nl();
     pr_nl();
-    cols = (64 * (sbitm[2] + 1) + 35) / 36;
+    {                                   /* the columns the original's matrix would have: 5 words of 36 bits to begin with, more when a bit beyond them is set */
+        word mc = 0;
+
+        for (i = 0; i <= noden; i++)
+            for (k = 0; k < 64 * (sbitm[2] + 1); k++)
+                if (bit(sbitm, i, k) != 0 && k > mc)
+                    mc = k;
+        cols = mc / 36 + 1;
+    }
     if (cols < 5)
         cols = 5;
     n = 36 * cols;
@@ -303,8 +312,7 @@ tprin1(void)
         t = j + 74;
         if (t > n)
             t = n;
-        pr_stg(5, " ");
-        pr_igr(6, 0);
+        pr_stg(5, " ");                 /* (the tape's IGR 6 has no value and prints nothing) */
         for (k = j + 4; k <= t; k += 5) {
             fprintf(o, "%6ld", (long)k);
         }
@@ -315,7 +323,7 @@ tprin1(void)
             for (k = j; k <= t; k++) {
                 if (k % 5 == 0)
                     pr_stg(1, " ");
-                pr_igr(1, k < 64 * (sbitm[2] + 1) && bit(sbitm, i, k) != 0 ? 1 : 0);   /* not past the row */
+                pr_igr(1, k < 64 * (sbitm[2] + 1) && bit(sbitm, i, k) != 0 ? 1 : 0);   /* not past the row; the tape's loop ends at N itself, one column past the matrix, and prints what lies after it in free storage (0 here) */
             }
             pr_nl();
         }
