@@ -61,6 +61,8 @@ impcorebase(long z)
         if ((p = mmap(hint, r, ARENA_PROT, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0)) != MAP_FAILED) {
             core_base = p;
             core_reserved = r;
+            if (getenv("IMP72COREDEBUG") != NULL)
+                fprintf(stderr, "core: asked for %zu bytes at %p, got them at %p\n", r, hint, p);
             return (long)core_base;
         }
     return 0;
@@ -88,9 +90,17 @@ long impcoreused(long z) { (void)z; return (long)core_usable; }
 long
 impcoreat(long base, long nbytes)
 {
-    if (impcorebase(0) == 0 || (long)core_base != base)
+    if (impcorebase(0) == 0 || (long)core_base != base) {
+        if (getenv("IMP72COREDEBUG") != NULL)
+            fprintf(stderr, "core: the image has the arena at %#lx, it is at %p\n", base, (void *)core_base);
         return 0;
-    return impcoreset(nbytes) != 0;
+    }
+    if (impcoreset(nbytes) == 0) {
+        if (getenv("IMP72COREDEBUG") != NULL)
+            fprintf(stderr, "core: %ld bytes of the arena could not be made usable (reserved %zu)\n", nbytes, core_reserved);
+        return 0;
+    }
+    return 1;
 }
 
 long impptrsize(long z) { (void)z; return (long)sizeof(void *); }

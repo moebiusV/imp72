@@ -13,4 +13,6 @@ ann() { printf '::error::%s %s: %s\n' "$name" "$1" "$(tr '\n%' ' _' | cut -c1-18
 grep -n -i 'error\|undefined\|not found\|cannot\|FAIL' "$log" | head -25 | ann "errors"
 tail -n 25 "$log" | ann "tail"
 { uname -srm; sh tools/llvm.sh cflags | cut -c1-400; sh tools/llvm.sh libs | cut -c1-400; command -v llvm-config cc c++ gmake; ls /usr/local/bin /usr/local/llvm*/bin 2>/dev/null | grep -i 'llvm-config\\|lld' | tr '\\n' ' '; ls /usr/local/lib /usr/local/llvm*/lib 2>/dev/null | grep -i 'liblld' | tr '\\n' ' '; cc --version | head -1; } 2>&1 | ann "toolchain"
+grep -q 'FAILED: image' "$log" && { IMP72COREDEBUG=1 sh tests/image/run.sh 2>&1 | grep -i 'core:\|FAILED\|imp72:' | head -12 | ann "image-debug"; }
+{ ls /usr/lib /usr/include 2>/dev/null | grep -i 'lld\|libLLVM'; pkg_info -Q lld 2>/dev/null | head -8; pkg_info -Q llvm 2>/dev/null | head -8; pkg_info 2>/dev/null | grep -i 'llvm\|lld'; } 2>&1 | ann "packages"
 exit 2
