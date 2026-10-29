@@ -16,7 +16,8 @@ env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0 -c -o "$out/imp72r
 # no stack protector: the program is linked by lld with the C library's files alone, and a compiler that protects the stack by default (Alpine's) wants a helper that is not there
 cc -std=c99 ${CFLAGS:--O1 -g -Wall} -fno-stack-protector -c -o "$out/imp72sys.o" lib/imp72sys.c
 cc -std=c99 ${CFLAGS:--O1 -g -Wall} -fno-stack-protector -c -o "$out/imp72main.o" lib/imp72main.c
-cc -std=c99 ${CFLAGS:--O1 -g -Wall} -fno-stack-protector -c -o "$out/imphost.o" lib/imphost.c
+bd=$(sh tools/llvm.sh bindir); hostdef=; [ -n "$bd" ] && hostdef="-DIMP72_LLVM_BINDIR=$bd"            # where lld is as a program, if it is not in the PATH
+cc -std=c99 ${CFLAGS:--O1 -g -Wall} -fno-stack-protector $hostdef -c -o "$out/imphost.o" lib/imphost.c
 rm -f "$out/libimp72.a"
 rtobjs=
 rt=$(sh tools/llvm.sh builtins)             # the 32 bit targets: the routines for the division of 64 bits, from compiler-rt, are part of the library (no libgcc)

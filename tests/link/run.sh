@@ -7,8 +7,8 @@ cd "$root" || exit 1
 w=${LINK_IMP72:-build/pccir2/imp72stage-pccir}
 [ -x "$w" ] || { echo "link test skipped: no $w"; exit 0; }
 lld=1
-sh tools/llvm.sh cflags | grep -q HAVE_LLD || lld=0                 # without the lld library the compiler runs the system's own ld, which has to be found by the PATH
-[ $lld = 0 ] && ! command -v ld >/dev/null 2>&1 && { echo "link test skipped: no lld library and no ld"; exit 0; }
+sh tools/llvm.sh cflags | grep -q HAVE_LLD || lld=0                 # without the lld library the compiler runs ld.lld, which has to be found by the PATH
+[ $lld = 0 ] && ! command -v ld.lld >/dev/null 2>&1 && [ ! -x "$(sh tools/llvm.sh bindir)/ld.lld" ] && { echo "link test skipped: no lld library and no ld.lld"; exit 0; }
 case $(uname -m) in
 x86_64|amd64|i386|i686|aarch64|arm64|armv7l|armv8l|ppc64le|s390x|riscv64|loongarch64) ;;
 *) echo "link test skipped: $(uname -m) links with cc"; exit 0 ;;
@@ -16,7 +16,7 @@ esac
 out=build/link
 rm -rf $out; mkdir -p $out/bin
 ln -s "$(command -v rm)" $out/bin/rm
-[ $lld = 0 ] && ln -s "$(command -v ld)" $out/bin/ld
+[ $lld = 0 ] && command -v ld.lld >/dev/null 2>&1 && ln -s "$(command -v ld.lld)" $out/bin/ld.lld         # else the compiler finds it in LLVM's bin directory
 echo "== link"
 fail=0
 PATH=$root/$out/bin $root/$w -o $out/hello tests/native/hello.imp >$out/compile.log 2>&1 || { echo "FAILED: link: the compiler" >&2; cat $out/compile.log >&2; fail=1; }

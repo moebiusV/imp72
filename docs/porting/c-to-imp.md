@@ -56,7 +56,6 @@ seed where the seed uses it).
    `lib/imp72main.c` (the standard files, the call through a function pointer, `mmap`, the section bounds, `main`) move to IMP where
    `CCALL` can say it. `tests/native/*_main.c` are C by purpose (C calling IMP); whether they stay is for the user.
 9. The link: `src/driver.imp` links the executable with lld in the process (`LNK`: lld's driver through `CCALL IMPLD`, the files of the C library
-   found by `TRYDIR` and `TRYDL`), for Linux on x86-64 and aarch64; any other system, or a build without lld, runs the system's `cc`. lld has no C
+   found by `TRYDIR` and `TRYDL`), for every system and architecture in its tables (Linux, FreeBSD, NetBSD, OpenBSD, macOS); a build without the lld library runs `ld.lld` as a program (`IMPRUNLD`), never `cc`. lld has no C
    interface, so `stage0/impld.cpp` (about 15 lines of C++, the one C++ file of the tree) gives its driver the plain C names `impld` and `impldhave`;
-   `llvmorc.c` has stubs for a build without lld. Left: the other systems (i386, armv7, s390x, ppc64le, riscv64, loongarch64, the BSDs, macOS: each
-   needs its dynamic linker and C library paths, and lld's Mach-O driver for macOS).
+   `llvmorc.c` has stubs for a build without lld. The loader and the C library are found by what this program runs with (`lib/imphost.c`).

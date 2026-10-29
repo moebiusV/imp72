@@ -10,6 +10,7 @@
 #include <dlfcn.h>
 #include <link.h>
 #endif
+#include <errno.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -188,8 +189,14 @@ imphostcrtdir(long out)
     return *o != '\0';
 }
 
-/* run ld, the system's own linker, found by the path, with the argument vector argv (NULL ended, argv[0] is "ld"); wait for it; 0 if it linked.  For a compiler built without the
- * lld library, as OpenBSD's is (it has its own ld and no library of it) */
+#ifdef IMP72_LLVM_BINDIR
+#define STR2(x) #x
+#define STR(x) STR2(x)
+#define LLVM_BINDIR STR(IMP72_LLVM_BINDIR)
+#endif
+
+/* run lld as a program, found by the path under the name in argv[0] (ld.lld, ld64.lld), with the argument vector argv (NULL ended); wait for it; 0 if it linked.  For a compiler built
+ * without the lld library, as OpenBSD's is (its own linker is lld, and it has no library of it) */
 long
 imprunld(long argc, long argv)
 {
@@ -203,6 +210,14 @@ imprunld(long argc, long argv)
         return 1;
     if (pid == 0) {
         execvp(av[0], av);
+#ifdef IMP72_LLVM_BINDIR
+        if (errno == ENOENT) {                  /* not in the PATH: where the LLVM this was built with has its programs */
+            char path[4096];
+
+            snprintf(path, sizeof path, "%s/%s", LLVM_BINDIR, av[0]);
+            execv(path, av);
+        }
+#endif
         perror(av[0]);
         _exit(127);
     }

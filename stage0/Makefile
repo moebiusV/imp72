@@ -8,6 +8,7 @@ CXX     = c++
 LLVMCFLAGS =
 LLVMLIBS   =
 LLVMOBJS   =
+LLVMBINDIRDEF =
 OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o semtab.o sem.o impsem.o codegen.o pcode.o ir.o trans.o
 TESTDIR = ../tests/stage0
 TESTS   = test_free test_stack test_dir test_lex test_parse test_debug test_decl
@@ -18,7 +19,7 @@ imp72s0: imp72s0.o imphost.o $(LLVMOBJS) libstage0.a
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o imphost.o $(LLVMOBJS) libstage0.a $(LLVMLIBS)
 
 imphost.o: ../lib/imphost.c
-	$(CC) -std=c99 -O1 -g -c ../lib/imphost.c
+	$(CC) -std=c99 -O1 -g $(LLVMBINDIRDEF) -c ../lib/imphost.c
 
 imp72s0.o: imp72s0.c imp.h ir.h
 	$(CC) $(CFLAGS) $(LLVMCFLAGS) -c imp72s0.c

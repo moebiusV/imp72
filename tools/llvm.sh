@@ -13,7 +13,7 @@ for d in "$($lc --includedir)" /usr/include /opt/homebrew/include /usr/local/inc
 for d in "$($lc --libdir)" /usr/lib /opt/homebrew/lib /usr/local/lib; do
     for e in a so dylib; do [ -f "$d/lib$lldname.$e" ] && [ -f "$d/liblldCommon.$e" ] && { lldlib=$d; [ $e = a ] && lldstatic=1; break 2; }; done
 done
-haslld() { [ "${WITH_LLD:-yes}" != no ] && [ -n "$lldinc" ] && [ -n "$lldlib" ]; }          # WITH_LLD=no builds without it: the compiler then runs the system's own ld
+haslld() { [ "${WITH_LLD:-yes}" != no ] && [ -n "$lldinc" ] && [ -n "$lldlib" ]; }          # WITH_LLD=no builds without it: the compiler then runs ld.lld
 # the C++ library the shim and LLVM need: libc++ on FreeBSD, OpenBSD and macOS (and libc++abi on OpenBSD, where libLLVM does not record that it needs them), else libstdc++
 case $(uname -s) in
 OpenBSD) cxxlib="-lc++ -lc++abi -lm -lpthread" ;;        # libLLVM there does not record that it needs libm and threads either
@@ -22,6 +22,10 @@ Darwin) cxxlib="-lc++" ;;
 *) cxxlib="-lstdc++" ;;
 esac
 case $1 in
+bindir)
+    # LLVM's own bin directory: lld is there as a program (ld.lld, ld64.lld) where it is not in the PATH; the compiler is built knowing it (lib/imphost.c, imprunld)
+    $lc --bindir
+    exit 0 ;;
 builtins)
     # compiler-rt's builtins archive (Apache-2.0 with the LLVM exception) for the 32 bit targets, which call __divdi3 and its kin for the division of 64 bits: mklib.sh
     # puts its members in libimp72.a, so that nothing of libgcc is needed

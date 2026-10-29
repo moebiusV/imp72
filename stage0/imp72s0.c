@@ -262,15 +262,13 @@ runld(void)
 {
     int i;
 
-    if (!impldhave(0))                          /* no lld library: the system's own ld, as a program (OpenBSD has one and no library of it) */
-        ldv[0] = "ld";
     ldv[ldn] = NULL;
     if (getenv("IMP72LDSHOW") != NULL) {
         for (i = 0; i < ldn; i++)
             fprintf(stderr, "%s ", ldv[i]);
         fputc('\n', stderr);
     }
-    if (!impldhave(0))
+    if (!impldhave(0))                          /* no lld library: lld as a program, by the name given (OpenBSD's own linker is lld, and it has no library of it) */
         return imprunld(ldn, (long)(intptr_t)ldv) != 0;
     return impld(ldn, ldv) != 0;
 }
