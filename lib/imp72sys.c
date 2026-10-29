@@ -37,6 +37,12 @@ long impcallout(long f) { return (long)(intptr_t)((void *(*)(void))(intptr_t)f)(
 #ifndef MAP_NORESERVE
 #define MAP_NORESERVE 0
 #endif
+/* NetBSD with PaX MPROTECT: the most a mapping may ever become is what it is made with */
+#ifdef PROT_MPROTECT
+#define ARENA_PROT (PROT_NONE | PROT_MPROTECT(PROT_READ | PROT_WRITE))
+#else
+#define ARENA_PROT PROT_NONE
+#endif
 static char *core_base;
 static size_t core_reserved, core_usable;
 
@@ -52,7 +58,7 @@ impcorebase(long z)
     if (core_base != NULL)
         return (long)core_base;
     for (; r >= ((size_t)1 << 24); r >>= 1)
-        if ((p = mmap(hint, r, PROT_NONE, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0)) != MAP_FAILED) {
+        if ((p = mmap(hint, r, ARENA_PROT, MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0)) != MAP_FAILED) {
             core_base = p;
             core_reserved = r;
             return (long)core_base;
@@ -198,31 +204,5 @@ impsemcall(void *fn, const int64_t *pars)
 
     memcpy(a, pars, sizeof a);
     return ((int64_t (*)(int64_t *, int64_t *, int64_t *, int64_t *, int64_t *))fn)(&a[0], &a[1], &a[2], &a[3], &a[4]);
-}
-
-/* the architecture the compiler runs on, for the link (src/driver.imp: LNK): x86_64, i386, aarch64, arm, ppc64le, s390x, riscv64, loongarch64, else "" */
-const char *
-imphostarch(long z)
-{
-    (void)z;
-#if defined(__x86_64__)
-    return "x86_64";
-#elif defined(__i386__)
-    return "i386";
-#elif defined(__aarch64__) || defined(__arm64__)
-    return "aarch64";
-#elif defined(__arm__)
-    return "arm";
-#elif defined(__powerpc64__) && defined(__LITTLE_ENDIAN__)
-    return "ppc64le";
-#elif defined(__s390x__)
-    return "s390x";
-#elif defined(__riscv) && __riscv_xlen == 64
-    return "riscv64";
-#elif defined(__loongarch64)
-    return "loongarch64";
-#else
-    return "";
-#endif
 }
 

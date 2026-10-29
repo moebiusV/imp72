@@ -67,7 +67,7 @@ if [ -n "$llvmflags" ]; then
 fi
 keep=
 for o in stage0/*.o; do
-    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/impld.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
+    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/impld.o|stage0/imphost.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/codegen.o|stage0/impsem.o|stage0/sem.o|stage0/trans.o|stage0/pcode.o) continue ;; esac
     skip=0
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"

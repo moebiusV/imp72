@@ -225,10 +225,208 @@ qs(const char *s)
     return o;
 }
 
-static int
-run(const char *cmd)
+/*
+ * The link: lld in this process (stage0/impld.cpp), the same way as src/driver.imp (LNK) does it for imp72, with the same files and the same arguments for the system and the
+ * architecture this is; there is no cc.  IMP72LDSHOW=1 prints the arguments of ld, and a test requires this driver and imp72 to print the same.  This is the C of what
+ * LNK, LNKLIN, LNKBSD and LNKMAC are in IMP: change the one, change the other.
+ */
+extern long impld(long argc, const char **argv);
+extern long impldhave(long z);
+extern const char *imphostos(long z);
+extern const char *imphostarch(long z);
+extern long impfindlib(long out, long dir, long prefix);
+
+static const char *ldv[40];
+static int ldn;
+static char c1p[4096], c2p[4096], c3p[4096], cbp[4096], cep[4096], lcp[4096], rtp[4096], libd[4096], dlp[4096], mad[4096];
+
+static void
+ladd(const char *a)
 {
-    return system(cmd) == 0 ? 0 : 1;
+    ldv[ldn++] = a;
+}
+
+static int
+havef(char *buf, const char *dir, const char *name)
+{
+    snprintf(buf, 4096, "%s/%s", dir, name);
+    return exists(buf);
+}
+
+static int
+runld(void)
+{
+    int i;
+
+    if (getenv("IMP72LDSHOW") != NULL) {
+        for (i = 0; i < ldn; i++)
+            fprintf(stderr, "%s ", ldv[i]);
+        fputc('\n', stderr);
+    }
+    return impld(ldn, ldv) != 0;
+}
+
+/* the Debian multiarch directory, the dynamic linker of glibc and that of musl, by architecture */
+static const struct {
+    const char *arch, *tri, *dlg, *dlm;
+} archtab[] = {
+    { "x86_64", "x86_64-linux-gnu", "/lib64/ld-linux-x86-64.so.2", "/lib/ld-musl-x86_64.so.1" },
+    { "i386", "i386-linux-gnu", "/lib/ld-linux.so.2", "/lib/ld-musl-i386.so.1" },
+    { "arm", "arm-linux-gnueabihf", "/lib/ld-linux-armhf.so.3", "/lib/ld-musl-armhf.so.1" },
+    { "aarch64", "aarch64-linux-gnu", "/lib/ld-linux-aarch64.so.1", "/lib/ld-musl-aarch64.so.1" },
+    { "ppc64le", "powerpc64le-linux-gnu", "/lib64/ld64.so.2", "/lib/ld-musl-powerpc64le.so.1" },
+    { "s390x", "s390x-linux-gnu", "/lib/ld64.so.1", "/lib/ld-musl-s390x.so.1" },
+    { "riscv64", "riscv64-linux-gnu", "/lib/ld-linux-riscv64-lp64d.so.1", "/lib/ld-musl-riscv64.so.1" },
+    { "loongarch64", "loongarch64-linux-gnu", "/lib64/ld-linux-loongarch-lp64d.so.1", "/lib/ld-musl-loongarch64.so.1" },
+};
+
+static int
+trydir(const char *d)
+{
+    snprintf(c1p, sizeof c1p, "%s/crt1.o", d);
+    if (!exists(c1p))
+        return 0;
+    snprintf(c2p, sizeof c2p, "%s/crti.o", d);
+    snprintf(c3p, sizeof c3p, "%s/crtn.o", d);
+    snprintf(libd, sizeof libd, "%s", d);
+    return 1;
+}
+
+static int
+trydl(const char *p)
+{
+    if (!exists(p))
+        return 0;
+    snprintf(dlp, sizeof dlp, "%s", p);
+    return 1;
+}
+
+/* 9: not a system and an architecture whose files are known */
+static int
+lnklin(const char *ha, const char *out, const char *ofile, const char *lib)
+{
+    size_t k;
+    int ok, wh;
+
+    for (k = 0; k < sizeof archtab / sizeof archtab[0] && strcmp(ha, archtab[k].arch) != 0; k++)
+        ;
+    if (k == sizeof archtab / sizeof archtab[0])
+        return 9;
+    snprintf(mad, sizeof mad, "/usr/lib/%s", archtab[k].tri);
+    wh = 1;
+    ok = trydir(mad);
+    if (!ok)
+        ok = trydir("/usr/lib64");
+    if (!ok) {
+        wh = 2;
+        ok = trydir("/usr/lib");
+    }
+    if (!ok)
+        return 9;
+    if (wh == 1)
+        ok = trydl(archtab[k].dlg) || trydl(archtab[k].dlm);
+    else
+        ok = trydl(archtab[k].dlm) || trydl(archtab[k].dlg);
+    if (!ok)
+        return 9;
+    ladd("ld.lld"); ladd("-o"); ladd(out); ladd("-dynamic-linker"); ladd(dlp);
+    ladd(c1p); ladd(c2p); ladd(ofile); ladd(lib); ladd("-L"); ladd(libd); ladd("-lc"); ladd(c3p);
+    return runld();
+}
+
+static int
+lnkbsd(const char *os, const char *ha, const char *out, const char *ofile, const char *lib)
+{
+    const char *dl = NULL, *fc0 = NULL;
+    int wh = 0, obsd = 0;
+
+    if (strcmp(os, "freebsd") == 0) {
+        dl = "/libexec/ld-elf.so.1"; fc0 = "crt1.o"; wh = 1;
+    } else if (strcmp(os, "netbsd") == 0) {
+        dl = "/usr/libexec/ld.elf_so"; fc0 = "crt0.o"; wh = 1;
+    } else if (strcmp(os, "openbsd") == 0) {
+        dl = "/usr/libexec/ld.so"; fc0 = "crt0.o"; wh = 0; obsd = 1;
+    }
+    if (dl == NULL || (strcmp(ha, "x86_64") != 0 && strcmp(ha, "aarch64") != 0))
+        return 9;
+    if (!havef(c1p, "/usr/lib", fc0) || !havef(cbp, "/usr/lib", "crtbegin.o") || !havef(cep, "/usr/lib", "crtend.o"))
+        return 9;
+    if (wh && (!havef(c2p, "/usr/lib", "crti.o") || !havef(c3p, "/usr/lib", "crtn.o")))
+        return 9;
+    if (obsd && !impfindlib((long)(intptr_t)lcp, (long)(intptr_t)"/usr/lib", (long)(intptr_t)"libc.so."))
+        return 9;
+    havef(rtp, "/usr/lib", "libcompiler_rt.a");
+    ladd("ld.lld"); ladd("--eh-frame-hdr"); ladd("-dynamic-linker"); ladd(dl); ladd("-o"); ladd(out);
+    ladd(c1p);
+    if (wh)
+        ladd(c2p);
+    ladd(cbp); ladd(ofile); ladd(lib);
+    if (obsd)
+        ladd(lcp);
+    else {
+        ladd("-L"); ladd("/usr/lib"); ladd("-lc");
+    }
+    if (exists(rtp))
+        ladd(rtp);
+    ladd(cep);
+    if (wh)
+        ladd(c3p);
+    return runld();
+}
+
+static int
+lnkmac(const char *ha, const char *out, const char *ofile, const char *lib)
+{
+    const char *sdk, *ar = NULL, *mv = NULL;
+
+    if (strcmp(ha, "aarch64") == 0) {
+        ar = "arm64"; mv = "11.0";
+    } else if (strcmp(ha, "x86_64") == 0) {
+        ar = "x86_64"; mv = "10.13";
+    }
+    if (ar == NULL)
+        return 9;
+    sdk = getenv("SDKROOT");
+    if (sdk == NULL || *sdk == '\0') {
+        sdk = NULL;
+        snprintf(libd, sizeof libd, "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk");
+        if (exists(libd))
+            sdk = libd;
+    }
+    if (sdk == NULL) {
+        snprintf(libd, sizeof libd, "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk");
+        if (exists(libd))
+            sdk = libd;
+    }
+    if (sdk == NULL)
+        return 9;
+    ladd("ld64.lld"); ladd("-arch"); ladd(ar); ladd("-platform_version"); ladd("macos"); ladd(mv); ladd(mv);
+    ladd("-syslibroot"); ladd(sdk); ladd("-o"); ladd(out); ladd(ofile); ladd(lib); ladd("-lSystem");
+    return runld();
+}
+
+static int
+link_exe(const char *out, const char *ofile, const char *lib)
+{
+    const char *os = imphostos(0), *ha = imphostarch(0);
+    int rc;
+
+    if (!impldhave(0)) {
+        fputs("imp72stage0: this compiler was built without lld, which links its executables\n", stderr);
+        return 1;
+    }
+    ldn = 0;
+    if (strcmp(os, "linux") == 0)
+        rc = lnklin(ha, out, ofile, lib);
+    else if (strcmp(os, "darwin") == 0)
+        rc = lnkmac(ha, out, ofile, lib);
+    else
+        rc = lnkbsd(os, ha, out, ofile, lib);
+    if (rc == 9) {
+        fprintf(stderr, "imp72stage0: no way to link on this system and architecture: %s %s\n", os, ha);
+        return 1;
+    }
+    return rc;
 }
 
 static int
@@ -339,10 +537,8 @@ driver_main(int argc, char **argv)
             rc = llvmobj(ir, outname ? outname : strcat(base, ".o")) != 0;
         else if (llvmobj(ir, ofile) != 0)
             rc = 1;
-        else {
-            snprintf(cmd, sizeof cmd, "cc -o %s %s %s", qs(outname ? outname : base), qs(ofile), qs(lib));
-            rc = run(cmd);
-        }
+        else
+            rc = link_exe(outname ? outname : base, ofile, lib);
         goto done;
     }
 done:

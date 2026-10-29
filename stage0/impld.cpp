@@ -7,7 +7,11 @@
 #include "lld/Common/Driver.h"
 #include "llvm/Support/raw_ostream.h"
 
+#ifdef __APPLE__
+LLD_HAS_DRIVER(macho)
+#else
 LLD_HAS_DRIVER(elf)
+#endif
 
 extern "C" long
 impldhave(long z)
@@ -20,7 +24,11 @@ extern "C" long
 impld(long argc, const char **argv)
 {
     std::vector<const char *> args(argv, argv + argc);
+#ifdef __APPLE__                                /* the first argument names the flavour: ld64.lld */
+    lld::Result r = lld::lldMain(args, llvm::outs(), llvm::errs(), {{lld::Darwin, &lld::macho::link}});
+#else
     lld::Result r = lld::lldMain(args, llvm::outs(), llvm::errs(), {{lld::Gnu, &lld::elf::link}});
+#endif
 
     return r.retCode;
 }

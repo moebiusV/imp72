@@ -8,9 +8,10 @@ lc=${LLVM_CONFIG:-$(command -v llvm-config 2>/dev/null || ls /usr/lib/llvm-*/bin
 # lld as a library (liblld-NN-dev, lld-dev): the linker of the compilers, in the process (stage0/impld.cpp).  Its headers are in the LLVM include directory or
 # /usr/include, its libraries (static or shared) in the LLVM library directory or /usr/lib
 lldinc=; lldlib=; lldstatic=
-for d in "$($lc --includedir)" /usr/include; do [ -f "$d/lld/Common/Driver.h" ] && { lldinc=$d; break; }; done
-for d in "$($lc --libdir)" /usr/lib; do
-    for e in a so; do [ -f "$d/liblldELF.$e" ] && [ -f "$d/liblldCommon.$e" ] && { lldlib=$d; [ $e = a ] && lldstatic=1; break 2; }; done
+case $(uname -s) in Darwin) lldname=lldMachO ;; *) lldname=lldELF ;; esac       # the driver of the system's executable format (stage0/impld.cpp)
+for d in "$($lc --includedir)" /usr/include /opt/homebrew/include /usr/local/include; do [ -f "$d/lld/Common/Driver.h" ] && { lldinc=$d; break; }; done
+for d in "$($lc --libdir)" /usr/lib /opt/homebrew/lib /usr/local/lib; do
+    for e in a so dylib; do [ -f "$d/lib$lldname.$e" ] && [ -f "$d/liblldCommon.$e" ] && { lldlib=$d; [ $e = a ] && lldstatic=1; break 2; }; done
 done
 haslld() { [ -n "$lldinc" ] && [ -n "$lldlib" ]; }
 # the C++ library the shim and LLVM need: libc++ on FreeBSD, OpenBSD and macOS (and libc++abi on OpenBSD, where libLLVM does not record that it needs them), else libstdc++
@@ -40,6 +41,6 @@ libs)
     # the run path of the LLVM libraries, unless LLVM_NO_RPATH is set (a distribution package, whose libraries are where the dynamic linker looks: dpkg-shlibdeps would find
     # the -dev package's symlink through the run path, which carries no information about the shared library)
     rp="-Wl,-rpath,$($lc --libdir)"; [ -n "$LLVM_NO_RPATH" ] && rp=
-    l=; [ "$(uname -s)" = OpenBSD ] && l="$cxxlib"; haslld && { l="-L$lldlib -llldELF -llldCommon $cxxlib"; [ -n "$lldstatic" ] && l="$l -lz -lzstd"; [ -z "$lldstatic" ] && [ "$lldlib" != /usr/lib ] && [ -z "$LLVM_NO_RPATH" ] && l="$l -Wl,-rpath,$lldlib"; }
+    l=; [ "$(uname -s)" = OpenBSD ] && l="$cxxlib"; haslld && { l="-L$lldlib -l$lldname -llldCommon $cxxlib"; [ -n "$lldstatic" ] && l="$l -lz -lzstd"; [ -z "$lldstatic" ] && [ "$lldlib" != /usr/lib ] && [ -z "$LLVM_NO_RPATH" ] && l="$l -Wl,-rpath,$lldlib"; }
     echo "$l $($lc --link-shared --libs 2>/dev/null || $lc --libs) $rp -L$($lc --libdir) -rdynamic" ;;
 esac
