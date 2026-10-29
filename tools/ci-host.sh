@@ -6,7 +6,7 @@ name=$1
 w=${CI_IMP72:-build/pccir2/imp72stage-pccir}
 {
     uname -srm
-    [ -r /proc/cpuinfo ] && grep -m4 -i '^model name\|^isa\|^uarch\|^mmu\|^cpu\b\|^machine' /proc/cpuinfo | tr '\t' ' '
+    [ -r /proc/cpuinfo ] && grep -m4 -i '^model name\|^isa\|^uarch\|^mmu\|^cpu\b\|^machine' /proc/cpuinfo | tr '\t' ' ' | cut -c1-120 | uniq
     [ "$(uname)" = Darwin ] && sysctl -n machdep.cpu.brand_string hw.model 2>/dev/null
     [ "$(uname)" = OpenBSD ] || [ "$(uname)" = FreeBSD ] || [ "$(uname)" = NetBSD ] && sysctl -n hw.model 2>/dev/null
     if [ -x "$w" ] && [ -f tests/native/hello.imp ]; then
