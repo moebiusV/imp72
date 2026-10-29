@@ -47,8 +47,8 @@ compare their output; `tests/oracle/run.sh` compares with what the original comp
 `tests/direct/stage2.sh` requires stage 2 to write the same IR as stage 1 for every program; `make -C stage0 check` runs the
 seed's unit tests.
 
-Platforms checked in CI (`.github/workflows/ci.yml`): Linux on amd64, i386, arm64, armv7, ppc64le, riscv64, s390x and
-loongarch64 (Alpine, native or under QEMU), Debian amd64 (the package), macOS on Apple silicon, FreeBSD, NetBSD and
+Platforms checked in CI (`.github/workflows/ci-*.yml`): Linux on amd64, i386, arm64, armv7, ppc64le, riscv64 and s390x
+(Alpine, native or under QEMU; loongarch64 has no emulator there and is not run), Debian amd64 (the package), macOS on Apple silicon, FreeBSD, NetBSD and
 OpenBSD (the LLVM libraries are needed on each).
 
 Packages: `packaging/README.md`.
@@ -67,3 +67,11 @@ QEMU where it is not the runner's), `ci-bsd.yml` (FreeBSD, NetBSD, OpenBSD) and 
 
 `tools/ci-run.sh` (build and `make check`, with the failure in GitHub annotations) is what the BSD and Linux jobs run, and `tools/ci-arch.sh ARCH` the same in an Alpine container on one's own machine.
 
+
+### CI in stages
+
+The Alpine job of CI (`.github/workflows/ci-alpine.yml`) runs `tools/ci-arch.sh ARCH STAGE` for the stages build, check and link, each a step of its own. The copy of the tree,
+the build and the log of every stage are kept in a work directory (`tmp/ci-ARCH` here, `work` in CI) that is mounted into the container and saved in the Actions cache even when a
+stage fails. A stage that finished leaves a stamp and is skipped when asked for again; one that failed leaves none and runs again, `make` going on from the objects it has. So
+"Re-run failed jobs" on the same commit goes on from where the last run stopped. Each failed stage writes its own annotations, the tails of the logs are in the summary of the job, and
+the logs are uploaded as an artifact (`logs-*`).

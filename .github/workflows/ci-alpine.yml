@@ -44,23 +44,40 @@ jobs:
           - {arch: ppc64le, runner: ubuntu-latest,    qemu: true}
           - {arch: riscv64, runner: ubuntu-latest,    qemu: true}
           - {arch: s390x,   runner: ubuntu-latest,    qemu: true}
-          - {arch: loong64, runner: ubuntu-latest,    qemu: true}
           - {arch: 386,     runner: ubuntu-latest,    qemu: false}
           - {arch: arm/v7,  runner: ubuntu-latest,    qemu: true}
     steps:
       - uses: actions/checkout@v4
-      - if: matrix.qemu && matrix.arch != 'loong64'
+      - if: matrix.qemu
         uses: docker/setup-qemu-action@v3
-      # Docker's alpine image has no loongarch64: import Alpine's minirootfs
-      - if: matrix.arch == 'loong64'
+      # the work of the stages (the copy of the tree, the build, the logs) is kept: a run again of the same commit goes on from the stages that finished, and make from its objects
+      - id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: work
+          key: alpine-${{ matrix.arch }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: alpine-${{ matrix.arch }}-${{ github.sha }}-
+      - name: build
+        run: tools/ci-arch.sh ${{ matrix.arch }} build ${{ matrix.make }}
+        env: {CI_WORK: "${{ github.workspace }}/work"}
+      - name: check
+        run: tools/ci-arch.sh ${{ matrix.arch }} check ${{ matrix.make }}
+        env: {CI_WORK: "${{ github.workspace }}/work"}
+      - name: link
+        run: tools/ci-arch.sh ${{ matrix.arch }} link ${{ matrix.make }}
+        env: {CI_WORK: "${{ github.workspace }}/work"}
+      # whatever happened, the work stays for the next run and the logs for whoever reads this one
+      - if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: work
+          key: alpine-${{ matrix.arch }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - if: always()
         run: |
-          set -eu
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq qemu-user-static binfmt-support
-          base=https://dl-cdn.alpinelinux.org/alpine/edge/releases/loongarch64
-          file=$(curl -sf $base/latest-releases.yaml | awk '/file: alpine-minirootfs/ {print $2; exit}')
-          curl -sfO "$base/$file"
-          docker import --platform linux/loong64 "$file" alpine-loongarch64:edge
-      - run: tools/ci-arch.sh ${{ matrix.arch }} ${{ matrix.make }}
-        env:
-          IMAGE: ${{ matrix.arch == 'loong64' && 'alpine-loongarch64:edge' || 'alpine:edge' }}
+          for f in work/logs/*.log; do [ -f "$f" ] || continue; { echo "### $(basename $f .log)"; echo '```'; tail -n 30 "$f"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"; done
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ strategy.job-index }}-${{ matrix.arch == 'arm/v7' && 'armv7' || matrix.arch }}
+          path: work/logs
+          if-no-files-found: ignore

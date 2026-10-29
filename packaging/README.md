@@ -5,7 +5,7 @@
 Any 64 bit machine: the language's word is 64 bits (so i386, armhf, armel and
 the other 32 bit ports are out; their `long` is not a word). The suite
 (`make check`, 23 checks) passes in Alpine edge containers, native or under QEMU
-user mode (`tools/ci-arch.sh ARCH`), on:
+user mode (`tools/ci-arch.sh ARCH STAGE`, stages build, check and link), on:
 
 | Alpine | Debian | tested here |
 |---|---|---|
@@ -14,7 +14,7 @@ user mode (`tools/ci-arch.sh ARCH`), on:
 | ppc64le | ppc64el | musl container, QEMU |
 | riscv64 | riscv64 | musl container, QEMU |
 | s390x | s390x | musl container, QEMU |
-| loongarch64 | loong64 | musl container, QEMU |
+| loongarch64 | loong64 | not run: no emulator for it in CI |
 
 So both distributions list those architectures. The code generator is LLVM's, in
 the compiler's process, so a machine needs the LLVM libraries and a target in them. Most of
