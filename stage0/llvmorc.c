@@ -60,6 +60,21 @@ parse(LLVMContextRef ctx, const char *ir, size_t n)
     return m;
 }
 
+/* the processor and features of the host; riscv64 under an emulator does not say what it has (no +d), and then the code would be soft float: rv64gc, what every Linux
+ * distribution is built for */
+static int
+hostcpu(const char *triple, char **cpu, char **feat)
+{
+    *cpu = LLVMGetHostCPUName();
+    *feat = LLVMGetHostCPUFeatures();
+    if (strncmp(triple, "riscv64", 7) == 0 && strstr(*feat, "+d") == NULL) {
+        *cpu = "generic-rv64";
+        *feat = "+m,+a,+f,+d,+c";
+        return 1;
+    }
+    return 0;
+}
+
 /* the module m for the host, optimised, as an object file */
 int
 llvm_object(const char *ir, size_t n, const char *path)
@@ -80,12 +95,7 @@ llvm_object(const char *ir, size_t n, const char *path)
     if ((m = parse(ctx, ir, n)) == NULL)
         goto done;
     triple = LLVMGetDefaultTargetTriple();
-    cpu = LLVMGetHostCPUName();
-    feat = LLVMGetHostCPUFeatures();
-    if (strncmp(triple, "riscv64", 7) == 0 && strstr(feat, "+d") == NULL) {
-        cpu = "generic-rv64";               /* the host did not say (an emulator does not): rv64gc, what every Linux distribution is built for, else the code is soft float */
-        feat = "+m,+a,+f,+d,+c";
-    }
+    hostcpu(triple, &cpu, &feat);
     if (LLVMGetTargetFromTriple(triple, &tgt, &msg)) {
         fprintf(stderr, "imp72: LLVM: %s\n", msg);
         LLVMDisposeMessage(msg);
@@ -126,8 +136,21 @@ llvm_run(const char *ir, size_t n, const char *entry, long *result)
 
     if (init())
         return 1;
-    if ((e = LLVMOrcCreateLLJIT(&jit, NULL)) != NULL)
-        return error("the JIT", e);
+    {
+        LLVMOrcLLJITBuilderRef lb = NULL;
+        char *triple = LLVMGetDefaultTargetTriple(), *cpu, *feat;
+        LLVMTargetRef tgt;
+        char *msg = NULL;
+
+        if (hostcpu(triple, &cpu, &feat) && !LLVMGetTargetFromTriple(triple, &tgt, &msg)) {      /* the JIT detects the host itself, and would find no +d */
+            LLVMTargetMachineRef tm = LLVMCreateTargetMachine(tgt, triple, cpu, feat, LLVMCodeGenLevelDefault, LLVMRelocPIC, LLVMCodeModelJITDefault);
+
+            lb = LLVMOrcCreateLLJITBuilder();
+            LLVMOrcLLJITBuilderSetJITTargetMachineBuilder(lb, LLVMOrcJITTargetMachineBuilderCreateFromTargetMachine(tm));
+        }
+        if ((e = LLVMOrcCreateLLJIT(&jit, lb)) != NULL)
+            return error("the JIT", e);
+    }
     jd = LLVMOrcLLJITGetMainJITDylib(jit);
     if ((e = LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&gen, LLVMOrcLLJITGetGlobalPrefix(jit), NULL, NULL)) != NULL)
         return error("the symbols of the program", e);
