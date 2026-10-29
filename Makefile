@@ -1,12 +1,9 @@
-# Top level: pcc's pass 2 (cc1), stage 0 and its tests, and the native tests.
+# Top level: stage 0 (the seed), the runtime library, stages 1 and 2, and the tests.
 #
-#   make            build cc1 and stage 0
+#   make            build stage 0, the library and the compilers
 #   make check      run all the tests
 #
-# cc1 is the pass 2 compiler of pcc (third_party/pcc) built to read the IR text
-# our translator writes; it needs only a C compiler (no yacc or lex).
-PCCBUILD = build/pcc
-CC1      = $(PCCBUILD)/cc/ccom/cc1
+# The back end is LLVM's ORC JIT, in the process: the LLVM C API must be installed (tools/llvm.sh).
 
 # Compiler flags and where to install (make install DESTDIR=... PREFIX=...).
 CC       = cc
@@ -15,53 +12,26 @@ LDFLAGS  =
 DESTDIR  =
 PREFIX   = /usr/local
 
-# pcc's code generator is used where pcc works and the translator has a table
-# for it: amd64 and aarch64.
-# yes, no, or auto (yes on x86_64 and aarch64).  Elsewhere imp72stage0 uses the C back end.
-WITH_PCC = no
-PCCCONF  =		# extra arguments for pcc's configure (--build=i686-pc-linux-musl in a 32 bit userland)
-
 LIB = build/lib/libimp72.a
-
-IR2C     = build/bin/ir2c
 
 PCCIR = build/pccir2/imp72d          # the compiler with the code generator of src/pccir (tools/pccir.sh), where it can be built
 
-all: stage0 $(LIB) $(IR2C) pcc pccir
+all: stage0 $(LIB) pccir
 
-$(IR2C): tools/ir2c.c
-	mkdir -p build/bin
-	$(CC) -std=gnu99 $(CFLAGS) $(LDFLAGS) -o $(IR2C) tools/ir2c.c
-
-$(LIB): stage0 $(IR2C) tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.c lib/imp72main.c
+$(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.c lib/imp72main.c
 	CFLAGS="$(CFLAGS)" sh tools/mklib.sh
 
-$(CC1):
-	mkdir -p $(PCCBUILD)
-	cd $(PCCBUILD) && ../../third_party/pcc/configure --enable-twopass $(PCCCONF) \
-	    >configure.log 2>&1
-	touch $(PCCBUILD)/cc/ccom/cgram.c $(PCCBUILD)/cc/ccom/cgram.h \
-	    $(PCCBUILD)/cc/ccom/scan.c
-	$(MAKE) -C $(PCCBUILD)/cc/ccom external.c >$(PCCBUILD)/make.log 2>&1
-	$(MAKE) -C $(PCCBUILD)/cc/ccom cc1 >>$(PCCBUILD)/make.log 2>&1
-
-# cc1, if wanted
-pcc:
-	@if [ "$(WITH_PCC)" = yes ] || { [ "$(WITH_PCC)" = auto ] && { [ "`uname -s`" != Darwin ] && case "`uname -m`" in x86_64|aarch64|arm64|i?86|armv[67]*) true;; *) false;; esac; }; }; then \
-	    $(MAKE) $(CC1); \
-	else echo "pcc not built (WITH_PCC=yes builds it): the back end is LLVM where there is a clang, else C"; fi
-
-# stage 1 by the seed, stage 2 by stage 1 (skipped where an ELF objcopy is missing); the back end is LLVM (clang) or C, pcc if asked for
-pccir: stage0 $(LIB) pcc
-	@CC1=$(CURDIR)/$(CC1) sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
+# stage 1 by the seed, stage 2 by stage 1 (skipped where an ELF objcopy is missing)
+pccir: stage0 $(LIB)
+	@sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 
 stage0:
 	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; \
 	$(MAKE) -C stage0 CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo"
 
 # Installed layout (imp72stage0 finds its parts relative to its own place):
-#   PREFIX/bin/imp72stage0 (the seed; also as imp72 where the pcc IR compiler cannot be built)   PREFIX/bin/imp72 (the pcc IR compiler)
-#   PREFIX/lib/imp72/{ir2c,cc1,libimp72.a}   PREFIX/share/imp72/syntax64.imc
+#   PREFIX/bin/imp72stage0 (the seed; also as imp72 where stage 2 cannot be built)   PREFIX/bin/imp72 (stage 2)
+#   PREFIX/lib/imp72/libimp72.a   PREFIX/share/imp72/syntax64.imc
 #   PREFIX/share/imp72/{syntax.imc,ffi.imc}  PREFIX/share/man/man1/imp72stage0.1
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp72 \
@@ -72,8 +42,6 @@ install: all
 	    install -m 755 $(PCCIR) $(DESTDIR)$(PREFIX)/bin/imp72; \
 	    install -m 644 src/pccir/syntax64.imc $(DESTDIR)$(PREFIX)/share/imp72/syntax64.imc; \
 	else ln -sf imp72stage0 $(DESTDIR)$(PREFIX)/bin/imp72; fi
-	install -m 755 $(IR2C) $(DESTDIR)$(PREFIX)/lib/imp72/ir2c
-	if [ -x $(CC1) ]; then install -m 755 $(CC1) $(DESTDIR)$(PREFIX)/lib/imp72/cc1; fi
 	install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -m 644 lib/imp72.h $(DESTDIR)$(PREFIX)/include/imp72.h
@@ -88,13 +56,12 @@ install: all
 check: all
 	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; \
 	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo"
-	CC1=$(CURDIR)/$(CC1) sh tests/native/run.sh
-	CC1=$(CURDIR)/$(CC1) sh tests/oracle/run.sh
-	sh tests/native/runc.sh
+	sh tests/native/run.sh
+	sh tests/oracle/run.sh
 	sh tests/self/objnorm.sh
-	CC1=$(CURDIR)/$(CC1) sh tests/ieee/run.sh
-	CC1=$(CURDIR)/$(CC1) sh tests/direct/run.sh
-	CC1=$(CURDIR)/$(CC1) sh tests/direct/stage2.sh
+	sh tests/ieee/run.sh
+	sh tests/direct/run.sh
+	sh tests/direct/stage2.sh
 	sh tests/interactive/run.sh
 	sh tests/image/run.sh
 	sh tests/orc/run.sh
@@ -106,4 +73,4 @@ clean:
 
 distclean: clean
 
-.PHONY: all stage0 pcc pccir check clean distclean install
+.PHONY: all stage0 pccir check clean distclean install

@@ -4,10 +4,8 @@ pkgver=0.1.0
 pkgrel=0
 pkgdesc="IMP72 systems programming language compiler (Bilofsky's PDP-10 compiler, ported)"
 url="https://github.com/moebiusV/imp72"
-# machines (the language's word is 64 bits, held in a long long on the 32 bit ones).  pcc's code generator is
-# used on x86_64, x86, aarch64 and armv7, where the moebiusv fork of pcc has a working
-# back end; elsewhere the program is turned into C for gcc.  Tested in
-# Alpine containers of each (tools/ci-arch.sh).
+# machines (the language's word is 64 bits, held in a long long on the 32 bit ones).  The code generator is
+# LLVM, in the compiler's own process.  Tested in Alpine containers of each (tools/ci-arch.sh).
 arch="x86_64 x86 aarch64 armv7 ppc64le riscv64 s390x loongarch64"
 license="ISC AND BSD-2-Clause AND BSD-3-Clause"
 # a C compiler and linker are used to assemble and link the programs it makes
@@ -16,21 +14,8 @@ depends="gcc musl-dev"
 checkdepends="binutils python3"
 makedepends="llvm-dev"
 subpackages="$pkgname-doc"
-# The compiler uses pcc's pass 2 compiler (cc1), built from this pcc revision
-# (the submodule third_party/pcc of the release, which GitHub's tarball leaves
-# empty): the moebiusv fork, branch imp72-fixes.
-_pccrev=2feb7d7db4a73a0e1d41d378f3cc14092e4f81c8
-source="$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz
-	pcc-$_pccrev.tar.gz::https://github.com/moebiusV/pcc/archive/$_pccrev.tar.gz
-	"
+source="$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz"
 builddir="$srcdir/$pkgname-$pkgver"
-
-prepare() {
-	default_prepare
-	# put pcc where the build expects it
-	rm -rf "$builddir"/third_party/pcc
-	mv "$srcdir"/pcc-$_pccrev "$builddir"/third_party/pcc
-}
 
 build() {
 	make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
@@ -47,17 +32,12 @@ package() {
 		docs/LANGUAGE-DIFFERENCES.md "$pkgdir"/usr/share/doc/$pkgname/
 	cp -r docs/internals docs/porting "$pkgdir"/usr/share/doc/$pkgname/
 	install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
-	install -Dm644 third_party/pcc/LICENSE.md \
-		"$pkgdir"/usr/share/licenses/$pkgname/LICENSE.pcc.md
 	install -Dm644 decus/PROVENANCE.md \
 		"$pkgdir"/usr/share/licenses/$pkgname/PROVENANCE.decus.md
 }
 
 # The sha512 of the release tarball is for abuild to fill in once the tag v$pkgver
-# exists (run `abuild checksum`); that of pcc is the archive of the revision above.
-# The sha512 of the release tarball is for abuild to fill in once the tag v$pkgver
-# exists (run `abuild checksum`); that of pcc is the archive of the revision above.
+# exists (run `abuild checksum`).
 sha512sums="
 0  imp72-0.1.0.tar.gz
-9581a872d22e4e96bbc064c493ae5238aa94b959c3d35a3df32b28b628cd9b3c36d6b427f48e6253d3c05decf78ca354e017b2d92081394e44abc222ae441b6d  pcc-2feb7d7db4a73a0e1d41d378f3cc14092e4f81c8.tar.gz
 "

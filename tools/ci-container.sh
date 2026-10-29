@@ -10,8 +10,3 @@ cd /work
 uname -m
 make "$@" 2>&1 | tail -3
 make check "$@" 2>&1 | grep -E "FAIL|DIFFER|skipped|^ok|== |rror" | sort | uniq -c | sort -rn | head -40
-# pcc's cc1 was built (WITH_PCC=yes): the same tests through it
-if [ -x build/pcc/cc/ccom/cc1 ]; then
-    echo "== pcc back end"
-    IMP72BACKEND=pcc make check "$@" 2>&1 | grep -E "FAIL|DIFFER|rror" | sort | uniq -c | sort -rn | head -10
-fi

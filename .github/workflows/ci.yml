@@ -6,36 +6,31 @@ on:
   pull_request:
 
 jobs:
-  # amd64: the LLVM back end (clang is on the runner) and, with pcc built, pcc's, all the tests
+  # amd64: the LLVM back end, all the tests
   linux-amd64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - run: make WITH_PCC=yes
+      - run: make
       - run: make check
-      - run: IMP72BACKEND=pcc make check
-      - run: IMP72BACKEND=c make check
 
   # arm64: the LLVM back end
   linux-arm64:
     runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - run: make
       - run: make check
 
-  # macOS on Apple silicon: the C back end; the stage 1 test needs ELF objcopy
+  # macOS on Apple silicon: the LLVM back end (Homebrew's llvm); the stage 1 test needs ELF objcopy
   # and is skipped
   macos-arm64:
     runs-on: macos-14
+    env:
+      LLVM_CONFIG: /opt/homebrew/opt/llvm/bin/llvm-config
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      - run: brew install llvm
       - name: make
         run: |
           set +e
@@ -57,7 +52,7 @@ jobs:
 
   # Alpine (musl, gcc 15) on every 64 bit architecture it has: natively where the
   # runner is that architecture, else under QEMU user mode, as ada-on-alpine does.
-  # the back end is LLVM (clang from apk); 386 and arm/v7 also build pcc's cc1 against musl and run the tests through it too.
+  # the back end is LLVM (llvm-dev from apk)
   alpine:
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -70,12 +65,10 @@ jobs:
           - {arch: riscv64, runner: ubuntu-latest,    qemu: true}
           - {arch: s390x,   runner: ubuntu-latest,    qemu: true}
           - {arch: loong64, runner: ubuntu-latest,    qemu: true}
-          - {arch: 386,     runner: ubuntu-latest,    qemu: false, make: 'WITH_PCC=yes PCCCONF=--build=i686-pc-linux-musl'}
-          - {arch: arm/v7,  runner: ubuntu-latest,    qemu: true,  make: 'WITH_PCC=yes PCCCONF=--build=arm-unknown-linux-musleabihf'}
+          - {arch: 386,     runner: ubuntu-latest,    qemu: false}
+          - {arch: arm/v7,  runner: ubuntu-latest,    qemu: true}
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - if: matrix.qemu && matrix.arch != 'loong64'
         uses: docker/setup-qemu-action@v3
       # Docker's alpine image has no loongarch64: import Alpine's minirootfs
@@ -92,44 +85,38 @@ jobs:
         env:
           IMAGE: ${{ matrix.arch == 'loong64' && 'alpine-loongarch64:edge' || 'alpine:edge' }}
 
-  # FreeBSD, in a VM: the C back end (pcc's cc1 is built where it is supported)
+  # FreeBSD, in a VM: the LLVM back end
   freebsd:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - uses: vmactions/freebsd-vm@v1
         with:
-          prepare: pkg install -y gmake binutils python3
+          prepare: pkg install -y gmake binutils python3 llvm
           run: |
-            gmake WITH_PCC=no
-            gmake WITH_PCC=no check
+            gmake
+            gmake check
 
   netbsd:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - uses: vmactions/netbsd-vm@v1
         with:
-          prepare: /usr/sbin/pkg_add gmake python312 || /usr/sbin/pkg_add gmake
+          prepare: /usr/sbin/pkg_add gmake python312 llvm || /usr/sbin/pkg_add gmake llvm
           run: |
-            gmake WITH_PCC=no
-            gmake WITH_PCC=no check
+            gmake
+            gmake check
 
   openbsd:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - uses: vmactions/openbsd-vm@v1
         with:
-          prepare: pkg_add gmake python3
+          prepare: pkg_add gmake python3 llvm
           run: |
-            if ! (gmake WITH_PCC=no && gmake WITH_PCC=no check) > /tmp/o.log 2>&1; then
+            if ! (gmake && gmake check) > /tmp/o.log 2>&1; then
               echo "::error::openbsd failed: $(grep -i -B2 -A2 'error\|fail\|not found\|undefined' /tmp/o.log | head -c 1800 | tr '\n%' ' _')"
               echo "::error::openbsd tail: $(tail -c 800 /tmp/o.log | tr '\n%' ' _')"
               ( set +e; uname -srm; objcopy --version | head -1; stage0/imp72s0 -c /tmp/x.0 decus/syntax.imc tests/native/hello.imp; echo "rc0=$?"; ls -l /tmp/x.0 ) > /tmp/d.log 2>&1
@@ -142,9 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - run: sudo apt-get update && sudo apt-get install -y build-essential debhelper binutils python3
+      - run: sudo apt-get update && sudo apt-get install -y build-essential debhelper binutils python3 llvm-dev
       - name: build the package
         run: |
           set +e
@@ -160,5 +145,3 @@ jobs:
         run: |
           imp72stage0 -o /tmp/hello tests/native/hello.imp
           /tmp/hello
-          imp72stage0 -C -o /tmp/hello_c tests/native/hello.imp
-          /tmp/hello_c

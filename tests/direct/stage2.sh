@@ -4,7 +4,6 @@
 # modules, the ones of src/pccir among them.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct stage 2 skipped: no objcopy"; exit 0; }
 [ $rc = 0 ] || { cat build/direct.log >&2; echo "FAILED: direct build" >&2; exit 1; }

@@ -2,8 +2,7 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 include /usr/share/dpkg/buildflags.mk
 
-# The Makefile takes the flags on its command line.  pcc's cc1 is built where
-# it is used (amd64); everywhere else imp72stage0 uses the C back end.
+# The Makefile takes the flags on its command line.
 MAKEFLAGS_PKG = CFLAGS="$(CFLAGS) $(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"
 TMP = $(CURDIR)/debian/imp72
 
@@ -24,5 +23,4 @@ endif
 override_dh_auto_install:
 	$(MAKE) $(MAKEFLAGS_PKG) install DESTDIR=$(TMP) PREFIX=/usr
 	install -d $(TMP)/usr/share/doc/imp72
-	install -m 644 third_party/pcc/LICENSE.md $(TMP)/usr/share/doc/imp72/LICENSE.pcc.md
 	install -m 644 decus/PROVENANCE.md $(TMP)/usr/share/doc/imp72/PROVENANCE.decus.md

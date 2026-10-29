@@ -12,7 +12,6 @@ fail=0
 for n in $(cat tests/oracle/LIST); do
     p=tests/oracle/$n.imp; [ -f "$p" ] || p=tests/native/$n.imp
     echo "== oracle $n"
-    CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}; export CC1
     $driver ${IMP72_FLAGS} -o $out/$n "$p" \
         || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }
     (cd $out && ./$n > $n.got) || { echo "FAILED: $n: run" >&2; fail=1; continue; }

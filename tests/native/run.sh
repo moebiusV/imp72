@@ -1,7 +1,7 @@
 #!/bin/sh
 # Native tests: each tests/native/NAME.imp is compiled by imp72stage0, linked with
 # NAME_main.c, run, and its output compared with NAME.out.  Run from the top
-# of the repository (make check does); CC1 names the pass 2 compiler.
+# of the repository (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 driver=${DRIVER:-stage0/imp72stage0}              # DRIVER=build/direct/imp72stage-pccir with IMP72SYNTAX=src/pccir/syntax64.imc: the code generator of src/pccir
@@ -14,7 +14,6 @@ for p in tests/native/*.imp; do
     echo "== native $n"
     # printf's %ld takes 32 bits where the word is 64: ffi2 only holds with a 64 bit long
     if [ "$n" = ffi2 ] && [ "$(getconf LONG_BIT)" != 64 ]; then echo "skipped: long is not 64 bits"; continue; fi
-    CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}; export CC1
     if [ -f tests/native/${n}_main.c ]; then
         $driver -c -o $out/$n.o "$p" \
             || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }

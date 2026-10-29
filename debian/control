@@ -22,7 +22,6 @@ Description: IMP72 systems programming language compiler
  imp72stage0 compiles IMP72 programs to native code and links them with a small
  runtime.  A subroutine is a C function (arguments by reference, as in
  FORTRAN), and CCALL calls C functions with arguments by value.  The code
- generator is the pcc compiler's pass 2 where that works (amd64); elsewhere the
- program is turned into C for the system compiler.
+ generator is LLVM, in the compiler's own process.
  .
  Any 64 bit machine will do (the language's word is 64 bits).

@@ -23,7 +23,6 @@ export IMP72WIDE=1                          # the seed folds the constants of th
 # the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
 endf=$(sh tools/endian.sh)
 export IMP72ENDIAN=$endf
-export CC1=${CC1:-$root/build/pcc/cc/ccom/cc1}
 for m in $modules; do
     IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
         || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }

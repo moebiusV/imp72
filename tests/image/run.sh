@@ -38,8 +38,8 @@ cmp -s $out/base.ir $out/twice.ir || { echo "FAILED: image: the IR from that ima
 # the same through the imp72 driver: -i to save, -I to start from the image
 w=${IMAGE_IMP72:-build/pccir2/imp72stage-pccir}
 if [ -x "$w" ]; then
-    ( cd $out && printf 'ext/C\nwmy_/U\n' | CC1=$root/build/pcc/cc/ccom/cc1 $root/$w -i >wsave.log 2>&1
-      CC1=$root/build/pcc/cc/ccom/cc1 $root/$w -I wmy.img -c -o prog.o prog.imp >wload.log 2>&1 )
+    ( cd $out && printf 'ext/C\nwmy_/U\n' | $root/$w -i >wsave.log 2>&1
+      $root/$w -I wmy.img -c -o prog.o prog.imp >wload.log 2>&1 )
     [ -s $out/wmy.img ] && [ -s $out/prog.o ] || { echo "FAILED: image: imp72 -i then imp72 -I" >&2; fail=1; }
 fi
 [ $fail = 0 ] && echo ok
