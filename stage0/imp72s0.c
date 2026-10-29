@@ -12,20 +12,19 @@
  * M (trace tree matching), S (print the semantics array), T (print the code
  * tree), X (print the syntax graph), L (list the source), Z (statistics).
  * Dumps go to the file given with -o, else to standard output.  -c writes
- * the pcc IR of the program to a file (- is standard output); cc1 of pcc
- * turns it into assembly.  -T names the machine the IR is lowered for (amd64,
- * the default, or aarch64): the registers of the procedure call standard.
+ * the IR of the program to a file (- is standard output); LLVM turns it into
+ * the object.  -T names the machine the IR is lowered for (amd64, the default,
+ * or aarch64): the registers of the procedure call standard.
  *
  * The same program is also the compiler, imp72stage0 (a link to it, or a
  * copy: the name decides):
  *
- *     imp72stage0 [-C] [-S | -c] [-o OUT] [-s LETTERS] FILE.imp ...
+ *     imp72stage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...
  *
  * It reads the syntax of the language (syntax.imc) and the extension ffi.imc,
- * compiles the files with the kernel above to pcc IR, and makes the IR into
- * an executable (default), an object (-c) or assembly (-S) with pcc's cc1, or
- * with -C into C for the host's compiler (-S then leaves the C); where cc1 was
- * not built the C back end is the only one.  It finds its parts relative to
+ * compiles the files with the kernel above to IR, and makes the IR, with LLVM
+ * in this process, into an executable (default), an object (-c), LLVM IR (-S)
+ * or a run (--run, with ORC).  It finds its parts relative to
  * itself: in the source tree (stage0/imp72stage0, decus/, build/) or installed
  * (PREFIX/bin/imp72stage0, PREFIX/lib/imp72/, PREFIX/share/imp72/).
  */
@@ -231,27 +230,20 @@ run(const char *cmd)
     return system(cmd) == 0 ? 0 : 1;
 }
 
-/* The optimizations of pass 2 of pcc, all on for the compiler with the code generator of src/pccir (IMP72CC1FLAGS= with nothing turns them off); the seed's
- * translator keeps its doubles in temps, which -xtemps and -xssa mishandle on the i386's x87 stack, so it has the rest. */
-#define CC1OPT_SEED "-xdeljumps -xdce -xccp -xscp -xtailcall"
-
-
 static int
 driver_main(int argc, char **argv)
 {
-    char dir[PATH_MAX], root[PATH_MAX], tmp[PATH_MAX], ir[PATH_MAX + 8], cfile[PATH_MAX + 8],
-        sfile[PATH_MAX + 8], ofile[PATH_MAX + 8], cmd[8 * PATH_MAX], base[PATH_MAX];
-    char syntax[PATH_MAX], ffi[PATH_MAX], cc1[PATH_MAX], ir2c[PATH_MAX], lib[PATH_MAX];
-    const char *outname = NULL, *sw = NULL, *backend, *bname = NULL;
+    char dir[PATH_MAX], root[PATH_MAX], tmp[PATH_MAX], ir[PATH_MAX + 8],
+        ofile[PATH_MAX + 8], cmd[8 * PATH_MAX], base[PATH_MAX];
+    char syntax[PATH_MAX], ffi[PATH_MAX], lib[PATH_MAX];
+    const char *outname = NULL, *sw = NULL;
     int jit = 0;
-    int stop = 'x', cback = 0, i = 1, rc = 0, nfiles, k;
+    int stop = 'x', i = 1, rc = 0, nfiles, k;
     char **kargv;
     size_t blen;
 
     while (i < argc && argv[i][0] == '-' && argv[i][1] != '\0') {
-        if (strcmp(argv[i], "-C") == 0)
-            cback = 1;
-        else if (strcmp(argv[i], "-S") == 0)
+        if (strcmp(argv[i], "-S") == 0)
             stop = 'S';
         else if (strcmp(argv[i], "-c") == 0)
             stop = 'o';
@@ -259,8 +251,6 @@ driver_main(int argc, char **argv)
             outname = argv[++i];
         else if (strcmp(argv[i], "-s") == 0 && i + 1 < argc)
             sw = argv[++i];
-        else if (strncmp(argv[i], "--backend=", 10) == 0)
-            bname = argv[i] + 10;
         else if (strcmp(argv[i], "--run") == 0)
             jit = 1;
         else {
@@ -269,12 +259,12 @@ driver_main(int argc, char **argv)
         }
         i++;
     }
-    if (jit && !llvmhave(0)) {
-        fputs("imp72stage0: --run needs the LLVM libraries (this compiler was built without them)\n", stderr);
+    if (!llvmhave(0)) {
+        fputs("imp72stage0: this compiler was built without the LLVM libraries, which it needs\n", stderr);
         return 2;
     }
     if (i >= argc) {
-        fputs("usage: imp72stage0 [-C] [-S | -c] [-o OUT] [-s LETTERS] FILE.imp ...\n", stderr);
+        fputs("usage: imp72stage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...\n", stderr);
         return 2;
     }
     nfiles = argc - i;
@@ -291,45 +281,15 @@ driver_main(int argc, char **argv)
     snprintf(syntax, sizeof syntax, "%s/decus/syntax.imc", root);
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
-        snprintf(cc1, sizeof cc1, "%s/build/pcc/cc/ccom/cc1", root);
-        snprintf(ir2c, sizeof ir2c, "%s/build/bin/ir2c", root);
         snprintf(lib, sizeof lib, "%s/build/lib/libimp72.a", root);
     } else {                                    /* installed */
         snprintf(syntax, sizeof syntax, "%s/share/imp72/syntax.imc", root);
         snprintf(ffi, sizeof ffi, "%s/share/imp72/ffi.imc", root);
-        snprintf(cc1, sizeof cc1, "%s/lib/imp72/cc1", root);
-        snprintf(ir2c, sizeof ir2c, "%s/lib/imp72/ir2c", root);
         snprintf(lib, sizeof lib, "%s/lib/imp72/libimp72.a", root);
     }
     override(syntax, sizeof syntax, "IMP72SYNTAX");
     override(ffi, sizeof ffi, "IMP72FFI");
-    override(cc1, sizeof cc1, "CC1");
-    override(ir2c, sizeof ir2c, "IR2C");
     override(lib, sizeof lib, "IMP72LIB");
-    /* the back end: --backend=NAME or IMP72BACKEND (llvm, c, pcc); else LLVM, which is in the process (no file, no other program but the linker) where this
-     * compiler was built with the LLVM libraries, else the C one, else pcc where cc1 was built */
-    backend = envor("IMP72BACKEND", "");
-    if (*backend == '\0')
-        backend = llvmhave(0) ? "llvm" : exists(ir2c) ? "c" : exists(cc1) ? "pcc" : "c";
-    if (bname != NULL)
-        backend = bname;
-    if (jit)
-        backend = "llvm";
-    if (cback)
-        backend = "c";
-    if (strcmp(backend, "pcc") != 0 && strcmp(backend, "c") != 0 && strcmp(backend, "llvm") != 0) {
-        fprintf(stderr, "imp72: no back end %s (pcc, c or llvm)\n", backend);
-        return 2;
-    }
-    if (strcmp(backend, "llvm") == 0 && !llvmhave(0)) {
-        fputs("imp72: this compiler was built without the LLVM libraries: --backend=c (or pcc)\n", stderr);
-        return 2;
-    }
-    if (strcmp(backend, "pcc") == 0 && !exists(cc1)) {
-        fprintf(stderr, "imp72: no pass 2 of pcc (%s): --backend=c or --backend=llvm\n", cc1);
-        return 1;
-    }
-
     snprintf(base, sizeof base, "%s", argv[i]);
     blen = strlen(base);
     if (blen > 4 && strcmp(base + blen - 4, ".imp") == 0)
@@ -341,8 +301,6 @@ driver_main(int argc, char **argv)
         return 1;
     }
     snprintf(ir, sizeof ir, "%s/p.ir", tmp);
-    snprintf(cfile, sizeof cfile, "%s/p.c", tmp);
-    snprintf(sfile, sizeof sfile, "%s/p.s", tmp);
     snprintf(ofile, sizeof ofile, "%s/p.o", tmp);
 
     /* the kernel, in this process */
@@ -355,18 +313,6 @@ driver_main(int argc, char **argv)
         dup2(2, 1);                             /* the dumps go with the messages */
     } else
         imp_quiet = 1;
-    if (strcmp(backend, "pcc") == 0) {          /* cc1 of the machine we are on */
-#if defined(__aarch64__) || defined(__arm64__)
-        kargv[k++] = "-T";
-        kargv[k++] = "aarch64";
-#elif defined(__i386__)
-        kargv[k++] = "-T";
-        kargv[k++] = "i386";
-#elif defined(__arm__)
-        kargv[k++] = "-T";
-        kargv[k++] = "arm";
-#endif
-    }
     kargv[k++] = "-c";
     kargv[k++] = ir;
     kargv[k++] = syntax;
@@ -379,22 +325,7 @@ driver_main(int argc, char **argv)
     }
     fflush(NULL);
 
-    if (strcmp(backend, "c") == 0) {
-        snprintf(cmd, sizeof cmd, "%s < %s > %s", qs(ir2c), qs(ir), qs(cfile));
-        if (run(cmd)) { rc = 1; goto done; }
-        if (stop == 'S') {
-            snprintf(cmd, sizeof cmd, "cp %s %s", qs(cfile), qs(outname ? outname : strcat(base, ".c")));
-        } else if (stop == 'o') {
-            snprintf(cmd, sizeof cmd, "cc -std=gnu99 -w %s -c -o %s %s", envor("IMP_CFLAGS", ""),
-                qs(outname ? outname : strcat(base, ".o")), qs(cfile));
-        } else {
-            snprintf(cmd, sizeof cmd, "cc -std=gnu99 -w %s -c -o %s %s && cc -o %s %s %s", envor("IMP_CFLAGS", ""),
-                qs(ofile), qs(cfile), qs(outname ? outname : base), qs(ofile), qs(lib));
-        }
-        rc = run(cmd);
-        goto done;
-    }
-    if (strcmp(backend, "llvm") == 0) {             /* LLVM in the process */
+    {                                               /* LLVM in the process */
         if (jit) {                                  /* compile and run: the main program is imp_main */
             rc = llvmrun(ir) != 0;
             fflush(NULL);
@@ -410,16 +341,6 @@ driver_main(int argc, char **argv)
         }
         goto done;
     }
-    snprintf(cmd, sizeof cmd, "%s %s < %s > %s", qs(cc1), (getenv("IMP72CC1FLAGS") != NULL ? getenv("IMP72CC1FLAGS") : CC1OPT_SEED), qs(ir), qs(sfile));
-    if (run(cmd)) { rc = 1; goto done; }
-    if (stop == 'S')
-        snprintf(cmd, sizeof cmd, "cp %s %s", qs(sfile), qs(outname ? outname : strcat(base, ".s")));
-    else if (stop == 'o')
-        snprintf(cmd, sizeof cmd, "cc -c -o %s -x assembler %s", qs(outname ? outname : strcat(base, ".o")), qs(sfile));
-    else
-        snprintf(cmd, sizeof cmd, "cc -c -o %s -x assembler %s && cc -no-pie -o %s %s %s", qs(ofile), qs(sfile),
-            qs(outname ? outname : base), qs(ofile), qs(lib));
-    rc = run(cmd);
 done:
     snprintf(cmd, sizeof cmd, "rm -rf %s", qs(tmp));
     (void)!system(cmd);
