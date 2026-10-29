@@ -50,7 +50,7 @@ word, and `EXECUTE` runs an instruction of the IR machine.
 
 `make check` passes on amd64 and i386, and the build and tests ran clean on
 arm64, armv7, riscv64, ppc64le and s390x (some of them before LLVM was the only
-back end). loong64 (no emulator for CI), mips64le and the BSDs and macOS have not been run since the
+back end). loong64, mips64le and the BSDs and macOS have not been run since the
 translation of the tables and the driver program.
 
 

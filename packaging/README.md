@@ -14,7 +14,7 @@ user mode (`tools/ci-arch.sh ARCH STAGE`, stages build, check and link), on:
 | ppc64le | ppc64el | musl container, QEMU |
 | riscv64 | riscv64 | musl container, QEMU |
 | s390x | s390x | musl container, QEMU |
-| loongarch64 | loong64 | not run: no emulator for it in CI |
+| loongarch64 | loong64 | musl container, QEMU |
 
 So both distributions list those architectures. The code generator is LLVM's, in
 the compiler's process, so a machine needs the LLVM libraries and a target in them. Most of

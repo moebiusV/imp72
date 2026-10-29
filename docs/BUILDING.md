@@ -48,7 +48,7 @@ compare their output; `tests/oracle/run.sh` compares with what the original comp
 seed's unit tests.
 
 Platforms checked in CI (`.github/workflows/ci-*.yml`): Linux on amd64, i386, arm64, armv7, ppc64le, riscv64 and s390x
-(Alpine, native or under QEMU; loongarch64 has no emulator there and is not run), Debian amd64 (the package), macOS on Apple silicon, FreeBSD, NetBSD and
+(Alpine, native or under QEMU; loongarch64 is run in an imported minirootfs, as Alpine has no Docker image for it), Debian amd64 (the package), macOS on Apple silicon, FreeBSD, NetBSD and
 OpenBSD (the LLVM libraries are needed on each).
 
 Packages: `packaging/README.md`.

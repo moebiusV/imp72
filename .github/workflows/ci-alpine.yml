@@ -44,12 +44,30 @@ jobs:
           - {arch: ppc64le, runner: ubuntu-latest,    qemu: true}
           - {arch: riscv64, runner: ubuntu-latest,    qemu: true}
           - {arch: s390x,   runner: ubuntu-latest,    qemu: true}
+          - {arch: loong64, runner: ubuntu-latest,    qemu: true}
           - {arch: 386,     runner: ubuntu-latest,    qemu: false}
           - {arch: arm/v7,  runner: ubuntu-latest,    qemu: true}
     steps:
       - uses: actions/checkout@v4
       - if: matrix.qemu
         uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+      # Docker's alpine image has no loongarch64: import Alpine's minirootfs.  The emulator is the one setup-qemu registered; if that one does not run it, qemu-user-static of the
+      # system (its apt step fails by itself on a runner image that has dropped a package, so it is only the second try, and the failure says which step it was)
+      - if: matrix.arch == 'loong64'
+        run: |
+          set -u
+          base=https://dl-cdn.alpinelinux.org/alpine/edge/releases/loongarch64
+          file=$(curl -sf $base/latest-releases.yaml | awk '/file: alpine-minirootfs/ {print $2; exit}')
+          [ -n "$file" ] || { echo "::error::no minirootfs for loongarch64 in $base"; exit 1; }
+          curl -sfO "$base/$file" || { echo "::error::cannot fetch $base/$file"; exit 1; }
+          docker import --platform linux/loong64 "$file" alpine-loongarch64:edge || { echo "::error::docker import of $file failed"; exit 1; }
+          if ! docker run --rm --platform linux/loong64 alpine-loongarch64:edge uname -m; then
+            echo "::warning::setup-qemu did not give a loongarch64 emulator; trying qemu-user-static of the system"
+            sudo apt-get update -qq && sudo apt-get install -y -qq qemu-user-static || { echo "::error::apt could not install qemu-user-static"; exit 1; }
+            docker run --rm --platform linux/loong64 alpine-loongarch64:edge uname -m || { echo "::error::no emulator runs loongarch64"; exit 1; }
+          fi
       # the work of the stages (the copy of the tree, the build, the logs) is kept: a run again of the same commit goes on from the stages that finished, and make from its objects
       - id: cache
         uses: actions/cache/restore@v4
@@ -59,13 +77,13 @@ jobs:
           restore-keys: alpine-${{ matrix.arch }}-${{ github.sha }}-
       - name: build
         run: tools/ci-arch.sh ${{ matrix.arch }} build ${{ matrix.make }}
-        env: {CI_WORK: "${{ github.workspace }}/work"}
+        env: {CI_WORK: "${{ github.workspace }}/work", IMAGE: "${{ matrix.arch == 'loong64' && 'alpine-loongarch64:edge' || 'alpine:edge' }}"}
       - name: check
         run: tools/ci-arch.sh ${{ matrix.arch }} check ${{ matrix.make }}
-        env: {CI_WORK: "${{ github.workspace }}/work"}
+        env: {CI_WORK: "${{ github.workspace }}/work", IMAGE: "${{ matrix.arch == 'loong64' && 'alpine-loongarch64:edge' || 'alpine:edge' }}"}
       - name: link
         run: tools/ci-arch.sh ${{ matrix.arch }} link ${{ matrix.make }}
-        env: {CI_WORK: "${{ github.workspace }}/work"}
+        env: {CI_WORK: "${{ github.workspace }}/work", IMAGE: "${{ matrix.arch == 'loong64' && 'alpine-loongarch64:edge' || 'alpine:edge' }}"}
       # whatever happened, the work stays for the next run and the logs for whoever reads this one (the container made the files as root: the cache cannot read them)
       - if: always()
         run: sudo chown -R "$(id -u):$(id -g)" work 2>/dev/null || true
