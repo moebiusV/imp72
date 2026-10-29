@@ -5,7 +5,12 @@ driver=$1 seed=$2 count=$3
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root" || exit 1
 d=tmp/fuzz64-$seed
-rm -rf $d; python3 -I tools/imp-fuzz64.py $seed $count $d || exit 2
+py=
+for c in ${PYTHON:-} python3 python3.13 python3.12 python3.11 python3.10 python; do
+    command -v "$c" >/dev/null 2>&1 && { py=$c; break; }     # (NetBSD's python312 has no python3)
+done
+[ -n "$py" ] || { echo "fuzz64: no python: skipped"; exit 0; }
+rm -rf $d; $py -I tools/imp-fuzz64.py $seed $count $d || exit 2
 bad=0
 i=0
 while [ $i -lt $count ]; do
