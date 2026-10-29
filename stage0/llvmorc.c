@@ -60,19 +60,34 @@ parse(LLVMContextRef ctx, const char *ir, size_t n)
     return m;
 }
 
-/* the processor and features of the host; riscv64 under an emulator does not say what it has (no +d), and then the code would be soft float: rv64gc, what every Linux
- * distribution is built for */
+/* the processor and features of the host; 1 if they are not LLVM's own to take.  riscv64 under an emulator does not say what it has (no +d), and then the code would be soft
+ * float: rv64gc, what every Linux distribution is built for.  And where it does say, the list has features that LLVM does not know ("-zicfiss"), each a warning on the
+ * standard error every time a target machine is made from it: the ones that only switch a feature off are left out. */
 static int
 hostcpu(const char *triple, char **cpu, char **feat)
 {
     *cpu = LLVMGetHostCPUName();
     *feat = LLVMGetHostCPUFeatures();
-    if (strncmp(triple, "riscv64", 7) == 0 && strstr(*feat, "+d") == NULL) {
+    if (strncmp(triple, "riscv64", 7) != 0)
+        return 0;
+    if (strstr(*feat, "+d") == NULL) {
         *cpu = "generic-rv64";
         *feat = "+m,+a,+f,+d,+c";
-        return 1;
+    } else {
+        char *f = *feat, *t, *o = malloc(strlen(f) + 1);
+
+        if (o != NULL) {
+            *o = '\0';
+            for (t = strtok(f, ","); t != NULL; t = strtok(NULL, ","))
+                if (*t != '-') {
+                    if (*o != '\0')
+                        strcat(o, ",");
+                    strcat(o, t);
+                }
+            *feat = o;
+        }
     }
-    return 0;
+    return 1;
 }
 
 /* the module m for the host, optimised, as an object file */

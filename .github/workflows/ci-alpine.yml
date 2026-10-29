@@ -66,7 +66,9 @@ jobs:
       - name: link
         run: tools/ci-arch.sh ${{ matrix.arch }} link ${{ matrix.make }}
         env: {CI_WORK: "${{ github.workspace }}/work"}
-      # whatever happened, the work stays for the next run and the logs for whoever reads this one
+      # whatever happened, the work stays for the next run and the logs for whoever reads this one (the container made the files as root: the cache cannot read them)
+      - if: always()
+        run: sudo chown -R "$(id -u):$(id -g)" work 2>/dev/null || true
       - if: always()
         uses: actions/cache/save@v4
         with:
