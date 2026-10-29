@@ -24,3 +24,4 @@ tools/__pycache__/
 oracle/disks-ki/
 oracle/tapes-ki
 oracle/up-*.ini
+tmp/
