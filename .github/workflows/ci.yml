@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+# a new push cancels the runs still going for the same branch (the QEMU jobs are slow; their result for a commit that has been replaced is of no use)
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # amd64: the LLVM back end, all the tests
