@@ -199,7 +199,7 @@ impvarlist(int64_t *out, long max)
     struct impvar *r;
     long n = 0, i;
 
-    if (__start_impvars == NULL || __start_impvars == __stop_impvars)
+    if (&__start_impvars[0] == NULL || &__start_impvars[0] == &__stop_impvars[0])
         return -1;
     for (r = __start_impvars; r < __stop_impvars; r++) {
         if (!writable(r))
