@@ -51,3 +51,18 @@ loongarch64 (Alpine, native or under QEMU), Debian amd64 (the package), macOS on
 OpenBSD (the LLVM libraries are needed on each).
 
 Packages: `packaging/README.md`.
+
+## Continuous integration
+
+`.github/workflows/` has four workflows, which run, cancel and restart on their own: `ci-linux.yml` (amd64, arm64, the Debian package), `ci-alpine.yml` (musl, every architecture Alpine has, under
+QEMU where it is not the runner's), `ci-bsd.yml` (FreeBSD, NetBSD, OpenBSD) and `ci-macos.yml`. To say which a push runs:
+
+- a commit message with tags runs only the groups it names: `[ci:bsd]` the BSDs, `[ci:bsd][ci:macos]` those two (the groups are `linux`, `alpine`, `bsd` and `macos`); without a tag all four run; the
+  tags of the last commit of the push count;
+- `[skip ci]` in the message skips every workflow;
+- a push that changes only documents (`docs/`, `*.md`, `decus/`, `oracle/`, `LICENSE`) runs none;
+- "Run workflow" in the Actions tab starts one workflow by hand, whatever the message says;
+- a new push cancels the runs of the same workflow that are still going; one job can be run again from the page of its run.
+
+`tools/ci-run.sh` (build and `make check`, with the failure in GitHub annotations) is what the BSD and Linux jobs run, and `tools/ci-arch.sh ARCH` the same in an Alpine container on one's own machine.
+

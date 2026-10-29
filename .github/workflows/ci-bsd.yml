@@ -1,0 +1,61 @@
+# FreeBSD, NetBSD and OpenBSD, each in a VM.
+# A push runs this workflow unless its commit message has [ci:...] tags and this group is not among them ([ci:bsd] runs only the BSDs; [ci:bsd][ci:macos] those two);
+# [skip ci] skips every workflow.  A push that changes only documents does not run it.  "Run workflow" in the Actions tab starts it by hand, whatever the message.
+name: ci-bsd
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'decus/**'
+      - 'oracle/**'
+      - 'LICENSE'
+      - '.gitignore'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'decus/**'
+      - 'oracle/**'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+
+# a new push cancels the runs of this workflow still going for the same branch (the QEMU jobs are slow; the result for a replaced commit is of no use)
+concurrency:
+  group: ci-bsd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # FreeBSD, in a VM: the LLVM back end
+  freebsd:
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:bsd]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vmactions/freebsd-vm@v1
+        with:
+          prepare: pkg install -y gmake python3 llvm zstd
+          run: sh tools/ci-run.sh freebsd
+
+  netbsd:
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:bsd]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vmactions/netbsd-vm@v1
+        with:
+          prepare: /usr/sbin/pkg_add gmake python312 llvm lld || /usr/sbin/pkg_add gmake llvm lld || /usr/sbin/pkg_add gmake llvm
+          run: sh tools/ci-run.sh netbsd
+
+  openbsd:
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:bsd]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vmactions/openbsd-vm@v1
+        with:
+          prepare: pkg_add gmake python3 llvm lld || pkg_add gmake python3 llvm
+          run: sh tools/ci-run.sh openbsd

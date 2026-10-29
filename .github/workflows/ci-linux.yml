@@ -1,0 +1,71 @@
+# Linux on amd64 and arm64 (the LLVM back end, all the tests) and the Debian package.
+# A push runs this workflow unless its commit message has [ci:...] tags and this group is not among them ([ci:bsd] runs only the BSDs; [ci:bsd][ci:macos] those two);
+# [skip ci] skips every workflow.  A push that changes only documents does not run it.  "Run workflow" in the Actions tab starts it by hand, whatever the message.
+name: ci-linux
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'decus/**'
+      - 'oracle/**'
+      - 'LICENSE'
+      - '.gitignore'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'decus/**'
+      - 'oracle/**'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+
+# a new push cancels the runs of this workflow still going for the same branch (the QEMU jobs are slow; the result for a replaced commit is of no use)
+concurrency:
+  group: ci-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # amd64: the LLVM back end, all the tests
+  linux-amd64:
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:linux]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y llvm-dev liblld-dev
+      - run: MAKE=make sh tools/ci-run.sh linux-amd64
+
+  # arm64: the LLVM back end
+  linux-arm64:
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:linux]')"
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y llvm-dev liblld-dev
+      - run: MAKE=make sh tools/ci-run.sh linux-arm64
+
+  # the Debian package, built from the source package it makes
+  debian-package:
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:linux]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y build-essential debhelper binutils python3 llvm-dev liblld-dev
+      - name: build the package
+        run: |
+          set +e
+          dpkg-buildpackage -us -uc -b > /tmp/dpkg.log 2>&1
+          rc=$?
+          if [ $rc != 0 ]; then
+            echo "::error::dpkg-buildpackage failed ($rc): $(tail -c 1500 /tmp/dpkg.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+            exit $rc
+          fi
+      - run: dpkg-deb -I ../imp72_*_amd64.deb
+      - run: sudo dpkg -i ../imp72_*_amd64.deb
+      - name: compile and run a program with the installed package
+        run: |
+          imp72stage0 -o /tmp/hello tests/native/hello.imp
+          /tmp/hello
