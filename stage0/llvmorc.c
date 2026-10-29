@@ -82,6 +82,10 @@ llvm_object(const char *ir, size_t n, const char *path)
     triple = LLVMGetDefaultTargetTriple();
     cpu = LLVMGetHostCPUName();
     feat = LLVMGetHostCPUFeatures();
+    if (strncmp(triple, "riscv64", 7) == 0 && strstr(feat, "+d") == NULL) {
+        cpu = "generic-rv64";               /* the host did not say (an emulator does not): rv64gc, what every Linux distribution is built for, else the code is soft float */
+        feat = "+m,+a,+f,+d,+c";
+    }
     if (LLVMGetTargetFromTriple(triple, &tgt, &msg)) {
         fprintf(stderr, "imp72: LLVM: %s\n", msg);
         LLVMDisposeMessage(msg);

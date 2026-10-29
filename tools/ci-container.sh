@@ -8,7 +8,7 @@ cd /src
 tar cf - --exclude=./build --exclude=./.git --exclude=./stage0/imp72s0 --exclude=./stage0/imp72stage0 --exclude=./stage0/libstage0.a --exclude='*.o' . | (cd /work && tar xf -)
 cd /work
 uname -m
-make "$@" 2>&1 | tail -3
+make "$@" 2>&1 | tail -15
 # LINK_ONLY=1: the build and the test of the link in the process (an emulated architecture is slow)
 if [ -z "$LINK_ONLY" ]; then
     make check "$@" 2>&1 | grep -E "FAIL|DIFFER|skipped|^ok|== |rror" | sort | uniq -c | sort -rn | head -40

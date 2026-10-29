@@ -89,6 +89,12 @@ impcoreat(long base, long nbytes)
 
 long impptrsize(long z) { (void)z; return (long)sizeof(void *); }
 
+/* an element of an argument vector, a char *[], and the storing of one, whatever the size of a pointer (src/driver.imp and src/impm.imp read and build the vectors with
+ * these).  The element is stored in the 64 bit word at OUT, zero extended: a long returned to CCALL is sign extended, which makes a pointer above 2 GB, as the strings of
+ * the arguments are on a 32 bit machine, a word that the byte pointers of IMP take for something else */
+long imparget(long out, long v, long i) { *(int64_t *)(intptr_t)out = (int64_t)(uintptr_t)((char **)(intptr_t)v)[i]; return 0; }
+long impargset(long v, long i, long p) { ((char **)(intptr_t)v)[i] = (char *)(intptr_t)p; return 0; }
+
 /*
  * The variables of the compiler's own modules (src/pccir/ix.imp IRVARREC): a record of the address, the size and the name, MODULE:SYMBOL, in the section impvars,
  * which the linker bounds with __start_impvars and __stop_impvars.  Only what lies in the writable part of the program is a variable (a name that a module uses
