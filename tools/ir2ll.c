@@ -118,6 +118,8 @@ iscfunc(const char *nm)
 {
     if (inset(&funcs, nm))                      /* defined in IMP here (imp_main, say): it returns a word */
         return 0;
+    if (strcmp(nm, "_setjmp") == 0 || strcmp(nm, "setjmp") == 0 || strcmp(nm, "longjmp") == 0)
+        return 1;                               /* the C library's, which the nonlocal GO TO calls: an int in eax, not a word in edx:eax on a 32 bit machine */
     return inset(&cfuncs, nm);
 }
 

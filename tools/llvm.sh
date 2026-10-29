@@ -14,6 +14,16 @@ for d in "$($lc --libdir)" /usr/lib; do
 done
 haslld() { [ -n "$lldinc" ] && [ -n "$lldlib" ]; }
 case $1 in
+builtins)
+    # compiler-rt's builtins archive (Apache-2.0 with the LLVM exception) for the 32 bit targets, which call __divdi3 and its kin for the division of 64 bits: mklib.sh
+    # puts its members in libimp72.a, so that nothing of libgcc is needed
+    case $(cc -dumpmachine 2>/dev/null) in i?86-*) names="i386" ;; arm*) names="armhf arm" ;; *) exit 0 ;; esac
+    for d in "$($lc --libdir)"/clang/*/lib; do
+        for n in $names; do
+            for f in "$d"/*/libclang_rt.builtins-$n.a "$d"/libclang_rt.builtins-$n.a; do [ -f "$f" ] && { echo "$f"; exit 0; }; done
+        done
+    done
+    exit 0 ;;
 cflags)
     f="-DHAVE_LLVM $($lc --cflags | sed 's/-std=[^ ]*//g; s/-W[^ ]*//g; s/-pedantic//g; s/-f[^ ]*//g; s/-O[0-9]//g; s/-g[ 0-9a-z]*//g')"
     grep -q LLVMOrcCreateNewThreadSafeContextFromLLVMContext "$($lc --includedir)/llvm-c/Orc.h" && f="$f -DHAVE_ORC_FROM_CONTEXT"

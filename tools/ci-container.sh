@@ -2,7 +2,7 @@
 # ci-container.sh: run inside an Alpine container (the repository at /src,
 # read only): build a copy and run the tests.  tools/ci-arch.sh starts it.
 set -e
-apk add --no-cache build-base binutils clang llvm llvm-dev lld-dev >/dev/null
+apk add --no-cache build-base binutils clang llvm llvm-dev lld-dev compiler-rt >/dev/null
 mkdir /work
 cd /src
 tar cf - --exclude=./build --exclude=./.git --exclude=./stage0/imp72s0 --exclude=./stage0/imp72stage0 --exclude=./stage0/libstage0.a --exclude='*.o' . | (cd /work && tar xf -)

@@ -106,9 +106,11 @@ SUBR TRYDL(P) IS (
  1);
 
 # SETARCH(A): THE ARCHITECTURE A (IMPHOSTARCH) IS ONE WHOSE PLACES OF THE C LIBRARY ARE KNOWN: SETS TRI (THE NAME OF ITS DIRECTORY IN /USR/LIB ON DEBIAN), DLG (THE DYNAMIC
-  LINKER OF GLIBC) AND DLM (OF MUSL); 0 IF IT IS NOT KNOWN (THE 32 BIT ONES: THE COMPILER DOES NOT WORK ON THEM YET, AND THEY WOULD NEED THE DIVISION OF 64 BITS OF COMPILER-RT) #
+  LINKER OF GLIBC) AND DLM (OF MUSL); 0 IF IT IS NOT KNOWN (THE 32 BIT ONES GET THE DIVISION OF 64 BITS FROM COMPILER-RT, WHICH LIBIMP72.A HOLDS) #
 SUBR SETARCH(A) IS (
  CCALL STRCMP(A,LOC('x86_64'))=0 => (TRI_LOC('x86_64-linux-gnu'); DLG_LOC('/lib64/ld-linux-x86-64.so.2'); DLM_LOC('/lib/ld-musl-x86_64.so.1'); RETURN 1);
+ CCALL STRCMP(A,LOC('i386'))=0 => (TRI_LOC('i386-linux-gnu'); DLG_LOC('/lib/ld-linux.so.2'); DLM_LOC('/lib/ld-musl-i386.so.1'); RETURN 1);
+ CCALL STRCMP(A,LOC('arm'))=0 => (TRI_LOC('arm-linux-gnueabihf'); DLG_LOC('/lib/ld-linux-armhf.so.3'); DLM_LOC('/lib/ld-musl-armhf.so.1'); RETURN 1);
  CCALL STRCMP(A,LOC('aarch64'))=0 => (TRI_LOC('aarch64-linux-gnu'); DLG_LOC('/lib/ld-linux-aarch64.so.1'); DLM_LOC('/lib/ld-musl-aarch64.so.1'); RETURN 1);
  CCALL STRCMP(A,LOC('ppc64le'))=0 => (TRI_LOC('powerpc64le-linux-gnu'); DLG_LOC('/lib64/ld64.so.2'); DLM_LOC('/lib/ld-musl-powerpc64le.so.1'); RETURN 1);
  CCALL STRCMP(A,LOC('s390x'))=0 => (TRI_LOC('s390x-linux-gnu'); DLG_LOC('/lib/ld64.so.1'); DLM_LOC('/lib/ld-musl-s390x.so.1'); RETURN 1);
