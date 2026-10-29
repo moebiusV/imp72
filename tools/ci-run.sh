@@ -12,5 +12,5 @@ fi
 ann() { printf '::error::%s %s: %s\n' "$name" "$1" "$(tr '\n%' ' _' | cut -c1-1800)"; }
 grep -n -i 'error\|undefined\|not found\|cannot\|FAIL' "$log" | head -25 | ann "errors"
 tail -n 25 "$log" | ann "tail"
-{ uname -srm; sh tools/llvm.sh cflags | cut -c1-400; sh tools/llvm.sh libs | cut -c1-400; command -v llvm-config llvm-config-19 cc c++ gmake; cc --version | head -1; } 2>&1 | ann "toolchain"
+{ uname -srm; sh tools/llvm.sh cflags | cut -c1-400; sh tools/llvm.sh libs | cut -c1-400; command -v llvm-config cc c++ gmake; ls /usr/local/bin /usr/local/llvm*/bin 2>/dev/null | grep -i 'llvm-config\\|lld' | tr '\\n' ' '; ls /usr/local/lib /usr/local/llvm*/lib 2>/dev/null | grep -i 'liblld' | tr '\\n' ' '; cc --version | head -1; } 2>&1 | ann "toolchain"
 exit 2
