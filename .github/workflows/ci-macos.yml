@@ -58,5 +58,6 @@ jobs:
           fi
       - if: always()
         run: |
+          sh tools/ci-host.sh macos
           echo "::notice::macos flags: $(sh tools/llvm.sh cflags | tr '\n%' ' _' | cut -c1-500) LIBS: $(sh tools/llvm.sh libs | tr '\n%' ' _' | cut -c1-400)"
           echo "::notice::macos link test: $(sh tests/link/run.sh 2>&1 | tr '\n%' ' _' | cut -c1-600)"

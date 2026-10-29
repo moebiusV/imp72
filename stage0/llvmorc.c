@@ -68,6 +68,8 @@ hostcpu(const char *triple, char **cpu, char **feat)
 {
     *cpu = LLVMGetHostCPUName();
     *feat = LLVMGetHostCPUFeatures();
+    if (getenv("IMP72LLVMINFO") != NULL)                            /* what the host says (tools/ci-host.sh records it in every CI run) */
+        fprintf(stderr, "imp72-host: triple=%s cpu=%s features=%s\n", triple, *cpu, *feat);
     if (strncmp(triple, "riscv64", 7) != 0)
         return 0;
     if (strstr(*feat, "+d") == NULL) {

@@ -5,9 +5,12 @@ name=$1
 mkdir -p tmp
 log=tmp/ci-$name.log
 make=${MAKE:-gmake}
-if $make > "$log" 2>&1 && $make check >> "$log" 2>&1; then
-    echo "$name: ok"
-    exit 0
+if $make > "$log" 2>&1; then
+    sh tools/ci-host.sh "$name"                                 # the host, in the annotations of the run, whether the tests pass or not
+    if $make check >> "$log" 2>&1; then
+        echo "$name: ok"
+        exit 0
+    fi
 fi
 ann() { printf '::error::%s %s: %s\n' "$name" "$1" "$(tr '\n%' ' _' | cut -c1-1800)"; }
 grep -n -i 'error\|undefined\|not found\|cannot\|FAIL' "$log" | head -25 | ann "errors"

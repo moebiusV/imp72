@@ -29,7 +29,8 @@ if [ ! -f $w/.done-src ]; then
 fi
 cd $w/tree || fail
 case $stage in
-build) make "$@" >> $log 2>&1 || fail ;;
+build) make "$@" >> $log 2>&1 || fail
+       sh tools/ci-host.sh "$(uname -m)" ;;                      # the host, in the annotations of the run
 check) make check "$@" >> $log 2>&1 || fail ;;
 link) sh tests/link/run.sh >> $log 2>&1 || fail ;;
 *) echo "ci-container: no stage $stage" >&2; exit 2 ;;
