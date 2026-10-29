@@ -37,6 +37,12 @@ struct node {
     struct node *l, *r;
 };
 
+#ifdef __APPLE__
+#define IVSEG "__DATA,"                  /* a Mach-O section has a segment */
+#else
+#define IVSEG ""
+#endif
+
 static FILE *out;                       /* the function being written */
 static FILE *datafile;                  /* the global variables */
 static FILE *bodyfile;                  /* the functions */
@@ -1056,8 +1062,8 @@ ir2ll_run(FILE *in, FILE *out, int p32)
         char *nm = llstring(varrecs[i].name, &len);
 
         fprintf(outp, "@\"ivn.%d\" = private constant [%d x i8] c\"%s\"\n", i, len, nm);
-        fprintf(outp, "@\"ivr.%d\" = internal global { ptr, %s, ptr } { ptr %s, %s %ld, ptr @\"ivn.%d\" }, section \"impvars\", align %d\n", i,
-            IPT, gname(varrecs[i].sym), IPT, varrecs[i].size, i, ptr32 ? 4 : 8);    /* the alignment of the record, so that they follow each other as the array that impvarlist walks (12 bytes on a 32 bit machine, not 16) */
+        fprintf(outp, "@\"ivr.%d\" = internal global { ptr, %s, ptr } { ptr %s, %s %ld, ptr @\"ivn.%d\" }, section \"%simpvars\", align %d\n", i,
+            IPT, gname(varrecs[i].sym), IPT, varrecs[i].size, i, IVSEG, ptr32 ? 4 : 8);    /* the alignment of the record, so that they follow each other as the array that impvarlist walks (12 bytes on a 32 bit machine, not 16) */
     }
     if (nvarrec > 0) {
         fprintf(outp, "@llvm.used = appending global [%d x ptr] [", nvarrec);

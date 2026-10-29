@@ -172,6 +172,27 @@ writable(const struct impvar *v)
     return 0;
 }
 
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#include <mach-o/getsect.h>
+struct impvar {
+    void *addr;
+    uintptr_t size;
+    const char *name;
+};
+extern struct impvar __start_impvars[] __asm("section$start$__DATA$impvars");
+extern struct impvar __stop_impvars[] __asm("section$end$__DATA$impvars");
+
+static int
+writable(const struct impvar *v)
+{
+    unsigned long size;
+    uintptr_t lo = (uintptr_t)getsegmentdata((const void *)_dyld_get_image_header(0), "__DATA", &size);
+
+    return lo != 0 && (uintptr_t)v->addr >= lo && (uintptr_t)v->addr + v->size <= lo + size;
+}
+#endif
+#if defined(__ELF__) || defined(__APPLE__)
 long
 impvarlist(int64_t *out, long max)
 {
