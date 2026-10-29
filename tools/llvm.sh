@@ -16,7 +16,7 @@ done
 haslld() { [ -n "$lldinc" ] && [ -n "$lldlib" ]; }
 # the C++ library the shim and LLVM need: libc++ on FreeBSD, OpenBSD and macOS (and libc++abi on OpenBSD, where libLLVM does not record that it needs them), else libstdc++
 case $(uname -s) in
-OpenBSD) cxxlib="-lc++ -lc++abi" ;;
+OpenBSD) cxxlib="-lc++ -lc++abi -lm" ;;                  # libLLVM there does not record that it needs libm either
 FreeBSD|Darwin) cxxlib="-lc++" ;;
 *) cxxlib="-lstdc++" ;;
 esac
@@ -41,7 +41,18 @@ libs)
     # the run path of the LLVM libraries, unless LLVM_NO_RPATH is set (a distribution package, whose libraries are where the dynamic linker looks: dpkg-shlibdeps would find
     # the -dev package's symlink through the run path, which carries no information about the shared library)
     rp="-Wl,-rpath,$($lc --libdir)"; [ -n "$LLVM_NO_RPATH" ] && rp=
-    l=; [ "$(uname -s)" = OpenBSD ] && l="$cxxlib"; haslld && { l="-L$lldlib -l$lldname -llldCommon $cxxlib"; [ -n "$lldstatic" ] && l="$l -lz -lzstd"; [ -z "$lldstatic" ] && [ "$lldlib" != /usr/lib ] && [ -z "$LLVM_NO_RPATH" ] && l="$l -Wl,-rpath,$lldlib"; }
+    # the packages of the BSDs (zstd, for a static lld) are in /usr/local/lib, which their linker does not look in; OpenBSD's libLLVM needs libc++ and libm and does not say so
+    l=
+    case $(uname -s) in
+    OpenBSD) l="-L/usr/local/lib $cxxlib" ;;
+    FreeBSD) l="-L/usr/local/lib" ;;
+    esac
+    if haslld; then
+        l="$l -L$lldlib -l$lldname -llldCommon"
+        [ "$(uname -s)" != OpenBSD ] && l="$l $cxxlib"
+        [ -n "$lldstatic" ] && l="$l -lz -lzstd"
+        [ -z "$lldstatic" ] && [ "$lldlib" != /usr/lib ] && [ -z "$LLVM_NO_RPATH" ] && l="$l -Wl,-rpath,$lldlib"
+    fi
     [ "$(uname -s)" = Linux ] && l="$l -ldl"                                  # dladdr, for older glibc (src/driver.imp finds the C library with it)
     echo "$l $($lc --link-shared --libs 2>/dev/null || $lc --libs) $rp -L$($lc --libdir) -rdynamic" ;;
 esac

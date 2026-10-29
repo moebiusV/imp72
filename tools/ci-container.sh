@@ -20,5 +20,14 @@ fi
 echo "== the link in the process"
 sh tests/link/run.sh > link.log 2>&1 || fail=1
 tail -5 link.log
-[ $fail = 0 ] && echo "== all passed" || echo "== FAILED"
+if [ $fail = 0 ]; then
+    echo "== all passed"
+else
+    echo "== FAILED"
+    # what failed, as GitHub annotations (the log of the step is not readable afterwards)
+    ann() { printf '::error::%s %s: %s\n' "$(uname -m)" "$1" "$(tr '\n%' ' _' | cut -c1-1800)"; }
+    grep -n -i 'error\|undefined\|not found\|cannot\|FAIL' make.log check.log link.log 2>/dev/null | grep -v 'warning' | head -25 | ann "errors"
+    tail -n 25 check.log 2>/dev/null | ann "check tail"
+    tail -n 10 link.log 2>/dev/null | ann "link tail"
+fi
 exit $fail

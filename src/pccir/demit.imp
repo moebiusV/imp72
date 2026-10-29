@@ -450,7 +450,7 @@ SUBR ECHKTAGS(I0,I1) IS (
               Q=0 => (ISXTAG(FREE(TAGS+I))=0 => IRTAGERR(FREE(TAGS+I));
                       IXLABEL(FREE((TAGS+I)+1));
                       ISXTAG(FREE(TAGS+I)) NE 0 => (ARGS[0]_IXSYM(IRJBNAME(FREE(TAGS+I)),0,TPLONG); ARGS[1]_ICN(1);
-                                                    X1_IXSYM(LOC('longjmp'),0,TPFTN);
+                                                    X1_IXSYM(LOC('_longjmp'),0,TPFTN);
                                                     IXSTMT(IXCALL(X1,LOC(ARGS),2,0))))) FOR I IN 0,2,NTAGS-2);
  0);
 
