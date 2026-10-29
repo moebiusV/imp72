@@ -31,6 +31,9 @@ cflags)
     haslld && [ "$lldinc" != /usr/include ] && f="$f -I$lldinc"
     echo $f ;;
 libs)
-    l=; haslld && { l="-L$lldlib -llldELF -llldCommon -lstdc++"; [ -n "$lldstatic" ] && l="$l -lz -lzstd"; [ "$lldlib" != /usr/lib ] && l="$l -Wl,-rpath,$lldlib"; }
-    echo "$l $($lc --link-shared --libs 2>/dev/null || $lc --libs) -Wl,-rpath,$($lc --libdir) -L$($lc --libdir) -rdynamic" ;;
+    # the run path of the LLVM libraries, unless LLVM_NO_RPATH is set (a distribution package, whose libraries are where the dynamic linker looks: dpkg-shlibdeps would find
+    # the -dev package's symlink through the run path, which carries no information about the shared library)
+    rp="-Wl,-rpath,$($lc --libdir)"; [ -n "$LLVM_NO_RPATH" ] && rp=
+    l=; haslld && { l="-L$lldlib -llldELF -llldCommon -lstdc++"; [ -n "$lldstatic" ] && l="$l -lz -lzstd"; [ -z "$lldstatic" ] && [ "$lldlib" != /usr/lib ] && [ -z "$LLVM_NO_RPATH" ] && l="$l -Wl,-rpath,$lldlib"; }
+    echo "$l $($lc --link-shared --libs 2>/dev/null || $lc --libs) $rp -L$($lc --libdir) -rdynamic" ;;
 esac

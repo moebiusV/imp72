@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 include /usr/share/dpkg/buildflags.mk
+export LLVM_NO_RPATH = 1
 
 # The Makefile takes the flags on its command line.
 MAKEFLAGS_PKG = CFLAGS="$(CFLAGS) $(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"
