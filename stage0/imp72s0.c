@@ -231,6 +231,7 @@ qs(const char *s)
  * LNK, LNKLIN, LNKBSD and LNKMAC are in IMP: change the one, change the other.
  */
 extern long impld(long argc, const char **argv);
+extern long imprunld(long argc, long argv);
 extern long impldhave(long z);
 extern const char *imphostos(long z);
 extern const char *imphostarch(long z);
@@ -261,11 +262,16 @@ runld(void)
 {
     int i;
 
+    if (!impldhave(0))                          /* no lld library: the system's own ld, as a program (OpenBSD has one and no library of it) */
+        ldv[0] = "ld";
+    ldv[ldn] = NULL;
     if (getenv("IMP72LDSHOW") != NULL) {
         for (i = 0; i < ldn; i++)
             fprintf(stderr, "%s ", ldv[i]);
         fputc('\n', stderr);
     }
+    if (!impldhave(0))
+        return imprunld(ldn, (long)(intptr_t)ldv) != 0;
     return impld(ldn, ldv) != 0;
 }
 
@@ -420,10 +426,6 @@ link_exe(const char *out, const char *ofile, const char *lib)
     const char *os = imphostos(0), *ha = imphostarch(0);
     int rc;
 
-    if (!impldhave(0)) {
-        fputs("imp72stage0: this compiler was built without lld, which links its executables\n", stderr);
-        return 1;
-    }
     ldn = 0;
     if (strcmp(os, "linux") == 0)
         rc = lnklin(ha, out, ofile, lib);

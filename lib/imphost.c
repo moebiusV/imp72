@@ -10,6 +10,7 @@
 #include <dlfcn.h>
 #include <link.h>
 #endif
+#include <sys/wait.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -185,4 +186,27 @@ imphostcrtdir(long out)
     else if (hascrt("/usr/lib"))
         snprintf(o, 4096, "/usr/lib");
     return *o != '\0';
+}
+
+/* run ld, the system's own linker, found by the path, with the argument vector argv (NULL ended, argv[0] is "ld"); wait for it; 0 if it linked.  For a compiler built without the
+ * lld library, as OpenBSD's is (it has its own ld and no library of it) */
+long
+imprunld(long argc, long argv)
+{
+    char **av = (char **)(intptr_t)argv;
+    pid_t pid;
+    int st;
+
+    (void)argc;
+    fflush(NULL);
+    if ((pid = fork()) < 0)
+        return 1;
+    if (pid == 0) {
+        execvp(av[0], av);
+        perror(av[0]);
+        _exit(127);
+    }
+    while (waitpid(pid, &st, 0) < 0)
+        ;
+    return WIFEXITED(st) && WEXITSTATUS(st) == 0 ? 0 : 1;
 }

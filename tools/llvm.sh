@@ -13,7 +13,7 @@ for d in "$($lc --includedir)" /usr/include /opt/homebrew/include /usr/local/inc
 for d in "$($lc --libdir)" /usr/lib /opt/homebrew/lib /usr/local/lib; do
     for e in a so dylib; do [ -f "$d/lib$lldname.$e" ] && [ -f "$d/liblldCommon.$e" ] && { lldlib=$d; [ $e = a ] && lldstatic=1; break 2; }; done
 done
-haslld() { [ -n "$lldinc" ] && [ -n "$lldlib" ]; }
+haslld() { [ "${WITH_LLD:-yes}" != no ] && [ -n "$lldinc" ] && [ -n "$lldlib" ]; }          # WITH_LLD=no builds without it: the compiler then runs the system's own ld
 # the C++ library the shim and LLVM need: libc++ on FreeBSD, OpenBSD and macOS (and libc++abi on OpenBSD, where libLLVM does not record that it needs them), else libstdc++
 case $(uname -s) in
 OpenBSD) cxxlib="-lc++ -lc++abi -lm -lpthread" ;;        # libLLVM there does not record that it needs libm and threads either
