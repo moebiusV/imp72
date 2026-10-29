@@ -1,7 +1,7 @@
 #!/bin/sh
 # llvm.sh cflags|libs: the flags for the LLVM C API (stage0/llvmorc.c, tools/ir2ll.c), which the compilers link so that the LLVM back end is in the process: no ir2ll,
 # no clang.  Nothing is printed where the LLVM libraries are not installed (the compiler is then built without the LLVM back end).  WITH_LLVM=no leaves them out;
-# LLVM_CONFIG names llvm-config.
+# LLVM_CONFIG names llvm-config; LLVM_ORC_FROM_CONTEXT=yes|no forces that variant of `imp`.
 [ "${WITH_LLVM:-yes}" = no ] && exit 0
 lc=${LLVM_CONFIG:-$(command -v llvm-config 2>/dev/null || ls /usr/lib/llvm-*/bin/llvm-config /usr/lib/llvm*/bin/llvm-config 2>/dev/null | sort -V | tail -1)}
 [ -n "$lc" ] && [ -x "$lc" ] && [ -f "$($lc --includedir)/llvm-c/LLJIT.h" ] || exit 0
@@ -39,7 +39,9 @@ imp)
         echo " 1);"
     fi
     echo
-    if grep -q LLVMOrcCreateNewThreadSafeContextFromLLVMContext "$($lc --includedir)/llvm-c/Orc.h"; then
+    fromctx=$(grep -c LLVMOrcCreateNewThreadSafeContextFromLLVMContext "$($lc --includedir)/llvm-c/Orc.h")
+    [ -n "$LLVM_ORC_FROM_CONTEXT" ] && { [ "$LLVM_ORC_FROM_CONTEXT" = yes ] && fromctx=1 || fromctx=0; }      # (tests/llvm/gen.sh compiles both)
+    if [ "$fromctx" != 0 ]; then
         echo "# NEWER LLVM: THE CONTEXT IS MADE FIRST, THEN GIVEN TO ORC.  THE THREAD SAFE CONTEXT, OR 0 (THE MODULE IS IN LVMOD) #"
         echo "SUBR LVTSC(PATH) IS ("
         echo " CTX ARE LOCAL;"
@@ -55,6 +57,7 @@ imp)
         echo " TSC)"
     fi
     if ! haslld; then
+        echo ";"                                          # (a SUBR that is not the last has its semicolon)
         echo
         echo "SUBR IMPLDHAVE(Z) IS 0;"
         echo "SUBR IMPLD(ARGC,ARGV) IS 1"
