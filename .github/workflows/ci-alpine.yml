@@ -1,6 +1,6 @@
 # Alpine (musl) on every architecture it has, natively or under QEMU.
 # A push runs this workflow unless its commit message has [ci:...] tags and this group is not among them ([ci:bsd] runs only the BSDs; [ci:bsd][ci:macos] those two);
-# [skip ci] skips every workflow.  A push that changes only documents does not run it.  "Run workflow" in the Actions tab starts it by hand, whatever the message.
+# [ci:loong64] runs only the loongarch64 job of this one; [skip ci] skips every workflow.  A push that changes only documents does not run it.  "Run workflow" in the Actions tab starts it by hand, whatever the message.
 name: ci-alpine
 
 on:
@@ -33,7 +33,7 @@ jobs:
   # runner is that architecture, else under QEMU user mode, as ada-on-alpine does.
   # the back end is LLVM (llvm-dev from apk)
   alpine:
-    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:alpine]')"
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:alpine]') || (contains(github.event.head_commit.message, '[ci:loong64]') && matrix.arch == 'loong64')"
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
