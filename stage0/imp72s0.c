@@ -37,6 +37,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include "imp.h"
 #include "ir.h"
@@ -235,7 +236,7 @@ driver_main(int argc, char **argv)
 {
     char dir[PATH_MAX], root[PATH_MAX], tmp[PATH_MAX], ir[PATH_MAX + 8],
         ofile[PATH_MAX + 8], cmd[8 * PATH_MAX], base[PATH_MAX];
-    char syntax[PATH_MAX], ffi[PATH_MAX], lib[PATH_MAX];
+    char syntax[PATH_MAX], ffi[PATH_MAX], lib[PATH_MAX], tmpbase[PATH_MAX];
     const char *outname = NULL, *sw = NULL;
     int jit = 0;
     int stop = 'x', i = 1, rc = 0, nfiles, k;
@@ -282,10 +283,12 @@ driver_main(int argc, char **argv)
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
         snprintf(lib, sizeof lib, "%s/build/lib/libimp72.a", root);
+        snprintf(tmpbase, sizeof tmpbase, "%s/tmp", root);     /* the tree's own (gitignored) tmp/ */
     } else {                                    /* installed */
         snprintf(syntax, sizeof syntax, "%s/share/imp72/syntax.imc", root);
         snprintf(ffi, sizeof ffi, "%s/share/imp72/ffi.imc", root);
         snprintf(lib, sizeof lib, "%s/lib/imp72/libimp72.a", root);
+        snprintf(tmpbase, sizeof tmpbase, ".");                /* installed: where the compiler is run */
     }
     override(syntax, sizeof syntax, "IMP72SYNTAX");
     override(ffi, sizeof ffi, "IMP72FFI");
@@ -295,7 +298,8 @@ driver_main(int argc, char **argv)
     if (blen > 4 && strcmp(base + blen - 4, ".imp") == 0)
         base[blen - 4] = '\0';
 
-    snprintf(tmp, sizeof tmp, "%s/imp72stage0.XXXXXX", envor("TMPDIR", "/tmp"));
+    mkdir(tmpbase, 0777);                       /* TMPDIR, else tmp/ of the tree or the current directory: never /tmp */
+    snprintf(tmp, sizeof tmp, "%s/imp72stage0.XXXXXX", envor("TMPDIR", tmpbase));
     if (mkdtemp(tmp) == NULL) {
         perror("mkdtemp");
         return 1;
