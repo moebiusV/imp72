@@ -46,6 +46,7 @@ def tokens(text, kind, source):
     inmatrix = False
     lines = text.split("\n")
     if kind == "X":                                  # the TERMINAL lines as a set
+        lines = [" ".join(":=" if x == "_" else x for x in l.replace("TERMINAL _", "TERMINAL :=").split()) for l in lines]    # the assignment of the original is _, here the one token := (tape/)
         k = next((n for n, l in enumerate(lines) if l.startswith("TERMINAL ")), len(lines))
         tail = sorted(l for l in lines[k:] if l.startswith("TERMINAL "))
         lines = lines[:k] + tail
@@ -61,7 +62,9 @@ def tokens(text, kind, source):
 
 
 # names that only ours has, added by the port on purpose and documented where they are made
-KNOWN_OURS = {"CVAL": "a call of a C function by value (stage0/impsem.c: not in the original)"}
+KNOWN_OURS = {"CVAL": "a call of a C function by value (stage0/impsem.c: not in the original)",
+              ":=": "the assignment: one token, where the original has _ (tape/ is decus/ translated by tools/tape.sh)",
+              "':=": "its quoted form in a syntax statement, as the original's '_ (RSYN removes the quote of a single character; SYTERM does it for ':= too)"}
 
 # names that only the original has, and why (each looked up in the tape)
 KNOWN_ORIGINAL = {
@@ -69,6 +72,7 @@ KNOWN_ORIGINAL = {
     "IMP": "the default file extension of the TOPS-10 command line (decus/impm.imc:268); how it gets into the directory was not traced, it goes with the file name handling the host's argv replaces",
     "IFIX": "entered at the start by the code generator (decus/code2.imc:22) for the library call that makes an integer of a real; imp72 uses an operation of the IR (OFIX), the seed enters it when a FIX needs it",
     "%TMP2": "a temporary RMOD, the register allocator, makes when it spills a register (decus/rmod.imc:246); LLVM allocates here",
+    "_": "the assignment of the original: IMP72 writes := (tape/ is decus/ so translated, tools/tape.sh), and _ is a letter of names, so that a name is a valid C name; the directory has no _ entered by the grammar",
     "U": "NOT EXPLAINED: entered before any program is read, in no production of syntax.imc or impsyn.imc and by no DIR call of the tape; the graph, tree and semantics dumps are identical, so nothing uses it",
 }
 

@@ -16,16 +16,17 @@ out=build/oracle-dumps
 rm -rf $out; mkdir -p $out
 g=tests/golden/oracle-dumps
 fail=0
+mkdir -p tmp; $py tools/imp-assign.py --tape $g/dr.imp > $out/dr.tape.imp         # (the original reads _ for assignment; the dumps echo the text)
 echo "== oracle dumps"
 for k in S T X I; do
-    $seed -s $k -o $out/ours$k.txt decus/syntax.imc $g/dr.imp > /dev/null 2>&1
-    $py tools/dump-compare.py $k $g/dr.$k.lst $out/ours$k.txt $g/dr.imp > $out/$k.log 2>&1 || { echo "FAILED: oracle dump $k" >&2; cat $out/$k.log >&2; fail=1; }
+    $seed -s $k -o $out/ours$k.txt tape/syntax.imc $g/dr.imp > /dev/null 2>&1
+    $py tools/dump-compare.py $k $g/dr.$k.lst $out/ours$k.txt $out/dr.tape.imp > $out/$k.log 2>&1 || { echo "FAILED: oracle dump $k" >&2; cat $out/$k.log >&2; fail=1; }
 done
 echo "== oracle listings"
 for n in $(cat tests/oracle/LIST); do
     f=tests/oracle/$n.imp; [ -f $f ] || f=tests/native/$n.imp
     [ -f $f ] && [ -f tests/golden/oracle-lst/$n.lst ] || continue
-    $seed -s A -o $out/$n.txt decus/syntax.imc $f > /dev/null 2>&1
+    $seed -s A -o $out/$n.txt tape/syntax.imc $f > /dev/null 2>&1
     $py tools/lst-compare.py tests/golden/oracle-lst/$n.lst $out/$n.txt > $out/$n.log 2>&1 || { echo "FAILED: oracle listing $n" >&2; cat $out/$n.log >&2; fail=1; }
 done
 [ $fail = 0 ] && echo ok

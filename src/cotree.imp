@@ -20,18 +20,18 @@ COTREE(S) - CALLED BY THE PARSER TO ADD ANOTHER ITEM TO THE CODE STACK.
 
 CS,NCS,ENTRIES,PRIO,DEMON,MAXIE,NMAXIE,NC ARE COMMON;
 
-SUBR COTREE(SS) IS (S_SS;
- FINAM IS COMMON; TR_FINAM[5] AND 110000B; TRM_FINAM[5] AND 10000B;
- CINIT=0=>(CINIT_1; PRIO_1;
+SUBR COTREE(SS) IS (S:=SS;
+ FINAM IS COMMON; TR:=FINAM[5] AND 110000B; TRM:=FINAM[5] AND 10000B;
+ CINIT=0=>(CINIT:=1; PRIO:=1;
           DSEM('MAXWELL',MAXWELL);
           DSEM('MAXEND',MAXEND);
           DSEM('SETPRI',SETPRI);
-          FRELOT(CS,'COSTK',90,0); NCS_0;
+          FRELOT(CS,'COSTK',90,0); NCS:=0;
           FRELOT(CST,'COST2',15,0));
- S=0 => (NCS_0; GO TO COTREX); #INITIALIZE#
+ S=0 => (NCS:=0; GO TO COTREX); #INITIALIZE#
  S=1 => GO TO COTREX; #DUMMY PRODUCTION NO#
 
- IMMED_0; S>0 => IMMED_SEMED(S);
+ IMMED:=0; S>0 => IMMED:=SEMED(S);
  TR=>(PRINT STG 0,'COTREE CALLED WITH ';
       S<0 => PNAME(-S) ELSE PRINT '[',OCT 0,S,STG 0,']';
       IMMED => (PRINT STG 0,' IMMEDIATE EXECUTION';
@@ -39,98 +39,98 @@ SUBR COTREE(SS) IS (S_SS;
       PRINT '; STACKED AT ',IGR 0,NCS,STG 0,' MARK ',IGR 0,MARK,/);
  DEMON => (IMMED AND PRIO)=0 => (FADD(MAXIE,NMAXIE,S); GO TO COTREX);
 
- S<0 => J_1 OR HW(-S,0)
-        ELSE J_HW(S,0);
- I_NCS+3; FLEN(CS) LE I => FADDEX(CS,I);
- K_CS+NCS; NCS_I; FREES(K,J); FREES(K+1,0); FREES(K+2,0);
+ S<0 => J:=1 OR HW(-S,0)
+        ELSE J:=HW(S,0);
+ I:=NCS+3; FLEN(CS) LE I => FADDEX(CS,I);
+ K:=CS+NCS; NCS:=I; FREES(K,J); FREES(K+1,0); FREES(K+2,0);
  S<0=>GO TO COTREX;
 
- (IMMED AND PRIO) => (IC_NCS-3;  XNOW: MARK=2 => MARK_4;
-                                       J_SNARG(S); NC_IC-3*J;
-                                       J_SEMGET(S); GO TO L1);
+ (IMMED AND PRIO) => (IC:=NCS-3;  XNOW: MARK=2 => MARK:=4;
+                                       J:=SNARG(S); NC:=IC-3*J;
+                                       J:=SEMGET(S); GO TO L1);
 
  DOITAGAINSAM: GO TO (M1,M1,M2,M3,M4) MARK;
 
- M4: IP_IM-3; NC_NM; MARK_1; GO TO TRYON;
+ M4: IP:=IM-3; NC:=NM; MARK:=1; GO TO TRYON;
 
- M1:   NC_-3;
- NXST: (NC_NC+3) GE NCS => (MARK_3; GO TO COTREX);
-       IP_NC;  L13: IP=NCS => (MARK_3; GO TO COTREX);
-       J_FREE(CS+IP); (J AND 77B) => (IP_IP+3; GO TO L13);
-       S_HL(J); GO TO CK;
+ M1:   NC:=-3;
+ NXST: (NC:=NC+3) GE NCS => (MARK:=3; GO TO COTREX);
+       IP:=NC;  L13: IP=NCS => (MARK:=3; GO TO COTREX);
+       J:=FREE(CS+IP); (J AND 77B) => (IP:=IP+3; GO TO L13);
+       S:=HL(J); GO TO CK;
 
- M3: IP_NCS-3;
+ M3: IP:=NCS-3;
  CK: TRM=>(PRINT STG 0,'PLIES[',OCT 0,S,STG 0,']=',OCT 0,PLIES(S),STG 0,
                  ' AT STACK ',IGR 0,IP,STG 0,'  NC=',IGR 0,NC,/);
-     IC_IP; K_PLIES(S); K<0 => GO TO XNOW;
+     IC:=IP; K:=PLIES(S); K<0 => GO TO XNOW;
      (SEMED(S) AND PRIO) => GO TO XNOW;
-     (I_1 LS (IP-NC)/3)=0=>ERROR(0,'SEMANTIC CONDITION TOO COMPLEX.');
-     L14: (K AND I)=0 => (I_I RS 1; I=0 => GO TO NXST; NC_NC+3;
-                          NC GE NCS => (MARK_3; GO TO COTREX); GO TO L14);
+     (I:=1 LS (IP-NC)/3)=0=>ERROR(0,'SEMANTIC CONDITION TOO COMPLEX.');
+     L14: (K AND I)=0 => (I:=I RS 1; I=0 => GO TO NXST; NC:=NC+3;
+                          NC GE NCS => (MARK:=3; GO TO COTREX); GO TO L14);
 
-        SNONR_SNODEN(S);
-        NODE_TSCR(1); NST_0; IM_NM_NC;
- TRYON: IM>IP => (IM=NCS => (MARK_2; GO TO COTREX); #PARTIAL MATCH#
-                  J_0;
-                  L20: (IP_IP+3)<NCS => ((J_FREE(CS+IP)) AND 77B) => GO TO L20;
-                  IP=NCS => (IP_IP-3; SNONR_-1) ELSE (
-                        S_HL(J);
-                        (SEMED(S) AND PRIO)=>(IC_IP; MARK_2;
+        SNONR:=SNODEN(S);
+        NODE:=TSCR(1); NST:=0; IM:=NM:=NC;
+ TRYON: IM>IP => (IM=NCS => (MARK:=2; GO TO COTREX); #PARTIAL MATCH#
+                  J:=0;
+                  L20: (IP:=IP+3)<NCS => ((J:=FREE(CS+IP)) AND 77B) => GO TO L20;
+                  IP=NCS => (IP:=IP-3; SNONR:=-1) ELSE (
+                        S:=HL(J);
+                        (SEMED(S) AND PRIO)=>(IC:=IP; MARK:=2;
                                                     GO TO XNOW);
-                        (K_PLIES(S))>0=>
+                        (K:=PLIES(S))>0=>
                            (K AND (1 LS (IP-NC)/3))=0=>GO TO POPPIT;
-                        SNONR_SNODEN(S)));
- M2:    J_MATCH(NODE,CS+IM,SNONR); MARK_1;
+                        SNONR:=SNODEN(S)));
+ M2:    J:=MATCH(NODE,CS+IM,SNONR); MARK:=1;
         TRM=>(PRINT STG 0,'MATCH NODE',IGR 4,NODE,STG 0,' BEFORE #',
                 IGR 0,SNONR,STG 0,' VS STACK',
                     IGR 3,IM,STG 0,' = ';
               J>0 => PRINT OCT 0,J ELSE PRINT IGR 0,J; PRINT /);
-        J=0 => (TRYALT: NODE=>(NODE_TALT(NODE)) => GO TO M2;
-                POPPIT: NST=>(NST_NST-1;
-                              (77B AND (J_FREE(CS+IM)))=0=>
-                                (S_HL(J); SNONR_SNODEN(S); IP_IM);
-                              IM_IM-3;
-                              NODE_HR(FREE(CST+NST));
+        J=0 => (TRYALT: NODE=>(NODE:=TALT(NODE)) => GO TO M2;
+                POPPIT: NST=>(NST:=NST-1;
+                              (77B AND (J:=FREE(CS+IM)))=0=>
+                                (S:=HL(J); SNONR:=SNODEN(S); IP:=IM);
+                              IM:=IM-3;
+                              NODE:=HR(FREE(CST+NST));
                               GO TO TRYALT);
                         GO TO NXST);
-        J<0 => ((T_TSCR(NODE)) => (#MARK VAL/ NODE READ AS ORIG PRODN#
-                                   J=-2=>NODE_NODE OR (1 LS 63);
+        J<0 => ((T:=TSCR(NODE)) => (#MARK VAL/ NODE READ AS ORIG PRODN#
+                                   J=-2=>NODE:=NODE OR (1 LS 63);
                                    FADD(CST,NST,NODE);
-                                   IM_IM+3;
-                                   NODE_T; GO TO TRYON)
+                                   IM:=IM+3;
+                                   NODE:=T; GO TO TRYON)
                               ELSE GO TO TRYALT);
-        IC_IM; NC_NM;
+        IC:=IM; NC:=NM;
 
      #MATCH FOR NC THRU IC - INVOKE [J]#
- L1: IC_IC+3; L_STINIT(0); LL_0;
-     ((K_CS+I;
+ L1: IC:=IC+3; L:=STINIT(0); LL:=0;
+     ((K:=CS+I;
        (FREE(K) AND 77B)=0 => (#IGNORE PRODNS UNLESS THEY ARE VAL/ ARGUMENTS#
                                FREE(K+1)=0=>GO TO IGN;
                                FREE(CST+(I-NC)/3)<0=>GO TO IGN);
       FREES(L,FREE(K)); FREES(L+1,FREE(K+1)); FREES(L+2,FREE(K+2));
-      L_L+3; LL_LL-1; IGN: 0)) FOR I IN NC,3,IC-3;
+      L:=L+3; LL:=LL-1; IGN: 0)) FOR I IN NC,3,IC-3;
      STPOP(LL);
 
- ENTRIES_0;
+ ENTRIES:=0;
  DOSEM(J);
- MARK NE 4 => MARK_1;
+ MARK NE 4 => MARK:=1;
 
  ENTRIES>0=>(#INSERTS FROM QUOTED SEMANTICS#
-             (I_ENTRIES-IC) => (J_NCS+I; FLEN(CS) LE J => FADDEX(CS,J);
+             (I:=ENTRIES-IC) => (J:=NCS+I; FLEN(CS) LE J => FADDEX(CS,J);
                                 FREES(CS+NCS+K,FREE(CS+IC+K)) FOR K TO I-1;
-                                NCS_J);
-             IC_ENTRIES; GO TO L2);
+                                NCS:=J);
+             IC:=ENTRIES; GO TO L2);
 
- J_STACK(0); K_CS+NC;
+ J:=STACK(0); K:=CS+NC;
  FREES(K,FREE(J)); FREES(K+1,FREE(J+1)); FREES(K+2,FREE(J+2));
  TR=>(PRINT STG 0,'REDUCED AT ',IGR 0,IC-3,STG 0,'. TOP=',
             IGR 0,NCS+NC-IC,STG 0,', RESULT: ';
       PSTACK(CS,NC));
  ENTRIES<0=>GO TO DOITAGAINSAM;
- NC_NC+3;
+ NC:=NC+3;
 
  L2: IC<NCS=>NC<IC=>(FREES(CS+NC+K,FREE(CS+IC+K)) FOR K TO NCS-IC-1);
-     NCS_NCS+NC-IC;
+     NCS:=NCS+NC-IC;
 
  TR=0=>GO TO DOITAGAINSAM;
  ENTRIES LE 0=>GO TO DOITAGAINSAM;
@@ -139,12 +139,12 @@ SUBR COTREE(SS) IS (S_SS;
  GO TO DOITAGAINSAM;
  COTREX: 0);
 
-SUBR CFUDGE(NIL) IS (ENTRIES_-1);
+SUBR CFUDGE(NIL) IS (ENTRIES:=-1);
 
 SUBR CODENT(A,B,C,F) IS (
- ENTRIES=0=>ENTRIES_NCS;
+ ENTRIES=0=>ENTRIES:=NCS;
  FLEN(CS) LE (NCS+3) => FADDEX(CS,NCS+3);
- CSX_CS+NCS; NCS_NCS+3;
+ CSX:=CS+NCS; NCS:=NCS+3;
  FREES(CSX,A); FREES(CSX+1,B); FREES(CSX+2,C);
  F=>C=>COPYCO(CSX));
 
@@ -152,26 +152,26 @@ SUBR CKDONE(NIL) IS (
  NCS>6=>(ERROR(1,'CODE GENERATION STACK DID NOT REDUCE TO ONE ITEM **');
          PSTACK(CS,I) FOR I IN 0,3,NCS-3));
 
-SUBR MAXWELL(N) IS (NMAXIE_0; DEMON_1;
- MAXIE_FNEW('DEMON',15);
+SUBR MAXWELL(N) IS (NMAXIE:=0; DEMON:=1;
+ MAXIE:=FNEW('DEMON',15);
  (FADD(CS,NCS,1); FADD(CS,NCS,0); FADD(CS,NCS,0)) FOR J FROM N; 0);
 
-SUBR MAXEND(A) IS (DEMON_0; FADD(MAXIE,NMAXIE,0); FREES(A+1,MAXIE); A);
+SUBR MAXEND(A) IS (DEMON:=0; FADD(MAXIE,NMAXIE,0); FREES(A+1,MAXIE); A);
 
-SUBR SETPRI(A) IS (PRIO_A; 0);
+SUBR SETPRI(A) IS (PRIO:=A; 0);
 
 SUBR SAMEAS(SN,K) IS (
- TN_CS+NC+3*K; SV_0;
- R_FREE(SN); T_FREE(TN); R NE T=>GO TO SMEX;
- S_R AND 77B;
- R_FREE(SN+1); T_FREE(TN+1); R NE T=>(
+ TN:=CS+NC+3*K; SV:=0;
+ R:=FREE(SN); T:=FREE(TN); R NE T=>GO TO SMEX;
+ S:=R AND 77B;
+ R:=FREE(SN+1); T:=FREE(TN+1); R NE T=>(
      (S AND 32B)=0=>GO TO SMEX;
      (R AND NOT (3777B LS 32)) NE (T AND NOT (3777B LS 32))=>GO TO SMEX;
      GO TO SMUX);
- R_FREE(SN+2); T_FREE(TN+2); R NE T=>(
+ R:=FREE(SN+2); T:=FREE(TN+2); R NE T=>(
       R=0=>GO TO SMEX; T=0=>GO TO SMEX;
       SMUX: MCODE(SN,TN)=0=>GO TO SMEX);
- SMOK: SV_-1;
+ SMOK: SV:=-1;
  SMEX: SV);
 
 SUBR PSTACK(S,N) IS PSTAC1(S,N)%%

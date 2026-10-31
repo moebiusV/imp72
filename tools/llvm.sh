@@ -56,15 +56,15 @@ imp)
         echo "# NEWER LLVM: THE CONTEXT IS MADE FIRST, THEN GIVEN TO ORC.  THE THREAD SAFE CONTEXT, OR 0 (THE MODULE IS IN LVMOD) #"
         echo "SUBR LVTSC(PATH) IS ("
         echo " CTX ARE LOCAL;"
-        echo " CTX_CCALL LLVMContextCreate();"
-        echo " LVMOD_LVPARSE(CTX,PATH); LVMOD=0 => RETURN 0;"
+        echo " CTX:=CCALL LLVMContextCreate();"
+        echo " LVMOD:=LVPARSE(CTX,PATH); LVMOD=0 => RETURN 0;"
         echo " CCALL LLVMOrcCreateNewThreadSafeContextFromLLVMContext(CTX))"
     else
         echo "# OLDER LLVM: ORC MAKES THE CONTEXT.  THE THREAD SAFE CONTEXT, OR 0 (THE MODULE IS IN LVMOD) #"
         echo "SUBR LVTSC(PATH) IS ("
         echo " TSC ARE LOCAL;"
-        echo " TSC_CCALL LLVMOrcCreateNewThreadSafeContext();"
-        echo " LVMOD_LVPARSE(CCALL LLVMOrcThreadSafeContextGetContext(TSC),PATH); LVMOD=0 => RETURN 0;"
+        echo " TSC:=CCALL LLVMOrcCreateNewThreadSafeContext();"
+        echo " LVMOD:=LVPARSE(CCALL LLVMOrcThreadSafeContextGetContext(TSC),PATH); LVMOD=0 => RETURN 0;"
         echo " TSC)"
     fi
     if ! haslld; then

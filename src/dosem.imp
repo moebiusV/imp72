@@ -27,24 +27,24 @@ PARS IS 10 LONG;
 <ATOM> ::= MARGS ::= "10";
 
 SUBR DOSEM(PPO) IS (
- NPO_HL(PPO); PO_HR(PPO);
+ NPO:=HL(PPO); PO:=HR(PPO);
  PO=1 => GO TO DOSEX;
- FINAM IS COMMON; TR_FINAM[5] AND 100000B;
- S_PO; NCASEP_NT0_0; FREES(PSTAK,0);
- NEXTSEM: SE_FREE(SEMS+S); STY_SE RS 44; SVAL_HR(SE);
+ FINAM IS COMMON; TR:=FINAM[5] AND 100000B;
+ S:=PO; NCASEP:=NT0:=0; FREES(PSTAK,0);
+ NEXTSEM: SE:=FREE(SEMS+S); STY:=SE RS 44; SVAL:=HR(SE);
  TR => (PRINT STG 0,' [', OCT 0,S,STG 0,'] = ',OCT 17,SE);
  GO TO (TYPE0,TYPE1,TYPE2,TYPE3,TYPE4,TYPE5,
                 TYPE6,TYPE7,TYPE10,TYPE11,TYPE12) STY;
  ERROR(0,'BAD TYPE IN SEMANTICS'); GO TO TYPEX;
  TYPE0: NT0=>GO TO TYPE1;    # SECOND TYPE 0 IS A TYPE 1 #
-        NT0_1;
+        NT0:=1;
         NPO=>GO TO NXSEM;
-        SCRATCH_SNARG(S);
+        SCRATCH:=SNARG(S);
  # TRY TO INSURE STACK WON'T MOVE DURING DOSEM, WHICH WOULD BE DISASTROUS. #
         SETSTK(MANY,0,0,0);
         STPOP(SCRATCH-1);
         GO TO NXSEM;
- TYPE1: NPO=0=>(J_FREE(PSTAK); K_STACK(0);
+ TYPE1: NPO=0=>(J:=FREE(PSTAK); K:=STACK(0);
                 J=K => GO TO TYPEX;
                 J>K => J LE (K+3*SCRATCH) => (FREES(K,FREE(J)); FREES(K+1,FREE(J+1));
                                               FREES(K+2,FREE(J+2)); GO TO TYPEX);
@@ -52,82 +52,82 @@ SUBR DOSEM(PPO) IS (
                 PRINT /,OCT 0,PPO,STG 0,'=',OCT 0,J,STG 0,', ';
                 ERROR(2,'BAD RESULT OF SEMANTICS; IGNORED **');
                 GO TO TYPEX);
-        S_NPO; NPO_NT0_0; GO TO NEXTSEM;
- TYPE2: SW_STACK(SVAL); FADD(PSTAK,NPSTAK,SW);
+        S:=NPO; NPO:=NT0:=0; GO TO NEXTSEM;
+ TYPE2: SW:=STACK(SVAL); FADD(PSTAK,NPSTAK,SW);
         GO TO NXSEM;
  TYPE3: SVAL=0=>ERROR(0,'ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE.');
-        SN_7777B AND HL(SE);
-        NPSTAK_NPSTAK-SN;
+        SN:=7777B AND HL(SE);
+        NPSTAK:=NPSTAK-SN;
         SN LE MARGS=>NPSTAK GE 0 =>GO TO L1;
         ERROR(0,'** TOO MANY ARGS TO SEMANTIC RTN OR PARAM STACK UNDERFLOW **');
-        L1: SN => (JX_PSTAK+NPSTAK+SN;
-                   (JX_JX-1; PARS[I]_FREE(JX)) FOR I FROM SN-1);
-        J_SEMCALL(SVAL,PARS);
+        L1: SN => (JX:=PSTAK+NPSTAK+SN;
+                   (JX:=JX-1; PARS[I]:=FREE(JX)) FOR I FROM SN-1);
+        J:=SEMCALL(SVAL,PARS);
         FADD(PSTAK,NPSTAK,J); GO TO NXSEM;
  TYPE10:
  TYPE4:
- TYPE5: SVAL_SE AND SVMASK;
-        (SVAL AND SVSIGN)=>SVAL_SVAL OR NOT SVMASK;
+ TYPE5: SVAL:=SE AND SVMASK;
+        (SVAL AND SVSIGN)=>SVAL:=SVAL OR NOT SVMASK;
         STY=4=>(FADD(PSTAK,NPSTAK,-SVAL); GO TO NXSEM);
         STY=10B=>(FADD(CASEP,NCASEP,-SVAL); GO TO NXSEM);
-        J_1;
+        J:=1;
         SVAL>0=>(# USE PARS FOR LOCAL VBLS SINCE SEMANTIC RTNS AND "STUFF" NEVER
                                                                    ARE MIXED. #
-                 SVAL>HMASK=>((I_(HL(SVAL))-1)>MARGS=>(I_1; ERROR(1,
+                 SVAL>HMASK=>((I:=(HL(SVAL))-1)>MARGS=>(I:=1; ERROR(1,
                              ' TOO MANY LOCAL SYMBOLS IN REFERENCED SEMANTICS'));
-                                (SVAL_HR(SVAL))=>(
-                                             XNAME_DNAME(SVAL,0);
-                                             SVAL_NEWNAME(XNAME);
-                                             PARS[I]_SVAL);
-                                SVAL_PARS[I]));
-        SVAL<0=>(J_0; SVAL_-SVAL);
+                                (SVAL:=HR(SVAL))=>(
+                                             XNAME:=DNAME(SVAL,0);
+                                             SVAL:=NEWNAME(XNAME);
+                                             PARS[I]:=SVAL);
+                                SVAL:=PARS[I]));
+        SVAL<0=>(J:=0; SVAL:=-SVAL);
         CODENT((J OR (SVAL LS 32)),0,0,0);
         GO TO NXSEM;
  TYPE6:
- TYPE7: J_STACK(SVAL);
-        I_FREE(J);
+ TYPE7: J:=STACK(SVAL);
+        I:=FREE(J);
         (I AND 77B)=0=>FREE(J+1)=>(# VALUE SEMANTICS - REPLACE ORIG. PRODN NR #
-               I_FREE(J+1);
+               I:=FREE(J+1);
                FREES(J,I AND NOT HMASK);
                FREES(J+1,0));
         CODENT(FREE(J),FREE(J+1),FREE(J+2),STY-6);
         GO TO NXSEM;
- TYPE11:NPSTAK_NPSTAK-1; J_FREE(PSTAK+NPSTAK);
-        QQ_FREE(PSTAK+NPSTAK-1); FREES(PSTAK+NPSTAK-1,(J+QQ));
+ TYPE11:NPSTAK:=NPSTAK-1; J:=FREE(PSTAK+NPSTAK);
+        QQ:=FREE(PSTAK+NPSTAK-1); FREES(PSTAK+NPSTAK-1,(J+QQ));
         GO TO NXSEM;
- TYPE12:J_STACK(0);
+ TYPE12:J:=STACK(0);
         FREES(J,(SVAL LS 32));
         FREES(J+1,(((PO LS 32)) OR (7777B AND HL(SE))));
         FREES(J+2,0);
         FREES(PSTAK,J);
         CFUDGE(0);
  NXSEM: TR=>(PRINT STG 0,'=>STK[',IGR 0,NPSTAK,STG 0,']=';
-        J_FREE(PSTAK+NPSTAK); K_STACK(0);
+        J:=FREE(PSTAK+NPSTAK); K:=STACK(0);
         J GE K=>J LE (K+3*SCRATCH)=>
         (PSTACK(K,J-K); GO TO LL1);
         PRINT IGR 0,J,/; LL1:0);
- S_S+1; GO TO NEXTSEM;
- TYPEX: TR=>PRINT /; NPSTAK_0;
+ S:=S+1; GO TO NEXTSEM;
+ TYPEX: TR=>PRINT /; NPSTAK:=0;
  DOSEX: 0);
 
 SUBR SEMFIX(I,A) IS (
- NA_I0_0;
- L2: K_FREE(A+NA); K GE 0=>(NA_NA+1; GO TO L2);
- J_FREE(SEMS+I);
+ NA:=I0:=0;
+ L2: K:=FREE(A+NA); K GE 0=>(NA:=NA+1; GO TO L2);
+ J:=FREE(SEMS+I);
  FREES(SEMS+I,(NA LS 32) OR (J AND NOT (1777B LS 32)));
- NA_NA-1;
- J_I;
- L3: J_J+1;
-     K_FREE(SEMS+J);
-     JT_K RS 44;
+ NA:=NA-1;
+ J:=I;
+ L3: J:=J+1;
+     K:=FREE(SEMS+J);
+     JT:=K RS 44;
      GO TO (L10,L11,L12,L3,L14,L14,L12,L12,L3,L3,L3) JT;
  L10: I0=>GO TO L11;
-      I0_1; GO TO L3;
- L12: JT_4 OR (2 AND (JT RS 1));
-      K_SYNARG(HR(K)) OR (4 LS 44);
+      I0:=1; GO TO L3;
+ L12: JT:=4 OR (2 AND (JT RS 1));
+      K:=SYNARG(HR(K)) OR (4 LS 44);
       FREES(SEMS+J,K);
- L14: (K AND SVSIGN)=0=>NA GE 0=>(K_HR(K))=>(
-        (KT_FREE(A+KK);
+ L14: (K AND SVSIGN)=0=>NA GE 0=>(K:=HR(K))=>(
+        (KT:=FREE(A+KK);
          KT=(-K)=>(FREES(SEMS+J,(7 LS 44) OR KK); GO TO L3);
          KT=K=>(JT=4=>FREES(SEMS+J,(2 LS 44) OR KK)
                    ELSE (FREES(SEMS+J,(6 LS 44) OR KK);
@@ -135,9 +135,9 @@ SUBR SEMFIX(I,A) IS (
                 GO TO L3)) FOR KK TO NA);
       # CHECK FOR VAL/ ARGUMENTS #
       (K AND SVSIGN)=>(
-            KT_-(K OR NOT SVMASK);
+            KT:=-(K OR NOT SVMASK);
             KT<40000000000B=>GO TO L3;
-            NA GE 0=>((JJ_FREE(A+KK);
+            NA GE 0=>((JJ:=FREE(A+KK);
                        JJ=KT=>(FREES(SEMS+J,(60B LS 44) OR KK);
                                GO TO L3)) FOR KK TO NA));
       GO TO L3;
@@ -145,109 +145,109 @@ SUBR SEMFIX(I,A) IS (
 
 SUBR SEMFX1(I,A,NA) IS (
  NA=0=>GO TO L20;
- J_I+1;
- L21: K_FREE(SEMS+J);
- JT_K RS 44;
- JT=5=>(K AND SVSIGN)=>(K_-(K OR NOT SVMASK)) GE 40000000000B=>(
-    K_HR(K);
-    (JJ_-FREE(A+KK);
-     JJ<0=>JJ_DPROP('SEM',-JJ);
+ J:=I+1;
+ L21: K:=FREE(SEMS+J);
+ JT:=K RS 44;
+ JT=5=>(K AND SVSIGN)=>(K:=-(K OR NOT SVMASK)) GE 40000000000B=>(
+    K:=HR(K);
+    (JJ:=-FREE(A+KK);
+     JJ<0=>JJ:=DPROP('SEM',-JJ);
      JJ=K=>(FREES(A+KK,-(JJ OR (JJ LS 32)));
             FREES(SEMS+J,(6 LS 44) OR KK))) FOR KK FROM NA-1);
- JT>1=>(J_J+1; GO TO L21);
+ JT>1=>(J:=J+1; GO TO L21);
  L20: 0);
 
 SUBR DOCASE(ID,SEMN,PRODN) IS (
  # ROUTINE TO MAKE PROSEM ENTRIES FOR ALL CASES OF CASE ID UNDER PRODN,
      WHERE SEMN IS THE SEMANTICS FOR THE SETUP. #
- JD_DPROP('SEM',ID);
+ JD:=DPROP('SEM',ID);
  JD=0=>(ERROR(1,'CASE UNDEFINED ** '); PNAME(ID); PRINT /;
         GO TO DOCEX);
- JD_HR(FREE(SEMS+JD));
+ JD:=HR(FREE(SEMS+JD));
  # OR IN LEVEL BITS FOR CODE GENERATION TREE #
- JE_FREE(PROSEM+JD); JE<0=>JE_-JE;
+ JE:=FREE(PROSEM+JD); JE<0=>JE:=-JE;
  NOTEPROD(PRODN,-1);
- KD_PROSEM+HR(FREE(SEMS+PRODN));
- KE_FREE(KD); KE<0=>KE_-KE; FREES(KD,(KE OR JE));
- JD_FREE(PROSEM+JD+1);
- L29: JD=>(JE_FREE(PROSEM+JD+1); JD_FREE(PROSEM+JD);
+ KD:=PROSEM+HR(FREE(SEMS+PRODN));
+ KE:=FREE(KD); KE<0=>KE:=-KE; FREES(KD,(KE OR JE));
+ JD:=FREE(PROSEM+JD+1);
+ L29: JD=>(JE:=FREE(PROSEM+JD+1); JD:=FREE(PROSEM+JD);
            ENPROD(PRODN,HL(JD),(SEMN OR (JE LS 32)));
-           JD_HR(JD);
+           JD:=HR(JD);
            GO TO L29);
  DOCEX: 0);
 
 SUBR ENPROD(PN,NO,SEM) IS (
- J_FREE(SEMS+PN);
- (K_HR(J))=0=>(K_NPROSEM; FADD(PROSEM,NPROSEM,0);
+ J:=FREE(SEMS+PN);
+ (K:=HR(J))=0=>(K:=NPROSEM; FADD(PROSEM,NPROSEM,0);
                        FADD(PROSEM,NPROSEM,0);
                        FREES(SEMS+PN,(J OR K)));
- J_FREE(PROSEM+K+1);
+ J:=FREE(PROSEM+K+1);
  FREES(PROSEM+K+1,NPROSEM);
  FADD(PROSEM,NPROSEM,(J OR (NO LS 32)));
  FADD(PROSEM,NPROSEM,SEM));
 
 SUBR MATCHP(PN,N) IS (
- J_HR(FREE(SEMS+PN));
+ J:=HR(FREE(SEMS+PN));
  J=0 => GO TO MATCHPX;
- J_FREE(PROSEM+J+1);
- LM1: J=>(JX_PROSEM+J; K_FREE(JX);
-          N=HL(K) => (J_FREE(JX+1); GO TO MATCHPX);
-          J_HR(K); GO TO LM1);
+ J:=FREE(PROSEM+J+1);
+ LM1: J=>(JX:=PROSEM+J; K:=FREE(JX);
+          N=HL(K) => (J:=FREE(JX+1); GO TO MATCHPX);
+          J:=HR(K); GO TO LM1);
  MATCHPX: J);
 
 SUBR NOTEPROD(PN,N) IS (
- J_FREE(SEMS+PN);
- (K_HR(J))=0=>(K_NPROSEM; FADD(PROSEM,NPROSEM,0);
+ J:=FREE(SEMS+PN);
+ (K:=HR(J))=0=>(K:=NPROSEM; FADD(PROSEM,NPROSEM,0);
                                   FADD(PROSEM,NPROSEM,0);
-                                  FADD(PROSEM,NPROSEM,NSNODES_NSNODES+1);
+                                  FADD(PROSEM,NPROSEM,NSNODES:=NSNODES+1);
                                   FREES(SEMS+PN,(J OR K)));
- J_FREE(PROSEM+K);
- J=0 => (J_-(1 LS N))
-   ELSE (J<0 => J_-J;
-         J_J OR (1 LS N));
+ J:=FREE(PROSEM+K);
+ J=0 => (J:=-(1 LS N))
+   ELSE (J<0 => J:=-J;
+         J:=J OR (1 LS N));
  FREES(PROSEM+K,J));
 
-SUBR PLIES(I) IS ((J_HR(FREE(SEMS+I)))=>J_FREE(PROSEM+J); J);
+SUBR PLIES(I) IS ((J:=HR(FREE(SEMS+I)))=>J:=FREE(PROSEM+J); J);
 
-SUBR SNODEN(I) IS ((J_HR(FREE(SEMS+I)))=>J_FREE(PROSEM+J+2); J);
+SUBR SNODEN(I) IS ((J:=HR(FREE(SEMS+I)))=>J:=FREE(PROSEM+J+2); J);
 
 SUBR ENSTACK(V) IS(
  #TAKES A POS OR NEG. DIRECTORY INDEX, MAKES A SCRATCH STACK NODE.#
  SCRATCH>MANY=>ERROR(0,' SEMANTICS STACK OVERFLOW **');
- VV_V; V<0=>VV_-V;
- W_SETSTK(SCRATCH,1 OR (VV LS 32),0,0);
- SCRATCH_SCRATCH+1; W);
+ VV:=V; V<0=>VV:=-V;
+ W:=SETSTK(SCRATCH,1 OR (VV LS 32),0,0);
+ SCRATCH:=SCRATCH+1; W);
 
 SUBR RESETSEM(VAL,A) IS (
- J_FREE(SEMS+A);
+ J:=FREE(SEMS+A);
  FREES(SEMS+A,(HR(J) OR (VAL LS 32))));
 
 SUBR SETSEM(TY,VAL) IS (
- SNIT=0=>(SNIT_1; FRELOT(SEMS,'SEMS',2200,0); NSEMS_2;
-          MANY_31; #MAX STACK EXPANSION DURING ONE EXECUTION#
+ SNIT=0=>(SNIT:=1; FRELOT(SEMS,'SEMS',2200,0); NSEMS:=2;
+          MANY:=31; #MAX STACK EXPANSION DURING ONE EXECUTION#
           FREES(SEMS+1,(1 LS 41) OR 1);
-          FRELOT(PSTAK,'SPSTK',20,0); NPSTAK_0;
-          FRELOT(PROSEM,'PROSM',1200,0); NPROSEM_1;
+          FRELOT(PSTAK,'SPSTK',20,0); NPSTAK:=0;
+          FRELOT(PROSEM,'PROSM',1200,0); NPROSEM:=1;
           FRELOT(CASEP,'CASEP',10,0);
           DSEM('PAR',PAR); DSEM('STACK',STACK);
-          NSNODES_0);
- V_NSEMS; FADD(SEMS,NSEMS,VAL OR (TY LS 44)); V);
+          NSNODES:=0);
+ V:=NSEMS; FADD(SEMS,NSEMS,VAL OR (TY LS 44)); V);
 
 SUBR SNARG(N) IS (777B AND HL(FREE(SEMS+N)));
 
-SUBR SEMGET(N) IS (Q_HR(FREE(SEMS+N));
-                   Q_FREE(PROSEM+Q+1);
+SUBR SEMGET(N) IS (Q:=HR(FREE(SEMS+N));
+                   Q:=FREE(PROSEM+Q+1);
                    HR(FREE(PROSEM+Q+1)));
 
 SUBR SEMED(A) IS (7 AND (FREE(SEMS+A) RS 41));
 
-SUBR SEMOR(A,N) IS (QQ_FREE(SEMS+N);
+SUBR SEMOR(A,N) IS (QQ:=FREE(SEMS+N);
                     FREES(SEMS+N,(QQ OR A)));
 
 SUBR CKSVAL(V,I) IS ( # CHECKS IF [V] IS A VALUE (TYPE 12) CASE OF I #
- Q_(FREE(SEMS+V+1));
- VAL_0;
- (Q AND ((77B LS 44) OR HMASK))=(I OR (12B LS 44))=>VAL_1;
+ Q:=(FREE(SEMS+V+1));
+ VAL:=0;
+ (Q AND ((77B LS 44) OR HMASK))=(I OR (12B LS 44))=>VAL:=1;
  VAL);
 
 SUBR PAR(I) IS FREE(CASEP+I);

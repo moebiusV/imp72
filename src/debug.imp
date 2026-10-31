@@ -30,13 +30,13 @@ SUBR HELPD(NIL) IS (
 SUBR TPRIN1(NIL) IS (
  J,KVV,KT,KV,N,T,I,K,COLS,MXC ARE LOCAL;
  PRINT STG 0,'** CODE GENERATION TREE:',/,'NODE SCR ALT PDN TY NR',/;
- J_0;
- TL1: J_J+1;
+ J:=0;
+ TL1: J:=J+1;
  J GE NCT => GO TO TREEX;
- KVV_FREE(CT+J+1);
+ KVV:=FREE(CT+J+1);
  PRINT IGR 4,J,TSCR(J),TALT(J),FREE((CT+J)-1),IGR 3,(KVV RS 61),TNODEN(J),OCT 22,KVV;
- KT_(KVV RS 61);
- J_J+2;
+ KT:=(KVV RS 61);
+ J:=J+2;
  KT=1=>(
    (KVV AND (77B LS 53))=0=>(
         (KVV AND NTRM)=0=>(PRINT STG 0,'  [',OCT 0,HR(KVV),STG 0,']',/; GO TO TL1);
@@ -53,21 +53,21 @@ SUBR TPRIN1(NIL) IS (
    PRINT STG 0,'  ',OCT 2,(37B AND (KVV RS 24)),STG 1,' ',OCT 2,(37B AND (KVV RS 16)),STG 1,' ',
          OCT 3,(177B AND (KVV RS 8)),STG 1,' ',OCT 3,(377B AND KVV),/;
    GO TO TL1);
- KT=3=>(KV_HR(KVV); PRINT STG 1,' ';
+ KT=3=>(KV:=HR(KVV); PRINT STG 1,' ';
         PNAME(KV);
         (KVV AND NCLS)=0 => GO TO NOKV;
-        KV_FREE(CT+J); J_J+1;
+        KV:=FREE(CT+J); J:=J+1;
         PRINT OCT 22,KV;
    NOKV: PRINT /; GO TO TL1);
  PRINT STG 2,' ',OCT 5,HR(KVV),/; GO TO TL1;
 TREEX: PRINT STG 0,'CODE TREE BIT MATRIX:',/,/;
- MXC_0;                                                # THE COLUMNS THE ORIGINAL'S MATRIX WOULD HAVE: 5 WORDS OF 36 BITS TO BEGIN WITH, MORE WHEN A BIT BEYOND THEM IS SET #
- ((BIT(SBITM,I,K) NE 0 => (K>MXC => MXC_K)) FOR K IN 0,1,(64*(SBITM[2]+1))-1) FOR I IN 0,1,NODEN;
- COLS_(MXC//36)+1;
- COLS<5=>COLS_5;
- N_36*COLS;
- J_0;
-MX: T_J+74; T>N=>T_N;
+ MXC:=0;                                                # THE COLUMNS THE ORIGINAL'S MATRIX WOULD HAVE: 5 WORDS OF 36 BITS TO BEGIN WITH, MORE WHEN A BIT BEYOND THEM IS SET #
+ ((BIT(SBITM,I,K) NE 0 => (K>MXC => MXC:=K)) FOR K IN 0,1,(64*(SBITM[2]+1))-1) FOR I IN 0,1,NODEN;
+ COLS:=(MXC//36)+1;
+ COLS<5=>COLS:=5;
+ N:=36*COLS;
+ J:=0;
+MX: T:=J+74; T>N=>T:=N;
  PRINT STG 5,' ';                                     # (THE TAPE'S IGR 6 HAS NO VALUE AND PRINTS NOTHING) #
  (PRINT IGR 6,K) FOR K IN J+4,5,T;
  PRINT /;
@@ -76,7 +76,7 @@ MX: T_J+74; T>N=>T_N;
    PRINT (K<(64*(SBITM[2]+1)) => (BIT(SBITM,I,K) NE 0 => 1 ELSE 0) ELSE 0)) FOR K IN J,1,T;     # (THE TAPE'S LOOP ENDS AT N ITSELF, ONE COLUMN PAST THE MATRIX, AND PRINTS WHAT LIES AFTER IT IN FREE STORAGE: 0 HERE) #
   PRINT /) FOR I IN 0,1,NODEN;
  PRINT /;
- J_J+75; T NE N=>GO TO MX;
+ J:=J+75; T NE N=>GO TO MX;
  0);
 
 # PRINT THE SEMANTICS ARRAY: EACH PRODUCTION'S HEADER WITH ITS PLIES, SNODE NUMBER AND THE LIST OF TERMINAL NODES IT MATCHES, THEN
@@ -84,24 +84,24 @@ MX: T_J+74; T>N=>T_N;
 SUBR SEMPR1(NIL) IS (
  NN,K,J,L,LLN,K1,N ARE LOCAL;
  PRINT /,STG 0,'*** SEMANTICS ***',/;
- NN_0; K_1;
-SL1: J_FREE(SEMS+K);
- (J RS 44)=0=>(NN NE 0=>PRINT /; NN_0;
+ NN:=0; K:=1;
+SL1: J:=FREE(SEMS+K);
+ (J RS 44)=0=>(NN NE 0=>PRINT /; NN:=0;
                     PRINT STG 1,'[',OCT 4,K,STG 1,']  ';
-                    (L_HR(J)) NE 0=>(
+                    (L:=HR(J)) NE 0=>(
                        PRINT STG 0,' PLIES:',OCT 0,(FREE(PROSEM+L));
                        PRINT STG 0,',#',IGR 0,FREE((PROSEM+L)+2);
-                       L_FREE((PROSEM+L)+1); LLN_0;
-                       SL3: L NE 0=>(LLN_LLN+1; LLN>5=>(LLN_1; PRINT /,STG 12,' ');
-                                     K1_FREE(PROSEM+L); PRINT STG 0,' <',OCT 0,(HL(K1)),STG 0,'/';
-                                     N_FREE((PROSEM+L)+1);
+                       L:=FREE((PROSEM+L)+1); LLN:=0;
+                       SL3: L NE 0=>(LLN:=LLN+1; LLN>5=>(LLN:=1; PRINT /,STG 12,' ');
+                                     K1:=FREE(PROSEM+L); PRINT STG 0,' <',OCT 0,(HL(K1)),STG 0,'/';
+                                     N:=FREE((PROSEM+L)+1);
                                      (HL(N)) NE 0=>PRINT OCT 0,(HL(N)),STG 0,'_';
                                      PRINT OCT 0,HR(N),STG 0,'>';
-                                     L_HR(K1); GO TO SL3);
-                       NN_5));
- NN_NN+1; NN=6=>(NN_1; PRINT /,STG 6,' ');
+                                     L:=HR(K1); GO TO SL3);
+                       NN:=5));
+ NN:=NN+1; NN=6=>(NN:=1; PRINT /,STG 6,' ');
  PRINT STG 2,' ',OCT 17,J;
- K_K+1; K LE (NSEMS-1)=>GO TO SL1;
+ K:=K+1; K LE (NSEMS-1)=>GO TO SL1;
  PRINT /;
  0);
 
@@ -109,34 +109,34 @@ SL1: J_FREE(SEMS+K);
   A NODE.  THE MATRIX NBITM IS PRINTED AS THE MASKS THE BIT MACRO GIVES IN THE ORIGINAL: BIT J OF A WORD IS 1 LS (J MOD 64) THERE. #
 SUBR GPRIN1(NIL) IS (
  I,K,J,N,NNO,NS,W1,TY,ID ARE LOCAL;
- NS_2;
+ NS:=2;
  PRINT STG 0,'HERE IS THE GRAPH FOLLOWING ENTRY OF PRODUCTION NR. ',IGR 0,NPRODS,/,
        STG 8,'INDEX','SCR','ALT','TYPE','NB','NAME','NT#','ENTRY',/;
- (W1_FREE(GA+I); TY_GTYPE(I); ID_GVAL(I);
+ (W1:=FREE(GA+I); TY:=GTYPE(I); ID:=GVAL(I);
   PRINT IGR 8,I,HR(W1),HL(W1),TY,(GNB(I) AND 7777B);
   TY=3=>(PRINT STG 2,'[',OCT 0,ID,STG 1,']')
    ELSE (PRINT STG 4,' ';
          PNAME(ID); PRINT IGR 5,DPROP('NODE',ID),DPROP('ENTRY',ID));
   PRINT /) FOR I IN 1,NS,NG;
  PRINT /;
- N_0-1;
+ N:=0-1;
 L5: DSEQ(N);
  N GE 0=>(CHR0(DNAME(N,0))=43B=>GO TO L5;
-          J_DPROP('NODE',N); J=0=>GO TO L5;
+          J:=DPROP('NODE',N); J=0=>GO TO L5;
           PRINT STG 0,'TERMINAL '; PNAME(N);
- L4:      J_FREE(GRNODES+J); PRINT IGR 4,HR(J);
-          J_HL(J); J NE 0=>GO TO L4;
+ L4:      J:=FREE(GRNODES+J); PRINT IGR 4,HR(J);
+          J:=HL(J); J NE 0=>GO TO L4;
           PRINT /; GO TO L5);
  (FINAM[5] AND 20000B)=0=>GO TO L6;
  PRINT STG 0,'CONNECTIVITY MATRICES BITM AND NBITM.',/,/;
- NNO_((2+(NG/NS))/2);
+ NNO:=((2+(NG/NS))/2);
  ((PRINT STG 0,'NODE#',IGR 4,(I+I)-1,STG 2,' ',IGR 1;
    (PRINT (BIT(GRBITM,I,J) NE 0 => 1 ELSE 0);
     ((5*(J/5))=J=>PRINT STG 1,' ',IGR 1)) FOR J IN 1,1,GRNTGENT-1;
    PRINT STG 5,' ',IGR 1) FOR I IN K,NNO,K+NNO;
   PRINT /) FOR K IN 1,1,NNO;
  PRINT /;
- NNO_(GRNBITN/2);
+ NNO:=(GRNBITN/2);
  ((PRINT STG 0,'NBIT#',IGR 4,I,STG 2,' ',IGR 1;
    (PRINT (BIT(GRNBITM,I,J) NE 0 => (1 LS (J-(64*(J/64)))) ELSE 0);
     ((5*(J/5))=J=>PRINT STG 1,' ',IGR 1)) FOR J IN 1,1,GRNTGENT-1;
@@ -148,13 +148,13 @@ L6: PRINT /;
 # PRINT THE STACK ENTRY AT OFFSET N OF THE STACK AT S #
 SUBR PSTAC1(S,N) IS (
  SS,T ARE LOCAL;
- SS_FREE(S+N);
+ SS:=FREE(S+N);
  PRINT STG 0,'STACK NODE ',IGR 0,N,STG 0,', TYPE ',OCT 2,(77B AND SS);
  (77B AND SS)=0=>PRINT STG 0,' [',OCT 0,(HL(SS)),STG 0,']'
-  ELSE ((T_HL(SS)) NE 0=>(PRINT STG 0,', NAME '; PNAME(T));
+  ELSE ((T:=HL(SS)) NE 0=>(PRINT STG 0,', NAME '; PNAME(T));
         (SS AND 100B) NE 0=>PRINT STG 0,', IGR';
         (SS AND 200B) NE 0=>PRINT STG 0,', REAL');
- (T_FREE((S+N)+1)) NE 0=>PRINT STG 0,', VALUE ',OCT 22,T;
+ (T:=FREE((S+N)+1)) NE 0=>PRINT STG 0,', VALUE ',OCT 22,T;
  PRINT /;
  0);
 
@@ -164,13 +164,13 @@ SUBR PARTR1(CNODE,CTYP,CVAL,P,IP,O,CW) IS (
  J,K,N ARE LOCAL;
  PRINT STG 0,'   CURRENT NODE #',IGR 0,CNODE,STG 0,', TYPE ',IGR 0,CTYP,STG 0,', ';
  CTYP=3=>(PRINT STG 0,'[',OCT 0,CVAL,STG 1,']') ELSE PNAME(CVAL);
- J_HL(FREE(P+IP));
+ J:=HL(FREE(P+IP));
  J NE 0=>(PRINT STG 0,', OUTPUT: ';
-  P5: J NE 0=>(J_FREE(O+J); K_HLS(J);
+  P5: J NE 0=>(J:=FREE(O+J); K:=HLS(J);
                K>0=>PRINT OCT 0,K ELSE PNAME(0-K);
-               PRINT STG 0,' '; J_HR(J); GO TO P5));
+               PRINT STG 0,' '; J:=HR(J); GO TO P5));
  PRINT /;
- CW>(IP+3)=>((N_HR(FREE(P+K)); J_HL(FREE(P+K));
+ CW>(IP+3)=>((N:=HR(FREE(P+K)); J:=HL(FREE(P+K));
               PRINT STG 0,'    ';
               K=CW=>PRINT STG 0,'CURRENT ' ELSE PRINT STG 0,'        ';
               PRINT STG 0,'GOAL: '; PNAME(GVAL(J));

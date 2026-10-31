@@ -160,8 +160,8 @@
  <EXP> ::= <ATOM,A> EQV <EXP,B> ::= CASE(20,19,19,20,19) OF LOGIC;
 
 
- <EXP>  ::= <VBL,A> _ <EXP,B> ::= "X0FLT_I0IGR"=>STORE(X,FLOAT(I)) ELSE
-                        "I0IGR_X0FLT"=>STORE(I,FIX(X)) ELSE
+ <EXP>  ::= <VBL,A> ':=' <EXP,B> ::= "X0FLT:=I0IGR"=>STORE(X,FLOAT(I)) ELSE
+                        "I0IGR:=X0FLT"=>STORE(I,FIX(X)) ELSE
                          STORE(A,B);
 
  <EXP> ::= <VBL,A> '<'= <EXP,B> ::= STORE(A,B);
@@ -214,8 +214,8 @@
 
  <ST> ::= <EXP,A> => <ST,B> ::= "A NE 0=>B" ELSE
                          "A=>GO TO B"=>"A NE 0=>GO TO B" ELSE
-                         "(A0IGR_A+1)=>GO TO B"=>"(A_A+1) NE 0=>GO TO B" ELSE
-                         "(A0IGR_A-1)=>GO TO B"=>"(A_A-1) NE 0=>GO TO B" ELSE
+                         "(A0IGR:=A+1)=>GO TO B"=>"(A:=A+1) NE 0=>GO TO B" ELSE
+                         "(A0IGR:=A-1)=>GO TO B"=>"(A:=A-1) NE 0=>GO TO B" ELSE
                          "NOT (P =  Q)=>GO TO R" => "P NE Q=>GO TO R" ELSE
                          "NOT (P NE Q)=>GO TO R" => "P =  Q=>GO TO R" ELSE
                          "NOT (P >  Q)=>GO TO R" => "P LE Q=>GO TO R" ELSE
@@ -229,7 +229,7 @@
  <ST> ::= <EXP,A> <RELOP,EQ> <EXP,B> => <ST,C> ELSE <ST,D> ::=
        EQ/"A0CON=B0CON=>C ELSE D"=>CONOP(A,B,8589934600+VAL(STACK(1)),C,D) ELSE
        LOCAL ELSE,I IN EQ/"I IS REGISTER,SCRATCH;
-			A=B=>(I_C; GO TO ELSE); I_D; ELSE: I IS
+			A=B=>(I:=C; GO TO ELSE); I:=D; ELSE: I IS
 			PROTECTED; I";
  <ST> ::= <EXP,A> <RELOP,EQ> <EXP,C> ::= EQ/"A=C => -1 ELSE 0" ELSE
                            EQ/"P0CON=R0CON"=>CONOP(P,R,8+VAL(STACK(1)));
@@ -239,18 +239,18 @@
  <ST> ::= MOVE <B> THROUGH <N> TO <A> ::= MOVEBLK(B,FIX(N),A);
 
  <ST> ::= <EXP,A> FOR <VBL,B> IN <EXP,C>,<EXP,D>,<EXP,E> ::=
-            LOCAL FOR IN "B_C; FOR: A; B NE E=>(B_B+D; GO TO FOR)" ELSE
+            LOCAL FOR IN "B:=C; FOR: A; B NE E=>(B:=B+D; GO TO FOR)" ELSE
       "A FOR B IN C,D0CON35,E"=>
-            LOCAL FOR IN "B_C; FOR: A; (B_B+D) LE E=>GO TO FOR" ELSE
+            LOCAL FOR IN "B:=C; FOR: A; (B:=B+D) LE E=>GO TO FOR" ELSE
       "A FOR B IN C,D0CNG35,E"=>
-            LOCAL FOR IN "B_C; FOR: A; (B_B-(-D)) GE E=>GO TO FOR";
+            LOCAL FOR IN "B:=C; FOR: A; (B:=B-(-D)) GE E=>GO TO FOR";
 
  <ST> ::= <EXP,A> FOR <VBL,B> TO <EXP,C>   ::= "A FOR B IN 0,1,C" ELSE
-	"(A0IGR[I0IGRVAR]_B0IGR[I]) FOR I TO C0IGR"=>
+	"(A0IGR[I0IGRVAR]:=B0IGR[I]) FOR I TO C0IGR"=>
 		"MOVE B THROUGH C TO A";
 
  <ST> ::= <EXP,A> FOR <VBL,B> FROM <EXP,C> ::= "A FOR B IN C,-1,0" ELSE
-	"(A0IGR[I0IGRVAR]_B0IGR[I]) FOR I FROM C0IGR"=>
+	"(A0IGR[I0IGRVAR]:=B0IGR[I]) FOR I FROM C0IGR"=>
 		"MOVE B THROUGH C TO A";
 
 
@@ -275,8 +275,8 @@
 
  <ST>   ::= <COND,A> => <ST,B> ELSE <ST,C>
 	::= LOCAL I,IF,ELSE IN "I IS REGISTER,SCRATCH; A; GO TO IF;
-			I_B; GO TO ELSE;
-			IF: I_C; ELSE: I IS PROTECTED; I";
+			I:=B; GO TO ELSE;
+			IF: I:=C; ELSE: I IS PROTECTED; I";
 
  <ST>   ::= WHILE <COND,A> DO <ST,B>
 	::= LOCAL IF,WH IN "WH:A;GO TO IF;B;GO TO WH;IF:0";
@@ -310,16 +310,16 @@
 
  <BYTE>  ::= <VBL,A> '<' <B> , <C> > ::= BYTEP(A,B,C,0);
  <ATOM>  ::= <ION,A> '<' <B> , <C> > ::= DEWOP(24,AREG1(1,15B),BYTEP(A,B,C,1));
- <EXP>   ::= <BYTE,A> _ <B>          ::= ADDOP(25,A,B);
+ <EXP>   ::= <BYTE,A> ':=' <B>          ::= ADDOP(25,A,B);
  <ATOM>  ::= BYTEP <BYTE,A>;
  <BYTE>  ::= '<' <EXP,A> >;
  <ATOM>  ::= '<' <EXP,A> >           ::= DEWOP(24,AREG1(1,15B),A);
  <ATOM>  ::= '<' + <VBL,A> >         ::= DEWOP(26,AREG1(1,15B),A);
- <EXP>   ::= '<' + <VBL,A> > _ <B>   ::= ADDOP(27,A,B);
+ <EXP>   ::= '<' + <VBL,A> > ':=' <B>   ::= ADDOP(27,A,B);
  <ATOM>  ::= <ION,A> '<' R >         ::= "A<32,0>";              # THE HALVES OF A WORD ARE 32 BITS #
  <ATOM>  ::= <ION,A> '<' L >         ::= "A<32,32>";
- <EXP>   ::= <VBL,A> '<' R > _ <B>   ::= "A<32,0>_B";
- <EXP>   ::= <VBL,A> '<' L > _ <B>   ::= "A<32,32>_B";
+ <EXP>   ::= <VBL,A> '<' R > ':=' <B>   ::= "A<32,0>:=B";
+ <EXP>   ::= <VBL,A> '<' L > ':=' <B>   ::= "A<32,32>:=B";
 
 
  <ST> ::= EXECUTE <A> ::= DEWOP(65,0,A);             # XCT #
@@ -330,7 +330,7 @@
 
 # A FEW CHARACTER THINGS #
 
-<ATOM> ::= IDPB(<A>,<B>)	::= "<+B>_A";
+<ATOM> ::= IDPB(<A>,<B>)	::= "<+B>:=A";
 <ATOM> ::= ILDB(<A>)		::= "<+A>";
 <ATOM> ::= R<VBL,A> ::=	"R I0CON0729"=>"I RS 29" ELSE
 			"R I0CON1422"=>"I RS 22" ELSE

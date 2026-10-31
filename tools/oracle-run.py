@@ -25,6 +25,21 @@ def quiet(t, idle=4, limit=600, until=None):
     return out
 
 
+def tapetext(p, n):
+    """the program as the original reads it: its assignment is _ and not := (tools/imp-assign.py --tape); a file in the scratch directory of the tree, named for the program"""
+    sys.path.insert(0, here)
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("impassign", os.path.join(here, "imp-assign.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    d = os.path.join(here, "..", "tmp", "oracle-text")
+    os.makedirs(d, exist_ok=True)
+    q = os.path.join(d, os.path.basename(p))
+    with open(p, errors="surrogateescape", newline="") as f, open(q, "w", errors="surrogateescape", newline="") as g:
+        g.write(m.to_tape(f.read()))
+    return q
+
+
 def run(progs, outdir, lst=False):
     tape = os.path.join(here, "..", "oracle", "tapes", "in.tap")
     names = [os.path.splitext(os.path.basename(p))[0].upper()[:6] for p in progs]
@@ -32,7 +47,7 @@ def run(progs, outdir, lst=False):
     try:
         t.cmd("TTY WIDTH 200")           # the terminal folds lines at 72 columns: not in our output
         for p, n in zip(progs, names):      # one tape per program: several files on one tape lose the last
-            pdp10tap.put(tape, [p])
+            pdp10tap.put(tape, [tapetext(p, n)])
             t.cmd("ASSIGN MTA0: TAPE")
             t.cmd("REWIND TAPE:")
             t.cmd("R PIP", r"^\*", 30)

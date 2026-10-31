@@ -447,7 +447,7 @@ static const char *const halfrules[] = {
     NULL
 };
 static const char *const fieldrules[] = {                                           /* these end a statement: the line before them gets its ; and loses its ELSE */
-    "ELSE \"A<18,0>\"  =>", "ELSE \"A<18,18>\" =>", "\"A<18,0>_B\" =>", "\"A<18,18>_B\"=>",
+    "ELSE \"A<18,0>\"  =>", "ELSE \"A<18,18>\" =>", "\"A<18,0>:=B\" =>", "\"A<18,18>:=B\"=>",
     NULL
 };
 
@@ -552,7 +552,7 @@ driver_main(int argc, char **argv)
         return 1;
     strcpy(root, dir);
     strcat(root, "/..");
-    snprintf(syntax, sizeof syntax, "%s/decus/syntax.imc", root);
+    snprintf(syntax, sizeof syntax, "%s/tape/syntax.imc", root);
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
         snprintf(lib, sizeof lib, "%s/build/lib/libimp72.a", root);

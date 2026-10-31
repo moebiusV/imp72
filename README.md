@@ -82,10 +82,9 @@ translation of the tables and the driver program.
    NUL-terminated C strings in IMP against strings that carry their length (the
    preference is for the latter); file names that match Unix's limits (the
    tape's six characters and three of the extension, where `MKNAME` allows 15 and 7); the empty string `''`, which is a
-   syntax error today (a program that needs an empty C string passes the address of a zero byte), and whether it should be a literal; and assignment
-   written `:=` in place of `_`, which then joins the characters of a name, so that IMP names are ELF and C
-   names (the sources, tests and oracle programs would be converted once; `decus/` stays as it is). The syntax
-   of IMP72 does not change until the study is done and decided.
+   syntax error today (a program that needs an empty C string passes the address of a zero byte), and whether it should be a literal.
+   (Assignment is written `:=` and `_` is a letter of names, so that IMP names are ELF and C names: done; see `tape/README.md`.) The syntax
+   of IMP72 does not change further until the study is done and decided.
 7. Later: a function pointer from the compiler for a single definition
    (`libimp72`, over ORC); a build for the 36-bit PDP-10 itself.
 
@@ -111,7 +110,7 @@ on a simulated KA10, and everything after that is checked against what it
 prints.
 
 The second was a seed: a port of the kernel to C, which reads the original
-`syntax.imc` unchanged. Its code generator still makes PDP-10 instructions, but
+`syntax.imc` of `tape/` (the tape's, with `:=` for `_`). Its code generator still makes PDP-10 instructions, but
 a translator turns them into an intermediate representation, and LLVM makes
 the machine code. That compiler can compile IMP programs for a modern machine,
 and it can compile the tape's own modules.
@@ -153,6 +152,7 @@ IMP expressions have **no operator precedence** (`A+B*C` is `A+(B*C)`), and
 
     decus/          the DECUS 10-198 tape, unchanged, with hashes
                     (SHA256SUMS, SHA256SUMS.bin) and PROVENANCE.md
+    tape/           the 22 .imc files of decus/ with := for _ (tools/tape.sh makes them; the seed reads them)
     src/            the compiler's sources in 64-bit IMP: the kernel modules,
                     impsyn64.imc (the syntax they are written in)
     src/pccir/      the code generator, the syntax file syntax64.imc, demit.imp

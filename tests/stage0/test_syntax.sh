@@ -2,7 +2,7 @@
 # Integration test: stage 0 reads the whole of the DECUS syntax file.
 # Run from stage0/ (make check does).
 fail() { echo "FAILED: $*" >&2; rm -f test_syntax.err test_syntax.out test_syntax.dump; exit 1; }
-SYNTAX=../decus/syntax.imc
+SYNTAX=../tape/syntax.imc
 
 ./imp72s0 -s E "$SYNTAX" >test_syntax.out 2>test_syntax.err || fail "imp72s0 exit status"
 grep -q '^SYNTAX BOOTSTRAPPED$' test_syntax.err || fail "no SYNTAX BOOTSTRAPPED"
@@ -26,7 +26,7 @@ done
 
 # impsyn.imc, the syntax the compiler's own sources are written in, also
 # loads (it runs declarations: ALF IS COMMON; ...)
-./imp72s0 -s E "$SYNTAX" ../decus/impsyn.imc >test_syntax.out 2>test_syntax.err \
+./imp72s0 -s E "$SYNTAX" ../tape/impsyn.imc >test_syntax.out 2>test_syntax.err \
     || fail "impsyn.imc: exit status"
 grep -q 'ERROR' test_syntax.err && fail "impsyn.imc: errors reported"
 n=$(grep -c '^PRODUCTION ENTERED IN GRAPH' test_syntax.out)

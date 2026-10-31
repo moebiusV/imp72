@@ -1,9 +1,9 @@
-SUBR T(N) IS (X IS REAL; Y IS REAL; X_FLT(N); Y_X*X+X/FLT(4); FIX(Y));
-SUBR U(N) IS (X IS REAL; X_FLT(N)*2.5; FIX(X*10.0));
-SUBR NEG(N) IS (X IS REAL; Y IS REAL; X_FLT(0-N)*1.5; Y_FLT(N)*2.0; (X<Y=>1 ELSE 0)+10*(FIX(0.0-X*10.0))+1000*(FIX(X*Y)));
-SUBR REL(N) IS (X IS REAL; Y IS REAL; Z IS REAL; R IS INTEGER; R_0;
-  X_FLT(0-N)*1.5; Y_FLT(N)*0.25; Z_0.0-Y;
-  (X<Y=>R_R+1); (Y>X=>R_R+2); (Z<Y=>R_R+4); (Z<X=>R_R+8); (X=X=>R_R+16); (X NE Y=>R_R+32);
-  (Z LE 0.0-0.5=>R_R+64); (0.0-X>Y=>R_R+128);
+SUBR T(N) IS (X IS REAL; Y IS REAL; X:=FLT(N); Y:=X*X+X/FLT(4); FIX(Y));
+SUBR U(N) IS (X IS REAL; X:=FLT(N)*2.5; FIX(X*10.0));
+SUBR NEG(N) IS (X IS REAL; Y IS REAL; X:=FLT(0-N)*1.5; Y:=FLT(N)*2.0; (X<Y=>1 ELSE 0)+10*(FIX(0.0-X*10.0))+1000*(FIX(X*Y)));
+SUBR REL(N) IS (X IS REAL; Y IS REAL; Z IS REAL; R IS INTEGER; R:=0;
+  X:=FLT(0-N)*1.5; Y:=FLT(N)*0.25; Z:=0.0-Y;
+  (X<Y=>R:=R+1); (Y>X=>R:=R+2); (Z<Y=>R:=R+4); (Z<X=>R:=R+8); (X=X=>R:=R+16); (X NE Y=>R:=R+32);
+  (Z LE 0.0-0.5=>R:=R+64); (0.0-X>Y=>R:=R+128);
   R)
 %%

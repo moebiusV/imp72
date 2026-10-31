@@ -135,10 +135,10 @@ def main():
                 break
             continue
         setup.append(line)
-        if line == "J_8; K_3;":
+        if line == "J:=8; K:=3;":
             env["J"], env["K"] = 8, 3
             continue
-        m = re.match(r"^([A-E])_(.*);$", line)
+        m = re.match(r"^([A-E]):=(.*);$", line)
         if m:
             env[m.group(1)] = P(tokens(m.group(2)), env).item()[1]
         m = re.match(r"^([A-E])<(\d+),(\d+)>_(.*);$", line)
@@ -148,10 +148,10 @@ def main():
             ev = P(tokens(m.group(4)), env).item()[1]
             env[m.group(1)] = w((u(env[m.group(1)]) & ~mask) | ((u(ev) << pos) & mask))
             continue
-        m = re.match(r"^X\[(\d+)\]_(.*);$", line)
+        m = re.match(r"^X\[(\d+)\]:=(.*);$", line)
         if m:
             env["X"][int(m.group(1))] = P(tokens(m.group(2)), env).item()[1]
-        m = re.match(r"^X\[\(J-(\d+)\)\]_(.*);$", line)
+        m = re.match(r"^X\[\(J-(\d+)\)\]:=(.*);$", line)
         if m:
             env["X"][8 - int(m.group(1))] = P(tokens(m.group(2)), env).item()[1]
     if target is None:

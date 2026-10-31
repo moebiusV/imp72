@@ -3,10 +3,10 @@
 
 As tools/imp-fuzz64.py, the expected output is worked out here from the rules of the word of 64 bits, not by a compiler.  The rules (lib/imp72rt.imp, docs/internals/codegen-and-translation.md):
 
-    X_BYTEP P[k]<S,Q>   a pointer to the field of S bits with its low bit at bit Q of the word P[k].  <X> reads the field, <X>_E writes the low S bits of E and leaves the others,
+    X:=BYTEP P[k]<S,Q>   a pointer to the field of S bits with its low bit at bit Q of the word P[k].  <X> reads the field, <X>:=E writes the low S bits of E and leaves the others,
                         <+X> steps the pointer first and then reads (<+X>_E steps and then writes): the next lower field of the same size, or, when there is no room (Q-S < 0), the
                         top field of the next word (the field at bit 64-S, the address + 8).
-    X_BYTEP P[k]<7,36>  the one pointer to characters, as the tape has it: a byte address, that of the word P[k] less 1 (the pointer is before the first character: <+X> is
+    X:=BYTEP P[k]<7,36>  the one pointer to characters, as the tape has it: a byte address, that of the word P[k] less 1 (the pointer is before the first character: <+X> is
                         the first).  <X> is the byte there, <+X> steps one byte and reads, writes keep the low 8 bits of E.  A byte of a word is where the machine puts it
                         (the byte order of the host: the generator runs on the machine that runs the programs).
     MOVE P[a] THROUGH N TO Q[b]   N+1 words from P[a] up, to Q[b] up, one word at a time in ascending order as BLT does, so that with overlap the words copied are the words
@@ -103,22 +103,22 @@ def program(r, n):
     var = {v: value(r) for v in "ABCDE"}
     lines = ["A,B,C,D,E,X ARE COMMON;", "P IS %d LONG;" % NW, "Q IS %d LONG;" % NW]
     for v in "ABCDE":
-        lines.append("%s_%s;" % (v, lit(var[v])))
+        lines.append("%s:=%s;" % (v, lit(var[v])))
     for i in range(NW):
-        lines.append("P[%d]_%s;" % (i, lit(w(mem.p[i]))))
-        lines.append("Q[%d]_%s;" % (i, lit(w(q[i]))))
+        lines.append("P[%d]:=%s;" % (i, lit(w(mem.p[i]))))
+        lines.append("Q[%d]:=%s;" % (i, lit(w(q[i]))))
     exp = []
     ptr = None
 
     def newptr():
         k = r.randint(1, NW - 4)
         if r.random() < 0.25:
-            return "X_BYTEP P[%d]<7,36>;" % k, Ptr(True, a=8 * k - 1)
+            return "X:=BYTEP P[%d]<7,36>;" % k, Ptr(True, a=8 * k - 1)
         sz = r.choice(SIZES)
         pos = r.randint(0, 64 - sz)
         if (sz, pos) == (7, 36):
             pos = 0
-        return "X_BYTEP P[%d]<%d,%d>;" % (k, sz, pos), Ptr(False, wd=k, sz=sz, pos=pos)
+        return "X:=BYTEP P[%d]<%d,%d>;" % (k, sz, pos), Ptr(False, wd=k, sz=sz, pos=pos)
 
     for i in range(n):
         if ptr is None or r.random() < 0.12:
@@ -129,7 +129,7 @@ def program(r, n):
         if k < 0.22:                               # read
             vn = r.choice("ABCDE")
             var[vn] = ptr.load(mem)
-            lines.append("%s_<X>;" % vn)
+            lines.append("%s:=<X>;" % vn)
             lines.append("PRINT STG 0,'%d ',IGR 0,%s,/;" % (i, vn))
             exp.append("%d %d" % (i, var[vn]))
         elif k < 0.50:                             # step and read
@@ -139,13 +139,13 @@ def program(r, n):
             ptr = nxt
             vn = r.choice("ABCDE")
             var[vn] = ptr.load(mem)
-            lines.append("%s_<+X>;" % vn)
+            lines.append("%s:=<+X>;" % vn)
             lines.append("PRINT STG 0,'%d ',IGR 0,%s,/;" % (i, vn))
             exp.append("%d %d" % (i, var[vn]))
         elif k < 0.70:                             # write, then the word
             vn = r.choice("ABCDE")
             ptr.store(mem, var[vn])
-            lines.append("<X>_%s;" % vn)
+            lines.append("<X>:=%s;" % vn)
             lines.append("PRINT STG 0,'%d ',IGR 0,P[%d],/;" % (i, ptr.word()))
             exp.append("%d %d" % (i, w(mem.p[ptr.word()])))
         elif k < 0.85:                             # step and write, then the word
@@ -155,7 +155,7 @@ def program(r, n):
             ptr = nxt
             vn = r.choice("ABCDE")
             ptr.store(mem, var[vn])
-            lines.append("<+X>_%s;" % vn)
+            lines.append("<+X>:=%s;" % vn)
             lines.append("PRINT STG 0,'%d ',IGR 0,P[%d],/;" % (i, ptr.word()))
             exp.append("%d %d" % (i, w(mem.p[ptr.word()])))
         else:                                      # a block move, then the words it wrote

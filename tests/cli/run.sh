@@ -12,7 +12,7 @@ rm -rf $d; mkdir -p $d
 cd $d || exit 1
 cat > main.imp <<'E'
 N ARE COMMON;
-N_TWICE(21);
+N:=TWICE(21);
 PRINT STG 0,'ANSWER ',IGR 0,N,/;
 FINI(0)
 %%

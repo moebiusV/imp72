@@ -87,7 +87,7 @@ def program(r, n):
     exp = []
     for v in VARS:
         s = lit(r)
-        lines.append("%s_%s;" % (v, s))
+        lines.append("%s:=%s;" % (v, s))
         env[v] = value(s)
     for i in range(n):
         k = r.random()
@@ -96,7 +96,7 @@ def program(r, n):
             if math.isnan(x):
                 continue
             v = r.choice(VARS)
-            lines.append("%s_%s;" % (v, e))
+            lines.append("%s:=%s;" % (v, e))
             env[v] = x
             lines.append("PRINT STG 0,'%d ',IGR 0,[LOC(%s)],/;" % (i, v))
             exp.append("%d %d" % (i, bits(x)))
@@ -108,7 +108,7 @@ def program(r, n):
             m = 0
             for bit, ok in ((1, x < y), (2, x > y), (4, x == y), (8, x != y), (16, x <= y), (32, x >= y)):
                 m += bit if ok else 0
-            lines.append("T_0; (%s<%s=>T_T+1); (%s>%s=>T_T+2); (%s=%s=>T_T+4); (%s NE %s=>T_T+8); (%s LE %s=>T_T+16); (%s GE %s=>T_T+32);" % ((a, b) * 6))
+            lines.append("T:=0; (%s<%s=>T:=T+1); (%s>%s=>T:=T+2); (%s=%s=>T:=T+4); (%s NE %s=>T:=T+8); (%s LE %s=>T:=T+16); (%s GE %s=>T:=T+32);" % ((a, b) * 6))
             lines.append("PRINT STG 0,'%d ',IGR 0,T,/;" % i)
             exp.append("%d %d" % (i, m))
         elif k < 0.85:                                        # an integer to a real
@@ -116,8 +116,8 @@ def program(r, n):
             if r.random() < 0.5:
                 j = -j
             v = r.choice(VARS)
-            lines.append("J_%s;" % (j if j >= 0 else "(0-%d)" % -j))
-            lines.append("%s_FLT(J);" % v)
+            lines.append("J:=%s;" % (j if j >= 0 else "(0-%d)" % -j))
+            lines.append("%s:=FLT(J);" % v)
             env[v] = float(j)
             lines.append("PRINT STG 0,'%d ',IGR 0,[LOC(%s)],/;" % (i, v))
             exp.append("%d %d" % (i, bits(env[v])))

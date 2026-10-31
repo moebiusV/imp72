@@ -137,12 +137,12 @@ def program(r):
     env = {}
     for v in VARS:
         s = lit(r)
-        lines.append("%s_%s;" % (v, s))
+        lines.append("%s:=%s;" % (v, s))
         env[v] = value(s)
     for _ in range(24):
         v = r.choice(VARS)
         e = expr(r, 3)
-        lines.append("%s_%s;" % (v, render(e)))
+        lines.append("%s:=%s;" % (v, render(e)))
         env[v] = evaluate(e, env)
         x = env[v]
         lines.append("PRINT IGR 8,FIX(%s*16.0),IGR 8,FIX(%s*128.0),IGR 8,FIX(%s),/;" % (v, v, v))

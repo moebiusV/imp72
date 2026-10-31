@@ -1,8 +1,8 @@
 A IS 8 LONG;
-(A[I]_I*11) FOR I TO 7;
-J_5;
+(A[I]:=I*11) FOR I TO 7;
+J:=5;
 PRINT IGR 4,A[J-1],IGR 4,A[J-2],IGR 4,A[J+1],/;
-P_LOC(A[3]);
+P:=LOC(A[3]);
 PRINT IGR 4,[P-1],IGR 4,[P],IGR 4,[P+1],/;
 FINI(0)
 %%

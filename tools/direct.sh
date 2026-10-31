@@ -14,7 +14,7 @@ out=${DIRECT_OUT:-build/direct}
 mkdir -p "$out"
 imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.imp, built below by the driver)
 driver=${DIRECT_DRIVER:-stage0/imp72stage0}
-case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads decus/syntax.imc, whatever the environment says
+case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads tape/syntax.imc, whatever the environment says
 mkdir -p $out
 # the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
 endf=$(sh tools/endian.sh)

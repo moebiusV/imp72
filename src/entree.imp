@@ -29,175 +29,175 @@ CT,NCT,NODEN ARE COMMON;
 SBITM ARE COMMON,3 LONG;
 
 SUBR ENTREE(S,CS,SR,PN) IS (
- PLY_NTBL_0; NODE_1;
- EINIT=0=>(EINIT_1;
+ PLY:=NTBL:=0; NODE:=1;
+ EINIT=0=>(EINIT:=1;
           FRELOT(CT,'TREE',550,0);
-          SBITM[0]_0; SBITM[1]_340; SBITM[2]_4;
-          NCT_3; FINCSET(CT,40);
+          SBITM[0]:=0; SBITM[1]:=340; SBITM[2]:=4;
+          NCT:=3; FINCSET(CT,40);
           FREES(CT+1,0); FREES(CT+2,0);
-          FRELOT(PRODS,'NTRE2',10,0); NODEN_-1;
+          FRELOT(PRODS,'NTRE2',10,0); NODEN:=-1;
           FRELOT(TBL,'NTREE',10,0));
  #TBL HOLDS NAMES OF IDENTIFIERS FOR NODES ALREADY ENTERED.
  ENTRY POINT OF TREE IS TSCR(1);
  NODE IS NEXT PLACE TO HANG A NODE AS AN ALT (POSITIVE) OR SCR (NEG.)#
- ST_S;
- NPR_0;
- L24: (J_FREE(ST))=>(ST_ST+1; GO TO L24);
- L23: (ST_ST-1)<S=>
+ ST:=S;
+ NPR:=0;
+ L24: (J:=FREE(ST))=>(ST:=ST+1; GO TO L24);
+ L23: (ST:=ST-1)<S=>
         (ERROR(1,'QUOTED SEMANTICS NOT AN INSTANCE OF PRODUCTION.');
          GO TO ENTRX);
-      J_FREE(ST);
+      J:=FREE(ST);
       J NE CS=>GO TO L23;
- SS_S; EATIT_0;
+ SS:=S; EATIT:=0;
  # NEXT ELEMENT IN PARSER OUTPUT #
- NEXT: J_FREE(SS); SS_SS+1;
+ NEXT: J:=FREE(SS); SS:=SS+1;
  J<0=>(#IDENTIFIER. CHECK FOR CONSTANT. #
-       EATIT_1;
-       KON_CONVC(-J); KON=>(NOTY_NT3 OR NCLS OR -J;
+       EATIT:=1;
+       KON:=CONVC(-J); KON=>(NOTY:=NT3 OR NCLS OR -J;
                             FADD(TBL,NTBL,0);
                             GO TO L11);
        CODEID(-J);
-       J_CODEID(0); KK_J;
+       J:=CODEID(0); KK:=J;
        FADD(TBL,NTBL,J);
        J>0=>(#THIS ONE AT LEAST STARTS WITH A NAME - SEEN BEFORE? #
-             NTBL>1=>((K_FREE(TBL+I);
+             NTBL>1=>((K:=FREE(TBL+I);
                        K=J=>(# YES. #
-                             L22: J_CODEID(0);
+                             L22: J:=CODEID(0);
                              J NE 0=>(
-         J=-10=>(EATIT_0; GO TO L22);
+         J=-10=>(EATIT:=0; GO TO L22);
          PNAME(K); PRINT STG 0,' ';
          ERROR(1,'MODIFIER ON OTHER THAN FIRST OCCURRENCE OF NAME IS IGNORED');
          GO TO L22);
-                             NOTY_I OR NT2; GO TO L11)) FOR I TO NTBL-2);
-             J_CODEID(0));
+                             NOTY:=I OR NT2; GO TO L11)) FOR I TO NTBL-2);
+             J:=CODEID(0));
        # FIRST OCCURRENCE OF ID, SO CHECK FOR RESTRICTIONS. #
-       NOTY_NT1 OR (3 LS 59);
-       NTY1_(37B LS 53) OR (37B LS 16) OR 177B;
+       NOTY:=NT1 OR (3 LS 59);
+       NTY1:=(37B LS 53) OR (37B LS 16) OR 177B;
        L12: J=>(J>0=>(PNAME(J); PRINT STG 0,' ';
                       ERROR(1,'BAD MODIFIER **');
                       GO TO L11);
-                (K_-J)>2=>K_K-1;
-                K=9=>(K_EATIT_0);
-                K=8 => (NOTY_NOTY AND NOT (3 LS 59); GO TO L21);
-                K>5=>(NOTY_NOTY AND NOT (1 LS (66-K)); GO TO L21);
-                K=5=>(NOTY_NOTY OR (1 LS 58); GO TO L21);
-                NTY1_0;
-                NOTY_NOTY OR (1 LS (K+53));
-                J=-3=>NOTY_NOTY OR 200B;
-                K=2=>(N1<0=>N1_177B; N2<0=>N2_0;
-                      NOTY_NOTY OR N2 OR (N1 LS 8));
-                K=1=>(N1<0=>(N1_0; N2_37B);
-                      N2<0=>N2_N1;
-                      NOTY_NOTY OR (N1 LS 24) OR (N2 LS 16));
-                L21: J_CODEID(0); GO TO L12);
-       NOTY_NOTY OR NTY1;
-       L11: NODE_INSNO(NODE,NOTY,KON,CONST); #INSERT NODE IN TREE #
+                (K:=-J)>2=>K:=K-1;
+                K=9=>(K:=EATIT:=0);
+                K=8 => (NOTY:=NOTY AND NOT (3 LS 59); GO TO L21);
+                K>5=>(NOTY:=NOTY AND NOT (1 LS (66-K)); GO TO L21);
+                K=5=>(NOTY:=NOTY OR (1 LS 58); GO TO L21);
+                NTY1:=0;
+                NOTY:=NOTY OR (1 LS (K+53));
+                J=-3=>NOTY:=NOTY OR 200B;
+                K=2=>(N1<0=>N1:=177B; N2<0=>N2:=0;
+                      NOTY:=NOTY OR N2 OR (N1 LS 8));
+                K=1=>(N1<0=>(N1:=0; N2:=37B);
+                      N2<0=>N2:=N1;
+                      NOTY:=NOTY OR (N1 LS 24) OR (N2 LS 16));
+                L21: J:=CODEID(0); GO TO L12);
+       NOTY:=NOTY OR NTY1;
+       L11: NODE:=INSNO(NODE,NOTY,KON,CONST); #INSERT NODE IN TREE #
        FADD(PRODS,NPR,NODE);
        GO TO NEXT);
  SS LE ST=>(
    J=1=>GO TO NEXT;
    # CHECK FOR VAL/ PRODUCTION #
-   JJ_J;
+   JJ:=J;
    HL(J)=>(FADD(TBL,NTBL,J);
-            J_HR(J); JJ_NCLS OR J);
+            J:=HR(J); JJ:=NCLS OR J);
    EATIT=>(# EAT FIRST SEMANTICS NODE WITH 1 ARG DIRECTLY AFTER IDENTIFIER. #
-           EATIT_0;
-           K_SNARG(J); K=1=>GO TO NEXT);
-   EATIT_0;
+           EATIT:=0;
+           K:=SNARG(J); K=1=>GO TO NEXT);
+   EATIT:=0;
    J=CS=>CS NE PN=>ERROR(2,
        'CASE CONTAINS SUBEXPRESSION WHICH IS CASE BUT WONT GENERALIZE.');
    NOTEPROD(J,PLY);
-   SNO_SNODEN(J);
-   NODE_INSNO(NODE,JJ OR NT1,0,0);
+   SNO:=SNODEN(J);
+   NODE:=INSNO(NODE,JJ OR NT1,0,0);
    FADD(PRODS,NPR,NODE);
    ENTMARK(SNO);
    GO TO NEXT);
  # MADE PRODUCTION - END OFF TREE AND RETURN #
  NOTEPROD(PN,PLY);
- NODE_INSNO(NODE,NT1 OR NTRM,0,0);
+ NODE:=INSNO(NODE,NT1 OR NTRM,0,0);
  ENPROD(PN,NODE,SR);
  FADD(PRODS,NPR,NODE);
- J_SNODEN(PN);
+ J:=SNODEN(PN);
  ENTMARK(J);
  ENTRX: FADD(TBL,NTBL,-1); TBL);
 
 SUBR ENTMARK(EJ) IS (
- EK_0;
- (EL_FREE(PRODS+EI);
+ EK:=0;
+ (EL:=FREE(PRODS+EI);
   EK=>HL(FREE(CT+EL+1)) LE PLIM=>RETURN 0;
-  EK_-1;
+  EK:=-1;
   BITS(SBITM,TNODEN(EL),EJ)) FOR EI FROM NPR-1;
  0);
 
 SUBR INSNO(HOOK,STUFF,K1,K2) IS (
  # INSERTS NODE ON AS SCR TO HOOK, WD 2 = STUFF #
- PLY_PLY+1;
- SH_TSCR(HOOK);
- SH=0=>(IJ_NUNO(STUFF,K1,K2); STSCR(HOOK,IJ); GO TO INSX);
- IK_COMPNO(SH,STUFF);
+ PLY:=PLY+1;
+ SH:=TSCR(HOOK);
+ SH=0=>(IJ:=NUNO(STUFF,K1,K2); STSCR(HOOK,IJ); GO TO INSX);
+ IK:=COMPNO(SH,STUFF);
  IK=0=>GO TO INSXX;
- IK>0=>(IJ_NUNO(STUFF,K1,K2); STSCR(HOOK,IJ); STALT(IJ,SH); GO TO INSX);
- L15: LSH_SH; SH_TALT(SH);
- SH=0=>(IJ_NUNO(STUFF,K1,K2); STALT(LSH,IJ); GO TO INSX);
- IK_COMPNO(SH,STUFF);
+ IK>0=>(IJ:=NUNO(STUFF,K1,K2); STSCR(HOOK,IJ); STALT(IJ,SH); GO TO INSX);
+ L15: LSH:=SH; SH:=TALT(SH);
+ SH=0=>(IJ:=NUNO(STUFF,K1,K2); STALT(LSH,IJ); GO TO INSX);
+ IK:=COMPNO(SH,STUFF);
  IK=>(IK<0=>GO TO L15;
-     IJ_NUNO(STUFF,K1,K2);
+     IJ:=NUNO(STUFF,K1,K2);
      STALT(IJ,SH); STALT(LSH,IJ);
      GO TO INSX);
- INSXX: IJ_SH;
- INSX: SH_TSCR(HOOK);
+ INSXX: IJ:=SH;
+ INSX: SH:=TSCR(HOOK);
  # SET SPECIAL FIELD TO INDEX OF FIRST PROD'N NODE #
- WHILE SH DO (HL(FREE(CT+SH+1)) LE PLIM=>GO TO L31; SH_TALT(SH));
- L31: IK_TSCR(HOOK);
- WHILE IK NE SH DO (FREES(CT+IK-1,SH); IK_TALT(IK));
+ WHILE SH DO (HL(FREE(CT+SH+1)) LE PLIM=>GO TO L31; SH:=TALT(SH));
+ L31: IK:=TSCR(HOOK);
+ WHILE IK NE SH DO (FREES(CT+IK-1,SH); IK:=TALT(IK));
  IJ);
 
 SUBR NUNO(A,B,C) IS (
- NCT_NCT+1;
+ NCT:=NCT+1;
  FLEN(CT) LE (NCT+4) => FADDEX(CT,NCT+4);
- Q_NCT; FREES(CT+NCT,0);
- STNODEN(Q,(NODEN_NODEN+1));
- (AA_A)=(NT1 OR NTRM)=>AA_AA OR Q;
- FREES(CT+NCT+1,AA); NCT_NCT+2;
- B=>(FREES(CT+NCT,C); NCT_NCT+1);
+ Q:=NCT; FREES(CT+NCT,0);
+ STNODEN(Q,(NODEN:=NODEN+1));
+ (AA:=A)=(NT1 OR NTRM)=>AA:=AA OR Q;
+ FREES(CT+NCT+1,AA); NCT:=NCT+2;
+ B=>(FREES(CT+NCT,C); NCT:=NCT+1);
  Q);
 
 SUBR COMPNO(NO,VV) IS (
  # COMPARES NODE NO WITH VALUE VV.  RETURNS 1,0,-1 ACCORDING AS VV
    BELONGS ABOVE, IS EQUAL TO, BELONGS BELOW, NODE NO. #
- V_FREE(CT+NO+1);
- VL_0; V=VV=>GO TO COMPX;
- VL_1;
- (TV_V RS 61)=1=>TV_4;        #CHECK TYPE #
- (TVV_VV RS 61)=1=>TVV_4;
+ V:=FREE(CT+NO+1);
+ VL:=0; V=VV=>GO TO COMPX;
+ VL:=1;
+ (TV:=V RS 61)=1=>TV:=4;        #CHECK TYPE #
+ (TVV:=VV RS 61)=1=>TVV:=4;
  TVV<TV=>GO TO COMPX;
  TVV=TV=>(TV NE 4=>GO TO COMPX;
-          TV_HL(V); TVV_HL(VV);      # CHECK FOR PROD'N NODES #
+          TV:=HL(V); TVV:=HL(VV);      # CHECK FOR PROD'N NODES #
           TV LE PLIM=>(TV=TVV=>TV=PLIM=>RETURN 0;
                           TVV>PLIM=>GO TO COMPX;
                           TV>TVV=>GO TO COMPX;
                           GO TO COMPXX);
           TVV LE PLIM=>GO TO COMPXX;
-          TV_77B AND (40B+(V RS 53));        # CHECK WSCVRN #
-          TVV_77B AND (40B+(VV RS 53));
+          TV:=77B AND (40B+(V RS 53));        # CHECK WSCVRN #
+          TVV:=77B AND (40B+(VV RS 53));
           TVV<TV=>GO TO COMPX;
           TVV=TV=>(
-              TV_V RS 59;            # CHECK ARITH. TYPE #
-              TVV_VV RS 59;
+              TV:=V RS 59;            # CHECK ARITH. TYPE #
+              TVV:=VV RS 59;
               TVV<TV=>GO TO COMPX;
               TVV=TV=>(
-                   KV_177B AND (V RS 8); KVV_177B AND (VV RS 8);
-                   LV_177B AND V; LVV_177B AND VV;
+                   KV:=177B AND (V RS 8); KVV:=177B AND (VV RS 8);
+                   LV:=177B AND V; LVV:=177B AND VV;
 # CHECK CONS #     (KVV+LVV)>(KV+LV)=>GO TO COMPX;
                    (KVV+LVV)=(KV+LV)=>(LVV>LV=>GO TO COMPX;
-                                       LVV=LV=>(KV_37B AND (V RS 24);
-#CHECK REGS #                                   KVV_37B AND (VV RS 24);
+                                       LVV=LV=>(KV:=37B AND (V RS 24);
+#CHECK REGS #                                   KVV:=37B AND (VV RS 24);
                                                 KVV>KV=>GO TO COMPX;
-                                                KVV=KV=>(KV_37B AND (V RS 16);
-                                                         KVV_37B AND (VV RS 16);
+                                                KVV=KV=>(KV:=37B AND (V RS 16);
+                                                         KVV:=37B AND (VV RS 16);
                                                          KVV<KV=>GO TO COMPX)
                                                                      )))));
- COMPXX: VL_-1;
+ COMPXX: VL:=-1;
  COMPX: VL);
 
 # THE NAMES OF THE SPECIAL IDENTIFIERS, THREE CHARACTERS PACKED RIGHT JUSTIFIED, 7 BITS EACH:
@@ -210,95 +210,95 @@ SUBR CODEID(SW) IS (
    INITIALIZES ON IDENTIFIER ID.  FOR SPECIAL IDENTIFIER, RETURNS MINUS DEXE
    OF IDENTIFIER IN IDTB, AND N1 AND N2 ARE SET TO NUMERIC ARGS, OR -1 #
  IDTB IS 11 LONG;
- CINIT=0=>(CINIT_1;
-           IDTB[0]_'REG'; IDTB[1]_'CON'; IDTB[2]_'CNG'; IDTB[3]_'VAR';
-           IDTB[4]_'MEM'; IDTB[5]_'WRD'; IDTB[6]_'IGR'; IDTB[7]_'FLT';
-           IDTB[8]_'BYT'; IDTB[9]_'NAM'; IDTB[10]_'NSE');
- SW=>(CHR_0; SH_CHBEYOND; LCH_CHR_-1;
-      IDDIR_SW; IDDIRX_-1;  GO TO CODEIDX);
- NSW_ANS_NAN_NA_0; NSH_CHFIRST; NA IS 10 LONG;
- LCH=0=>(ANS_0; GO TO CODEIDX);
- N1_N2_-1;
- CHR LE 0=>(NXCH: LCH=0=>(CHR_0; GO TO L9);
-                   CHPAST(SH)=>(IDDIRX_IDDIRX+1;
-                          ID_DNAME(IDDIR,IDDIRX);
-                          SH_CHFIRST);
-                   LCH_CHR_377B AND (ID RS SH);
-                   SH_SH+CHSTEP);
+ CINIT=0=>(CINIT:=1;
+           IDTB[0]:='REG'; IDTB[1]:='CON'; IDTB[2]:='CNG'; IDTB[3]:='VAR';
+           IDTB[4]:='MEM'; IDTB[5]:='WRD'; IDTB[6]:='IGR'; IDTB[7]:='FLT';
+           IDTB[8]:='BYT'; IDTB[9]:='NAM'; IDTB[10]:='NSE');
+ SW=>(CHR:=0; SH:=CHBEYOND; LCH:=CHR:=-1;
+      IDDIR:=SW; IDDIRX:=-1;  GO TO CODEIDX);
+ NSW:=ANS:=NAN:=NA:=0; NSH:=CHFIRST; NA IS 10 LONG;
+ LCH=0=>(ANS:=0; GO TO CODEIDX);
+ N1:=N2:=-1;
+ CHR LE 0=>(NXCH: LCH=0=>(CHR:=0; GO TO L9);
+                   CHPAST(SH)=>(IDDIRX:=IDDIRX+1;
+                          ID:=DNAME(IDDIR,IDDIRX);
+                          SH:=CHFIRST);
+                   LCH:=CHR:=377B AND (ID RS SH);
+                   SH:=SH+CHSTEP);
   L9: NSW=>GO TO L3;
   (NA=IDTB[C]=>GO TO L2) FOR C FROM 10;
   ANS=0=>(# MAKE NAME #
-          CHR NE 0 =>CHR NE 60B =>(NA[NAN]_NA[NAN] OR (CHR LS NSH);
-                                     NSH_NSH+CHSTEP;
+          CHR NE 0 =>CHR NE 60B =>(NA[NAN]:=NA[NAN] OR (CHR LS NSH);
+                                     NSH:=NSH+CHSTEP;
                                      CHPAST(NSH)=>(
-                          NSH_CHFIRST;
-                          (NAN_NAN+1)>9=>ERROR(0,'NAME TOO LONG **');
-                          NA[NAN]_0);
+                          NSH:=CHFIRST;
+                          (NAN:=NAN+1)>9=>ERROR(0,'NAME TOO LONG **');
+                          NA[NAN]:=0);
                                      GO TO NXCH);
-          ANS_DIR(NA);
-          CHR_0; GO TO CODEIDX);
- L2: NSW_1; C=10=>C_5; ANS_-(C+1); C>2=>GO TO CODEIDX;
+          ANS:=DIR(NA);
+          CHR:=0; GO TO CODEIDX);
+ L2: NSW:=1; C=10=>C:=5; ANS:=-(C+1); C>2=>GO TO CODEIDX;
  L3: NSW=5=>GO TO CODEIDX;
  CHR GE 60B=>CHR LE 71B=>GO TO (L4,L5,L6,L7) NSW-1;
  (1 AND NSW)=>GO TO CODEIDX;
  L8: ERROR(1,'NUMBER MISSING OR OUT OF PLACE IN SEMANTICS IDENTIFIER **');
-     ANS_0; GO TO CODEIDX;
- L4: N1_10*(CHR-60B); GO TO L10;
- L5: N1_N1+CHR-60B; GO TO L10;
- L6: N2_10*(CHR-60B); L10: NSW_NSW+1; GO TO NXCH;
- L7: N2_N2+CHR-60B; GO TO L10;
+     ANS:=0; GO TO CODEIDX;
+ L4: N1:=10*(CHR-60B); GO TO L10;
+ L5: N1:=N1+CHR-60B; GO TO L10;
+ L6: N2:=10*(CHR-60B); L10: NSW:=NSW+1; GO TO NXCH;
+ L7: N2:=N2+CHR-60B; GO TO L10;
  CODEIDX: ANS);
 
 SUBR MATCH(TN,SN,SNONR) IS (
  # TN IS A REFERENCE: IT IS LEFT AT THE NODE THAT MATCHED, WHICH COTREE READS. #
- VAL_-1;
- S_FREE(SN);
- STY_S AND 37B;
- SDI_HL(S);
- SVAL_FREE(SN+1);
+ VAL:=-1;
+ S:=FREE(SN);
+ STY:=S AND 37B;
+ SDI:=HL(S);
+ SVAL:=FREE(SN+1);
  STY=0=>(
    TY0AL0: (FREE(CT+1+TN) RS 53) NE 400B=>(
-                  (TN_FREE(CT+TN-1))=>GO TO TY0AL0;
+                  (TN:=FREE(CT+TN-1))=>GO TO TY0AL0;
                   RETURN 0);
-   T_FREE(TN+CT+1);
+   T:=FREE(TN+CT+1);
    (T AND NTRM)=>(
-        (VAL_MATCHP(SDI,TN))=0=>GO TO TY0ALT;
+        (VAL:=MATCHP(SDI,TN))=0=>GO TO TY0ALT;
         RETURN VAL);
    HR(T)=SDI=>RETURN -1;
    SVAL=0=>GO TO TY0ALT;
    HR(T)=HL(SVAL)=>RETURN -2;
-   TY0ALT: (TN_TALT(TN))=>GO TO TY0AL0; RETURN 0);
- SNN_SNONR;
+   TY0ALT: (TN:=TALT(TN))=>GO TO TY0AL0; RETURN 0);
+ SNN:=SNONR;
  TYALT: SNN GE 0=>(BIT(SBITM,TNODEN(TN),SNN)=0=>GO TO NIX);
- T_FREE(TN+CT+1);
- (TTY_T RS 61)=1=>(
+ T:=FREE(TN+CT+1);
+ (TTY:=T RS 61)=1=>(
         # PRODUCTIONS ARE LAST # ((T RS 53) AND 77B)=0=>RETURN 0;
-        J_S AND (T RS 53);
+        J:=S AND (T RS 53);
         (37B AND J)=0=>GO TO NIX;
         (J RS 6)=0=>(((T RS 59) AND 3) NE 3=>GO TO NIX);
         (STY AND 6)=0=>GO TO MEX;
         STY=2=>GO TO MEX;           # THE ORIGINAL ASKS RMATCH; STAGE0/ENTREE.C DOES NOT #
         # CHECK IF CONSTANT MATCHES REQUIREMENTS #
         (T AND 177777B)=177B=>GO TO MEX;
-        MASK_((1 LS ((T RS 8) AND 177B))-1) LS (T AND 177B);
+        MASK:=((1 LS ((T RS 8) AND 177B))-1) LS (T AND 177B);
         MASK=0=>GO TO MEX;
-        MASK_NOT MASK;
-        REST_0; (T AND 200B)=>REST_MASK;
+        MASK:=NOT MASK;
+        REST:=0; (T AND 200B)=>REST:=MASK;
         (SVAL AND MASK)=REST=>GO TO MEX;
         GO TO NIX);
- TVAL_HR(T);
- TTY=0=>(VAL_TVAL; GO TO MEX);
- TTY=2=>((VAL_SAMEAS(SN,TVAL))=0=>GO TO NIX; GO TO MEX);
+ TVAL:=HR(T);
+ TTY=0=>(VAL:=TVAL; GO TO MEX);
+ TTY=2=>((VAL:=SAMEAS(SN,TVAL))=0=>GO TO NIX; GO TO MEX);
  # MATCH WITH IDENTIFIER - IF DI ENTRIES EQUAL AND NO OFFSET THEN MATCH. #
  FREE(SN+2)=>GO TO NIX;
  SDI=TVAL=>SVAL=0=>GO TO MEX;
- (T AND NCLS)=>STY=4=>(MJ_FREE(CT+TN+2);
+ (T AND NCLS)=>STY=4=>(MJ:=FREE(CT+TN+2);
                            MJ=SVAL=>GO TO MEX);
  GO TO NIX;
  MEX: (T AND (1 LS 58))=>ONEWORD(SN)=0=>GO TO NIX;
- VAL=0=>VAL_-1;
+ VAL=0=>VAL:=-1;
  RETURN VAL;
- NIX: (TN_TALT(TN))=>GO TO TYALT;
+ NIX: (TN:=TALT(TN))=>GO TO TYALT;
  0);
 
 SUBR ENTRCA(SEMN) IS (
@@ -307,28 +307,28 @@ SUBR ENTRCA(SEMN) IS (
    USES THE UNUSED HIGH-ORDER BIT OF TYPE WORD TO MARK NODES. #
  # FIRST MARK TERMINAL TREE NODES MATCHING SEMN #
 
- ENTRNO_1;
- WHILE (EI_ENTRC1()) DO (HL(FREE(CT+EI+1))=PLIM=>MATCHP(SEMN,EI)=>
+ ENTRNO:=1;
+ WHILE (EI:=ENTRC1()) DO (HL(FREE(CT+EI+1))=PLIM=>MATCHP(SEMN,EI)=>
                 FREES(CT+EI+1,FREE(CT+EI+1) OR NMARK));
  # NOW MAKE MULTIPLE PASSES MARKING PREDECESSORS OF MARKED NODES
    UP TO A PRODUCTION NODE #
- (FLAG _0;
-  WHILE (EI_ENTRC1()) DO (HLS(FREE(CT+EI+1)) GT PLIM=>
-        (EJ_TSCR(EI);
+ (FLAG :=0;
+  WHILE (EI:=ENTRC1()) DO (HLS(FREE(CT+EI+1)) GT PLIM=>
+        (EJ:=TSCR(EI);
          WHILE EJ DO (FREE(CT+EJ+1)<0=>(FREES(CT+EI+1,FREE(CT+EI+1) OR NMARK);
-                                   FLAG_-1; EJ_0)
-                     ELSE (EJ_TALT(EJ)))))) UNTIL FLAG=0;
+                                   FLAG:=-1; EJ:=0)
+                     ELSE (EJ:=TALT(EJ)))))) UNTIL FLAG=0;
  # NOW CLEAR MARKER BIT, SETTING BIT MATRIX AT SAME TIME #
- ES_SNODEN(SEMN);
- WHILE (EI_ENTRC1()) DO (FREE(CT+EI+1)<0=>(
+ ES:=SNODEN(SEMN);
+ WHILE (EI:=ENTRC1()) DO (FREE(CT+EI+1)<0=>(
         FREES(CT+EI+1,FREE(CT+EI+1) AND NOT NMARK);
         BITS(SBITM,TNODEN(EI),ES)));
  0);
 
 SUBR ENTRC1() IS (
- (EJ1_TSCR(ENTRNO))=>(PUSHMI(ENTRNO); RETURN (ENTRNO_EJ1));
- EN1: (ENTRNO_TALT(ENTRNO))=>RETURN ENTRNO;
- (ENTRNO_PULLYU(0)) NE 1=>GO TO EN1;
+ (EJ1:=TSCR(ENTRNO))=>(PUSHMI(ENTRNO); RETURN (ENTRNO:=EJ1));
+ EN1: (ENTRNO:=TALT(ENTRNO))=>RETURN ENTRNO;
+ (ENTRNO:=PULLYU(0)) NE 1=>GO TO EN1;
  0);
 
 # TPRINT: THE DUMP OF THE CODE TREE (SEE GPRINT) #

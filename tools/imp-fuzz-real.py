@@ -44,10 +44,10 @@ def expr(r, d):
 def program(r):
     lines = ["P IS REAL; Q IS REAL; R IS REAL; S IS REAL;"]
     for v in VARS:
-        lines.append("%s_%s;" % (v, lit(r)))
+        lines.append("%s:=%s;" % (v, lit(r)))
     for i in range(24):
         v = r.choice(VARS)
-        lines.append("%s_%s;" % (v, expr(r, 3)))
+        lines.append("%s:=%s;" % (v, expr(r, 3)))
         lines.append("PRINT IGR 8,FIX(%s*16.0),IGR 8,FIX(%s*128.0),IGR 8,FIX(%s),/;" % (v, v, v))
         lines.append("PRINT FLT %s,%s,FLT %s,%s,/;" % (r.choice(FMTS), v, r.choice(FMTS), v))
     lines.append("FINI(0)")

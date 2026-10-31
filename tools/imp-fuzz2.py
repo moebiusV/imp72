@@ -53,9 +53,9 @@ class G:
         k = r.random()
         t = r.choice([v for v in vs if v[0] not in 'IWP'])   # never to a loop variable or a parameter (a constant argument is a shared word of the pool, and a 0 is address 0 in the original)
         if k < 0.35:
-            return "%s_((%s) AND 4095)" % (t, self.expr(vs, 2))
+            return "%s:=((%s) AND 4095)" % (t, self.expr(vs, 2))
         if k < 0.50:
-            return "V[%s AND 15]_((%s) AND 4095)" % (self.expr(vs, 1), self.expr(vs, 2))
+            return "V[%s AND 15]:=((%s) AND 4095)" % (self.expr(vs, 1), self.expr(vs, 2))
         if k < 0.65 and d > 0:
             self.nvar += 1
             lv = "I%d" % self.nvar
@@ -67,18 +67,18 @@ class G:
         if k < 0.90 and d > 0:
             self.nvar += 1
             c = "W%d" % self.nvar
-            return "(%s_0; WHILE %s<%d DO (%s; %s_%s+1))" % (c, c, r.randint(1, 5),
+            return "(%s:=0; WHILE %s<%d DO (%s; %s:=%s+1))" % (c, c, r.randint(1, 5),
                                                              self.stmt(vs, loopvars + [c], d - 1), c, c)
-        return "%s_((%s+%s) AND 4095)" % (t, t, self.expr(vs, 1))
+        return "%s:=((%s+%s) AND 4095)" % (t, t, self.expr(vs, 1))
 
     def subr(self, i):
         r = self.r
         np_ = r.randint(1, 3)
         ps = ["P%d" % j for j in range(np_)]
-        locs = ["L%d_%d" % (i, j) for j in range(2)]
+        locs = ["L%dX%d" % (i, j) for j in range(2)]
         vs = ps + [l.replace("_", "") for l in locs]
         lv = [l.replace("_", "") for l in locs]
-        body = ["%s_((%s) AND 4095)" % (l, self.expr(ps, 1)) for l in lv]
+        body = ["%s:=((%s) AND 4095)" % (l, self.expr(ps, 1)) for l in lv]
         for _ in range(r.randint(1, 3)):
             body.append(self.stmt(vs, [], 2))
         body.append("((%s) AND 4095)" % self.expr(vs, 2))
@@ -92,8 +92,8 @@ class G:
         vars_ = ["A", "B", "C", "D"]
         out = ["V IS 16 LONG;"]
         for v in vars_:
-            out.append("%s_%d;" % (v, r.randint(0, 20)))
-        out.append("(V[I]_I*%d+%d) FOR I TO 15;" % (r.randint(1, 5), r.randint(0, 9)))
+            out.append("%s:=%d;" % (v, r.randint(0, 20)))
+        out.append("(V[I]:=I*%d+%d) FOR I TO 15;" % (r.randint(1, 5), r.randint(0, 9)))
         subs = []
         # the subroutines are defined after the main statements, but may only call earlier ones
         for i in range(4):

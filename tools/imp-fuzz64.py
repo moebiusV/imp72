@@ -139,16 +139,16 @@ def program(r, n):
     env = Env(r)
     lines = ["A,B,C,D,E,J,K ARE COMMON;", "X IS 16 LONG;"]
     for name in VARS:
-        lines.append("%s_%s;" % (name, lit(env.v[name])))
-    lines.append("J_8; K_3;")
+        lines.append("%s:=%s;" % (name, lit(env.v[name])))
+    lines.append("J:=8; K:=3;")
     for i, v in enumerate(env.x):
-        lines.append("X[%d]_%s;" % (i, lit(v)))
+        lines.append("X[%d]:=%s;" % (i, lit(v)))
     exp = []
     for i in range(n):
         if r.random() < 0.12:                      # a store through a computed index, then the load
             d = r.randint(1, 7)
             e, ev = expr(r, env, 2)
-            lines.append("X[(J-%d)]_%s;" % (d, e))
+            lines.append("X[(J-%d)]:=%s;" % (d, e))
             env.x[env.j - d] = ev
             lines.append("PRINT STG 0,'%d ',IGR 0,X[(J-%d)],/;" % (i, d))
             exp.append("%d %d" % (i, ev))
@@ -159,7 +159,7 @@ def program(r, n):
             e, ev = expr(r, env, 2)
             mask = ((1 << sz) - 1) << pos
             env.v[n] = w((u(env.v[n]) & ~mask) | ((u(ev) << pos) & mask))
-            lines.append("%s<%d,%d>_%s;" % (n, sz, pos, e))
+            lines.append("%s<%d,%d>:=%s;" % (n, sz, pos, e))
             lines.append("PRINT STG 0,'%d ',IGR 0,%s,/;" % (i, n))
             exp.append("%d %d" % (i, env.v[n]))
             continue

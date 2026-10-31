@@ -4,11 +4,11 @@
  FB IS COMMON;
 
  <VBL>  ::= FREE(<A>)         ::= "[FB+8*(A)]";
- <ATOM> ::= FREES(<A>,<B>)    ::= "[FB+8*(A)]_B";
+ <ATOM> ::= FREES(<A>,<B>)    ::= "[FB+8*(A)]:=B";
  <ATOM> ::= FLEN(<A>)         ::= "[FB+8*(A-2)]<R>";
  <ATOM> ::= FADD(<A>,<B>,<C>) ::= "FLEN(A) LE B=>FADDEX(A,B);
                                    FREES(A+B,C);
-                                   B_B+1; A";
+                                   B:=B+1; A";
 
  # THE HALVES OF A WORD ARE 32 BITS. #
  <ATOM> ::= HSH   ::= "32";                 # THE WIDTH OF A HALF #

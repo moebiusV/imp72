@@ -36,16 +36,17 @@ static int skip;                    /* SKIP: the lookahead is still to be used *
 static int csv;                     /* CSV: the lookahead character */
 static int isanm;                   /* ISANM: it is a letter or a digit */
 static int c;                       /* C */
+static int lastc;                   /* the character before C (a := is one token, a ::= is not) */
 
 static char *tok;                   /* TOKE */
 static size_t toklen, tokcap;
 
-/* ISTAB: letters and digits (ASCII only). */
+/* ISTAB: letters and digits (ASCII only), and the underscore: a name is a valid C name, and assignment is := */
 static int
 alnum(int ch)
 {
     return (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z')
-        || (ch >= 'a' && ch <= 'z');
+        || (ch >= 'a' && ch <= 'z') || ch == '_';
 }
 
 static void
@@ -153,6 +154,7 @@ nextchar(void)
 {
     word opct;
 
+    lastc = c;
     c = pc < linelen ? (unsigned char)line[pc] : 0;
     pc++;
     ic++;
@@ -232,6 +234,13 @@ t5:     nextchar();
         goto lx;
     }
     tokput(c);
+    if (c == ':' && lastc != ':') {         /* := is one token */
+        nextchar();
+        if (c == '=')
+            tokput(c);
+        else
+            skip = -1;
+    }
 lx: tokput(0);
     csv = c;
     *s = dir(tok);

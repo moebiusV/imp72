@@ -15,11 +15,11 @@ MB IS 24 LONG;
 # THE LIST OF THE VARIABLES OF THE MODULES THAT CAN BE WRITTEN, FROM THE LIBRARY; 0 IF THERE IS NONE #
 SUBR IMGLIST(Z) IS (
  N ARE LOCAL;
- N_CCALL IMPVARLIST(0,0);
+ N:=CCALL IMPVARLIST(0,0);
  N<0 => RETURN 0;
- VT_CCALL CALLOC(N+1,24);
+ VT:=CCALL CALLOC(N+1,24);
  CCALL IMPVARLIST(VT,N);
- VN_N;
+ VN:=N;
  1);
 
 SUBR IMGADDR(I) IS [VT+(24*I)];
@@ -47,29 +47,29 @@ SUBR IMGSKIP(NP) IS (
 
 SUBR IMGFIND(NP) IS (
  I ARE LOCAL;
- I_0;
- IF1: I<VN => (CCALL STRCMP(IMGNAME(I),NP)=0 => RETURN I; I_I+1; GO TO IF1);
+ I:=0;
+ IF1: I<VN => (CCALL STRCMP(IMGNAME(I),NP)=0 => RETURN I; I:=I+1; GO TO IF1);
  0-1);
 
 # WHAT SAYS THE LISTS OF VARIABLES ARE THE SAME: A HASH OF THEIR NAMES AND SIZES #
 SUBR IMGBUILD(Z) IS (
  H,I,Q,C,PP ARE LOCAL;
- H_1469598103934665603;
- I_0;
- IB1: I<VN => (PP_IMGNAME(I); Q_BYTEP [PP]<7,36>;
-               IB2: C_<+Q>; C NE 0 => (H_(H XOR C)*1099511628211; GO TO IB2);
-               H_(H XOR IMGSIZE(I))*1099511628211;
-               I_I+1; GO TO IB1);
+ H:=1469598103934665603;
+ I:=0;
+ IB1: I<VN => (PP:=IMGNAME(I); Q:=BYTEP [PP]<7,36>;
+               IB2: C:=<+Q>; C NE 0 => (H:=(H XOR C)*1099511628211; GO TO IB2);
+               H:=(H XOR IMGSIZE(I))*1099511628211;
+               I:=I+1; GO TO IB1);
  H);
 
 # THE VARIABLE THAT HAS THE ADDRESS A INSIDE IT: ITS INDEX, AND THE OFFSET IN IWV; 0-1 IF NONE #
 SUBR IMGOWNER(A) IS (
  I ARE LOCAL;
- I_0;
- IO1: I<VN => (A GE IMGADDR(I) => A<(IMGADDR(I)+IMGSIZE(I)) => (WV_A-IMGADDR(I); RETURN I); I_I+1; GO TO IO1);
+ I:=0;
+ IO1: I<VN => (A GE IMGADDR(I) => A<(IMGADDR(I)+IMGSIZE(I)) => (WV:=A-IMGADDR(I); RETURN I); I:=I+1; GO TO IO1);
  0-1);
 
-SUBR IMGPUT(F,V) IS (WV_V; CCALL FWRITE(LOC(WV),8,1,F));
+SUBR IMGPUT(F,V) IS (WV:=V; CCALL FWRITE(LOC(WV),8,1,F));
 
 # THE NEXT WORD OF THE FILE F IN WV: 1 IF THERE WAS ONE #
 SUBR IMGGET(F) IS (CCALL FREAD(LOC(WV),8,1,F)=1);
@@ -80,39 +80,39 @@ SUBR IMGVERSION(Z) IS 5;
 SUBR IMPIMGSAVE(P) IS (
  BASE,USABLE,USED,F,I,NK,K,L,A,O,S,NR ARE LOCAL;
  IMGLIST(0)=0 => GO TO NOTAB;
- BASE_CCALL IMPCOREBASE(0);
+ BASE:=CCALL IMPCOREBASE(0);
  BASE NE 0 => GO TO HAVE;
  NOTAB: OUTSTR('imp72: this compiler has no table of its variables to save (the modules were not compiled for it)'); OUTCHR(12B);
  RETURN 0;
- HAVE: USABLE_CCALL IMPCOREUSED(0);
- USED_FSIZE*8;
- USED>USABLE => USED_USABLE;
- NK_0;
- (IMGSKIP(IMGNAME(I))=0 => NK_NK+1) FOR I FROM VN-1;
- F_CCALL FOPEN(P,LOC('wb'));
+ HAVE: USABLE:=CCALL IMPCOREUSED(0);
+ USED:=FSIZE*8;
+ USED>USABLE => USED:=USABLE;
+ NK:=0;
+ (IMGSKIP(IMGNAME(I))=0 => NK:=NK+1) FOR I FROM VN-1;
+ F:=CCALL FOPEN(P,LOC('wb'));
  F=0 => (CCALL PERROR(P); RETURN 0);
  CCALL FWRITE(LOC('IMP72IMG'),8,1,F);
  IMGPUT(F,IMGVERSION(0)); IMGPUT(F,CCALL IMPPTRSIZE(0)); IMGPUT(F,IMGBUILD(0)); IMGPUT(F,BASE); IMGPUT(F,USED); IMGPUT(F,NK); IMGPUT(F,NRELOC);
- I_0;
- SV1: I<VN => (IMGSKIP(IMGNAME(I))=0 => (L_CCALL STRLEN(IMGNAME(I))+1;
+ I:=0;
+ SV1: I<VN => (IMGSKIP(IMGNAME(I))=0 => (L:=CCALL STRLEN(IMGNAME(I))+1;
                                           IMGPUT(F,L); CCALL FWRITE(IMGNAME(I),1,L,F);
                                           IMGPUT(F,IMGSIZE(I)); CCALL FWRITE(IMGADDR(I),1,IMGSIZE(I),F));
-               I_I+1; GO TO SV1);
+               I:=I+1; GO TO SV1);
  CCALL FWRITE(BASE,1,USED,F);
- NK_SEMCOUNT(0);                                 # THE ROUTINES IN THE ORDER OF THEIR IDS, WHICH THE TABLES CARRY #
+ NK:=SEMCOUNT(0);                                 # THE ROUTINES IN THE ORDER OF THEIR IDS, WHICH THE TABLES CARRY #
  IMGPUT(F,NK);
- K_0;
- SV2: K<NK => (L_CCALL STRLEN(SEMNAME(K))+1; IMGPUT(F,L); CCALL FWRITE(SEMNAME(K),1,L,F); K_K+1; GO TO SV2);
- I_0;                                            # THE REGISTRY OF THE ARRAYS THAT MOVE: THE VARIABLE THAT POINTS AT EACH, AS A NAME AND AN OFFSET #
- SV3: I<NRELOC => (A_[RELP+(16*I)]; S_[RELP+((16*I)+8)];
-                   O_0-1;
-                   A NE 0 => O_IMGOWNER(A);
+ K:=0;
+ SV2: K<NK => (L:=CCALL STRLEN(SEMNAME(K))+1; IMGPUT(F,L); CCALL FWRITE(SEMNAME(K),1,L,F); K:=K+1; GO TO SV2);
+ I:=0;                                            # THE REGISTRY OF THE ARRAYS THAT MOVE: THE VARIABLE THAT POINTS AT EACH, AS A NAME AND AN OFFSET #
+ SV3: I<NRELOC => (A:=[RELP+(16*I)]; S:=[RELP+((16*I)+8)];
+                   O:=0-1;
+                   A NE 0 => O:=IMGOWNER(A);
                    A NE 0 => O<0 => (CCALL SNPRINTF(LOC(MB),160,LOC('imp72: a pointer variable of the free storage (slot %ld) is not one the image knows'),I);
                                       OUTCS(LOC(MB)); OUTCHR(12B));
                    O<0 => IMGPUT(F,0)
-                     ELSE (L_CCALL STRLEN(IMGNAME(O))+1; NR_WV; IMGPUT(F,L); CCALL FWRITE(IMGNAME(O),1,L,F); IMGPUT(F,NR));
+                     ELSE (L:=CCALL STRLEN(IMGNAME(O))+1; NR:=WV; IMGPUT(F,L); CCALL FWRITE(IMGNAME(O),1,L,F); IMGPUT(F,NR));
                    IMGPUT(F,S);
-                   I_I+1; GO TO SV3);
+                   I:=I+1; GO TO SV3);
  CCALL IMPFCLOSE(F)=0 => RETURN 1;
  CCALL PERROR(P);
  0);
@@ -121,58 +121,58 @@ SUBR IMPIMGSAVE(P) IS (
 SUBR IMPIMGLOAD(P) IS (
  F,I,K,L,N,SZ,V,NMN,RN,A,OFF,S,VERS,PS,BLD,BASE,USED,NV,NR,NQ,NAMES,T ARE LOCAL;
  IMGLIST(0)=0 => (OUTSTR('imp72: this compiler cannot load an image'); OUTCHR(12B); RETURN 0);
- F_CCALL FOPEN(P,LOC('rb'));
+ F:=CCALL FOPEN(P,LOC('rb'));
  F=0 => (CCALL PERROR(P); RETURN 0);
  CCALL FREAD(LOC(NMB),8,1,F)=1 => CCALL MEMCMP(LOC(NMB),LOC('IMP72IMG'),8)=0 => GO TO LD1;
  GO TO NOTIMG;
- LD1: IMGGET(F)=0 => GO TO BAD; VERS_WV;
- IMGGET(F)=0 => GO TO BAD; PS_WV;
- IMGGET(F)=0 => GO TO BAD; BLD_WV;
- IMGGET(F)=0 => GO TO BAD; BASE_WV;
- IMGGET(F)=0 => GO TO BAD; USED_WV;
- IMGGET(F)=0 => GO TO BAD; NV_WV;
- IMGGET(F)=0 => GO TO BAD; NR_WV;
+ LD1: IMGGET(F)=0 => GO TO BAD; VERS:=WV;
+ IMGGET(F)=0 => GO TO BAD; PS:=WV;
+ IMGGET(F)=0 => GO TO BAD; BLD:=WV;
+ IMGGET(F)=0 => GO TO BAD; BASE:=WV;
+ IMGGET(F)=0 => GO TO BAD; USED:=WV;
+ IMGGET(F)=0 => GO TO BAD; NV:=WV;
+ IMGGET(F)=0 => GO TO BAD; NR:=WV;
  VERS NE IMGVERSION(0) => GO TO NOTIMG;
  PS NE CCALL IMPPTRSIZE(0) => GO TO NOTIMG;
  BLD NE IMGBUILD(0) => (OUTSTR('imp72: '); OUTCS(P); OUTSTR(' was saved by another build of the compiler'); OUTCHR(12B);
                         CCALL IMPFCLOSE(F); RETURN 0);
  CCALL IMPCOREAT(BASE,USED)=0 => (OUTSTR('imp72: cannot put the free storage of '); OUTCS(P); OUTSTR(' where it was saved'); OUTCHR(12B);
                                    CCALL IMPFCLOSE(F); RETURN 0);
- I_0;
- LD2: I<NV => (IMGGET(F)=0 => GO TO BAD; L_WV;                      # THE VARIABLES #
+ I:=0;
+ LD2: I<NV => (IMGGET(F)=0 => GO TO BAD; L:=WV;                      # THE VARIABLES #
                L>300 => GO TO BAD;
                CCALL FREAD(LOC(NMB),1,L,F) NE L => GO TO BAD;
-               IMGGET(F)=0 => GO TO BAD; SZ_WV;
-               SZ+1 > IBN => (IBN_SZ+64; IBUF_CCALL REALLOC(IBUF,IBN));
+               IMGGET(F)=0 => GO TO BAD; SZ:=WV;
+               SZ+1 > IBN => (IBN:=SZ+64; IBUF:=CCALL REALLOC(IBUF,IBN));
                CCALL FREAD(IBUF,1,SZ,F) NE SZ => GO TO BAD;
-               V_IMGFIND(LOC(NMB));
+               V:=IMGFIND(LOC(NMB));
                V GE 0 => IMGSIZE(V)=SZ => CCALL MEMCPY(IMGADDR(V),IBUF,SZ);
-               I_I+1; GO TO LD2);
+               I:=I+1; GO TO LD2);
  CCALL FREAD(BASE,1,USED,F) NE USED => GO TO BAD;                      # THE ARENA #
  SYMC NE 0 => CCALL MEMSET(SYMC,0,8*NSYMC);                           # THE DIRECTORY IS ANOTHER: THE NAMES ARE MADE AGAIN #
- IMGGET(F)=0 => GO TO BAD; N_WV;                                      # THE SEMANTIC ROUTINES #
+ IMGGET(F)=0 => GO TO BAD; N:=WV;                                      # THE SEMANTIC ROUTINES #
  N>100000 => GO TO BAD;
- NAMES_CCALL CALLOC(N+1,8);
- K_0;
- LD3: K<N => (IMGGET(F)=0 => GO TO BAD; L_WV; L>300 => GO TO BAD;
-              T_CCALL MALLOC(L);
-              [NAMES+(8*K)]_T;
+ NAMES:=CCALL CALLOC(N+1,8);
+ K:=0;
+ LD3: K<N => (IMGGET(F)=0 => GO TO BAD; L:=WV; L>300 => GO TO BAD;
+              T:=CCALL MALLOC(L);
+              [NAMES+(8*K)]:=T;
               CCALL FREAD(T,1,L,F) NE L => GO TO BAD;
-              K_K+1; GO TO LD3);
+              K:=K+1; GO TO LD3);
  SEMREMAP(NAMES,N)=0 => (CCALL IMPFCLOSE(F); RETURN 0);
- RELP_CCALL CALLOC(NR+1,16);                                          # THE REGISTRY #
- I_0;
- LD4: I<NR => (IMGGET(F)=0 => GO TO BAD; L_WV;
-               A_0;
+ RELP:=CCALL CALLOC(NR+1,16);                                          # THE REGISTRY #
+ I:=0;
+ LD4: I<NR => (IMGGET(F)=0 => GO TO BAD; L:=WV;
+               A:=0;
                L>0 => (L>300 => GO TO BAD;
                        CCALL FREAD(LOC(NMB),1,L,F) NE L => GO TO BAD;
-                       IMGGET(F)=0 => GO TO BAD; OFF_WV;
-                       V_IMGFIND(LOC(NMB));
-                       V GE 0 => A_IMGADDR(V)+OFF);
-               IMGGET(F)=0 => GO TO BAD; S_WV;
-               [RELP+(16*I)]_A; [RELP+((16*I)+8)]_S;
-               I_I+1; GO TO LD4);
- NRELOC_NR;
+                       IMGGET(F)=0 => GO TO BAD; OFF:=WV;
+                       V:=IMGFIND(LOC(NMB));
+                       V GE 0 => A:=IMGADDR(V)+OFF);
+               IMGGET(F)=0 => GO TO BAD; S:=WV;
+               [RELP+(16*I)]:=A; [RELP+((16*I)+8)]:=S;
+               I:=I+1; GO TO LD4);
+ NRELOC:=NR;
  CCALL IMPFCLOSE(F);
  RETURN 1;
  NOTIMG: OUTSTR('imp72: '); OUTCS(P); OUTSTR(' is not an image of this kind of compiler'); OUTCHR(12B);

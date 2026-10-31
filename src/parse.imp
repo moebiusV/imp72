@@ -34,36 +34,36 @@ TWOSEG;
 PSTS,PSPN,PSPNT,PSPS,PSPST,PSOS,AMTIME,PSTT,SRTT ARE COMMON;
 
 SUBR PARSE(GOAL) IS (
-FINAM IS COMMON; TR_FINAM[5] AND 100B;
- PSTS_PSPN_PSPNT_PSPS_PSPST_PSOS_AMTIME_0;
- PSTT_-CALLI(27B,0); SRTT_0;
- PINIT=0=>(PINIT_1;
-          P_FNEW('P/P',400);
-          PP_FNEW('P/PP',150);
+FINAM IS COMMON; TR:=FINAM[5] AND 100B;
+ PSTS:=PSPN:=PSPNT:=PSPS:=PSPST:=PSOS:=AMTIME:=0;
+ PSTT:=-CALLI(27B,0); SRTT:=0;
+ PINIT=0=>(PINIT:=1;
+          P:=FNEW('P/P',400);
+          PP:=FNEW('P/PP',150);
           FRELOT(O,'P/OUT',100,0));
- NO_1; PN_OPN_1; GOTIT_0;
- GOL_DIR(GOAL); GOLE_DPROP('NODE',GOL); J_GGOAL(GOL);
- FREES(P,2); FREES(P+1,J); FREES(P+2,GOLE OR J LS HSH); NP_3;
- S IS 3 LONG; S[1]_DIR('SYM#'); S[2]_DIR('NAM#');
+ NO:=1; PN:=OPN:=1; GOTIT:=0;
+ GOL:=DIR(GOAL); GOLE:=DPROP('NODE',GOL); J:=GGOAL(GOL);
+ FREES(P,2); FREES(P+1,J); FREES(P+2,GOLE OR J LS HSH); NP:=3;
+ S IS 3 LONG; S[1]:=DIR('SYM#'); S[2]:=DIR('NAM#');
 
- NEXTS: SYMBOL(S);  PSTS_PSTS+1;
-        (NAME_DPROP('ISNM',S)-1)<0=>DPROPS('ISNM',S,(ISNAME(S))+1);
-        NAME_ISNAME(S);
+ NEXTS: SYMBOL(S);  PSTS:=PSTS+1;
+        (NAME:=DPROP('ISNM',S)-1)<0=>DPROPS('ISNM',S,(ISNAME(S))+1);
+        NAME:=ISNAME(S);
         TR=>(PRINT /,STG 0,'NEXT INPUT SYMBOL: '; PNAME(S);
              PRINT STG 0,', ',IGR 0,PN,STG 0,' POSSIBLE PARSES.',/);
-        PPN_IP_IPP_NPP_PI_0;
- NEXTP: L_P+IP;
-        COFF_FREE(L) AND HMASK;
-        NXIP_IP+COFF+1;
+        PPN:=IP:=IPP:=NPP:=PI:=0;
+ NEXTP: L:=P+IP;
+        COFF:=FREE(L) AND HMASK;
+        NXIP:=IP+COFF+1;
         TR=>(PRINT STG 0,'  PARSE #', IGR 0, PI+1);
-        CGOAL_FREE(L+COFF) AND HMASK;
-        CNODE_FREE(L+1);
- NEXTN: CVAL_GVAL(CNODE);
+        CGOAL:=FREE(L+COFF) AND HMASK;
+        CNODE:=FREE(L+1);
+ NEXTN: CVAL:=GVAL(CNODE);
         TR=>PARTRA(0);
         GO TO (NTWANTED,TWANTED,NTMADE,OUTPUT) GTYPE(CNODE);
 
- TWANTED: (CVAL=S[I] => (J_COPY(PP,NPP,PPN);
-                         K_GNEXT(SCR(CNODE),CGOAL);
+ TWANTED: (CVAL=S[I] => (J:=COPY(PP,NPP,PPN);
+                         K:=GNEXT(SCR(CNODE),CGOAL);
                          FREES(J+1,K);
                          TR=>(PRINT STG  0,'      MATCH FOR '; PNAME(CVAL);
                               PRINT STG 0,' SO NEW PARSE #',IGR 0,PPN,STG 0,
@@ -72,20 +72,20 @@ FINAM IS COMMON; TR_FINAM[5] AND 100B;
                          GO TO TAKEALT)) FOR I FROM NAME;
           GO TO TAKEALT;
 
- OUTPUT: J_CNODE;
-     L1: (J_GNEXT(ALT(J),CGOAL))=>(K_COPY(P,NP,PN);
+ OUTPUT: J:=CNODE;
+     L1: (J:=GNEXT(ALT(J),CGOAL))=>(K:=COPY(P,NP,PN);
                                    TR=>(PRINT STG 0,'      PARSE #',IGR 0,PN,
                                            STG  0,' SPAWNED FOR ALT NODE.',/);
                                    FREES(K+1,J);
                                    GO TO L1);
          POUT(P+IP,CVAL);
-         CNODE_SCR(CNODE);
+         CNODE:=SCR(CNODE);
          GO TO NEXTN;
 
- NTWANTED: NGOAL_DPROP('NODE',CVAL);
-           (ENT_DPROP('ENTRY',S[I]);
-            J_GNEXT(SCR(ENT),NGOAL);
-            J=>(K_COPY(PP,NPP,PPN);
+ NTWANTED: NGOAL:=DPROP('NODE',CVAL);
+           (ENT:=DPROP('ENTRY',S[I]);
+            J:=GNEXT(SCR(ENT),NGOAL);
+            J=>(K:=COPY(PP,NPP,PPN);
                 TR=>(PRINT STG 0,'      '; PNAME(S[I]);
                      PRINT STG 0,' -> '; PNAME(CVAL);
                      PRINT STG 0,' AT NODE #',IGR 0,ENT,STG 0,
@@ -96,10 +96,10 @@ FINAM IS COMMON; TR_FINAM[5] AND 100B;
                 FADD(PP,NPP,NGOAL OR CNODE LS HSH))) FOR I FROM NAME;
            GO TO TAKEALT;
 
- NTMADE: NTN_DPROP('NODE',CVAL);
-         (TNODE_DPROP('NODE',S[I]);
+ NTMADE: NTN:=DPROP('NODE',CVAL);
+         (TNODE:=DPROP('NODE',S[I]);
           L2: TNODE => GNT2TX(NTN,TNODE,CGOAL,NNODE) =>
-                   (K_COPY(P,NP,PN);
+                   (K:=COPY(P,NP,PN);
                     TR=>(PRINT STG 0,'      "'; PNAME(S[I]);
                          PRINT STG 0,'" MAY CONTINUE SO PARSE #',
                             IGR 0,PN,STG 0,' IS SPAWNED.',/);
@@ -109,92 +109,92 @@ FINAM IS COMMON; TR_FINAM[5] AND 100B;
          NTN=CGOAL => GO TO L3;
          GMADE(CNODE,CGOAL)=>(GPOUT2(CNODE,CGOAL,P+IP);
                               L3: CGOAL=GOLE=>(COPY(PP,NPP,PPN);
-                                               GOTIT_1;
+                                               GOTIT:=1;
                                                GO TO TAKEALT);
-                              K_COPY(P,NP,PN);
-                              L_K;
+                              K:=COPY(P,NP,PN);
+                              L:=K;
                               FREES(L,FREE(L)-1);
-                              NP_NP-1; LL_P+NP;
-                              J_FREE(LL) RS HSH;
-                              NGOAL_FREE(LL-1) AND HMASK;
-                              J_GNEXT(SCR(J),NGOAL);
+                              NP:=NP-1; LL:=P+NP;
+                              J:=FREE(LL) RS HSH;
+                              NGOAL:=FREE(LL-1) AND HMASK;
+                              J:=GNEXT(SCR(J),NGOAL);
                               FREES(L+1,J);
                               TR=>(PRINT STG 0,'      GOAL REACHED SO PARSE #',
                                          IGR 0,PN,STG 0,' IS SPAWNED.',/));
 
- TAKEALT: (CNODE_GNEXT(ALT(CNODE),CGOAL))=>
+ TAKEALT: (CNODE:=GNEXT(ALT(CNODE),CGOAL))=>
                 (TR=>PRINT STG 0,'   ALT NODE TAKEN.'; GO TO NEXTN);
-          IP_NXIP; (PI_PI+1)<PN => GO TO NEXTP;
+          IP:=NXIP; (PI:=PI+1)<PN => GO TO NEXTP;
 
- CKNP: PPN>1=> (FINAM[5] AND 200000000B=>AMTIME_AMTIME-1+CALLI(27B,0);
+ CKNP: PPN>1=> (FINAM[5] AND 200000000B=>AMTIME:=AMTIME-1+CALLI(27B,0);
 		AMBIG(PP,NPP,PPN,O,TR);
-		FINAM[5] AND 200000000B=>AMTIME_AMTIME+CALLI(27B,0));
+		FINAM[5] AND 200000000B=>AMTIME:=AMTIME+CALLI(27B,0));
        PPN>1=>(GOTIT=>ERROR(1,'SYNTACTIC AMBIGUITY; UNRESOLVED AT % **');
                GO TO END1SYM);
        PPN=0=>(#PARSE TREE DIED - DO ERROR CORRECTION#
-               FINAM[5]_FINAM[5] OR 4000B; #LIST#
+               FINAM[5]:=FINAM[5] OR 4000B; #LIST#
 	       PLINE1(OL);
                OUTSTR('** SYNTAX ERROR ');
                PRINT STG OL+4,'^',/,
                      STG 0,'** SYNTAX ERROR ','- "';
-               L_J_ERCOR(P,OPN,S);
+               L:=J:=ERCOR(P,OPN,S);
                MSG('**');
                ERROR(1,0);
                PRINT STG 0,'" IS REPLACED BY "';
-               L4: (K_FREE(J))=>(PNAME(K); J_J+1;
+               L4: (K:=FREE(J))=>(PNAME(K); J:=J+1;
                                   PRINT STG 0,' '; GO TO L4);
                PRINT STG 0,'"',/;
                PFORCE(FREE(I)) FOR I IN J-1,-1,L;
                FALLOT(L,0);
-               NP_NOP; PN_OPN; GO TO NEXTS);
+               NP:=NOP; PN:=OPN; GO TO NEXTS);
 
  #THERE IS JUST 1 PARSE; FEED OUT OUTPUT.#
- (J_FREE(PP) RS HSH) => (PUSHMI(0);
-                        L5: J => (J_FREE(O+J); K_J ARS HSH;
+ (J:=FREE(PP) RS HSH) => (PUSHMI(0);
+                        L5: J => (J:=FREE(O+J); K:=J ARS HSH;
                                   PUSHMI(K);
-                                  J_J AND HMASK; GO TO L5);
+                                  J:=J AND HMASK; GO TO L5);
                         FINAM[5] AND 243130160B=>(
-			   K_CALLI(27B,0); PSTT_PSTT+K; SRTT_SRTT-1+K);
-                        L6: (K_PULLYU(0)) => (COTREE(K); GO TO L6);
+			   K:=CALLI(27B,0); PSTT:=PSTT+K; SRTT:=SRTT-1+K);
+                        L6: (K:=PULLYU(0)) => (COTREE(K); GO TO L6);
                         FINAM[5] AND 243130160B=>(
-			   K_CALLI(27B,0); PSTT_PSTT-1+K; SRTT_SRTT+K));
- NO>PSOS=>PSOS_NO; NO_1;
+			   K:=CALLI(27B,0); PSTT:=PSTT-1+K; SRTT:=SRTT+K));
+ NO>PSOS=>PSOS:=NO; NO:=1;
  FREES(PP,FREE(PP) AND HMASK);
 
- END1SYM: NPP>PSPS=>PSPS_NPP;    PPN>PSPN=>PSPN_PPN;
-          NP>PSPST=>PSPST_NP;    PN>PSPNT=>PSPNT_PN;
- GOTIT=0=>(J_P; P_PP; PP_J;
-          PN_OPN_PPN;
-          NOP_NP_NPP; GO TO NEXTS);
- PSTT_PSTT+CALLI(27B,0));
+ END1SYM: NPP>PSPS=>PSPS:=NPP;    PPN>PSPN=>PSPN:=PPN;
+          NP>PSPST=>PSPST:=NP;    PN>PSPNT=>PSPNT:=PN;
+ GOTIT=0=>(J:=P; P:=PP; PP:=J;
+          PN:=OPN:=PPN;
+          NOP:=NP:=NPP; GO TO NEXTS);
+ PSTT:=PSTT+CALLI(27B,0));
 
 SUBR SYMBOL(SS) IS (
- NSYMBS=>(NSYMBS_NSYMBS-1; SS_FREE(SYMBS+NSYMBS))
-     ELSE  OL_LEX(SS);  0);
+ NSYMBS=>(NSYMBS:=NSYMBS-1; SS:=FREE(SYMBS+NSYMBS))
+     ELSE  OL:=LEX(SS);  0);
 
 SUBR PFORCE(SY) IS (
- KNIT=0=>(KNIT_1; NSYMBS_0; FRELOT(SYMBS,'P/SYM',20,0));
+ KNIT=0=>(KNIT:=1; NSYMBS:=0; FRELOT(SYMBS,'P/SYM',20,0));
  FADD(SYMBS,NSYMBS,SY));
 
 SUBR COPY(QQ,NQQ,QQN) IS (
  # COPIES OLD PARSE FROM P+IP INTO QQ+NQQ AND
   RETURNS FREE STORAGE POINTER TO FIRST WORD OF NEW PARSE.#
- QQN_QQN+1;
- COPYV_NQQ;
- NQQ_NQQ+COFF+1;
+ QQN:=QQN+1;
+ COPYV:=NQQ;
+ NQQ:=NQQ+COFF+1;
  FLEN(QQ)<NQQ => FADDEX(QQ,NQQ);
- COPYV_COPYV+QQ;
+ COPYV:=COPYV+QQ;
  FREES(COPYV+K,FREE(P+IP+K)) FOR K TO COFF;
  COPYV);
 
 SUBR POUT(QQ,VV) IS (#PUTS OUTPUT VV ON PARSE CHAIN AT QQ#
  TR=>(PRINT STG 0,'      '; VV<0=>PNAME(-VV) ELSE (PRINT '[',OCT 0,VV,
          STG 0,']'); PRINT STG 0,' ADDED TO OUTPUT.',/);
- Q_FREE(QQ) RS HSH; FREES(QQ,(FREE(QQ) AND HMASK) OR (NO LS HSH));
+ Q:=FREE(QQ) RS HSH; FREES(QQ,(FREE(QQ) AND HMASK) OR (NO LS HSH));
  FADD(O,NO,Q OR (VV LS HSH)));
 
 SUBR PARSEF() IS (
- FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0); PINIT_0);
+ FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0); PINIT:=0);
 
 SUBR PSTATS(NIL) IS (
  PRINT STG 0,'PARSE TIME ',IGR 0,PSTT,STG 0,' MSEC., ',IGR 0,PSTS,STG 0,' INPUT SYMBOLS.',/,

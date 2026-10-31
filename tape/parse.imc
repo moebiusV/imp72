@@ -1,0 +1,213 @@
+TWOSEG;
+# PARSE:  THE IRONS FAST MULTI-TRACK PARSER WITH MODIFICATIONS,
+    ERROR CORRECTION AND DISAMBIGUATION BY BILOFSKY.
+
+   PARSES ARE COPIED FROM FREE STORAGE ARRAY P TO ARRAY PP.
+   OUTPUT IS STORED IN A FORWARD LINKED LIST,
+   FIRST-IN-LAST-OUT, IN FREE STORAGE ARRAY O.
+   WHEN A UNIQUE PARSE IS ENCOUNTERED, THE OUTPUT IS
+   EXTRACTED AND REVERSED, AND O IS CLEANED OUT.
+
+  THE FORMAT FOR PARSE ENTRIES IS:
+      WD 0       OUTPUT CHAIN POINTER  OFFSET OF LAST PAIR
+      WD 1                             CURRENT NODE
+      WD 2 ON    NODE INVOKING GOAL    NT NR OF GOAL
+
+  AND FOR OUTPUT ENTRIES:
+          BITS 0-17  PRODUCTION NR. OR -DIR INDEX OF NAME
+          BITS 18-35 INDEX OF NEXT WORD IN CHAIN
+
+  THE NEXT WORD OF P,PP,O IS NP,NPP,NO.
+  THE NUMBER OF PARSES IN P,PP IS PN,PPN.
+
+  THE SYNTAX GRAPH MUST REFER TO NODES MATCHING ANY NAME BY THE FUNNY
+      TERMINAL SYMBOL "NAM"+NUMBER-SIGN, SYMBOLS BY "SYM"+NUMBER-SIGN.
+  THE PARSER USUALLY GETS SYMBOLS FROM SUBR LEX, BUT SYMBOLS MAY BE
+      INSERTED IN THE STREAM BY CALLING PFORCE(DIR INDEX) FOR EACH              
+      SYMBOL TO BE INSERTED, ON A LAST-IN-FIRST-OUT BASIS. #
+
+
+SUBR PARSE(GOAL) IS (
+FINAM IS COMMON; TR:=FINAM[5] AND 100B;
+ PSTS:=PSPN:=PSPNT:=PSPS:=PSPST:=PSOS:=AMTIME:=0;
+ PSTT:=-CALLI(27B,0); SRTT:=0;
+ INIT=0=>(INIT:=1;
+          P:=FALLOT('P/P',400);
+          PP:=FALLOT('P/PP',150);
+          FRELOT(O,'P/OUT',100,0));
+ NO:=1; PN:=OPN:=1; GOTIT:=0;
+ GOL:=DIR(GOAL); GOLE:=DPROP('NODE',GOL); J:=GGOAL(GOL);
+ FREES(P,2); FREES(P+1,J); FREES(P+2,GOLE OR J LS 18); NP:=3;
+ S IS 3 LONG; S[1]:=DIR('SYM#'); S[2]:=DIR('NAM#');
+
+ NEXTS: SYMBOL(S);  PSTS:=PSTS+1;
+        (NAME:=DPROP('ISNM',S)-1)<0=>DPROPS('ISNM',S,(NAME:=ISNAME(S))+1);
+        NAME:=ISNAME(S);
+        TR=>(PRINT /,STG 0,'NEXT INPUT SYMBOL: '; PNAME(S);
+             PRINT STG 0,', ',IGR 0,PN,STG 0,' POSSIBLE PARSES.',/);
+        PPN:=IP:=IPP:=NPP:=PI:=0;
+ NEXTP: L:=FORG+P+IP;
+        COFF:=[L] AND 777777B;
+        NXIP:=IP+COFF+1;
+        TR=>(PRINT STG 0,'  PARSE #', IGR 0, PI+1);
+        CGOAL:=[L+COFF] AND 777777B;
+        CNODE:=[L+1];
+ NEXTN: CVAL:=GVAL(CNODE);
+        TR=>PARTRA(0);
+        GO TO (NTWANTED,TWANTED,NTMADE,OUTPUT) GTYPE(CNODE);
+
+ TWANTED: (CVAL=S[I] => (J:=COPY(PP,NPP,PPN);
+                         K:=GNEXT(SCR(CNODE),CGOAL);
+                         FREES(J+1,K);
+                         TR=>(PRINT STG  0,'      MATCH FOR '; PNAME(CVAL);
+                              PRINT STG 0,' SO NEW PARSE #',IGR 0,PPN,STG 0,
+                                  ' IS MADE.',/);
+                         I=>POUT(J,-S);
+                         GO TO TAKEALT)) FOR I FROM NAME;
+          GO TO TAKEALT;
+
+ OUTPUT: J:=CNODE;
+     L1: (J:=GNEXT(ALT(J),CGOAL))=>(K:=COPY(P,NP,PN);
+                                   TR=>(PRINT STG 0,'      PARSE #',IGR 0,PN,
+                                           STG  0,' SPAWNED FOR ALT NODE.',/);
+                                   FREES(K+1,J);
+                                   GO TO L1);
+         POUT(P+IP,CVAL);
+         CNODE:=SCR(CNODE);
+         GO TO NEXTN;
+
+ NTWANTED: NGOAL:=DPROP('NODE',CVAL);
+           (ENT:=DPROP('ENTRY',S[I]);
+            J:=GNEXT(SCR(ENT),NGOAL);
+            J=>(K:=COPY(PP,NPP,PPN);
+                TR=>(PRINT STG 0,'      '; PNAME(S[I]);
+                     PRINT STG 0,' -> '; PNAME(CVAL);
+                     PRINT STG 0,' AT NODE #',IGR 0,ENT,STG 0,                  
+                       ' SO NEW PARSE #',IGR 0,PPN,STG 0,' IS FORMED.',/);
+                L:=FORG+K;
+                [L]:=[L]+1;
+                [L+1]:=J;
+                I=>POUT(K,-S);
+                FADD(PP,NPP,NGOAL OR CNODE LS 18))) FOR I FROM NAME;
+           GO TO TAKEALT;
+
+ NTMADE: NTN:=DPROP('NODE',CVAL);
+         (TNODE:=DPROP('NODE',S[I]);
+          L2: TNODE => GNT2TX(NTN,TNODE,CGOAL,NNODE) =>
+                   (K:=COPY(P,NP,PN);
+                    TR=>(PRINT STG 0,'      "'; PNAME(S[I]);
+                         PRINT STG 0,'" MAY CONTINUE SO PARSE #',
+                            IGR 0,PN,STG 0,' IS SPAWNED.',/);
+                    FREES(K+1,NNODE);
+                    GPOUT1(CNODE,NNODE,K);
+                    GO TO L2)) FOR I FROM NAME;
+         NTN=CGOAL => GO TO L3;
+         GMADE(CNODE,CGOAL)=>(GPOUT2(CNODE,CGOAL,P+IP);
+                              L3: CGOAL=GOLE=>(COPY(PP,NPP,PPN);
+                                               GOTIT:=1;
+                                               GO TO TAKEALT);
+                              K:=COPY(P,NP,PN);
+                              L:=FORG+K; [L]:=[L]-1;
+                              NP:=NP-1; LL:=FORG+P+NP;
+                              J:=[LL] RS 18;
+                              NGOAL:=[LL-1] AND 777777B;
+                              J:=GNEXT(SCR(J),NGOAL);
+                              [L+1]:=J;
+                              TR=>(PRINT STG 0,'      GOAL REACHED SO PARSE #',
+                                         IGR 0,PN,STG 0,' IS SPAWNED.',/));
+
+ TAKEALT: (CNODE:=GNEXT(ALT(CNODE),CGOAL))=>
+                (TR=>PRINT STG 0,'   ALT NODE TAKEN.'; GO TO NEXTN);
+          IP:=NXIP; (PI:=PI+1)<PN => GO TO NEXTP;
+
+ CKNP: PPN>1=> (FLAG'Z'=>AMTIME:=AMTIME-1+CALLI(27B,0);
+		AMBIG(PP,NPP,PPN,O,TR);
+		FLAG'Z'=>AMTIME:=AMTIME+CALLI(27B,0));
+       PPN>1=>(GOTIT=>ERROR(1,'SYNTACTIC AMBIGUITY; UNRESOLVED AT % **');
+               GO TO END1SYM);
+       PPN=0=>(#PARSE TREE DIED - DO ERROR CORRECTION#
+               FINAM[5]:=FINAM[5] OR 4000B; #LIST#
+	       PLINE1(OL);
+               OUTSTR('** SYNTAX ERROR ');
+               PRINT STG OL+4,'^',/,
+                     STG 0,'** SYNTAX ERROR ','- "';
+               L:=J:=ERCOR(P,OPN,S);
+               MSG('**');
+               ERROR(1,0);
+               PRINT STG 0,'" IS REPLACED BY "';
+               L4: (K:=FREE(J))=>(PNAME(K); J:=J+1;
+                                  PRINT STG 0,' '; GO TO L4);
+               PRINT STG 0,'"',/;
+               PFORCE(FREE(I)) FOR I IN J-1,-1,L;
+               FALLOT(L,0);
+               NP:=NOP; PN:=OPN; GO TO NEXTS);
+
+ #THERE IS JUST 1 PARSE; FEED OUT OUTPUT.#
+ (J:=FREE(PP) RS 18) => (PUSHMI(0);
+                        L5: J => (J:=FREE(O+J); K:=J RS 18;
+                                  J<0=>K:=K OR 777777000000B;
+                                  PUSHMI(K);
+                                  J:=J AND 777777B; GO TO L5);
+                        FINAM[5] AND 243130160B=>(
+			   K:=CALLI(27B,0); PSTT:=PSTT+K; SRTT:=SRTT-1+K);
+                        L6: (K:=PULLYU(0)) => (COTREE(K); GO TO L6);
+                        FINAM[5] AND 243130160B=>(
+			   K:=CALLI(27B,0); PSTT:=PSTT-1+K; SRTT:=SRTT+K));
+ NO>PSOS=>PSOS:=NO; NO:=1;
+ HRL([FORG+PP],0);
+
+ END1SYM: NPP>PSPS=>PSPS:=NPP;    PPN>PSPN=>PSPN:=PPN;
+          NP>PSPST=>PSPST:=NP;    PN>PSPNT=>PSPNT:=PN;
+ GOTIT=0=>(J:=P; P:=PP; PP:=J;
+          PN:=OPN:=PPN;
+          NOP:=NP:=NPP; GO TO NEXTS);
+ PSTT:=PSTT+CALLI(27B,0));
+
+SUBR SYMBOL(SS) IS (
+ NSYMBS=>(NSYMBS:=NSYMBS-1; SS:=FREE(SYMBS+NSYMBS))
+     ELSE  OL:=LEX(SS);  0);
+
+SUBR PFORCE(SY) IS (
+ KNIT=0=>(KNIT:=1; NSYMBS:=0; FRELOT(SYMBS,'P/SYM',20,0));
+ FADD(SYMBS,NSYMBS,SY));
+
+SUBR COPY(QQ,NQQ,QQN) IS (
+ # COPIES OLD PARSE FROM P+IP INTO QQ+NQQ AND
+  RETURNS FREE STORAGE POINTER TO FIRST WORD OF NEW PARSE.#
+ QQN:=QQN+1;
+ COPYV:=NQQ;
+ NQQ:=NQQ+COFF+1;
+ FLEN(QQ)<NQQ => FADDEX(QQ,NQQ);
+ COPYV:=COPYV+QQ;
+ MOVE [P+IP] THROUGH COFF TO [COPYV];
+ COPYV);
+
+SUBR POUT(QQ,VV) IS (#PUTS OUTPUT VV ON PARSE CHAIN AT QQ#
+ TR=>(PRINT STG 0,'      '; VV<0=>PNAME(-VV) ELSE (PRINT '[',OCT 0,VV,
+         STG 0,']'); PRINT STG 0,' ADDED TO OUTPUT.',/);
+ KQ:=FORG+QQ;
+ Q:=[KQ] RS 18; HRL([KQ],NO);
+ FADD(O,NO,Q OR VV LS 18));
+
+SUBR PARSEF() IS (
+ FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0));
+
+SUBR PSTATS() IS (SRTT:=SRTT-ASTIME(0);
+ PRINT STG 0,'PARSE TIME ',IGR 0,PSTT,STG 0,' MSEC., ', IGR 0,
+    PSTS,STG 0,' INPUT SYMBOLS.',/,'   MAX. PARSE BRANCHING ',
+    IGR 0,PSPNT,STG 0,'/',IGR 0,PSPN,/,STG 0,'   MAX. PARSE SPACE ',
+    IGR 0,PSPST,STG 0,'+',IGR 0,PSPS,STG 0,', MAX. OUTPUT SPACE ',
+    IGR 0,PSOS,/;
+ AMTIME=>PRINT STG 0,'AMBIG ',IGR 0,AMTIME,STG 0,' MS.',/;
+ (I:=COTREE(1))=>(PRINT STG 0,'SEMANTIC ROUTINES TIME ',IGR 0,I,STG 0,' MS.',/,
+			'CODE TREE TIME '; SRTT:=SRTT-I; GO TO PSTL1);
+ SRTT>0=>(PRINT STG 0,'SEMANTIC ROUTINES TIME ';
+	PSTL1: PRINT IGR 0,SRTT,STG 0,' MS.',/);
+ PSTS);
+
+SUBR PARTRA() IS (
+ LOC(PARTR1) => J:=PARTR1(CNODE,GTYPE(CNODE),CVAL,P,IP,O,IP+COFF)
+          ELSE  (PAR0CNT=0=>(PAR0CNT:=1; J:=0;
+                             ERROR(2,'PARTR1 DEBUGGING PGM NOT PRESENT')));
+ J) %%%
+

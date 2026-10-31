@@ -7,6 +7,6 @@ FINI(0);
 SUBR F1(A,B) IS A-B*2;
 SUBR F2(A,B) IS A-(A/B)*B;
 SUBR F3(N) IS (N+1)*(N-1);
-SUBR F4(N) IS (R_1; (R_R*I) FOR I TO N; R);
-SUBR F5(N) IS (S_0; (S_S+I*I) FOR I TO N; S)
+SUBR F4(N) IS (R:=1; (R:=R*I) FOR I TO N; R);
+SUBR F5(N) IS (S:=0; (S:=S+I*I) FOR I TO N; S)
 %%

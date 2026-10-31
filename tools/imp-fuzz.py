@@ -68,7 +68,7 @@ def chain(r):
 def program(r):
     lines = []
     for v in VARS:
-        lines.append("%s_%d;" % (v, r.randint(0, 20)))
+        lines.append("%s:=%d;" % (v, r.randint(0, 20)))
     for i in range(40):
         e = chain(r) if r.random() < 0.3 else expr(r, 3)
         lines.append("PRINT IGR 12,%s,/;" % e)

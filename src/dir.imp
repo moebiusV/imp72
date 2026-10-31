@@ -38,31 +38,31 @@ RTN,NRTN,CRTN ARE COMMON;                   # THE TABLE OF SEMANTIC ROUTINES: TW
  NULL CHARACTERS ARE REQUIRED. #
 
 SUBR HASH(NM) IS (#9-BIT HASH CODE#
-                  HSH_NM XOR NM RS 32;
-                  HSH_HSH XOR HSH RS 16;
-                  HSH_HSH XOR HSH RS 9;
+                  HSH:=NM XOR NM RS 32;
+                  HSH:=HSH XOR HSH RS 16;
+                  HSH:=HSH XOR HSH RS 9;
                   HSH AND 777B);
 
 SUBR DIR(NM) IS (
- DINIT=0 => (DINIT_1;
-             FRELOT(PRP,'PRP',2100,0); FINCSET(PRP,90); NPRP_1536;
-             FRELOT(ALF,'ALF',900,0); FINCSET(ALF,45); NALF_1);
- H_HASH(NM[0]); HN_2; N_0;
-L0: LASTC(NM[N]) => (N_N+1; GO TO L0);
-L1: (I_H*3)=0 => I_3;
-L2: Q_FREE(PRP+I);
- J_HR(Q);
- J=0 => (FREES(PRP+I,NALF); DM_DM+1; GO TO L4);
- (NM[K] NE FREE(ALF+J+K) => (HN => (H_H XOR HN; HN_HN RS 1; GO TO L1);
-                        I1_I; (I_HL(Q)) => GO TO L2;
+ DINIT=0 => (DINIT:=1;
+             FRELOT(PRP,'PRP',2100,0); FINCSET(PRP,90); NPRP:=1536;
+             FRELOT(ALF,'ALF',900,0); FINCSET(ALF,45); NALF:=1);
+ H:=HASH(NM[0]); HN:=2; N:=0;
+L0: LASTC(NM[N]) => (N:=N+1; GO TO L0);
+L1: (I:=H*3)=0 => I:=3;
+L2: Q:=FREE(PRP+I);
+ J:=HR(Q);
+ J=0 => (FREES(PRP+I,NALF); DM:=DM+1; GO TO L4);
+ (NM[K] NE FREE(ALF+J+K) => (HN => (H:=H XOR HN; HN:=HN RS 1; GO TO L1);
+                        I1:=I; (I:=HL(Q)) => GO TO L2;
                         GO TO L3))  FOR K TO N;
  GO TO L5;
-L3: I_NPRP; DN_DN+1;
+L3: I:=NPRP; DN:=DN+1;
  FREES(PRP+I1,Q OR I LS 32);
- K_NPRP+3; FLEN(PRP) LE K => FADDEX(PRP,K);
- FREES(PRP+NPRP,NALF); NPRP_K;
-L4: K_NALF+N+1; FLEN(ALF) LE K => FADDEX(ALF,K);
- AX_NALF; NALF_K;
+ K:=NPRP+3; FLEN(PRP) LE K => FADDEX(PRP,K);
+ FREES(PRP+NPRP,NALF); NPRP:=K;
+L4: K:=NALF+N+1; FLEN(ALF) LE K => FADDEX(ALF,K);
+ AX:=NALF; NALF:=K;
  FREES(ALF+AX+K,NM[K]) FOR K TO N;
 L5: I);
 
@@ -70,12 +70,12 @@ L5: I);
   BECAUSE AN ADDRESS DOES NOT FIT IN IT (THE TABLE IS C MEMORY).  S IS CALLED BY SEMCALL, BELOW #
 SUBR DSEM(N,S) IS (
  D,SL,NP,FP,NN ARE LOCAL;
- D_DIR(N); NP_LOC(N); FP_LOC(S);
- SL_DPROP('SEM',D);
- SL>0 => SL LE NRTN => CCALL STRCMP([RTN+(16*(SL-1))],NP)=0 => ([RTN+((16*(SL-1))+8)]_FP; RETURN 0);        # ENTERED AGAIN: REPLACE #
- NRTN=CRTN => (NN_CRTN+64; RTN_CCALL REALLOC(RTN,16*NN); CCALL MEMSET(RTN+(16*CRTN),0,16*(NN-CRTN)); CRTN_NN);
- [RTN+(16*NRTN)]_NP; [RTN+((16*NRTN)+8)]_FP;
- NRTN_NRTN+1;
+ D:=DIR(N); NP:=LOC(N); FP:=LOC(S);
+ SL:=DPROP('SEM',D);
+ SL>0 => SL LE NRTN => CCALL STRCMP([RTN+(16*(SL-1))],NP)=0 => ([RTN+((16*(SL-1))+8)]:=FP; RETURN 0);        # ENTERED AGAIN: REPLACE #
+ NRTN=CRTN => (NN:=CRTN+64; RTN:=CCALL REALLOC(RTN,16*NN); CCALL MEMSET(RTN+(16*CRTN),0,16*(NN-CRTN)); CRTN:=NN);
+ [RTN+(16*NRTN)]:=NP; [RTN+((16*NRTN)+8)]:=FP;
+ NRTN:=NRTN+1;
  DPROPS('SEM',D,NRTN);
  0);
 
@@ -93,26 +93,26 @@ SUBR SEMNAME(I) IS [RTN+(16*I)];
 
 SUBR SEMREMAP(NAMES,N) IS (
  T,I,J ARE LOCAL;
- T_CCALL CALLOC(N+1,16);
- I_0;
- SR1: I<N => (J_0;
-     SR2: J<NRTN => (CCALL STRCMP([RTN+(16*J)],[NAMES+(8*I)])=0 => GO TO SR3; J_J+1; GO TO SR2);
+ T:=CCALL CALLOC(N+1,16);
+ I:=0;
+ SR1: I<N => (J:=0;
+     SR2: J<NRTN => (CCALL STRCMP([RTN+(16*J)],[NAMES+(8*I)])=0 => GO TO SR3; J:=J+1; GO TO SR2);
      OUTSTR('imp72: the image uses the routine '); OUTCS([NAMES+(8*I)]);
      OUTSTR(', which this run has not entered'); OUTCHR(12B);
      RETURN 0;
-     SR3: [T+(16*I)]_[RTN+(16*J)]; [T+((16*I)+8)]_[RTN+((16*J)+8)];
-     I_I+1; GO TO SR1);
- RTN_T; NRTN_N; CRTN_N;
+     SR3: [T+(16*I)]:=[RTN+(16*J)]; [T+((16*I)+8)]:=[RTN+((16*J)+8)];
+     I:=I+1; GO TO SR1);
+ RTN:=T; NRTN:=N; CRTN:=N;
  1);
 
 SUBR DSEQ(N) IS (
- N<0 => (N_-3; NMARK_-1);
- NMARK GE 0 => (N_HL(FREE(PRP+N));
-                N=0 => (N_NMARK; NMARK_-1));
- NMARK<0 => (L6: N_N+3;
-              N GE 1536 => N_-1
+ N<0 => (N:=-3; NMARK:=-1);
+ NMARK GE 0 => (N:=HL(FREE(PRP+N));
+                N=0 => (N:=NMARK; NMARK:=-1));
+ NMARK<0 => (L6: N:=N+3;
+              N GE 1536 => N:=-1
                       ELSE (FREE(PRP+N)=0 => GO TO L6;
-                            NMARK_N));
+                            NMARK:=N));
 N);
 
 SUBR PNAME(DJ) IS (DJ GE 0=>PRINT STG 0,FREE(ALF+HR(FREE(PRP+DJ))));
@@ -121,8 +121,8 @@ SUBR DNAME(DI,J) IS FREE(ALF+J+HR(FREE(PRP+DI)));
 
 SUBR GNAME(DJ) IS (
  LCL IS 4 LONG;
- LCL[K]_DNAME(DJ,K) FOR K TO 2;
- LCL[3]_0;
+ LCL[K]:=DNAME(DJ,K) FOR K TO 2;
+ LCL[3]:=0;
  LOC(LCL));
 
 SUBR DSTATS() IS (
@@ -133,27 +133,27 @@ SUBR DSTATS() IS (
 
 SUBR DSPILL() IS (
  PRINT STG 0, 'HASH CODE   TOKEN', /;
- N_-1; H1_-1;
+ N:=-1; H1:=-1;
 L7: DSEQ(N);
- N GE 0 => (H_HASH(DNAME(N,0));
-            H NE H1 => (PRINT STG 0, '    ', OCT 3, H; H1_H)
+ N GE 0 => (H:=HASH(DNAME(N,0));
+            H NE H1 => (PRINT STG 0, '    ', OCT 3, H; H1:=H)
                   ELSE (PRINT STG 0, '       ');
             PRINT STG 0, '    '; PNAME(N); PRINT /; GO TO L7);
  0);
 
 SUBR RADI50(N) IS (
- NX_DNAME(N,0);
- VAL_0;
- (C_CHR(NX,P);
+ NX:=DNAME(N,0);
+ VAL:=0;
+ (C:=CHR(NX,P);
   C=0 => GO TO RDX;
-  C=56B=>(K_37; GO TO UCH);  #.#
-  C=44B=>(K_38; GO TO UCH);  #$#
-  C=45B=>(K_39; GO TO UCH);  #%#
+  C=56B=>(K:=37; GO TO UCH);  #.#
+  C=44B=>(K:=38; GO TO UCH);  #$#
+  C=45B=>(K:=39; GO TO UCH);  #%#
   C>132B=>GO TO NCHR;
-  C>100B=>(K_C-66B; GO TO UCH);
+  C>100B=>(K:=C-66B; GO TO UCH);
   C>71B=>GO TO NCHR;
-  (K_C-57B) LE 0=>GO TO NCHR;
-  UCH: VAL_(VAL*40)+K;
+  (K:=C-57B) LE 0=>GO TO NCHR;
+  UCH: VAL:=(VAL*40)+K;
   NCHR: 0) FOR P TO 5;
 RDX: VAL);
 
@@ -171,67 +171,67 @@ RDX: VAL);
 
 SUBR CONVC(C) IS (
  CONST IS COMMON, 1 LONG;
- CINIT=0=>(CINIT_1; FRELOT(CBUF,'CONVC',25,0));
- NC_VAL_OC_0; BAS_-1;
- CC_0;
- W_DNAME(C,CC);
+ CINIT=0=>(CINIT:=1; FRELOT(CBUF,'CONVC',25,0));
+ NC:=VAL:=OC:=0; BAS:=-1;
+ CC:=0;
+ W:=DNAME(C,CC);
  # CHECK FOR STRING, WHICH IS ONLY MULTI-WORD CASE.#
- CHR0(W)=47B=>(JNIT=0=>(JNIT_1; CFR_FNEW('CONST',10)#FIXED#);
-                 NCFR_1;
-                  T1: WW_REST(W);
+ CHR0(W)=47B=>(JNIT=0=>(JNIT:=1; CFR:=FNEW('CONST',10)#FIXED#);
+                 NCFR:=1;
+                  T1: WW:=REST(W);
                       LASTC(W)=>(
-                           CC_CC+1;
-                           W_DNAME(C,CC);
-                           WW_WW OR FRONTLAST(W));
+                           CC:=CC+1;
+                           W:=DNAME(C,CC);
+                           WW:=WW OR FRONTLAST(W));
                       FADD(CFR,NCFR,WW);
                       LASTC(WW)=>GO TO T1;
                   FREES(CFR,NCFR-1);
-                  CONST_FREE(CFR+1);
-                  VAL_CFR; GO TO CONVX);
- (WW_CHR0(W))<60B=>GO TO CONVX; WW>71B=>GO TO CONVX;
+                  CONST:=FREE(CFR+1);
+                  VAL:=CFR; GO TO CONVX);
+ (WW:=CHR0(W))<60B=>GO TO CONVX; WW>71B=>GO TO CONVX;
  # PICK IT APART #
  GO TO T2;
- NXW: CC_CC+1;
-      W_DNAME(C,CC);
- T2:  (CH_377B AND W RS N;
+ NXW: CC:=CC+1;
+      W:=DNAME(C,CC);
+ T2:  (CH:=377B AND W RS N;
        CH=0=>GO TO T3;
        CH GE 60B=>CH LE 71B=>(T5: FADD(CBUF,NC,CH); GO TO T4);
-       (CH_CH AND 137B)=102B=>(BAS_NC; GO TO T5);
-       BAS_-1;
-       CH>100B=>CH LE 132B=>(CH_CH-7; GO TO T5);
+       (CH:=CH AND 137B)=102B=>(BAS:=NC; GO TO T5);
+       BAS:=-1;
+       CH>100B=>CH LE 132B=>(CH:=CH-7; GO TO T5);
        GO TO CONVX;
        T4: 0) FOR N IN CHFIRST,CHSTEP,CHEND;
       GO TO NXW;
- T3: J_NC-1;
- B_10;
- BAS>0=>(BAS=J=>(J_J-1; B_8; GO TO T6);
-         B_0;
-         (K_FREE(CBUF+I); B_(K-60B)+10*B) FOR I IN BAS+1,1,J;
-         J_BAS-1);
- T6: CONST_0;
- (B=8=>(CONST_CONST LS 3) ELSE (CONST_CONST*B);
-  (K_FREE(CBUF+I)-60B) GE B=>GO TO CONVX; CONST_CONST+K) FOR I TO J;
- VAL_-1;
+ T3: J:=NC-1;
+ B:=10;
+ BAS>0=>(BAS=J=>(J:=J-1; B:=8; GO TO T6);
+         B:=0;
+         (K:=FREE(CBUF+I); B:=(K-60B)+10*B) FOR I IN BAS+1,1,J;
+         J:=BAS-1);
+ T6: CONST:=0;
+ (B=8=>(CONST:=CONST LS 3) ELSE (CONST:=CONST*B);
+  (K:=FREE(CBUF+I)-60B) GE B=>GO TO CONVX; CONST:=CONST+K) FOR I TO J;
+ VAL:=-1;
  CONVX: VAL);
 
 # STCON(V): THE DIRECTORY ENTRY OF THE CONSTANT V, NAMED BY ITS OCTAL DIGITS (22 FOR A 64 BIT NUMBER, WITHOUT THE LEADING ZEROS) AND A B #
 SUBR STCON(V) IS (SCW IS 4 LONG;
-                  SCW[0]_SCW[1]_SCW[2]_SCW[3]_0;
-                  K_BYTEP SCW<7,36>; F_0;
-                  ((J_(V RS (3*I)) AND 7) NE 0 => F_1;
-                   F => <+K>_60B+J) FOR I IN 21,-1,0;
-                  F=0 => <+K>_60B;
-                  <+K>_102B;
+                  SCW[0]:=SCW[1]:=SCW[2]:=SCW[3]:=0;
+                  K:=BYTEP SCW<7,36>; F:=0;
+                  ((J:=(V RS (3*I)) AND 7) NE 0 => F:=1;
+                   F => <+K>:=60B+J) FOR I IN 21,-1,0;
+                  F=0 => <+K>:=60B;
+                  <+K>:=102B;
                   DIR(SCW));
 
 SUBR NEWNAME(I) IS (
  NMF IS 3 LONG;
- NMF_PREP(PFX4(I),45B); NMF[1]_NMF[2]_0;
- K_BYTEP NMF<7,36>; WHILE <+K> DO 0; K_K-1;
- J_NEWNUM_NEWNUM+1; TP_100000;
- T10: (J/TP)=0=>(TP_TP/10; GO TO T10);
- T8: JJ_J/TP;
-     <+K>_60B+JJ;
-     J_J-TP*JJ; TP_TP/10;
+ NMF:=PREP(PFX4(I),45B); NMF[1]:=NMF[2]:=0;
+ K:=BYTEP NMF<7,36>; WHILE <+K> DO 0; K:=K-1;
+ J:=NEWNUM:=NEWNUM+1; TP:=100000;
+ T10: (J/TP)=0=>(TP:=TP/10; GO TO T10);
+ T8: JJ:=J/TP;
+     <+K>:=60B+JJ;
+     J:=J-TP*JJ; TP:=TP/10;
      TP => GO TO T8;
  DIR(NMF))%%

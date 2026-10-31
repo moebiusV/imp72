@@ -10,7 +10,7 @@ python3 tools/${GEN:-imp-fuzz.py} $seed $count $d >/dev/null || exit 1
 bad=0
 for p in $d/[a-z]z[0-9][0-9].imp; do
     n=$(basename $p .imp)
-    stage0/imp72stage0 -o $d/$n.old $p >/dev/null 2>&1 || { echo "$n: the old path does not compile it"; continue; }
+    env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0 -o $d/$n.old $p >/dev/null 2>&1 || { echo "$n: the old path does not compile it"; bad=1; continue; }      # (the seed reads tape/syntax.imc, whatever the environment says)
     IMP72SYNTAX=$root/src/pccir/syntax64.imc IMP72FFI=$root/lib/ffi.imc IMP72LIB=$root/build/lib/libimp72.a \
         build/direct/imp72stage-pccir -o $d/$n.new $p >$d/$n.log 2>&1 || { echo "$n: the IR path does not compile it"; head -3 $d/$n.log; bad=1; continue; }
     $d/$n.old > $d/$n.old.out 2>&1; $d/$n.new > $d/$n.new.out 2>&1

@@ -5,7 +5,7 @@ of `impsem.imc` and `code2.imc` that reading syntax needs) to `stage0/dosem.c`,
 `entree.c`, `cotree.c`, `rsyn.c` and `sem.c`, with `debug.c` extended with
 `TPRIN1`, `SEMPR1` and `PSTAC1`, and a driver, `imp72s0`.
 
-**What runs:** `stage0/imp72s0 decus/syntax.imc` reads the whole syntax file of
+**What runs:** `stage0/imp72s0 tape/syntax.imc` reads the whole syntax file of
 the IMP72 compiler: RSYN reads the syntax for syntax with the lexer alone,
 then the parser, the code tree and the semantic stack, driven by the productions
 just defined, read the remaining 150-odd syntax statements. It ends with the

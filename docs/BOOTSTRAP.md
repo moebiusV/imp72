@@ -2,7 +2,7 @@
 
 The compiler is written in IMP, so building it takes a compiler. The route:
 
-1. **The seed** (`stage0/`) is a port of the compiler to C99, and it stays C. It reads the original `decus/syntax.imc`
+1. **The seed** (`stage0/`) is a port of the compiler to C99, and it stays C. It reads the `tape/syntax.imc` (the original, `decus/syntax.imc`, with `:=` for `_`)
    and compiles IMP to the IR (its code generator makes PDP-10 code chains that `trans.c` translates).
 2. **Stage 1** is the compiler's own sources, `src/*.imp` and `src/pccir/*.imp`, compiled by the seed
    (`tools/direct.sh`) and linked with the runtime library (the LLVM glue is `src/llvm.imp` and the IR writer `src/ir2ll.imp` and `src/ir2llx.imp`, modules like the rest; the seed has its own C copies); the main program is

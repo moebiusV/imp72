@@ -5,8 +5,8 @@ BDESC,NBD ARE COMMON;
  CODE, AND PCODE1 ARE AT THE END; BYTEP IS NOT YET.#
 
 SUBR SUBCALL(A,B) IS (
- A_SUBRCALL(NAME(A));
- WHILE GETLIST(B) DO A_SUBRPAR(A,B);
+ A:=SUBRCALL(NAME(A));
+ WHILE GETLIST(B) DO A:=SUBRPAR(A,B);
  DEWFUN(A,2,REGOF(A));
  SUBPR0(1);
  A);
@@ -14,37 +14,37 @@ SUBR SUBCALL(A,B) IS (
 # SUBSCRIPT(S,T): THE SUBSCRIPTED VARIABLE S[T] (S=0: [T], THE WORD AT ADDRESS T) #
 SUBR SUBSCRIPT(S,T) IS (
  TTY,STY,TE,SC,I,SEE,R0,K ARE LOCAL;
- TTY_FREE(T) AND 77B;
- TTY=20B => FREE(T+1) LT 0 => (DEWOP(OLOAD,AREG1(1,15B),T); TTY_2);
+ TTY:=FREE(T) AND 77B;
+ TTY=20B => FREE(T+1) LT 0 => (DEWOP(OLOAD,AREG1(1,15B),T); TTY:=2);
  S=0 => (TTY NE 2 => TTY NE 4 => (FREE(T+1) LT 0 => (DEWOP(OLOAD,AREG1(1,15B),T);
-                                                       TTY_20B;
+                                                       TTY:=20B;
                                                        FREES(T,((20B OR (FREE(T) AND 77B)))))
                                   ELSE FREES(T+1,(FREE(T+1) OR (1 LS 63))));
-         TE_20B OR (FREE(T) AND (NOT 77B));
-         TTY=4 => (TE_10B OR (TE AND 777700B);
+         TE:=20B OR (FREE(T) AND (NOT 77B));
+         TTY=4 => (TE:=10B OR (TE AND 777700B);
                    FREES(T+1,HR(FREE(T+1))));
          FREES(T,TE); RETURN T);
- TTY NE 2 => TTY NE 4 => (DEWOP(OLOAD,AREG1(1,15B),T); TTY_2);
- STY_FREE(S) AND 77B;
- STY=20B => FREE(S+1) LT 0 => (DEWOP(OADDR,AREG1(1,15B),S); STY_20B;
+ TTY NE 2 => TTY NE 4 => (DEWOP(OLOAD,AREG1(1,15B),T); TTY:=2);
+ STY:=FREE(S) AND 77B;
+ STY=20B => FREE(S+1) LT 0 => (DEWOP(OADDR,AREG1(1,15B),S); STY:=20B;
                                FREES(S,((20B OR (FREE(S) AND 700B)))));
  STY=2 => (ERROR(1,'SUBSCRIPTED REGISTER - IGNORED. '); RETURN S);
- STY=4 => (SEE_FREE(S) AND (NOT 77B);
+ STY=4 => (SEE:=FREE(S) AND (NOT 77B);
            HL(SEE)=0 => (ERROR(2,'CALCULATED CONSTANT IS SUBSCRIPTED. ');
-                          I_STCON(FREE(S+1));
-                          SEE_((I LS 32) OR HR(SEE)));
+                          I:=STCON(FREE(S+1));
+                          SEE:=((I LS 32) OR HR(SEE)));
            FREES(S,((SEE OR 10B))); FREES(S+1,0));
  TTY=2 => (STY NE 20B => (FREES(S,((20B OR (FREE(S) AND (NOT 77B)))));
                           FREES(S+1,(FREE(S+1) OR (REGOF(T) LS 32))))
-           ELSE (R0_REGOF(S);
+           ELSE (R0:=REGOF(S);
                  R0=0 => FREES(S+1,(FREE(S+1) OR (REGOF(T) LS 32)))
                   ELSE (# ADD THE INDEX TO A COPY OF THE REGISTER: IT MAY BE A PARAMETER'S OR A USER'S #
-                        K_AREG1(1,15B);
+                        K:=AREG1(1,15B);
                         ADDREC(S,KOP,OLOAD,K,2,(R0 LS 32),0);
                         FREES(S+1,REGFIELD(FREE(S+1),R0,K));
                         HL(FREE(S))=0 => ADDREC(S,KOP,OADDX,K,FREE(T),FREE(T+1),0)       # A POINTER IN A REGISTER: THE INDEX IS IN WORDS #
                          ELSE ADDREC(S,KOP,OADD,K,FREE(T),FREE(T+1),0))));
- TTY=4 => (SC_HR(HR(FREE(S+1))+FREE(T+1));
+ TTY=4 => (SC:=HR(HR(FREE(S+1))+FREE(T+1));
            FREES(S+1,(SC OR (FREE(S+1) AND NOT HMASK))));      # THE REGISTER AND THE INDIRECT BIT KEPT #
  HOOK(S,T,S));
 
@@ -53,7 +53,7 @@ SUBR SUBSCRIPT(S,T) IS (
   A CONSTANT).  THE OPERATIONS LOAD BYTE, DEPOSIT BYTE AND MOVE (THE POINTER'S VALUE) READ IT IN DEMIT #
 SUBR BYTEP(A,S,P,FLAG) IS (
  TD ARE LOCAL;
- TD_NEWNAME('BYTE');
+ TD:=NEWNAME('BYTE');
  NAME(ENSTACK(TD));
  (FREE(P) AND 77B) NE 4 => FETCH(P);
  (FREE(S) AND 77B) NE 4 => FETCH(S);
@@ -73,11 +73,11 @@ SUBR PCODE(S,NS) IS PCODE1(S,NS);
 
 SUBR PCODE1(S,NS) IS (
  R,H,OP,KD,N,K ARE LOCAL;
- (N_NS)=0=>N_15;
- R_FREE(S+2) RS 32; K_0;
+ (N:=NS)=0=>N:=15;
+ R:=FREE(S+2) RS 32; K:=0;
  L3: R=0=>RETURN 0;
  K GE N=>RETURN 0;
- H_FREE(CO+R); OP_(H RS 8) AND 377B; KD_H AND 377B;
+ H:=FREE(CO+R); OP:=(H RS 8) AND 377B; KD:=H AND 377B;
  PRINT IGR 6,R,STG 0,'  ';
  KD=2=>(PRINT STG 0,'TAG    '; PNAME(FREE(CO+R+4)); PRINT /; GO TO L8);
  KD=3=>(PRINT STG 0,'WORD   ',IGR 0,FREE(CO+R+3),/; GO TO L8);
@@ -86,7 +86,7 @@ SUBR PCODE1(S,NS) IS (
  OP<10=>PRINT STG 5,'      ' ELSE (OP<100=>PRINT STG 4,'      ' ELSE PRINT STG 3,'      ');
  L9: PRINT STG 0,' R',IGR 0,FREE(CO+R+1),STG 0,'  V ',OCT 0,FREE(CO+R+2) AND 777777777777B,STG 0,',',
           OCT 0,FREE(CO+R+3) AND 777777777777B,STG 0,'  X ',IGR 0,FREE(CO+R+4),/;
- L8: R_H RS 32; K_K+1; GO TO L3);
+ L8: R:=H RS 32; K:=K+1; GO TO L3);
 
 OPN: DATA(
           '?      ','LOAD   ','NEG    ',

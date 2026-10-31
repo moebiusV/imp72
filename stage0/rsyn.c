@@ -102,7 +102,7 @@ syterm(word s)
     char buf[16];
 
     fullname(q, buf, sizeof buf);
-    if (buf[0] == '\'' && buf[1] != '\0' && buf[2] == '\0') {
+    if ((buf[0] == '\'' && buf[1] != '\0' && buf[2] == '\0') || strcmp(buf, "':=") == 0) {
         q = dir(buf + 1);
         FREES(s, W18(q, R18(r)));
     }

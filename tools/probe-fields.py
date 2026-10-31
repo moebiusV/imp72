@@ -39,12 +39,12 @@ def main():
         lines, exp = ["A,B ARE COMMON;"], []
         for n, (kind, v, s, p) in enumerate(chunk):
             if kind == "r":
-                lines.append("A_%s; PRINT STG 0,'%d ',IGR 0,A<%d,%d>,/;" % (lit(v), n, s, p))
+                lines.append("A:=%s; PRINT STG 0,'%d ',IGR 0,A<%d,%d>,/;" % (lit(v), n, s, p))
                 exp.append((n, ((v & (M - 1)) >> p) & ((1 << s) - 1)))
             else:
                 new = 0x5A5A5A5A5A5A5A5 & ((1 << s) - 1)
                 mask = ((1 << s) - 1) << p
-                lines.append("A_%s; A<%d,%d>_%d; PRINT STG 0,'%d ',IGR 0,A,/;" % (lit(v), s, p, new, n))
+                lines.append("A:=%s; A<%d,%d>:=%d; PRINT STG 0,'%d ',IGR 0,A,/;" % (lit(v), s, p, new, n))
                 exp.append((n, w(((v & (M - 1)) & ~mask) | ((new << p) & mask))))
         lines += ["FINI(0)", "%%"]
         src = os.path.join(d, "c%d.imp" % c0)
