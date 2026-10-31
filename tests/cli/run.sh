@@ -45,7 +45,11 @@ mach() { od -An -tu1 -j18 -N2 "$1" | awk '{print $1 + 256 * $2}'; }
 "$w" -c --target=riscv64-linux-gnu lib2.imp -o rv.o >/dev/null 2>&1 && [ "$(mach rv.o)" = 243 ] || bad "--target=riscv64-linux-gnu"
 "$w" -Sir --target=i686-linux-gnu lib2.imp -o i.ll >/dev/null 2>&1 && grep -q 'i32 %a0' i.ll || bad "--target=i686: 32 bit pointers in the IR"
 "$w" -S --target=aarch64-linux-gnu lib2.imp -o a64.s >/dev/null 2>&1 && grep -q 'ret' a64.s && ! grep -q 'rdi' a64.s || bad "--target=aarch64: assembly for it"
-"$w" --target=aarch64-linux-gnu main.imp lib2.imp >/dev/null 2>&1 && bad "linking for another system was attempted"
+# linking for another system needs that system's files: without them the message says which and how to give them (--sysroot, --runtime)
+"$w" --target=aarch64-linux-gnu main.imp lib2.imp > xl.log 2>&1 && bad "linking for another system with no sysroot succeeded"
+grep -q -e '--sysroot=DIR' xl.log && grep -q -e '--runtime=FILE' xl.log && grep -q 'crt1.o' xl.log || bad "the message for a link for another system does not say what is needed and how to say where"
+"$w" --target=aarch64-linux-gnu --sysroot=$root/build/cli/nosuchroot main.imp lib2.imp > xl2.log 2>&1 && bad "a sysroot with nothing in it linked"
+grep -q 'Looked for crt1.o in' xl2.log || bad "the message does not say where crt1.o was looked for"
 "$w" -c --target=nonsense lib2.imp >/dev/null 2>&1 && bad "a nonsense target was accepted"
 if [ "$(uname -m)" = x86_64 ] && [ "$(getconf LONG_BIT)" = 64 ]; then       # the host's own architecture and system, whatever the vendor and the C library: a target that links
     "$w" --target=x86_64-linux-gnu main.imp lib2.imp -o hosted >/dev/null 2>&1 && [ "$(./hosted)" = "ANSWER 42" ] || { [ "$(uname -s)" != Linux ] || bad "the host's own triple is a target that links"; }
