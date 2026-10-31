@@ -257,13 +257,43 @@ SUBR CROSSMSG(WHY) IS (
  OUTSTR('  Or compile with -c (an object file) and link on that system.'); OUTCHR(12B);
  1);
 
+# WHAT A LINK FOR MACOS NEEDS AND DOES NOT HAVE.  WHY IS 0 FOR NO SDK NAMED, 1 FOR A SYSROOT THAT IS NOT AN SDK (NO USR/LIB/LIBSYSTEM.TBD), 2 FOR NO LIBIMP72.A #
+SUBR CROSSMSGMAC(WHY) IS (
+ OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': the files of that system that the link needs are not here.'); OUTCHR(12B);
+ OUTSTR('  It needs the SDK of macOS (the MacOSX.sdk directory, with usr/lib/libSystem.tbd) and libimp72.a, the runtime of imp72, built for it.'); OUTCHR(12B);
+ WHY=1 => (OUTSTR('  '); OUTCS(DSYSROOT); OUTSTR(' has no usr/lib/libSystem.tbd.'); OUTCHR(12B));
+ WHY=2 => (OUTSTR('  The runtime library libimp72.a for it was not given.'); OUTCHR(12B));
+ OUTSTR('  Say where they are:'); OUTCHR(12B);
+ OUTSTR('    --sysroot=DIR    the SDK (Xcode or the Command Line Tools have it), or set IMP72SYSROOT'); OUTCHR(12B);
+ OUTSTR('    --runtime=FILE   its libimp72.a, or set IMP72RUNTIME'); OUTCHR(12B);
+ OUTSTR('  Or compile with -c (an object file) and link on that system.'); OUTCHR(12B);
+ 1);
+
+# THE LINK FOR MACOS FROM ANOTHER SYSTEM (OR ANOTHER ARCHITECTURE): THE MACH-O DRIVER OF LLD, WITH THE SDK AS THE SYSROOT.  RETURNS 0 IF IT LINKED #
+SUBR LNKCROSSMAC(Z) IS (
+ AR,MV ARE LOCAL;
+ AR_0;
+ ((CCALL STRCMP(LOC(DTA),LOC('arm64'))=0) OR (CCALL STRCMP(LOC(DTA),LOC('aarch64'))=0)) => (AR_LOC('arm64'); MV_LOC('11.0'));
+ CCALL STRCMP(LOC(DTA),LOC('x86_64'))=0 => (AR_LOC('x86_64'); MV_LOC('10.13'));
+ AR=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': macOS on arm64 and x86_64 only'); OUTCHR(12B); RETURN 1);
+ DSYSROOT=0 => RETURN CROSSMSGMAC(0);
+ CCALL SNPRINTF(LOC(MAD),4096,LOC('%s/usr/lib/libSystem.tbd'),DSYSROOT);
+ EXISTS(LOC(MAD))=0 => RETURN CROSSMSGMAC(1);
+ DRUNTIME=0 => RETURN CROSSMSGMAC(2);
+ EXISTS(DRUNTIME)=0 => RETURN CROSSMSGMAC(2);
+ KA_CCALL CALLOC(40+DNOBJL,8); KNN_0;
+ KADD(LOC('ld64.lld')); KADD(LOC('-arch')); KADD(AR); KADD(LOC('-platform_version')); KADD(LOC('macos')); KADD(MV); KADD(MV);
+ KADD(LOC('-syslibroot')); KADD(DSYSROOT); KADD(LOC('-o')); KADD(OUTNAME(0)); ADDOBJS(0); KADD(DRUNTIME); KADD(LOC('-lSystem'));
+ RUNLD(0));
+
 # THE LINK FOR ANOTHER SYSTEM (LINUX ONLY SO FAR): LLD LINKS FOR ANY TARGET, SO WHAT IT NEEDS IS THE FILES OF THE TARGET, FROM --SYSROOT AND --RUNTIME.  RETURNS 0 IF IT LINKED #
 SUBR LNKCROSS(Z) IS (
  AR,TT,OK ARE LOCAL;
  TT_LLVMTRIPLE(0);
  DTA[0]_DTV[0]_DTO[0]_DTE[0]_0;
  CCALL SSCANF(TT,LOC('%[^-]-%[^-]-%[^-]-%s'),LOC(DTA),LOC(DTV),LOC(DTO),LOC(DTE));
- STARTS(LOC(DTO),LOC('linux'))=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for another system is done for Linux targets so far; use -c and link there'); OUTCHR(12B); RETURN 1);
+ ((STARTS(LOC(DTO),LOC('darwin'))=1) OR (STARTS(LOC(DTO),LOC('macos'))=1)) => RETURN LNKCROSSMAC(0);
+ STARTS(LOC(DTO),LOC('linux'))=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for another system is done for Linux and macOS targets so far; use -c and link there'); OUTCHR(12B); RETURN 1);
  AR_CROSSARCH(LOC(DTA));
  AR=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': the architecture is not one whose C library files are known'); OUTCHR(12B); RETURN 1);
  SETARCH(AR)=0 => RETURN 1;

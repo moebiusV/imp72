@@ -93,6 +93,12 @@ cflags)
     f="-DHAVE_LLVM $($lc --cflags | sed 's/-std=[^ ]*//g; s/-W[^ ]*//g; s/-pedantic//g; s/-f[^ ]*//g; s/-O[0-9]//g; s/-g[ 0-9a-z]*//g')"
     grep -q LLVMOrcCreateNewThreadSafeContextFromLLVMContext "$($lc --includedir)/llvm-c/Orc.h" && f="$f -DHAVE_ORC_FROM_CONTEXT"
     haslld && f="$f -DHAVE_LLD"
+    # the drivers of both formats where both libraries are there (the compiler then links for ELF and for Mach-O targets, whichever system it runs on)
+    if haslld; then
+        for fm in ELF:lldELF MACHO:lldMachO; do
+            for e in a so dylib; do [ -f "$lldlib/lib${fm#*:}.$e" ] && { f="$f -DHAVE_LLD_${fm%%:*}"; break; }; done
+        done
+    fi
     haslld && [ "$lldinc" != /usr/include ] && f="$f -I$lldinc"
     echo $f ;;
 libs)
@@ -106,7 +112,9 @@ libs)
     FreeBSD) l="-L/usr/local/lib" ;;
     esac
     if haslld; then
-        l="$l -L$lldlib -l$lldname -llldCommon"
+        l="$l -L$lldlib"
+        for fn in lldELF lldMachO; do for e in a so dylib; do [ -f "$lldlib/lib$fn.$e" ] && { l="$l -l$fn"; break; }; done; done
+        l="$l -llldCommon"
         [ "$(uname -s)" != OpenBSD ] && l="$l $cxxlib"
         [ -n "$lldstatic" ] && l="$l -lz -lzstd"
         [ -z "$lldstatic" ] && [ "$lldlib" != /usr/lib ] && [ -z "$LLVM_NO_RPATH" ] && l="$l -Wl,-rpath,$lldlib"

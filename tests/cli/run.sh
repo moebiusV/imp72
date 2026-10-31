@@ -50,6 +50,14 @@ mach() { od -An -tu1 -j18 -N2 "$1" | awk '{print $1 + 256 * $2}'; }
 grep -q -e '--sysroot=DIR' xl.log && grep -q -e '--runtime=FILE' xl.log && grep -q 'crt1.o' xl.log || bad "the message for a link for another system does not say what is needed and how to say where"
 "$w" --target=aarch64-linux-gnu --sysroot=$root/build/cli/nosuchroot main.imp lib2.imp > xl2.log 2>&1 && bad "a sysroot with nothing in it linked"
 grep -q 'Looked for crt1.o in' xl2.log || bad "the message does not say where crt1.o was looked for"
+# Mach-O from any system: the object (magic cf fa ed fe), the message for the SDK, and the Mach-O driver of lld in this compiler (a fake SDK and an empty runtime: it must get as far as lld's complaint)
+"$w" -c --target=arm64-apple-darwin lib2.imp -o m.o >/dev/null 2>&1 && [ "$(od -An -tx1 -N4 m.o | tr -d ' \n')" = cffaedfe ] || bad "--target=arm64-apple-darwin: a Mach-O object"
+"$w" --target=arm64-apple-darwin main.imp lib2.imp > xm.log 2>&1 && bad "linking for macOS with no SDK succeeded"
+grep -q 'libSystem.tbd' xm.log && grep -q -e '--sysroot=DIR' xm.log || bad "the message for macOS does not say what is needed"
+mkdir -p fakesdk/usr/lib && printf -- '--- !tapi-tbd\ntbd-version: 4\ntargets: [ arm64-macos ]\ninstall-name: "/usr/lib/libSystem.B.dylib"\nexports:\n  - targets: [ arm64-macos ]\n    symbols: [ dyld_stub_binder ]\n...\n' > fakesdk/usr/lib/libSystem.tbd
+ar rcs empty.a 2>/dev/null
+"$w" --target=arm64-apple-darwin --sysroot=$root/build/cli/fakesdk --runtime=$root/build/cli/empty.a main.imp lib2.imp > xm2.log 2>&1 && bad "the Mach-O link with no runtime succeeded"
+grep -q 'ld64.lld: error: undefined symbol' xm2.log || { [ ! -x "$(command -v ar)" ] || bad "the Mach-O driver of lld did not run in this compiler"; }
 "$w" -c --target=nonsense lib2.imp >/dev/null 2>&1 && bad "a nonsense target was accepted"
 if [ "$(uname -m)" = x86_64 ] && [ "$(getconf LONG_BIT)" = 64 ]; then       # the host's own architecture and system, whatever the vendor and the C library: a target that links
     "$w" --target=x86_64-linux-gnu main.imp lib2.imp -o hosted >/dev/null 2>&1 && [ "$(./hosted)" = "ANSWER 42" ] || { [ "$(uname -s)" != Linux ] || bad "the host's own triple is a target that links"; }
