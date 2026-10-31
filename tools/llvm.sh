@@ -70,8 +70,8 @@ imp)
     if ! haslld; then
         echo ";"                                          # (a SUBR that is not the last has its semicolon)
         echo
-        echo "SUBR IMPLDHAVE(Z) IS 0;"
-        echo "SUBR IMPLD(ARGC,ARGV) IS 1"
+        echo "SUBR impldhave(Z) IS 0;"
+        echo "SUBR impld(ARGC,ARGV) IS 1"
     fi
     echo "%%"
     exit 0 ;;

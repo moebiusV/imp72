@@ -1,0 +1,5 @@
+ab:=5;
+AB:=AB+1;
+PRINT STG 0,'ab=',IGR 0,ab,STG 0,' AB=',IGR 0,AB,/;
+FINI(0)
+%%

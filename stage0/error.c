@@ -41,8 +41,14 @@ imp_fatal_handler(void (*fn)(void))
 void
 imp_error(int n, const char *e)
 {
+    static long nerrs;                  /* a compilation that makes errors for ever (a broken grammar) ends and does not fill the disk with them */
+
     if (n <= 1)
         finam5 |= SW_ERRORS;
+    if (n <= 1 && ++nerrs > 100000) {
+        fprintf(stderr, "** TOO MANY ERRORS: STOPPED **\n");
+        exit(1);
+    }
     if (e != NULL) {
         const char *pre = n < 2 ? "** ERROR - " : n == 2 ? "** ADVISORY - " : "";
 

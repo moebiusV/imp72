@@ -18,8 +18,8 @@ all: libstage0.a imp72s0 imp72stage0
 imp72s0: imp72s0.o imphost.o $(LLVMOBJS) libstage0.a
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o imphost.o $(LLVMOBJS) libstage0.a $(LLVMLIBS)
 
-imphost.o: ../lib/imphost.c
-	$(CC) -std=c99 -O1 -g $(LLVMBINDIRDEF) -c ../lib/imphost.c
+imphost.o: imphost.c
+	$(CC) -std=c99 -O1 -g $(LLVMBINDIRDEF) -c imphost.c
 
 imp72s0.o: imp72s0.c imp.h ir.h
 	$(CC) $(CFLAGS) $(LLVMCFLAGS) -c imp72s0.c

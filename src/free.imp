@@ -36,8 +36,8 @@ SUBR FSETL(X,N) IS FREES(X+2,HW(HL(FREE(X+2)),N));
   IT IS FIRST ASKED FOR (STAGE0/SYS.C), SO THE ADDRESSES OF THE ARRAYS, AND THE BYTE POINTERS INTO THEM, NEVER CHANGE #
 SUBR CORE(K) IS (
  K+1 LE FSIZE => RETURN 1;
- FB=0 => (FB:=CCALL IMPCOREBASE(0); FB=0 => RETURN 0);
- CCALL IMPCORESET(8*(K+1))=0 => RETURN 0;
+ FB=0 => (FB:=IMPCOREBASE(0); FB=0 => RETURN 0);
+ IMPCORESET(8*(K+1))=0 => RETURN 0;
  FSIZE:=K+1;
  1);
 
@@ -71,7 +71,7 @@ SUBR FNEW(NM,N) IS (
  FPACK(0); PACKED:=1; GO TO NL1;
  NL2: PW:=FFWD(Y); PX:=Y+4+FLENX(Y);                          # PLACE THE ARRAY AFTER Y, ZEROED #
  FREES(PX,HW(Y,PW)); FREES(PX+1,NM); FREES(PX+2,HW(0,N)); FREES(PX+3,0);
- CCALL MEMSET(FB+8*(PX+4),0,8*N);
+ CCALL memset(FB+8*(PX+4),0,8*N);
  FSETF(Y,PX); FSETB(PW,PX);
  X:=PX;
  TRACE NE 0 => (FALOTR(X,N);
@@ -110,7 +110,7 @@ FA4: V:=FBACK(X); W:=FFWD(X);                   # MOVE X TO JUST AFTER ARRAY Y #
  V:=Y; W:=FFWD(Y);
  FREES(X,HW(V,W));
  Y:=V+4+FLENX(V);
-FA2: CCALL MEMMOVE(FB+8*Y,FB+8*X,8*(LX+4));  # MOVE X DOWN TO Y #
+FA2: CCALL memmove(FB+8*Y,FB+8*X,8*(LX+4));  # MOVE X DOWN TO Y #
  FSETF(V,Y); FSETB(W,Y);
  X:=Y;
 FA1: FSETL(X,N);                              # X HAS ROOM: SET ITS LENGTH AND CLEAR THE NEW WORDS #
@@ -130,10 +130,10 @@ SUBR FRELOT(A,NM,N,S) IS (
  SL:=0;
  RL1: SL<NRELOC => ([RELP+16*SL]=0 => GO TO RL2;
                     SL:=SL+1; GO TO RL1);
- P:=CCALL REALLOC(RELP,16*(NRELOC+16));
+ P:=CCALL realloc(RELP,16*(NRELOC+16));
  P=0 => (ERROR(0,'OUT OF MEMORY FOR RELOCATION TABLE. '); RETURN 0);
  RELP:=P;
- CCALL MEMSET(RELP+16*NRELOC,0,16*16);
+ CCALL memset(RELP+16*NRELOC,0,16*16);
  NRELOC:=NRELOC+16;
 RL2: [RELP+16*SL]:=LOC(A);
  QQ:=RELP+16*SL; QQ:=QQ+8; [QQ]:=S;                     # THE SECOND WORD OF THE ENTRY: A POINTER VARIABLE, FOR [X+8] IS 8 BYTES OR 8 WORDS DEPENDING ON THE FORM OF X #
@@ -173,7 +173,7 @@ FP0: J:=FFWD(I);
  J1:=I+4+FLENX(I);
  J1=J => (I:=J; GO TO FP0);
  FREE(J+3) NE 0 => (FSETF(I,J1); K:=FFWD(J); FSETB(K,J1);          # J CAN MOVE DOWN TO J1 #
-                    CCALL MEMMOVE(FB+8*J1,FB+8*J,8*(FLENX(J)+4));
+                    CCALL memmove(FB+8*J1,FB+8*J,8*(FLENX(J)+4));
                     FFIXER(J1);
                     I:=J1; GO TO FP0);
  K:=FFWD(J); K0:=0; K1:=0;                                           # J IS FIXED: THE LARGEST THAT FITS THE GAP #
@@ -181,7 +181,7 @@ FP0: J:=FFWD(I);
                                         K2<J => K2>K1 => (K0:=K; K1:=K2));
                      K:=FFWD(K));
  K0=0 => (I:=J; GO TO FP0);
- CCALL MEMMOVE(FB+8*J1,FB+8*K0,8*(FLENX(K0)+4));
+ CCALL memmove(FB+8*J1,FB+8*K0,8*(FLENX(K0)+4));
  FSETF(I,J1); FSETB(J,J1);
  KB:=FBACK(J1); KF:=FFWD(J1);                                       # THE OLD NEIGHBOURS OF THE MOVED ARRAY #
  FREES(J1,HW(I,J));

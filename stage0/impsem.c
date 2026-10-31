@@ -588,6 +588,8 @@ declare(word s)
         }
         if ((props & 4) && jj == 0)
             dprops(DP_COM, j, 1);
+        if ((props & 4096) && jj == 0)          /* EXTERNAL: a variable of the C library, or of another object; nothing is defined here */
+            dprops(DP_COM, j, 3);
         if (props & 8)
             dprops(DP_ATYPE, j, 2);
         if (props & 16)

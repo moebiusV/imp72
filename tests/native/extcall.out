@@ -1,0 +1,3 @@
+external stdout
+twice 21 = 42
+seven = 7

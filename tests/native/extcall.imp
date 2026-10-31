@@ -1,0 +1,10 @@
+!stdout! IS EXTERNAL;
+CCALL fputs(LOC('external stdout
+'),!stdout!);
+Y:=21;
+PRINT STG 0,'twice 21 = ',IGR 0,CCALL impcallw(LOC(TWICE),LOC(Y)),/;
+PRINT STG 0,'seven = ',IGR 0,CCALL impcallp(LOC(SEVEN),LOC(Y)),/;
+FINI(0);
+SUBR TWICE(A) IS A+A;
+SUBR SEVEN(Z) IS 7
+%%

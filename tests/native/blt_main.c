@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "imp72words.h"
-word fill(word *), copy(word *), sumq(word *);
+word FILL(word *), COPY(word *), SUMQ(word *);
 int main(void) {
     word n = 10;
-    fill(&n);
-    copy(&n);
-    printf("sumq=%lld\n", W(sumq(&n)));
+    FILL(&n);
+    COPY(&n);
+    printf("sumq=%lld\n", W(SUMQ(&n)));
     return 0;
 }

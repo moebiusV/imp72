@@ -450,11 +450,14 @@ callexpr(struct node *n)
 {
     struct node *fn = n->l, *args[64] = { NULL }, *list[64], *c;
     char *vals[64], *r, *o;
-    int nargs, k, top = -1, nl = 0, nfix, cf;
+    int nargs, k, top = -1, nl = 0, nfix, cf, ind;
 
     if (fn->op != ICON || fn->name == NULL)
         die("call of a computed function", "");
-    add(&called, fn->name);
+    /* a call through an address: CCALL IMPCALLP(F,A,...) (the result a C long) or IMPCALLW(F,A,...) (the result an IMP word, 64 bits) calls the function at F with the arguments A, ... by value */
+    ind = strcmp(fn->name, "impcallp") == 0 || strcmp(fn->name, "impcallw") == 0;
+    if (!ind)
+        add(&called, fn->name);
     if (strcmp(fn->name, "_setjmp") == 0 || strcmp(fn->name, "setjmp") == 0)
         usesjmp = 1;
     if (n->op == CALL) {
@@ -498,6 +501,33 @@ callexpr(struct node *n)
             v = t;
         }
         vals[k] = v;
+    }
+    if (ind) {
+        char *f = newval(), *ft = fmt("(");
+        int j;
+
+        if (nargs < 1)
+            die("call through an address without the address", fn->name);
+        ins("%s = inttoptr %s %s to ptr", f, IPT, vals[0]);
+        o = fmt("");
+        for (j = 1; j < nargs; j++) {
+            ft = fmt("%s%s%s", ft, j > 1 ? ", " : "", IPT);
+            o = fmt("%s%s%s %s", o, j > 1 ? ", " : "", IPT, vals[j]);
+        }
+        ft = fmt("%s)", ft);
+        r = newval();
+        if (fn->name[7] == 'w') {
+            ins("%s = call i64 %s %s(%s)", r, ft, f, o);
+            return r;
+        }
+        ins("%s = call %s %s %s(%s)", r, IPT, ft, f, o);
+        if (ptr32) {
+            char *z = newval();
+
+            ins("%s = sext i32 %s to i64", z, r);
+            return z;
+        }
+        return r;
     }
     cf = iscfunc(fn->name);
     nfix = variadic_fixed(fn->name);

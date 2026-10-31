@@ -1,0 +1,19 @@
+#IMPVARSX-MACHO: THE SECTION impvars OF THE __DATA SEGMENT OF A MACH-O PROGRAM (GETSECTIONDATA), AND ITS WRITABLE PART: THE __DATA SEGMENT (GETSEGMENTDATA).#
+
+
+SUBR VSTART(Z) IS (
+ SZ,H ARE LOCAL;
+ SZ:=0;
+ H:=CCALL _dyld_get_image_header(0);
+ MP:=(CCALL getsectiondata(H,LOC('__DATA'),LOC('impvars'),LOC(SZ))) AND SCMASK(0);
+ MSZ:=SZ; MP);
+
+SUBR VSTOP(Z) IS MP+MSZ;
+
+SUBR WRITABLE(A,S) IS (
+ SZ,H ARE LOCAL;
+ SP=0 => (SZ:=0; H:=CCALL _dyld_get_image_header(0);
+          SP:=(CCALL getsegmentdata(H,LOC('__DATA'),LOC(SZ))) AND SCMASK(0); SSZ:=SZ);
+ SP NE 0 => (A GE SP => ((A+S) LE (SP+SSZ) => RETURN 1));
+ 0)
+%%

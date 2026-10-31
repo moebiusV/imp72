@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "imp72words.h"
-word t(word *), u(word *), neg(word *), rel(word *);
+word T(word *), U(word *), NEG(word *), REL(word *);
 int main(void) {
     word n = 10;
-    printf("t=%lld u=%lld neg=%lld\n", W(t(&n)), W(u(&n)), W(neg(&n)));
-    printf("rel=%lld\n", W(rel(&n)));
+    printf("t=%lld u=%lld neg=%lld\n", W(T(&n)), W(U(&n)), W(NEG(&n)));
+    printf("rel=%lld\n", W(REL(&n)));
     return 0;
 }

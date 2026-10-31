@@ -3,7 +3,7 @@ K:=BYTEP V<7,36>;
 <+K>:=101B; <+K>:=102B; <+K>:=303B; <+K>:=251B; <+K>:=0;
 P:=BYTEP V<7,36>;
 WHILE (C:=<+P>) DO PRINT IGR 0,C,/;
-PRINT IGR 0,CCALL STRLEN(LOC(V)),/;
+PRINT IGR 0,CCALL strlen(LOC(V)),/;
 Q:=BYTEP 'HI'<7,36>;
 S:=<+Q>; T:=<+Q>; U:=<+Q>;
 PRINT IGR 0,S,/,IGR 0,T,/,IGR 0,U,/;

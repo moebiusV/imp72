@@ -504,6 +504,7 @@ SUBR EDATA(NIL) IS (
   Q:=0;
   NDDL>0 => ((FREE(DDL+J)=D => Q:=1) FOR J IN 0,3,NDDL-3);
   NFN>0 => ((FREE(FNAMES+J)=D => Q:=1) FOR J IN 0,1,NFN-1);
+  DPROP('COM',D)=3 => Q:=1;                       # EXTERNAL: DEFINED ELSEWHERE #
   Q=0 => (SZ:=8;
           NARR>0 => ((W:=FREE(ARR+J); HR(W)=D => SZ:=8*HL(W)) FOR J IN 0,1,NARR-1);
           DPROP('COM',D)=0 => IXPASS(LOC(' .local %s'),IRSYMNAME(D),0,0,0);
@@ -547,5 +548,5 @@ SUBR DEMIT(A) IS (
                                     START:=I)) FOR I IN 0,1,NRL-1;
  START GE 0 => EFUNC(START,NRL,0) ELSE (NRL>0 => EFUNC(0,NRL,1));
  EDATA(0);
- CCALL FFLUSH(0);
+ CCALL fflush(0);
  0) %%

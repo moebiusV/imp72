@@ -764,7 +764,7 @@ subrcall(word t)
     subpr0(0);
     tt = FREE(t);
     dse_ = L18(tt);
-    if (dprop(DP_COM, dse_) != 2)
+    if (dprop(DP_COM, dse_) < 2)
         dprops(DP_COM, dse_, 1);
     dewop(0266, areg(016), dewfun(t, 1, 015));
     tt = FREE(t);

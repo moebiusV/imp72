@@ -138,7 +138,6 @@ symname(word v)
 {
     char buf[128], out[300];
     size_t i, k = 0;
-    int exact = 0;
 
     if (v >= nsymcache) {
         word n = v + 64;
@@ -150,17 +149,10 @@ symname(word v)
     if (symcache[v] != NULL)
         return symcache[v];
     dname_str(v, buf, sizeof buf);
-    for (i = 0; buf[i]; i++)
-        if (buf[i] >= 'a' && buf[i] <= 'z')
-            exact = 1;                  /* a name with a lower case letter is a foreign name as it is written (LLVMGetHostCPUName) */
-    for (i = 0; buf[i] && k + 4 < sizeof out; i++) {
+    for (i = 0; buf[i] && k + 4 < sizeof out; i++) {                    /* a name is the symbol as it is written: IMP names are case sensitive, and C's are what C says */
         unsigned char ch = (unsigned char)buf[i];
 
-        if (ch >= 'A' && ch <= 'Z' && !exact)
-            out[k++] = (char)(ch + 'a' - 'A');
-        else if (ch >= 'A' && ch <= 'Z')
-            out[k++] = (char)ch;
-        else if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_')
+        if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_')
             out[k++] = (char)ch;
         else
             k += (size_t)sprintf(out + k, "_%02x", ch);
@@ -1220,9 +1212,9 @@ call(long i)
         return i;
     }
     nm = symname(t->v);
-    if (strcmp(nm, "prn_2e") == 0)
+    if (strcmp(nm, "PRN_2e") == 0)
         return printcall(i, 0);
-    if (strcmp(nm, "red_2e") == 0)
+    if (strcmp(nm, "RED_2e") == 0)
         return printcall(i, 1);
     while (j < nti) {
         struct ti *a = &tis[j];
@@ -1712,6 +1704,8 @@ emit_data(void)
             if (q < nfnames)
                 continue;
         }
+        if (dprop(DP_COM, v->v) == 3)           /* EXTERNAL */
+            continue;
         sz = 8;
         n = impsem_narr();
         for (i = 0; i < n; i++) {

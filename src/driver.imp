@@ -21,14 +21,14 @@ IMPD(0);
 
 # EXISTS(P): CAN THE FILE BE RUN OR READ #
 SUBR EXISTS(P) IS (
- (CCALL ACCESS(P,1) AND 37777777777B)=0 => RETURN 1;
- (CCALL ACCESS(P,4) AND 37777777777B)=0 => RETURN 1;
+ (CCALL access(P,1) AND 37777777777B)=0 => RETURN 1;
+ (CCALL access(P,4) AND 37777777777B)=0 => RETURN 1;
  0);
 
 # ENVOR(NAME,DFLT): THE ENVIRONMENT VARIABLE NAME, OR DFLT IF IT IS NOT SET OR EMPTY #
 SUBR ENVOR(NM,DF) IS (
  V ARE LOCAL;
- V:=CCALL GETENV(NM);
+ V:=CCALL getenv(NM);
  V=0 => RETURN DF;
  IMPBYTE(V,0)=0 => RETURN DF;
  V);
@@ -36,16 +36,16 @@ SUBR ENVOR(NM,DF) IS (
 # OVERRIDE(DEST,NAME): THE PATH IN DEST (A BUFFER) REPLACED BY THE ENVIRONMENT VARIABLE'S VALUE, IF IT IS SET #
 SUBR OVERRIDE(DS,NM) IS (
  V ARE LOCAL;
- V:=CCALL GETENV(NM);
+ V:=CCALL getenv(NM);
  V=0 => RETURN 0;
  IMPBYTE(V,0)=0 => RETURN 0;
- CCALL SNPRINTF(DS,4096,LOC('%s'),V);
+ CCALL snprintf(DS,4096,LOC('%s'),V);
  0);
 
 # QS(S): THE C STRING AT S IN SINGLE QUOTES, FOR THE SHELL, IN ONE OF EIGHT BUFFERS #
 SUBR QS(S) IS (
  O,P,Q,C ARE LOCAL;
- QR=0 => QR:=CCALL CALLOC(8,8192);
+ QR=0 => QR:=CCALL calloc(8,8192);
  QK:=(QK+1)-(8*((QK+1)/8));
  O:=QR+(8192*QK);
  P:=BYTEP [O]<7,36>; Q:=BYTEP [S]<7,36>;
@@ -57,98 +57,98 @@ SUBR QS(S) IS (
  O);
 
 # RUN THE COMMAND IN CMD: 0 IF IT WORKED #
-SUBR RUNCMD(Z) IS ((CCALL SYSTEM(LOC(CMD)) AND 37777777777B)=0 => 0 ELSE 1);
+SUBR RUNCMD(Z) IS ((CCALL system(LOC(CMD)) AND 37777777777B)=0 => 0 ELSE 1);
 
 # THE DIRECTORY OF THE RUNNING PROGRAM, IN DIRB; 0-1 IF IT IS NOT FOUND #
 SUBR EXEDIR(A0) IS (
  K,S,P,L,E,EB ARE LOCAL;
  EB:=LOC(EXEB);
- K:=CCALL READLINK(LOC('/proc/self/exe'),EB,4095);
- K>0 => (CCALL MEMSET(EB+K,0,1); GO TO XD3);
+ K:=CCALL readlink(LOC('/proc/self/exe'),EB,4095);
+ K>0 => (CCALL memset(EB+K,0,1); GO TO XD3);
  IMPBYTE(A0,0)=0 => RETURN 0-1;
- CCALL STRCHR(A0,57B) NE 0 => (CCALL REALPATH(A0,EB)=0 => RETURN 0-1; GO TO XD3);
- P:=CCALL GETENV(LOC('PATH'));                         # FOUND THROUGH THE PATH #
+ CCALL strchr(A0,57B) NE 0 => (CCALL realpath(A0,EB)=0 => RETURN 0-1; GO TO XD3);
+ P:=CCALL getenv(LOC('PATH'));                         # FOUND THROUGH THE PATH #
  XD1: P=0 => RETURN 0-1;
       IMPBYTE(P,0)=0 => RETURN 0-1;
-      E:=CCALL STRCHR(P,72B);
-      E NE 0 => L:=E-P ELSE L:=CCALL STRLEN(P);
-      CCALL SNPRINTF(LOC(CMD),4096,LOC('%.*s/%s'),L,P,A0);
-      (CCALL ACCESS(LOC(CMD),1) AND 37777777777B)=0 => CCALL REALPATH(LOC(CMD),EB) NE 0 => GO TO XD3;
+      E:=CCALL strchr(P,72B);
+      E NE 0 => L:=E-P ELSE L:=CCALL strlen(P);
+      CCALL snprintf(LOC(CMD),4096,LOC('%.*s/%s'),L,P,A0);
+      (CCALL access(LOC(CMD),1) AND 37777777777B)=0 => CCALL realpath(LOC(CMD),EB) NE 0 => GO TO XD3;
       E NE 0 => (P:=E+1; GO TO XD1);
       RETURN 0-1;
- XD3: S:=CCALL STRRCHR(EB,57B);
+ XD3: S:=CCALL strrchr(EB,57B);
  S=0 => RETURN 0-1;
- CCALL MEMSET(S,0,1);
- CCALL SNPRINTF(LOC(DIRB),4096,LOC('%s'),EB);
+ CCALL memset(S,0,1);
+ CCALL snprintf(LOC(DIRB),4096,LOC('%s'),EB);
  0);
 
-SUBR DARG(I) IS (CCALL IMPARGET(LOC(DW),AV0,I); DW);
+SUBR DARG(I) IS (IMPARGET(LOC(DW),AV0,I); DW);
 
 # THE COMMAND LINE OF THE KERNEL, IN C MEMORY: KA, K WORDS SO FAR #
-SUBR KADD(V) IS (CCALL IMPARGSET(KA,KNN,V); KNN:=KNN+1; 0);
+SUBR KADD(V) IS (IMPARGSET(KA,KNN,V); KNN:=KNN+1; 0);
 
 # THE NAME OF THE OUTPUT: OUT IF -O NAMED ONE, ELSE THE BASEN OF THE FIRST FILE AND EXT #
 SUBR OUTNAME(EXT) IS (
  OUTN NE 0 => RETURN OUTN;
  EXT=0 => RETURN LOC('a.out');                       # AS THE C COMPILER'S #
- CCALL SNPRINTF(LOC(OUTB),4096,LOC('%s%s'),LOC(BASEN),EXT);
+ CCALL snprintf(LOC(OUTB),4096,LOC('%s%s'),LOC(BASEN),EXT);
  LOC(OUTB));
 
 # THE BASE OF THE FILE NAME P, WITHOUT ITS DIRECTORY AND A .IMP, IN THE BUFFER B (THE C COMPILER WRITES NAME.O IN THE CURRENT DIRECTORY) #
 SUBR BASEOF(P,B) IS (
  S,L ARE LOCAL;
- S:=CCALL STRRCHR(P,57B); S=0 => S:=P ELSE S:=S+1;
- CCALL SNPRINTF(B,4096,LOC('%s'),S);
- L:=CCALL STRLEN(B);
- L>4 => (CCALL STRCMP(B+(L-4),LOC('.imp'))=0 => CCALL MEMSET(B+(L-4),0,1));
+ S:=CCALL strrchr(P,57B); S=0 => S:=P ELSE S:=S+1;
+ CCALL snprintf(B,4096,LOC('%s'),S);
+ L:=CCALL strlen(B);
+ L>4 => (CCALL strcmp(B+(L-4),LOC('.imp'))=0 => CCALL memset(B+(L-4),0,1));
  0);
 
 # THE OBJECTS TO LINK, AFTER THE ARGUMENTS KADD HAS COLLECTED SO FAR #
 SUBR ADDOBJS(Z) IS (
  K ARE LOCAL;
  K:=0;
- AO1: K<DNOBJL => (CCALL IMPARGET(LOC(DW),DOBJL,K); KADD(DW); K:=K+1; GO TO AO1);
+ AO1: K<DNOBJL => (IMPARGET(LOC(DW),DOBJL,K); KADD(DW); K:=K+1; GO TO AO1);
  0);
 
 # TRYDIR(D): THE FILES OF THE C LIBRARY (CRT1.O, CRTI.O, CRTN.O) ARE IN THE DIRECTORY D; SETS C1P, C2P, C3P AND LIBD #
 SUBR TRYDIR(D) IS (
- CCALL SNPRINTF(LOC(C1P),4096,LOC('%s/crt1.o'),D);
+ CCALL snprintf(LOC(C1P),4096,LOC('%s/crt1.o'),D);
  EXISTS(LOC(C1P))=0 => RETURN 0;
- CCALL SNPRINTF(LOC(C2P),4096,LOC('%s/crti.o'),D);
- CCALL SNPRINTF(LOC(C3P),4096,LOC('%s/crtn.o'),D);
- CCALL SNPRINTF(LOC(LIBD),4096,LOC('%s'),D);
+ CCALL snprintf(LOC(C2P),4096,LOC('%s/crti.o'),D);
+ CCALL snprintf(LOC(C3P),4096,LOC('%s/crtn.o'),D);
+ CCALL snprintf(LOC(LIBD),4096,LOC('%s'),D);
  1);
 
 # TRYDL(P): THE DYNAMIC LINKER P EXISTS; SETS DLP #
 SUBR TRYDL(P) IS (
  EXISTS(P)=0 => RETURN 0;
- CCALL SNPRINTF(LOC(DLP),4096,LOC('%s'),P);
+ CCALL snprintf(LOC(DLP),4096,LOC('%s'),P);
  1);
 
 # SETARCH(A): THE ARCHITECTURE A (IMPHOSTARCH) IS ONE WHOSE PLACES OF THE C LIBRARY ARE KNOWN: SETS TRI (THE NAME OF ITS DIRECTORY IN /USR/LIB ON DEBIAN), DLG (THE DYNAMIC
   LINKER OF GLIBC) AND DLM (OF MUSL); 0 IF IT IS NOT KNOWN (THE 32 BIT ONES GET THE DIVISION OF 64 BITS FROM COMPILER-RT, WHICH LIBIMP72.A HOLDS) #
 SUBR SETARCH(A) IS (
- CCALL STRCMP(A,LOC('x86_64'))=0 => (TRI:=LOC('x86_64-linux-gnu'); DLG:=LOC('/lib64/ld-linux-x86-64.so.2'); DLM:=LOC('/lib/ld-musl-x86_64.so.1'); RETURN 1);
- CCALL STRCMP(A,LOC('i386'))=0 => (TRI:=LOC('i386-linux-gnu'); DLG:=LOC('/lib/ld-linux.so.2'); DLM:=LOC('/lib/ld-musl-i386.so.1'); RETURN 1);
- CCALL STRCMP(A,LOC('arm'))=0 => (TRI:=LOC('arm-linux-gnueabihf'); DLG:=LOC('/lib/ld-linux-armhf.so.3'); DLM:=LOC('/lib/ld-musl-armhf.so.1'); RETURN 1);
- CCALL STRCMP(A,LOC('aarch64'))=0 => (TRI:=LOC('aarch64-linux-gnu'); DLG:=LOC('/lib/ld-linux-aarch64.so.1'); DLM:=LOC('/lib/ld-musl-aarch64.so.1'); RETURN 1);
- CCALL STRCMP(A,LOC('ppc64le'))=0 => (TRI:=LOC('powerpc64le-linux-gnu'); DLG:=LOC('/lib64/ld64.so.2'); DLM:=LOC('/lib/ld-musl-powerpc64le.so.1'); RETURN 1);
- CCALL STRCMP(A,LOC('s390x'))=0 => (TRI:=LOC('s390x-linux-gnu'); DLG:=LOC('/lib/ld64.so.1'); DLM:=LOC('/lib/ld-musl-s390x.so.1'); RETURN 1);
- CCALL STRCMP(A,LOC('riscv64'))=0 => (TRI:=LOC('riscv64-linux-gnu'); DLG:=LOC('/lib/ld-linux-riscv64-lp64d.so.1'); DLM:=LOC('/lib/ld-musl-riscv64.so.1'); RETURN 1);
- CCALL STRCMP(A,LOC('loongarch64'))=0 => (TRI:=LOC('loongarch64-linux-gnu'); DLG:=LOC('/lib64/ld-linux-loongarch-lp64d.so.1'); DLM:=LOC('/lib/ld-musl-loongarch64.so.1'); RETURN 1);
+ CCALL strcmp(A,LOC('x86_64'))=0 => (TRI:=LOC('x86_64-linux-gnu'); DLG:=LOC('/lib64/ld-linux-x86-64.so.2'); DLM:=LOC('/lib/ld-musl-x86_64.so.1'); RETURN 1);
+ CCALL strcmp(A,LOC('i386'))=0 => (TRI:=LOC('i386-linux-gnu'); DLG:=LOC('/lib/ld-linux.so.2'); DLM:=LOC('/lib/ld-musl-i386.so.1'); RETURN 1);
+ CCALL strcmp(A,LOC('arm'))=0 => (TRI:=LOC('arm-linux-gnueabihf'); DLG:=LOC('/lib/ld-linux-armhf.so.3'); DLM:=LOC('/lib/ld-musl-armhf.so.1'); RETURN 1);
+ CCALL strcmp(A,LOC('aarch64'))=0 => (TRI:=LOC('aarch64-linux-gnu'); DLG:=LOC('/lib/ld-linux-aarch64.so.1'); DLM:=LOC('/lib/ld-musl-aarch64.so.1'); RETURN 1);
+ CCALL strcmp(A,LOC('ppc64le'))=0 => (TRI:=LOC('powerpc64le-linux-gnu'); DLG:=LOC('/lib64/ld64.so.2'); DLM:=LOC('/lib/ld-musl-powerpc64le.so.1'); RETURN 1);
+ CCALL strcmp(A,LOC('s390x'))=0 => (TRI:=LOC('s390x-linux-gnu'); DLG:=LOC('/lib/ld64.so.1'); DLM:=LOC('/lib/ld-musl-s390x.so.1'); RETURN 1);
+ CCALL strcmp(A,LOC('riscv64'))=0 => (TRI:=LOC('riscv64-linux-gnu'); DLG:=LOC('/lib/ld-linux-riscv64-lp64d.so.1'); DLM:=LOC('/lib/ld-musl-riscv64.so.1'); RETURN 1);
+ CCALL strcmp(A,LOC('loongarch64'))=0 => (TRI:=LOC('loongarch64-linux-gnu'); DLG:=LOC('/lib64/ld-linux-loongarch-lp64d.so.1'); DLM:=LOC('/lib/ld-musl-loongarch64.so.1'); RETURN 1);
  0);
 
 # HAVEF(B,D,N): THE FILE N IN THE DIRECTORY D EXISTS; ITS PATH IS IN THE BUFFER B #
 SUBR HAVEF(B,D,N) IS (
- CCALL SNPRINTF(B,4096,LOC('%s/%s'),D,N);
+ CCALL snprintf(B,4096,LOC('%s/%s'),D,N);
  EXISTS(B));
 
 # THE ARGUMENTS OF LD, WHEN IMP72LDSHOW IS SET, ON THE STANDARD ERROR (THE SEED'S DRIVER, STAGE0/IMP72S0.C, DOES THE SAME: A TEST REQUIRES THE TWO TO WRITE THE SAME) #
 SUBR SHOWLD(Z) IS (
  K ARE LOCAL;
- CCALL GETENV(LOC('IMP72LDSHOW'))=0 => RETURN 0;
+ CCALL getenv(LOC('IMP72LDSHOW'))=0 => RETURN 0;
  K:=0;
- SH1: K<KNN => (CCALL IMPARGET(LOC(DW),KA,K); OUTCS(DW); OUTCHR(40B); K:=K+1; GO TO SH1);
+ SH1: K<KNN => (IMPARGET(LOC(DW),KA,K); OUTCS(DW); OUTCHR(40B); K:=K+1; GO TO SH1);
  OUTCHR(12B);
  0);
 
@@ -157,24 +157,24 @@ SUBR SHOWLD(Z) IS (
 SUBR RUNLD(Z) IS (
  OK ARE LOCAL;
  SHOWLD(0);
- CCALL IMPLDHAVE(0) NE 0 => OK:=(CCALL IMPLD(KNN,KA) NE 0 => 1 ELSE 0) ELSE OK:=(CCALL IMPRUNLD(KNN,KA) NE 0 => 1 ELSE 0);
+ CCALL impldhave(0) NE 0 => OK:=(CCALL impld(KNN,KA) NE 0 => 1 ELSE 0) ELSE OK:=(IMPRUNLD(KNN,KA) NE 0 => 1 ELSE 0);
  OK);
 
 # THE LINK ON LINUX, WITH THE C LIBRARY OF GLIBC OR MUSL: 9 IF THE ARCHITECTURE IS NOT KNOWN #
 SUBR LNKLIN(HA) IS (
  OK ARE LOCAL;
  OK:=0;
- CCALL IMPHOSTCRTDIR(LOC(MAD)) NE 0 => CCALL IMPHOSTINTERP(LOC(DLP)) NE 0 => OK:=TRYDIR(LOC(MAD));       # WHAT THIS PROGRAM'S OWN LOADER FOUND #
+ IMPHOSTCRTDIR(LOC(MAD)) NE 0 => IMPHOSTINTERP(LOC(DLP)) NE 0 => OK:=TRYDIR(LOC(MAD));       # WHAT THIS PROGRAM'S OWN LOADER FOUND #
  OK NE 0 => GO TO LL1;
  SETARCH(HA)=0 => RETURN 9;                          # ELSE THE TABLE OF THE ARCHITECTURES (A PROGRAM WITH NO LOADER OF ITS OWN) #
- CCALL SNPRINTF(LOC(MAD),4096,LOC('/usr/lib/%s'),TRI);
+ CCALL snprintf(LOC(MAD),4096,LOC('/usr/lib/%s'),TRI);
  WH:=1; OK:=TRYDIR(LOC(MAD));
  OK=0 => OK:=TRYDIR(LOC('/usr/lib64'));
  OK=0 => (WH:=2; OK:=TRYDIR(LOC('/usr/lib')));
  OK=0 => RETURN 9;
  WH=1 => (OK:=TRYDL(DLG); OK=0 => OK:=TRYDL(DLM)) ELSE (OK:=TRYDL(DLM); OK=0 => OK:=TRYDL(DLG));
  OK=0 => RETURN 9;
- LL1: KA:=CCALL CALLOC(40+DNOBJL,8); KNN:=0;
+ LL1: KA:=CCALL calloc(40+DNOBJL,8); KNN:=0;
  KADD(LOC('ld.lld')); KADD(LOC('-o')); KADD(OUTNAME(0)); KADD(LOC('-dynamic-linker')); KADD(LOC(DLP));
  KADD(LOC(C1P)); KADD(LOC(C2P)); ADDOBJS(0); KADD(LOC(LIBP)); KADD(LOC('-L')); KADD(LOC(LIBD)); KADD(LOC('-lc')); KADD(LOC(C3P));
  RUNLD(0));
@@ -184,19 +184,19 @@ SUBR LNKLIN(HA) IS (
 SUBR LNKBSD(OS,HA) IS (
  OBSD ARE LOCAL;
  DLG:=0; OBSD:=0;
- CCALL STRCMP(OS,LOC('freebsd'))=0 => (DLG:=LOC('/libexec/ld-elf.so.1'); FC0:=LOC('crt1.o'); WH:=1);
- CCALL STRCMP(OS,LOC('netbsd'))=0 => (DLG:=LOC('/usr/libexec/ld.elf_so'); FC0:=LOC('crt0.o'); WH:=1);
- CCALL STRCMP(OS,LOC('openbsd'))=0 => (DLG:=LOC('/usr/libexec/ld.so'); FC0:=LOC('crt0.o'); WH:=0; OBSD:=1);
+ CCALL strcmp(OS,LOC('freebsd'))=0 => (DLG:=LOC('/libexec/ld-elf.so.1'); FC0:=LOC('crt1.o'); WH:=1);
+ CCALL strcmp(OS,LOC('netbsd'))=0 => (DLG:=LOC('/usr/libexec/ld.elf_so'); FC0:=LOC('crt0.o'); WH:=1);
+ CCALL strcmp(OS,LOC('openbsd'))=0 => (DLG:=LOC('/usr/libexec/ld.so'); FC0:=LOC('crt0.o'); WH:=0; OBSD:=1);
  DLG=0 => RETURN 9;
- CCALL STRCMP(HA,LOC('x86_64')) NE 0 => CCALL STRCMP(HA,LOC('aarch64')) NE 0 => RETURN 9;
+ CCALL strcmp(HA,LOC('x86_64')) NE 0 => CCALL strcmp(HA,LOC('aarch64')) NE 0 => RETURN 9;
  HAVEF(LOC(C1P),LOC('/usr/lib'),FC0)=0 => RETURN 9;
  HAVEF(LOC(CBP),LOC('/usr/lib'),LOC('crtbegin.o'))=0 => RETURN 9;
  HAVEF(LOC(CEP),LOC('/usr/lib'),LOC('crtend.o'))=0 => RETURN 9;
  WH NE 0 => (HAVEF(LOC(C2P),LOC('/usr/lib'),LOC('crti.o'))=0 => RETURN 9; HAVEF(LOC(C3P),LOC('/usr/lib'),LOC('crtn.o'))=0 => RETURN 9);
- OBSD NE 0 => CCALL IMPHOSTLIBC(LOC(LCP))=0 => CCALL IMPFINDLIB(LOC(LCP),LOC('/usr/lib'),LOC('libc.so.'))=0 => RETURN 9;
- CCALL IMPHOSTINTERP(LOC(DLP))=0 => CCALL SNPRINTF(LOC(DLP),4096,LOC('%s'),DLG);                  # THE LOADER THIS PROGRAM HAS, ELSE THE SYSTEM'S #
+ OBSD NE 0 => IMPHOSTLIBC(LOC(LCP))=0 => IMPFINDLIB(LOC(LCP),LOC('/usr/lib'),LOC('libc.so.'))=0 => RETURN 9;
+ IMPHOSTINTERP(LOC(DLP))=0 => CCALL snprintf(LOC(DLP),4096,LOC('%s'),DLG);                  # THE LOADER THIS PROGRAM HAS, ELSE THE SYSTEM'S #
  HAVEF(LOC(RTP),LOC('/usr/lib'),LOC('libcompiler_rt.a'));
- KA:=CCALL CALLOC(48+DNOBJL,8); KNN:=0;
+ KA:=CCALL calloc(48+DNOBJL,8); KNN:=0;
  KADD(LOC('ld.lld')); KADD(LOC('--eh-frame-hdr')); KADD(LOC('-dynamic-linker')); KADD(LOC(DLP)); KADD(LOC('-o')); KADD(OUTNAME(0));
  KADD(LOC(C1P)); WH NE 0 => KADD(LOC(C2P)); KADD(LOC(CBP)); ADDOBJS(0); KADD(LOC(LIBP));
  OBSD NE 0 => KADD(LOC(LCP)) ELSE (KADD(LOC('-L')); KADD(LOC('/usr/lib')); KADD(LOC('-lc')));
@@ -208,15 +208,15 @@ SUBR LNKBSD(OS,HA) IS (
 SUBR LNKMAC(HA) IS (
  SDK,AR,MV ARE LOCAL;
  AR:=0;
- CCALL STRCMP(HA,LOC('aarch64'))=0 => (AR:=LOC('arm64'); MV:=LOC('11.0'));
- CCALL STRCMP(HA,LOC('x86_64'))=0 => (AR:=LOC('x86_64'); MV:=LOC('10.13'));
+ CCALL strcmp(HA,LOC('aarch64'))=0 => (AR:=LOC('arm64'); MV:=LOC('11.0'));
+ CCALL strcmp(HA,LOC('x86_64'))=0 => (AR:=LOC('x86_64'); MV:=LOC('10.13'));
  AR=0 => RETURN 9;
  SDK:=ENVOR(LOC('SDKROOT'),0);
- SDK=0 => (CCALL SNPRINTF(LOC(LIBD),4096,LOC('/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk')); EXISTS(LOC(LIBD)) NE 0 => SDK:=LOC(LIBD));
- SDK=0 => (CCALL SNPRINTF(LOC(LIBD),4096,LOC('/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk'));
+ SDK=0 => (CCALL snprintf(LOC(LIBD),4096,LOC('/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk')); EXISTS(LOC(LIBD)) NE 0 => SDK:=LOC(LIBD));
+ SDK=0 => (CCALL snprintf(LOC(LIBD),4096,LOC('/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk'));
            EXISTS(LOC(LIBD)) NE 0 => SDK:=LOC(LIBD));
  SDK=0 => RETURN 9;
- KA:=CCALL CALLOC(40+DNOBJL,8); KNN:=0;
+ KA:=CCALL calloc(40+DNOBJL,8); KNN:=0;
  KADD(LOC('ld64.lld')); KADD(LOC('-arch')); KADD(AR); KADD(LOC('-platform_version')); KADD(LOC('macos')); KADD(MV); KADD(MV);
  KADD(LOC('-syslibroot')); KADD(SDK); KADD(LOC('-o')); KADD(OUTNAME(0)); ADDOBJS(0); KADD(LOC(LIBP)); KADD(LOC('-lSystem'));
  RUNLD(0));
@@ -226,15 +226,15 @@ SUBR LNKMAC(HA) IS (
 SUBR LNK(Z) IS (
  HA,OS,OK ARE LOCAL;
  LLVMNATIVE(0)=0 => RETURN LNKCROSS(0);                    # ANOTHER SYSTEM #
- OS:=CCALL IMPHOSTOS(0); HA:=CCALL IMPHOSTARCH(0);
- CCALL STRCMP(OS,LOC('linux'))=0 => OK:=LNKLIN(HA)
- ELSE (CCALL STRCMP(OS,LOC('darwin'))=0 => OK:=LNKMAC(HA) ELSE OK:=LNKBSD(OS,HA));
+ OS:=IMPHOSTOS(0); HA:=IMPHOSTARCH(0);
+ CCALL strcmp(OS,LOC('linux'))=0 => OK:=LNKLIN(HA)
+ ELSE (CCALL strcmp(OS,LOC('darwin'))=0 => OK:=LNKMAC(HA) ELSE OK:=LNKBSD(OS,HA));
  OK=9 => (OUTSTR('imp72: no way to link on this system and architecture: '); OUTCS(OS); OUTCHR(40B); OUTCS(HA); OUTCHR(12B); RETURN 1);
  OK);
 
 # THE ARCHITECTURE OF A TRIPLE AS SETARCH NAMES IT (X86_64, I386, ARM, AARCH64, PPC64LE, S390X, RISCV64, LOONGARCH64), OR 0 #
 SUBR CROSSARCH(A) IS (
- (CCALL STRCMP(A,LOC('x86_64')) AND 4294967295)=0 => RETURN LOC('x86_64');
+ (CCALL strcmp(A,LOC('x86_64')) AND 4294967295)=0 => RETURN LOC('x86_64');
  ((STARTS(A,LOC('aarch64'))=1) OR (STARTS(A,LOC('arm64'))=1)) => RETURN LOC('aarch64');
  ((IMPBYTE(A,0)=151B) AND (IMPBYTE(A,2)=70B) AND (IMPBYTE(A,3)=66B) AND (IMPBYTE(A,4)=0)) => RETURN LOC('i386');          # I386 TO I686 #
  STARTS(A,LOC('arm'))=1 => RETURN LOC('arm');
@@ -273,15 +273,15 @@ SUBR CROSSMSGMAC(WHY) IS (
 SUBR LNKCROSSMAC(Z) IS (
  AR,MV ARE LOCAL;
  AR:=0;
- ((CCALL STRCMP(LOC(DTA),LOC('arm64'))=0) OR (CCALL STRCMP(LOC(DTA),LOC('aarch64'))=0)) => (AR:=LOC('arm64'); MV:=LOC('11.0'));
- CCALL STRCMP(LOC(DTA),LOC('x86_64'))=0 => (AR:=LOC('x86_64'); MV:=LOC('10.13'));
+ ((CCALL strcmp(LOC(DTA),LOC('arm64'))=0) OR (CCALL strcmp(LOC(DTA),LOC('aarch64'))=0)) => (AR:=LOC('arm64'); MV:=LOC('11.0'));
+ CCALL strcmp(LOC(DTA),LOC('x86_64'))=0 => (AR:=LOC('x86_64'); MV:=LOC('10.13'));
  AR=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': macOS on arm64 and x86_64 only'); OUTCHR(12B); RETURN 1);
  DSYSROOT=0 => RETURN CROSSMSGMAC(0);
- CCALL SNPRINTF(LOC(MAD),4096,LOC('%s/usr/lib/libSystem.tbd'),DSYSROOT);
+ CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib/libSystem.tbd'),DSYSROOT);
  EXISTS(LOC(MAD))=0 => RETURN CROSSMSGMAC(1);
  DRUNTIME=0 => RETURN CROSSMSGMAC(2);
  EXISTS(DRUNTIME)=0 => RETURN CROSSMSGMAC(2);
- KA:=CCALL CALLOC(40+DNOBJL,8); KNN:=0;
+ KA:=CCALL calloc(40+DNOBJL,8); KNN:=0;
  KADD(LOC('ld64.lld')); KADD(LOC('-arch')); KADD(AR); KADD(LOC('-platform_version')); KADD(LOC('macos')); KADD(MV); KADD(MV);
  KADD(LOC('-syslibroot')); KADD(DSYSROOT); KADD(LOC('-o')); KADD(OUTNAME(0)); ADDOBJS(0); KADD(DRUNTIME); KADD(LOC('-lSystem'));
  RUNLD(0));
@@ -291,212 +291,212 @@ SUBR LNKCROSS(Z) IS (
  AR,TT,OK ARE LOCAL;
  TT:=LLVMTRIPLE(0);
  DTA[0]:=DTV[0]:=DTO[0]:=DTE[0]:=0;
- CCALL SSCANF(TT,LOC('%[^-]-%[^-]-%[^-]-%s'),LOC(DTA),LOC(DTV),LOC(DTO),LOC(DTE));
+ CCALL sscanf(TT,LOC('%[^-]-%[^-]-%[^-]-%s'),LOC(DTA),LOC(DTV),LOC(DTO),LOC(DTE));
  ((STARTS(LOC(DTO),LOC('darwin'))=1) OR (STARTS(LOC(DTO),LOC('macos'))=1)) => RETURN LNKCROSSMAC(0);
  STARTS(LOC(DTO),LOC('linux'))=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for another system is done for Linux and macOS targets so far; use -c and link there'); OUTCHR(12B); RETURN 1);
  AR:=CROSSARCH(LOC(DTA));
  AR=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': the architecture is not one whose C library files are known'); OUTCHR(12B); RETURN 1);
  SETARCH(AR)=0 => RETURN 1;
- STARTS(LOC(DTE),LOC('musl'))=1 => CCALL SNPRINTF(LOC(DLP),4096,LOC('%s'),DLM) ELSE CCALL SNPRINTF(LOC(DLP),4096,LOC('%s'),DLG);
- CCALL SNPRINTF(LOC(LIBD),4096,LOC('(no sysroot)'));
+ STARTS(LOC(DTE),LOC('musl'))=1 => CCALL snprintf(LOC(DLP),4096,LOC('%s'),DLM) ELSE CCALL snprintf(LOC(DLP),4096,LOC('%s'),DLG);
+ CCALL snprintf(LOC(LIBD),4096,LOC('(no sysroot)'));
  DSYSROOT=0 => RETURN CROSSMSG(0);
- CCALL SNPRINTF(LOC(MAD),4096,LOC('%s/usr/lib/%s'),DSYSROOT,TRI); OK:=TRYDIR(LOC(MAD));
- OK=0 => (CCALL SNPRINTF(LOC(MAD),4096,LOC('%s/usr/lib'),DSYSROOT); OK:=TRYDIR(LOC(MAD)));
- OK=0 => (CCALL SNPRINTF(LOC(MAD),4096,LOC('%s/usr/lib64'),DSYSROOT); OK:=TRYDIR(LOC(MAD)));
- OK=0 => (CCALL SNPRINTF(LOC(MAD),4096,LOC('%s/lib/%s'),DSYSROOT,TRI); OK:=TRYDIR(LOC(MAD)));
- OK=0 => (CCALL SNPRINTF(LOC(MAD),4096,LOC('%s/lib'),DSYSROOT); OK:=TRYDIR(LOC(MAD)));
+ CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib/%s'),DSYSROOT,TRI); OK:=TRYDIR(LOC(MAD));
+ OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib'),DSYSROOT); OK:=TRYDIR(LOC(MAD)));
+ OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib64'),DSYSROOT); OK:=TRYDIR(LOC(MAD)));
+ OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/lib/%s'),DSYSROOT,TRI); OK:=TRYDIR(LOC(MAD)));
+ OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/lib'),DSYSROOT); OK:=TRYDIR(LOC(MAD)));
  OK=0 => RETURN CROSSMSG(1);
- DRUNTIME NE 0 => CCALL SNPRINTF(LOC(LCP),4096,LOC('%s'),DRUNTIME) ELSE CCALL SNPRINTF(LOC(LCP),4096,LOC('%s/libimp72.a'),LOC(LIBD));
+ DRUNTIME NE 0 => CCALL snprintf(LOC(LCP),4096,LOC('%s'),DRUNTIME) ELSE CCALL snprintf(LOC(LCP),4096,LOC('%s/libimp72.a'),LOC(LIBD));
  EXISTS(LOC(LCP))=0 => RETURN CROSSMSG(2);
- CCALL SNPRINTF(LOC(CBP),4096,LOC('--sysroot=%s'),DSYSROOT);
- KA:=CCALL CALLOC(48+DNOBJL,8); KNN:=0;
+ CCALL snprintf(LOC(CBP),4096,LOC('--sysroot=%s'),DSYSROOT);
+ KA:=CCALL calloc(48+DNOBJL,8); KNN:=0;
  KADD(LOC('ld.lld')); KADD(LOC(CBP)); KADD(LOC('-o')); KADD(OUTNAME(0)); KADD(LOC('-dynamic-linker')); KADD(LOC(DLP));
  KADD(LOC(C1P)); KADD(LOC(C2P)); ADDOBJS(0); KADD(LOC(LCP)); KADD(LOC('-L')); KADD(LOC(LIBD)); KADD(LOC('-lc')); KADD(LOC(C3P));
  RUNLD(0));
 
 # THE REMOVAL OF THE TEMPORARY DIRECTORY, AT THE END OF THE PROGRAM (ERROR(0) EXITS) #
 SUBR IMPCLEAN(Z) IS (
- CCALL SNPRINTF(LOC(CMD),4096,LOC('rm -rf %s'),QS(LOC(TMP)));
- CCALL SYSTEM(LOC(CMD));
+ CCALL snprintf(LOC(CMD),4096,LOC('rm -rf %s'),QS(LOC(TMP)));
+ CCALL system(LOC(CMD));
  0);
 
 # WHETHER THE C STRING A BEGINS WITH THE C STRING P #
-SUBR STARTS(A,P) IS ((CCALL STRNCMP(A,P,CCALL STRLEN(P)) AND 4294967295)=0 => 1 ELSE 0);
+SUBR STARTS(A,P) IS ((CCALL strncmp(A,P,CCALL strlen(P)) AND 4294967295)=0 => 1 ELSE 0);
 
 # WHETHER THE FILE NAME A ENDS IN THE C STRING E #
 SUBR ENDS(A,E) IS (
  LA,LE ARE LOCAL;
- LA:=CCALL STRLEN(A); LE:=CCALL STRLEN(E);
+ LA:=CCALL strlen(A); LE:=CCALL strlen(E);
  LA<LE => RETURN 0;
- (CCALL STRCMP(A+(LA-LE),E) AND 4294967295)=0 => 1 ELSE 0);
+ (CCALL strcmp(A+(LA-LE),E) AND 4294967295)=0 => 1 ELSE 0);
 
 SUBR DRVHELP(Z) IS (
- CCALL PUTS(LOC('usage: imp72 [options] file.imp ...'));
- CCALL PUTS(LOC('  -c                 compile to an object file, file.o, and do not link'));
- CCALL PUTS(LOC('  -S                 compile to the assembly of the target, file.s'));
- CCALL PUTS(LOC('  -Sir               compile to LLVM IR text, file.ll'));
- CCALL PUTS(LOC('  -o FILE            name the output (a.out for a program)'));
- CCALL PUTS(LOC('  --target=TRIPLE    for another system (with -c, -S, -Sir), say aarch64-linux-gnu or riscv64-unknown-linux-musl'));
-CCALL PUTS(LOC('  --sysroot=DIR      with --target and no -c: the root of that system, for its C library (DIR/usr/lib/crt1.o ...); or IMP72SYSROOT'));
- CCALL PUTS(LOC('  --runtime=FILE     with --target and no -c: the libimp72.a built for that system; or IMP72RUNTIME'));
- CCALL PUTS(LOC('  -s LETTERS         the switches of the original compiler (A listing, T tree, ...)'));
- CCALL PUTS(LOC('  -I IMAGE           start from the compiler saved by /U or /V'));
- CCALL PUTS(LOC('  -i                 the commands of the original compiler, from the terminal: OBJ,LIST_FILE/switches'));
- CCALL PUTS(LOC('  --run              compile and run in this process'));
- CCALL PUTS(LOC('  --version, --help'));
+ CCALL puts(LOC('usage: imp72 [options] file.imp ...'));
+ CCALL puts(LOC('  -c                 compile to an object file, file.o, and do not link'));
+ CCALL puts(LOC('  -S                 compile to the assembly of the target, file.s'));
+ CCALL puts(LOC('  -Sir               compile to LLVM IR text, file.ll'));
+ CCALL puts(LOC('  -o FILE            name the output (a.out for a program)'));
+ CCALL puts(LOC('  --target=TRIPLE    for another system (with -c, -S, -Sir), say aarch64-linux-gnu or riscv64-unknown-linux-musl'));
+CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that system, for its C library (DIR/usr/lib/crt1.o ...); or IMP72SYSROOT'));
+ CCALL puts(LOC('  --runtime=FILE     with --target and no -c: the libimp72.a built for that system; or IMP72RUNTIME'));
+ CCALL puts(LOC('  -s LETTERS         the switches of the original compiler (A listing, T tree, ...)'));
+ CCALL puts(LOC('  -I IMAGE           start from the compiler saved by /U or /V'));
+ CCALL puts(LOC('  -i                 the commands of the original compiler, from the terminal: OBJ,LIST_FILE/switches'));
+ CCALL puts(LOC('  --run              compile and run in this process'));
+ CCALL puts(LOC('  --version, --help'));
  0);
 
 # THE OPTIONS AND THE FILES OF THE COMMAND LINE, IN ANY ORDER AS THE C COMPILER'S: A NAME THAT ENDS IN .O, .A OR .SO IS TO BE LINKED, ANY OTHER IS A SOURCE.  A MISTAKE ENDS THE PROGRAM (2) #
 SUBR OPTS(Z) IS (
  I,A,V ARE LOCAL;
- DSRCV:=CCALL CALLOC(NA0+1,8); DOBJI:=CCALL CALLOC(NA0+1,8); DKV:=CCALL CALLOC(NA0+1,8); DSYV:=CCALL CALLOC(NA0+1,8); DNSRC:=0; DNOBJI:=0; DNK:=0; DNSY:=0;
+ DSRCV:=CCALL calloc(NA0+1,8); DOBJI:=CCALL calloc(NA0+1,8); DKV:=CCALL calloc(NA0+1,8); DSYV:=CCALL calloc(NA0+1,8); DNSRC:=0; DNOBJI:=0; DNK:=0; DNSY:=0;
  DSTOP:=170B; DJIT:=0; DINTER:=0; OUTN:=0; DSW:=0; DIMG:=0; DTGT:=0; DSIR:=0; DEMP:=0; DSYSROOT:=ENVOR(LOC('IMP72SYSROOT'),0); DRUNTIME:=ENVOR(LOC('IMP72RUNTIME'),0);
  I:=1;
  OP1: I GE NA0 => RETURN 0;
       A:=DARG(I); I:=I+1;
       ((IMPBYTE(A,0) NE 55B) OR (IMPBYTE(A,1)=0)) => GO TO OPF;                   # A FILE (AND - ALONE IS NOT AN OPTION) #
-      CCALL STRCMP(A,LOC('-i'))=0 => (DINTER:=1; GO TO OP1);
-      CCALL STRCMP(A,LOC('-c'))=0 => (DSTOP:=157B; GO TO OP1);
-      CCALL STRCMP(A,LOC('-S'))=0 => (DSTOP:=123B; DSIR:=0; GO TO OP1);
-      CCALL STRCMP(A,LOC('-Sir'))=0 => (DSTOP:=123B; DSIR:=1; GO TO OP1);
-      CCALL STRCMP(A,LOC('--run'))=0 => (DJIT:=1; GO TO OP1);
-      CCALL STRCMP(A,LOC('--version'))=0 => (CCALL PUTS(LOC('imp72 0.9.0')); CCALL EXIT(0));
-      ((CCALL STRCMP(A,LOC('--help'))=0) OR (CCALL STRCMP(A,LOC('-h'))=0)) => (DRVHELP(0); CCALL EXIT(0));
+      CCALL strcmp(A,LOC('-i'))=0 => (DINTER:=1; GO TO OP1);
+      CCALL strcmp(A,LOC('-c'))=0 => (DSTOP:=157B; GO TO OP1);
+      CCALL strcmp(A,LOC('-S'))=0 => (DSTOP:=123B; DSIR:=0; GO TO OP1);
+      CCALL strcmp(A,LOC('-Sir'))=0 => (DSTOP:=123B; DSIR:=1; GO TO OP1);
+      CCALL strcmp(A,LOC('--run'))=0 => (DJIT:=1; GO TO OP1);
+      CCALL strcmp(A,LOC('--version'))=0 => (CCALL puts(LOC('imp72 0.9.0')); CCALL exit(0));
+      ((CCALL strcmp(A,LOC('--help'))=0) OR (CCALL strcmp(A,LOC('-h'))=0)) => (DRVHELP(0); CCALL exit(0));
       STARTS(A,LOC('--target='))=1 => (DTGT:=A+9; GO TO OP1);
       STARTS(A,LOC('--sysroot='))=1 => (DSYSROOT:=A+10; GO TO OP1);
       STARTS(A,LOC('--runtime='))=1 => (DRUNTIME:=A+10; GO TO OP1);
-      ((CCALL STRCMP(A,LOC('--sysroot'))=0) OR (CCALL STRCMP(A,LOC('--runtime'))=0)) => (
+      ((CCALL strcmp(A,LOC('--sysroot'))=0) OR (CCALL strcmp(A,LOC('--runtime'))=0)) => (
           I GE NA0 => GO TO OPM;
-          CCALL STRCMP(A,LOC('--sysroot'))=0 => DSYSROOT:=DARG(I) ELSE DRUNTIME:=DARG(I);
+          CCALL strcmp(A,LOC('--sysroot'))=0 => DSYSROOT:=DARG(I) ELSE DRUNTIME:=DARG(I);
           I:=I+1; GO TO OP1);
-      ((CCALL STRCMP(A,LOC('--target'))=0) OR (CCALL STRCMP(A,LOC('-target'))=0)) => (
+      ((CCALL strcmp(A,LOC('--target'))=0) OR (CCALL strcmp(A,LOC('-target'))=0)) => (
           I GE NA0 => GO TO OPM;
           DTGT:=DARG(I); I:=I+1; GO TO OP1);
       STARTS(A,LOC('-o'))=1 => (IMPBYTE(A,2) NE 0 => (OUTN:=A+2; GO TO OP1);              # -OFILE #
                                 I GE NA0 => GO TO OPM;
                                 OUTN:=DARG(I); I:=I+1; GO TO OP1);                       # -O FILE #
-      ((CCALL STRCMP(A,LOC('-s'))=0) OR (CCALL STRCMP(A,LOC('-I'))=0)) => (
+      ((CCALL strcmp(A,LOC('-s'))=0) OR (CCALL strcmp(A,LOC('-I'))=0)) => (
           I GE NA0 => GO TO OPM;
-          CCALL STRCMP(A,LOC('-s'))=0 => DSW:=DARG(I) ELSE DIMG:=DARG(I);
+          CCALL strcmp(A,LOC('-s'))=0 => DSW:=DARG(I) ELSE DIMG:=DARG(I);
           I:=I+1; GO TO OP1);
-      OUTSTR('imp72: unknown option '); OUTCS(A); OUTCHR(12B); CCALL EXIT(2);
- OPM: OUTSTR('imp72: missing argument to '); OUTCS(A); OUTCHR(12B); CCALL EXIT(2);
- OPF: ((ENDS(A,LOC('.o'))=1) OR (ENDS(A,LOC('.a'))=1) OR (ENDS(A,LOC('.so'))=1)) => (CCALL IMPARGSET(DOBJI,DNOBJI,A); DNOBJI:=DNOBJI+1; GO TO OP1);
-      CCALL IMPARGSET(DKV,DNK,A); DNK:=DNK+1;                                                  # SYNTAX AND SOURCES, IN THE ORDER GIVEN: THE KERNEL READS THEM SO #
-      ENDS(A,LOC('.imc'))=1 => (CCALL IMPARGSET(DSYV,DNSY,A); DNSY:=DNSY+1; GO TO OP1);         # A FILE OF SYNTAX AND DECLARATIONS (THE TAPE'S /C) #
-      CCALL IMPARGSET(DSRCV,DNSRC,A); DNSRC:=DNSRC+1;
+      OUTSTR('imp72: unknown option '); OUTCS(A); OUTCHR(12B); CCALL exit(2);
+ OPM: OUTSTR('imp72: missing argument to '); OUTCS(A); OUTCHR(12B); CCALL exit(2);
+ OPF: ((ENDS(A,LOC('.o'))=1) OR (ENDS(A,LOC('.a'))=1) OR (ENDS(A,LOC('.so'))=1)) => (IMPARGSET(DOBJI,DNOBJI,A); DNOBJI:=DNOBJI+1; GO TO OP1);
+      IMPARGSET(DKV,DNK,A); DNK:=DNK+1;                                                  # SYNTAX AND SOURCES, IN THE ORDER GIVEN: THE KERNEL READS THEM SO #
+      ENDS(A,LOC('.imc'))=1 => (IMPARGSET(DSYV,DNSY,A); DNSY:=DNSY+1; GO TO OP1);         # A FILE OF SYNTAX AND DECLARATIONS (THE TAPE'S /C) #
+      IMPARGSET(DSRCV,DNSRC,A); DNSRC:=DNSRC+1;
       GO TO OP1);
 
 # WHERE THE PARTS ARE: THE SOURCE TREE (BUILD/DIR/IMP72D) OR INSTALLED (DIRB, SYNP, FFIP, LIBP, TMPB) #
 SUBR SETPATHS(Z) IS (
- EXEDIR(DARG(0))<0 => (OUTSTR('imp72: cannot find myself'); OUTCHR(12B); CCALL EXIT(1));
- CCALL SNPRINTF(LOC(ROOT),4096,LOC('%s/..'),LOC(DIRB));
- CCALL SNPRINTF(LOC(SYNP),4096,LOC('%s/share/imp72/syntax64.imc'),LOC(ROOT));
- EXISTS(LOC(SYNP)) NE 0 => (CCALL SNPRINTF(LOC(FFIP),4096,LOC('%s/share/imp72/ffi.imc'),LOC(ROOT));
-                            CCALL SNPRINTF(LOC(LIBP),4096,LOC('%s/lib/imp72/libimp72.a'),LOC(ROOT));
-                            CCALL SNPRINTF(LOC(TMPB),4096,LOC('.')))                  # INSTALLED: WHERE THE COMPILER IS RUN #
-   ELSE (CCALL SNPRINTF(LOC(SYNP),4096,LOC('%s/../src/pccir/syntax64.imc'),LOC(ROOT));
-         CCALL SNPRINTF(LOC(FFIP),4096,LOC('%s/../lib/ffi.imc'),LOC(ROOT));
-         CCALL SNPRINTF(LOC(LIBP),4096,LOC('%s/lib/libimp72.a'),LOC(ROOT));
-         CCALL SNPRINTF(LOC(TMPB),4096,LOC('%s/../tmp'),LOC(ROOT)));       # THE TREE'S OWN (GITIGNORED) TMP/ #
+ EXEDIR(DARG(0))<0 => (OUTSTR('imp72: cannot find myself'); OUTCHR(12B); CCALL exit(1));
+ CCALL snprintf(LOC(ROOT),4096,LOC('%s/..'),LOC(DIRB));
+ CCALL snprintf(LOC(SYNP),4096,LOC('%s/share/imp72/syntax64.imc'),LOC(ROOT));
+ EXISTS(LOC(SYNP)) NE 0 => (CCALL snprintf(LOC(FFIP),4096,LOC('%s/share/imp72/ffi.imc'),LOC(ROOT));
+                            CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/imp72/libimp72.a'),LOC(ROOT));
+                            CCALL snprintf(LOC(TMPB),4096,LOC('.')))                  # INSTALLED: WHERE THE COMPILER IS RUN #
+   ELSE (CCALL snprintf(LOC(SYNP),4096,LOC('%s/../src/pccir/syntax64.imc'),LOC(ROOT));
+         CCALL snprintf(LOC(FFIP),4096,LOC('%s/../lib/ffi.imc'),LOC(ROOT));
+         CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/libimp72.a'),LOC(ROOT));
+         CCALL snprintf(LOC(TMPB),4096,LOC('%s/../tmp'),LOC(ROOT)));       # THE TREE'S OWN (GITIGNORED) TMP/ #
  OVERRIDE(LOC(SYNP),LOC('IMP72SYNTAX')); OVERRIDE(LOC(FFIP),LOC('IMP72FFI')); OVERRIDE(LOC(LIBP),LOC('IMP72LIB'));
  0);
 
 # THE TEMPORARY DIRECTORY (TMPDIR, ELSE TMP/ OF THE TREE OR THE CURRENT DIRECTORY: NEVER /TMP), REMOVED AT THE END OF THE PROGRAM #
 SUBR MKTMP(Z) IS (
- CCALL MKDIR(LOC(TMPB),511);
- CCALL SNPRINTF(LOC(TMP),4096,LOC('%s/imp72stage0.XXXXXX'),ENVOR(LOC('TMPDIR'),LOC(TMPB)));
- CCALL MKDTEMP(LOC(TMP))=0 => (CCALL PERROR(LOC('mkdtemp')); CCALL EXIT(1));
- CCALL ATEXIT(LOC(IMPCLEAN));
+ CCALL mkdir(LOC(TMPB),511);
+ CCALL snprintf(LOC(TMP),4096,LOC('%s/imp72stage0.XXXXXX'),ENVOR(LOC('TMPDIR'),LOC(TMPB)));
+ CCALL mkdtemp(LOC(TMP))=0 => (CCALL perror(LOC('mkdtemp')); CCALL exit(1));
+ CCALL atexit(LOC(IMPCLEAN));
  0);
 
 # THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL: THE KERNEL ALONE, WITH THE SYNTAX, THE FILES NAMED, THEN THE TERMINAL.  NEVER RETURNS #
 SUBR RUNINTER(Z) IS (
  K ARE LOCAL;
- KA:=CCALL CALLOC((DNK+12),8); KNN:=0;
+ KA:=CCALL calloc((DNK+12),8); KNN:=0;
  QUIET:=1; IMPHOOK:=1;                                 # EACH COMPILATION WRITES ITS OBJECT, THE REL FILE #
  KADD(LOC('imp72s0')); KADD(LOC('-i'));
  DSW NE 0 => (KADD(LOC('-s')); KADD(DSW));
  DIMG NE 0 => (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));
- K:=0; RI1: K<DNK => (CCALL IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO RI1);
+ K:=0; RI1: K<DNK => (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO RI1);
  ARGVP:=KA;
- CCALL EXIT(IMPK(KNN,KA)));
+ CCALL exit(IMPK(KNN,KA)));
 
 # ONE SOURCE, COMPILED IN THIS PROCESS: THE KERNEL WRITES THE IR, THE BACK END MAKES WHAT -c, -S, -SIR OR NOTHING (A PROGRAM) ASKS FOR.  NEVER RETURNS #
 SUBR ONEFILE(SRC) IS (
  R,K ARE LOCAL;
  BASEOF(SRC,LOC(BASEN));
  MKTMP(0);
- CCALL SNPRINTF(LOC(IRF2),4096,LOC('%s/p.ir'),LOC(TMP));
- CCALL SNPRINTF(LOC(OFILE),4096,LOC('%s/p.o'),LOC(TMP));
- KA:=CCALL CALLOC(DNK+16,8); KNN:=0;                           # THE KERNEL, IN THIS PROCESS #
+ CCALL snprintf(LOC(IRF2),4096,LOC('%s/p.ir'),LOC(TMP));
+ CCALL snprintf(LOC(OFILE),4096,LOC('%s/p.o'),LOC(TMP));
+ KA:=CCALL calloc(DNK+16,8); KNN:=0;                           # THE KERNEL, IN THIS PROCESS #
  KADD(LOC('imp72s0'));
- DSW NE 0 => (KADD(LOC('-s')); KADD(DSW); CCALL DUP2(2,1)) ELSE QUIET:=1;        # THE DUMPS GO WITH THE MESSAGES #
+ DSW NE 0 => (KADD(LOC('-s')); KADD(DSW); CCALL dup2(2,1)) ELSE QUIET:=1;        # THE DUMPS GO WITH THE MESSAGES #
  KADD(LOC('-c')); KADD(LOC(IRF2));
  DIMG NE 0 => (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));
- K:=0; OK1: K<DNK => (CCALL IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO OK1);
+ K:=0; OK1: K<DNK => (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO OK1);
  ARGVP:=KA;
- IMPK(KNN,KA) NE 0 => CCALL EXIT(1);
- CCALL FFLUSH(0);
- DJIT NE 0 => (LLVMRUN(LOC(IRF2))NE 0 => CCALL EXIT(1);           # LLVM IN THE PROCESS; --RUN COMPILES AND RUNS: THE MAIN PROGRAM IS IMPMAIN #
-                   CCALL FFLUSH(0); CCALL EXIT(0));
+ IMPK(KNN,KA) NE 0 => CCALL exit(1);
+ CCALL fflush(0);
+ DJIT NE 0 => (LLVMRUN(LOC(IRF2))NE 0 => CCALL exit(1);           # LLVM IN THE PROCESS; --RUN COMPILES AND RUNS: THE MAIN PROGRAM IS impmain #
+                   CCALL fflush(0); CCALL exit(0));
  DSTOP=123B => (DSIR NE 0 => R:=LLVMSAVE(LOC(IRF2),OUTNAME(LOC('.ll'))) ELSE R:=LLVMASM(LOC(IRF2),OUTNAME(LOC('.s')));
-               CCALL EXIT((R NE 0 => 1 ELSE 0)));
- DSTOP=157B => CCALL EXIT((LLVMOBJ(LOC(IRF2),OUTNAME(LOC('.o'))) NE 0 => 1 ELSE 0));
- LLVMOBJ(LOC(IRF2),LOC(OFILE)) NE 0 => CCALL EXIT(1);
- DOBJL:=CCALL CALLOC(DNOBJI+2,8); CCALL IMPARGSET(DOBJL,0,LOC(OFILE)); DNOBJL:=1;
+               CCALL exit((R NE 0 => 1 ELSE 0)));
+ DSTOP=157B => CCALL exit((LLVMOBJ(LOC(IRF2),OUTNAME(LOC('.o'))) NE 0 => 1 ELSE 0));
+ LLVMOBJ(LOC(IRF2),LOC(OFILE)) NE 0 => CCALL exit(1);
+ DOBJL:=CCALL calloc(DNOBJI+2,8); IMPARGSET(DOBJL,0,LOC(OFILE)); DNOBJL:=1;
  K:=0;
- OF1: K<DNOBJI => (CCALL IMPARGET(LOC(DW),DOBJI,K); CCALL IMPARGSET(DOBJL,DNOBJL,DW); DNOBJL:=DNOBJL+1; K:=K+1; GO TO OF1);
- CCALL EXIT(LNK(0)));
+ OF1: K<DNOBJI => (IMPARGET(LOC(DW),DOBJI,K); IMPARGSET(DOBJL,DNOBJL,DW); DNOBJL:=DNOBJL+1; K:=K+1; GO TO OF1);
+ CCALL exit(LNK(0)));
 
 # MORE THAN ONE SOURCE: EACH IS COMPILED BY A PROGRAM OF ITS OWN, AS THE C COMPILER DOES, TO NAME.O (-c), NAME.S (-S), NAME.LL (-SIR) OR AN OBJECT IN THE TEMPORARY DIRECTORY TO BE LINKED WITH THE OTHERS.
   NEVER RETURNS #
 SUBR MULTI(Z) IS (
  K,S,BAD,FL ARE LOCAL;
  MKTMP(0);
- DOBJL:=CCALL CALLOC(DNSRC+DNOBJI+2,8); DNOBJL:=0; BAD:=0;
- CCALL SNPRINTF(LOC(DB6),4096,LOC('%s'),LOC(DEMP));
- K:=0; MS1: K<DNSY => (CCALL IMPARGET(LOC(DW),DSYV,K); CCALL STRCAT(LOC(DB6),LOC(' ')); CCALL STRCAT(LOC(DB6),QS(DW)); K:=K+1; GO TO MS1);
+ DOBJL:=CCALL calloc(DNSRC+DNOBJI+2,8); DNOBJL:=0; BAD:=0;
+ CCALL snprintf(LOC(DB6),4096,LOC('%s'),LOC(DEMP));
+ K:=0; MS1: K<DNSY => (IMPARGET(LOC(DW),DSYV,K); CCALL strcat(LOC(DB6),LOC(' ')); CCALL strcat(LOC(DB6),QS(DW)); K:=K+1; GO TO MS1);
 
  DSTOP=157B => FL:=LOC('-c');
  DSTOP=170B => FL:=LOC('-c');
  DSTOP=123B => (DSIR NE 0 => FL:=LOC('-Sir') ELSE FL:=LOC('-S'));
  K:=0;
  ML1: K<DNSRC => (
-     CCALL IMPARGET(LOC(DW),DSRCV,K); S:=DW;
-     DSTOP=170B => (CCALL SNPRINTF(LOC(DB1),4096,LOC('-o %s/o%d.o'),LOC(TMP),K); CCALL SNPRINTF(LOC(DB3),4096,LOC('%s/o%d.o'),LOC(TMP),K))
-        ELSE CCALL SNPRINTF(LOC(DB1),4096,LOC('%s'),LOC(DEMP));
-     DSW NE 0 => CCALL SNPRINTF(LOC(DB2),4096,LOC('-s %s'),QS(DSW)) ELSE CCALL SNPRINTF(LOC(DB2),4096,LOC('%s'),LOC(DEMP));
-     DIMG NE 0 => CCALL SNPRINTF(LOC(DB4),4096,LOC('-I %s'),QS(DIMG)) ELSE CCALL SNPRINTF(LOC(DB4),4096,LOC('%s'),LOC(DEMP));
-     DTGT NE 0 => CCALL SNPRINTF(LOC(DB5),4096,LOC('--target=%s'),QS(DTGT)) ELSE CCALL SNPRINTF(LOC(DB5),4096,LOC('%s'),LOC(DEMP));
-     CCALL SNPRINTF(LOC(CMD),32768,LOC('%s %s %s %s %s %s %s %s'),QS(LOC(DSELFB)),FL,LOC(DB1),LOC(DB2),LOC(DB4),LOC(DB5),LOC(DB6),QS(S));
+     IMPARGET(LOC(DW),DSRCV,K); S:=DW;
+     DSTOP=170B => (CCALL snprintf(LOC(DB1),4096,LOC('-o %s/o%d.o'),LOC(TMP),K); CCALL snprintf(LOC(DB3),4096,LOC('%s/o%d.o'),LOC(TMP),K))
+        ELSE CCALL snprintf(LOC(DB1),4096,LOC('%s'),LOC(DEMP));
+     DSW NE 0 => CCALL snprintf(LOC(DB2),4096,LOC('-s %s'),QS(DSW)) ELSE CCALL snprintf(LOC(DB2),4096,LOC('%s'),LOC(DEMP));
+     DIMG NE 0 => CCALL snprintf(LOC(DB4),4096,LOC('-I %s'),QS(DIMG)) ELSE CCALL snprintf(LOC(DB4),4096,LOC('%s'),LOC(DEMP));
+     DTGT NE 0 => CCALL snprintf(LOC(DB5),4096,LOC('--target=%s'),QS(DTGT)) ELSE CCALL snprintf(LOC(DB5),4096,LOC('%s'),LOC(DEMP));
+     CCALL snprintf(LOC(CMD),32768,LOC('%s %s %s %s %s %s %s %s'),QS(LOC(DSELFB)),FL,LOC(DB1),LOC(DB2),LOC(DB4),LOC(DB5),LOC(DB6),QS(S));
      RUNCMD(0) NE 0 => BAD:=1;
-     DSTOP=170B => (CCALL IMPARGSET(DOBJL,DNOBJL,CCALL STRDUP(LOC(DB3))); DNOBJL:=DNOBJL+1);        # A COPY: DB3 IS WRITTEN AGAIN FOR THE NEXT FILE #
+     DSTOP=170B => (IMPARGSET(DOBJL,DNOBJL,CCALL strdup(LOC(DB3))); DNOBJL:=DNOBJL+1);        # A COPY: DB3 IS WRITTEN AGAIN FOR THE NEXT FILE #
      K:=K+1; GO TO ML1);
- BAD NE 0 => CCALL EXIT(1);
- DSTOP NE 170B => CCALL EXIT(0);
- K:=0; ML2: K<DNOBJI => (CCALL IMPARGET(LOC(DW),DOBJI,K); CCALL IMPARGSET(DOBJL,DNOBJL,DW); DNOBJL:=DNOBJL+1; K:=K+1; GO TO ML2);
- CCALL EXIT(LNK(0)));
+ BAD NE 0 => CCALL exit(1);
+ DSTOP NE 170B => CCALL exit(0);
+ K:=0; ML2: K<DNOBJI => (IMPARGET(LOC(DW),DOBJI,K); IMPARGSET(DOBJL,DNOBJL,DW); DNOBJL:=DNOBJL+1; K:=K+1; GO TO ML2);
+ CCALL exit(LNK(0)));
 
 SUBR IMPD(Z) IS (
  P ARE LOCAL;
- NA0:=CCALL IMPARGC(0); AV0:=CCALL IMPARGVP(0);
- P:=CCALL STRRCHR(DARG(0),57B);
+ NA0:=CCALL impargc(0); AV0:=CCALL impargvp(0);
+ P:=CCALL strrchr(DARG(0),57B);
  P=0 => P:=DARG(0) ELSE P:=P+1;
- CCALL STRNCMP(P,LOC('imp72stage'),10)=0 => GO TO DRV;
- CCALL STRCMP(P,LOC('imp72'))=0 => GO TO DRV;
+ CCALL strncmp(P,LOC('imp72stage'),10)=0 => GO TO DRV;
+ CCALL strcmp(P,LOC('imp72'))=0 => GO TO DRV;
  ARGVP:=AV0;                                       # ANOTHER NAME (IMP72D): THE KERNEL ALONE #
- CCALL EXIT(IMPK(NA0,AV0));
+ CCALL exit(IMPK(NA0,AV0));
  DRV: OPTS(0);
- ((DINTER=0) AND (DNSRC=0) AND (DNOBJI=0)) => (DRVHELP(0); CCALL EXIT(2));
- ((OUTN NE 0) AND (DSTOP NE 170B) AND (DNSRC>1)) => (OUTSTR('imp72: cannot name the output with more than one source to compile'); OUTCHR(12B); CCALL EXIT(1));
+ ((DINTER=0) AND (DNSRC=0) AND (DNOBJI=0)) => (DRVHELP(0); CCALL exit(2));
+ ((OUTN NE 0) AND (DSTOP NE 170B) AND (DNSRC>1)) => (OUTSTR('imp72: cannot name the output with more than one source to compile'); OUTCHR(12B); CCALL exit(1));
  SETPATHS(0);
- CCALL SNPRINTF(LOC(DSELFB),4096,LOC('%s/%s'),LOC(DIRB),P);        # THIS PROGRAM, FOR THE ONES IT STARTS #
+ CCALL snprintf(LOC(DSELFB),4096,LOC('%s/%s'),LOC(DIRB),P);        # THIS PROGRAM, FOR THE ONES IT STARTS #
  DTGT NE 0 => (LLVMTARGET(DTGT);
-              DJIT NE 0 => (OUTSTR('imp72: --run is for this machine, not for '); OUTCS(DTGT); OUTCHR(12B); CCALL EXIT(1)));
+              DJIT NE 0 => (OUTSTR('imp72: --run is for this machine, not for '); OUTCS(DTGT); OUTCHR(12B); CCALL exit(1)));
  DINTER NE 0 => RUNINTER(0);
- DNSRC=0 => (DOBJL:=DOBJI; DNOBJL:=DNOBJI; CCALL EXIT(LNK(0)));       # ONLY OBJECTS: LINK THEM #
+ DNSRC=0 => (DOBJL:=DOBJI; DNOBJL:=DNOBJI; CCALL exit(LNK(0)));       # ONLY OBJECTS: LINK THEM #
  DNSRC>1 => MULTI(0);
- CCALL IMPARGET(LOC(DW),DSRCV,0);
+ IMPARGET(LOC(DW),DSRCV,0);
  ONEFILE(DW))
 %%

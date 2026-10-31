@@ -4,10 +4,10 @@
 
 A `SUBR` is a C function. IMP72 passes arguments by reference, as FORTRAN
 does, so each parameter is a pointer to a 64-bit word (`long *`), and the
-result is a `long`. `SUBR ADD2(A,B) IS A+B` is `long add2(long *, long *)`.
-Names are lower case, except a name with a lower case letter in it, which is a foreign name exactly as written (`CCALL LLVMGetHostCPUName(0)` calls `LLVMGetHostCPUName`, not `llvmgethostcpuname`). More than six parameters go on the stack as the C ABI
+result is a `long`. `SUBR ADD2(A,B) IS A+B` is `long ADD2(long *, long *)`.
+A symbol is the name exactly as written: IMP72 names are case sensitive, as the original's are (on TOPS-10 `ab` and `AB` are two variables), and nothing is folded. `SUBR ADD2(A,B) IS A+B` is `ADD2`, and a C caller says `ADD2`; an IMP program calls a C function by its own name, `CCALL strlen(P)`, `CCALL LLVMGetHostCPUName(0)`. More than six parameters go on the stack as the C ABI
 puts pointers. A variable declared `COMMON` is a global symbol, so C can declare it
-`extern long x;` (`X IS COMMON;`, or `A IS COMMON,8 LONG;` for an array); any other variable belongs
+`extern long X;` (`X IS COMMON;`, or `A IS COMMON,8 LONG;` for an array); any other variable belongs
 to its module, as in the original, and C cannot see it. See `tests/native/*_main.c`.
 
 ## C from IMP72, arguments by value
@@ -26,9 +26,9 @@ What a function returns: an IMP routine returns a word (`int64_t`; on a 32-bit h
 `long` comes back right, an `int` may have undefined upper bits on a 64-bit host and a `double` is not in the integer register, so call
 those through a small C function that returns a `long` (a real passes as its bits, `imp_double_to_real`).
 
-Examples that run in the suite (`tests/native/ffi2.imp`): `CCALL STRLEN(P)` with a pointer
-from C, `CCALL QSORT(LOC(ARR),N,8,LOC(CMP))` with an IMP `SUBR` as the comparison (its parameters
-are pointers to the elements, which is what `qsort` passes), `CCALL PRINTF(LOC('...'),A,B)` with a
+Examples that run in the suite (`tests/native/ffi2.imp`): `CCALL strlen(P)` with a pointer
+from C, `CCALL qsort(LOC(ARR),N,8,LOC(CMP))` with an IMP `SUBR` as the comparison (its parameters
+are pointers to the elements, which is what `qsort` passes), `CCALL printf(LOC('...'),A,B)` with a
 string constant (a string constant is bytes, so its address is a C string), and a `COMMON` array that
 the C side sorts and reads.
 

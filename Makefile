@@ -18,12 +18,12 @@ PCCIR = build/pccir2/imp72d          # the compiler with the code generator of s
 
 all: stage0 $(LIB) pccir
 
-$(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.c lib/imp72main.imp
-	CFLAGS="$(CFLAGS)" sh tools/mklib.sh
+$(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.imp lib/imphost.imp lib/impvars.imp lib/impvarsx-elf.imp lib/impvarsx-macho.imp tools/sysconst.sh lib/imp72main.imp
+	CFLAGS="$(CFLAGS)" sh tools/guard.sh sh tools/mklib.sh
 
 # stage 1 by the seed, stage 2 by stage 1 (skipped where the LLVM libraries are missing)
 pccir: stage0 $(LIB)
-	@sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
+	@sh tools/guard.sh sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 
 stage0:
 	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
@@ -54,7 +54,11 @@ install: all
 	install -d $(DESTDIR)$(PREFIX)/share/doc/imp72
 	install -m 644 docs/manual/imp72.md docs/FFI.md docs/LANGUAGE-NOTES.md $(DESTDIR)$(PREFIX)/share/doc/imp72/
 
+# (the whole suite runs under tools/guard.sh: a job that grows build/ and tmp/ past 10 GB is killed, not the disk)
 check: all
+	@sh tools/guard.sh $(MAKE) check-run
+
+check-run:
 	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
 	bd=`sh tools/llvm.sh bindir`; bdd=; [ -n "$$bd" ] && bdd="-DIMP72_LLVM_BINDIR=$$bd"; \
 	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"

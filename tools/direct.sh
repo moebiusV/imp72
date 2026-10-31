@@ -8,6 +8,7 @@
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
+. tools/limits.sh                  # a runaway job dies of its own limits (file size, CPU), not of the disk
 modules=${MODULES:-impsem code code2 code3 demit ix}
 srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver llvm llvmgen}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
@@ -19,10 +20,10 @@ mkdir -p $out
 # the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
 endf=$(sh tools/endian.sh)
 export IMP72ENDIAN=$endf
-$driver -o "$imprename" tools/imprename.imp >$out/imprename.log 2>&1 || { cat $out/imprename.log >&2; echo "direct: imprename failed" >&2; exit 1; }
+sh tools/capped.sh $out/imprename.log $driver -o "$imprename" tools/imprename.imp || { head -c 100000 $out/imprename.log >&2; echo "direct: imprename failed" >&2; exit 1; }
 for m in $modules; do
-    IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp >$out/$m.log 2>&1 \
-        || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
+    sh tools/capped.sh $out/$m.log env IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp \
+        || { head -c 100000 $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
 sh tools/llvm.sh imp > $out/llvmgen.imp                          # what the LLVM and the lld of this build decide, as a module (src/llvm.imp)
@@ -31,8 +32,8 @@ for m in $srcmodules; do
     f=src/$m.imp; case $m in llvmgen) f=$out/llvmgen.imp ;; esac
     d=$driver
     case " $oldmodules " in *" $m "*) d="env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0" ;; esac
-    IMP72MODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn64.imc $f >$out/$m.log 2>&1 \
-        || { cat $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
+    sh tools/capped.sh $out/$m.log env IMP72MODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn64.imc $f \
+        || { head -c 100000 $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
 # every symbol the modules define (src/pccir and src/), except the ones shared with the C side, gets the prefix in all of them: they call one another by the
@@ -41,8 +42,15 @@ syms=
 for m in $modules $srcmodules; do
     syms="$syms $($imprename -d $out/$m.imp.o)"
 done
-syms=$(printf '%s\n' $syms | sort -u | grep -vx -f src/shared.txt | grep -vx -f src/pccir/shared.txt || true)
-for s in $syms; do echo "$s impl_$s"; done > $out/rename.map
+syms=$(printf '%s\n' $syms | sort -u)
+# the names are as the modules write them (ST); the C side's are lower case (st): the ones they share are renamed to the C side's, the others get the prefix
+cat src/shared.txt src/pccir/shared.txt > $out/shared.all
+for s in $syms; do
+    l=$(printf '%s' "$s" | tr 'A-Z' 'a-z')
+    if grep -qx -- "$l" $out/shared.all && [ "$s" != "$l" ]; then echo "$s $l"
+    elif grep -qx -- "$s" $out/shared.all; then :
+    else echo "$s impl_$s"; fi
+done > $out/rename.map
 objs=
 repl=
 for m in $modules $srcmodules; do

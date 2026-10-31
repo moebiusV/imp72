@@ -27,7 +27,7 @@ SUBR IRLCONV(V,FRM,TYT) IS (
  LF,LT2,R,F,T2,OPN,VV ARE LOCAL;
  VV:=V; F:=FRM; T2:=TYT;
  LF:=IRLLTYPE(F); LT2:=IRLLTYPE(T2);
- CCALL STRCMP(LF,LT2)=0 => RETURN VV;
+ CCALL strcmp(LF,LT2)=0 => RETURN VV;
  R:=IRLNEWVAL(0);
  IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = '));
  F=13 => (OPN:=LOC('fptosi'); IRLISU(T2) NE 0 => OPN:=LOC('fptoui');
@@ -234,18 +234,22 @@ SUBR IRLFT(NN,DOTS) IS (
 
 # A CALL: THE VALUE IS AN I64.  THE FRAME ON THE STACK HAS THE ARGUMENT NODES (0..63), THE LIST OF THEM (64..127) AND THEIR VALUES (128..191) #
 SUBR IRLCALLEXPR(NN) IS (
- N,FN,A,C,K,NL,TOP,SL,D,X,NARGS,V,NM,R,Z,NF,CF,P,Q,Y ARE LOCAL;
+ N,FN,A,C,K,NL,TOP,SL,D,X,NARGS,V,NM,R,Z,NF,CF,P,Q,Y,IND,F ARE LOCAL;
  N:=NN; FN:=[N+5];
  [FN]=4 => ([FN+4] NE 0 => GO TO CE1);
  IRLDIE(LOC('call of a computed function'),LOC(IRLZERO));
  CE1: NM:=[FN+4];
- IRLADD(0,NM);
- CCALL STRCMP(NM,LOC('_setjmp'))=0 => IRLUSEJ:=1;
- CCALL STRCMP(NM,LOC('setjmp'))=0 => IRLUSEJ:=1;
+ # A CALL THROUGH AN ADDRESS: CCALL impcallp(F,A,...) (THE RESULT A C LONG) OR IMPCALLW(F,A,...) (THE RESULT AN IMP WORD, 64 BITS) CALLS THE FUNCTION AT F WITH THE ARGUMENTS A,... BY VALUE #
+ IND:=0;
+ CCALL strcmp(NM,LOC('impcallp'))=0 => IND:=1;
+ CCALL strcmp(NM,LOC('impcallw'))=0 => IND:=2;
+ IND=0 => IRLADD(0,NM);
+ CCALL strcmp(NM,LOC('_setjmp'))=0 => IRLUSEJ:=1;
+ CCALL strcmp(NM,LOC('setjmp'))=0 => IRLUSEJ:=1;
  A:=IRLSP; IRLSP:=IRLSP+192;
  IRLSP GE 199000 => IRLDIE(LOC('tree too deep'),LOC(IRLZERO));
  Q:=LOC(IRLSTK); Q:=Q+(8*A);
- CCALL MEMSET(Q,0,1536);
+ CCALL memset(Q,0,1536);
  TOP:=0-1; NL:=0;
  [N]=41 => (C:=[N+6];
             CE2: [C]=48 => (X:=[C+6]; IRLSTK[(A+64)+NL]:=X; NL:=NL+1; C:=[C+5]; GO TO CE2);
@@ -279,6 +283,22 @@ SUBR IRLCALLEXPR(NN) IS (
                                   V:=Z);
                   IRLSTK[(A+128)+K]:=V;
                   K:=K+1; GO TO CE7);
+ IND NE 0 => (NARGS<1 => IRLDIE(LOC('call through an address without the address'),NM);
+              F:=IRLNEWVAL(0);
+              IRLI(0); IRLPS(0,F); IRLPS(0,LOC(' = inttoptr ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,IRLSTK[A+128]); IRLPS(0,LOC(' to ptr')); IRLE(0);
+              R:=IRLNEWVAL(0);
+              IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = call '));
+              IND=2 => IRLPS(0,LOC('i64')) ELSE IRLPS(0,IRLIPT(0));
+              IRLPC(0,32); IRLFT(NARGS-1,0); IRLPC(0,32); IRLPS(0,F); IRLPC(0,40);
+              K:=1;
+              CEA: K<NARGS => (K>1 => IRLPS(0,LOC(', ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,IRLSTK[(A+128)+K]); K:=K+1; GO TO CEA);
+              IRLPC(0,41); IRLE(0);
+              IND=1 => (IRLP32 NE 0 => (Z:=IRLNEWVAL(0);
+                                          IRLI(0); IRLPS(0,Z); IRLPS(0,LOC(' = sext i32 ')); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
+                                          IRLSP:=A;
+                                          RETURN Z));
+              IRLSP:=A;
+              RETURN R);
  CF:=IRLISC(NM);
  NF:=IRLVARF(NM);
  R:=IRLNEWVAL(0);
@@ -295,7 +315,7 @@ SUBR IRLCALLEXPR(NN) IS (
              K:=0;
              CE9: K<NARGS => (K>0 => IRLPS(0,LOC(', ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,IRLSTK[(A+128)+K]); K:=K+1; GO TO CE9);
              IRLPC(0,41);
-             ((CCALL STRCMP(NM,LOC('_setjmp'))=0) OR (CCALL STRCMP(NM,LOC('setjmp'))=0)) => IRLPS(0,LOC(' returns_twice'));
+             ((CCALL strcmp(NM,LOC('_setjmp'))=0) OR (CCALL strcmp(NM,LOC('setjmp'))=0)) => IRLPS(0,LOC(' returns_twice'));
              IRLE(0);
              IRLP32 NE 0 => (IRLI(0); IRLPS(0,Z); IRLPS(0,LOC(' = sext i32 ')); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
                              IRLSP:=A;

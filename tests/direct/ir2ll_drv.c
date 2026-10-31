@@ -7,13 +7,13 @@
 #ifdef REF
 extern int ir2ll_run(FILE *in, FILE *out, int p32);
 #else
-extern int64_t impl_ir2llrun(int64_t *in, int64_t *out, int64_t *p32);
+extern int64_t impl_IR2LLRUN(int64_t *in, int64_t *out, int64_t *p32);
 static int
 ir2ll_run(FILE *in, FILE *out, int p32)
 {
     int64_t a = (int64_t)(intptr_t)in, b = (int64_t)(intptr_t)out, c = p32;
 
-    return (int)impl_ir2llrun(&a, &b, &c);
+    return (int)impl_IR2LLRUN(&a, &b, &c);
 }
 #endif
 

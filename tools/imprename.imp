@@ -14,17 +14,17 @@ ZR IS 2 LONG;
 NMAP,BUF,BSZ,STRS,NSTRS,CAPS,BE,IS64,SHOFF,SHENT,SHNUM,WORD,NA,MACHO ARE COMMON;
 
 # THE MAIN PROGRAM #
-NA:=CCALL IMPARGC(0);
+NA:=CCALL impargc(0);
 ZR[0]:=0; ZR[1]:=0;
-NA=3 => CCALL STRCMP(ARG(1),LOC('-d'))=0 => (SLURP(ARG(2)); BE:=0; MACHO:=(BSZ>3 => (R32(BUF)=4277009103 => 1 ELSE 0) ELSE 0);
+NA=3 => CCALL strcmp(ARG(1),LOC('-d'))=0 => (SLURP(ARG(2)); BE:=0; MACHO:=(BSZ>3 => (R32(BUF)=4277009103 => 1 ELSE 0) ELSE 0);
                                               MACHO NE 0 => MACHLIST(0) ELSE ELFLIST(0);
-                                              CCALL EXIT(0));
-NA=5 => CCALL STRCMP(ARG(1),LOC('-f'))=0 => (READMAP(ARG(2)); SLURP(ARG(3)); BE:=0; MACHO:=(BSZ>3 => (R32(BUF)=4277009103 => 1 ELSE 0) ELSE 0);
+                                              CCALL exit(0));
+NA=5 => CCALL strcmp(ARG(1),LOC('-f'))=0 => (READMAP(ARG(2)); SLURP(ARG(3)); BE:=0; MACHO:=(BSZ>3 => (R32(BUF)=4277009103 => 1 ELSE 0) ELSE 0);
                                               MACHO NE 0 => MACHREN(ARG(4)) ELSE ELFREN(ARG(4));
-                                              CCALL EXIT(0));
-CCALL WRITE(2,LOC('usage: imprename -d OBJECT | imprename -f MAP OBJECT OUT'),58);
-PUTB(LOC(WORD),0,10); CCALL WRITE(2,LOC(WORD),1);
-CCALL EXIT(2);
+                                              CCALL exit(0));
+CCALL write(2,LOC('usage: imprename -d OBJECT | imprename -f MAP OBJECT OUT'),58);
+PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1);
+CCALL exit(2);
 
 
 # THE BYTE I OF THE MEMORY AT P, AND STORING ONE #
@@ -59,22 +59,22 @@ SUBR W64(P,V) IS (
 
 # AN ERROR: THE MESSAGE AND WHAT IT IS ABOUT ON THE STANDARD ERROR, AND THE END #
 SUBR DIE(M,A) IS (
- CCALL WRITE(2,LOC('imprename: '),11);
- CCALL WRITE(2,M,CCALL STRLEN(M));
- A NE 0 => (CCALL WRITE(2,LOC(': '),2); CCALL WRITE(2,A,CCALL STRLEN(A)));
- PUTB(LOC(WORD),0,10); CCALL WRITE(2,LOC(WORD),1);
- CCALL EXIT(1);
+ CCALL write(2,LOC('imprename: '),11);
+ CCALL write(2,M,CCALL strlen(M));
+ A NE 0 => (CCALL write(2,LOC(': '),2); CCALL write(2,A,CCALL strlen(A)));
+ PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1);
+ CCALL exit(1);
  0);
 
 # THE FILE PATH INTO BUF AND ITS LENGTH INTO BSZ #
 SUBR SLURP(PATH) IS (
  F,N ARE LOCAL;
- F:=CCALL FOPEN(PATH,LOC('rb'));
+ F:=CCALL fopen(PATH,LOC('rb'));
  F=0 => DIE(LOC('cannot read'),PATH);
- CCALL FSEEK(F,0,2); N:=CCALL FTELL(F); CCALL FSEEK(F,0,0);
- BUF:=CCALL CALLOC(N+16,1);
- N>0 => CCALL FREAD(BUF,1,N,F) NE N => DIE(LOC('cannot read'),PATH);
- CCALL FCLOSE(F);
+ CCALL fseek(F,0,2); N:=CCALL ftell(F); CCALL fseek(F,0,0);
+ BUF:=CCALL calloc(N+16,1);
+ N>0 => CCALL fread(BUF,1,N,F) NE N => DIE(LOC('cannot read'),PATH);
+ CCALL fclose(F);
  BSZ:=N;
  0);
 
@@ -89,9 +89,9 @@ SUBR READMAP(PATH) IS (
  P,E,NL,SP,H ARE LOCAL;
  SLURP(PATH);
  P:=BUF; E:=BUF+BSZ; NMAP:=0;
- RM1: P<E => (NL:=CCALL MEMCHR(P,10,E-P); NL=0 => NL:=E;
+ RM1: P<E => (NL:=CCALL memchr(P,10,E-P); NL=0 => NL:=E;
               PUTB(NL,0,0);
-              SP:=CCALL STRCHR(P,32);
+              SP:=CCALL strchr(P,32);
               SP NE 0 => SP>P => GETB(SP,1) NE 0 => (PUTB(SP,0,0);
                                                       OLDN[NMAP]:=P; NEWN[NMAP]:=SP+1;
                                                       H:=HSH(P);
@@ -107,38 +107,38 @@ SUBR NEWNAME(S) IS (
  H:=HSH(S);
  NN1: J:=HT[H]; J=0 => RETURN 0;
  K:=J-1;                                              # NOT OLDN[J-1]: THE COMPILER ENCODES THE CONSTANT -8 OF THAT ADDRESS IN 21 BITS (0X1FFFF8) #
- CCALL STRCMP(OLDN[K],S)=0 => RETURN NEWN[K];
+ CCALL strcmp(OLDN[K],S)=0 => RETURN NEWN[K];
  H:=(H+1) AND 65535; GO TO NN1);
 
 # THE NEW STRING TABLE: THE OLD STRINGS AND THE NEW NAMES AFTER THEM #
 SUBR STRSINIT(OLD,N) IS (
  CAPS:=N+4096;
- STRS:=CCALL MALLOC(CAPS);
+ STRS:=CCALL malloc(CAPS);
  STRS=0 => DIE(LOC('out of memory'),0);
- CCALL MEMCPY(STRS,OLD,N);
+ CCALL memcpy(STRS,OLD,N);
  NSTRS:=N;
  0);
 
 # THE STRING PREFIX AND S ADDED TO THE NEW TABLE; ITS OFFSET #
 SUBR STRSADD(S,PRE) IS (
  NEED,AT ARE LOCAL;
- NEED:=CCALL STRLEN(PRE)+CCALL STRLEN(S)+1;
+ NEED:=CCALL strlen(PRE)+CCALL strlen(S)+1;
  AT:=NSTRS;
- NSTRS+NEED>CAPS => (CAPS:=(NSTRS+NEED)*2; STRS:=CCALL REALLOC(STRS,CAPS);
+ NSTRS+NEED>CAPS => (CAPS:=(NSTRS+NEED)*2; STRS:=CCALL realloc(STRS,CAPS);
                      STRS=0 => DIE(LOC('out of memory'),0));
- CCALL SNPRINTF(STRS+AT,NEED,LOC('%s%s'),PRE,S);
+ CCALL snprintf(STRS+AT,NEED,LOC('%s%s'),PRE,S);
  NSTRS:=NSTRS+NEED;
  AT);
 
 # OUT: BUF, THEN PAD ZERO BYTES, THEN THE NEW STRING TABLE #
 SUBR WRITEOUT(PATH,PAD) IS (
  F ARE LOCAL;
- F:=CCALL FOPEN(PATH,LOC('wb'));
+ F:=CCALL fopen(PATH,LOC('wb'));
  F=0 => DIE(LOC('cannot write'),PATH);
- CCALL FWRITE(BUF,1,BSZ,F) NE BSZ => DIE(LOC('cannot write'),PATH);
- PAD>0 => CCALL FWRITE(LOC(ZR),1,PAD,F) NE PAD => DIE(LOC('cannot write'),PATH);
- CCALL FWRITE(STRS,1,NSTRS,F) NE NSTRS => DIE(LOC('cannot write'),PATH);
- CCALL FCLOSE(F);
+ CCALL fwrite(BUF,1,BSZ,F) NE BSZ => DIE(LOC('cannot write'),PATH);
+ PAD>0 => CCALL fwrite(LOC(ZR),1,PAD,F) NE PAD => DIE(LOC('cannot write'),PATH);
+ CCALL fwrite(STRS,1,NSTRS,F) NE NSTRS => DIE(LOC('cannot write'),PATH);
+ CCALL fclose(F);
  0);
 
 # ---- ELF ---- #
@@ -186,7 +186,7 @@ SUBR ELFLIST(Z) IS (
                 (SHNDX=65522 => OK:=1
                  ELSE (SHNDX<65280 => SHNDX<SHNUM => (FL:=SHFLAGS(SHNDX);
                        (FL AND 4) NE 0 => OK:=1 ELSE ((FL AND 2) NE 0 => (FL AND 1) NE 0 => OK:=1))));
-              OK NE 0 => CCALL PUTS(STR+NM);
+              OK NE 0 => CCALL puts(STR+NM);
               I:=I+1; GO TO EL1);
  0);
 
@@ -234,7 +234,7 @@ SUBR MACHLIST(Z) IS (
                   NAME:=BUF+STROFF+R32(SY);
                   (TYPE AND 1) NE 0 => (TYPE AND 224)=0 => GETB(NAME,0) NE 0 =>
                     (((TYPE AND 14)=14) OR (((TYPE AND 14)=0) AND (R64(SY+8) NE 0))) NE 0 =>
-                      (GETB(NAME,0)=95 => CCALL PUTS(NAME+1) ELSE CCALL PUTS(NAME));
+                      (GETB(NAME,0)=95 => CCALL puts(NAME+1) ELSE CCALL puts(NAME));
                   I:=I+1; GO TO ML1);
  0);
 
@@ -256,6 +256,6 @@ SUBR MACHREN(OUT) IS (
 
 # THE ARGUMENT I OF THE COMMAND LINE #
 SUBR ARG(I) IS (
- CCALL IMPARGET(LOC(WORD),CCALL IMPARGVP(0),I);
+ IMPARGET(LOC(WORD),impargvp(0),I);
  WORD)
 %%
