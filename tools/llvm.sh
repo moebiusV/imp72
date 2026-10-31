@@ -17,7 +17,7 @@ haslld() { [ "${WITH_LLD:-yes}" != no ] && [ -n "$lldinc" ] && [ -n "$lldlib" ];
 # the C++ library the shim and LLVM need: libc++ on FreeBSD, OpenBSD and macOS (and libc++abi on OpenBSD, where libLLVM does not record that it needs them), else libstdc++
 case $(uname -s) in
 OpenBSD) cxxlib="-lc++ -lc++abi -lm -lpthread" ;;        # libLLVM there does not record that it needs libm and threads either
-FreeBSD) cxxlib="-lc++ -lpthread" ;;
+FreeBSD) cxxlib="-lc++ -lm -lpthread" ;;       # (lld's libraries want ceilf and its kin)
 Darwin) cxxlib="-lc++" ;;
 *) cxxlib="-lstdc++" ;;
 esac

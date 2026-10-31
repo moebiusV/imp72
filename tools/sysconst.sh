@@ -80,7 +80,7 @@ if [ $arch = mips64el ]; then echo "SUBR IMPHOSTARCH(Z) IS LOC(SCZ);"; else echo
 if [ -n "$bindir" ]; then echo "SUBR SCBINDIR(Z) IS LOC('$bindir');"; else echo "SUBR SCBINDIR(Z) IS 0;"; fi
 if [ "$stdsym" = __sF ]; then
     echo "SUBR IMPSTDIN(Z) IS LOC(!__sF!);"
-    echo "SUBR IMPSTDOUT(Z) IS LOC(!__sF!)+$filesz;"
+    echo "SUBR IMPSTDOUT(Z) IS LOC(!__sF!)+$filesz"
 else
     echo "SUBR IMPSTDIN(Z) IS (!$stdin! AND SCMASK(0));          # (THE VARIABLE HOLDS A POINTER) #"
     echo "SUBR IMPSTDOUT(Z) IS (!$stdsym! AND SCMASK(0))"

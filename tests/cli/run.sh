@@ -45,10 +45,12 @@ mach() { od -An -tu1 -j18 -N2 "$1" | awk '{print $1 + 256 * $2}'; }
 "$w" -c --target=riscv64-linux-gnu lib2.imp -o rv.o >/dev/null 2>&1 && [ "$(mach rv.o)" = 243 ] || bad "--target=riscv64-linux-gnu"
 "$w" -Sir --target=i686-linux-gnu lib2.imp -o i.ll >/dev/null 2>&1 && grep -q 'i32 %a0' i.ll || bad "--target=i686: 32 bit pointers in the IR"
 "$w" -S --target=aarch64-linux-gnu lib2.imp -o a64.s >/dev/null 2>&1 && grep -q 'ret' a64.s && ! grep -q 'rdi' a64.s || bad "--target=aarch64: assembly for it"
+# the other system for the link tests is not this one (an arm64 Linux host links aarch64-linux-gnu natively)
+case $(uname -m)-$(uname -s) in aarch64-Linux|arm64-Linux) oth=riscv64-linux-gnu ;; *) oth=aarch64-linux-gnu ;; esac
 # linking for another system needs that system's files: without them the message says which and how to give them (--sysroot, --runtime)
-"$w" --target=aarch64-linux-gnu main.imp lib2.imp > xl.log 2>&1 && bad "linking for another system with no sysroot succeeded"
+"$w" --target=$oth main.imp lib2.imp > xl.log 2>&1 && bad "linking for another system with no sysroot succeeded"
 grep -q -e '--sysroot=DIR' xl.log && grep -q -e '--runtime=FILE' xl.log && grep -q 'crt1.o' xl.log || bad "the message for a link for another system does not say what is needed and how to say where"
-"$w" --target=aarch64-linux-gnu --sysroot=$root/build/cli/nosuchroot main.imp lib2.imp > xl2.log 2>&1 && bad "a sysroot with nothing in it linked"
+"$w" --target=$oth --sysroot=$root/build/cli/nosuchroot main.imp lib2.imp > xl2.log 2>&1 && bad "a sysroot with nothing in it linked"
 grep -q 'Looked for crt1.o in' xl2.log || bad "the message does not say where crt1.o was looked for"
 # Mach-O from any system: the object (magic cf fa ed fe), the message for the SDK, and the Mach-O driver of lld in this compiler (a fake SDK and an empty runtime: it must get as far as lld's complaint)
 "$w" -c --target=arm64-apple-darwin lib2.imp -o m.o >/dev/null 2>&1 && [ "$(od -An -tx1 -N4 m.o | tr -d ' \n')" = cffaedfe ] || bad "--target=arm64-apple-darwin: a Mach-O object"
