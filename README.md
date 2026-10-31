@@ -172,8 +172,9 @@ IMP expressions have **no operator precedence** (`A+B*C` is `A+(B*C)`), and
     make                                  # the seed, the runtime, then stage 1 and stage 2
     make check
     make install PREFIX=/usr/local
-    imp72 -o hello hello.imp && ./hello
+    imp72 hello.imp && ./a.out            # as the C compiler: -c (an object, hello.o), -S (assembly), -Sir (LLVM IR), -o
     imp72 --run hello.imp                 # compile with ORC and run in the process
+    imp72 -c --target=aarch64-linux-gnu hello.imp    # cross-compiling: the object of another system
 
 The seed is C99 and needs libc and the LLVM libraries (the C API). See
 [docs/BUILDING.md](docs/BUILDING.md).

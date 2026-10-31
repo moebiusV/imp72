@@ -70,6 +70,7 @@ check: all
 	sh tests/orc/run.sh
 	sh tests/llvm/gen.sh
 	sh tests/link/run.sh
+	sh tests/cli/run.sh
 	sh tests/fuzz64/run.sh
 	sh tests/manual/run.sh
 

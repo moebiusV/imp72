@@ -25,8 +25,7 @@ By hand:
 
 `imp72d` is the compiler proper (`src/impm.imp`): options `-i` (the tape's commands from the terminal; `imp72 -i` does the same), `-I IMAGE` (start from an image saved with `NAME_/U`), `-s LETTERS` (the original's switches), `-o FILE` (listing and
 dumps), `-c FILE` (the IR), `-T TARGET`, then the syntax file and the files to compile. `imp72stage-pccir` and
-`imp72` are the same program with the driver around it (`-S`, `-c`, `-o`): they find the syntax file and the library,
-make the object with LLVM in the process and link.
+`imp72` are the same program with the driver around it: they find the syntax file and the library, make the object with LLVM in the process and link.
 
 The seed alone: `cd stage0 && make`, then `./imp72s0 -s TSX -o dump.txt ../decus/syntax.imc`, or
 `stage0/imp72stage0 -o prog prog.imp`.
@@ -85,3 +84,21 @@ the logs are uploaded as an artifact (`logs-*`).
 - `tools/imp-fuzz-real2.py`: REAL over the whole double (denormals to overflow, signs of zero, infinities), the bits of the result (`[LOC(V)]`), the six comparisons, `FLT` of integers around 2**53 and 2**63, `FIX`. No NaN is generated (the machines' default NaN differs), nor `FIX` past 2**63 (x86 and aarch64 differ).
 
 `tools/fuzz64.sh DRIVER SEED COUNT` runs one (`GEN=imp-fuzz-bytes.py`), and `tools/fuzz64-reduce.py` boils a wrong integer program down to the smallest wrong sub-expression. `tools/ieee-fuzz.sh` checks the printed text of REAL values (`PRINT FLT`). These need Python 3 and are skipped where there is none.
+
+### The command line of imp72
+
+`imp72` takes the options of a C compiler (`tests/cli/run.sh`):
+
+    imp72 hello.imp                  compile and link: a.out
+    imp72 -o hello hello.imp         the program is named
+    imp72 -c a.imp b.imp             an object for each, a.o and b.o, in the current directory (the TOPS-10 REL file is a .o: ELF, Mach-O, ... as the system is)
+    imp72 -S hello.imp               the assembly of the target, hello.s
+    imp72 -Sir hello.imp             LLVM IR text, hello.ll
+    imp72 a.imp b.imp c.o -o prog    several sources are compiled one by one and linked with the objects named
+    imp72 --run hello.imp            compile with ORC and run in the process
+    imp72 --version | --help
+
+A file of syntax and declarations (`.imc`) is read by each compilation before the source, as the original's `/C` files are. `-o` with `-c` or `-S` and more than one source is refused, as the C compiler does.
+
+**Cross-compiling** is `--target=TRIPLE` (LLVM's names, the vendor may be left out: `aarch64-linux-gnu`, `riscv64-linux-musl`, `i686-linux-gnu`, `armv7-linux-gnueabihf`, `x86_64-apple-darwin`) with `-c`, `-S` or `-Sir`: the object is in the format of that system, with
+32 or 64 bit pointers as it has. Not yet: linking for another system (it needs that system's `libimp72.a` and C library: link the objects there, or with that system's tools), and a target of the other byte order (s390x, big-endian PowerPC), which is refused with a message.

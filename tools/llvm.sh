@@ -39,6 +39,17 @@ imp)
         echo " 1);"
     fi
     echo
+    echo "# EVERY TARGET THIS LLVM HAS, FOR --TARGET (THE LISTS ARE THOSE OF LLVM'S OWN LLVMINITIALIZEALL... IN LLVM-C/TARGET.H) #"
+    echo "SUBR LLVMALLINIT(Z) IS ("
+    d="$($lc --includedir)/llvm/Config"
+    for k in Targets:LLVM_TARGET:TargetInfo,Target,TargetMC AsmPrinters:LLVM_ASM_PRINTER:AsmPrinter AsmParsers:LLVM_ASM_PARSER:AsmParser; do
+        f=${k%%:*}; r=${k#*:}; m=${r%%:*}; parts=${r#*:}
+        for t in $(sed -n "s/^$m(\([A-Za-z0-9]*\)).*/\1/p" "$d/$f.def" 2>/dev/null); do
+            for q in $(echo $parts | tr , ' '); do echo " CCALL LLVMInitialize$t$q(0);"; done
+        done
+    done
+    echo " 0);"
+    echo
     fromctx=$(grep -c LLVMOrcCreateNewThreadSafeContextFromLLVMContext "$($lc --includedir)/llvm-c/Orc.h")
     [ -n "$LLVM_ORC_FROM_CONTEXT" ] && { [ "$LLVM_ORC_FROM_CONTEXT" = yes ] && fromctx=1 || fromctx=0; }      # (tests/llvm/gen.sh compiles both)
     if [ "$fromctx" != 0 ]; then
