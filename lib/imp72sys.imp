@@ -39,7 +39,7 @@ SUBR IMPCOREBASE(Z) IS (
     CB2: EX GE 0 => (
         F:=2 OR SCANON(0) OR SCNORES(0);                                                  # MAP_PRIVATE | MAP_ANON | MAP_NORESERVE #
         EX NE 0 => F:=F OR SCEXACT(0);
-        P:=CCALL mmap(SCHINT(0),R,SCPROT0(0),F,0-1,0);
+        P:=CCALL mmap(SCHINT(0),R,SCPROT0(0),F,0-1,0,0,0);       # (THE OFFSET IS 0: A 64 BIT OFF_T IS TWO WORDS OF ARGUMENTS ON A 32 BIT SYSTEM, ALIGNED ON ARM, AND THE EXTRA ONES ARE IGNORED ELSEWHERE) #
         P NE (0-1) => (CBASE:=P AND SCMASK(0); CRESV:=R;
                        DBGON(0) NE 0 => (DBGS(LOC('core: asked for ')); DBGN(R); DBGS(LOC(' bytes at ')); DBGN(SCHINT(0));
                                          EX NE 0 => DBGS(LOC(' (exactly)'));

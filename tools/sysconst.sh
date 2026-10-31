@@ -5,10 +5,18 @@
 # those of this machine.  BINDIR is where lld is as a program if it is not in the PATH (tools/llvm.sh bindir).  The values are those of the headers of each system; where this machine is the
 # system and has a C compiler, the one that is not the same on every machine (the size of a FILE, where the C library has its standard files in an array) is asked of the compiler.
 os=${1:-${SYSOS:-$(uname -s | tr 'A-Z' 'a-z')}}
-arch=${2:-${SYSARCH:-$(uname -m)}}
+arch=${2:-$SYSARCH}
 bindir=$3
+if [ -z "$arch" ]; then            # this machine's: what its C compiler makes programs for, not the kernel (a 32 bit container on a 64 bit kernel says x86_64 to uname), and a 32 bit userland says so
+    arch=$(cc -dumpmachine 2>/dev/null | sed 's/-.*//')
+    [ -n "$arch" ] || arch=$(uname -m)
+    if [ "$(getconf LONG_BIT 2>/dev/null)" = 32 ]; then
+        case $arch in x86_64|amd64) arch=i386 ;; aarch64|arm64) arch=arm ;; esac
+    fi
+fi
 case $arch in
 amd64|x86_64) arch=x86_64 ;;
+powerpc64le) arch=ppc64le ;;
 i?86) arch=i386 ;;
 arm64|aarch64) arch=aarch64 ;;
 arm*) arch=arm ;;

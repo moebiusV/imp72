@@ -29,11 +29,12 @@ hbpid=$!
 uname -m
 # the failure of a stage, as GitHub annotations (the log of the step is not readable afterwards)
 ann() { printf '::error::%s %s %s: %s\n' "$(uname -m)" "$stage" "$1" "$(tr '\n%' ' _' | cut -c1-1800)"; }
+annend() { printf '::error::%s %s %s: %s\n' "$(uname -m)" "$stage" "$1" "$(tr '\n%' ' _' | tail -c 1800)"; }       # the end of what comes in: the beginning of a long tail never reaches the failure
 fail() {
     echo "== $(stamp) $stage FAILED" | tee -a $log
     echo failed > $status
     grep -n -i 'error\|undefined\|not found\|cannot\|FAIL' $log 2>/dev/null | grep -v 'warning' | head -25 | ann "errors"
-    tail -n 25 $log 2>/dev/null | ann "tail"
+    tail -n 25 $log 2>/dev/null | annend "tail"
     tail -n 12 $hb 2>/dev/null | ann "last heartbeat"
     exit 1
 }

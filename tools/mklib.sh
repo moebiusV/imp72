@@ -15,9 +15,9 @@ env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0 -c -o "$out/imp72r
 # the system's own constants (tools/sysconst.sh), and what only a system call can say, in IMP too: no C compiler is needed for any of the library
 bd=$(sh tools/llvm.sh bindir)                          # where lld is as a program, if it is not in the PATH
 sysos=${SYSOS:-$(uname -s | tr 'A-Z' 'a-z')}
-sh tools/sysconst.sh "$sysos" "${SYSARCH:-$(uname -m)}" "$bd" > "$out/sysgen.imp"
+sh tools/sysconst.sh "$sysos" "$SYSARCH" "$bd" > "$out/sysgen.imp"
 case $sysos in darwin) vfmt=macho ;; *) vfmt=elf ;; esac
-for m in "imp72sys:lib/imp72sys.imp" "sysgen:$out/sysgen.imp" "impvars:lib/impvars.imp" "impvarsx:lib/impvarsx-$vfmt.imp" "imphost:lib/imphost.imp" "imp72main:lib/imp72main.imp"; do
+for m in "imp72sys:lib/imp72sys.imp" "sysgen:$out/sysgen.imp" "impvars:lib/impvars.imp" "impvarsx:lib/impvarsx-$vfmt.imp" "imphost:lib/imphost.imp" "imphostx:lib/imphostx-$vfmt.imp" "imp72main:lib/imp72main.imp"; do
     env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0 -c -o "$out/${m%%:*}.o" "$endf" "${m#*:}"
 done
 rm -f "$out/libimp72.a"
@@ -29,4 +29,4 @@ if [ -n "$rt" ]; then
     ( cd "$out/rt" && ar x "$rtabs" )
     rtobjs=$(ls "$out"/rt/*.o)
 fi
-ar rcs "$out/libimp72.a" "$out/imp72rt_imp.o" "$out/imp72sys.o" "$out/sysgen.o" "$out/impvars.o" "$out/impvarsx.o" "$out/imp72main.o" "$out/imphost.o" $rtobjs
+ar rcs "$out/libimp72.a" "$out/imp72rt_imp.o" "$out/imp72sys.o" "$out/sysgen.o" "$out/impvars.o" "$out/impvarsx.o" "$out/imp72main.o" "$out/imphost.o" "$out/imphostx.o" $rtobjs
