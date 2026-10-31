@@ -401,7 +401,7 @@ SUBR IMPD(Z) IS (
  SETPATHS(0);
  CCALL SNPRINTF(LOC(DSELFB),4096,LOC('%s/%s'),LOC(DIRB),P);        # THIS PROGRAM, FOR THE ONES IT STARTS #
  DTGT NE 0 => (LLVMTARGET(DTGT);
-              ((DSTOP=170B) AND (DINTER=0) AND (LLVMNATIVE(0)=0)) => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(' here (no linker or library for it): use -c, -S or -Sir'); OUTCHR(12B); CCALL EXIT(1));
+              ((DSTOP=170B) AND (DINTER=0) AND (LLVMNATIVE(0)=0)) => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(' is not done yet: lld could, but it needs the C library of that system and its libimp72.a (a sysroot); use -c, -S or -Sir, and link there'); OUTCHR(12B); CCALL EXIT(1));
               DJIT NE 0 => (OUTSTR('imp72: --run is for this machine, not for '); OUTCS(DTGT); OUTCHR(12B); CCALL EXIT(1)));
  DINTER NE 0 => RUNINTER(0);
  DNSRC=0 => (DOBJL_DOBJI; DNOBJL_DNOBJI; CCALL EXIT(LNK(0)));       # ONLY OBJECTS: LINK THEM #
