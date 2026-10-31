@@ -26,9 +26,9 @@ bad() { echo "FAILED: cli: $*" >&2; fail=1; }
 echo "== cli"
 "$w" main.imp lib2.imp >/dev/null 2>&1 && [ -x a.out ] && [ "$(./a.out)" = "ANSWER 42" ] || bad "two files linked into a.out"
 rm -f a.out
-"$w" -o prog main.imp lib2.imp >/dev/null 2>&1 && [ "$(./prog)" = "ANSWER 42" ] || bad "-o prog with two files"
+"$w" -o exe1 main.imp lib2.imp >/dev/null 2>&1 && [ "$(./exe1)" = "ANSWER 42" ] || bad "-o exe1 with two files"
 "$w" -c main.imp lib2.imp >/dev/null 2>&1 && [ -s main.o ] && [ -s lib2.o ] || bad "-c with two files makes main.o and lib2.o"
-"$w" main.o lib2.o -o prog2 >/dev/null 2>&1 && [ "$(./prog2)" = "ANSWER 42" ] || bad "linking the objects"
+"$w" main.o lib2.o -o exe2 >/dev/null 2>&1 && [ "$(./exe2)" = "ANSWER 42" ] || bad "linking the objects"
 "$w" -c -o x.o main.imp lib2.imp >/dev/null 2>&1 && bad "-o with -c and two sources was accepted"
 "$w" -c -o one.o lib2.imp >/dev/null 2>&1 && [ -s one.o ] || bad "-c -o one.o"
 "$w" -S lib2.imp >/dev/null 2>&1 && grep -q '\.text' lib2.s || bad "-S makes assembly (lib2.s)"
@@ -47,6 +47,32 @@ mach() { od -An -tu1 -j18 -N2 "$1" | awk '{print $1 + 256 * $2}'; }
 "$w" -S --target=aarch64-linux-gnu lib2.imp -o a64.s >/dev/null 2>&1 && grep -q 'ret' a64.s && ! grep -q 'rdi' a64.s || bad "--target=aarch64: assembly for it"
 "$w" --target=aarch64-linux-gnu main.imp lib2.imp >/dev/null 2>&1 && bad "linking for another system was attempted"
 "$w" -c --target=nonsense lib2.imp >/dev/null 2>&1 && bad "a nonsense target was accepted"
-"$w" --target=x86_64-linux-gnu main.imp lib2.imp -o hosted >/dev/null 2>&1 && [ "$(./hosted)" = "ANSWER 42" ] || { [ "$(uname -m)" != x86_64 ] || bad "the host's own triple is a target that links"; }
+if [ "$(uname -m)" = x86_64 ] && [ "$(getconf LONG_BIT)" = 64 ]; then       # the host's own architecture and system, whatever the vendor and the C library: a target that links
+    "$w" --target=x86_64-linux-gnu main.imp lib2.imp -o hosted >/dev/null 2>&1 && [ "$(./hosted)" = "ANSWER 42" ] || { [ "$(uname -s)" != Linux ] || bad "the host's own triple is a target that links"; }
+fi
+# the commands of the original (-i): a compile writes the object, the REL file of TOPS-10 (a .o), and not the IR; a file of syntax with /C writes none; the banner has today's date; the compiler
+# saved by /U shows (A) and the date of the save, and the next one saved from it (B); OBJ,LIST_SOURCE names the object and the listing
+printf 'SUBR F(A) IS A+1\n%%%%\n' > okp.imp
+printf '<ATOM> ::= ZED ::= "7"%%%%\n' > ext.imc
+printf 'SUBR ADD2(A) IS A+ZED\n%%%%\n' > zprog.imp
+printf 'okp\n' | "$w" -i > i1.log 2>&1
+[ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "-i: okp makes okp.o and no IR"
+head -1 i1.log | grep -q "$(date +%d-%b-%y | tr a-z A-Z)" || bad "-i: the banner has the date of today ($(head -1 i1.log))"
+rm -f okp.o
+printf 'ext/C\nzprog\n' | "$w" -i > i2.log 2>&1
+[ -s zprog.o ] && [ ! -e ext.o ] || bad "-i: ext/C then zprog makes zprog.o and no ext.o"
+printf 'mine,mine_okp/L\n' | "$w" -i > i3.log 2>&1
+[ -s mine.o ] && [ -s mine.lst ] || bad "-i: mine,mine_okp/L makes mine.o and mine.lst"
+printf 'ext/C\nmy_/U\n' | "$w" -i > i4.log 2>&1
+[ -s my.img ] && grep -q 'COMPILER SAVED ON my.img' i4.log || bad "-i: ext/C then my_/U saves my.img"
+printf '\n' | "$w" -i -I my.img 2>&1 | head -1 | grep -q '0\.9\.0(A)  ' || bad "-i -I: the saved compiler shows (A)"
+printf 'ext/C\nmy2_/V\n' | "$w" -i -I my.img > i5.log 2>&1
+printf '\n' | "$w" -i -I my2.img 2>&1 | head -1 | grep -q '0\.9\.0(B)  ' || bad "-i -I: the one saved from it shows (B)"
+rm -f zprog.o
+printf 'zprog\n' | "$w" -i -I my.img > i6.log 2>&1
+[ -s zprog.o ] || bad "-i -I: the saved compiler compiles zprog"
+rm -f okp.o
+printf 'okp\n' | "$w" -i --target=aarch64-linux-gnu > i7.log 2>&1
+[ -s okp.o ] && [ "$(mach okp.o)" = 183 ] || bad "-i --target=aarch64-linux-gnu makes an aarch64 object"
 [ $fail = 0 ] && echo ok
 exit $fail
