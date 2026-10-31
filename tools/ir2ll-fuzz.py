@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ir2ll-fuzz.py SEED COUNT DIR: write COUNT files DIR/zN.ir of random but valid pcc IR text for the LLVM IR writer (tools/ir2ll.c, src/ir2ll.imp): every operator and type of the
+"""ir2ll-fuzz.py SEED COUNT DIR: write COUNT files DIR/zN.ir of random but valid IR text for the LLVM IR writer (tools/ir2ll.c, src/ir2ll.imp): every operator and type of the
 trees (the signed and unsigned compares, the divisions, the conversions between the integers and the real, the shifts), calls of every shape (no arguments, the registers, the stack,
 the C library's variadic functions, _setjmp, the functions marked cfunc), temps, labels, GO TOs, and the assembler lines that mean something here (.local, .comm, .quad, .string with
 its escapes, # varrec, # cfunc, labels).  tests/direct/ir2ll.sh gives the files to both writers and compares what they write."""

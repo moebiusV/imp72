@@ -4,9 +4,9 @@
 # of the repository (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-driver=${DRIVER:-stage0/imp72stage0}              # DRIVER=build/direct/imp72stage-pccir with IMP72SYNTAX=src/pccir/syntax64.imc: the code generator of src/pccir
+driver=${DRIVER:-stage0/imp72stage0}              # DRIVER=build/direct/imp72stage-llvm-ir with IMP72SYNTAX=src/llvm-ir/syntax64.imc: the code generator of src/llvm-ir
 out=${NATIVE_OUT:-build/native}
-lib=${NATIVE_LIB:-build/lib/libimp72.a}          # NATIVE_LIB=build/lib/libimp72.a for the code generator of src/pccir
+lib=${NATIVE_LIB:-build/lib/libimp72.a}          # NATIVE_LIB=build/lib/libimp72.a for the code generator of src/llvm-ir
 mkdir -p $out
 fail=0
 for p in tests/native/*.imp; do

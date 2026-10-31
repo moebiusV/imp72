@@ -1,11 +1,11 @@
 /*
- * trans.c -- from PDP-10 code to pcc IR.
+ * trans.c -- from PDP-10 code to IR.
  *
  * Replaces the assembler, register allocator and output module of the
  * original compiler (amod.imc, rmod.imc, omod.imc), which assemble the code
  * chains the semantic routines of codegen.c make into PDP-10 object code.
  * Here each chain is read as a PDP-10 program over virtual registers and
- * written as pcc IR (ir.h), which pcc compiles for the machine at hand.  The
+ * written as IR (ir.h), which LLVM compiles for the machine at hand.  The
  * meaning of an instruction is the PDP-10's, with these changes for a 64 bit
  * machine with byte addresses:
  *
@@ -435,10 +435,10 @@ static void asg(struct irn *l, struct irn *r);
 static struct irn *mkcall(struct irn *fn, struct irn **a, int n, int cret);
 
 /*
- * Shifts for the field code.  pcc handles a shift of a temp by an int count
+ * Shifts for the field code.  the IR takes a shift of a temp by an int count
  * assigned back to the same temp, so every shift goes through one: the result
  * is a fresh temp node.  (A constant on the left, or a shift whose operand
- * is not the destination, is not code pcc can generate.)
+ * is not the destination, is not code the IR can generate.)
  */
 static struct irn *
 shiftop(int right, struct irn *l, struct irn *r)
@@ -452,7 +452,7 @@ shiftop(int right, struct irn *l, struct irn *r)
         int k = ir_newtemp();
 
         asg(ir_temp(k, T_LONG), r);
-        cnt = ir_un(IR_SCONV, T_UCHAR, ir_temp(k, T_LONG));  /* pcc: counts are chars */
+        cnt = ir_un(IR_SCONV, T_UCHAR, ir_temp(k, T_LONG));  /* the IR: counts are chars */
     }
     asg(ir_temp(c, T_LONG), l);
     if (right)
@@ -551,7 +551,7 @@ bytepvalue(const struct bytedesc *d)
     return ir_bin(IR_OR, T_LONG, a, SHL(d->pconst ? icon(d->p) : rv(d->p), icon(52)));
 }
 
-/* a value kept in a temp: pcc cannot have two variable shifts in one tree */
+/* a value kept in a temp: the IR cannot have two variable shifts in one tree */
 static int
 tmpof(struct irn *e)
 {
@@ -1070,7 +1070,7 @@ mkcall(struct irn *fn, struct irn **a, int n, int cret)
             rt = T_INT;
     } else {
         /* the arguments beyond the registers go in the outgoing stack
-         * area, which pcc reserves for any assignment to memory in a call's
+         * area, which the back end reserves for any assignment to memory in a call's
          * list; they come first, the register ones last */
         for (k = irtgt->narg; k < n && irtgt->pushargs; k++) {  /* pass 2 pushes from the right: the last first */
             struct irn *f = ir_un(IR_FUNARG, a[k]->type, a[k]);
@@ -1607,7 +1607,7 @@ subr(long i0, long i1, int ismain)
             asg(ir_temp(paramtmp[k], T_PLONG), ir_un(IR_UMUL, T_PLONG,
                 ir_bin(IR_PLUS, T_PLONG, ir_reg(R_RBP, T_PLONG), ir_icon(irtgt->stackarg0 + irtgt->argslot * (k - NARGREG), T_LONG))));
     }
-    ir_label(ir_newlabel());                    /* pcc's deljumps: PROLOG, LABEL, argument moves, LABEL, code */
+    ir_label(ir_newlabel());                    /* the first back end's deljumps: PROLOG, LABEL, argument moves, LABEL, code */
     rettmp = ir_newtemp();
     lastmove = 0;
     lastaddr = 0;

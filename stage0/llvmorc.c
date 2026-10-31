@@ -197,7 +197,7 @@ llvm_run(const char *ir, size_t n, const char *entry, long *result)
 
 extern int ir2ll_run(FILE *in, FILE *out, int p32);                 /* tools/ir2ll.c */
 
-/* the module of LLVM IR for the pcc IR in the file ir, as text in *buf (n bytes) */
+/* the module of LLVM IR for the IR in the file ir, as text in *buf (n bytes) */
 static int
 module(const char *ir, char **buf, size_t *n)
 {

@@ -1,23 +1,23 @@
 # The IR path: the code generator that compiles to IR
 
-`src/pccir/` holds the translation of the tape's code generator into 64 bit IMP, for the machine that is IR (`pccir-machine.md`; the design is in
-`pccir-direct.md`). Files: `code.imp`, `code2.imp`, `code3.imp` (`code.imc`, `code2.imc`, `code3.imc`), `impsem.imp` (the register and declaration
+`src/llvm-ir/` holds the translation of the tape's code generator into 64 bit IMP, for the machine that is IR (`llvm-ir-machine.md`; the design is in
+`llvm-ir-direct.md`). Files: `code.imp`, `code2.imp`, `code3.imp` (`code.imc`, `code2.imc`, `code3.imc`), `impsem.imp` (the register and declaration
 routines of `impsem.imc`), `demit.imp` (what `amod`, `rmod` and `omod` did: the chains of records to IR, through `stage0/ir.c`), `irsyn.imc` (macros),
 `syntax64.imc` (`decus/syntax.imc` with the operations of that machine; no immediate, self or both modes, halfwords, skips or register pairs).
-`stage0/pccirsem.c` registers the routines (the table of semantic routines is a table of C function pointers) and has the C helpers the IMP code calls
+`stage0/irsem.c` registers the routines (the table of semantic routines is a table of C function pointers) and has the C helpers the IMP code calls
 by value (`CCALL`).
 
 ## Building and using it
 
-`make` builds it (`tools/pccir.sh`): stage 1 is made by the seed (`stage0/`, the C code generator) from `src/pccir` and the compiler's own IMP
+`make` builds it (`tools/llvm-ir.sh`): stage 1 is made by the seed (`stage0/`, the C code generator) from `src/llvm-ir` and the compiler's own IMP
 modules, stage 2 by stage 1, and `make install` installs stage 2 as `bin/imp72` (with `share/imp72/syntax64.imc` and `lib/imp72/libimp72.a`);
 the seed stays as `bin/imp72stage0`. Where the LLVM libraries or an ELF `objcopy` are missing, `imp72` is the seed, as before. By hand:
 
     make
-    tools/direct.sh                    # build/direct/imp72d, build/direct/imp72stage-pccir (the driver)
-    DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=build/lib/libimp72.a \
+    tools/direct.sh                    # build/direct/imp72d, build/direct/imp72stage-llvm-ir (the driver)
+    DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/imp72stage-llvm-ir DIRECT_LIB=build/lib/libimp72.a \
         SRC_MODULES="free debug stack dir graph parse ercor entree cotree dosem rsyn lex" tools/direct.sh   # the compiler's own modules, too
-    IMP72SYNTAX=src/pccir/syntax64.imc IMP72LIB=build/lib/libimp72.a build/direct/imp72stage-pccir -o hello tests/native/hello.imp
+    IMP72SYNTAX=src/llvm-ir/syntax64.imc IMP72LIB=build/lib/libimp72.a build/direct/imp72stage-llvm-ir -o hello tests/native/hello.imp
 
 A REAL word is the bits of the IEEE double, as in the seed's programs, so both link `libimp72.a`. `tests/direct/run.sh` runs the native
 tests, the oracle goldens, the IEEE fuzz and a differential fuzz (the old path against this one) with it; `tests/direct/stage2.sh` has it compile
@@ -33,7 +33,7 @@ them is not recorded here; the seed's translator (`trans.c`) holds doubles in te
 ## What differs from the original, and why
 
 The rule is that the IMP text stays the original's, and changes only (1) where it emitted PDP-10 instructions, (2) where it relied on 36 bits, (3) for floating point.
-`src/pccir/syntax64.imc` differs from `decus/syntax.imc` in: the opcodes (now operation numbers); the rules that made PDP-10 only forms (self and both
+`src/llvm-ir/syntax64.imc` differs from `decus/syntax.imc` in: the opcodes (now operation numbers); the rules that made PDP-10 only forms (self and both
 mode stores, `AOS`/`SOS`, `CAI`/`SKIP`/`JUMP` skips over one-word statements, register pairs for `IDIV`, `HRRZ`/`HLLZ` for `AND 777777B`, `BLT` setup, the
 `CON18` immediate tests, which are `CON` here); `<L>` and `<R>` are 32 bit halves; the byte rules go through `BYTEP`'s descriptors. The routines of `code*.imp` and
 `impsem.imp` differ from `code*.imc` and `impsem.imc` in: the records they add instead of instruction words (`ADDREC` for `ADDCODE`); no `RCOCHK`, `OCHK`, `OPCODE`
@@ -57,22 +57,22 @@ counterpart of (`amod`, `rmod`, `omod`).
   in a variable (`QQ_RELP+16*SL; QQ_QQ+8; [QQ]_S`), which means the same on both. Write `[X]` with a pointer variable when you mean bytes.
 - **An argument `FREE(X)` is passed by reference, as a pointer into the arena, and the arena moves** (`realloc`) when a routine that allocates is
   called. `ADDREC` copies its arguments first.
-- **Cross-module calls**: the modules of `src/pccir` call one another by name (all their symbols are renamed `impl_NAME` together); a module of `src/`
+- **Cross-module calls**: the modules of `src/llvm-ir` call one another by name (all their symbols are renamed `impl_NAME` together); a module of `src/`
   is renamed by itself, so what it calls and does not define is the C side's (`DIR('X')` from `parse.imp` is `dir()` of C, which is given the
   string's address). The union rename made `dir.imp` and `parse.imp` talk to each other instead, and the grammar failed to load.
 - **The halves of a word are 32 bits, constants written in octal are 36 bits** (`765432107654B` is negative: 36 bit two's complement), a LS count of
-  64 or more gives 0, and `X RS 30` of a negative number is a 64 bit logical shift (`tests/golden/pccir/constshifts.out`).
+  64 or more gives 0, and `X RS 30` of a negative number is a 64 bit logical shift (`tests/golden/llvm-ir/constshifts.out`).
 
 ## The PDP-10 constructs
 
 `XWD A,B` is `(A AND HMASK) LS 32 OR (B AND HMASK)` (the halves are 32 bits) and `IOWD A,B` is `XWD -A,B-1`; `CALLI(A,B)` calls the library routine `imp_calli` with the
 code and the AC (an operation of the machine, as the instruction was); `EXECUTE A` does the one instruction of the machine that the word A holds (what XCT does, and what the tape uses it for: a block move, a call, a monitor
 service built at run time). The machine is the IR machine, so the word is one of its instructions: the operation in bits 56-63 (the numbers of
-`pccir-machine.md`), the accumulator in 52-55, the index register in 48-51, bit 47 for an immediate operand, and the address or number in the low 47 bits. The
+`llvm-ir-machine.md`), the accumulator in 52-55, the index register in 48-51, bit 47 for an immediate operand, and the address or number in the low 47 bits. The
 library's `imp_xct` does it, with the registers 0R to 15R as the accumulators (the code stores the ones it uses in `imp_ac` before and loads them after). It does the
 operations on integers and CALLI; jumps and floating point are an error at run time. The places in the tape that built a PDP-10 word for EXECUTE are changed
 to build this one as they are translated. `tests/direct/progs/pdp10.imp` and `execute.imp` test them.
 
 ## What remains
 
-The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Tried: x86_64 and i386 (the primary targets), and aarch64 (in a container). Not done: armv7 and the others (`make` skips the IR compiler there; these were run with the back ends of the time, before LLVM was the only one). On a 32 bit machine a call cannot carry a 64 bit word, so the helpers that IMP calls with `CCALL` (`stage0/pccirsem.c`) take `long`s and a 64 bit value crosses as two halves, and the runtime routines for shifts take addresses, `PRINT` of the text constants over 8 characters in `LOC`, 
+The seed (`stage0/`: `codegen.c`, `trans.c`, `pcode.c`, `impsem.c` and the rest of the C kernel) stays as the trusted stage 0. Tried: x86_64 and i386 (the primary targets), and aarch64 (in a container). Not done: armv7 and the others (`make` skips the IR compiler there; these were run with the back ends of the time, before LLVM was the only one). On a 32 bit machine a call cannot carry a 64 bit word, so the helpers that IMP calls with `CCALL` (`stage0/irsem.c`) take `long`s and a 64 bit value crosses as two halves, and the runtime routines for shifts take addresses, `PRINT` of the text constants over 8 characters in `LOC`, 

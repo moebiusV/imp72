@@ -49,4 +49,4 @@ index in the left half and the link in the right.
 **Registers** (`RG`, in `impsem`): bits 0-4 the upper limit, 5 two registers, 6-10 the lower limit, 11 a subroutine
 call, 12 not a temporary, 13-17 the hardware register. The registers `0R` to `15R` are the indices 33 to 48.
 
-**Code** is a chain of five-word records in `CO` (`docs/porting/pccir-machine.md`).
+**Code** is a chain of five-word records in `CO` (`docs/porting/llvm-ir-machine.md`).

@@ -15,12 +15,12 @@ the layout of the tables is `layouts.md`; a name is eight characters to a word; 
 | `graph`, `parse`, `ercor` | halves of 32 bits; the parser takes its goal as a name; `PSTATS` is IMP |
 | `entree`, `cotree`, `dosem`, `rsyn` | the layouts of `layouts.md`; the semantic routines register themselves with `DSEM`, which enters their addresses in a table in C (`stage0/semtab.c`) where the tape patches the address into a `JSA`; |
 | `debug` | the print-outs use `PRINT`; the dumps show the layouts of this machine |
-| `impsem`, `code`, `code2`, `code3` | they make chains of records of the IR machine instead of PDP-10 words (`pccir-path.md`); `EXECUTE` runs one instruction of that machine; `HRL` and `HRR` are the operations 66 and 67 |
+| `impsem`, `code`, `code2`, `code3` | they make chains of records of the IR machine instead of PDP-10 words (`llvm-ir-path.md`); `EXECUTE` runs one instruction of that machine; `HRL` and `HRR` are the operations 66 and 67 |
 | `demit` | takes the place of `amod`, `rmod` and `omod`: chains to IR through `stage0/ir.c`; a `GO TO` to a tag of another routine is a `longjmp` |
 | `impm` | the driver program: the command line (`IMPK`) as well as the tape's commands from the terminal (`-i`: `GETTY`, `READCMD`, the loop `AGAINSAM`); `ERROR`, `MSG` and `OUTSTR` writing to standard error; a fatal error returns to the driver through `impfatal` where the tape goes to `FIN` |
 
 Still C: `stage0/ir.c` (the builder of IR), `stage0/sys.c` (arguments, the listing, the terminal), `stage0/semtab.c`
-(the table of semantic routines), `stage0/pccirsem.c` (the routines `CCALL` reaches, `FCON`, `LETSYN`, `CVAL`, the `/A`
+(the table of semantic routines), `stage0/irsem.c` (the routines `CCALL` reaches, `FCON`, `LETSYN`, `CVAL`, the `/A`
 listing).
 
 ## Departures from the tape
@@ -37,9 +37,9 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 | `FBACK`, `FFWD`, `FLENX`, `FSETB`, `FSETF`, `FSETL` | `free` | the tape's `[X]<L>`, `[X]<R>`, `[X+2]<R>` and assignments to them; the IR machine has no halfword operations | forced |
 | `IMPK`, `USAGE`, `SETSW` | `impm` | the command line: the files are named as arguments and the switches are `-s LETTERS`; the tape reads one command from the terminal. Both are kept: `IMPK` is the one-shot mode and `-i` is the tape's | forced (Unix) |
 | `COMPIL`, `MKNAME` | `impm` | the compile that the tape has inline in the main program, which the two modes share; `MKNAME` builds a file name string from the name and extension words (`OPENIN` of the tape does it in its library) | provisional: inline `COMPIL` |
-| `IINIT`, `PAIRFIRST` | `pccir/impsem` | `IINIT` is the initialisation that the tape does where the routines are defined (the 64-bit module sets its tables when first called); `PAIRFIRST` tests whether the register of a pair comes first, which `HISREG` did by looking at the code | forced: no register pairs |
-| `REGFIELD` | `pccir/code` | the register field of an entry word, written in the tape as a byte-pointer field | forced |
-| `ADDREC`, `SETNEXT`, `JOP`, `CJUMP`, `MOVEBLK` | `pccir/code2` | `ADDCODE` of the tape adds a PDP-10 instruction word; `ADDREC` adds a record of the IR machine. The others are the tape's jump and block-move code with the machine's operations | forced |
+| `IINIT`, `PAIRFIRST` | `llvm-ir/impsem` | `IINIT` is the initialisation that the tape does where the routines are defined (the 64-bit module sets its tables when first called); `PAIRFIRST` tests whether the register of a pair comes first, which `HISREG` did by looking at the code | forced: no register pairs |
+| `REGFIELD` | `llvm-ir/code` | the register field of an entry word, written in the tape as a byte-pointer field | forced |
+| `ADDREC`, `SETNEXT`, `JOP`, `CJUMP`, `MOVEBLK` | `llvm-ir/code2` | `ADDCODE` of the tape adds a PDP-10 instruction word; `ADDREC` adds a record of the IR machine. The others are the tape's jump and block-move code with the machine's operations | forced |
 | `demit.imp` | | replaces `amod`, `rmod` and `omod` (the PDP-10 assembler): the chains become IR | forced |
 
 **Dropped**
@@ -51,7 +51,7 @@ convenience; the tape's way is to be restored). Nothing is renamed: where a tape
 | `OCHK`, `OPCODE`, `RCOCHK` | the PDP-10 assembler and the search of the code for register use; LLVM allocates the registers |
 | `SUBTAG`, `PARAMETERS` | nothing on the tape calls them |
 
-**Still C**: nothing of the tape's routines is only in C in the compiler `imp72` (the seed `imp72stage0` is the C kernel, `stage0/`, by design). `PCODE` and `PCODE1` (the `/A` listing) are in `src/pccir/code3.imp` and list the records of the IR chain, not PDP-10 instructions; `HELPD`, `GPRINT`, `TPRINT` and `PARTRA` call the tape's debugging routines directly (the tape tests whether the debugging module is loaded; it always is here); `FORMARG` is in `src/rsyn.imp` (nothing calls it, on the tape either).
+**Still C**: nothing of the tape's routines is only in C in the compiler `imp72` (the seed `imp72stage0` is the C kernel, `stage0/`, by design). `PCODE` and `PCODE1` (the `/A` listing) are in `src/llvm-ir/code3.imp` and list the records of the IR chain, not PDP-10 instructions; `HELPD`, `GPRINT`, `TPRINT` and `PARTRA` call the tape's debugging routines directly (the tape tests whether the debugging module is loaded; it always is here); `FORMARG` is in `src/rsyn.imp` (nothing calls it, on the tape either).
 
 **The byte pointer is a byte address.** `BYTEP A<7,36>` (the tape's pointer to the characters of A; `A<8,64>` also) is the byte
 address of the byte before the first of A, `<+P>` adds 1 and then reads or writes the byte there, and a character is a byte

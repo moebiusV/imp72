@@ -47,7 +47,7 @@ jobs:
             echo "::error::make failed: $(grep -i -B1 -A3 'error\|undefined\|not found' /tmp/make.log | head -c 1500 | tr '\n%' ' _')"
             echo "::error::macos make tail: $(tail -c 1500 /tmp/make.log | tr '\n%' ' _')"
             # the logs of the stages (the seed's compiles of the modules, the link): what the step that failed said
-            for f in build/pccir1.log build/pccir2.log build/pccir1/*.log build/pccir2/*.log; do
+            for f in build/llvm-ir1.log build/llvm-ir2.log build/llvm-ir1/*.log build/llvm-ir2/*.log; do
               [ -s "$f" ] && echo "::error::macos $f: $(head -c 700 "$f" | tr '\n%' ' _') ... $(tail -c 700 "$f" | tr '\n%' ' _')"
             done
             exit $rc
@@ -60,7 +60,7 @@ jobs:
           if [ $rc != 0 ]; then
             echo "::error::make check failed: $(grep -i -B2 -A2 'fail\|error\|not found' /tmp/check.log | head -c 1800 | tr '\n%' ' _')"
             # what the commands of tests/cli say (its test sends it to /dev/null)
-            ( cd build/cli 2>/dev/null && w=$PWD/../pccir2/imp72stage-pccir && export IMP72SYNTAX=$PWD/../../src/pccir/syntax64.imc IMP72FFI=$PWD/../../lib/ffi.imc IMP72LIB=$PWD/../lib/libimp72.a
+            ( cd build/cli 2>/dev/null && w=$PWD/../llvm-ir2/imp72stage-llvm-ir && export IMP72SYNTAX=$PWD/../../src/llvm-ir/syntax64.imc IMP72FFI=$PWD/../../lib/ffi.imc IMP72LIB=$PWD/../lib/libimp72.a
               for c in "-S lib2.imp -o d1.s" "-c --target=aarch64-linux-gnu lib2.imp -o d2.o" "-c --target=riscv64-linux-gnu lib2.imp -o d3.o" "-c --target=x86_64-linux-gnu lib2.imp -o d4.o"; do
                 echo "::error::macos cli [$c]: $($w $c 2>&1 | head -c 500 | tr '\n%' ' _')"
               done ) || true

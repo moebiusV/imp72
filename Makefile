@@ -14,16 +14,16 @@ PREFIX   = /usr/local
 
 LIB = build/lib/libimp72.a
 
-PCCIR = build/pccir2/imp72d          # the compiler with the code generator of src/pccir (tools/pccir.sh), where it can be built
+LLVMIR = build/llvm-ir2/imp72d          # the compiler with the code generator of src/llvm-ir (tools/llvm-ir.sh), where it can be built
 
-all: stage0 $(LIB) pccir
+all: stage0 $(LIB) llvm-ir
 
 $(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.imp lib/imphost.imp lib/impvars.imp lib/impvarsx-elf.imp lib/impvarsx-macho.imp tools/sysconst.sh lib/imp72main.imp
 	CFLAGS="$(CFLAGS)" sh tools/guard.sh sh tools/mklib.sh
 
 # stage 1 by the seed, stage 2 by stage 1 (skipped where the LLVM libraries are missing)
-pccir: stage0 $(LIB)
-	@sh tools/guard.sh sh tools/pccir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
+llvm-ir: stage0 $(LIB)
+	@sh tools/guard.sh sh tools/llvm-ir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 
 stage0:
 	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
@@ -39,9 +39,9 @@ install: all
 	    $(DESTDIR)$(PREFIX)/share/imp72 $(DESTDIR)$(PREFIX)/share/man/man1
 	install -m 755 stage0/imp72s0 $(DESTDIR)$(PREFIX)/bin/imp72stage0
 	rm -f $(DESTDIR)$(PREFIX)/bin/imp72
-	if [ -x $(PCCIR) ]; then \
-	    install -m 755 $(PCCIR) $(DESTDIR)$(PREFIX)/bin/imp72; \
-	    install -m 644 src/pccir/syntax64.imc $(DESTDIR)$(PREFIX)/share/imp72/syntax64.imc; \
+	if [ -x $(LLVMIR) ]; then \
+	    install -m 755 $(LLVMIR) $(DESTDIR)$(PREFIX)/bin/imp72; \
+	    install -m 644 src/llvm-ir/syntax64.imc $(DESTDIR)$(PREFIX)/share/imp72/syntax64.imc; \
 	else ln -sf imp72stage0 $(DESTDIR)$(PREFIX)/bin/imp72; fi
 	install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a
 	install -d $(DESTDIR)$(PREFIX)/include
@@ -85,4 +85,4 @@ clean:
 
 distclean: clean
 
-.PHONY: all stage0 pccir check clean distclean install
+.PHONY: all stage0 llvm-ir check clean distclean install

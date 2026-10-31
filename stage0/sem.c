@@ -1,7 +1,7 @@
 /*
  * sem.c -- the semantic routines of the seed (the compiler whose code generator is codegen.c): the lists of decus/impsem.imc (NEWLIST,
  * ENLIST, GETLIST), ASSEMC, and the registration of the routines.  The table itself is semtab.c.  (The compiler with the code generator of
- * src/pccir has these in src/pccir/impsem.imp.)
+ * src/llvm-ir has these in src/llvm-ir/impsem.imp.)
  */
 #include <stdlib.h>
 #include <string.h>

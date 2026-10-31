@@ -1,10 +1,10 @@
 #!/bin/sh
-# direct.sh: build build/direct/imp72d, the kernel with the code generator of src/pccir (the translation of the tape's code*.imc and
-# impsem.imc whose instructions are those of pcc IR, docs/porting/pccir-machine.md) in place of codegen.c, impsem.c, trans.c and pcode.c.
+# direct.sh: build build/direct/imp72d, the kernel with the code generator of src/llvm-ir (the translation of the tape's code*.imc and
+# impsem.imc whose instructions are those of IR, docs/porting/llvm-ir-machine.md) in place of codegen.c, impsem.c, trans.c and pcode.c.
 # The modules are compiled by imp72stage0 (the compiler with the old code generator), each next to the others: their symbols
 # are renamed impl_NAME (all of them in all the objects, so that the modules call one another by name), except the variables the C
-# side shares (src/pccir/shared.txt and src/shared.txt); there is no C of the compiler's in the result but the LLVM glue and the library.  Run from the top
-# of the tree after `make`.  imp72d with the syntax src/pccir/syntax64.imc compiles IMP to pcc IR itself.
+# side shares (src/llvm-ir/shared.txt and src/shared.txt); there is no C of the compiler's in the result but the LLVM glue and the library.  Run from the top
+# of the tree after `make`.  imp72d with the syntax src/llvm-ir/syntax64.imc compiles IMP to IR itself.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
@@ -22,7 +22,7 @@ endf=$(sh tools/endian.sh)
 export IMP72ENDIAN=$endf
 sh tools/capped.sh $out/imprename.log $driver -o "$imprename" tools/imprename.imp || { dd bs=100000 count=1 if=$out/imprename.log 2>/dev/null >&2; echo "direct: imprename failed" >&2; exit 1; }
 for m in $modules; do
-    sh tools/capped.sh $out/$m.log env IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp \
+    sh tools/capped.sh $out/$m.log env IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp \
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
@@ -36,7 +36,7 @@ for m in $srcmodules; do
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
-# every symbol the modules define (src/pccir and src/), except the ones shared with the C side, gets the prefix in all of them: they call one another by the
+# every symbol the modules define (src/llvm-ir and src/), except the ones shared with the C side, gets the prefix in all of them: they call one another by the
 # tape's names.  What they call and do not define is the C side's
 syms=
 for m in $modules $srcmodules; do
@@ -44,7 +44,7 @@ for m in $modules $srcmodules; do
 done
 syms=$(printf '%s\n' $syms | sort -u)
 # the names are as the modules write them (ST); the C side's are lower case (st): the ones they share are renamed to the C side's, the others get the prefix
-cat src/shared.txt src/pccir/shared.txt > $out/shared.all
+cat src/shared.txt src/llvm-ir/shared.txt > $out/shared.all
 for s in $syms; do
     l=$(printf '%s' "$s" | tr 'A-Z' 'a-z')
     if grep -qx -- "$l" $out/shared.all && [ "$s" != "$l" ]; then echo "$s $l"
@@ -74,5 +74,5 @@ for o in stage0/*.o; do
     [ $skip = 1 ] || keep="$keep $o"
 done
 cc $(sh tools/nopie.sh) -o $out/imp72d $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
-ln -sf imp72d $out/imp72stage-pccir
-echo "built $out/imp72d with the code generator of src/pccir: $modules; the compiler's own: $srcmodules"
+ln -sf imp72d $out/imp72stage-llvm-ir
+echo "built $out/imp72d with the code generator of src/llvm-ir: $modules; the compiler's own: $srcmodules"

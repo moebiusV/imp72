@@ -1,9 +1,9 @@
 # Direct IR: the semantics emit IR, not PDP-10 code
 
-Status, 2026-10-23: built and verified (`tools/direct.sh`, `tests/direct/`). `src/pccir/` is the translation of the tape's `code*.imc`, `impsem.imc` and
+Status, 2026-10-23: built and verified (`tools/direct.sh`, `tests/direct/`). `src/llvm-ir/` is the translation of the tape's `code*.imc`, `impsem.imc` and
 `syntax.imc` with the operations of IR in place of the PDP-10's, and `demit.imp` takes the place of `amod`/`rmod`/`omod`. The old path
-(`codegen.c` -> PDP-10 chains -> `trans.c` -> IR) is still in the tree, as the seed that compiles `src/pccir` the first time and as the reference the
-new path is compared with; what it takes to remove it is at the end of `docs/porting/pccir-path.md`.
+(`codegen.c` -> PDP-10 chains -> `trans.c` -> IR) is still in the tree, as the seed that compiles `src/llvm-ir` the first time and as the reference the
+new path is compared with; what it takes to remove it is at the end of `docs/porting/llvm-ir-path.md`.
 
 ## Why
 
@@ -23,7 +23,7 @@ immediates, peepholes and instruction selection.
   layout and keep meaning what they mean. (`0CON18` has no meaning without immediates: patterns that test it are dropped.)
 - `src/impsyn64.imc` and the module sources.
 - `ir.c` (the IR text writer, 315 lines), then the only C that stayed for code generation. IMP calls it through `CCALL` (a pointer is a
-  64 bit word). Since then `src/pccir/ix.imp` has taken its place in `imp72`; the seed keeps `ir.c`.
+  64 bit word). Since then `src/llvm-ir/ix.imp` has taken its place in `imp72`; the seed keeps `ir.c`.
 
 ## What changes
 

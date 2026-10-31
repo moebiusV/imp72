@@ -395,7 +395,7 @@ SUBR SETPATHS(Z) IS (
  EXISTS(LOC(SYNP)) NE 0 => (CCALL snprintf(LOC(FFIP),4096,LOC('%s/share/imp72/ffi.imc'),LOC(ROOT));
                             CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/imp72/libimp72.a'),LOC(ROOT));
                             CCALL snprintf(LOC(TMPB),4096,LOC('.')))                  # INSTALLED: WHERE THE COMPILER IS RUN #
-   ELSE (CCALL snprintf(LOC(SYNP),4096,LOC('%s/../src/pccir/syntax64.imc'),LOC(ROOT));
+   ELSE (CCALL snprintf(LOC(SYNP),4096,LOC('%s/../src/llvm-ir/syntax64.imc'),LOC(ROOT));
          CCALL snprintf(LOC(FFIP),4096,LOC('%s/../lib/ffi.imc'),LOC(ROOT));
          CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/libimp72.a'),LOC(ROOT));
          CCALL snprintf(LOC(TMPB),4096,LOC('%s/../tmp'),LOC(ROOT)));       # THE TREE'S OWN (GITIGNORED) TMP/ #

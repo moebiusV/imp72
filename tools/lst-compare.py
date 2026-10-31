@@ -12,7 +12,7 @@ Not instructions, on either side:
 
 Rules on the original's side (what the port does without):
   spill      an instruction that names a spill temporary, %TMPn: RMOD saves a register in memory around a call and loads it back (rmod.imc: NEWNAME('TMP')); LLVM allocates here.
-  bytepair   HRRZI r,A and HRLI r,SP before LDB/DPB/ILDB/IDPB/IBP: the original builds the byte pointer in a register where it is used; ours names a descriptor (src/pccir/code3.imp
+  bytepair   HRRZI r,A and HRLI r,SP before LDB/DPB/ILDB/IDPB/IBP: the original builds the byte pointer in a register where it is used; ours names a descriptor (src/llvm-ir/code3.imp
              BYTEP) and the operation reads it.
   float      the half-word immediates of the PDP-10 (HRLZI, HRLOI, FADRI, FSBRI, FMPRI, FDVRI, and MOVEI r,0 for a 0.0 that a floating operation uses) are a real constant of 18 bits in the left half; a REAL is an IEEE double here, a whole
              word of the constant pool, loaded by MOVE and used by FADR, FSBR, FMPR, FDVR.  Seen as the same operation.

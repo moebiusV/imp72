@@ -1,5 +1,5 @@
 /*
- * ir2ll -- the LLVM back end: the pcc IR text that imp72s0 writes (-c), read on standard input, becomes a module of LLVM IR on standard output, for
+ * ir2ll -- the LLVM back end: the IR text that imp72s0 writes (-c), read on standard input, becomes a module of LLVM IR on standard output, for
  * clang or llc to turn into an object.  It reads what ir2c reads (the IR as lowered for amd64: the arguments of a call in the registers rdi, rsi, ...
  * and above the sixth in the outgoing area, the result in rax) and undoes the lowering the same way, so that any host that has LLVM can be a host of
  * the compiler, whatever its byte order or word size.

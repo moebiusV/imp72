@@ -4,7 +4,7 @@
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root" || exit 1
 seed=${1:-1}; count=${2:-10}
-driver=${DRIVER:-stage0/imp72stage0}               # DRIVER=build/direct/imp72stage-pccir for the code generator of src/pccir
+driver=${DRIVER:-stage0/imp72stage0}               # DRIVER=build/direct/imp72stage-llvm-ir for the code generator of src/llvm-ir
 d=${FUZZ_OUT:-build/ieee-fuzz}/$seed
 rm -rf $d; mkdir -p $d
 python3 tools/imp-fuzz-ieee.py $seed $count $d || exit 1

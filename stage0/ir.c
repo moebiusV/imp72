@@ -1,5 +1,5 @@
 /*
- * ir.c -- writing pcc IR text.  See ir.h.
+ * ir.c -- writing IR text.  See ir.h.
  *
  * A function is
  *
@@ -314,7 +314,7 @@ ir_func_end(int retlab, int rettemp)
         fprintf(out, ") 0\n");
 }
 
-/* ---- helpers for a front end that makes the IR directly (src/pccir/demit.imp) ----------------------------------------------- */
+/* ---- helpers for a front end that makes the IR directly (src/llvm-ir/demit.imp) ----------------------------------------------- */
 
 #define NARGREG (irtgt->narg)
 
@@ -325,8 +325,8 @@ asg(struct irn *l, struct irn *r)
 }
 
 /*
- * A shift (right: 0 left, 1 logical right, 2 arithmetic right): pcc handles a shift of a temp by an int count assigned back to the same temp, so every shift goes through one: the
- * result is a fresh temp node.  (A constant on the left, or a shift whose operand is not the destination, is not code pcc can
+ * A shift (right: 0 left, 1 logical right, 2 arithmetic right): the IR takes a shift of a temp by an int count assigned back to the same temp, so every shift goes through one: the
+ * result is a fresh temp node.  (A constant on the left, or a shift whose operand is not the destination, is not code the IR can
  * generate.)  The count is that of C: 0 to 63.
  */
 struct irn *
@@ -341,7 +341,7 @@ ir_xshift(int right, struct irn *l, struct irn *r)
         int k = ir_newtemp();
 
         asg(ir_temp(k, T_LONG), r);
-        cnt = ir_un(IR_SCONV, T_UCHAR, ir_temp(k, T_LONG));  /* pcc: counts are chars */
+        cnt = ir_un(IR_SCONV, T_UCHAR, ir_temp(k, T_LONG));  /* the IR: counts are chars */
     }
     asg(ir_temp(c, T_LONG), l);
     if (right == 2)                                     /* arithmetic: the sign is kept */
@@ -379,7 +379,7 @@ ir_xcall(struct irn *fn, struct irn **a, int n, int cret)
         if (cret)
             rt = T_INT;
     } else {
-        /* the arguments beyond the registers go in the outgoing stack area, which pcc reserves for any assignment to memory
+        /* the arguments beyond the registers go in the outgoing stack area, which the back end reserves for any assignment to memory
          * in a call's list; they come first, the register ones last */
         for (k = irtgt->narg; k < n && irtgt->pushargs; k++) {  /* pass 2 pushes from the right: the last first */
             struct irn *f = ir_un(IR_FUNARG, a[k]->type, a[k]);
@@ -428,7 +428,7 @@ ir_param(int k)
 int ir_usedfs;
 
 /*
- * The double for the word w, kept in the scratch word imp_fsK (K 0 or 1) and read from memory where it is used, never held in a temp: pass 2 of pcc
+ * The double for the word w, kept in the scratch word imp_fsK (K 0 or 1) and read from memory where it is used, never held in a temp: the first back end
  * (-xtemps) mishandles double temps on the i386, where they live in the x87 stack.  The expression that combines two of them is the value; ir_fromdouble
  * stores the double it is given in imp_fsr and the word is read back from there.
  */

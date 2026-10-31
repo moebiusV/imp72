@@ -3,9 +3,9 @@
 # The IR written for a command must be that of the same file named on the command line.  Run from the top of the tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-d=${INTERACTIVE_IMPD:-build/pccir2/imp72d}
+d=${INTERACTIVE_IMPD:-build/llvm-ir2/imp72d}
 [ -x "$d" ] || { echo "interactive test skipped: no $d"; exit 0; }
-syn="$root/src/pccir/syntax64.imc $root/lib/ffi.imc"
+syn="$root/src/llvm-ir/syntax64.imc $root/lib/ffi.imc"
 out=build/interactive
 rm -rf $out; mkdir -p $out
 cp tests/native/hello.imp tests/native/basic.imp $out/
@@ -21,7 +21,7 @@ grep -q 'SINGLE LETTER SWITCHES' $out/session.out || { echo "FAILED: interactive
 grep -q 'FILE NOT FOUND' $out/session.out || { echo "FAILED: interactive: no complaint about a missing file" >&2; fail=1; }
 grep -Eq 'IMP72 0\.9\.0 +( |[0-9])[0-9]-[A-Z]{3}-[0-9]{2}' $out/session.out || { echo "FAILED: interactive: no banner with the date" >&2; fail=1; }
 # the same through the imp72 driver (-i): the REL file is an object, hello.o, and the IR is not left
-w=${INTERACTIVE_IMP72:-build/pccir2/imp72stage-pccir}
+w=${INTERACTIVE_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
 if [ -x "$w" ]; then
     mkdir -p $out/w && cp tests/native/hello.imp $out/w/
     ( cd $out/w && printf 'hello/C\nx_/U\n' | $root/$w -i >session.out 2>&1 )

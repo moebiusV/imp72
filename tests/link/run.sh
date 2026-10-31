@@ -4,7 +4,7 @@
 # compiler has no lld, or the architecture is not one of those whose C library is looked for.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${LINK_IMP72:-build/pccir2/imp72stage-pccir}
+w=${LINK_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
 [ -x "$w" ] || { echo "link test skipped: no $w"; exit 0; }
 lld=1
 sh tools/llvm.sh cflags | grep -q HAVE_LLD || lld=0                 # without the lld library the compiler runs ld.lld, which has to be found by the PATH
@@ -31,7 +31,7 @@ if [ $fail = 0 ] && [ -x stage0/imp72stage0 ]; then
         rm -f $out/hello.same
         IMP72LIB=$root/build/lib/libimp72.a IMP72LDSHOW=1 PATH=$root/$out/bin $root/$d -o $out/hello.same tests/native/hello.imp 2>&1 >/dev/null | sed 's#[^ ]*imp72stage0\.[A-Za-z0-9]*#T#g' >$out/ld.$n
     done
-    [ -s $out/ld.imp72stage-pccir ] && cmp -s $out/ld.imp72stage-pccir $out/ld.imp72stage0 || { echo "FAILED: link: the seed and imp72 do not link with the same arguments" >&2; diff $out/ld.imp72stage-pccir $out/ld.imp72stage0 >&2; fail=1; }
+    [ -s $out/ld.imp72stage-llvm-ir ] && cmp -s $out/ld.imp72stage-llvm-ir $out/ld.imp72stage0 || { echo "FAILED: link: the seed and imp72 do not link with the same arguments" >&2; diff $out/ld.imp72stage-llvm-ir $out/ld.imp72stage0 >&2; fail=1; }
     $out/hello.same | cmp -s - tests/native/hello.out || { echo "FAILED: link: the program linked by the seed does not run" >&2; fail=1; }
 fi
 [ $fail = 0 ] && echo ok

@@ -24,11 +24,11 @@ IMP72 is a small kernel plus a language defined in data. This page is the map; t
   (`graph`), the directory of names (`dir`), the free storage and the stacks (`free`, `stack`), the code tree and the
   semantic stack reducer (`entree`, `cotree`), the semantics array and its interpreter (`dosem`), the bootstrap
   reader of the initial syntax (`rsyn`), the diagnostic print-outs (`debug`) and the driver program (`impm`).
-- **The language** is the syntax file: `src/pccir/syntax64.imc`, the translation of `decus/syntax.imc`, statements
+- **The language** is the syntax file: `src/llvm-ir/syntax64.imc`, the translation of `decus/syntax.imc`, statements
   `<CLASS> ::= elements ::= semantics` that `rsyn` reads first with a small notation of its own and then the parser itself
   reads, each semantics a call of the semantic routines.
-- **The semantic routines** (`src/impsem`, `src/pccir/`) keep their names from the original. They build chains of records
-  in free array `CO`, whose operations are those of the IR machine (`docs/porting/pccir-machine.md`); registers are
+- **The semantic routines** (`src/impsem`, `src/llvm-ir/`) keep their names from the original. They build chains of records
+  in free array `CO`, whose operations are those of the IR machine (`docs/porting/llvm-ir-machine.md`); registers are
   temporaries. `demit.imp` turns a chain into IR trees through `stage0/ir.c` one function at a time.
 - **Back end**: LLVM, and only LLVM. `src/ir2ll.imp` (the seed: `tools/ir2ll.c`) turns the IR into a module of LLVM IR, and LLVM, in the compiler's own process
   (`stage0/llvmorc.c`: the module is parsed, optimised and emitted by the C API, or compiled by ORC and run: `imp72 --run`), makes

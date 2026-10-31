@@ -1,5 +1,5 @@
 /*
- * ir.h -- the pcc intermediate representation, as text.
+ * ir.h -- the intermediate representation, as text.
  *
  * Trees are pcc pass 2 NODEs (mip/node.h): the same operators and types, the
  * same shapes as pass 1 leaves for the pass 2 compiler on amd64.  They are
@@ -50,7 +50,7 @@ struct irtarget {
     int fnargs;                 /* arguments are FUNARG nodes pushed by pass 2 (i386), not registers */
     int pushargs;               /* arguments beyond the registers are pushed by pass 2 as FUNARG (arm) */
     int ippmem;                 /* the IR has the target's extra lines after the prolog and epilog */
-    int wordll;                 /* the 64 bit word is pcc's long long: long is 32 bits (i386) */
+    int wordll;                 /* the 64 bit word is a long long: long is 32 bits (i386) */
 };
 extern const struct irtarget *irtgt;
 int ir_settarget(const char *name);      /* 0 if there is no such target */

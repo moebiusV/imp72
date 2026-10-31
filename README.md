@@ -20,9 +20,9 @@ adding such statements.
 
 **Where the project is.** The compiler is the original's source, translated to
 64-bit IMP in `src/` (the tape itself is kept untouched in `decus/`). It
-compiles IMP to an intermediate representation (the IR, whose text is that of
-a compiler's pass 2: it is where the names `pccir` and `ir.h` come from; no
-pcc is used), which the LLVM back end turns into machine code in the compiler's
+compiles IMP to an intermediate representation (the IR: its text is the tree
+format of a compiler's pass 2, kept from the first back end, pcc; none of pcc's
+code is used), which the LLVM back end turns into machine code in the compiler's
 own process through the LLVM C API: there is no clang, no host C compiler and no
 other process in the compiling, and the compiler is built where the LLVM libraries
 are installed. `imp72 --run prog.imp` compiles a program with ORC and runs it in the process;
@@ -44,7 +44,7 @@ compiler that is installed.
 Translated to IMP so far: free storage, the directory, the lexer, the syntax
 graph, the parser, error correction, the code tree, the semantic stack
 reducer, the semantics interpreter, `RSYN`, the register and declaration
-routines, the code generator (`src/pccir/`), the diagnostic print-outs, and the
+routines, the code generator (`src/llvm-ir/`), the diagnostic print-outs, and the
 driver program. Its words are 64 bits wide, names are eight characters to a
 word, and `EXECUTE` runs an instruction of the IR machine.
 
@@ -63,7 +63,7 @@ translation of the tables and the driver program.
    library (PRINT, READ, FINI and the rest) in IMP over `CCALL`. Left: only the little C that says what only C can (`lib/imp72sys.c`, `lib/imphost.c`) (`docs/porting/c-to-imp.md`).
    `stage0/impld.cpp` stays: lld has no C interface.
    The link (lld, library or program) is the same C-library-independent table for every system; `lib/imphost.c` finds the loader and the C library.
-3. Bring the code generator in `src/pccir/` closer to the tape's names and text.
+3. Bring the code generator in `src/llvm-ir/` closer to the tape's names and text.
    Restore the tape where a departure is marked provisional in
    `docs/porting/modules.md` (`COMPIL`, inline in the tape's main program).
 4. Compare the compiler's dumps (directory, code tree, semantics array, graph)
@@ -155,7 +155,7 @@ IMP expressions have **no operator precedence** (`A+B*C` is `A+(B*C)`), and
     tape/           the 22 .imc files of decus/ with := for _ (tools/tape.sh makes them; the seed reads them)
     src/            the compiler's sources in 64-bit IMP: the kernel modules,
                     impsyn64.imc (the syntax they are written in)
-    src/pccir/      the code generator, the syntax file syntax64.imc, demit.imp
+    src/llvm-ir/      the code generator, the syntax file syntax64.imc, demit.imp
     stage0/         the seed: a C port of the compiler that builds the first
                     stage (it stays C), and the glue to LLVM's C API
                     (llvmorc.c), which is to become IMP
@@ -203,7 +203,7 @@ value (`docs/FFI.md`).
 
 **Code generation.** The code generator builds the IR directly: `DEWOP`
 and the routines around it take the operations of a machine whose instructions
-are those of the IR (`docs/porting/pccir-machine.md`), and `src/pccir/demit.imp`
+are those of the IR (`docs/porting/llvm-ir-machine.md`), and `src/llvm-ir/demit.imp`
 writes the chains out as IR text for the LLVM back end (`src/ir2ll.imp`, in the process). `EXECUTE` runs one
 instruction of that machine from a word, with registers `0R` to `15R` as its
 accumulators. A `GO TO` to a tag of another routine is a `longjmp`.
@@ -225,7 +225,7 @@ the exact words are in `decus/exact/`.
 - [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md)
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
 - [docs/BUILDING.md](docs/BUILDING.md), [docs/ORACLE.md](docs/ORACLE.md)
-- [docs/porting/pccir-path.md](docs/porting/pccir-path.md), [pccir-machine.md](docs/porting/pccir-machine.md): the code generator and its machine
+- [docs/porting/llvm-ir-path.md](docs/porting/llvm-ir-path.md), [llvm-ir-machine.md](docs/porting/llvm-ir-machine.md): the code generator and its machine
 - [docs/porting/modules.md](docs/porting/modules.md): the modules and what differs from the tape; [layouts.md](docs/porting/layouts.md): the layout of the compiler's words
 - [docs/internals/](docs/internals/): the kernel module by module
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages

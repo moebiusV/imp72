@@ -440,7 +440,7 @@ link_exe(const char *out, const char *ofile, const char *lib)
 
 /* The words are 64 bits, so a shift by 18 is a shift by 18, an AND with 777777B keeps 18 bits and a field of 18 bits is 18 bits.  The original syntax has rules for these as the PDP-10's
  * halves of 18 bits (HRLZ, HLRZ, HRRZ, HLLZ, HRRM, HRLM: "A LS 18", "A AND NOT 777777B", "A<18,0>", ...), which the seed would make halves of 32 bits: a copy of the syntax
- * without them goes to the temporary directory (src/pccir/syntax64.imc has not got them either).  IMP72NARROW=1 keeps them, for the tape's own modules.  0 if the copy was made. */
+ * without them goes to the temporary directory (src/llvm-ir/syntax64.imc has not got them either).  IMP72NARROW=1 keeps them, for the tape's own modules.  0 if the copy was made. */
 static const char *const halfrules[] = {
     "\"A LS 18\" =>", "\"A LS 777777777756B\" =>",                                    /* each of these lines is an alternative that ends with ELSE: it goes */
     "\"A AND 000000777777B\"=>", "\"A AND 777777000000B\"=>", "\"A AND NOT 777777B\" =>",

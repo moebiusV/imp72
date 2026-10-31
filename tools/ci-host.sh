@@ -3,14 +3,14 @@
 # isa and uarch on riscv), and the triple, CPU and features LLVM reports for it (IMP72LLVMINFO, stage0/llvmorc.c), which are what the code is generated for.  Never fails.
 # Run from the top of the tree, after the build.
 name=$1
-w=${CI_IMP72:-build/pccir2/imp72stage-pccir}
+w=${CI_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
 {
     uname -srm
     [ -r /proc/cpuinfo ] && grep -m4 -i '^model name\|^isa\|^uarch\|^mmu\|^cpu\b\|^machine' /proc/cpuinfo | tr '\t' ' ' | cut -c1-120 | uniq
     [ "$(uname)" = Darwin ] && sysctl -n machdep.cpu.brand_string hw.model 2>/dev/null
     [ "$(uname)" = OpenBSD ] || [ "$(uname)" = FreeBSD ] || [ "$(uname)" = NetBSD ] && sysctl -n hw.model 2>/dev/null
     if [ -x "$w" ] && [ -f tests/native/hello.imp ]; then
-        IMP72SYNTAX=$PWD/src/pccir/syntax64.imc IMP72FFI=$PWD/lib/ffi.imc IMP72LIB=$PWD/build/lib/libimp72.a IMP72LLVMINFO=1 \
+        IMP72SYNTAX=$PWD/src/llvm-ir/syntax64.imc IMP72FFI=$PWD/lib/ffi.imc IMP72LIB=$PWD/build/lib/libimp72.a IMP72LLVMINFO=1 \
             "$w" --run tests/native/hello.imp 2>&1 >/dev/null | grep '^imp72-host:'
     else
         echo "imp72-host: no compiler to ask ($w)"

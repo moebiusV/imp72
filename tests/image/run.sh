@@ -4,9 +4,9 @@
 # the IR that the same program gives when the file of syntax is named on the command line.  Run from the top of the tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-d=${IMAGE_IMPD:-build/pccir2/imp72d}
+d=${IMAGE_IMPD:-build/llvm-ir2/imp72d}
 [ -x "$d" ] || { echo "image test skipped: no $d"; exit 0; }
-syn="$root/src/pccir/syntax64.imc $root/lib/ffi.imc"
+syn="$root/src/llvm-ir/syntax64.imc $root/lib/ffi.imc"
 out=build/image
 rm -rf $out; mkdir -p $out
 echo "== image"
@@ -36,7 +36,7 @@ printf 'junk' > $out/junk.img
 ( cd $out && printf 'ext/C\ntwice_/U\n' | $root/$d -i $syn $syn >twice.log 2>&1; $root/$d -I twice.img -c twice.ir prog.imp >twice2.log 2>&1 ) || { echo "FAILED: image: the image of a compiler with its syntax read twice" >&2; fail=1; }
 cmp -s $out/base.ir $out/twice.ir || { echo "FAILED: image: the IR from that image differs" >&2; fail=1; }
 # the same through the imp72 driver: -i to save, -I to start from the image
-w=${IMAGE_IMP72:-build/pccir2/imp72stage-pccir}
+w=${IMAGE_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
 if [ -x "$w" ]; then
     ( cd $out && printf 'ext/C\nwmy_/U\n' | $root/$w -i >wsave.log 2>&1
       $root/$w -I wmy.img -c -o prog.o prog.imp >wload.log 2>&1 )

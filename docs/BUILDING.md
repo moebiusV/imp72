@@ -16,15 +16,15 @@ Make variables: `CC`, `CFLAGS`, `LDFLAGS`, `DESTDIR`, `PREFIX`.
 
 By hand:
 
-    tools/pccir.sh                     # stage 1 in build/pccir1, stage 2 in build/pccir2/imp72d
-    tools/direct.sh                    # the compiler built by the seed: build/direct/imp72d and imp72stage-pccir
-    build/direct/imp72stage-pccir -o hello tests/native/hello.imp
-    build/direct/imp72d -s TSX -o dump.txt -c ir.txt src/pccir/syntax64.imc lib/ffi.imc prog.imp
+    tools/llvm-ir.sh                     # stage 1 in build/llvm-ir1, stage 2 in build/llvm-ir2/imp72d
+    tools/direct.sh                    # the compiler built by the seed: build/direct/imp72d and imp72stage-llvm-ir
+    build/direct/imp72stage-llvm-ir -o hello tests/native/hello.imp
+    build/direct/imp72d -s TSX -o dump.txt -c ir.txt src/llvm-ir/syntax64.imc lib/ffi.imc prog.imp
 
-(`pccir` in these names is the directory and the IR's old name; no pcc is involved.)
+(`llvm-ir` in these names is the directory of the code generator and the name of the IR.)
 
 `imp72d` is the compiler proper (`src/impm.imp`): options `-i` (the tape's commands from the terminal; `imp72 -i` does the same), `-I IMAGE` (start from an image saved with `NAME_/U`), `-s LETTERS` (the original's switches), `-o FILE` (listing and
-dumps), `-c FILE` (the IR), `-T TARGET`, then the syntax file and the files to compile. `imp72stage-pccir` and
+dumps), `-c FILE` (the IR), `-T TARGET`, then the syntax file and the files to compile. `imp72stage-llvm-ir` and
 `imp72` are the same program with the driver around it: they find the syntax file and the library, make the object with LLVM in the process and link.
 
 The seed alone: `cd stage0 && make`, then `./imp72s0 -s TSX -o dump.txt ../tape/syntax.imc`, or

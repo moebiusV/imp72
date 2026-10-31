@@ -7,7 +7,7 @@
  * routine of the PDP-10 compiler (code.imc, code2.imc, code3.imc, impsem.imc)
  * is registered by name so that `SEMR` accepts it, but is not ported: calling
  * it stops with an error.  They are replaced when the compiler switches from
- * PDP-10 code to pcc IR.
+ * PDP-10 code to IR.
  *
  * The name of a routine has as its 'SEM' property its id: 1 + its slot here.
  */

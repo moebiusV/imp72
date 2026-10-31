@@ -4,7 +4,7 @@
 root=$(cd "$(dirname "$0")/.." && pwd)
 b=$root/build/imp-assign
 if [ ! -x "$b" ] || [ -n "$(find "$root/tools/imp-assign.imp" -newer "$b" 2>/dev/null)" ]; then
-    c=${IMP72:-$root/build/pccir2/imp72stage-pccir}
+    c=${IMP72:-$root/build/llvm-ir2/imp72stage-llvm-ir}
     [ -x "$c" ] || c=$root/stage0/imp72stage0                      # (the seed reads the same language)
     [ -x "$c" ] || { echo "imp-assign: no compiler built (make first)" >&2; exit 1; }
     mkdir -p "$root/build"

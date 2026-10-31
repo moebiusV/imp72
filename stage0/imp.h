@@ -337,7 +337,7 @@ word enlist(word s);
 word getlist(word s);
 word hook(word d, word a, word b);
 word assemc(word a);
-void trans_open(FILE *f);                       /* write pcc IR to f */
+void trans_open(FILE *f);                       /* write IR to f */
 void trans_unit(word a);
 
 /* codegen.c, impsem.c: the code generator (PDP-10 code chains) */

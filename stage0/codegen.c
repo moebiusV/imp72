@@ -8,7 +8,7 @@
  * These generate the PDP-10 code of the original compiler, as a chain of
  * instruction words in free array CO: the code of a stack entry is the chain
  * between CB and CE in its third word.  Their meaning is the PDP-10's;
- * trans.c turns the chains into IMP-IR, from which the pcc IR is made, in
+ * trans.c turns the chains into IMP-IR, from which the IR is made, in
  * place of the assembler (amod), register allocator (rmod) and output module
  * (omod) of the original, which are not ported.
  *
@@ -36,7 +36,7 @@
  *                directory index of the variable
  *
  * A register index is not a PDP-10 register: it names an entry of the
- * register array RG (impsem.c), with limits; allocation is left to pcc.
+ * register array RG (impsem.c), with limits; allocation is left to LLVM.
  */
 #include <stdlib.h>
 #include <string.h>
