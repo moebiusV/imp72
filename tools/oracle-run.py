@@ -6,7 +6,7 @@ With --lst only compile, with /A/L, and keep the assembly listing (DIR/NAME.lst)
 For each program the output the program put into its default output file (PO) is written to
 DIR/NAME.oracle (default: standard output, after a header line), tabs expanded to the 8 column
 stops of the terminal.  The compiler's messages go to DIR/NAME.compile."""
-import os, re, sys, time
+import os, re, subprocess, sys, time
 here = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, here)
 import oracle, pdp10tap
@@ -26,17 +26,12 @@ def quiet(t, idle=4, limit=600, until=None):
 
 
 def tapetext(p, n):
-    """the program as the original reads it: its assignment is _ and not := (tools/imp-assign.py --tape); a file in the scratch directory of the tree, named for the program"""
-    sys.path.insert(0, here)
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("impassign", os.path.join(here, "imp-assign.py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
+    """the program as the original reads it: its assignment is _ and not := (tools/imp-assign.imp -t); a file in the scratch directory of the tree, named for the program"""
     d = os.path.join(here, "..", "tmp", "oracle-text")
     os.makedirs(d, exist_ok=True)
     q = os.path.join(d, os.path.basename(p))
-    with open(p, errors="surrogateescape", newline="") as f, open(q, "w", errors="surrogateescape", newline="") as g:
-        g.write(m.to_tape(f.read()))
+    with open(q, "wb") as g:
+        subprocess.run(["sh", os.path.join(here, "imp-assign.sh"), "-t", os.path.abspath(p)], stdout=g, check=True)    # IMP does it: tools/imp-assign.imp
     return q
 
 

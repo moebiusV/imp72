@@ -1,7 +1,7 @@
 # The tape, as IMP72 reads it
 
 `decus/` is the DECUS 10-198 tape as received, and stays so (its checksums are in `decus/SHA256SUMS`). The 22 `.imc` files here are those files translated for IMP72 by `tools/tape.sh`
-(`tools/imp-assign.py`), and nothing else is different: **assignment is `:=` and not `_`**, so that `_` is a letter of names and every name is a valid C name. Every `_` that is code
+(`tools/imp-assign.imp`, an IMP program the compiler builds (`tools/imp-assign.sh`)), and nothing else is different: **assignment is `:=` and not `_`**, so that `_` is a letter of names and every name is a valid C name. Every `_` that is code
 became `:=`; in a syntax statement the token is quoted (`':='`; the lexer reads `:=` as one token); comments, text constants and
 the quoted character `'_'` were left alone.
 

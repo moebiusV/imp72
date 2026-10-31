@@ -16,7 +16,7 @@ out=build/oracle-dumps
 rm -rf $out; mkdir -p $out
 g=tests/golden/oracle-dumps
 fail=0
-mkdir -p tmp; $py tools/imp-assign.py --tape $g/dr.imp > $out/dr.tape.imp         # (the original reads _ for assignment; the dumps echo the text)
+mkdir -p tmp; sh tools/imp-assign.sh -t $g/dr.imp > $out/dr.tape.imp         # (the original reads _ for assignment; the dumps echo the text)
 echo "== oracle dumps"
 for k in S T X I; do
     $seed -s $k -o $out/ours$k.txt tape/syntax.imc $g/dr.imp > /dev/null 2>&1

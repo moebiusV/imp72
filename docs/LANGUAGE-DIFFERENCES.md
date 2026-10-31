@@ -6,7 +6,7 @@ comes from the machine, and from the runtime.
 - **Assignment is `:=`, and `_` is a letter.** The tape wrote `X_5`; IMP72 writes `X:=5`, which the lexer reads as one token (`::=`, the separator of syntax statements, is not
   `:` followed by `:=`), and a name may contain `_`, so that every name is a valid C name. `tape/` is `decus/` so translated by `tools/tape.sh`; `docs/manual/imp72.md` keeps the
   original's text, with `_`. In a syntax statement the token is quoted, `':='`. A command line of `imp72 -i` is not IMP source: there `_` still separates (`OBJ,LIST_SRC`).
-  `tools/imp-assign.py` converts a program in either direction (it leaves comments, text constants and `!names!` alone).
+  `tools/imp-assign.imp`, an IMP program the compiler builds (`tools/imp-assign.sh`) converts a program in either direction (it leaves comments, text constants and `!names!` alone).
 - **The word is 64 bits.** Integers are 64 bit two's complement, addresses are byte addresses, and `A[I]` scales by 8. Arithmetic
   that overflowed 36 bits does not here. A constant is folded as the program would compute it, in 36 bits for arithmetic
   except left shifts (64). The octal constant `777777777777B` is -1, as on the PDP-10.
