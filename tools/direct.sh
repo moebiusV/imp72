@@ -20,10 +20,10 @@ mkdir -p $out
 # the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
 endf=$(sh tools/endian.sh)
 export IMP72ENDIAN=$endf
-sh tools/capped.sh $out/imprename.log $driver -o "$imprename" tools/imprename.imp || { head -c 100000 $out/imprename.log >&2; echo "direct: imprename failed" >&2; exit 1; }
+sh tools/capped.sh $out/imprename.log $driver -o "$imprename" tools/imprename.imp || { dd bs=100000 count=1 if=$out/imprename.log 2>/dev/null >&2; echo "direct: imprename failed" >&2; exit 1; }
 for m in $modules; do
     sh tools/capped.sh $out/$m.log env IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/pccir/irsyn.imc src/pccir/$m.imp \
-        || { head -c 100000 $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
+        || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
 sh tools/llvm.sh imp > $out/llvmgen.imp                          # what the LLVM and the lld of this build decide, as a module (src/llvm.imp)
@@ -33,7 +33,7 @@ for m in $srcmodules; do
     d=$driver
     case " $oldmodules " in *" $m "*) d="env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0" ;; esac
     sh tools/capped.sh $out/$m.log env IMP72MODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn64.imc $f \
-        || { head -c 100000 $out/$m.log >&2; echo "direct: $m failed" >&2; exit 1; }
+        || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
 # every symbol the modules define (src/pccir and src/), except the ones shared with the C side, gets the prefix in all of them: they call one another by the

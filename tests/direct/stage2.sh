@@ -7,10 +7,10 @@ cd "$root" || exit 1
 . tools/limits.sh
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct stage 2 skipped: the seed has no LLVM"; exit 0; }
-[ $rc = 0 ] || { head -c 100000 build/direct.log >&2; echo "FAILED: direct build" >&2; exit 1; }
+[ $rc = 0 ] || { dd bs=100000 count=1 if=build/direct.log 2>/dev/null >&2; echo "FAILED: direct build" >&2; exit 1; }
 export IMP72SYNTAX=$root/src/pccir/syntax64.imc IMP72FFI=$root/lib/ffi.imc IMP72LIB=$root/build/lib/libimp72.a
 DIRECT_OUT=build/direct2 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=build/lib/libimp72.a tools/direct.sh >build/direct2.log 2>&1 \
-    || { head -c 100000 build/direct2.log >&2; echo "FAILED: direct stage 2 build" >&2; exit 1; }
+    || { dd bs=100000 count=1 if=build/direct2.log 2>/dev/null >&2; echo "FAILED: direct stage 2 build" >&2; exit 1; }
 out=build/direct2/ir
 mkdir -p $out
 fail=0

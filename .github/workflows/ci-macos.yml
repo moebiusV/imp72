@@ -32,7 +32,7 @@ jobs:
   # macOS on Apple silicon: the LLVM back end (Homebrew's llvm and lld)
   macos-arm64:
     if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:macos]')"
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       LLVM_CONFIG: /opt/homebrew/opt/llvm/bin/llvm-config
     steps:
@@ -54,6 +54,11 @@ jobs:
           rc=$?
           if [ $rc != 0 ]; then
             echo "::error::make check failed: $(grep -i -B2 -A2 'fail\|error\|not found' /tmp/check.log | head -c 1800 | tr '\n%' ' _')"
+            # what the commands of tests/cli say (its test sends it to /dev/null)
+            ( cd build/cli 2>/dev/null && w=$PWD/../pccir2/imp72stage-pccir && export IMP72SYNTAX=$PWD/../../src/pccir/syntax64.imc IMP72FFI=$PWD/../../lib/ffi.imc IMP72LIB=$PWD/../lib/libimp72.a
+              for c in "-S lib2.imp -o d1.s" "-c --target=aarch64-linux-gnu lib2.imp -o d2.o" "-c --target=riscv64-linux-gnu lib2.imp -o d3.o" "-c --target=x86_64-linux-gnu lib2.imp -o d4.o"; do
+                echo "::error::macos cli [$c]: $($w $c 2>&1 | head -c 500 | tr '\n%' ' _')"
+              done ) || true
             exit $rc
           fi
       - if: always()

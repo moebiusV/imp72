@@ -1,6 +1,5 @@
-!stdout! IS EXTERNAL;
-CCALL fputs(LOC('external stdout
-'),!stdout!);
+!environ! IS EXTERNAL;
+PRINT STG 0,'environ is set: ',IGR 0,(!environ! NE 0),/;
 Y:=21;
 PRINT STG 0,'twice 21 = ',IGR 0,CCALL impcallw(LOC(TWICE),LOC(Y)),/;
 PRINT STG 0,'seven = ',IGR 0,CCALL impcallp(LOC(SEVEN),LOC(Y)),/;

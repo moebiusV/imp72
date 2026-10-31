@@ -14,9 +14,9 @@ echo "== orc"
 for n in hello algo prog2; do
     [ -f tests/native/$n.imp ] && [ ! -f tests/native/${n}_main.c ] || continue
     $w --run tests/native/$n.imp > $out/$n.run 2>&1
-    cmp -s $out/$n.run tests/native/$n.out || { echo "FAILED: orc: --run $n: $(head -c 400 $out/$n.run | tr '\n' '|')" >&2; fail=1; }
+    cmp -s $out/$n.run tests/native/$n.out || { echo "FAILED: orc: --run $n: $(dd bs=400 count=1 if=$out/$n.run 2>/dev/null | tr '\n' '|')" >&2; fail=1; }
     $w -o $out/$n tests/native/$n.imp > $out/$n.log 2>&1 && $out/$n > $out/$n.got 2>&1
-    cmp -s $out/$n.got tests/native/$n.out || { echo "FAILED: orc: object of $n: $(head -c 400 $out/$n.log $out/$n.got 2>/dev/null | tr '\n' '|')" >&2; fail=1; }
+    cmp -s $out/$n.got tests/native/$n.out || { echo "FAILED: orc: object of $n: $(dd bs=400 count=1 if=$out/$n.log 2>/dev/null $out/$n.got 2>/dev/null | tr '\n' '|')" >&2; fail=1; }
 done
 [ $fail = 0 ] && echo ok
 exit $fail

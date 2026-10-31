@@ -6,14 +6,14 @@ cd "$root" || exit 1
 . tools/limits.sh
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct tests skipped: the seed has no LLVM"; exit 0; }
-[ $rc = 0 ] || { head -c 100000 build/direct.log >&2; echo "FAILED: direct build" >&2; exit 1; }
+[ $rc = 0 ] || { dd bs=100000 count=1 if=build/direct.log 2>/dev/null >&2; echo "FAILED: direct build" >&2; exit 1; }
 export IMP72SYNTAX=$root/src/pccir/syntax64.imc IMP72FFI=$root/lib/ffi.imc IMP72LIB=$root/build/lib/libimp72.a
 export DRIVER=build/direct/imp72stage-pccir
 fail=0
 # the compiler whose own IMP modules (src/*.imp) the pcc IR path compiled, too: tests of it
 DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/imp72stage-pccir DIRECT_LIB=build/lib/libimp72.a \
     SRC_MODULES="free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver llvm llvmgen" tools/direct.sh >build/direct3.log 2>&1 \
-    || { head -c 100000 build/direct3.log >&2; echo "FAILED: direct build of the compiler's own modules" >&2; fail=1; }
+    || { dd bs=100000 count=1 if=build/direct3.log 2>/dev/null >&2; echo "FAILED: direct build of the compiler's own modules" >&2; fail=1; }
 NATIVE_OUT=build/native-ir NATIVE_LIB=build/lib/libimp72.a sh tests/native/run.sh || fail=1
 ORACLE_PCCIR=1 ORACLE_OUT=build/oracle-ir sh tests/oracle/run.sh || fail=1
 # the PDP-10 constructs the original has, as this machine has them (XWD, IOWD, CALLI): programs and their output, which is not the PDP-10's (32 bit halves)

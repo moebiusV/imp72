@@ -2,7 +2,7 @@
 #   file size   2 GB for a file one process writes (ulimit -f counts blocks of 1024 bytes in sh, 512 in some shells: it is set in the unit the shell says)
 #   CPU time    40 minutes for one process
 # A process that passes one of them is killed (SIGXFSZ, SIGXCPU) and the script goes on to say why it failed.  tools/guard.sh watches the size of the directories; a log that may get
-# long goes through `head -c` (tools/capped.sh).  IMP72_NOLIMITS=1 leaves it all out.
+# long goes through tools/capped.sh.  IMP72_NOLIMITS=1 leaves it all out.
 if [ -z "$IMP72_NOLIMITS" ]; then
     ulimit -f 2097152 2>/dev/null || ulimit -f 4194304 2>/dev/null
     ulimit -t 2400 2>/dev/null
