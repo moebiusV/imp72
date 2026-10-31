@@ -4,6 +4,7 @@
 # A process that passes one of them is killed (SIGXFSZ, SIGXCPU) and the script goes on to say why it failed.  tools/guard.sh watches the size of the directories; a log that may get
 # long goes through tools/capped.sh.  IMP72_NOLIMITS=1 leaves it all out.
 if [ -z "$IMP72_NOLIMITS" ]; then
-    ulimit -f 2097152 2>/dev/null || ulimit -f 4194304 2>/dev/null
-    ulimit -t 2400 2>/dev/null
+    # (best effort: a system that refuses a limit goes without it, and a script under set -e must not stop for that)
+    ulimit -f 2097152 2>/dev/null || ulimit -f 4194304 2>/dev/null || true
+    ulimit -t 2400 2>/dev/null || true
 fi

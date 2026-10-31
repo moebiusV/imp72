@@ -45,6 +45,7 @@ jobs:
           rc=$?
           if [ $rc != 0 ]; then
             echo "::error::make failed: $(grep -i -B1 -A3 'error\|undefined\|not found' /tmp/make.log | head -c 1500 | tr '\n%' ' _')"
+            echo "::error::macos make tail: $(tail -c 1500 /tmp/make.log | tr '\n%' ' _')"
             # the logs of the stages (the seed's compiles of the modules, the link): what the step that failed said
             for f in build/pccir1.log build/pccir2.log build/pccir1/*.log build/pccir2/*.log; do
               [ -s "$f" ] && echo "::error::macos $f: $(head -c 700 "$f" | tr '\n%' ' _') ... $(tail -c 700 "$f" | tr '\n%' ' _')"
