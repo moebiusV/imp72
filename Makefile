@@ -12,14 +12,22 @@ LDFLAGS  =
 DESTDIR  =
 PREFIX   = /usr/local
 
-LIB = build/lib/libimp72.a
+LIB = build/lib/libimp72.a             # the runtime library the seed makes (tools/mklib.sh): the compilers are linked with it
+RTLIB = build/rt-host/libimp72.a        # the same library made by the compiler itself, stage 2 (tools/mkrt.sh): what is installed, where stage 2 could be built
 
 LLVMIR = build/llvm-ir2/imp72d          # the compiler with the code generator of src/llvm-ir (tools/llvm-ir.sh), where it can be built
 
-all: stage0 $(LIB) llvm-ir
+all: stage0 $(LIB) llvm-ir runtime
 
 $(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.imp lib/imphost.imp lib/imphostx-elf.imp lib/imphostx-macho.imp lib/impvars.imp lib/impvarsx-elf.imp lib/impvarsx-macho.imp tools/sysconst.sh lib/imp72main.imp
 	CFLAGS="$(CFLAGS)" sh tools/guard.sh sh tools/mklib.sh
+
+# the runtime library by stage 2, no C compiler (skipped where stage 2 could not be built)
+runtime: llvm-ir
+	@if [ -x build/llvm-ir2/imp72stage-llvm-ir ]; then $(MAKE) $(RTLIB) || exit 1; fi
+
+$(RTLIB): build/llvm-ir2/imp72stage-llvm-ir tools/mkrt.sh tools/sysconst.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.imp lib/imphost.imp lib/imphostx-elf.imp lib/imphostx-macho.imp lib/impvars.imp lib/impvarsx-elf.imp lib/impvarsx-macho.imp lib/imp72main.imp
+	sh tools/guard.sh sh tools/mkrt.sh "" build/rt-host
 
 # stage 1 by the seed, stage 2 by stage 1 (skipped where the LLVM libraries are missing)
 llvm-ir: stage0 $(LIB)
@@ -32,7 +40,7 @@ stage0:
 
 # Installed layout (imp72stage0 finds its parts relative to its own place):
 #   PREFIX/bin/imp72stage0 (the seed; also as imp72 where stage 2 cannot be built)   PREFIX/bin/imp72 (stage 2)
-#   PREFIX/lib/imp72/libimp72.a   PREFIX/share/imp72/syntax64.imc
+#   PREFIX/lib/imp72/libimp72.a (made by stage 2, else by the seed)   PREFIX/share/imp72/syntax64.imc
 #   PREFIX/share/imp72/{syntax.imc,ffi.imc}  PREFIX/share/man/man1/imp72stage0.1
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp72 \
@@ -43,7 +51,8 @@ install: all
 	    install -m 755 $(LLVMIR) $(DESTDIR)$(PREFIX)/bin/imp72; \
 	    install -m 644 src/llvm-ir/syntax64.imc $(DESTDIR)$(PREFIX)/share/imp72/syntax64.imc; \
 	else ln -sf imp72stage0 $(DESTDIR)$(PREFIX)/bin/imp72; fi
-	install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a
+	if [ -f $(RTLIB) ]; then install -m 644 $(RTLIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a; \
+	else install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a; fi
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -m 644 lib/imp72.h $(DESTDIR)$(PREFIX)/include/imp72.h
 	install -m 644 src/llvm-ir/syntax64.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp72/
@@ -86,4 +95,4 @@ clean:
 
 distclean: clean
 
-.PHONY: all stage0 llvm-ir check clean distclean install
+.PHONY: all stage0 llvm-ir runtime check clean distclean install

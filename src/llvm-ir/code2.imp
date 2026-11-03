@@ -245,7 +245,7 @@ SUBR PRINPAR(N,AA,B,C,D) IS (
         SH:=0; SV:=0;
         PP11: J NE 0 => (KK:=J/10;
                          (KK:=J-(10*KK))>7 => ERROR(1,'NON-OCTAL PJ OR PN **');
-                         SV:=SV OR (KK:=J-(10*KK)) LS SH; SH:=SH+3;
+                         SV:=SV OR KK LS SH; SH:=SH+3;
                          J:=J/10; GO TO PP11);
         FREES(SA,(4 OR (STCON(SV) LS 32)));
         FREES(SA+1,0)));

@@ -68,9 +68,8 @@ setsem(word ty, word val)
         frelot(&sems, "SEMS", 2200, NULL);
         nsems = 2;
         many = 31;
-        /* SEMS[1] as src/dosem.imp has it: (1 LS 41) OR 1 (the tape's word is a type 1 and V = 1;
-         * the 1 here is in the priority bits of a type 0, which SEMPR1 prints as a header) */
-        FREES(sems + 1, ((word)1 << 41) | 1);
+        /* SEMS[1] as src/dosem.imp has it: (1 LS 44) OR 1, a type 1 and V = 1, as the tape's word is */
+        FREES(sems + 1, ((word)1 << 44) | 1);
         frelot(&pstak, "SPSTK", 20, NULL);
         npstak = 0;
         frelot(&prosem, "PROSM", 1200, NULL);

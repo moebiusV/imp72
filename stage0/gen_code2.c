@@ -503,10 +503,7 @@ g_prinpar(word n, word aa, word b, word c, word d)
                     kk = j / 10;
                     if ((kk = j - (10 * kk)) > 7)
                         imp_error(1, "NON-OCTAL PJ OR PN **");
-                    /* SV:=SV OR (KK:=J-(10*KK)) LS SH: the IMP assigns KK again from the digit it already holds (as the original's
-                     * AE_AE OR KK LS SH does not): kept; the result is wrong for a FILE with a project number, and the stage and the
-                     * seed agree on it */
-                    sv = sv | g_ls((kk = j - (10 * kk)), sh);
+                    sv = sv | g_ls(kk, sh);                    /* SV:=SV OR KK LS SH, as the original's AE_AE OR KK LS SH */
                     sh = sh + 3;
                     j = j / 10;
                 }

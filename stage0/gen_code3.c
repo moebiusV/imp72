@@ -157,8 +157,8 @@ static const char *const opn[] = {
     "FJEQ   ", "FJLT   ", "FJLE   ",
     "FJGE   ", "FJGT   ", "FJNE   ",
     "?      ", "?      ", "?      ",
-    "?      ", "?      ", "CALLB  ",
-    "ARG    ", "CALLE  ", "PITEM  ",
+    "CALLB  ", "ARG    ", "CALLE  ",
+    "PITEM  ", "?      ", "?      ",
     "?      ", "?      ", "?      ",
     "?      ", "ENTRY  ", "RET    "
 };

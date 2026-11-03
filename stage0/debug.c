@@ -316,7 +316,7 @@ tprin1(void)
             for (k = 0; k < 64 * (sbitm[2] + 1); k++)
                 if (bit(sbitm, i, k) != 0 && k > mc)
                     mc = k;
-        cols = mc % 36 + 1;             /* as src/debug.imp: COLS:=(MXC//36)+1, and // is the remainder in IMP (a division was meant) */
+        cols = mc / 36 + 1;             /* as src/debug.imp: COLS:=(MXC/36)+1 */
     }
     if (cols < 5)
         cols = 5;

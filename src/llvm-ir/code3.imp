@@ -110,8 +110,8 @@ OPN: DATA(
           'FJEQ   ','FJLT   ','FJLE   ',
           'FJGE   ','FJGT   ','FJNE   ',
           '?      ','?      ','?      ',
-          '?      ','?      ','CALLB  ',
-          'ARG    ','CALLE  ','PITEM  ',
+          'CALLB  ','ARG    ','CALLE  ',
+          'PITEM  ','?      ','?      ',
           '?      ','?      ','?      ',
           '?      ','ENTRY  ','RET    ');
 
