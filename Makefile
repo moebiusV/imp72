@@ -46,7 +46,7 @@ install: all
 	install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp72/libimp72.a
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -m 644 lib/imp72.h $(DESTDIR)$(PREFIX)/include/imp72.h
-	install -m 644 tape/syntax.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp72/
+	install -m 644 src/llvm-ir/syntax64.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp72/
 	install -m 644 docs/imp72stage0.1 $(DESTDIR)$(PREFIX)/share/man/man1/imp72stage0.1
 	echo '.so man1/imp72stage0.1' > $(DESTDIR)$(PREFIX)/share/man/man1/imp72.1
 	install -d $(DESTDIR)$(PREFIX)/share/man/man7
@@ -65,7 +65,6 @@ check-run:
 	sh tests/tape/run.sh
 	sh tests/native/run.sh
 	sh tests/oracle/run.sh
-	sh tests/oracle/dumps.sh
 	sh tests/ieee/run.sh
 	sh tests/direct/run.sh
 	sh tests/direct/stage2.sh
@@ -76,6 +75,7 @@ check-run:
 	sh tests/llvm/gen.sh
 	sh tests/link/run.sh
 	sh tests/runtime/run.sh
+	sh tests/seed/run.sh
 	sh tests/cli/run.sh
 	sh tests/fuzz64/run.sh
 	sh tests/manual/run.sh

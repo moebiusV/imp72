@@ -1,23 +1,26 @@
 /*
- * entree.c -- the code tree.  Ports decus/entree.imc: ENTREE, ENTMARK, INSNO,
+ * entree.c -- the code tree.  Ports src/entree.imp (decus/entree.imc): ENTREE, ENTMARK, INSNO,
  * NUNO, COMPNO, CODEID, MATCH, ENTRCA, ENTRC1, TPRINT, and the tree accessors
- * TSCR, TALT, TNODEN that impsyn.imc expands in line.
+ * TSCR, TALT, TNODEN that impsyn64.imc expands in line.  The 36 bit formats of
+ * the tape are gone: the words are those of src/entree.imp.
  *
  * The code tree is kept in free array CT, in nodes of two or three words
  * (the node is named by the index of its links word):
  *
  *   word -1   the "special" field: the first production node among this
  *             node's alternates (set by INSNO)
- *   word 0    links: SCR (successor), ALT (alternate), NODEN (node number)
- *   word 1    the stuff word, with the node type in bits 35-33:
- *               2  match the kth item of the pattern (k in the low 18 bits)
- *               3  match identifier id (dir index in the low 18 bits; if bit
- *                  18 is set the id is a one word constant whose value is in
+ *   word 0    links: SCR (successor), ALT (alternate), NODEN (node number),
+ *             three fields of 20 bits (SCR 0-19, ALT 20-39, NODEN 40-59)
+ *   word 1    the stuff word, with the node type in bits 61-63 (bit 63 is
+ *             free: ENTRCA marks nodes with it, NMARK):
+ *               2  match the kth item of the pattern (k in the right half)
+ *               3  match identifier id (dir index in the right half; if NCLS
+ *                  is set the id is a one word constant whose value is in
  *                  word 2 of the node, and matching by value is also tried)
  *               1  match a stack item of a kind given by the other bits:
  *
- *      3   2 111 111  5  5  7   8
- *     TTT XI WSV CRN PP QQ KKK LLL
+ *      BITS   61-63  60 59  58 57 56 55 54 53  24-31 16-23  8-15  0-7
+ *             TTT     X  I   W  S  V  C  R  N    PP    QQ    KKK   LLL
  *
  *     X, I   floating point / integer may match
  *     W      only expressions of one word of code (IMP10)
@@ -25,18 +28,13 @@
  *     C, R, N  a constant / register / raw identifier might match, the
  *            constant being limited by KKK, LLL, the register by PP, QQ
  *     (as in entree.imc's header comment, where the rest is explained)
- *     With WSVCRN = 0 the node matches productions: bit 19 of the stuff word
- *     says it is a terminal node (MATCHP finds the semantics), bit 18 that it
- *     is a class of VAL/ productions.
- *
- * The stuff words keep their 36 bit format.  The links word does not: the
- * original packs three 12 bit fields in 36 bits (its header comment says 18
- * and 18, which is older); here they are three 20 bit fields (SCR 0-19, ALT
- * 20-39, NODEN 40-59), so the tree is not limited to 4095 words.  Nothing
- * prints that word raw.
+ *     With WSVCRN = 0 the node matches productions: NTRM says it is a
+ *     terminal node (MATCHP finds the semantics), NCLS that it is a class of
+ *     VAL/ productions.  A production node is one whose HL is at most PLIM.
  */
 #include <string.h>
 #include "imp.h"
+#include "gen.h"
 
 word ct, nct, noden = -1, sbitm[3];
 static word prods, nprods_, tbl, ntbl, ply;
@@ -82,9 +80,9 @@ nuno(word a, word b, word c)
     FREES(ct + nct, 0);
     stnoden(q, ++noden);
     aa = a;
-    if (aa == 0100002000000L)
+    if (aa == (NT1 | NTRM))
         aa |= q;
-    FREES(ct + nct + 1, sx36(aa));
+    FREES(ct + nct + 1, aa);
     nct += 2;
     if (b) {
         FREES(ct + nct, c);
@@ -108,10 +106,10 @@ compno(word no, word vv)
 
     if (v == vv)
         return 0;
-    tv = u36(v) >> 33;
+    tv = rs64(v, 61);
     if (tv == 1)
         tv = 4;
-    tvv = u36(vv) >> 33;
+    tvv = rs64(vv, 61);
     if (tvv == 1)
         tvv = 4;
     if (tvv < tv)
@@ -119,46 +117,46 @@ compno(word no, word vv)
     if (tvv == tv) {
         if (tv != 4)
             return 1;
-        tv = u36(v) >> 18;                      /* production nodes? */
-        tvv = u36(vv) >> 18;
-        if (tv <= 0100002) {
-            if (tv == tvv && tv == 0100002)
+        tv = HL(v);                             /* production nodes? */
+        tvv = HL(vv);
+        if (tv <= PLIM) {
+            if (tv == tvv && tv == PLIM)
                 return 0;
-            if (tvv > 0100002)
+            if (tvv > PLIM)
                 return 1;
             if (tv > tvv)
                 return 1;
             return -1;
         }
-        if (tvv <= 0100002)
+        if (tvv <= PLIM)
             return -1;
-        tv = 077 & (040 + (u36(v) >> 25));      /* WSCVRN */
-        tvv = 077 & (040 + (u36(vv) >> 25));
+        tv = 077 & (040 + rs64(v, 53));         /* WSCVRN */
+        tvv = 077 & (040 + rs64(vv, 53));
         if (tvv < tv)
             return 1;
         if (tvv == tv) {
-            tv = u36(v) >> 31;                  /* arithmetic type */
-            tvv = u36(vv) >> 31;
+            tv = rs64(v, 59);                   /* arithmetic type */
+            tvv = rs64(vv, 59);
             if (tvv < tv)
                 return 1;
             if (tvv == tv) {
-                kv = 0177 & (u36(v) >> 8);
-                kvv = 0177 & (u36(vv) >> 8);
-                lv = 0177 & u36(v);
-                lvv = 0177 & u36(vv);
+                kv = 0177 & rs64(v, 8);
+                kvv = 0177 & rs64(vv, 8);
+                lv = 0177 & v;
+                lvv = 0177 & vv;
                 if (kvv + lvv > kv + lv)        /* constants */
                     return 1;
                 if (kvv + lvv == kv + lv) {
                     if (lvv > lv)
                         return 1;
                     if (lvv == lv) {
-                        kv = 037 & (u36(v) >> 20);      /* registers */
-                        kvv = 037 & (u36(vv) >> 20);
+                        kv = 037 & rs64(v, 24); /* registers */
+                        kvv = 037 & rs64(vv, 24);
                         if (kvv > kv)
                             return 1;
                         if (kvv == kv) {
-                            kv = 037 & (u36(v) >> 15);
-                            kvv = 037 & (u36(vv) >> 15);
+                            kv = 037 & rs64(v, 16);
+                            kvv = 037 & rs64(vv, 16);
                             if (kvv < kv)
                                 return 1;
                         }
@@ -222,7 +220,7 @@ insx:
      * alternates */
     sh = tscr(hook);
     while (sh) {
-        if (L18(FREE(ct + sh + 1)) <= 0100002)
+        if (HL(FREE(ct + sh + 1)) <= PLIM)
             break;
         sh = talt(sh);
     }
@@ -243,7 +241,7 @@ entmark(word j)
 
     for (i = nprods_ - 1; i >= 0; i--) {
         l = FREE(prods + i);
-        if (k && L18(FREE(ct + l + 1)) <= 0100002)
+        if (k && HL(FREE(ct + l + 1)) <= PLIM)
             return;
         k = -1;
         bits(sbitm, tnoden(l), j);
@@ -252,49 +250,38 @@ entmark(word j)
 
 /* ---- CODEID: taking an identifier of a semantic pattern apart ----------- */
 
-static word idtb[11];
-static word cid_char, cid_sh, cid_lch, cid_iddir, cid_iddirx, cid_nsw, cid_ans;
+static word cid_char, cid_sh, cid_lch, cid_iddir, cid_iddirx, cid_ans;
+static uword cid_id;
 static word n1, n2;
 
-static void
-codeid_init(void)
-{
-    static const char *const tb[11] = { "REG", "CON", "CNG", "VAR", "MEM",
-        "WRD", "IGR", "FLT", "BYT", "NAM", "NSE" };
-    int i;
-
-    for (i = 0; i < 11; i++)
-        idtb[i] = ((word)tb[i][0] << 14) | ((word)tb[i][1] << 7) | tb[i][2];
-}
-
 /*
- * CODEID(SW): disassemble an identifier.  With sw nonzero (a directory
- * index), start on that identifier.  With sw = 0, return the directory index
- * of the next name in it, or minus (1 + the index in REG CON CNG VAR MEM WRD
- * IGR FLT BYT NAM [NSE counted as WRD]) of a special indicator, with n1 and
- * n2 set to its numeric arguments or -1; 0 when done.  The characters 0 end a
- * name, so Q0REG0115 is the name Q and the indicator REG with 01 and 15.
+ * CODEID(SW): disassemble an identifier (src/entree.imp).  With sw nonzero (a
+ * directory index), start on that identifier.  With sw = 0, return the
+ * directory index of the next name in it, or minus (1 + the index in REG CON
+ * CNG VAR MEM WRD IGR FLT BYT NAM [NSE counted as WRD]) of a special
+ * indicator, with n1 and n2 set to its numeric arguments or -1; 0 when done.
+ * The characters 0 end a name, so Q0REG0115 is the name Q and the indicator
+ * REG with 01 and 15.  The characters are the bytes of the name, the first
+ * in the low byte of a word.
  */
 static word
 codeid(word sw)
 {
-    static int cinit;
-    word na0 = 0, nan = 0, c, id = 0;
-    char piece[64];
-    int np = 0, first_full = 0;
+    static const char *const tb[11] = { "REG", "CON", "CNG", "VAR", "MEM",
+        "WRD", "IGR", "FLT", "BYT", "NAM", "NSE" };
+    static char na[84];                 /* NA: the name being made (10 words of 8 characters, and its end) */
+    word nsw = 0, nan = 0, c;
 
-    if (!cinit) {
-        cinit = 1;
-        codeid_init();
-    }
     if (sw) {
-        cid_char = cid_sh = 0;
+        cid_char = 0;
+        cid_sh = 64;                    /* CHBEYOND */
         cid_lch = cid_char = -1;
         cid_iddir = sw;
         cid_iddirx = -1;
         return cid_ans;
     }
-    cid_nsw = cid_ans = 0;
+    cid_ans = 0;
+    na[0] = '\0';
     if (cid_lch == 0) {
         cid_ans = 0;
         return cid_ans;
@@ -306,49 +293,45 @@ nxch:
             cid_char = 0;
             goto l9;
         }
-        if (cid_sh < 1) {
+        if (cid_sh > 56) {              /* CHPAST(SH) */
             cid_iddirx++;
-            id = dname(cid_iddir, cid_iddirx);
-            cid_sh = 29;
-        } else
-            id = dname(cid_iddir, cid_iddirx);
-        cid_lch = cid_char = 0177 & (id >> cid_sh);
-        cid_sh -= 7;
+            cid_id = (uword)dname(cid_iddir, cid_iddirx);
+            cid_sh = 0;
+        }
+        cid_lch = cid_char = (word)((cid_id >> cid_sh) & 0377);
+        cid_sh += 8;
     }
 l9:
-    if (cid_nsw)
+    if (nsw)
         goto l3;
-    for (c = 10; c >= 0; c--) {
-        if (!first_full && np <= 3 && na0 == idtb[c])
+    for (c = 10; c >= 0; c--) {         /* the name so far is one of the three letter words */
+        if (nan == 3 && strcmp(na, tb[c]) == 0)
             goto l2;
     }
     if (cid_ans == 0) {                 /* make a name */
         if (cid_char != 0 && cid_char != 060) {
-            if (np < (int)sizeof piece - 1)
-                piece[np++] = (char)cid_char;
-            na0 = (na0 << 7) | cid_char;
-            if (np >= 5)
-                first_full = 1;
-            nan = np;
+            na[nan++] = (char)cid_char;
+            na[nan] = '\0';
+            if (nan >= 80)
+                imp_error(0, "NAME TOO LONG **");
             goto nxch;
         }
-        piece[np] = '\0';
-        cid_ans = dir(piece);
+        cid_ans = dir(na);
         cid_char = 0;
         return cid_ans;
     }
 l2:
-    cid_nsw = 1;
+    nsw = 1;
     if (c == 10)
         c = 5;
     cid_ans = -(c + 1);
     if (c > 2)
         return cid_ans;
 l3:
-    if (cid_nsw == 5)
+    if (nsw == 5)
         return cid_ans;
     if (cid_char >= 060 && cid_char <= 071) {
-        switch (cid_nsw - 1) {
+        switch (nsw - 1) {
         case 0:
             n1 = 10 * (cid_char - 060);
             break;
@@ -362,14 +345,13 @@ l3:
             n2 = n2 + (cid_char - 060);
             break;
         }
-        cid_nsw++;
+        nsw++;
         goto nxch;
     }
-    if (cid_nsw & 1)
+    if (nsw & 1)
         return cid_ans;
     imp_error(1, "NUMBER MISSING OR OUT OF PLACE IN SEMANTICS IDENTIFIER **");
     cid_ans = 0;
-    (void)nan;
     return cid_ans;
 }
 
@@ -389,7 +371,7 @@ l3:
 word
 entree(word s, word cs_, word sr, word pn)
 {
-    word node, noty, nty1, kon, st, ss, eatit, j, jj, k, kk, i, sno;
+    word node, noty, nty1, kon, st, ss, eatit, j, jj, k, i, sno;
 
     ply = ntbl = 0;
     node = 1;
@@ -428,13 +410,12 @@ next:
         eatit = 1;
         kon = convc(-j);
         if (kon) {
-            noty = 0300001000000L | -j;
+            noty = NT3 | NCLS | -j;
             fadd(&tbl, &ntbl, 0);
             goto l11;
         }
         codeid(-j);
         j = codeid(0);
-        kk = j;
         fadd(&tbl, &ntbl, j);
         if (j > 0) {                            /* starts with a name: seen? */
             if (ntbl > 1) {
@@ -453,7 +434,7 @@ l22:                    j = codeid(0);
                                 "OCCURRENCE OF NAME IS IGNORED");
                             goto l22;
                         }
-                        noty = i | ((word)2 << 33);
+                        noty = i | NT2;
                         goto l11;
                     }
                 }
@@ -461,8 +442,8 @@ l22:                    j = codeid(0);
             j = codeid(0);
         }
         /* first occurrence of the id: look for restrictions */
-        noty = 0160000000000L;
-        nty1 = 0007603700177L;
+        noty = NT1 | ls64(3, 59);
+        nty1 = ls64(037, 53) | ls64(037, 16) | 0177;
 l12:
         if (j) {
             if (j > 0) {
@@ -477,19 +458,19 @@ l12:
             if (k == 9)
                 k = eatit = 0;
             if (k == 8) {
-                noty &= ~(ls36(3, 31));
+                noty &= ~ls64(3, 59);
                 goto l21;
             }
             if (k > 5) {
-                noty &= ~(ls36(1, 38 - k));
+                noty &= ~ls64(1, 66 - k);
                 goto l21;
             }
             if (k == 5) {
-                noty |= 010000000000L;
+                noty |= ls64(1, 58);
                 goto l21;
             }
             nty1 = 0;
-            noty |= ls36(1, k + 25);
+            noty |= ls64(1, k + 53);
             if (j == -3)
                 noty |= 0200;
             if (k == 2) {
@@ -497,7 +478,7 @@ l12:
                     n1 = 0177;
                 if (n2 < 0)
                     n2 = 0;
-                noty |= n2 | ls36(n1, 8);
+                noty |= n2 | ls64(n1, 8);
             }
             if (k == 1) {
                 if (n1 < 0) {
@@ -506,7 +487,7 @@ l12:
                 }
                 if (n2 < 0)
                     n2 = n1;
-                noty |= ls36(n1, 20) | ls36(n2, 15);
+                noty |= ls64(n1, 24) | ls64(n2, 16);
             }
 l21:
             j = codeid(0);
@@ -514,7 +495,7 @@ l21:
         }
         noty |= nty1;
 l11:
-        node = insno(node, sx36(noty), kon, convc_const);
+        node = insno(node, noty, kon, convc_const);
         fadd(&prods, &nprods_, node);
         goto next;
     }
@@ -522,10 +503,10 @@ l11:
         if (j == 1)
             goto next;
         jj = j;
-        if (j >> 18) {                          /* a VAL/ production */
+        if (HL(j)) {                            /* a VAL/ production */
             fadd(&tbl, &ntbl, j);
-            j &= 0777777;
-            jj = 01000000 | j;
+            j = HR(j);
+            jj = NCLS | j;
         }
         if (eatit) {
             /* eat the first semantics node with one arg after an identifier */
@@ -540,14 +521,14 @@ l11:
                 "GENERALIZE.");
         noteprod(j, ply);
         sno = snoden(j);
-        node = insno(node, jj | 0100000000000L, 0, 0);
+        node = insno(node, jj | NT1, 0, 0);
         fadd(&prods, &nprods_, node);
         entmark(sno);
         goto next;
     }
     /* made the production: end off the tree */
     noteprod(pn, ply);
-    node = insno(node, 0100002000000L, 0, 0);
+    node = insno(node, NT1 | NTRM, 0, 0);
     enprod(pn, node, sr);
     fadd(&prods, &nprods_, node);
     j = snoden(pn);
@@ -567,29 +548,29 @@ entrx:
 word
 match_(word *tnp, word sn, word snonr)
 {
-    word tn = *tnp, val = -1, s = FREE(sn), sty = s & 037, sdi = L18(s), sval = FREE(sn + 1),
+    word tn = *tnp, val = -1, s = FREE(sn), sty = s & 037, sdi = HL(s), sval = FREE(sn + 1),
         t, tty, tval, j, snn, mask, rest;
 
     if (sty == 0) {
 ty0al0:
-        if (((u36(FREE(ct + 1 + tn)) >> 25) & 03777) != 0400) {
+        if (rs64(FREE(ct + 1 + tn), 53) != 0400) {
             tn = FREE(ct + tn - 1);
             if (tn)
                 goto ty0al0;
             { *tnp = tn; return 0; }
         }
         t = FREE(tn + ct + 1);
-        if (t & 02000000) {                     /* a terminal node */
+        if (t & NTRM) {                         /* a terminal node */
             val = matchp(sdi, tn);
             if (val == 0)
                 goto ty0alt;
             { *tnp = tn; return val; }
         }
-        if (R18(t) == sdi)
+        if (HR(t) == sdi)
             { *tnp = tn; return -1; }
         if (sval == 0)
             goto ty0alt;
-        if (R18(t) == L18(sval))
+        if (HR(t) == HL(sval))
             { *tnp = tn; return -2; }
 ty0alt:
         tn = talt(tn);
@@ -602,17 +583,15 @@ tyalt:
     if (snn >= 0 && bit(sbitm, tnoden(tn), snn) == 0)
         goto nix;
     t = FREE(tn + ct + 1);
-    tty = u36(t) >> 33;
+    tty = rs64(t, 61);
     if (tty == 1) {
-        if (((u36(t) >> 25) & 077) == 0)        /* productions are last */
+        if ((rs64(t, 53) & 077) == 0)           /* productions are last */
             { *tnp = tn; return 0; }
-        j = s & (u36(t) >> 25);
+        j = s & rs64(t, 53);
         if ((037 & j) == 0)
             goto nix;
         if ((j >> 6) == 0) {
-            word rot = ((u36(t) << 5) | (u36(t) >> 31)) & MASK36;
-
-            if ((3 & rot) != 3)
+            if ((3 & rs64(t, 59)) != 3)
                 goto nix;
         }
         if ((sty & 6) == 0)
@@ -620,12 +599,12 @@ tyalt:
         if (sty == 2)
             goto mex;                           /* RMATCH does not decide */
         /* does the constant meet the requirements? */
-        if ((u36(t) & 077777) == 0177)
+        if ((t & 0177777) == 0177)
             goto mex;
-        mask = ls36(ls36(1, (u36(t) >> 8) & 0177) - 1, u36(t) & 0177);
+        mask = ls64(ls64(1, rs64(t, 8) & 0177) - 1, t & 0177);
         if (mask == 0)
             goto mex;
-        mask = sx36(~mask);
+        mask = ~mask;
         rest = 0;
         if (t & 0200)
             rest = mask;
@@ -633,7 +612,7 @@ tyalt:
             goto mex;
         goto nix;
     }
-    tval = R18(t);
+    tval = HR(t);
     if (tty == 0) {
         val = tval;
         goto mex;
@@ -648,14 +627,14 @@ tyalt:
         goto nix;
     if (sdi == tval && sval == 0)
         goto mex;
-    if ((t & 01000000) && sty == 4) {
+    if ((t & NCLS) && sty == 4) {
         j = FREE(ct + tn + 2);
         if (j == sval)
             goto mex;
     }
     goto nix;
 mex:
-    if ((t & 010000000000L) && oneword(sn) == 0)
+    if ((t & ls64(1, 58)) && g_oneword(sn) == 0)
         goto nix;
     if (val == 0)
         val = -1;
@@ -705,18 +684,17 @@ entrca(word semn)
 
     entrno = 1;
     while ((i = entrc1())) {
-        if (L18(FREE(ct + i + 1)) == 0100002 && matchp(semn, i))
-            FREES(ct + i + 1, sx36(FREE(ct + i + 1) | 0400000000000L));
+        if (HL(FREE(ct + i + 1)) == PLIM && matchp(semn, i))
+            FREES(ct + i + 1, FREE(ct + i + 1) | NMARK);
     }
     do {
         flag = 0;
         while ((i = entrc1())) {
-            if ((FREE(ct + i + 1) >> 18) > 0100002) {
+            if (HLS(FREE(ct + i + 1)) > PLIM) {
                 j = tscr(i);
                 while (j) {
                     if (FREE(ct + j + 1) < 0) {
-                        FREES(ct + i + 1,
-                            sx36(FREE(ct + i + 1) | 0400000000000L));
+                        FREES(ct + i + 1, FREE(ct + i + 1) | NMARK);
                         flag = -1;
                         j = 0;
                     } else
@@ -728,7 +706,7 @@ entrca(word semn)
     s = snoden(semn);
     while ((i = entrc1())) {
         if (FREE(ct + i + 1) < 0) {
-            FREES(ct + i + 1, sx36(FREE(ct + i + 1) & ~0400000000000L));
+            FREES(ct + i + 1, FREE(ct + i + 1) & ~NMARK);
             bits(sbitm, tnoden(i), s);
         }
     }

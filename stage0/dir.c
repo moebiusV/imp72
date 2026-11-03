@@ -1,20 +1,22 @@
 /*
- * dir.c -- the directory of names.  Ports decus/dir.imc: DIR, DSEQ, PNAME,
- * DNAME, GNAME, DSTATS, DSPILL, RADI50, DORGFIX, CONVC, STCON, NEWNAME.
+ * dir.c -- the directory of names.  Ports src/dir.imp (decus/dir.imc: DIR, DSEQ, PNAME,
+ * DNAME, GNAME, DSTATS, DSPILL, RADI50, DORGFIX, CONVC, STCON, NEWNAME).  The 36 bit
+ * formats of the tape are gone: the words are those of src/dir.imp and src/impsyn64.imc.
  *
  * A hash coded directory.  Free array PRP is a hash table of 512 buckets of
  * three word nodes (indices 3*h), followed by overflow nodes added at NPRP.
  * A name's "directory index" is the index in PRP of its node, so it is
- * the same number the PDP-10 compiler computes: the hash below is the
- * original's, taken over the first five characters packed as they were.
+ * the same number the stage compiler computes: the hash below is that of
+ * src/dir.imp, taken over the first word of the name (eight characters).
  *
  *   node word 0   HL: sibling (next node with a colliding name)  HR: ALF index
  *   node word 1   HL: 'ENTRY'  HR: 'NODE'
  *   node word 2   HR: 'SEM';  above it the small fields of dprop()
+ *                 (ATYPE 32-34, COM 35-36, ISNM 37-38, LXTY 39-40, USE 41-43)
  *
- * Free array ALF holds the names themselves, concatenated: five 7-bit
- * characters per word, left justified in the low 36 bits, with a NUL
- * terminator that costs a word when the length is a multiple of five.
+ * Free array ALF holds the names themselves, concatenated: eight characters
+ * (bytes) to a word, the first in the LOW byte, with a NUL terminator that
+ * costs a word when the length is a multiple of eight.
  */
 #include <stdlib.h>
 #include <string.h>
@@ -36,24 +38,26 @@ dorgfix(void)
 {
 }
 
-/* Pack up to five characters, left justified in 36 bits as on the PDP-10. */
+/* Pack up to eight characters, the first in the low byte, as src/dir.imp. */
 static word
-pack5(const char *s, size_t n)
+pack8(const char *s, size_t n)
 {
-    word w = 0;
+    uword w = 0;
     size_t i;
 
-    for (i = 0; i < 5 && i < n; i++)
-        w |= (word)((unsigned char)s[i] & 0x7F) << (29 - 7 * i);
-    return w;
+    for (i = 0; i < 8 && i < n; i++)
+        w |= (uword)(unsigned char)s[i] << (8 * i);
+    return (word)w;
 }
 
-/* The 9 bit hash of the first packed word. */
+/* HASH(NM): the 9 bit hash of the first packed word:
+ * NM xor NM RS 32, xor RS 16, xor RS 9, and 777B. */
 static unsigned
 hash(word nm)
 {
-    word h = nm ^ (nm >> 18);
+    uword h = (uword)nm ^ ((uword)nm >> 32);
 
+    h = h ^ (h >> 16);
     h = h ^ (h >> 9);
     return (unsigned)(h & 0777);
 }
@@ -64,7 +68,7 @@ dir(const char *nm)
 {
     static word *pk;
     static size_t pkcap;
-    size_t len = strlen(nm), nw = len / 5 + 1, c;
+    size_t len = strlen(nm), nw = len / 8 + 1, c;
     word h, hn, i, i1, q, j, alfx, k;
     unsigned char *p;
     long n;
@@ -89,7 +93,7 @@ dir(const char *nm)
     }
     p = (unsigned char *)nm;
     for (c = 0; c < nw; c++)
-        pk[c] = pack5((const char *)p + 5 * c, len > 5 * c ? len - 5 * c : 0);
+        pk[c] = pack8((const char *)p + 8 * c, len > 8 * c ? len - 8 * c : 0);
     n = (long)nw - 1;                   /* last word of the name */
 
     h = hash(pk[0]);
@@ -139,7 +143,7 @@ l4: k = nalf + n + 1;
     return i;
 }
 
-/* DNAME(I,J): the jth word (five characters) of the name of entry i. */
+/* DNAME(I,J): the jth word (eight characters) of the name of entry i. */
 word
 dname(word i, word j)
 {
@@ -158,8 +162,8 @@ fullname(word i, size_t limit)
 
     for (j = 0;; j++) {
         w = dname(i, j);
-        for (c = 0; c < 5; c++) {
-            char ch = (char)((w >> (29 - 7 * c)) & 0x7F);
+        for (c = 0; c < 8; c++) {
+            char ch = (char)(((uword)w >> (8 * c)) & 0xFF);
             if (ch == '\0' || n >= limit)
                 goto done;
             if (n + 2 > cap) {
@@ -360,51 +364,53 @@ static int cinit, jnit;
  * CONVC(C): convert the constant named by directory entry C.
  * Returns 0 if it is not a constant; -1 if numeric, the value being left in
  * convc_const; or, for a string constant, a pointer to a free array whose
- * word 0 is N and words 1..N the string, five characters per word without
+ * word 0 is N and words 1..N the string, eight characters per word without
  * its opening quote (convc_const is the first word).
  *
  * Numbers: decimal; `dddB` octal; `dddBr` in radix r (letters are digits
- * above 9).  The original's constants are 36 bit; a twelve digit octal
- * constant with the top bit set is read as the negative 36 bit number it is
- * there, so that -1 is still 777777777777B.
+ * above 9).  The value is a 64 bit number that wraps (the 36 bit wrap of the
+ * tape is gone): 777777777777B is 68719476735, and -1 is written -1.
  */
 word
 convc(word c)
 {
-    word nc = 0, bas = -1, cc = 0, w, ww, ch, n, j, b, i, k, ncfr, val = 0;
+    word nc = 0, bas = -1, cc = 0, ww, ch, n, j, b, i, k, ncfr, val = 0;
+    uword w;
+    uword cv;
 
     if (!cinit) {
         cinit = 1;
         frelot(&cbuf, "CONVC", 25, NULL);
     }
-    w = dname(c, cc);
-    if ((w >> 29) == 047) {             /* a string: the multiword case */
+    w = (uword)dname(c, cc);
+    if ((w & 0377) == 047) {            /* a string: the multiword case */
         if (!jnit) {
             jnit = 1;
             cfr = fallot_new("CONST", 10);
         }
         ncfr = 1;
         for (;;) {
-            ww = (w << 7) & MASK36;
-            if (w & 0377) {
+            uword wd = w >> 8;          /* REST(W) */
+
+            if (w >> 56) {              /* LASTC(W): the name goes on */
                 cc++;
-                w = dname(c, cc);
-                ww |= 0376 & (w >> 28);
+                w = (uword)dname(c, cc);
+                wd |= (w & 0377) << 56; /* FRONTLAST(W) */
             }
-            fadd(&cfr, &ncfr, ww);
-            if (!(ww & 0377))
+            fadd(&cfr, &ncfr, (word)wd);
+            if (!(wd >> 56))
                 break;
         }
         FREES(cfr, ncfr - 1);
         convc_const = FREE(cfr + 1);
         return cfr;
     }
-    ww = w >> 29;
+    ww = (word)(w & 0377);
     if (ww < 060 || ww > 071)
         return 0;
     for (;;) {                          /* pick the number apart */
-        for (n = 29; n >= 1; n -= 7) {
-            ch = 0177 & (w >> n);
+        for (n = 0; n <= 56; n += 8) {
+            ch = (word)((w >> n) & 0377);
             if (ch == 0)
                 goto t3;
             if (ch < 060 || ch > 071) {
@@ -422,7 +428,7 @@ convc(word c)
             fadd(&cbuf, &nc, ch);
         }
         cc++;
-        w = dname(c, cc);
+        w = (uword)dname(c, cc);
     }
 t3: j = nc - 1;
     b = 10;
@@ -439,44 +445,37 @@ t3: j = nc - 1;
             j = bas - 1;
         }
     }
-    convc_const = 0;
+    cv = 0;
     for (i = 0; i <= j; i++) {
         if (b == 8)
-            convc_const <<= 3;
+            cv <<= 3;
         else
-            convc_const *= b;
+            cv *= (uword)b;
         k = FREE(cbuf + i) - 060;
-        if (k >= b)
+        if (k >= b) {
+            convc_const = (word)cv;
             return 0;
-        convc_const += k;
+        }
+        cv += (uword)k;
     }
-    if (b == 8 && j == 11 && (convc_const & ((word)1 << 35)))
-        convc_const -= (word)1 << 36;
+    convc_const = (word)cv;
     val = -1;
     return val;
 }
 
-/* STCON(V): directory entry for the constant V, named in octal. */
+/* STCON(V): directory entry for the constant V, named by its octal digits as an unsigned 64 bit number
+ * (up to 22, without the leading zeros) and a B. */
 word
 stcon(word v)
 {
     char buf[40];
-    uword u;
 
-    if (v < 0 && v >= -((word)1 << 35))
-        u = (uword)v & (uword)MASK36;
-    else
-        u = (uword)v;
-    if (u == 0)
-        return dir("0");
-    /* a positive number of 36 bits with the top bit set would be read back as a negative one (convc, as on the
-     * PDP-10: 12 octal digits with the top bit set are negative): a leading 0 says it is positive */
-    snprintf(buf, sizeof buf, (v > 0 && u >> 35 && !(u >> 36)) ? "0%lloB" : "%lloB", (unsigned long long)u);
+    snprintf(buf, sizeof buf, "%lloB", (unsigned long long)(uword)v);
     return dir(buf);
 }
 
 /* NEWNAME(I): a new, unique name: % + the first four characters of the
- * name s + a serial number. */
+ * name s + a serial number (decimal). */
 word
 newname(const char *s)
 {

@@ -9,9 +9,9 @@ LLVMCFLAGS =
 LLVMLIBS   =
 LLVMOBJS   =
 LLVMBINDIRDEF =
-OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o semtab.o sem.o impsem.o codegen.o pcode.o ir.o trans.o
+OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o semtab.o ir.o gen_impsem.o gen_code.o gen_code2.o gen_code3.o gen_demit.o
 TESTDIR = ../tests/stage0
-TESTS   = test_free test_stack test_dir test_lex test_parse test_debug test_decl
+TESTS   = test_free test_stack test_dir test_lex test_parse test_debug
 
 all: libstage0.a imp72s0 imp72stage0
 
@@ -21,7 +21,7 @@ imp72s0: imp72s0.o imphost.o $(LLVMOBJS) libstage0.a
 imphost.o: imphost.c
 	$(CC) -std=c99 -O1 -g $(LLVMBINDIRDEF) -c imphost.c
 
-imp72s0.o: imp72s0.c imp.h ir.h
+imp72s0.o: imp72s0.c imp.h ir.h gen.h
 	$(CC) $(CFLAGS) $(LLVMCFLAGS) -c imp72s0.c
 
 llvmorc.o: llvmorc.c
@@ -48,7 +48,6 @@ $(OBJS): imp.h
 check: $(TESTS) imp72s0
 	@for t in $(TESTS); do echo "== $$t"; ./$$t || exit 1; done
 	@echo "== test_syntax"; sh $(TESTDIR)/test_syntax.sh
-	@echo "== test_codegen"; sh $(TESTDIR)/test_codegen.sh
 
 test_free: $(TESTDIR)/test_free.c libstage0.a
 	$(CC) $(CFLAGS) -I. -o $@ $(TESTDIR)/test_free.c libstage0.a
@@ -65,8 +64,6 @@ test_parse: $(TESTDIR)/test_parse.c libstage0.a
 test_debug: $(TESTDIR)/test_debug.c libstage0.a
 	$(CC) $(CFLAGS) -I. -o $@ $(TESTDIR)/test_debug.c libstage0.a
 
-test_decl: $(TESTDIR)/test_decl.c libstage0.a
-	$(CC) $(CFLAGS) -I. -o $@ $(TESTDIR)/test_decl.c libstage0.a
 
 clean:
 	rm -f $(OBJS) imp72s0.o llvmorc.o ir2ll.o imp72s0 imp72stage0 libstage0.a $(TESTS)

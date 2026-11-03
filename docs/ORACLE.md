@@ -116,6 +116,12 @@ Richard Cornwell's system tape by [prebsd](https://github.com/moebiusV/prebsd)'s
 
 ## Dumps and listings against the original
 
+**Retired (2026-11-03).** The comparison of the seed's dumps and `/A` listings with the original's (`tests/oracle/dumps.sh`) is no longer made: the seed no longer emulates the
+36-bit PDP-10 (words of 64 bits, halves of 32, eight characters to a word, no PDP-10 instruction records), so it cannot print what the original printed. The captures stay
+(`tests/golden/oracle-dumps`, `tests/golden/oracle-lst`), with `tools/dump-compare.py` and `tools/lst-compare.py` and the evidence below, for whoever brings a 36-bit path back; what
+is still compared with the real machine is the output of the programs (`tests/oracle/run.sh`). The stage compilers' dumps and the seed's are compared with each other instead
+(`docs/porting/seed-direct.md`). What follows describes the comparison as it was.
+
 `tests/oracle/dumps.sh` (in `make check`, no oracle needed) compares the debugging dumps and the `/A` listings of the seed with what the original printed, stored in `tests/golden/oracle-dumps/` (the semantics array S, the code tree and bit matrix T, the syntax graph X and the directory I, of `dr.imp`) and `tests/golden/oracle-lst/` (the 19 programs of `tests/oracle/LIST`). Capture with `ORACLE_SW=/S tools/oracle-run.py --lst -d DIR prog.imp` (`/T`, `/X`, `/I`, `/A`).
 
 - **S, T, X are the original's, word for word**, with these differences, which `tools/dump-compare.py` counts and does not hide: the words that name a routine (403 in S, 82 distinct) or a constant by its address in `imp.shr` pair one to one with the slots of ours; the cell one past the bit matrix, which the tape's loop prints and which holds whatever follows the matrix in free storage (324 cells); the TERMINAL lines of X are compared as a set, as they come in the order of the directory.

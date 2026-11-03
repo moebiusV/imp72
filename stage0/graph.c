@@ -126,7 +126,7 @@ newno(word ds, word rts, word typ, word id)
     if ((ty & 5) == 4) {
         nr = dname(id, 0);
         ty &= 3;
-        if ((nr & 0774000000000L) != ((word)'#' << 29))
+        if ((nr & 0377) != '#')                 /* CHR0(NR) */
             ty = 1;
     }
     ptrs = HW(ds, rts);

@@ -1,6 +1,6 @@
 /*
  * rsyn.c -- the bootstrap reader for the initial IMP syntax.  Ports
- * decus/rsyn.imc: RSYN and the routines that enter syntax statements into
+ * src/rsyn.imp (decus/rsyn.imc): RSYN and the routines that enter syntax statements into
  * the syntax graph and the semantics array (SYNT, SYTRM, SYTERM, ADDCHAR,
  * SYNTS, SEMANTICS, FORMARG, SYNARG, DEFCASE, CASE, QUOSEM, EQUOSE, SEMP,
  * GETARG, SEMR, SYNTAX, SEMBIT, REPVAL, VALU, RSERR).
@@ -21,6 +21,10 @@
  * invokes them (as SYNT, SEMR, ...) from the productions that read the rest
  * of syntax.imc, so they are registered by name.
  *
+ * The 36 bit formats of the tape are gone: the words are those of src/rsyn.imp
+ * (halves of 32 bits; a name is eight characters to a word, the first in the
+ * low byte).
+ *
  * Notes on the original, which this follows:
  *  - The production under construction is in free array SN, the argument
  *    names (0 for a symbol that has none, -1 for NAM#/SYM#) in NA.  A
@@ -32,6 +36,7 @@
  */
 #include <string.h>
 #include "imp.h"
+#include "gen.h"
 
 static word rst, nrst, nspars, na, sn, nsn, nna, snit, snitt, semn, semk, prodn,
     nsargs, cas, ty, cl, smit;
@@ -44,7 +49,7 @@ synarg(word i)
     return FREE(na + i);
 }
 
-/* Name of directory entry i, all of it (up to 50 characters + a '#'). */
+/* Name of directory entry i, all of it (up to n-1 characters). */
 static void
 fullname(word i, char *buf, size_t n)
 {
@@ -54,8 +59,8 @@ fullname(word i, char *buf, size_t n)
 
     for (j = 0;; j++) {
         w = dname(i, j);
-        for (c = 0; c < 5; c++) {
-            char ch = (char)((w >> (29 - 7 * c)) & 0x7F);
+        for (c = 0; c < 8; c++) {
+            char ch = (char)(((uword)w >> (8 * c)) & 0xFF);
 
             if (ch == '\0' || k + 1 >= n)
                 goto done;
@@ -70,13 +75,13 @@ done:
 static word
 addchar(word s, char c)
 {
-    char buf[80];
+    char buf[96];
 
     buf[0] = c;
     fullname(s, buf + 1, sizeof buf - 1);
-    if (strlen(buf) > 50) {
-        imp_error(1, "IN ADDCHAR - NAME > 50 CHARACTERS **");
-        buf[50] = '\0';
+    if (strlen(buf) > 80) {
+        imp_error(1, "IN ADDCHAR - NAME > 80 CHARACTERS **");
+        buf[80] = '\0';
     }
     return dir(buf);
 }
@@ -98,13 +103,13 @@ rserr(int n)
 static word
 syterm(word s)
 {
-    word r = FREE(s), q = L18(r);
+    word r = FREE(s), q = HL(r);
     char buf[16];
 
     fullname(q, buf, sizeof buf);
     if ((buf[0] == '\'' && buf[1] != '\0' && buf[2] == '\0') || strcmp(buf, "':=") == 0) {
         q = dir(buf + 1);
-        FREES(s, W18(q, R18(r)));
+        FREES(s, HW(q, HR(r)));
     }
     return s;
 }
@@ -126,9 +131,9 @@ synt(word a, word b)
         snitt = 0;
     }
     if (q > 0) {
-        q = L18(FREE(syterm(b)));
+        q = HL(FREE(syterm(b)));
     }
-    r = L18(FREE(a));
+    r = HL(FREE(a));
     if (b >= 0) {
         if (snitt == 0) {                       /* start a production */
             nsn = semn = smit = 0;
@@ -179,7 +184,7 @@ semantics(void)
     FREES(rst + nna, semn);
     FREES(rst + nna + 1, 0);
     entree(rst, semn, semk, prodn);
-    semk = setsem(0, nna << 18);
+    semk = setsem(0, HW(nna, 0));
     return 0;
 }
 
@@ -188,9 +193,9 @@ defcase(word n)
 {
     if (cas)
         imp_error(1, "NESTED CASE DEFINITIONS ILLEGAL **");
-    cas = L18(FREE(n));
+    cas = HL(FREE(n));
     if (semk == semn)
-        semk = setsem(0, nna << 18);
+        semk = setsem(0, HW(nna, 0));
     prodn = semk;
     if (dprop(DP_SEM, cas))
         imp_error(1, "CASE DEFINED TWICE OR SAME NAME AS SEMANTIC ROUTINE **");
@@ -204,12 +209,12 @@ defcase(word n)
 static word
 getarg(word a)
 {
-    word q = L18(FREE(a)), j, r;
+    word q = HL(FREE(a)), j, r;
 
     ty = 4;
     j = convc(q);
     if (j) {
-        q = 007777777777L & -convc_const;
+        q = SVMASK & (word)(0 - (uword)convc_const);
         return q;
     }
     for (r = 0; nna && r <= nna - 1; r++) {
@@ -236,19 +241,19 @@ docase_(word a, word f)
     if (f) {
         cas = 0;
         prodn = semn;
-        semk = setsem(0, nna << 18);
+        semk = setsem(0, HW(nna, 0));
     }
     s = enstack(0);
-    while (getlist(s)) {
+    while (g_getlist(s)) {
         k = getarg(s);
         if (ty == 2)
             imp_error(1, "CANT USE NONTERMINALS IN CASE ARG LIST");
         setsem(010, k);
     }
     j = FREE(a);
-    docase(L18(j), semk, semn);
+    docase(HL(j), semk, semn);
     entrca(semn);
-    semk = setsem(0, nna << 18);
+    semk = setsem(0, HW(nna, 0));
     return a;
 }
 
@@ -260,7 +265,7 @@ quosem(word a)
     word tb = entree(FREE(a + 1), semn, semk, prodn);
 
     semfix(semk, tb);
-    semk = setsem(0, nna << 18);
+    semk = setsem(0, HW(nna, 0));
     fallot(FREE(a + 1), 0);
     return a;
 }
@@ -272,19 +277,19 @@ equose(word a)
 {
     word t = enstack(0), i = 0, n, j, k, nn, jj;
 
-    while (getlist(t)) {
+    while (g_getlist(t)) {
         i++;
         n = FREE(t);
-        n = -L18(n);
+        n = -HL(n);
         j = FREE(a + 1);
         nn = 0;
         while ((k = FREE(j))) {
             if (k == n) {
                 if (nn == 0) {
                     nn = 1;
-                    FREES(j, -((-n) | (i << 18)));
+                    FREES(j, -((-n) | HW(i, 0)));
                 } else
-                    FREES(j, -(i << 18));
+                    FREES(j, -HW(i, 0));
             }
             j++;
         }
@@ -309,7 +314,7 @@ equose(word a)
                 }
             }
         }
-        setsem(5, 007777777777L & -k);
+        setsem(5, SVMASK & -k);
 l18:
         ;
     }
@@ -331,8 +336,8 @@ semp(word a, word b)
     if (b) {
         nrst--;
         j = FREE(rst + nrst);
-        setsem(3, (R18(j)) | (nsargs << 18));
-        nsargs = 1 + L18(j);
+        setsem(3, HR(j) | HW(nsargs, 0));
+        nsargs = 1 + HL(j);
         return 0;
     }
     nsargs++;
@@ -353,14 +358,14 @@ semr(word a, word b)
         nsargs--;
         return a;
     }
-    q = dprop(DP_SEM, L18(FREE(a)));
+    q = dprop(DP_SEM, HL(FREE(a)));
     if (q == 0) {
-        pname(L18(FREE(a)));
+        pname(HL(FREE(a)));
         fputc(' ', imp_out());
         imp_error(1, "UNDEFINED SEMANTIC ROUTINE");
     }
     if (b) {
-        fadd(&rst, &nrst, q | (nsargs << 18));
+        fadd(&rst, &nrst, q | HW(nsargs, 0));
         nsargs = 0;
     } else {
         setsem(3, q);
@@ -379,7 +384,7 @@ syntax(word n)
 {
     if (n == 2) {
         if (semk == semn)
-            semk = setsem(0, nna << 18);
+            semk = setsem(0, HW(nna, 0));
         return 0;
     }
     semn = 0;
@@ -401,8 +406,8 @@ sembit(word a)
 {
     word j = FREE(a);
 
-    convc(L18(j));
-    semor(ls36(convc_const, 27), semn);
+    convc(HL(j));
+    semor(ls64(convc_const, 41), semn);
     return 0;
 }
 
@@ -410,14 +415,14 @@ sembit(word a)
 word
 repval(word s, word a)
 {
-    word j = L18(FREE(s)), k, i;
+    word j = HL(FREE(s)), k, i;
 
     j = dprop(DP_SEM, j);
     k = FREE(a + 1);
     do {
         i = FREE(k);
-        if (i > 0 && cksval(R18(i), j))
-            FREES(k, sx36(j | (i << 18)));
+        if (i > 0 && cksval(HR(i), j))
+            FREES(k, j | HW(i, 0));
         k++;
     } while (i);
     return a;
@@ -427,19 +432,19 @@ repval(word s, word a)
 word
 valu(word n, word s)
 {
-    word k = L18(FREE(s)), jj, j;
+    word k = HL(FREE(s)), jj, j;
 
     jj = j = dprop(DP_SEM, k);
     if (jj == 0) {
         j = semk + 2;
         dprops(DP_SEM, k, j);
     }
-    k = L18(FREE(n));
+    k = HL(FREE(n));
     if (convc(k) == 0)
         imp_error(1, "VALUE NOT A CONSTANT **");
-    setsem(012, 07777777777L & (j | (convc_const << 18)));
+    setsem(012, SVMASK & (j | ls64(convc_const, 32)));
     if (jj == 0)
-        setsem(0, nna << 18);
+        setsem(0, HW(nna, 0));
     return 0;
 }
 
@@ -447,7 +452,7 @@ static word
 stx(word *j)
 {
     cl = lex(j);
-    return setstk(1, sx36(1 | (*j << 18)), 0, 0);
+    return setstk(1, 1 | HW(*j, 0), 0, 0);
 }
 
 static word w_defcase(const word *p) { return defcase(p[0]); }
@@ -537,7 +542,7 @@ nsymb:
 gnsymb:
     if (j == lbr) {                             /* <CLASS,ARG> */
         cl = lex(&j);
-        k = setstk(2, sx36(1 | (j << 18)), 0, 0);
+        k = setstk(2, 1 | HW(j, 0), 0, 0);
         cl = lex(&j);
         if (j != comma)
             rserr(6);
@@ -563,7 +568,7 @@ gnsymb:
                 goto nsymb;
             }
         }
-        sytrm(setstk(1, sx36(1 | (j << 18)), 0, 0));
+        sytrm(setstk(1, 1 | HW(j, 0), 0, 0));
         j = jj;
         goto gnsymb;
     }
@@ -576,7 +581,7 @@ gnsymb:
     if (j != eqs)
         rserr(9);
     cl = lex(&j);
-    jj = setstk(1, sx36(1 | (j << 18)), 0, 0);
+    jj = setstk(1, 1 | HW(j, 0), 0, 0);
     cl = lex(&j);
     if (j != lpar)
         rserr(10);
@@ -587,7 +592,7 @@ gnsymb:
     }
     semr(jj, 1);
 l14:
-    semp(setstk(1, sx36(1 | (j << 18)), 0, 0), 0);
+    semp(setstk(1, 1 | HW(j, 0), 0, 0), 0);
     cl = lex(&j);
     if (j == comma) {
         cl = lex(&j);

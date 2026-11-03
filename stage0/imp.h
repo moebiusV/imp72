@@ -14,10 +14,13 @@
  *  - "Pointers" into free storage are word indices into one growable array
  *    (`fmem`), exactly as in the original, where they were addresses relative
  *    to FORG.  Index 0 means "none".
- *  - Names in the directory keep the original packing (5 seven-bit characters
- *    per word, left justified, NUL terminated) so that directory contents can
- *    be compared with a PDP-10 oracle.  Everything outside the directory sees
- *    ordinary C strings.
+ *  - Names in the directory are packed as src/dir.imp packs them: eight
+ *    characters (bytes) to a word, the first in the LOW byte, NUL terminated.
+ *    Everything outside the directory sees ordinary C strings.
+ *  - The kernel's words (the semantics array, the code tree, the directory
+ *    nodes) are those of the IMP ports in src/ (the .imp files) and of src/impsyn64.imc:
+ *    the 36 bit formats of the tape are gone from the kernel (the 36 bit
+ *    helpers below remain for the old generator files only).
  *
  * IMP expressions have no operator precedence (`A+B*C` is `A+(B*C)`) and
  * `FOR I TO N` includes N.  The ports spell the grouping out.
@@ -37,6 +40,7 @@ typedef uint64_t uword;
 #define HL(w)   ((word)(((uword)(w) >> 32) & HW_MASK))
 #define HR(w)   ((word)((uword)(w) & HW_MASK))
 #define HW(l,r) ((word)(((uword)(l) << 32) | ((uword)(r) & HW_MASK)))
+#define HLS(w)  ((word)(w) >> 32)             /* the left half, signed (HLS of impsyn64.imc) */
 
 /* ---- error.c: driver services the kernel calls (ERROR, MSG, PRINT) ----- */
 
@@ -211,7 +215,8 @@ extern void (*parse_cotree)(word k);           /* COTREE: gets each output */
  * goes to imp_out(). */
 void pr_stg(int w, const char *s);    /* STG w: at most w chars, right justified */
 void pr_igr(int w, word v);           /* IGR w: signed decimal */
-void pr_oct(int w, word v);           /* OCT w: 36 bit unsigned octal, zero filled */
+void pr_oct(int w, word v);           /* OCT w: 36 bit unsigned octal, zero filled (the old generator files) */
+void pr_oct64(int w, word v);         /* OCT w of src/lib: the 64 bits as unsigned octal, zero filled to w columns (debug.c) */
 void pr_nl(void);                     /* / */
 
 #define SW_MATRICES 0x2000L           /* /N  print the connectivity matrices */
@@ -220,33 +225,36 @@ void helpd(void);                     /* HELPD */
 void partr1(word cnode, word ctyp, word cval, word p, word ip, word o, word cw);
 void gprin1(void);                    /* GPRIN1: the graph and its matrices */
 
-/* ---- 36 bit words ------------------------------------------------------ */
+/* ---- the words of the IMP ports (src/impsyn64.imc), 64 bits ------------- */
 
-/*
- * SEMS, PROSEM, the code tree, the code stack and the semantic stack keep the
- * 36 bit formats of the original (so debug.c can print the same octal).  A
- * word of one of them is a 36 bit two's complement number held sign-extended
- * in a `word`.  The halves are 18 bits: L18() and R18() take them, W18()
- * makes a word; sx36() wraps a result to 36 bits, u36() takes the bits.
- * RS (logical right shift) of such a word is `u36(w) >> n`; ARS is `w >> n`.
- */
-#define MASK36 ((word)0xFFFFFFFFFL)
-#define MASK18 ((word)0777777L)
-
-static inline word u36(word w) { return w & MASK36; }
-static inline word sx36(word w) { return ((w & MASK36) ^ ((word)1 << 35)) - ((word)1 << 35); }
-static inline word L18(word w) { return (w >> 18) & MASK18; }
-static inline word R18(word w) { return w & MASK18; }
-static inline word W18(word l, word r) { return sx36((l << 18) | (r & MASK18)); }
-/* 1 LS n, and x LS n, in a 36 bit word; a negative n shifts right */
-static inline word ls36(word x, word n)
+/* LS: a logical shift left; a negative count shifts right, a count of 64 or more (or -64 or less) shifts everything out
+ * (what the stage compiler's variable shift does; ESHIFTV in src/llvm-ir/demit.imp) */
+static inline word ls64(word x, word n)
 {
-    if (n >= 36 || n <= -36)
+    if (n >= 64 || n <= -64)
         return 0;
-    return n >= 0 ? sx36((word)((uword)x << n)) : sx36(u36(x) >> -n);
+    return n >= 0 ? (word)((uword)x << n) : (word)((uword)x >> -n);
 }
 
-/* ---- sem.c, dosem.c: semantic routines and the semantics array ---------- */
+/* RS: a logical shift right, the same rules */
+static inline word rs64(word x, word n) { return ls64(x, -n); }
+
+/* the code tree (entree.imp): the type of a stuff word is its top three bits */
+#define NT1   ((word)((uword)1 << 61))
+#define NT2   ((word)((uword)2 << 61))
+#define NT3   ((word)((uword)3 << 61))
+#define NCLS  ((word)((uword)1 << 32))       /* a class of VAL/ productions, or a one word constant */
+#define NTRM  ((word)((uword)2 << 32))       /* a terminal node */
+#define PLIM  ((word)(((uword)1 << 29) + 2)) /* HL of the stuff word of a production node is at most this */
+#define NMARK ((word)((uword)1 << 63))       /* the mark of ENTRCA */
+
+/* the semantics array (dosem.imp): V is bits 0-31, N bits 32-43, the type bits 44-49; V and N together are a signed number of
+ * 44 bits for the types 4, 5 and 10 */
+#define SVMASK ((word)0xFFFFFFFFFFFLL)
+#define SVSIGN ((word)0x80000000000LL)
+#define SEMTYPE(w) ((word)((uword)(w) >> 44))
+
+/* ---- semtab.c, dosem.c: semantic routines and the semantics array ---------- */
 
 /*
  * A semantic routine is called by DOSEM with the words it was given, as
@@ -260,7 +268,6 @@ void dsem(const char *name, semfn fn);         /* DSEM */
 typedef word (*semifn)(word *, word *, word *, word *, word *);
 void dsemi(const char *name, semifn fn);       /* DSEM of a routine of IMP, which takes its arguments by reference: it is passed pointers to the parameters */
 word semcall(word id, const word *pars);
-void sem_init(void);                           /* register the routines */
 
 #define MARGS 10
 
@@ -329,98 +336,5 @@ word docase_(word a, word f);
 word sembit(word a);
 word repval(word s, word a);
 word valu(word n, word s);
-
-/* sem.c: the semantic routines of impsem.imc and code2.imc that syntax
- * statements use when they are read */
-word newlist(word s);
-word enlist(word s);
-word getlist(word s);
-word hook(word d, word a, word b);
-word assemc(word a);
-void trans_open(FILE *f);                       /* write IR to f */
-void trans_unit(word a);
-
-/* codegen.c, impsem.c: the code generator (PDP-10 code chains) */
-extern word co, nco, anco;
-void codegen_init(void);
-word addcode(word s, word w1, word w2);
-word dewop(word op, word rr, word s);
-word fetch(word s);
-word store(word s, word t);
-word regof(word s);
-word addop(word op, word s, word t);
-word tag(word s);
-word dewfun(word s, word i, word j);
-word freeze(word s);
-word subrcall(word t);
-word subrpar(word s, word pp);
-word return_(word s);
-word conop(word s, word t, word i, word v, word w);
-word float_(word s);
-word fix_(word s);
-word ojumpop(word i);
-word datast(word b);
-word addr_(word s);
-word coppy(word s);
-word subscript(word s, word t);
-struct bytedesc {
-    word name, a0, a1;                  /* the field's operand, as a stack entry */
-    int pconst, sconst;
-    word p, s;                          /* position, size: constants or registers */
-};
-extern struct bytedesc bytedescs[256];
-extern int nbytedescs;
-word bytep(word a, word s, word p, word flag);
-word prinpar(word n, word aa, word b, word c, word d);
-word princal(word a, word b);
-word subcall(word a, word b);
-void copyco(word s);
-word mcode(word s, word t);
-word oneword(word s);
-word ochk_(word opc);
-word hisreg(word i);
-word subreg(word j);
-word tmpreg(word j);
-word samereg(word j);
-word regeq(word i, word j);
-word regsim(word i, word j);
-word reg0(word i);
-word rmatch(word i, word j, word rn);
-word subpr0(word i);
-word subprm(word i);
-word subtmpf(void);
-word subtag(word n);
-word subbeg(word a);
-word subend(void);
-word remot(word a);
-word callme(word a);
-word reg2s(word s);
-word nsubp(void);
-word impsem_array(word i, word *size);          /* the declared arrays, ARR */
-word impsem_narr(void);
-word impsem_nregs(void);
-word anyco(void);
-void opname(word op, char *buf);
-void pcode_chain(word iw);
-void pcode(word s);
-
-/* impsem.c */
-void impsem_init(void);
-word name(word s);
-word tstrn(word dirindex);
-word areg(word i);
-word areg1(word i, word j);
-word decl(word i, word s);
-word declare(word s);
-word letsyn(word s);
-word fcon(word a, word b, word e);
-word ccall_mark(word a);
-int is_cval(word d);
-
-/* A REAL in a word is the 64 bits of the IEEE 754 double.  The code of the original compiler compares and negates a real with the integer
- * instructions; dewop marks those instructions on a real operand with REALOP (bit 23 of the instruction word, which the PDP-10 layout
- * leaves free), and trans.c makes them floating point. */
-#define REALOP 040000000L
-word pairfirst(word j);
 
 #endif

@@ -69,9 +69,9 @@ isname(word s)
     if (nm == 047)
         return 2;
     nm = dname(s, 0);
-    if (nm & 0x1FFFFFFFL)               /* NM LS 7: more than one character */
+    if ((uword)nm >> 8)                 /* REST(NM): more than one character */
         return 2;
-    nm >>= 29;
+    nm &= 0377;                         /* CHR0(NM): the first */
     if (nm >= 060 && nm <= 071)
         return 2;
     nm &= 0137;

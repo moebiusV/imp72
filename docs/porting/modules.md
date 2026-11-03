@@ -64,7 +64,7 @@ and the token is passed to `DIR` as it is. What differs, and why: `LEXIN(NAME)` 
 `getc` where the tape reads the buffers of a channel (Unix); the arrays hold eight characters to a word, so the growth is by `(17+L)/8`
 words where the tape's is `(10+L)/5`; a quote or parenthesis is written `'('` where the tape has `'(' RS 29` (its string constant is
 left justified in a 36-bit word); `ISTAB` is a table of 32 characters to a word (the tape's has 36 bits to the word and 128 characters;
-the seed's literals wrap at 36 bits, so a word of 64 characters cannot be written in it yet) and takes the bytes of UTF-8 as letters;
+the seed's literals no longer wrap at 36 bits) and takes the bytes of UTF-8 as letters;
 `C` is an ordinary variable of the module, not a reserved register. `LEXSAV`, `LEXRES`, `GETTY`, `READCMD`, `PUTN`, `PUTO` and `PUTSW` are the tape's, for the commands of the interactive mode.
 
 **The arena does not move.** The tape's low segment grows in place, so a byte pointer into an array stays good. `CORE` reserves the
@@ -102,7 +102,7 @@ the first address: the low byte on a little-endian host, the high byte on a big-
 macros (`CHR0`, `CHR`, `REST`, `PREP`, `LASTC`, `FRONTLAST`, `PFX4`, `CHAT`, `CODE`, `CHFIRST`, `CHSTEP`, `CHEND`, `CHBEYOND`,
 `CHPAST`) that `src/impend-le.imc` and `src/impend-be.imc` define, and `tools/endian.sh` names the file for the host the compiler is
 built on (`tools/direct.sh` puts it in front of every module). `CODE('(')` is the character code of a text constant of one character
-(the tape's `'(' RS 29`). The seed's `strvalue` (`stage0/trans.c`) and `CONVC` of `dir.imp` make a text constant's word in memory
+(the tape's `'(' RS 29`). The seed's `strvalue` (`stage0/gen_demit.c`) and `CONVC` of `dir.imp` make a text constant's word in memory
 order. Where the IMP source gave a character code to a name (`DIR(CHAT(<+K>,0))` in `READCMD`) or took the first character out of
 a name word (`CHR0(DNAME(N,0))`), it says so with those macros; a byte pointer needs none. An image (`U`, `V`) is for the byte
 order and the build that made it.

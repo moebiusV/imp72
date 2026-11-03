@@ -1,12 +1,14 @@
 /*
- * dosem.c -- the semantics array and its interpreter.  Ports decus/dosem.imc:
+ * dosem.c -- the semantics array and its interpreter.  Ports src/dosem.imp (decus/dosem.imc):
  * DOSEM, SEMFIX, SEMFX1, DOCASE, ENPROD, MATCHP, NOTEPROD, PLIES, SNODEN,
  * ENSTACK, RESETSEM, SETSEM, PAR, SEMPER, SNARG, SEMGET, SEMED, SEMOR, CKSVAL.
+ * The 36 bit formats of the tape are gone: the words are those of src/dosem.imp.
  *
- * The semantics of a production is a run of words in free array SEMS (36 bit
- * words; V = bits 17-0, N = bits 29-18, TYPE = bits 35-30):
+ * The semantics of a production is a run of words in free array SEMS (64 bit
+ * words; V = bits 31-0, N = bits 43-32, TYPE = bits 49-44; V and N together
+ * are a signed number of 44 bits for the types 4, 5 and 10; SVMASK, SVSIGN):
  *
- *   0  start of semantics with N arguments; bits 29-27 are a priority for
+ *   0  start of semantics with N arguments; bits 43-41 are a priority for
  *      immediate execution; V is the production's entry in PROSEM
  *   1  end of semantics (so is a second type 0)
  *   2  push the stack pointer of parameter V on PSTAK
@@ -21,8 +23,7 @@
  *   12 put a type 0 node for [V], value N, on the stack
  *
  * PROSEM records, for each production, where it can match in the code tree;
- * see ENPROD below.  Its words, like those of SEMS, keep the original
- * layout.
+ * see ENPROD below.  Its words have the halves of 32 bits.
  *
  * Semantic routines are C functions called through the table of sem.c; the
  * original jumps to the routine's address.
@@ -67,7 +68,9 @@ setsem(word ty, word val)
         frelot(&sems, "SEMS", 2200, NULL);
         nsems = 2;
         many = 31;
-        FREES(sems + 1, 010000000001L);
+        /* SEMS[1] as src/dosem.imp has it: (1 LS 41) OR 1 (the tape's word is a type 1 and V = 1;
+         * the 1 here is in the priority bits of a type 0, which SEMPR1 prints as a header) */
+        FREES(sems + 1, ((word)1 << 41) | 1);
         frelot(&pstak, "SPSTK", 20, NULL);
         npstak = 0;
         frelot(&prosem, "PROSM", 1200, NULL);
@@ -78,7 +81,7 @@ setsem(word ty, word val)
         nsnodes = 0;
     }
     v = nsems;
-    fadd(&sems, &nsems, sx36(val | (ty << 30)));
+    fadd(&sems, &nsems, val | ls64(ty, 44));
     return v;
 }
 
@@ -87,28 +90,28 @@ resetsem(word val, word a)
 {
     word j = FREE(sems + a);
 
-    FREES(sems + a, sx36(R18(j) | (val << 18)));
+    FREES(sems + a, HR(j) | HW(val, 0));
 }
 
-word snarg(word n) { return 0777 & (u36(FREE(sems + n)) >> 18); }
-word semed(word a) { return 7 & (u36(FREE(sems + a)) >> 27); }
+word snarg(word n) { return 0777 & HL(FREE(sems + n)); }
+word semed(word a) { return 7 & rs64(FREE(sems + a), 41); }
 
 void
 semor(word a, word n)
 {
     word qq = FREE(sems + n);
 
-    FREES(sems + n, sx36(qq | a));
+    FREES(sems + n, qq | a);
 }
 
 /* SEMGET(N): the index in SEMS of the semantics of production N. */
 word
 semget(word n)
 {
-    word q = R18(FREE(sems + n));
+    word q = HR(FREE(sems + n));
 
     q = FREE(prosem + q + 1);
-    return R18(FREE(prosem + q + 1));
+    return HR(FREE(prosem + q + 1));
 }
 
 /* PLIES(I): the bit vector of levels of the code tree at which production i
@@ -116,7 +119,7 @@ semget(word n)
 word
 plies(word i)
 {
-    word j = R18(FREE(sems + i));
+    word j = HR(FREE(sems + i));
 
     return j ? FREE(prosem + j) : j;
 }
@@ -124,7 +127,7 @@ plies(word i)
 word
 snoden(word i)
 {
-    word j = R18(FREE(sems + i));
+    word j = HR(FREE(sems + i));
 
     return j ? FREE(prosem + j + 2) : j;
 }
@@ -133,31 +136,31 @@ snoden(word i)
 word
 cksval(word v, word i)
 {
-    word q = u36(FREE(sems + v + 1));
+    word q = FREE(sems + v + 1);
 
-    return (q & 0770000777777L) == (u36(i | 0120000000000L)) ? 1 : 0;
+    return (q & (ls64(077, 44) | (word)HW_MASK)) == (i | ls64(012, 44)) ? 1 : 0;
 }
 
 /* NOTEPROD(PN,N): record that production pn matches at ply n of the tree. */
 void
 noteprod(word pn, word n)
 {
-    word j = FREE(sems + pn), k = R18(j);
+    word j = FREE(sems + pn), k = HR(j);
 
     if (k == 0) {
         k = nprosem;
         fadd(&prosem, &nprosem, 0);
         fadd(&prosem, &nprosem, 0);
         fadd(&prosem, &nprosem, ++nsnodes);
-        FREES(sems + pn, sx36(j | k));
+        FREES(sems + pn, j | k);
     }
     j = FREE(prosem + k);
     if (j == 0)
-        j = -ls36(1, n);
+        j = (word)(0 - (uword)ls64(1, n));
     else {
         if (j < 0)
-            j = -j;
-        j |= ls36(1, n);
+            j = (word)(0 - (uword)j);
+        j |= ls64(1, n);
     }
     FREES(prosem + k, j);
 }
@@ -178,17 +181,17 @@ noteprod(word pn, word n)
 void
 enprod(word pn, word no, word sem)
 {
-    word j = FREE(sems + pn), k = R18(j);
+    word j = FREE(sems + pn), k = HR(j);
 
     if (k == 0) {
         k = nprosem;
         fadd(&prosem, &nprosem, 0);
         fadd(&prosem, &nprosem, 0);
-        FREES(sems + pn, sx36(j | k));
+        FREES(sems + pn, j | k);
     }
     j = FREE(prosem + k + 1);
     FREES(prosem + k + 1, nprosem);
-    fadd(&prosem, &nprosem, sx36(j | (no << 18)));
+    fadd(&prosem, &nprosem, j | HW(no, 0));
     fadd(&prosem, &nprosem, sem);
 }
 
@@ -196,7 +199,7 @@ enprod(word pn, word no, word sem)
 word
 matchp(word pn, word n)
 {
-    word j = R18(FREE(sems + pn)), k, jx;
+    word j = HR(FREE(sems + pn)), k, jx;
 
     if (j == 0)
         return j;
@@ -204,9 +207,9 @@ matchp(word pn, word n)
     while (j) {
         jx = prosem + j;
         k = FREE(jx);
-        if (n == L18(k))
+        if (n == HL(k))
             return FREE(jx + 1);
-        j = R18(k);
+        j = HR(k);
     }
     return j;
 }
@@ -224,22 +227,22 @@ docase(word id, word semn, word prodn)
         fputc('\n', imp_out());
         return;
     }
-    jd = R18(FREE(sems + jd));
+    jd = HR(FREE(sems + jd));
     je = FREE(prosem + jd);                     /* levels of the class */
     if (je < 0)
-        je = -je;
+        je = (word)(0 - (uword)je);
     noteprod(prodn, -1);
-    kd = prosem + R18(FREE(sems + prodn));
+    kd = prosem + HR(FREE(sems + prodn));
     ke = FREE(kd);
     if (ke < 0)
-        ke = -ke;
-    FREES(kd, sx36(ke | je));
+        ke = (word)(0 - (uword)ke);
+    FREES(kd, ke | je);
     jd = FREE(prosem + jd + 1);
     while (jd) {
         je = FREE(prosem + jd + 1);
         jd = FREE(prosem + jd);
-        enprod(prodn, L18(jd), sx36(semn | (je << 18)));
-        jd = R18(jd);
+        enprod(prodn, HL(jd), semn | HW(je, 0));
+        jd = HR(jd);
     }
 }
 
@@ -256,7 +259,7 @@ enstack(word v)
         imp_error(0, " SEMANTICS STACK OVERFLOW **");
     if (v < 0)
         vv = -v;
-    w = setstk(scratch, 1 | (vv << 18), 0, 0);
+    w = setstk(scratch, 1 | HW(vv, 0), 0, 0);
     scratch++;
     return w;
 }
@@ -272,12 +275,12 @@ semfix(word i, word a)
     while ((k = FREE(a + na)) >= 0)
         na++;
     j = FREE(sems + i);
-    FREES(sems + i, sx36((na << 18) | (u36(j) & 0776000777777L)));
+    FREES(sems + i, HW(na, 0) | (j & ~ls64(01777, 32)));
     na--;
     j = i;
 l3: j++;
     k = FREE(sems + j);
-    jt = u36(k) >> 30;
+    jt = SEMTYPE(k);
     switch (jt) {
     case 0:
         if (i0)
@@ -290,8 +293,7 @@ l3: j++;
     case 6:
     case 7:
         jt = 4 | (2 & (jt >> 1));
-        k = u36(synarg(R18(k))) | 040000000000L;
-        k = sx36(k);
+        k = synarg(HR(k)) | ls64(4, 44);
         FREES(sems + j, k);
         goto l14;
     case 4:
@@ -301,18 +303,18 @@ l3: j++;
         goto l3;
     }
 l14:
-    if ((u36(k) & 004000000000L) == 0 && na >= 0 && (k = R18(k)) != 0) {
+    if ((k & SVSIGN) == 0 && na >= 0 && (k = HR(k)) != 0) {
         for (kk = 0; kk <= na; kk++) {
             kt = FREE(a + kk);
             if (kt == -k) {
-                FREES(sems + j, sx36(070000000000L | kk));
+                FREES(sems + j, ls64(7, 44) | kk);
                 goto l3;
             }
             if (kt == k) {
                 if (jt == 4)
-                    FREES(sems + j, sx36(020000000000L | kk));
+                    FREES(sems + j, ls64(2, 44) | kk);
                 else {
-                    FREES(sems + j, sx36(060000000000L | kk));
+                    FREES(sems + j, ls64(6, 44) | kk);
                     FREES(a + kk, -kt);
                 }
                 goto l3;
@@ -320,14 +322,14 @@ l14:
         }
     }
     /* check for VAL/ arguments */
-    if (u36(k) & 004000000000L) {
-        kt = -sx36(k | 0770000000000L);
-        if (kt < 01000000)
+    if (k & SVSIGN) {
+        kt = -(k | ~SVMASK);
+        if (kt < 040000000000L)
             goto l3;
         if (na >= 0) {
             for (kk = 0; kk <= na; kk++) {
                 if (FREE(a + kk) == kt) {
-                    FREES(sems + j, sx36(0600000000000L | kk));
+                    FREES(sems + j, ls64(060, 44) | kk);
                     goto l3;
                 }
             }
@@ -350,18 +352,18 @@ semfx1(word i, word a, word na)
     j = i + 1;
     for (;;) {
         k = FREE(sems + j);
-        jt = u36(k) >> 30;
-        if (jt == 5 && (u36(k) & 004000000000L)) {
-            k = -sx36(0770000000000L | k);
-            if (k >= 01000000) {
-                k = R18(k);
+        jt = SEMTYPE(k);
+        if (jt == 5 && (k & SVSIGN)) {
+            k = -(k | ~SVMASK);
+            if (k >= 040000000000L) {
+                k = HR(k);
                 for (kk = na - 1; kk >= 0; kk--) {
                     jj = -FREE(a + kk);
                     if (jj < 0)
                         jj = dprop(DP_SEM, -jj);
                     if (jj == k) {
-                        FREES(a + kk, -(jj | (jj << 18)));
-                        FREES(sems + j, sx36(060000000000L | kk));
+                        FREES(a + kk, -(jj | HW(jj, 0)));
+                        FREES(sems + j, ls64(6, 44) | kk);
                     }
                 }
             }
@@ -383,7 +385,7 @@ semfx1(word i, word a, word na)
 word
 dosem(word ppo)
 {
-    word npo = L18(ppo), po = R18(ppo), s, se, sty, sval, sn, jx, i, j, k, tr,
+    word npo = HL(ppo), po = HR(ppo), s, se, sty, sval, sn, jx, i, j, k, tr,
         nt0 = 0, xname;
 
     if (po == 1)
@@ -393,12 +395,12 @@ dosem(word ppo)
     ncasep = 0;
     FREES(pstak, 0);
 nextsem:
-    se = u36(FREE(sems + s));
-    sty = se >> 30;
-    sval = se & MASK18;
+    se = FREE(sems + s);
+    sty = SEMTYPE(se);
+    sval = HR(se);
     if (tr) {
         fprintf(imp_out(), " [%lo] = ", (long)s);
-        pr_oct(12, se);
+        pr_oct64(17, se);
     }
     switch (sty) {
     case 0:
@@ -442,7 +444,7 @@ nextsem:
     case 3:
         if (sval == 0)
             imp_error(0, "ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE.");
-        sn = 07777 & (se >> 18);
+        sn = 07777 & HL(se);
         npstak -= sn;
         if (!(sn <= MARGS && npstak >= 0))
             imp_error(0, "** TOO MANY ARGS TO SEMANTIC RTN OR PARAM STACK "
@@ -458,9 +460,9 @@ nextsem:
     case 4:
     case 5:
     case 010:
-        sval = se & 007777777777L;
-        if (sval & 004000000000L)
-            sval = sx36(sval | 0770000000000L);
+        sval = se & SVMASK;
+        if (sval & SVSIGN)
+            sval = sval | ~SVMASK;
         if (sty == 4) {
             fadd(&pstak, &npstak, -sval);
             goto nxsem;
@@ -470,15 +472,15 @@ nextsem:
             goto nxsem;
         }
         j = 1;
-        if (sval > 0 && sval > 0777777) {
+        if (sval > 0 && sval > (word)HW_MASK) {
             /* a local symbol: use PARS, as semantic routines and "STUFF"
              * are never mixed */
-            i = (sval >> 18) - 1;
+            i = HL(sval) - 1;
             if (i > MARGS) {
                 i = 1;
                 imp_error(1, " TOO MANY LOCAL SYMBOLS IN REFERENCED SEMANTICS");
             }
-            if ((sval &= 0777777) != 0) {
+            if ((sval = HR(sval)) != 0) {
                 xname = sval;
                 sval = newname(gname(xname));
                 pars[i] = sval;
@@ -489,7 +491,7 @@ nextsem:
             j = 0;
             sval = -sval;
         }
-        codent(sx36(j | (sval << 18)), 0, 0, 0);
+        codent(j | HW(sval, 0), 0, 0, 0);
         goto nxsem;
     case 6:
     case 7:
@@ -498,7 +500,7 @@ nextsem:
         if ((i & 077) == 0 && FREE(j + 1)) {
             /* value semantics: replace the original production number */
             i = FREE(j + 1);
-            FREES(j, sx36(0777777000000L & i));
+            FREES(j, i & ~(word)HW_MASK);
             FREES(j + 1, 0);
         }
         codent(FREE(j), FREE(j + 1), FREE(j + 2), sty - 6);
@@ -507,12 +509,12 @@ nextsem:
         npstak--;
         j = FREE(pstak + npstak);
         k = FREE(pstak + npstak - 1);
-        FREES(pstak + npstak - 1, sx36(j + k));
+        FREES(pstak + npstak - 1, (word)((uword)j + (uword)k));
         goto nxsem;
     case 012:
         j = stack(0);
-        FREES(j, sx36(sval << 18));
-        FREES(j + 1, sx36((po << 18) | (07777 & (se >> 18))));
+        FREES(j, HW(sval, 0));
+        FREES(j + 1, HW(po, 0) | (07777 & HL(se)));
         FREES(j + 2, 0);
         FREES(pstak, j);
         cfudge();

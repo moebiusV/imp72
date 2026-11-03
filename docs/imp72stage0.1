@@ -16,10 +16,11 @@
 .Nm
 compiles programs in IMP72, the extensible systems language of Ned Irons as
 implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a), to native code.
-The syntax of the language is read from the original syntax file
-.Pa syntax.imc .
-The compiler's code generator makes PDP-10 code, which is translated to an
-intermediate form and from there to machine code.
+The syntax of the language is read from the syntax file
+.Pa syntax64.imc
+(the original with words of 64 bits).
+The compiler's code generator makes an intermediate form directly, and from
+there LLVM makes machine code.
 .Pp
 IMP72 passes arguments by reference, as FORTRAN does, and a word is 64 bits
 (32 bit hosts hold it in a

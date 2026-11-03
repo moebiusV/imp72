@@ -1,6 +1,7 @@
 /*
- * cotree.c -- the semantic stack reducer.  Ports decus/cotree.imc: COTREE,
- * CFUDGE, CODENT, CKDONE, MAXWELL, MAXEND, SETPRI, SAMEAS, PSTACK.
+ * cotree.c -- the semantic stack reducer.  Ports src/cotree.imp (decus/cotree.imc): COTREE,
+ * CFUDGE, CODENT, CKDONE, MAXWELL, MAXEND, SETPRI, SAMEAS, PSTACK.  The 36 bit formats
+ * of the tape are gone: the words are those of src/cotree.imp.
  *
  * COTREE(S) adds one item of parser output to the code stack CS: S is a
  * production number, or minus the directory index of a terminal symbol.  For
@@ -10,7 +11,7 @@
  * replaces what matched, and it is repeated until nothing matches.
  * COTREE(0) clears the stack.
  *
- * A stack entry is three words (36 bit):
+ * A stack entry is three words (64 bit):
  *
  *   word 0   HL: DI, usually a directory index  bits 7-6: AR, 1 integer,
  *            2 real, 3 byte  bits 5-0: TY
@@ -18,18 +19,18 @@
  *   word 2   HL: CB, the start of its code  HR: CE, the end
  *
  * TY: 0 production (DI = its index in SEMS), 1 raw identifier, 2 register,
- * 4 constant, 8 identifier, 16 subscripted variable.  For 2, 8 and 16, VAL is
- * bit 35 the indirect bit, bits 28-18 the register, bits 17-0 the offset.
+ * 4 constant, 8 identifier, 16 subscripted variable.  What VAL holds for
+ * 2, 8 and 16 is the business of the code generator.
  *
  * Quoted semantics are collected, by Maxwell's demon (MAXWELL), in a free
  * array of their own, MAXIE, one for each, and MAXEND turns the demon off.
  *
- * The stack's items are kept in 36 bit words; where code is attached to an
- * item (CB, CE) it is the PDP-10 code of the original, which is not ported:
- * the routines that copy or compare code stop with an error.
+ * Where code is attached to an item (CB, CE) it is a chain of the code
+ * generator's records; the routines that copy or compare code are its.
  */
 #include <string.h>
 #include "imp.h"
+#include "gen.h"
 
 word cs, ncs;
 word entries;
@@ -65,7 +66,7 @@ codent(word a, word b, word c, word f)
     FREES(csx + 1, b);
     FREES(csx + 2, c);
     if (f && c)
-        copyco(csx);
+        g_copyco(csx);
 }
 
 void
@@ -131,7 +132,7 @@ sameas(word sn, word k)
     if (r != t) {
         if ((s & 032) == 0)
             return 0;
-        if ((u36(r) & 0774000777777L) != (u36(t) & 0774000777777L))
+        if ((r & ~ls64(03777, 32)) != (t & ~ls64(03777, 32)))
             return 0;
         goto smux;
     }
@@ -141,7 +142,7 @@ sameas(word sn, word k)
         if (r == 0 || t == 0)
             return 0;
 smux:
-        if (mcode(sn, tn) == 0)
+        if (g_mcode(sn, tn) == 0)
             return 0;
     }
     return -1;
@@ -198,7 +199,7 @@ cotree(word ss)
         fadd(&maxie, &nmaxie, s);
         return 0;
     }
-    j = s < 0 ? sx36(1 | ((-s) << 18)) : sx36(s << 18);
+    j = s < 0 ? 1 | HW(-s, 0) : HW(s, 0);
     i = ncs + 3;
     if (flen(cs) <= i)
         faddex(&cs, i);
@@ -256,14 +257,14 @@ l13:
         ip += 3;
         goto l13;
     }
-    s = L18(j);
+    s = HL(j);
     goto ck;
 m3:
     ip = ncs - 3;
 ck:
     if (trm) {
-        fprintf(f, "PLIES[%lo]=%lo AT STACK %ld  NC=%ld\n", (long)s,
-            (long)u36(plies(s)), (long)ip, (long)nc);
+        fprintf(f, "PLIES[%lo]=%llo AT STACK %ld  NC=%ld\n", (long)s,
+            (unsigned long long)plies(s), (long)ip, (long)nc);
     }
     ic = ip;
     k = plies(s);
@@ -271,12 +272,12 @@ ck:
         goto xnow;
     if (semed(s) & prio)
         goto xnow;
-    if ((i = ls36(1, (ip - nc) / 3)) == 0)
+    if ((i = ls64(1, (ip - nc) / 3)) == 0)
         imp_error(0, "SEMANTIC CONDITION TOO COMPLEX.");
     for (;;) {
         if ((k & i) != 0)
             break;
-        i = u36(i) >> 1;
+        i = rs64(i, 1);
         if (i == 0)
             goto nxst;
         nc += 3;
@@ -302,12 +303,12 @@ tryon:
             ip -= 3;
             snonr = -1;
         } else {
-            if (semed(s = L18(j)) & prio) {
+            if (semed(s = HL(j)) & prio) {
                 ic = ip;
                 mark = 2;
                 goto xnow;
             }
-            if ((k = plies(s)) > 0 && (k & ls36(1, (ip - nc) / 3)) == 0)
+            if ((k = plies(s)) > 0 && (k & ls64(1, (ip - nc) / 3)) == 0)
                 goto poppit;
             snonr = snoden(s);
         }
@@ -331,12 +332,12 @@ poppit:
         if (nst) {
             nst--;
             if ((077 & (j = FREE(cs + im))) == 0) {
-                s = L18(j);
+                s = HL(j);
                 snonr = snoden(s);
                 ip = im;
             }
             im -= 3;
-            node = FREE(cst + nst) & 0777777;
+            node = HR(FREE(cst + nst));
             goto tryalt;
         }
         goto nxst;
@@ -345,8 +346,8 @@ poppit:
         if ((t = tscr(node))) {
             /* mark a VAL/ node read as its original production */
             if (j == -2)
-                node |= 0400000000000L;
-            fadd(&cst, &nst, sx36(node));
+                node |= NMARK;
+            fadd(&cst, &nst, node);
             im += 3;
             node = t;
             goto tryon;
