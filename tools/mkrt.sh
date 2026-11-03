@@ -47,6 +47,16 @@ for m in "imp72rt_imp:$out/imp72rt_all.imp" "imp72sys:lib/imp72sys.imp" "sysgen:
     $w -c $tgt -o "$out/${m%%:*}.o" $endf "${m#*:}" > "$out/${m%%:*}.log" 2>&1 || { echo "mkrt: ${m#*:} did not compile:" >&2; head -c 600 "$out/${m%%:*}.log" >&2; exit 1; }
     objs="$objs $out/${m%%:*}.o"
 done
+# the 32 bit machines call __divdi3 and its kin for the division of 64 bits: compiler-rt's members go in the library, as in tools/mklib.sh (only this machine's are at hand: a library for another
+# 32 bit target needs them from that target's compiler-rt, and without them its link fails with those names undefined)
+rt=
+[ -z "$triple" ] && rt=$(sh tools/llvm.sh builtins)
+if [ -n "$rt" ]; then
+    rm -rf "$out/rt"; mkdir -p "$out/rt"
+    case $rt in /*) rtabs=$rt ;; *) rtabs=$root/$rt ;; esac
+    ( cd "$out/rt" && ar x "$rtabs" )
+    objs="$objs $(ls "$out"/rt/*.o)"
+fi
 rm -f "$out/libimp72.a"
 ar rcs "$out/libimp72.a" $objs
 echo "$out/libimp72.a"
