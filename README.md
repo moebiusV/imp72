@@ -77,7 +77,7 @@ armv7, riscv64, ppc64le, s390x and loong64 (mips64le is not run). The seed has n
    (Assignment is written `:=` and `_` is a letter of names, so that IMP names are ELF and C names: done; see `tape/README.md`.) The syntax
    of IMP72 does not change further until the study is done and decided.
 7. Later: a function pointer from the compiler for a single definition
-   (`libimp72`, over ORC); a build for the 36-bit PDP-10 itself.
+   (`libimp72`, over ORC). A target for the 36-bit PDP-10 is not planned.
 
 ## Contents
 
