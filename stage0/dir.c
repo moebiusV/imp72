@@ -371,6 +371,30 @@ static int cinit, jnit;
  * above 9).  The value is a 64 bit number that wraps (the 36 bit wrap of the
  * tape is gone): 777777777777B is 68719476735, and -1 is written -1.
  */
+/* The words of a text constant are in memory order, as in src/dir.imp (its CHR0, REST and FRONTLAST are those of src/impend-le.imc or impend-be.imc): the first character is
+ * the first byte of the word in memory, the low byte on a little endian machine and the high byte on a big endian one.  The names of the directory stay first-character-low
+ * inside this program, so the words of a constant are swapped on the way out where the machine is big endian. */
+static uword
+memorder(uword w)
+{
+    static int be = -1;
+
+    if (be < 0) {
+        unsigned x = 1;
+
+        be = *(unsigned char *)&x == 0;
+    }
+    if (be) {
+        uword r = 0;
+        int i;
+
+        for (i = 0; i < 8; i++, w >>= 8)
+            r = (r << 8) | (w & 0377);
+        return r;
+    }
+    return w;
+}
+
 word
 convc(word c)
 {
@@ -397,7 +421,7 @@ convc(word c)
                 w = (uword)dname(c, cc);
                 wd |= (w & 0377) << 56; /* FRONTLAST(W) */
             }
-            fadd(&cfr, &ncfr, (word)wd);
+            fadd(&cfr, &ncfr, (word)memorder(wd));
             if (!(wd >> 56))
                 break;
         }
