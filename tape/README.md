@@ -6,4 +6,6 @@ became `:=`; in a syntax statement the token is quoted (`':='`; the lexer reads 
 the quoted character `'_'` were left alone.
 
 Do not edit these files: change `decus/` (never) or the translator, and run `tools/tape.sh`. `tests/tape/run.sh`, in `make check`, fails if they are not what the translation gives.
-The seed reads `tape/syntax.imc`; `src/llvm-ir/syntax64.imc` is the 64 bit language, a translation of it.
+No compiler reads these files any more: they are the tape's own text (words of 36 bits, halves of 18, the PDP-10 code generator) with the one change above, kept as the reference for the audit
+(`docs/porting/tape-names.md`) and for restoring routines. The 64 bit translation is `src/` (`src/*.imp`, `src/llvm-ir/*.imp`), with the syntax in `src/impsyn64.imc` and `src/llvm-ir/syntax64.imc`; the seed and
+stage 2 both read `src/llvm-ir/syntax64.imc`.
