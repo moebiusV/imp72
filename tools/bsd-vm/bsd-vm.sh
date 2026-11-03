@@ -45,7 +45,9 @@ rootvm() {
     inctr sshpass -p runner ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=30 -o PubkeyAuthentication=no -p $port root@127.0.0.1 "$@"
 }
 up() { vm 'uname -s' </dev/null 2>/dev/null | grep -qi bsd; }
-running() { docker ps --format '{{.Names}}' | grep -qx "$ctr" && inctr pgrep qemu-system </dev/null >/dev/null 2>&1; }
+# (a QEMU that has exited and is not yet reaped is a zombie: --init reaps it, and it is not counted either way)
+qalive() { inctr sh -c 'ps -o stat=,args= | grep "[q]emu-system" | grep -v "^Z"' </dev/null >/dev/null 2>&1; }
+running() { docker ps --format '{{.Names}}' | grep -qx "$ctr" && qalive; }
 
 case $cmd in
 fetch)
@@ -61,7 +63,7 @@ start)
     [ -f "$dir/img/$img" ] || die "no image: bsd-vm.sh fetch $os"
     running && die "$os is running"
     docker rm -f "$ctr" >/dev/null 2>&1 || true
-    docker run -d --name "$ctr" --device /dev/kvm --cpuset-cpus "$cpus" --memory 10g -v "$dir:/vm" -v "$here:/tools:ro" alpine:edge sleep infinity >/dev/null
+    docker run -d --init --name "$ctr" --device /dev/kvm --cpuset-cpus "$cpus" --memory 10g -v "$dir:/vm" -v "$here:/tools:ro" alpine:edge sleep infinity >/dev/null
     inctr sh -c 'apk add --no-cache qemu-system-x86_64 qemu-img openssh-client sshpass python3 >/dev/null 2>&1' || die "cannot install qemu in the container"
     rm -f "$dir"/work.qcow2 "$dir"/vars.fd "$dir"/*.sock "$dir"/console.log
     if [ $os = openbsd ]; then
@@ -106,7 +108,7 @@ status)
 stop)
     running || { docker stop "$ctr" >/dev/null 2>&1 || true; echo "$os: not running"; exit 0; }
     if [ $os = openbsd ]; then vm 'sudo shutdown -p now' </dev/null >/dev/null 2>&1 || true; else vm 'sudo /sbin/shutdown -p now' </dev/null >/dev/null 2>&1 || true; fi
-    i=0; while inctr pgrep qemu-system </dev/null >/dev/null 2>&1; do i=$((i+1)); [ $i -gt 30 ] && die "the machine did not halt"; sleep 5; done
+    i=0; while qalive; do i=$((i+1)); [ $i -gt 30 ] && die "the machine did not halt"; sleep 5; done
     docker stop "$ctr" >/dev/null; echo "$os: stopped" ;;
 clean)
     docker rm -f "$ctr" >/dev/null 2>&1 || true
