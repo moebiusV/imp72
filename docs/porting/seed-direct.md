@@ -1,6 +1,6 @@
 # The seed without the PDP-10: plan
 
-*Status: in progress (started 2026-11-03). Decided with the user: the seed (`stage0/`, C) stops emulating the 36-bit PDP-10. It reads the 64-bit syntax of the stage compilers
+*Status: done 2026-11-03 (steps 1 to 3; the docs are updated, CI on other machines is the open part). Decided with the user: the seed (`stage0/`, C) stops emulating the 36-bit PDP-10. It reads the 64-bit syntax of the stage compilers
 (`src/llvm-ir/syntax64.imc`), and its code generator is a C port of the stage's (`src/llvm-ir/*.imp`) that builds IR directly, so there is one generator in two languages and no PDP-10
 instruction records, no `trans.c`, no `wide_syntax`, no `sx36`/`u36`/`L18`/`R18`.*
 
@@ -48,3 +48,13 @@ on the real machine) are still compared (`tests/oracle/run.sh`).
    names the syntax calls. Check: the IR comparison above.
 3. **Switch**: `imp72s0.c` reads `syntax64.imc`; remove the old files, the 36-bit helpers, `tools/direct.sh`'s `stage0/*.o` exclusions; install `syntax64.imc`; retire the tests above.
 4. **Docs and CI**: `docs/BOOTSTRAP.md`, `BUILDING.md`, `imp72stage0.1`, `README`.
+
+## Found on the way, and kept in both compilers (to fix in the IMP and the C together)
+
+* `src/dir.imp` `HASH` and `DSEQ`: **fixed** (locals named like the syntax atoms `HSH` and `NMARK`; now `HV`, `NMK`). The C kernel had the right hash.
+* `src/debug.imp` `TPRIN1`: `COLS:=(MXC//36)+1` where `//` is the remainder in IMP, so the matrix of the code-tree dump is much wider than meant; `stage0/debug.c` copies it (`mc % 36 + 1`).
+* `src/dosem.imp` `SETSEM`: `SEMS[1]` is `(1 LS 41) OR 1`, a word of type 0 (the tape's is type 1), so the semantics dump prints it as a production header. Copied.
+* `src/debug.imp` prints the last-block column header for a `K` past the end (a `FOR` that runs once). Copied.
+* `src/llvm-ir/code2.imp` `PRINPAR`: `SV:=SV OR (KK:=J-(10*KK)) LS SH` recomputes `KK` from the digit it already holds, so a `FILE` with a project or programmer number gets a wrong value (the tape does not do this). Copied in `gen_code2.c`.
+* The `/A` name table of `code3.imp` (`PCODE`) is off by 2 for `CALLB`, `ARG`, `CALLE` and `PITEM` against `irsyn.imc`; it only affects that listing.
+* IMP facts the C port depends on and measured: call arguments are evaluated right to left; a `FOR` body runs once even when the end is below the start; a relation as a value is -1 for true.
