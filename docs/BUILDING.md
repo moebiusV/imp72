@@ -106,8 +106,7 @@ reverse) needs that system's files:
   `MacOSX.sdk` directory;
 - `--runtime=FILE` (or `IMP72RUNTIME`): the `libimp72.a` built for it.
 
-Without them the error message lists what is missing. COFF and WebAssembly are
-not linked.
+Without them the error message lists what is missing. Objects can be linked for ELF and Mach-O targets; for other formats (COFF, WebAssembly) the compiler writes objects only.
 
 `sh tools/mkrt.sh TRIPLE` builds the runtime library for a target with `imp72`
 and no C compiler, into `build/rt-TRIPLE/libimp72.a`; with no triple it builds

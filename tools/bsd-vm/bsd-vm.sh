@@ -69,7 +69,14 @@ start)
     if [ $os = openbsd ]; then
         inctr sh -c 'cd /vm && qemu-img create -q -f qcow2 -b img/'$img' -F qcow2 work.qcow2 40G && cp /usr/share/qemu/edk2-i386-vars.fd vars.fd'
         # the image boots with UEFI; its disk and network are virtio
-        inctr sh -c 'qemu-system-x86_64 -enable-kvm -cpu host -m '$mem' -smp 4 -machine pc -display none -chardev socket,id=ser,path=/vm/ser.sock,server=on,wait=off,logfile=/vm/console.log -serial chardev:ser -monitor unix:/vm/mon.sock,server=on,wait=off -drive if=pflash,format=raw,readonly=on,file=/usr/share/qemu/edk2-x86_64-code.fd -drive if=pflash,format=raw,file=/vm/vars.fd -drive file=/vm/work.qcow2,if=virtio -netdev user,id=n0,hostfwd=tcp::'$port'-:22 -device virtio-net-pci,netdev=n0 >/vm/qemu.log 2>&1 &'
+        q='qemu-system-x86_64 -enable-kvm -cpu host -m '$mem' -smp 4 -machine pc -display none'
+        q="$q -chardev socket,id=ser,path=/vm/ser.sock,server=on,wait=off,logfile=/vm/console.log"
+        q="$q -serial chardev:ser -monitor unix:/vm/mon.sock,server=on,wait=off"
+        q="$q -drive if=pflash,format=raw,readonly=on,file=/usr/share/qemu/edk2-x86_64-code.fd"
+        q="$q -drive if=pflash,format=raw,file=/vm/vars.fd -drive file=/vm/work.qcow2,if=virtio"
+        q="$q -netdev user,id=n0,hostfwd=tcp::$port-:22"
+        q="$q -device virtio-net-pci,netdev=n0 >/vm/qemu.log 2>&1 &"
+        inctr sh -c "$q"
         # its network card boots with no carrier (and so no address): log in on the console (the only way in) and bring the interface up again
         echo "bsd-vm: waiting for the console of $os (about a minute)"
         i=0; while ! inctr grep -q 'starting local daemons' /vm/console.log 2>/dev/null; do i=$((i+1)); [ $i -gt 90 ] && die "the machine did not boot"; sleep 5; done

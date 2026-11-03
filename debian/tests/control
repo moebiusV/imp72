@@ -1,0 +1,3 @@
+Tests: compile
+Depends: @, libc6-dev | libc-dev
+Restrictions: allow-stderr

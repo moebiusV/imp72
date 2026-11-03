@@ -45,8 +45,7 @@ with `DSEM` by `IMPSEM`, `CODEI`, `CODE2I` and `CODE3I` (`gen_init` in the seed)
 `ASSEMC(a)` ends a compilation unit: it lists the chain of `a` with `PCODE` if the switch `A` is set and calls
 `DEMIT(a)`.
 
-Register declarations (`X IS REGISTER`) make a temporary; `SCRATCH`, `PROTECTED`, `RESERVED`, `AVAILABLE` and
-`RELEASED` are accepted for registers and have no effect on the code (`DECLARE`). `REMOTE` code is kept in the chain `REMO` and
+Register declarations (`X IS REGISTER`) make a temporary (`DECLARE`). `REMOTE` code is kept in the chain `REMO` and
 emitted with the routine it belongs to.
 
 ## DEMIT

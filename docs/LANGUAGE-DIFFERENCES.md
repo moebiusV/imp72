@@ -35,7 +35,7 @@ comes from the machine and from the runtime.
   (`lib/imp72.h`).
 - **Strings** are bytes: a string constant is a NUL-terminated C string in a word
   array, not five 7-bit characters to a word, so its address can be passed to C.
-  The empty string `''` is a syntax error. The compiler packs the characters of
+  The compiler packs the characters of
   a name eight to a word inside its directory, not in programs.
 - **Byte pointers** to characters (`BYTEP A<7,36>`) are byte addresses and a
   character is a byte (UTF-8 text passes through unchanged); `<s,p>` fields and
@@ -45,18 +45,14 @@ comes from the machine and from the runtime.
 - **Input and output** are the C library's. `PRINT` and `READ` keep their
   formats (`STG`, `IGR`, `OCT`, `FLT`, `TAB`, `FILL`, ...); `FILE`, `DEVICE` and
   `IMAGE MODE` map to files and standard input and output, at most four files at
-  a time. A project and programmer number select nothing, a file name is a
+  a time. A file name is a
   string of up to 7 characters, and image mode moves 8 bytes per word. `FINI(0)`
-  closes the files and exits. The channel operations of the TOPS-10 library
-  (`INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`) are not present.
+  closes the files and exits.
 - **Calls to C.** `CCALL NAME(A,B)` calls a C function with values; `EXTERNAL`
   declares a variable defined elsewhere; `impcallp` and `impcallw` call
   through an address. A `SUBR` is a C function taking pointers (`docs/FFI.md`).
   These come from `lib/ffi.imc`, a language extension in the original's style.
-- **Not present:** the PDP-10 code and the `.REL` output of the original (an
-  object here is the host's object format, `NAME.o`), the TOPS-10 command line
-  other than `imp72 -i`, and separate high and low segments (the `TWOSEG`
-  statement is accepted and has no effect).
+- **Objects** are the host's object format, `NAME.o`.
 
 `docs/LANGUAGE-NOTES.md` lists the points where programs written for the
-original go wrong, and `docs/ROADMAP.md` the planned changes.
+original go wrong.

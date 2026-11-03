@@ -197,7 +197,6 @@ The sum is 55
 The language is the language of the original compiler for the PDP-10
 under TOPS-10.
 What differs comes from the machine and from the runtime library.
-The sections that describe each point say what the original did.
 .Bl -tag -width 3n -compact
 .It 1.
 The word is 64 bits.
@@ -224,29 +223,16 @@ is an IEEE 754 double, not the PDP-10’s 36-bit floating point number.
 A character is a byte and text is UTF-8.
 A string constant is a sequence of bytes ended by a zero byte, not five
 7-bit characters to a word.
-The string
-.Li \(aq\(aq
-is not accepted, and the right-justified character constant
-.Li R\(aqSTG\(aq
-is not available.
 .It 5.
 Byte pointers to characters are byte addresses; the halves of a word
 are 32 bits.
 .It 6.
 Files are Unix files, and a file name is at most seven characters, with
 an extension of at most seven.
-.Ic PRINT ,
-.Ic READ ,
-.Ic FILE ,
-.Ic DEVICE
-and
-.Ic IMAGE MODE
-keep their formats; project and programmer numbers select nothing.
 Section 2.2.7.
 .It 7.
 The program is compiled to native code and linked to an executable by
 the compiler.
-There is no loader command, no REL file, no DDT and no monitor.
 The compiler is called IMP72 and takes options like a
 .Ar C
 compiler.
@@ -261,8 +247,6 @@ are 64-bit integer variables of each routine,
 runs an instruction of the abstract machine, and
 .Ic CALLI
 has the few calls of Section 2.2.9.
-The UUO routines of the original library (Appendix I of the original)
-do not exist.
 .It 9.
 .Ic CCALL ,
 .Ic EXTERNAL
@@ -369,15 +353,11 @@ registers are assigned by LLVM. For example, the statements
 .Li "1R:=5; 2R:=1R+3; PRINT IGR 0,2R,/"
 print 8.
 .Pp
-The machine instructions of the PDP-10 cannot be written.
 The statement
 .Ic EXECUTE
 (Section 2.2.9) executes an instruction word of the abstract machine
 for which the compiler generates code, and syntax statements (Section
 2.3) can use every operation of that machine.
-The original compiler allowed the program to refer to and change its
-own instructions through the statement labels; the code of a program
-here cannot be changed by the program.
 .Ss "2.1.4 Program Structure and Scope of Variables"
 Program structure is more or less like that of the FORTRAN system.
 Thus a main program, if any, comes first, then subroutines, if any,
@@ -591,17 +571,6 @@ Thus, the string consisting of one single quote would be written
 .Li \(aq\(aq\(aq\(aq
 (but would print as
 .Li \(aq ) .
-The string
-.Li \(aq\(aq
-is a syntax error; the string with no characters is the number 0, which
-.Li STG
-prints as nothing.
-The original’s right-justified character constant
-.Li R\(aqSTG\(aq
-is not accepted (the error is
-.Ar R
-.Ic REQUIRES TEXT CONSTANT OPERAND ) ;
-the code of a character is read with a byte pointer (Section 2.2.6).
 .It Li "!Any thing.\&!"
 Special identifier: any string of characters not containing a
 .Ql \&! ,
@@ -1056,16 +1025,6 @@ A
 .Ic GO TO
 in a subroutine may name a tag of the main program: control passes there,
 and the subroutines called on the way are left.
-The original also took the address of a memory location, as in
-.Ic GO TO
-.Pf \&[ Li LOC(TAG\&) ] ,
-or a subscripted variable; here
-.Ar E
-is a tag, and
-.Ic GO TO
-.Pf \&[ Li LOC(TAG\&) ]
-is rejected with the message
-.Ic COMPUTED GO TO WITHOUT ITS TABLE .
 .It Ic GO TO Pf \&( Li L0,L1,...,LN ) Ar E
 This expression transfers control to the label Li, where i is the value
 of expression
@@ -1263,8 +1222,6 @@ with constants for the size and position, make a pointer to characters:
 the byte address of the byte before the first byte of
 .Ar A ,
 a byte being a character.
-The first form is the original’s pointer to the characters of a string,
-and the second is the same pointer.
 Any other
 .Ic BYTEP
 makes the pointer to a bit field: a word with the size of the field
@@ -1437,12 +1394,6 @@ exits from the program; if
 .Li I=\-1 ,
 .Ic FINI
 returns normally.
-The form
-.Li FINI(NA,EXT,PN,PJ\&)
-of the original is accepted and acts on its first argument only: it
-closes all the files, and exits if
-.Ic NA
-is 0.
 A program that ends without
 .Ic FINI
 still has its complete lines written, since the files are closed when
@@ -1541,8 +1492,6 @@ On input, a
 causes the remainder of the current line to be skipped over.
 .It Ic FILE Ar A
 .It Ic FILE Li A.B
-.It Ic FILE Li A[P,R\&]
-.It Ic FILE Li A.B[P,R\&]
 Specifies the file for input/output.
 .Ar A
 and
@@ -1560,14 +1509,6 @@ is absent or 0;
 and
 .Ar B
 are cut to seven characters each.
-.Ar P
-and
-.Ar R
-are the project and programmer numbers of the original and select nothing;
-if they are constants, they must be written in octal but without the
-letter
-.Dq Li B
-suffixed.
 A
 .Ic PRINT
 opens the file for writing, and replaces its contents; a
@@ -1629,17 +1570,8 @@ and prints
 18 apples
 .Ed
 .It Ic DEVICE Ar D
-Causes the next
-.Ic FILE
-specification (on either
-.Ic READ
-or
-.Ic PRINT )
-to refer to a file on device
-.Ar D .
 .Ar D
 may be either a string constant or a variable containing a string value.
-The only device is the terminal:
 .Ic DEVICE
 .Ql TTY\&:
 makes the standard output (for
@@ -1649,7 +1581,6 @@ or the standard input (for
 the file, with no subsequent file specification.
 The next file specification will cause the input or output to revert
 to that file.
-Any other device is ignored.
 .It Ic IMAGE MODE
 This format specification causes subsequent data transfer to be in unformatted
 mode, transferring 8-byte words, in the byte order of the machine, between
@@ -1800,17 +1731,6 @@ Until the declaration
 .Ar A
 .Ic IS RELEASED
 is encountered, all references to A refer to the register.
-.It Ic RESERVED
-.It Ic AVAILABLE
-.It Ic SCRATCH
-.It Ic PROTECTED
-These declarations, which told the original compiler how to use the
-registers of the PDP-10, are accepted for a register name
-.Li 0R
-to
-.Li 15R
-and have no effect on the code.
-LLVM allocates the machine registers.
 .It Ic RELEASED
 For identifiers which have been bound to a register, that binding is
 terminated, and subsequent references to that identifier will refer
@@ -1857,10 +1777,6 @@ and
 .El
 .Ss "2.2.9 Miscellaneous Constructs"
 .Bl -tag -width 15n -compact
-.It Ic CALL ME No Ishmael
-This statement is accepted and has no effect.
-(The original used the name to name the DDT symbol table of a compiled
-program.)
 .It Ic EXECUTE Ar E
 Executes the instruction contained in the variable
 .Ar E .
@@ -1903,23 +1819,21 @@ loads 42 into register 8, adds 8 to it, and prints 42 and 50.
 The jumps and the floating point operations cannot be executed this
 way.
 .It Li CALLI(C,V\&)
-Executes a monitor call of the PDP-10 that the runtime library imitates,
-with the argument
+Calls the library routine
+.Ic IMPCALLI
+with the code
+.Ar C
+and the argument
 .Ar V .
 The code
 .Ar C
 is a number or an expression.
-The value of the construct is the value of the library routine
-.Ic IMPCALLI .
-The calls that do something are (octal) 12, exit (the output is flushed);
-14, the date, as the number
+The value of the construct is the value of the routine.
+The calls are (octal) 12, exit (the output is flushed); 14, the date,
+as the number
 .Pf \&(( Li year\-1964)*12+month\-1)*31+day\-1 ;
 23, the time of day in milliseconds; 27, the run time of the program
 in milliseconds; and 30, the job number, which is 1.
-All the others have the value 0.
-The variable
-.Ic CALLI
-is not set.
 .It Ic XWD Li A,B
 Useful occasionally in system calls.
 Has the value of the low 32 bits of
@@ -1929,9 +1843,6 @@ ORed with the low 32 bits of A shifted left 32 bits.
 Has the value
 .Ic XWD
 .Li \-A,B\-1 .
-.It Ic TWOSEG
-This statement is accepted and has no effect: the code of a program
-is always reentrant.
 .It Li FIX(A\&)
 Has the value of the expression
 .Ar A ,
@@ -2418,9 +2329,6 @@ Returns the register index for hardware register
 .It Li AREG1(I,J\&)
 Returns a brand-new register, a temporary of the abstract machine, of
 which there is an unlimited supply.
-The arguments, which restricted the choice of a register of the PDP-10,
-are accepted and give no restriction (they must be between 0 and
-.Li 177B ) .
 .It Li BYTEP(S,T,U\&)
 .Li *
 .Ar S
@@ -2593,15 +2501,6 @@ Generates code to convert
 from integer to floating point.
 Value is
 .Ar S .
-.It Li FREEZE(S\&)
-Result is
-.Ar S .
-The original flagged the code so that the assembly pass would not optimize
-out the
-.Ic MOVE
-instructions in it; LLVM does the optimizing here, and
-.Ic FREEZE
-has no effect.
 .It Li HOOK(U,S,T\&)
 Hooks the code for
 .Ar T
@@ -3804,9 +3703,9 @@ The options are
 -S          Compile to the assembly of the target, file.s.
 -Sir        Compile to LLVM IR text, file.ll.
 -o FILE     Name the output (a.out for a program).  With -c or -S, one source only.
--s LETTERS  Set the switches of the original compiler (below).
+-s LETTERS  Set the compiler switches (below).
 -I IMAGE    Start from the compiler saved by /U or /V (Section 3.4).
--i          Read the commands of the original compiler from the terminal (Section 3.1.2).
+-i          Read commands from the terminal (Section 3.1.2).
 --run       Compile and run the program in the process of the compiler.
 --target=TRIPLE  Compile for another system (Section 3.1.3).
 --sysroot=DIR, --runtime=FILE   Where the files of that system are.
@@ -3857,8 +3756,7 @@ declared
 .Ic COMMON
 in both (Section 2.1.4).
 .Pp
-The switches of the original compiler are given as the letters of the
-argument of
+The compiler switches are given as the letters of the argument of
 .Li \-s ,
 and the listing and printouts go to the standard error:
 .Bd -literal -offset indent
@@ -3885,9 +3783,6 @@ print tables of the compiler (the assembler’s debugging output, free
 storage, the parse, the directory, the code tree, the connectivity matrices,
 the semantics arrays, the syntax graph and statistics); they are of
 use to the person who works on the compiler.
-The switch
-.Ar R
-is accepted: the code is always reentrant.
 .Ss "3.1.1 The Compiler Listing"
 The source listing of the compiler has a number at the left of each
 line of code.
@@ -3902,7 +3797,7 @@ If the compiler detects an error, the listing from that point in the
 source file on is written.
 .Ss "3.1.2 Interactive Commands"
 .Li "imp72 \-i"
-reads the commands of the original compiler from the standard input.
+reads commands from the standard input.
 It prints its version and the date as a banner and an asterisk as the
 prompt.
 A command line has the format
@@ -3920,9 +3815,7 @@ then
 .Li file.imc .
 The object file is written on
 .Li obj.o
-(it is what the original wrote as
-.Li obj.REL ;
-it defaults to
+(it defaults to
 .Li file.o ) .
 Listings that the switches ask for go on
 .Li list.lst ,
@@ -3931,10 +3824,9 @@ or on
 if no list file is named.
 The
 .Li _
-that separates the list file from the source is the character the original
-typed as an arrow; in a command it is not a letter.
+that separates the list file from the source is not a letter in a command.
 The switches
-.Li "/A, /C, /H, /L, /R, /U, /V"
+.Li "/A, /C, /H, /L, /U, /V"
 and
 .Li /Y
 are given after the file.
@@ -3942,10 +3834,9 @@ are given after the file.
 /a produce a listing of the code the compiler produced (as the switch
 a above). /c continue after this file: the compiler prompts for another
 command; without /c it ends. /h help: list the switches. /l produce
-a source listing. /r accepted; the code is always reentrant. /u exit
-to save the compiler: name/u writes the compiler, with the syntax compiled
-so far, on name.img. /v the same as /u. /y list the source program on
-the terminal as it is compiled.
+a source listing. /u exit to save the compiler: name/u writes the compiler,
+with the syntax compiled so far, on name.img. /v the same as /u. /y
+list the source program on the terminal as it is compiled.
 .Pp
 A command with no file name goes on with the current file.
 A file that cannot be found is answered by
@@ -4018,14 +3909,6 @@ The philosophy behind the error diagnostics in IMP presumes a certain
 amount of maturity on the part of the programmer.
 He is less restricted than in a language such as FORTRAN, but he is
 also less protected from his own errors.
-Thus, a number of potential error conditions that may be used usefully
-are not checked for by the compiler.
-This is especially true of syntax statements.
-This is not to imply that few useful diagnostics are provided, however.
-The compiler does not report a tag defined twice, a vector declared
-twice, a variable that is never given a value, or a
-.Ic GO TO
-to a tag that is not defined (that name is a variable).
 .Pp
 The following are the error diagnostics provided by the compiler.
 They are regular errors unless otherwise indicated.
@@ -4035,10 +3918,6 @@ A syntax statement named a semantic routine that does not exist (you
 already got
 .Ic UNDEFINED SEMANTIC ROUTINE
 for that), and an instance of the production has been compiled.
-.It Li "AN OPERATION OF THE PDP\-10 THAT THE IR MACHINE DOES NOT HAVE"
-A semantic routine was called with an operation number of 256 or more,
-an opcode of the PDP-10.
-The operations of the abstract machine are those of Section 2.3.3.1.2.
 .It Li "ANTECEDENT NOT A HARDWARE REGISTER IN SYNONYM DECLARATION"
 In a declaration such as
 .Ar A
@@ -4092,17 +3971,6 @@ semantics, but the case was never defined.
 The program parsed correctly, but semantics for some of the program
 could not be found.
 If you added your own syntax in the program, check it.
-.It Li "COMPUTED GO TO WITHOUT ITS TABLE"
-A
-.Ic GO TO
-whose address is computed, such as
-.Ic GO TO
-.Pf \&[ Li LOC(TAG\&) ] .
-Only a tag, or
-.Ic GO TO
-.Pf \&( Li L0,L1 , . . . )
-.Ar E ,
-is accepted.
 .It Li "ERROR CORRECTOR GIVES UP. (Fatal\&)"
 The error corrector was unable to correct a syntax error.
 .It Li "ERROR CORRECTOR GIVES UP AT % (Fatal\&)"
@@ -4132,11 +4000,6 @@ the
 or a minus sign.
 .It Li "IN ADDCHAR \- NAME > 80 CHARACTERS"
 A syntactic class name is too long.
-.It Li "IN AREG1 \- I OR J OUT OF RANGE"
-Argument to
-.Li AREG1
-negative or greater than
-.Li 177B .
 .It Li "MODIFIER ON OTHER THAN FIRST OCCURRENCE OF NAME IS IGNORED"
 In a semantic condition the modifiers belong to the first occurrence
 of a name only.
@@ -4162,14 +4025,6 @@ been initiated before the previous one was closed out.
 The items of a
 .Ic DATA
 statement are constants and strings.
-.It Li "NON\-OCTAL PJ OR PN"
-In
-.Ic FILE
-designator of
-.Ic PRINT
-or
-.Ic READ
-statement, that is.
 .It Li "NUMBER MISSING OR OUT OF PLACE IN SEMANTICS IDENTIFIER"
 In a semantic conditional, you had a number in the wrong format or wrong
 place.
@@ -4211,11 +4066,6 @@ or
 .Ar N
 .Ic LONG
 was declared for a register, or
-.Ic RESERVED ,
-.Ic SCRATCH ,
-.Ic PROTECTED ,
-.Ic AVAILABLE
-or
 .Ic RELEASED
 for a name that is not a register.
 .It Li "PUSHDOWN STACK UNDERFLOW ERROR (Fatal\&)"
@@ -4620,7 +4470,7 @@ special case.
 .It 2.
 If no match is found at any position, another symbol is requested from
 the parser.
-This is in fact an error condition, but is not checked for until completion
+This is in fact an error condition, but is detected only at the completion
 of the parse.
 .It 3.
 If a match is found, all the way through to a terminal node of the code
@@ -4814,10 +4664,9 @@ and
 for the PDP-10).
 The manual is
 .Li docs/manual/imp72.rno ,
-the
+a
 .Ic RUNOFF
-source of the manual of the original with the changes that describe
-this implementation; the page
+source; the page
 .Li imp72.7
 and the file
 .Li imp72.md
@@ -4846,12 +4695,11 @@ The IMP run-time library, file
 contains the routines that the code of a program calls
 .Li "(PRINT and READ among them\&)"
 and the routines below, which a program may call.
-The library has no counterpart for the package of subroutines FORTIO
-of the original, which interfaced with the DECsystem-10 monitor
-.Li "(SAVREG, OPEN, INIT, LOOKUP, ENTER, SIXBIT, RAD50 and the others\&)" :
-a program uses the
+A program calls the
 .Li C
-library instead (Section 2.4.1).
+library through
+.Ic CCALL
+(Section 2.4.1).
 The arguments of an IMP routine are addresses, so that in a call with
 .Ic CCALL
 the address of a variable is its argument.
@@ -4987,10 +4835,6 @@ A program should not define a name of that kind.
 <PROP>	::= REAL
 <PROP>	::= INTEGER
 <PROP>	::= REGISTER
-<PROP>	::= RESERVED
-<PROP>	::= SCRATCH
-<PROP>	::= PROTECTED
-<PROP>	::= AVAILABLE
 <PROP>	::= RELEASED
 <PROP>	::= LOCAL
 <SYN>	::= LET
@@ -5068,8 +4912,6 @@ A program should not define a name of that kind.
 <PITEM>	::= STG <A>
 <PITEM>	::= FILE <NAM,A>
 <PITEM>	::= FILE <NAM,A>.<B>
-<PITEM>	::= FILE <NAM,A>[<C>,<D>]
-<PITEM>	::= FILE <NAM,A>.<B>[<C>,<D>]
 <PITEM>	::= /
 <PITEM>	::= DEVICE <A>
 <PITEM>	::= IMAGE MODE
@@ -5093,11 +4935,8 @@ A program should not define a name of that kind.
 <EXP>	::= <VBL,A> '<' R > ':=' <B>
 <EXP>	::= <VBL,A> '<' L > ':=' <B>
 <ST>	::= EXECUTE <A>
-<ST>	::= CALL ME <NAM,A>
-<ST>	::= TWOSEG
 <ATOM>	::= IDPB(<A>,<B>)
 <ATOM>	::= ILDB(<A>)
-<ATOM>	::= R<VBL,A>
 <ION>	::= CALLI(<A>,<B>)
 <ATOM>	::= XWD <A>,<B>
 <ATOM>	::= IOWD <A>,<B>

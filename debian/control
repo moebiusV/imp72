@@ -1,27 +1,39 @@
 Source: imp72
 Section: devel
-Priority: optional
 Maintainer: David Walther <tederific@gmail.com>
-Build-Depends: debhelper-compat (= 13), binutils, llvm-dev, liblld-dev, libclang-rt-dev [i386 armhf]
-Standards-Version: 4.6.2
-Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 14),
+ binutils,
+ libclang-rt-dev [i386 armhf],
+ liblld-dev,
+ llvm-dev,
+ python3 <!nocheck>,
+Standards-Version: 4.7.4
 Homepage: https://github.com/moebiusV/imp72
 Vcs-Git: https://github.com/moebiusV/imp72.git
 Vcs-Browser: https://github.com/moebiusV/imp72
 
 Package: imp72
-Architecture: amd64 i386 arm64 armhf ppc64el riscv64 s390x loong64
-Depends: ${shlibs:Depends}, ${misc:Depends}, libc6-dev | libc-dev
-Description: IMP72 systems programming language compiler
- IMP72 is the extensible systems language of Ned Irons, in the compiler
- Walter Bilofsky wrote for the PDP-10 (DECUS 10-198a, 1973): a small kernel
- reads the syntax and semantics of the language from a file in its own
- notation.  This is a port of that compiler to 64 bit machines, keeping the
- original syntax file and code generator.
+Architecture: amd64 arm64 armhf i386 loong64 ppc64el riscv64 s390x
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+ libc6-dev | libc-dev,
+Description: compiler for the IMP72 systems programming language
+ IMP72 is the extensible systems language of Ned Irons. This package is a
+ compiler for it on 64-bit machines, derived from the IMP72 compiler Walter
+ Bilofsky wrote for the PDP-10 (DECUS 10-198a, 1973).
  .
- imp72stage0 compiles IMP72 programs to native code and links them with a small
- runtime.  A subroutine is a C function (arguments by reference, as in
- FORTRAN), and CCALL calls C functions with arguments by value.  The code
- generator is LLVM, in the compiler's own process.
+ The language is defined by a file of syntax statements that the compiler
+ reads; extensions are written in the same notation. imp72 compiles programs
+ to object files, executables, assembly or LLVM IR, and links executables with
+ lld. LLVM and lld run inside the compiler, so no C compiler is needed at run
+ time; the C library's development files provide the start files and the
+ library to link with.
  .
- Any 64 bit machine will do (the language's word is 64 bits).
+ A subroutine is a C function and takes its arguments by reference, as in
+ FORTRAN. CCALL calls a C function with arguments by value, and an object file
+ made by imp72 can be linked with C.
+ .
+ The package also installs imp72stage0, the bootstrap compiler that builds
+ imp72 from source, and the manual.

@@ -73,6 +73,6 @@ for o in stage0/*.o; do
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-cc $(sh tools/nopie.sh) -o $out/imp72d $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
+cc $LDFLAGS -o $out/imp72d $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
 ln -sf imp72d $out/imp72stage-llvm-ir
 echo "built $out/imp72d with the code generator of src/llvm-ir: $modules; the compiler's own: $srcmodules"

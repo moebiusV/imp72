@@ -1,5 +1,10 @@
 README.md
-docs/FFI.md
+docs/ARCHITECTURE.md
+docs/BOOTSTRAP.md
 docs/BUILDING.md
+docs/LANGUAGE-DIFFERENCES.md
+docs/ORACLE.md
+docs/ROADMAP.md
 docs/internals
 docs/porting
+decus/PROVENANCE.md

@@ -38,7 +38,6 @@ and `imp72`) agree on it.
 - **`ELSE` after a chain of conditions is a syntactic ambiguity**: parenthesize the
   inner test, as in `A=1 => (B=2 => C:=1 ELSE C:=2) ELSE C:=3`.
 - **A `#` comment that is not closed by a `#` swallows the rest of the file.**
-- **The empty string `''` is a syntax error.**
 - **Keywords are not reserved but the syntax is ambiguous with them:** a
   variable called `FOR` or `TO` confuses `FOR` loops.
 

@@ -1,11 +1,14 @@
 #!/usr/bin/make -f
+
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 include /usr/share/dpkg/buildflags.mk
+
+# The LLVM and lld libraries are found through the dynamic linker's paths,
+# so the executables get no run path.
 export LLVM_NO_RPATH = 1
 
-# The Makefile takes the flags on its command line.
-MAKEFLAGS_PKG = CFLAGS="$(CFLAGS) $(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"
-TMP = $(CURDIR)/debian/imp72
+# The Makefile takes its flags on the command line.
+MAKE_FLAGS = CFLAGS="$(CFLAGS) $(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 %:
 	dh $@
@@ -14,14 +17,12 @@ override_dh_auto_clean:
 	$(MAKE) distclean
 
 override_dh_auto_build:
-	$(MAKE) $(MAKEFLAGS_PKG)
+	$(MAKE) $(MAKE_FLAGS)
 
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	$(MAKE) $(MAKEFLAGS_PKG) check
+	$(MAKE) $(MAKE_FLAGS) check
 endif
 
 override_dh_auto_install:
-	$(MAKE) $(MAKEFLAGS_PKG) install DESTDIR=$(TMP) PREFIX=/usr
-	install -d $(TMP)/usr/share/doc/imp72
-	install -m 644 decus/PROVENANCE.md $(TMP)/usr/share/doc/imp72/PROVENANCE.decus.md
+	$(MAKE) $(MAKE_FLAGS) install DESTDIR=$(CURDIR)/debian/imp72 PREFIX=/usr

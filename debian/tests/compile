@@ -1,0 +1,18 @@
+#!/bin/sh
+# Compile, link and run a program with the installed compiler, and run
+# another one in the compiler's process.
+set -e
+cd "$AUTOPKGTEST_TMP"
+cat > hello.imp <<'EOF'
+PRINT STG 0,'HELLO, WORLD',/;
+X:=6*7; PRINT STG 0,'THE ANSWER IS ',IGR 0,X,/;
+FINI(0)
+%%
+EOF
+imp72 -o hello hello.imp
+./hello > out.txt
+grep -q '^HELLO, WORLD$' out.txt
+grep -q '^THE ANSWER IS 42$' out.txt
+imp72 --run hello.imp | grep -q '^THE ANSWER IS 42$'
+imp72stage0 -o hello0 hello.imp
+./hello0 | grep -q '^HELLO, WORLD$'

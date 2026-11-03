@@ -27,9 +27,6 @@ three words (`layouts.md`). The routines keep the tape's names and structure; th
 `syntax64.imc` differs from `decus/syntax.imc` in:
 
 - the opcodes are operation numbers of the machine (`ADDOP(6,A,B)`);
-- the rules that made PDP-10 only forms are absent: self and both mode stores, `AOS`/`SOS`, `CAI`/`SKIP`/`JUMP` skips over
-  one word statements, register pairs for `IDIV`, `HRRZ`/`HLLZ` for `AND 777777B`, the `BLT` set up, the `CON18` immediate
-  tests (which are `CON`);
 - `<L>` and `<R>` are 32 bit halves, and `HRL`/`HRR` are the operations 66 and 67;
 - the byte rules go through the descriptors of `BYTEP`;
 - `REAL` is the double's own bits, and a real constant is `FCON`'s double;

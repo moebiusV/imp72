@@ -5,7 +5,7 @@ The routines keep their names and their text where the machine does not force a 
 64 bits and halves are 32 (a shift by the constant 18 on the tape is a half word move to its translator, so it is written
 as 32); the layout of the tables is `layouts.md`; a name is eight characters to a word; `FREE`, `FREES` and the rest are
 macros of `src/impsyn64.imc` over an arena; reals are IEEE 754; `CALLI` is the library's `impcalli`. The routines added
-and absent are in `tape-names.md`.
+are in `tape-names.md`.
 
 | module | what differs from the tape |
 |---|---|
@@ -63,13 +63,11 @@ tape one compilation ends the session unless the switch `C` is given, and a fata
 - The file name is 15 characters and the extension 7 (the tape's are 6 and 3). `FILE` is tried as given and then with
   `.imp` and `.imc`.
 - The output `REL` is the IR (`REL.ir`) and `LST` a listing (`LST.lst`, written when `LST` is given).
-- The device and the project and programmer number are read and ignored.
 - `\PGM` runs `PGM` with the shell and returns to the prompt, where the tape chains to it.
 - The line editing of the terminal is the system's, so `GETTY` ends a line at a newline and has no echo of its own. A line
   is at most 136 characters (the tape's `BF` is 17 words of 5 characters; here `BF` is 17 words of 8, and one word more
   for the `%` and the end).
 - The banner has the date, from `DATE` over byte pointers (`CALLI(14B)` gives the date as the monitor does).
-- `R` is accepted and is always so: the code is read-only in the text segment and the data are apart.
 - `U` and `V` save the compiler with the syntax and declarations it has compiled (below). `INCHWL` and `RUNPGM` are
   written over `getchar` and `system`.
 

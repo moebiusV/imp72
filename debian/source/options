@@ -1,5 +1,8 @@
-# no build products, no git data, no binaries of the original compiler
+# Build products, scratch directories and the binaries of the original
+# compiler stay out of the source package.
 tar-ignore = "build"
+tar-ignore = "tmp"
+tar-ignore = "work"
 tar-ignore = "*.o"
 tar-ignore = "*.a"
 tar-ignore = "imp.low"

@@ -64,7 +64,5 @@ double in a word that is the double's own bits. C code converts with
 
 ## Limits
 
-`REAL` arguments and results by value (SSE or floating-point registers),
-strings as C strings other than a constant's address, and structures are not
-supported. Every C function is taken as `long f(long, ...)`; a declaration of
-its types is planned (`docs/ROADMAP.md`).
+Every C function is taken as `long f(long, ...)`. Arguments are integers or
+addresses; a string is passed as the address of a string constant.

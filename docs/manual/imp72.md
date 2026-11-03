@@ -63,7 +63,10 @@ CONTENTS
         References.
 ```
 
-The IMP72 compiler was designed and implemented at the Yale University Department of Computer Science by Walt Bilofsky, based largely on previous work of E. T. Irons. Substantial contributions were made by Steven Weingart and Terry Lyons. This manual describes version 0.9.0 of the IMP72 compiler, which translates IMP72 to native code on 64-bit Unix systems.
+The IMP72 compiler was designed and implemented at the Yale University Department of Computer
+Science by Walt Bilofsky, based largely on previous work of E. T. Irons. Substantial contributions
+were made by Steven Weingart and Terry Lyons. This manual describes version 0.9.0 of the IMP72
+compiler, which translates IMP72 to native code on 64-bit Unix systems.
 
 ## 1: Introduction.
 
@@ -80,11 +83,20 @@ For learning me your language!"
 
 ### 1.1:  Description.
 
-IMP is a simple higher-level language intended primarily for system programming [Irons 1970], [Bilofsky 1972]. It provides language facilities roughly at the level of FORTRAN II and leaves the programmer the flexibility of machine language programming: the address of any variable can be taken, memory can be addressed directly, and a word can be treated as bytes and bit fields. IMP72 is the version of IMP defined by the compiler of Walt Bilofsky for the PDP-10. This implementation translates the same language to native code on 64-bit Unix systems, and provides the following facilities:
+IMP is a simple higher-level language intended primarily for system programming [Irons 1970],
+[Bilofsky 1972]. It provides language facilities roughly at the level of FORTRAN II and leaves the
+programmer the flexibility of machine language programming: the address of any variable can be
+taken, memory can be addressed directly, and a word can be treated as bytes and bit fields. IMP72 is
+the version of IMP defined by the compiler of Walt Bilofsky for the PDP-10. This implementation
+translates the same language to native code on 64-bit Unix systems, and provides the following
+facilities:
 
-- 1. Extensibility. The user may specify extensions to the syntax and semantics of the language in forms ranging from simple "macros" to productions which generate calls to compiler code-generating routines. More efficient object code may easily be specified for special cases.
+- 1. Extensibility. The user may specify extensions to the syntax and semantics of the language in
+  forms ranging from simple "macros" to productions which generate calls to compiler code-generating
+  routines. More efficient object code may easily be specified for special cases.
 
-- 2. Floating point capabilities. A REAL data type and floating point arithmetic are provided; a REAL is an IEEE 754 double.
+- 2. Floating point capabilities. A REAL data type and floating point arithmetic are provided; a
+  REAL is an IEEE 754 double.
 
 - 3. Byte and bit field manipulation.
 
@@ -92,27 +104,55 @@ IMP is a simple higher-level language intended primarily for system programming 
 
 - 5. Syntactic error correction and admissibility of ambiguous syntax.
 
-- 6. Native code. The compiler writes LLVM IR, makes an object file for the host or for another system, and links it with the library of the runtime.
+- 6. Native code. The compiler writes LLVM IR, makes an object file for the host or for another
+  system, and links it with the library of the runtime.
 
-- 7. Calls to `C` functions, and routines that `C` can call, through the `C` calling convention (Section 2.4).
+- 7. Calls to `C` functions, and routines that `C` can call, through the `C` calling convention
+  (Section 2.4).
 
 ### 1.2: Implementation.
 
-The compiler is a program in IMP72 and compiles itself. Almost none of the language is built into it: a small kernel (the lexer, the parser, the syntax graph, the code tree matcher and the semantic stack, Section 4) starts empty, and the file of syntax statements SYNTAX64.IMC defines the language, each statement carrying the semantic routines that generate its code (Section 2.3). The code is generated for an abstract machine of 64-bit words; the compiler translates it to LLVM IR and makes the object file with the LLVM libraries and links it with lld, all in its own process. The compiler never runs a C compiler or an assembler.
+The compiler is a program in IMP72 and compiles itself. Almost none of the language is built into
+it: a small kernel (the lexer, the parser, the syntax graph, the code tree matcher and the semantic
+stack, Section 4) starts empty, and the file of syntax statements SYNTAX64.IMC defines the language,
+each statement carrying the semantic routines that generate its code (Section 2.3). The code is
+generated for an abstract machine of 64-bit words; the compiler translates it to LLVM IR and makes
+the object file with the LLVM libraries and links it with lld, all in its own process. The compiler
+never runs a C compiler or an assembler.
 
-The compiler and the runtime library run on Linux, macOS, FreeBSD, NetBSD and OpenBSD, on the processors that LLVM supports there (x86-64, i386, aarch64, armv7, powerpc64le, riscv64, s390x, loongarch64). Programs may be compiled for another system than the one the compiler runs on (Section 3.1.3).
+The compiler and the runtime library run on Linux, macOS, FreeBSD, NetBSD and OpenBSD, on the
+processors that LLVM supports there (x86-64, i386, aarch64, armv7, powerpc64le, riscv64, s390x,
+loongarch64). Programs may be compiled for another system than the one the compiler runs on
+(Section 3.1.3).
 
-The compiler is provided under the licence of Section 5. The compiler is called with the command IMP72, described in Section 3.
+The compiler is provided under the licence of Section 5. The compiler is called with the command
+IMP72, described in Section 3.
 
 ### 1.3: How to Use IMP in One Easy Lesson.
 
-This section is intended to give the experienced programmer the flavor of IMP so that he may write simple programs without having to read the entire manual.
+This section is intended to give the experienced programmer the flavor of IMP so that he may write
+simple programs without having to read the entire manual.
 
-IMP is similar to FORTRAN II in power, and a bit like ALGOL in flavor. It has no block structure or reserved words, and all variables are global to all programs in a compilation. Statements may be grouped, using parentheses. Variables need not be declared unless they are arrays. Arrays are declared by, e.g., FOO IS 50 LONG and subscripts written, e.g., FOO[I+3]. The assignment operator is `:=` (one token) and the statement separator is ";". The words of the language are written in capital letters; names are case sensitive, so that X and `x` are two variables. All binary arithmetic operators are of equal precedence, and operations are performed from right to left (as in APL). `:=` is of the same precedence as the arithmetic operators and also is performed from right to left. Relational operators are evaluated after arithmetic operators.
+IMP is similar to FORTRAN II in power, and a bit like ALGOL in flavor. It has no block structure or
+reserved words, and all variables are global to all programs in a compilation. Statements may be
+grouped, using parentheses. Variables need not be declared unless they are arrays. Arrays are
+declared by, e.g., FOO IS 50 LONG and subscripts written, e.g., FOO[I+3]. The assignment operator is
+`:=` (one token) and the statement separator is ";". The words of the language are written in
+capital letters; names are case sensitive, so that X and `x` are two variables. All binary
+arithmetic operators are of equal precedence, and operations are performed from right to left (as in
+APL). `:=` is of the same precedence as the arithmetic operators and also is performed from right to
+left. Relational operators are evaluated after arithmetic operators.
 
-Statements may be labeled by prefixing them with LABEL:. The transfer of control is GO TO LABEL and the conditional is A=>B or A=>B ELSE C, where B and C are statements or groups of statements (in parentheses), and A is an expression (0 is false, non-zero is true), perhaps containing a relational operator (EQ, NE, GE, GT, LE, LT). The basic iteration construct is A FOR B IN C,D,E, where A is a group of statements (in parentheses), B is a variable, and C, D and E are expressions. A is executed for values of B from C, incremented by D, to E.
+Statements may be labeled by prefixing them with LABEL:. The transfer of control is GO TO LABEL and
+the conditional is A=>B or A=>B ELSE C, where B and C are statements or groups of statements (in
+parentheses), and A is an expression (0 is false, non-zero is true), perhaps containing a relational
+operator (EQ, NE, GE, GT, LE, LT). The basic iteration construct is A FOR B IN C,D,E, where A is a
+group of statements (in parentheses), B is a variable, and C, D and E are expressions. A is executed
+for values of B from C, incremented by D, to E.
 
-An IMP source file consists of a number of statements, in free format. The file is terminated by "%%". The last statement executed should be FINI(0), which closes the files and exits from the program. A program that prints the sum of the integers from 1 to 10 is
+An IMP source file consists of a number of statements, in free format. The file is terminated by
+"%%". The last statement executed should be FINI(0), which closes the files and exits from the
+program. A program that prints the sum of the integers from 1 to 10 is
 
 ```
 SUM:=0;
@@ -122,7 +162,8 @@ FINI(0)
 %%
 ```
 
-To compile the IMP program on file `sum.imp`, call the compiler by the command `imp72 sum.imp`, which makes the executable program `a.out`; `imp72 -o sum sum.imp` names it `sum`. Running it prints
+To compile the IMP program on file `sum.imp`, call the compiler by the command `imp72 sum.imp`,
+which makes the executable program `a.out`; `imp72 -o sum sum.imp` names it `sum`. Running it prints
 
 ```
 The sum is 55
@@ -130,27 +171,37 @@ The sum is 55
 
 ### 1.4: Differences between IMP72 on Unix and the Original IMP72.
 
-The language is the language of the original compiler for the PDP-10 under TOPS-10. What differs comes from the machine and from the runtime library. The sections that describe each point say what the original did.
+The language is the language of the original compiler for the PDP-10 under TOPS-10. What differs
+comes from the machine and from the runtime library.
 
-- 1. The word is 64 bits. Integers are 64-bit two's complement numbers, addresses are byte addresses and A[I] scales the subscript by 8. The original's word was 36 bits.
+- 1. The word is 64 bits. Integers are 64-bit two's complement numbers, addresses are byte addresses
+  and A[I] scales the subscript by 8. The original's word was 36 bits.
 
-- 2. Assignment is the token `:=`, where the original wrote `_`. The character `_` is a letter of names. Names are case sensitive, as the original's are, and the words of the language are the capital-letter forms.
+- 2. Assignment is the token `:=`, where the original wrote `_`. The character `_` is a letter of
+  names. Names are case sensitive, as the original's are, and the words of the language are the
+  capital-letter forms.
 
 - 3. A REAL is an IEEE 754 double, not the PDP-10's 36-bit floating point number.
 
-- 4. A character is a byte and text is UTF-8. A string constant is a sequence of bytes ended by a zero byte, not five 7-bit characters to a word. The string `''` is not accepted, and the right-justified character constant `R'STG'` is not available.
+- 4. A character is a byte and text is UTF-8. A string constant is a sequence of bytes ended by a
+  zero byte, not five 7-bit characters to a word.
 
 - 5. Byte pointers to characters are byte addresses; the halves of a word are 32 bits.
 
-- 6. Files are Unix files, and a file name is at most seven characters, with an extension of at most seven. PRINT, READ, FILE, DEVICE and IMAGE MODE keep their formats; project and programmer numbers select nothing. Section 2.2.7.
+- 6. Files are Unix files, and a file name is at most seven characters, with an extension of at most
+  seven. Section 2.2.7.
 
-- 7. The program is compiled to native code and linked to an executable by the compiler. There is no loader command, no REL file, no DDT and no monitor. The compiler is called IMP72 and takes options like a C compiler. Section 3.
+- 7. The program is compiled to native code and linked to an executable by the compiler. The
+  compiler is called IMP72 and takes options like a C compiler. Section 3.
 
-- 8. The registers 0R to 15R are 64-bit integer variables of each routine, EXECUTE runs an instruction of the abstract machine, and CALLI has the few calls of Section 2.2.9. The UUO routines of the original library (Appendix I of the original) do not exist.
+- 8. The registers 0R to 15R are 64-bit integer variables of each routine, EXECUTE runs an
+  instruction of the abstract machine, and CALLI has the few calls of Section 2.2.9.
 
-- 9. CCALL, EXTERNAL and the rules for COMMON let a program call `C` and be called from `C`. Section 2.4.
+- 9. CCALL, EXTERNAL and the rules for COMMON let a program call `C` and be called from `C`.
+  Section 2.4.
 
-- 10. The syntax file defines the same language as the original's, with the operation codes of the abstract machine in the semantic routine calls instead of the PDP-10's. Section 2.3.
+- 10. The syntax file defines the same language as the original's, with the operation codes of the
+  abstract machine in the semantic routine calls instead of the PDP-10's. Section 2.3.
 
 ## 2: Programmer's Guide to IMP72
 
@@ -158,43 +209,94 @@ The language is the language of the original compiler for the PDP-10 under TOPS-
 
 #### 2.1.1: Lexical.
 
-The language is basically free-form, subject to the following constraints. Words representing variable names or special words of the language are delimited by characters that are not letters, digits or the underscore, including space. Therefore, spaces may not appear inside words or numbers, and at least one delimiter must appear between two such words. All characters having an ASCII character code of 40B or less are interpreted as blanks, except when enclosed in !, # or ' signs. Thus, string constants may contain any character, including tabs and returns, and returns and line feeds outside !, # and ' signs serve as delimiters. As a general rule, make the text readable and you will find the words properly distinguished.
+The language is basically free-form, subject to the following constraints. Words representing
+variable names or special words of the language are delimited by characters that are not letters,
+digits or the underscore, including space. Therefore, spaces may not appear inside words or numbers,
+and at least one delimiter must appear between two such words. All characters having an ASCII
+character code of 40B or less are interpreted as blanks, except when enclosed in !, # or ' signs.
+Thus, string constants may contain any character, including tabs and returns, and returns and line
+feeds outside !, # and ' signs serve as delimiters. As a general rule, make the text readable and
+you will find the words properly distinguished.
 
-Identifiers consist of letters, digits and the underscore, and are case sensitive: COUNT, `Count` and `count` are three names. The words of the language (PRINT, SUBR, IS, ...) are written in capital letters, so that `print` is a name. A byte above 127 is a letter, so that the UTF-8 text of a name is part of it. An identifier containing any special character (except !) may be represented by enclosing the entire name in ! signs; e.g., !Funny*id.! (see Section 2.2.1).
+Identifiers consist of letters, digits and the underscore, and are case sensitive: COUNT, `Count`
+and `count` are three names. The words of the language (PRINT, SUBR, IS, ...) are written in capital
+letters, so that `print` is a name. A byte above 127 is a letter, so that the UTF-8 text of a name
+is part of it. An identifier containing any special character (except !) may be represented by
+enclosing the entire name in ! signs; e.g., !Funny*id.! (see Section 2.2.1).
 
-All characters appearing between # signs are treated as comments and ignored by the compiler (except for # signs in string constants and between ! signs). A comment that is not closed by a second # extends to the end of the file.
+All characters appearing between # signs are treated as comments and ignored by the compiler (except
+for # signs in string constants and between ! signs). A comment that is not closed by a second #
+extends to the end of the file.
 
 #### 2.1.2: Expressions and Statements.
 
-In IMP, no distinction is made between expressions and statements. Almost everything is an expression, and has a value, although a few expressions like GO TO X do not have a very useful value. Two consequences of this philosophy are that parentheses may be used for grouping what are usually called statements in other languages, and that the statement separator ';' becomes a binary operator (whose value is the second operand).
+In IMP, no distinction is made between expressions and statements. Almost everything is an
+expression, and has a value, although a few expressions like GO TO X do not have a very useful
+value. Two consequences of this philosophy are that parentheses may be used for grouping what are
+usually called statements in other languages, and that the statement separator ';' becomes a binary
+operator (whose value is the second operand).
 
-The terms "statement" and "expression" will be used almost interchangeably herein. When the term "expression" is used, it should be understood that we may be concerned with the value of the expression, whereas when the term "statement" appears, we are interested primarily in the effect of executing it, and only secondarily, if at all, in its value.
+The terms "statement" and "expression" will be used almost interchangeably herein. When the term
+"expression" is used, it should be understood that we may be concerned with the value of the
+expression, whereas when the term "statement" appears, we are interested primarily in the effect of
+executing it, and only secondarily, if at all, in its value.
 
 #### 2.1.3: Machine Language Level Programming.
 
-The identifiers 0R,1R,...,15R name sixteen registers. A register is a 64-bit integer variable. The main program and each routine have a set of sixteen of their own, and a register is 0 when the routine is entered. A call does not change the registers of the caller. The compiler's own temporaries are not these registers: the machine registers are assigned by LLVM. For example, the statements `1R:=5; 2R:=1R+3; PRINT IGR 0,2R,/` print 8.
+The identifiers 0R,1R,...,15R name sixteen registers. A register is a 64-bit integer variable. The
+main program and each routine have a set of sixteen of their own, and a register is 0 when the
+routine is entered. A call does not change the registers of the caller. The compiler's own
+temporaries are not these registers: the machine registers are assigned by LLVM. For example, the
+statements `1R:=5; 2R:=1R+3; PRINT IGR 0,2R,/` print 8.
 
-The machine instructions of the PDP-10 cannot be written. The statement EXECUTE (Section 2.2.9) executes an instruction word of the abstract machine for which the compiler generates code, and syntax statements (Section 2.3) can use every operation of that machine. The original compiler allowed the program to refer to and change its own instructions through the statement labels; the code of a program here cannot be changed by the program.
+The statement EXECUTE (Section 2.2.9) executes an instruction word of the abstract machine for which
+the compiler generates code, and syntax statements (Section 2.3) can use every operation of that
+machine.
 
 #### 2.1.4: Program Structure and Scope of Variables.
 
-Program structure is more or less like that of the FORTRAN system. Thus a main program, if any, comes first, then subroutines, if any, follow. The main program is the statements before the first SUBR; it is compiled to the function `impmain` that the runtime library's `main` calls (Section 2.4.4).
+Program structure is more or less like that of the FORTRAN system. Thus a main program, if any,
+comes first, then subroutines, if any, follow. The main program is the statements before the first
+SUBR; it is compiled to the function `impmain` that the runtime library's `main` calls
+(Section 2.4.4).
 
-In contrast to the FORTRAN convention, all variables in IMP are global to the entire set of subroutines compiled at the same time, except that formal arguments of a subroutine are local within that subroutine. A set of subroutines compiled at the same time is one source file. That is, any two references to the same variable name within a single IMP source file will refer to the same memory location, even if the references are within different subroutines. A variable that is not declared COMMON belongs to its source file: another file has a variable of its own with the same name, and `C` cannot name it. The COMMON variables are the ones shared between files and with `C` (Section 2.4.3). However, references to formal arguments of subroutines will have the effect of references to the memory location containing the actual argument in the call of the subroutine. Thus references to formal subroutine arguments will not affect variables of the same name in other subprograms in the same compilation.
+In contrast to the FORTRAN convention, all variables in IMP are global to the entire set of
+subroutines compiled at the same time, except that formal arguments of a subroutine are local within
+that subroutine. A set of subroutines compiled at the same time is one source file. That is, any two
+references to the same variable name within a single IMP source file will refer to the same memory
+location, even if the references are within different subroutines. A variable that is not declared
+COMMON belongs to its source file: another file has a variable of its own with the same name, and
+`C` cannot name it. The COMMON variables are the ones shared between files and with `C`
+(Section 2.4.3). However, references to formal arguments of subroutines will have the effect of
+references to the memory location containing the actual argument in the call of the subroutine. Thus
+references to formal subroutine arguments will not affect variables of the same name in other
+subprograms in the same compilation.
 
-The declaration LOCAL is provided to defeat the fact that variables are normally global to the entire file. An identifier which is declared to be LOCAL will be replaced throughout the subroutine in which it is so declared by a unique name, which will not be used outside the subroutine. The identifier will therefore appear local to the subroutine. A LOCAL variable is static: it keeps its value from one call to the next.
+The declaration LOCAL is provided to defeat the fact that variables are normally global to the
+entire file. An identifier which is declared to be LOCAL will be replaced throughout the subroutine
+in which it is so declared by a unique name, which will not be used outside the subroutine. The
+identifier will therefore appear local to the subroutine. A LOCAL variable is static: it keeps its
+value from one call to the next.
 
-Because every variable is static, and the arguments of a call are evaluated into temporaries that are also static, a subroutine cannot usefully call itself. Recursion is programmed with a stack of the program's own.
+Because every variable is static, and the arguments of a call are evaluated into temporaries that
+are also static, a subroutine cannot usefully call itself. Recursion is programmed with a stack of
+the program's own.
 
-IMP uses the calling convention of FORTRAN, in which the arguments are addresses (Section 2.2.5), and the `C` calling convention for the names it exports (Section 2.4). IMP and `C` programs may call each other.
+IMP uses the calling convention of FORTRAN, in which the arguments are addresses (Section 2.2.5),
+and the `C` calling convention for the names it exports (Section 2.4). IMP and `C` programs may call
+each other.
 
 #### 2.1.5: Compiler Version.
 
-The version of the compiler is printed by the command `imp72 --version` (the text `imp72 0.9.0`) and appears, with the date, in the banner of the interactive mode (Section 3.1.2). An extended compiler (Section 3.4) has the version number of the compiler it was made from.
+The version of the compiler is printed by the command `imp72 --version` (the text `imp72 0.9.0`) and
+appears, with the date, in the banner of the interactive mode (Section 3.1.2). An extended compiler
+(Section 3.4) has the version number of the compiler it was made from.
 
 ### 2.2:  The Expressions.
 
-The expressions of the language are listed here. Expressions may be grouped explicitly by parentheses. Where parentheses are omitted, the following is the order in which subexpressions are evaluated:
+The expressions of the language are listed here. Expressions may be grouped explicitly by
+parentheses. Where parentheses are omitted, the following is the order in which subexpressions are
+evaluated:
 
 1. Unary operators and functions.
 
@@ -206,11 +308,16 @@ The expressions of the language are listed here. Expressions may be grouped expl
 
 5. ";".
 
-When two operators of equal precedence appear consecutively in an expression, the rightmost is performed first (as in APL). E.g., A*B+C is evaluated as A*(B+C). EXCEPTION: the order of evaluation of relational operators on the same level - e.g., A<B GE C - is not defined.
+When two operators of equal precedence appear consecutively in an expression, the rightmost is
+performed first (as in APL). E.g., A*B+C is evaluated as A*(B+C). EXCEPTION: the order of evaluation
+of relational operators on the same level - e.g., A<B GE C - is not defined.
 
-In "A; B", A is evaluated before B. In a conditional, the implicand will be evaluated after the condition is evaluated, if at all. Other than the restrictions listed above, IMP places no restrictions on the order of evaluation of arguments of operators.
+In "A; B", A is evaluated before B. In a conditional, the implicand will be evaluated after the
+condition is evaluated, if at all. Other than the restrictions listed above, IMP places no
+restrictions on the order of evaluation of arguments of operators.
 
-In the following table, if no value is specified for an expression, then the value of that expression is not defined and/or not useful.
+In the following table, if no value is specified for an expression, then the value of that
+expression is not defined and/or not useful.
 
 #### 2.2.1:  Variables and Constants
 
@@ -220,7 +327,8 @@ SAMPLE EXPRESSION   MEANING
 
 - 19576
 
-Integer numbers (base 10). An integer is a 64-bit two's complement number; a constant larger than `2**63-1` is taken modulo `2**64`.
+Integer numbers (base 10). An integer is a 64-bit two's complement number; a constant larger than
+`2**63-1` is taken modulo `2**64`.
 
 - 777000B
 
@@ -228,15 +336,25 @@ Digits followed by 'B': octal constants. The constant 1777777777777777777777B is
 
 - 2AFB16
 
-A string of digits and letters beginning with a digit and ending in 'Bnn', where nn is a decimal number. These are constants in base nn (called "flexadecimal" constants). The letters and digits to the left of the last B are interpreted as a constant in base nn. E.g., 2ABB16 is the base 16 constant 2AB (683 decimal). 10100B2 is the binary constant 10100, or 20 decimal. The base may be arbitrarily large, but only digits and the letters A-Z may be used to represent digits. (A-Z are the digits 10-35.) Note that a constant starting with a letter is not legal. For example, ABB12 is a variable name; the desired constant may be written 0ABB12.
+A string of digits and letters beginning with a digit and ending in 'Bnn', where nn is a decimal
+number. These are constants in base nn (called "flexadecimal" constants). The letters and digits to
+the left of the last B are interpreted as a constant in base nn. E.g., 2ABB16 is the base 16
+constant 2AB (683 decimal). 10100B2 is the binary constant 10100, or 20 decimal. The base may be
+arbitrarily large, but only digits and the letters A-Z may be used to represent digits. (A-Z are the
+digits 10-35.) Note that a constant starting with a letter is not legal. For example, ABB12 is a
+variable name; the desired constant may be written 0ABB12.
 
 - 3.27"-5
 
-Floating point constant. Consists of a string of digits containing an embedded decimal point (i.e., .01 and 3. are not legal), and followed optionally by " and a power-of-ten scaling factor, an integer written with a minus sign if it is negative and with no plus sign. The value is the REAL (an IEEE 754 double) nearest to the number.
+Floating point constant. Consists of a string of digits containing an embedded decimal point (i.e.,
+.01 and 3. are not legal), and followed optionally by " and a power-of-ten scaling factor, an
+integer written with a minus sign if it is negative and with no plus sign. The value is the REAL (an
+IEEE 754 double) nearest to the number.
 
 - A
 
-Variable name. Any string of letters, digits and underscores not interpretable as one of the above forms of constants. Names are case sensitive.
+Variable name. Any string of letters, digits and underscores not interpretable as one of the above
+forms of constants. Names are case sensitive.
 
 - 9R
 
@@ -244,25 +362,42 @@ Numbers 0 through 15 followed by 'R' name the corresponding registers (Section 2
 
 - 'ABCdef'
 
-String constants: a sequence of bytes (the text is UTF-8) followed by a zero byte, stored in successive words. The value of a string of eight bytes or fewer is the word that holds it, with the first byte in the least significant byte, which is the order of the bytes in memory. Thus after `S:='ABC'` the variable S holds the string ABC, and `PRINT STG 0,S` prints it. The value of a longer string is its first eight bytes; the address of the string is `LOC('text')`, which is what a C function expects (Section 2.4). The character ' is represented within a string by two successive quotes: ''. Thus, the string consisting of one single quote would be written '''' (but would print as '). The string '' is a syntax error; the string with no characters is the number 0, which `STG` prints as nothing. The original's right-justified character constant `R'STG'` is not accepted (the error is R REQUIRES TEXT CONSTANT OPERAND); the code of a character is read with a byte pointer (Section 2.2.6).
+String constants: a sequence of bytes (the text is UTF-8) followed by a zero byte, stored in
+successive words. The value of a string of eight bytes or fewer is the word that holds it, with the
+first byte in the least significant byte, which is the order of the bytes in memory. Thus after
+`S:='ABC'` the variable S holds the string ABC, and `PRINT STG 0,S` prints it. The value of a longer
+string is its first eight bytes; the address of the string is `LOC('text')`, which is what a C
+function expects (Section 2.4). The character ' is represented within a string by two successive
+quotes: ''. Thus, the string consisting of one single quote would be written '''' (but would print
+as ').
 
 - !Any thing.!
 
-Special identifier: any string of characters not containing a '!', bracketed by '!'s. The string of characters is considered to be a single identifier or symbol. In particular, the following interpretations are made:
+Special identifier: any string of characters not containing a '!', bracketed by '!'s. The string of
+characters is considered to be a single identifier or symbol. In particular, the following
+interpretations are made:
 
 - One special character is recognized as itself. E.g., !+! is the same as +.
 
-- Any string starting with a single quote is recognized as the string constant containing the remainder of the string. E.g., !'Don't! is the string constant "Don't".
+- Any string starting with a single quote is recognized as the string constant containing the
+  remainder of the string. E.g., !'Don't! is the string constant "Don't".
 
-- Any other string is interpreted as an identifier whose name is exactly the string appearing between the ! signs. This allows variable names containing special characters. In the object file the name is a symbol in which each byte that is not a letter, a digit or an underscore is written as an underscore and its two hexadecimal digits: !Funny*id.! is the symbol `Funny_2aid_2e`.
+- Any other string is interpreted as an identifier whose name is exactly the string appearing
+  between the ! signs. This allows variable names containing special characters. In the object file
+  the name is a symbol in which each byte that is not a letter, a digit or an underscore is written as
+  an underscore and its two hexadecimal digits: !Funny*id.! is the symbol `Funny_2aid_2e`.
 
 - A[E]
 
-The E'th word of array 'A' starting from zero. A is any variable name or constant, and E is any expression. The address of the word is the address of A plus 8 times E.
+The E'th word of array 'A' starting from zero. A is any variable name or constant, and E is any
+expression. The address of the word is the address of A plus 8 times E.
 
 - [E]
 
-The E'th word of memory: thus the contents of the word whose address is E. An address is a byte address. The expression [P+8], in which P is a variable and 8 is a constant, is the word 8 words after P, because the constant is taken as a subscript; any other expression, such as [P+(8*I)] or [LOC(W)+8], is the byte address it computes.
+The E'th word of memory: thus the contents of the word whose address is E. An address is a byte
+address. The expression [P+8], in which P is a variable and 8 is a constant, is the word 8 words
+after P, because the constant is taken as a subscript; any other expression, such as [P+(8*I)] or
+[LOC(W)+8], is the byte address it computes.
 
 - LOC(A)
 
@@ -280,21 +415,27 @@ Ones complement of A
 
 - (A)
 
-Parentheses used to group expressions: value is A. A may be any expression, including a string of statements.
+Parentheses used to group expressions: value is A. A may be any expression, including a string of
+statements.
 
 #### 2.2.3: Binary Operators.
 
 - A:=B
 
-Stores the value of B in A. The value of this expression is the value stored in A. If A and B are of different arithmetic types, the value of B is converted to the type of A before storing. A real is converted to an integer by truncation toward zero. The token is `:=`, written with no space between the two characters.
+Stores the value of B in A. The value of this expression is the value stored in A. If A and B are of
+different arithmetic types, the value of B is converted to the type of A before storing. A real is
+converted to an integer by truncation toward zero. The token is `:=`, written with no space between
+the two characters.
 
 - A<=B
 
-Stores the value of B in A, without performing any type conversion if A and B are of different arithmetic types. A real stored in an integer variable this way is the 64 bits of the IEEE double.
+Stores the value of B in A, without performing any type conversion if A and B are of different
+arithmetic types. A real stored in an integer variable this way is the 64 bits of the IEEE double.
 
 - A; B
 
-; is a binary operator whose value is B. It is used as a statement separator. It always evaluates A first, then B. Example: the value of (A:=5; B:=3) is 3.
+; is a binary operator whose value is B. It is used as a statement separator. It always evaluates A
+first, then B. Example: the value of (A:=5; B:=3) is 3.
 
 - A+B
 
@@ -304,11 +445,17 @@ Stores the value of B in A, without performing any type conversion if A and B ar
 
 - A/B
 
-These are the arithmetic operators. They are either integer (if both operands are of type integer) or floating point (if either operand is real). If one operand is integer, it is converted to real before the operation is performed. Integer arithmetic is modulo `2**64`, and integer division truncates toward zero; the result of a division by zero is undefined. Real arithmetic is IEEE 754 double precision, rounded to nearest.
+These are the arithmetic operators. They are either integer (if both operands are of type integer)
+or floating point (if either operand is real). If one operand is integer, it is converted to real
+before the operation is performed. Integer arithmetic is modulo `2**64`, and integer division
+truncates toward zero; the result of a division by zero is undefined. Real arithmetic is IEEE 754
+double precision, rounded to nearest.
 
 - A//B
 
-The remainder of A when divided by B, with the sign of A. If either A or B or both are floating point, they are converted to fixed point before the computation is performed. The result is always integer.
+The remainder of A when divided by B, with the sign of A. If either A or B or both are floating
+point, they are converted to fixed point before the computation is performed. The result is always
+integer.
 
 - A<B (or A LT B)
 
@@ -322,7 +469,11 @@ The remainder of A when divided by B, with the sign of A. If either A or B or bo
 
 - A NE B
 
-Relational operators. These have the value -1 if the relation holds, otherwise 0. Integers are compared as signed numbers and reals as floating point numbers. The words LE, GE and NE are used for the operators 'less than or equal to', 'greater than or equal to' and 'not equal to'; there are no operators `<=` and `>=`. NOTA BENE: Relational expressions must be enclosed in parentheses wherever they appear except as the condition in a conditional expression.
+Relational operators. These have the value -1 if the relation holds, otherwise 0. Integers are
+compared as signed numbers and reals as floating point numbers. The words LE, GE and NE are used for
+the operators 'less than or equal to', 'greater than or equal to' and 'not equal to'; there are no
+operators `<=` and `>=`. NOTA BENE: Relational expressions must be enclosed in parentheses wherever
+they appear except as the condition in a conditional expression.
 
 - A OR B
 
@@ -356,17 +507,31 @@ A left shifted B bits, as LS.
 
 - A ARS B
 
-A right shifted B bits, sign extended. (If B is negative in the above instructions, the direction of shift is reversed. A shift of 64 places or more gives 0, or for ARS the sign of A repeated.)
+A right shifted B bits, sign extended. (If B is negative in the above instructions, the direction of
+shift is reversed. A shift of 64 places or more gives 0, or for ARS the sign of A repeated.)
 
 #### 2.2.4: Control Expressions.
 
 - A=>B
 
-If A is not 0, evaluate B (Read as "A implies B"). Thus, K=>X:=1 does nothing if K is zero, or sets X to 1 if K is non-zero. X<Y=>(P:=1;Q:=2) changes P and Q if X is less than Y, otherwise does nothing. NOTA BENE: If A is a relational expression, it need not, and for best object code should not, be enclosed in parentheses. If A is a constant, or an expression involving only constants, then the code generated by the compiler for the expression A=>B will consist either of B, if A is non-zero, or nothing at all, if A is zero. This allows code to be compiled conditionally if, for example, A is an identifier defined by syntax to be a constant. In the case that B is not compiled due to A being a constant 0, any tags contained within B will not be defined, but declarations contained in B will take effect.
+If A is not 0, evaluate B (Read as "A implies B"). Thus, K=>X:=1 does nothing if K is zero, or sets
+X to 1 if K is non-zero. X<Y=>(P:=1;Q:=2) changes P and Q if X is less than Y, otherwise does
+nothing. NOTA BENE: If A is a relational expression, it need not, and for best object code should
+not, be enclosed in parentheses. If A is a constant, or an expression involving only constants, then
+the code generated by the compiler for the expression A=>B will consist either of B, if A is
+non-zero, or nothing at all, if A is zero. This allows code to be compiled conditionally if, for
+example, A is an identifier defined by syntax to be a constant. In the case that B is not compiled
+due to A being a constant 0, any tags contained within B will not be defined, but declarations
+contained in B will take effect.
 
 - A=>B ELSE C
 
-This expression has the value B if A is nonzero, and C if A is zero. It will evaluate only one of its operands each time it is executed; thus it can be used to replace the construct "A=>(B; GO TO FOO); C; FOO:" if the user does not mind the value being computed and ignored (which costs a few extra instructions of object code). NOTA BENE: The expression A:=B=>X ELSE Y, e.g., will be interpreted as (A:=B)=>X ELSE Y. To assign the obvious interpretation to it, write A:=(B=>X ELSE Y). If C contains another =>-ELSE clause, then C should be enclosed in parentheses.
+This expression has the value B if A is nonzero, and C if A is zero. It will evaluate only one of
+its operands each time it is executed; thus it can be used to replace the construct "A=>(B; GO TO
+FOO); C; FOO:" if the user does not mind the value being computed and ignored (which costs a few
+extra instructions of object code). NOTA BENE: The expression A:=B=>X ELSE Y, e.g., will be
+interpreted as (A:=B)=>X ELSE Y. To assign the obvious interpretation to it, write A:=(B=>X ELSE Y).
+If C contains another =>-ELSE clause, then C should be enclosed in parentheses.
 
 - A FOR B IN C,D,E
 
@@ -374,56 +539,96 @@ This expression has the value B if A is nonzero, and C if A is zero. It will eva
 
 - A FOR B FROM E
 
-These expressions perform repeated execution of the expression A with different values of the variable B. The IN form executes A with values of B equal to C, C+D, C+2*D,..., E; the TO form for B equal to 0,1,...,E, and the FROM form for B equal to E,E-1,...,0. In every case the expression A is evaluated at least once regardless of the values of C, D and E. In the IN case when D is not a constant, B must exactly reach the value of E. E.g., in
+These expressions perform repeated execution of the expression A with different values of the
+variable B. The IN form executes A with values of B equal to C, C+D, C+2*D,..., E; the TO form for B
+equal to 0,1,...,E, and the FROM form for B equal to E,E-1,...,0. In every case the expression A is
+evaluated at least once regardless of the values of C, D and E. In the IN case when D is not a
+constant, B must exactly reach the value of E. E.g., in
 
 ```
           I:=2;
           (A[J]:=0) FOR J IN 0,I,9
 ```
 
-the loop will never terminate. In all other cases, the loop terminates when B passes the terminal value. C, D and E may be any expressions, but in the IN and TO cases D and E will be evaluated once per iteration of the loop. The FROM case generates the most efficient code and is therefore to be preferred. If control is tranferred from within the loop, the value of the index variable B is preserved. The value of B following normal termination of the loop is undefined.
+the loop will never terminate. In all other cases, the loop terminates when B passes the terminal
+value. C, D and E may be any expressions, but in the IN and TO cases D and E will be evaluated once
+per iteration of the loop. The FROM case generates the most efficient code and is therefore to be
+preferred. If control is tranferred from within the loop, the value of the index variable B is
+preserved. The value of B following normal termination of the loop is undefined.
 
-- The special cases (A[I]:=B[I]) FOR I TO/FROM V, where A and B are integer arrays and V is a single variable or constant, are compiled as a block transfer instruction. The user is cautioned that in the FROM case, if A and B overlap, the code produced will be incorrect. In more general cases, block transfers may be specified by the MOVE construct (Section 2.2.9).
+- The special cases (A[I]:=B[I]) FOR I TO/FROM V, where A and B are integer arrays and V is a single
+  variable or constant, are compiled as a block transfer instruction. The user is cautioned that in
+  the FROM case, if A and B overlap, the code produced will be incorrect. In more general cases, block
+  transfers may be specified by the MOVE construct (Section 2.2.9).
 
 - WHILE A DO B
 
-Repeatedly evaluates the expression A, and, if it it is nonzero (true), evaluates the expression B. If A is zero (false), control passes to the next statement. If A is initially zero, B is never executed.
+Repeatedly evaluates the expression A, and, if it it is nonzero (true), evaluates the expression B.
+If A is zero (false), control passes to the next statement. If A is initially zero, B is never
+executed.
 
 - A UNTIL B
 
-This expression evaluates the expression A, then evaluates B and if B is false (zero) it repeats. Even if B is initially true, A is always executed at least once.
+This expression evaluates the expression A, then evaluates B and if B is false (zero) it repeats.
+Even if B is initially true, A is always executed at least once.
 
 - ((A=B) AND (C=D)) => E
 
 - ((A=B) OR (C=D)) => E ELSE F
 
-A condition may be several relations joined by AND or OR, each relation in parentheses, and the whole in another pair of parentheses, in a conditional, after WHILE or after UNTIL. The relations are evaluated from left to right and no more of them than necessary are evaluated. Because the operators have no precedence the extra pair of parentheses is needed: `WHILE (A=1) AND (B=1) DO S` is not the loop that `WHILE ((A=1) AND (B=1)) DO S` is.
+A condition may be several relations joined by AND or OR, each relation in parentheses, and the
+whole in another pair of parentheses, in a conditional, after WHILE or after UNTIL. The relations
+are evaluated from left to right and no more of them than necessary are evaluated. Because the
+operators have no precedence the extra pair of parentheses is needed: `WHILE (A=1) AND (B=1) DO S`
+is not the loop that `WHILE ((A=1) AND (B=1)) DO S` is.
 
 - GO TO E
 
-Transfer control to the tag E. A GO TO in a subroutine may name a tag of the main program: control passes there, and the subroutines called on the way are left. The original also took the address of a memory location, as in GO TO [LOC(TAG)], or a subscripted variable; here E is a tag, and GO TO [LOC(TAG)] is rejected with the message COMPUTED GO TO WITHOUT ITS TABLE.
+Transfer control to the tag E. A GO TO in a subroutine may name a tag of the main program: control
+passes there, and the subroutines called on the way are left.
 
 - GO TO (L0,L1,...,LN) E
 
-This expression transfers control to the label Li, where i is the value of expression E, and L0,...,LN are identifiers. If E<0 or E>N, the effect is undefined. E is a variable or an expression that has a variable in it: with a constant for E the first label is taken.
+This expression transfers control to the label Li, where i is the value of expression E, and
+L0,...,LN are identifiers. If E<0 or E>N, the effect is undefined. E is a variable or an expression
+that has a variable in it: with a constant for E the first label is taken.
 
 - T:A
 
-The expression A is tagged with the label T. Two uses of this are: GO TO T transfers control to this point in the program, and, when A is a DATA statement, the variable T is the first word of the data (Section 2.2.8). To insert a tag where an expression does not immediately follow, such as before a ')', write TAG:0.
+The expression A is tagged with the label T. Two uses of this are: GO TO T transfers control to this
+point in the program, and, when A is a DATA statement, the variable T is the first word of the data
+(Section 2.2.8). To insert a tag where an expression does not immediately follow, such as before a
+')', write TAG:0.
 
 #### 2.2.5: Programs, Subprograms and Subprogram Calls.
 
 - A%%
 
-An IMP program consists of an IMP expression followed by two % signs. The % signs terminate the input file as far as the compiler is concerned. The file `sum.imp` of Section 1.3 is such a program.
+An IMP program consists of an IMP expression followed by two % signs. The % signs terminate the
+input file as far as the compiler is concerned. The file `sum.imp` of Section 1.3 is such a program.
 
 - SUBR A(B,C) IS D
 
-Define a subroutine (or function) named A, with formal arguments B and C. The value of the subroutine is D, (unless the subroutine is exited via a RETURN statement, q.v.). The normal exit from the subroutine is by "running off the end" of the expression D. Example:
+Define a subroutine (or function) named A, with formal arguments B and C. The value of the
+subroutine is D, (unless the subroutine is exited via a RETURN statement, q.v.). The normal exit
+from the subroutine is by "running off the end" of the expression D. Example:
 
 SUBR ABS(A) IS (A<0=>-A ELSE A);
 
-is a subroutine whose value is the absolute value of its argument. With this definition `P:=ABS(Q)` calls the subroutine ABS and sets P to the value of Q. The arguments of a subroutine "share" the memory location of the actual arguments with which the subroutine is called; that is, changing the value of one of the parameters in the subroutine will change the value of the variable in the calling program which corresponds to that argument. A subroutine is a `C` function that takes pointers: the call F(A1,A2,...,AN) passes the address of each argument, and an argument that is not a variable (a constant or an expression) is stored in a temporary whose address is passed. The subroutine refers to its i-th argument through the i-th pointer and returns a 64-bit integer, so that the `C` declaration of `SUBR ADD2(A,B) IS A+B` is `int64_t ADD2(int64_t *a, int64_t *b)`. A subprogram called with more arguments than it expects is not harmed. If it is called with fewer, the parameters that were not passed are undefined. Functions return their value as the 64-bit result; the word of a REAL is the bits of the double. The name of a subroutine is the symbol of the function in the object file, as written (names are case sensitive). The routines are not reentrant (Section 2.1.4).
+is a subroutine whose value is the absolute value of its argument. With this definition `P:=ABS(Q)`
+calls the subroutine ABS and sets P to the value of Q. The arguments of a subroutine "share" the
+memory location of the actual arguments with which the subroutine is called; that is, changing the
+value of one of the parameters in the subroutine will change the value of the variable in the
+calling program which corresponds to that argument. A subroutine is a `C` function that takes
+pointers: the call F(A1,A2,...,AN) passes the address of each argument, and an argument that is not
+a variable (a constant or an expression) is stored in a temporary whose address is passed. The
+subroutine refers to its i-th argument through the i-th pointer and returns a 64-bit integer, so
+that the `C` declaration of `SUBR ADD2(A,B) IS A+B` is `int64_t ADD2(int64_t *a, int64_t *b)`. A
+subprogram called with more arguments than it expects is not harmed. If it is called with fewer, the
+parameters that were not passed are undefined. Functions return their value as the 64-bit result;
+the word of a REAL is the bits of the double. The name of a subroutine is the symbol of the function
+in the object file, as written (names are case sensitive). The routines are not reentrant
+(Section 2.1.4).
 
 - SUBR A() IS D
 
@@ -431,11 +636,14 @@ Define a subroutine (or function) named A with no formal arguments, and with val
 
 - RETURN E
 
-Return from the subroutine in which this statement appears. The value returned by the subroutine is E.
+Return from the subroutine in which this statement appears. The value returned by the subroutine is
+E.
 
 - A(B,C,D)
 
-Execute the function A with parameters B,C,D: The value of this expression is the value of the function. (Since there is no distinction in IMP between functions and subroutines, this expression is also used to call A as a subroutine with the indicated parameters.)
+Execute the function A with parameters B,C,D: The value of this expression is the value of the
+function. (Since there is no distinction in IMP between functions and subroutines, this expression
+is also used to call A as a subroutine with the indicated parameters.)
 
 - A()
 
@@ -445,7 +653,11 @@ Execute the function A with no parameters.
 
 - A<B,C>
 
-This object is called a "byte". A is a variable, either simple or subscripted; B and C are any expressions. A<B,C> designates the portion of the word A consisting of B bits, located C bits from the right hand side of the word. Thus, e.g., A<12,12> designates the 12 bits whose lowest bit is bit 12 of A, and A<1,63> is the sign bit. A byte may be used as an operand, or have a value stored in it. Example: the program fragment
+This object is called a "byte". A is a variable, either simple or subscripted; B and C are any
+expressions. A<B,C> designates the portion of the word A consisting of B bits, located C bits from
+the right hand side of the word. Thus, e.g., A<12,12> designates the 12 bits whose lowest bit is
+bit 12 of A, and A<1,63> is the sign bit. A byte may be used as an operand, or have a value stored
+in it. Example: the program fragment
 
 ```
 A:=3;
@@ -454,21 +666,36 @@ A:=3;
 
 has the effect of setting A to 14011006003B (octal).
 
-The constructs A<R> and A<L> designate the right and left half words of A. A half word is 32 bits. They are equivalent to A<32,0> and A<32,32> respectively.
+The constructs A<R> and A<L> designate the right and left half words of A. A half word is 32 bits.
+They are equivalent to A<32,0> and A<32,32> respectively.
 
 - BYTEP A<I,J>
 
-This expression has the value of a byte pointer to the designated byte. Its usefulness lies in the ability to write X:=BYTEP A<B,C> and do byte access by referencing X, as explained in the next paragraph. If I and J are not constants, the byte pointer will be computed with their values at the time the statement is executed and will not be reevaluated if I and J change value later.
+This expression has the value of a byte pointer to the designated byte. Its usefulness lies in the
+ability to write X:=BYTEP A<B,C> and do byte access by referencing X, as explained in the next
+paragraph. If I and J are not constants, the byte pointer will be computed with their values at the
+time the statement is executed and will not be reevaluated if I and J change value later.
 
-There are two kinds of pointer. BYTEP A<7,36> and BYTEP A<8,64>, with constants for the size and position, make a pointer to characters: the byte address of the byte before the first byte of A, a byte being a character. The first form is the original's pointer to the characters of a string, and the second is the same pointer. Any other BYTEP makes the pointer to a bit field: a word with the size of the field in bits 58 to 63, the position in bits 52 to 57, and in the remaining bits the byte address of the word that holds the field.
+There are two kinds of pointer. BYTEP A<7,36> and BYTEP A<8,64>, with constants for the size and
+position, make a pointer to characters: the byte address of the byte before the first byte of A, a
+byte being a character. Any other BYTEP makes the pointer to a bit field: a word with the size of
+the field in bits 58 to 63, the position in bits 52 to 57, and in the remaining bits the byte
+address of the word that holds the field.
 
 - <X>
 
-X must contain a byte pointer. (This may be accomplished by X:=BYTEP A<I,J>.) Then <X> refers to the byte designated by the byte pointer.
+X must contain a byte pointer. (This may be accomplished by X:=BYTEP A<I,J>.) Then <X> refers to the
+byte designated by the byte pointer.
 
 - <+X>
 
-X must contain a byte pointer. When <+X> is evaluated, it increments the byte pointer, and its value is the byte then pointed to. Incrementing a byte pointer to characters means that it points to the next byte of memory. Incrementing a pointer to A<I,J> means that the pointer will now point to A<I,J-I> if J GE I, or to A[1]<I,64-I> if J<I. Example: Suppose the memory locations starting at STG contain a string (a character to a byte, a zero byte at the end). Then the following program fragment unpacks STG into the locations starting at UNP, one character per word (remember, the string terminates with a 0 character):
+X must contain a byte pointer. When <+X> is evaluated, it increments the byte pointer, and its value
+is the byte then pointed to. Incrementing a byte pointer to characters means that it points to the
+next byte of memory. Incrementing a pointer to A<I,J> means that the pointer will now point to
+A<I,J-I> if J GE I, or to A[1]<I,64-I> if J<I. Example: Suppose the memory locations starting at STG
+contain a string (a character to a byte, a zero byte at the end). Then the following program
+fragment unpacks STG into the locations starting at UNP, one character per word (remember, the
+string terminates with a 0 character):
 
 ```
 STG IS 2 LONG; UNP IS 16 LONG;
@@ -479,13 +706,15 @@ LOOP: (UNP[I:=I+1]:=<+X>)=>GO TO LOOP;
 
 After it UNP[0] to UNP[5] hold 72, 69, 76, 76, 79 and 0, the codes of the characters.
 
-Byte pointers may also be stored into, with or without first being incremented: <+X>:=I. Only the low 8 bits of a character are stored. The characters of a UTF-8 text are its bytes.
+Byte pointers may also be stored into, with or without first being incremented: <+X>:=I. Only the
+low 8 bits of a character are stored. The characters of a UTF-8 text are its bytes.
 
 - IDPB(A,B)
 
 - ILDB(A)
 
-IDPB(A,B) is the same as <+B>:=A, and ILDB(A) is the same as <+A>: they step the byte pointer and store A in the byte, or have the value of the byte.
+IDPB(A,B) is the same as <+B>:=A, and ILDB(A) is the same as <+A>: they step the byte pointer and
+store A in the byte, or have the value of the byte.
 
 #### 2.2.7: Input/Output.
 
@@ -493,53 +722,102 @@ IDPB(A,B) is the same as <+B>:=A, and ILDB(A) is the same as <+A>: they step the
 
 - READ A,B,C
 
-A, B, C, etc., are a list of expressions to be transferred from/to input/output files, with format specifiers mixed in. Any expression may appear in a PRINT list; if an expression other than a simple or subscripted variable appears in a READ list the effect will be to read into a temporary location. The format specifiers are listed below. The order in which the items of a list are evaluated is not specified; write `PRINT <+P>,<+P>` as two statements.
+A, B, C, etc., are a list of expressions to be transferred from/to input/output files, with format
+specifiers mixed in. Any expression may appear in a PRINT list; if an expression other than a simple
+or subscripted variable appears in a READ list the effect will be to read into a temporary location.
+The format specifiers are listed below. The order in which the items of a list are evaluated is not
+specified; write `PRINT <+P>,<+P>` as two statements.
 
-The value of a PRINT statement is the number of the last column on a line that was printed into. In particular, the value of PRINT / is 0. The value of a READ statement is -1 if an attempt has been made to read past the end of the file, 1 if an attempt has been made to read past the end of a line, and 0 otherwise.
+The value of a PRINT statement is the number of the last column on a line that was printed into. In
+particular, the value of PRINT / is 0. The value of a READ statement is -1 if an attempt has been
+made to read past the end of the file, 1 if an attempt has been made to read past the end of a line,
+and 0 otherwise.
 
-If no file is explicitly specified, output is to file PO, the standard output, and input is from file PI, the standard input. There is no rule against using many statements to print or read one line; the only thing that terminates a line is a /. A format, once specified, remains in effect until another specification is encountered, even through several different PRINT or READ statements. Changing the PRINT format or file does not affect the READ format or file, and vice versa. A line is held in a buffer of 1023 characters; a longer line is cut.
+If no file is explicitly specified, output is to file PO, the standard output, and input is from
+file PI, the standard input. There is no rule against using many statements to print or read one
+line; the only thing that terminates a line is a /. A format, once specified, remains in effect
+until another specification is encountered, even through several different PRINT or READ statements.
+Changing the PRINT format or file does not affect the READ format or file, and vice versa. A line is
+held in a buffer of 1023 characters; a longer line is cut.
 
-In printing, if a data item is presented that is too large for the specified field width, a field just large enough to contain it is used. Consequently, if a field width of 0 is specified, a field just large enough to contain each data item will be used.
+In printing, if a data item is presented that is too large for the specified field width, a field
+just large enough to contain it is used. Consequently, if a field width of 0 is specified, a field
+just large enough to contain each data item will be used.
 
-In reading, if the field width specification is a single-character string (e.g., ','), the input field will terminate on the first of a) the specified character; b) the end of the line; c) 128 input characters. A field width specification of 0 is equivalent to ','. A field width that is a number from 1 to 31 is a number of columns. (A number from 32 to 126 is the code of the character that ends the field, as a one-character string is, so that a field of 32 or more columns cannot be asked for by its number.) Blanks are ignored on input (except in STG conversion and when ' ' is the field terminator). Tabs are converted to a single blank on input. All fields are limited to 128 characters on input, so that a variable that receives a STG field must be an array of at least 17 words.
+In reading, if the field width specification is a single-character string (e.g., ','), the input
+field will terminate on the first of a) the specified character; b) the end of the line; c) 128
+input characters. A field width specification of 0 is equivalent to ','. A field width that is a
+number from 1 to 31 is a number of columns. (A number from 32 to 126 is the code of the character
+that ends the field, as a one-character string is, so that a field of 32 or more columns cannot be
+asked for by its number.) Blanks are ignored on input (except in STG conversion and when ' ' is the
+field terminator). Tabs are converted to a single blank on input. All fields are limited to 128
+characters on input, so that a variable that receives a STG field must be an array of at least 17
+words.
 
 Field widths in format specifiers are usually constants but may be any expression.
 
-It is necessary to close out your output files explicitly in your program some time before it terminates. This is done by the subroutine call FINI(I), for I=0 or -1. This closes all your files, and the output and the input return to the standard output and the standard input. If I=0, FINI exits from the program; if I=-1, FINI returns normally. The form FINI(NA,EXT,PN,PJ) of the original is accepted and acts on its first argument only: it closes all the files, and exits if NA is 0. A program that ends without FINI still has its complete lines written, since the files are closed when the program exits, but a line that was not ended by / is lost.
+It is necessary to close out your output files explicitly in your program some time before it
+terminates. This is done by the subroutine call FINI(I), for I=0 or -1. This closes all your files,
+and the output and the input return to the standard output and the standard input. If I=0, FINI
+exits from the program; if I=-1, FINI returns normally. A program that ends without FINI still has
+its complete lines written, since the files are closed when the program exits, but a line that was
+not ended by / is lost.
 
-At most four files may be referred to in IMP I/O. If it is desired to refer to more, one of the previous files must be explicitly closed using FINI (or close all of them with FINI(-1)). The standard input and the standard output are not counted. A file that cannot be opened, and a fifth file, stop the program with a message on the standard error and the exit status 1.
+At most four files may be referred to in IMP I/O. If it is desired to refer to more, one of the
+previous files must be explicitly closed using FINI (or close all of them with FINI(-1)). The
+standard input and the standard output are not counted. A file that cannot be opened, and a fifth
+file, stop the program with a message on the standard error and the exit status 1.
 
 - Format Specifiers:
 
 - IGR N
 
-Conversion is in base 10, in a field N positions wide. On output, leading zeros are suppressed, and a leading minus sign is printed for negative numbers. On input, the field is a decimal number with an optional sign.
+Conversion is in base 10, in a field N positions wide. On output, leading zeros are suppressed, and
+a leading minus sign is printed for negative numbers. On input, the field is a decimal number with
+an optional sign.
 
 - OCT N
 
-Conversion is in base 8, unsigned (i.e., negative numbers print with leading 7's: -1 is 1777777777777777777777), in a field N positions wide. On output, leading zeros are printed. If N is greater than 12 and the number is less than `8**12`, exactly the leftmost N-12 positions will be blank.
+Conversion is in base 8, unsigned (i.e., negative numbers print with leading 7's: -1
+is 1777777777777777777777), in a field N positions wide. On output, leading zeros are printed. If N
+is greater than 12 and the number is less than `8**12`, exactly the leftmost N-12 positions will be
+blank.
 
 - STG N
 
-Conversion is in bytes, in a field N wide. On output, if N is 0 characters are printed until a 0 byte is encountered. Otherwise, characters are printed until a 0 byte is encountered or until N characters have been printed, and a shorter string is preceded by blanks to fill the field. On input, the field is stored as bytes ended by a zero byte.
+Conversion is in bytes, in a field N wide. On output, if N is 0 characters are printed until a 0
+byte is encountered. Otherwise, characters are printed until a 0 byte is encountered or until N
+characters have been printed, and a shorter string is preceded by blanks to fill the field. On
+input, the field is stored as bytes ended by a zero byte.
 
 - FLT M.N
 
-Prints a floating point number (a REAL) in a field M columns wide, with N digits to the right of the decimal point. If N is 0, no decimal point is printed. If the number will not fit in the field as specified, scientific notation is used. If M is negative, scientific notation is always used in a field -M columns wide. (IMP uses " to mean 'times 10 to the'.) Exception: if M is 0, a field just wide enough to contain the number is used. There is no 0 before the decimal point: 0.5 prints as .500 for N=3. The digits are those of the IEEE double, correctly rounded. The value printed is a REAL: an integer given to FLT is read as the bits of a double, so write FLT(I) for an integer I. On input, FLT M.N is equivalent to IGR M.
+Prints a floating point number (a REAL) in a field M columns wide, with N digits to the right of the
+decimal point. If N is 0, no decimal point is printed. If the number will not fit in the field as
+specified, scientific notation is used. If M is negative, scientific notation is always used in a
+field -M columns wide. (IMP uses " to mean 'times 10 to the'.) Exception: if M is 0, a field just
+wide enough to contain the number is used. There is no 0 before the decimal point: 0.5 prints as
+.500 for N=3. The digits are those of the IEEE double, correctly rounded. The value printed is a
+REAL: an integer given to FLT is read as the bits of a double, so write FLT(I) for an integer I. On
+input, FLT M.N is equivalent to IGR M.
 
 - /
 
-New line. On output, causes termination of the current line. If a line is printed but not terminated with a /, then the line will not print. Successive /'s produce blank lines. On input, a / causes the remainder of the current line to be skipped over.
+New line. On output, causes termination of the current line. If a line is printed but not terminated
+with a /, then the line will not print. Successive /'s produce blank lines. On input, a / causes the
+remainder of the current line to be skipped over.
 
 - FILE A
 
 - FILE A.B
 
-- FILE A[P,R]
-
-- FILE A.B[P,R]
-
-Specifies the file for input/output. A and B are file name and extension, and may be either string constants or unsubscripted variables holding a string. The file is the Unix file `A.B` of the current directory, or `A` when B is absent or 0; A and B are cut to seven characters each. P and R are the project and programmer numbers of the original and select nothing; if they are constants, they must be written in octal but without the letter "B" suffixed. A PRINT opens the file for writing, and replaces its contents; a READ opens it for reading. The file stays the one for the output (or the input) until another FILE, a DEVICE 'TTY:' or a FINI. Caution: FILE FOR03.DAT, e.g., refers to variables FOR03 and DAT. He who wrote this probably meant to write FILE 'FOR03'.'DAT'.
+Specifies the file for input/output. A and B are file name and extension, and may be either string
+constants or unsubscripted variables holding a string. The file is the Unix file `A.B` of the
+current directory, or `A` when B is absent or 0; A and B are cut to seven characters each. A PRINT
+opens the file for writing, and replaces its contents; a READ opens it for reading. The file stays
+the one for the output (or the input) until another FILE, a DEVICE 'TTY:' or a FINI. Caution: FILE
+FOR03.DAT, e.g., refers to variables FOR03 and DAT. He who wrote this probably meant to write FILE
+'FOR03'.'DAT'.
 
 Examples: after `A:=101B`, the statement PRINT STG 1,A,IGR 4,A,OCT 6,A,A,/ produces the line
 
@@ -579,25 +857,38 @@ writes the file `out.txt` and prints
 
 - DEVICE D
 
-Causes the next FILE specification (on either READ or PRINT) to refer to a file on device D. D may be either a string constant or a variable containing a string value. The only device is the terminal: DEVICE 'TTY:' makes the standard output (for PRINT) or the standard input (for READ) the file, with no subsequent file specification. The next file specification will cause the input or output to revert to that file. Any other device is ignored.
+D may be either a string constant or a variable containing a string value. DEVICE 'TTY:' makes the
+standard output (for PRINT) or the standard input (for READ) the file, with no subsequent file
+specification. The next file specification will cause the input or output to revert to that file.
 
 - IMAGE MODE
 
-This format specification causes subsequent data transfer to be in unformatted mode, transferring 8-byte words, in the byte order of the machine, between the file and the variables in the I/O statement list. A / in image mode ends nothing. Mixing IMAGE MODE and other format specifications in reading or writing the same file may produce anomalous results.
+This format specification causes subsequent data transfer to be in unformatted mode,
+transferring 8-byte words, in the byte order of the machine, between the file and the variables in
+the I/O statement list. A / in image mode ends nothing. Mixing IMAGE MODE and other format
+specifications in reading or writing the same file may produce anomalous results.
 
 - TAB N
 
-On PRINT only, causes the next character of output to appear in column N (numbering starting with 1). If printing has already gone past column N, no action is taken.
+On PRINT only, causes the next character of output to appear in column N (numbering starting
+with 1). If printing has already gone past column N, no action is taken.
 
 - FILL 'c'
 
-On output only, causes leading positions in all fields to be printed as the specified character instead of being left blank. Thus, for example, FILL '0' causes leading zeros to be printed. FILL ' ' (or FILL 0) restores blanks. This specification, unlike the others, affects all output files, not just the current one.
+On output only, causes leading positions in all fields to be printed as the specified character
+instead of being left blank. Thus, for example, FILL '0' causes leading zeros to be printed. FILL '
+' (or FILL 0) restores blanks. This specification, unlike the others, affects all output files, not
+just the current one.
 
 #### 2.2.8: Declarations; DATA and REMOTE statements.
 
 - LET I=2R,A=3,BF=B[1]
 
-The LET statement provides a convenient way of declaring synonyms. It consists of the word LET, followed by a list of synonym declarations of the form N=V, where N is a name and V is a constant, or a simple or subscripted variable. The effect is that all subsequent appearances of N in the program will be interpreted as if V had been written instead. LET A=B is in fact just "syntactic sugaring" for the syntax statement `<ATOM> ::= A ::="B"`.
+The LET statement provides a convenient way of declaring synonyms. It consists of the word LET,
+followed by a list of synonym declarations of the form N=V, where N is a name and V is a constant,
+or a simple or subscripted variable. The effect is that all subsequent appearances of N in the
+program will be interpreted as if V had been written instead. LET A=B is in fact just "syntactic
+sugaring" for the syntax statement `<ATOM> ::= A ::="B"`.
 
 - A,B ARE 3 LONG,COMMON
 
@@ -605,11 +896,14 @@ The LET statement provides a convenient way of declaring synonyms. It consists o
 
 - FOO,3R IS RELEASED
 
-Declarations: the general form for a declaration is a list of names, then a list of characteristics to be associated with these names. The characteristics available are:
+Declarations: the general form for a declaration is a list of names, then a list of characteristics
+to be associated with these names. The characteristics available are:
 
 - REAL
 
-Specifies that the variables are real numbers, and all arithmetic performed on them is to be floating point. Type conversion between real and integer is always done implicitly. A real is an IEEE 754 double, held in the 64-bit word.
+Specifies that the variables are real numbers, and all arithmetic performed on them is to be
+floating point. Type conversion between real and integer is always done implicitly. A real is an
+IEEE 754 double, held in the 64-bit word.
 
 - INTEGER
 
@@ -617,55 +911,67 @@ Specifies that the variables are integers, which they are unless declared REAL.
 
 - N LONG
 
-Where N is a constant or constant expression. The variables are declared to be arrays, and N words are reserved for each of them. (The N words may be referred to as A (or A[0]), A[1], ... A[N-1].)
+Where N is a constant or constant expression. The variables are declared to be arrays, and N words
+are reserved for each of them. (The N words may be referred to as A (or A[0]), A[1], ... A[N-1].)
 
 - COMMON
 
-Variables are made common: each is a global symbol of the object file, spelled as the name, which the files of a program and `C` share. Every file that uses a COMMON variable declares it, and the declarations name one variable. The size of a COMMON array is given by N LONG in the declaration. A variable that is not COMMON belongs to its file (Section 2.1.4). A COMMON variable that nothing in a file uses is not made by that file. COMMON is how an IMP program and a `C` program share data (Section 2.4.3).
+Variables are made common: each is a global symbol of the object file, spelled as the name, which
+the files of a program and `C` share. Every file that uses a COMMON variable declares it, and the
+declarations name one variable. The size of a COMMON array is given by N LONG in the declaration. A
+variable that is not COMMON belongs to its file (Section 2.1.4). A COMMON variable that nothing in a
+file uses is not made by that file. COMMON is how an IMP program and a `C` program share data
+(Section 2.4.3).
 
 - EXTERNAL
 
-Variables are defined elsewhere, in the `C` library for example: X IS EXTERNAL makes X the variable of that name which the linker finds, and nothing is defined in the file. LOC(X) is its address (Section 2.4.3).
+Variables are defined elsewhere, in the `C` library for example: X IS EXTERNAL makes X the variable
+of that name which the linker finds, and nothing is defined in the file. LOC(X) is its address
+(Section 2.4.3).
 
 - LOCAL
 
-Makes variables local to the current subroutine from this point to the end of the subroutine, but does not affect the meaning of the identifier outside the current subroutine. A LOCAL variable keeps its value from one call to the next.
+Makes variables local to the current subroutine from this point to the end of the subroutine, but
+does not affect the meaning of the identifier outside the current subroutine. A LOCAL variable keeps
+its value from one call to the next.
 
 - REGISTER
 
-The declaration A IS REGISTER makes A a register: like 0R to 15R it is a variable local to each routine, which is 0 when the routine is entered and has no address. A register cannot be declared REAL. Until the declaration A IS RELEASED is encountered, all references to A refer to the register.
-
-- RESERVED
-
-- AVAILABLE
-
-- SCRATCH
-
-- PROTECTED
-
-These declarations, which told the original compiler how to use the registers of the PDP-10, are accepted for a register name 0R to 15R and have no effect on the code. LLVM allocates the machine registers.
+The declaration A IS REGISTER makes A a register: like 0R to 15R it is a variable local to each
+routine, which is 0 when the routine is entered and has no address. A register cannot be declared
+REAL. Until the declaration A IS RELEASED is encountered, all references to A refer to the register.
 
 - RELEASED
 
-For identifiers which have been bound to a register, that binding is terminated, and subsequent references to that identifier will refer to a memory location (a variable of the file).
+For identifiers which have been bound to a register, that binding is terminated, and subsequent
+references to that identifier will refer to a memory location (a variable of the file).
 
 - REMOTE S
 
-S is any statement. Has the effect of causing the code for statement S to be inserted not at the point in the program where the REMOTE statement appears, but at the end of the routine. Useful in quoted semantics where local variables are required, e.g., LOCAL FOO IN "... REMOTE FOO:0; ...".
+S is any statement. Has the effect of causing the code for statement S to be inserted not at the
+point in the program where the REMOTE statement appears, but at the end of the routine. Useful in
+quoted semantics where local variables are required, e.g., LOCAL FOO IN "... REMOTE FOO:0; ...".
 
 - DATA (L)
 
-L is a list of constant expressions and string constants. The DATA statement produces data words at that point in the program containing the values of the constant expressions. One word is used for each item in L, except that strings are stored in as many words as are required. DATA statements may be used to preset variables to a value at compile time, viz.: VAR: DATA (3). A DATA statement may be executed: it does nothing. The tag of a DATA statement names its first word, so that after TBL: DATA(10,20,30) the elements are TBL[0], TBL[1] and TBL[2].
+L is a list of constant expressions and string constants. The DATA statement produces data words at
+that point in the program containing the values of the constant expressions. One word is used for
+each item in L, except that strings are stored in as many words as are required. DATA statements may
+be used to preset variables to a value at compile time, viz.: VAR: DATA (3). A DATA statement may be
+executed: it does nothing. The tag of a DATA statement names its first word, so that after TBL:
+DATA(10,20,30) the elements are TBL[0], TBL[1] and TBL[2].
 
 #### 2.2.9:  Miscellaneous Constructs.
 
-- CALL ME Ishmael
-
-This statement is accepted and has no effect. (The original used the name to name the DDT symbol table of a compiled program.)
-
 - EXECUTE E
 
-Executes the instruction contained in the variable E. The instruction is a word of the abstract machine that the compiler generates code for: the operation in bits 56 to 63 (the numbers are listed at the head of the file `syntax64.imc`: 1 LOAD, 6 ADD, 7 SUB, ...), the register in bits 52 to 55, an index register in bits 48 to 51, bit 47 set for an immediate operand and the address or number in the bits 0 to 46. The registers are 0R to 15R. A register that the instruction names must be mentioned elsewhere in the routine, as 8R is in the example, because the compiler keeps the registers a routine mentions. The program
+Executes the instruction contained in the variable E. The instruction is a word of the abstract
+machine that the compiler generates code for: the operation in bits 56 to 63 (the numbers are listed
+at the head of the file `syntax64.imc`: 1 LOAD, 6 ADD, 7 SUB, ...), the register in bits 52 to 55,
+an index register in bits 48 to 51, bit 47 set for an immediate operand and the address or number in
+the bits 0 to 46. The registers are 0R to 15R. A register that the instruction names must be
+mentioned elsewhere in the routine, as 8R is in the example, because the compiler keeps the
+registers a routine mentions. The program
 
 ```
 8R:=5;
@@ -679,27 +985,30 @@ FINI(0)
 %%
 ```
 
-loads 42 into register 8, adds 8 to it, and prints 42 and 50. The jumps and the floating point operations cannot be executed this way.
+loads 42 into register 8, adds 8 to it, and prints 42 and 50. The jumps and the floating point
+operations cannot be executed this way.
 
 - CALLI(C,V)
 
-Executes a monitor call of the PDP-10 that the runtime library imitates, with the argument V. The code C is a number or an expression. The value of the construct is the value of the library routine IMPCALLI. The calls that do something are (octal) 12, exit (the output is flushed); 14, the date, as the number ((year-1964)*12+month-1)*31+day-1; 23, the time of day in milliseconds; 27, the run time of the program in milliseconds; and 30, the job number, which is 1. All the others have the value 0. The variable CALLI is not set.
+Calls the library routine IMPCALLI with the code C and the argument V. The code C is a number or an
+expression. The value of the construct is the value of the routine. The calls are (octal) 12, exit
+(the output is flushed); 14, the date, as the number ((year-1964)*12+month-1)*31+day-1; 23, the time
+of day in milliseconds; 27, the run time of the program in milliseconds; and 30, the job number,
+which is 1.
 
 - XWD A,B
 
-Useful occasionally in system calls. Has the value of the low 32 bits of B ORed with the low 32 bits of A shifted left 32 bits.
+Useful occasionally in system calls. Has the value of the low 32 bits of B ORed with the low 32 bits
+of A shifted left 32 bits.
 
 - IOWD A,B
 
 Has the value XWD -A,B-1.
 
-- TWOSEG
-
-This statement is accepted and has no effect: the code of a program is always reentrant.
-
 - FIX(A)
 
-Has the value of the expression A, converted to type integer (by truncation toward zero) if it was not already of that type.
+Has the value of the expression A, converted to type integer (by truncation toward zero) if it was
+not already of that type.
 
 - FLT(A)
 
@@ -707,21 +1016,42 @@ Has the value of the expression A, converted to type real if it was not already 
 
 - MOVE A THROUGH N TO B
 
-Copies the N+1 words that start at A to the N+1 words that start at B, upward, one word at a time. It performs the operation `(B[I]:=A[I]) FOR I TO N`. N is any positive expression (if real, it is fixed). A and B are any expressions having an address, such as simple or subscripted variables, or [expression].
+Copies the N+1 words that start at A to the N+1 words that start at B, upward, one word at a time.
+It performs the operation `(B[I]:=A[I]) FOR I TO N`. N is any positive expression (if real, it is
+fixed). A and B are any expressions having an address, such as simple or subscripted variables, or
+[expression].
 
 ### 2.3:  Syntactic and Semantic Extension.
 
-This section explains the IMP72 facilities for extending the language. It is possible to add productions to the syntax for the language, defining the semantics for the new constructs in several ways. Semantics may be specified in terms of expressions written in the portion of the language already defined, as explained in Section 2.3.1. Alternatively, semantics may be performed by a series of function calls to semantic subroutines contained within the compiler, as documented in Section 2.3.3.1. The user may use the subroutines provided, or, if he requires operations not available from the current set of semantic subroutines, he may as a last resort go into the compiler to add new ones. Different semantics may be specified in special cases, as explained in Section 2.3.3.2, either to perform different operations upon objects in different contexts, or to generate better object code. When the semantics for several productions are very similar, they may be lumped together under a general case, as noted in Section 2.3.3.3 and 2.3.3.4.
+This section explains the IMP72 facilities for extending the language. It is possible to add
+productions to the syntax for the language, defining the semantics for the new constructs in several
+ways. Semantics may be specified in terms of expressions written in the portion of the language
+already defined, as explained in Section 2.3.1. Alternatively, semantics may be performed by a
+series of function calls to semantic subroutines contained within the compiler, as documented in
+Section 2.3.3.1. The user may use the subroutines provided, or, if he requires operations not
+available from the current set of semantic subroutines, he may as a last resort go into the compiler
+to add new ones. Different semantics may be specified in special cases, as explained in
+Section 2.3.3.2, either to perform different operations upon objects in different contexts, or to
+generate better object code. When the semantics for several productions are very similar, they may
+be lumped together under a general case, as noted in Section 2.3.3.3 and 2.3.3.4.
 
 #### 2.3.1:  The Easy Way - Syntactic "Macros"
 
-This section is an introduction to syntactic extension in IMP72 for the casual user, and is intended to provide him with sufficient information to utilize the basic facility without informing to the point of total confusion. Some of these features are in fact less restricted than indicated in this section. The full truth emerges in subsequent sections.
+This section is an introduction to syntactic extension in IMP72 for the casual user, and is intended
+to provide him with sufficient information to utilize the basic facility without informing to the
+point of total confusion. Some of these features are in fact less restricted than indicated in this
+section. The full truth emerges in subsequent sections.
 
-IMP72 contains a facility for defining syntactic macros, or patterns which the compiler will recognize in a program and generate specific code for. An example of a definition for the absolute value function using a syntactic macro is
+IMP72 contains a facility for defining syntactic macros, or patterns which the compiler will
+recognize in a program and generate specific code for. An example of a definition for the absolute
+value function using a syntactic macro is
 
 - <EXP> ::= ABS ( <A> ) ::= "A<0=>-A ELSE A"
 
-This statement, when inserted in a program, will cause the compiler to recognize the construct ABS, followed by a "(", followed by any expression, followed by a ")", and to substitute for it the code enclosed in " signs, inserting the actual expression for each instance of A in the quoted expression. Thus, writing
+This statement, when inserted in a program, will cause the compiler to recognize the construct ABS,
+followed by a "(", followed by any expression, followed by a ")", and to substitute for it the code
+enclosed in " signs, inserting the actual expression for each instance of A in the quoted
+expression. Thus, writing
 
 **X:=ABS(R+3)**
 
@@ -733,11 +1063,20 @@ A syntax statement fits the following pattern:
 
 **<EXP> ::= syntax part ::= semantic part**
 
-The syntax part is the pattern which the compiler is to recognize. It consists of the names and special symbols in the pattern, and, for each expression in the pattern, an identifier in angle brackets: e.g., <FOO>. Single characters in quotes (e.g., '#') are interpreted as that character, without the quotes, and the characters : ; " < and % must be quoted if they appear in the syntax part.
+The syntax part is the pattern which the compiler is to recognize. It consists of the names and
+special symbols in the pattern, and, for each expression in the pattern, an identifier in angle
+brackets: e.g., <FOO>. Single characters in quotes (e.g., '#') are interpreted as that character,
+without the quotes, and the characters : ; " < and % must be quoted if they appear in the syntax
+part.
 
-The semantic part consists of an IMP expression in double quotes, perhaps preceded by a list of local variables. It defines the code IMP is to generate when it recognizes an instance of the syntax part, with the actual expressions in the instance to be inserted in the quoted expression in place of the identifiers which appeared in angle brackets in the syntax part.
+The semantic part consists of an IMP expression in double quotes, perhaps preceded by a list of
+local variables. It defines the code IMP is to generate when it recognizes an instance of the syntax
+part, with the actual expressions in the instance to be inserted in the quoted expression in place
+of the identifiers which appeared in angle brackets in the syntax part.
 
-The quoted expression may be preceded with a list of local variables. For example, notice that the definition of ABS above computes A twice, which may be inefficient if A is an expression. A more efficient way of doing it is
+The quoted expression may be preceded with a list of local variables. For example, notice that the
+definition of ABS above computes A twice, which may be inefficient if A is an expression. A more
+efficient way of doing it is
 
 - <EXP> ::= ABS ( <A> ) ::= LOCAL R IN "R IS REGISTER;
 
@@ -759,15 +1098,22 @@ This concludes the introduction to syntactic macros.
 
 #### 2.3.2: Specifying Syntax.
 
-The form of the syntax specification statement is a modification of the form of a BNF production (Naur 1963), with alternative right-hand sides not allowed, and a semantics definition added at the right. The general form is:
+The form of the syntax specification statement is a modification of the form of a BNF production
+(Naur 1963), with alternative right-hand sides not allowed, and a semantics definition added at the
+right. The general form is:
 
 **<class> ::= syntax-part ::= semantic-part**
 
-We will use the term "arguments" of a production or syntax statement to refer to the non-terminals appearing in the syntax-part of a syntax statement (i.e., on the right-hand side of the production).
+We will use the term "arguments" of a production or syntax statement to refer to the non-terminals
+appearing in the syntax-part of a syntax statement (i.e., on the right-hand side of the production).
 
-The compiler interprets a program by recognizing instances of certain syntactic classes, such as <EXP> (expression), <VBL> (variable), etc. The function of the syntax part of a syntax statement is to tell the compiler about a new construct that it must recognize as an instance of a certain class, specified by the identifier in <class>. The classes of interest in the IMP language are:
+The compiler interprets a program by recognizing instances of certain syntactic classes, such as
+<EXP> (expression), <VBL> (variable), etc. The function of the syntax part of a syntax statement is
+to tell the compiler about a new construct that it must recognize as an instance of a certain class,
+specified by the identifier in <class>. The classes of interest in the IMP language are:
 
-- <NAM>: Any variable name or constant. Should generally be avoided in favor of <VBL> unless the user is sure of what he is doing.
+- <NAM>: Any variable name or constant. Should generally be avoided in favor of <VBL> unless the
+  user is sure of what he is doing.
 
 - <VBL>: Any constant or simple or subscripted variable.
 
@@ -783,19 +1129,25 @@ The compiler interprets a program by recognizing instances of certain syntactic 
 
 - <STL>: List of one or more <ST>s, separated by ;'s.
 
-The full set of syntactic classes in IMP may be determined by reading the syntax of the language (see Appendix II). The user may define his own syntactic classes as the humor falls upon him.
+The full set of syntactic classes in IMP may be determined by reading the syntax of the language
+(see Appendix II). The user may define his own syntactic classes as the humor falls upon him.
 
 The syntactic part of a syntax statement may contain:
 
-- 1. Identifiers and special characters, representing themselves. The characters %, ", :, < and ; must be enclosed in single quotes.
+- 1. Identifiers and special characters, representing themselves. The characters %, ", :, < and ;
+  must be enclosed in single quotes.
 
 - 2. Single characters enclosed in single quotes. They are interpreted as the character alone.
 
-- 3. Syntactic classes, represented by <CLASS,name>, where CLASS is the name of the class and name is an identifier by which to refer to this argument of the production in the semantics.
+- 3. Syntactic classes, represented by <CLASS,name>, where CLASS is the name of the class and name
+  is an identifier by which to refer to this argument of the production in the semantics.
 
-- 4. <name>. This is interpreted as <EXP,name> unless it is the very first thing after the ::=, in which case it is interpreted as <ATOM,name>. This has the effect of making operations defined using <name> be right-associative, in keeping with the IMP convention.
+- 4. <name>. This is interpreted as <EXP,name> unless it is the very first thing after the ::=, in
+  which case it is interpreted as <ATOM,name>. This has the effect of making operations defined using
+  <name> be right-associative, in keeping with the IMP convention.
 
-Example: In section 2.3.1, an expurgated version of the syntax of FROM loops was given. The adult version illustrates the use of syntactic classes:
+Example: In section 2.3.1, an expurgated version of the syntax of FROM loops was given. The adult
+version illustrates the use of syntactic classes:
 
 <ST> ::= <EXP,A> FOR <VBL,B> FROM <EXP,C> ::=
 
@@ -805,9 +1157,13 @@ Example: In section 2.3.1, an expurgated version of the syntax of FROM loops was
 
 - (B:=B-1) GE 0=>GO TO FOR"
 
-The interpretation of the syntactic part of this statement is that the compiler is henceforth to recognize as an <ST> the construct consisting of any <EXP>, followed by the word FOR, followed by any <VBL>, followed by the word FROM, followed by any <EXP>.
+The interpretation of the syntactic part of this statement is that the compiler is henceforth to
+recognize as an <ST> the construct consisting of any <EXP>, followed by the word FOR, followed by
+any <VBL>, followed by the word FROM, followed by any <EXP>.
 
-Example: This example illustrates the use of user-defined syntactic classes and recursive definitions. The construct to be defined is GO TO (L0,L1,..,LN) I which transfers control to Li where i is the value of I. (If I<0 or I>N, the effect is undefined.)
+Example: This example illustrates the use of user-defined syntactic classes and recursive
+definitions. The construct to be defined is GO TO (L0,L1,..,LN) I which transfers control to Li
+where i is the value of I. (If I<0 or I>N, the effect is undefined.)
 
 ```
 <ST> ::= GO TO (<GOLIST,A>) <B>  ::=
@@ -823,63 +1179,98 @@ GO TO %GO1[J-3];
      GO TO C
 ```
 
-(%GO1 is a unique name generated by the compiler for the local variable GO.) This is the definition of the construct in the syntax file of the compiler. The token `:=` must be written in single quotes in the syntax part of a syntax statement, as ':=', like the other characters that the notation uses (the token `::=` that separates the parts needs none).
+(%GO1 is a unique name generated by the compiler for the local variable GO.) This is the definition
+of the construct in the syntax file of the compiler. The token `:=` must be written in single quotes
+in the syntax part of a syntax statement, as ':=', like the other characters that the notation uses
+(the token `::=` that separates the parts needs none).
 
 It is possible to write a syntax statement with no semantic part:
 
 **<class> ::= syntax-part**
 
-The semantics implied by this syntax statement is to discard all arguments of the production except the first. If there are no arguments or one argument, no information is lost.
+The semantics implied by this syntax statement is to discard all arguments of the production except
+the first. If there are no arguments or one argument, no information is lost.
 
 #### 2.3.3: Specifying Semantics.
 
 ##### 2.3.3.1: Semantic Routines.
 
-In Section 2.3.1 we saw that the semantic part of a syntax statement could consist of quoted semantics - i.e., an IMP expression enclosed by double quotes. There is one alternate format for semantics: a functional expression consisting of calls to semantic subroutines.
+In Section 2.3.1 we saw that the semantic part of a syntax statement could consist of quoted
+semantics - i.e., an IMP expression enclosed by double quotes. There is one alternate format for
+semantics: a functional expression consisting of calls to semantic subroutines.
 
-Semantic subroutines are normal compiler subroutines which are also available to the syntax writer in a limited sense. They are called with arguments of the following types:
+Semantic subroutines are normal compiler subroutines which are also available to the syntax writer
+in a limited sense. They are called with arguments of the following types:
 
-- 1. Constants. Usually small positive numbers. These can specify opcodes, switches, or whatever, depending on the routine.
+- 1. Constants. Usually small positive numbers. These can specify opcodes, switches, or whatever,
+  depending on the routine.
 
-- 2. Negative directory indices. Identifiers are, by convention, passed to semantic routines as the negative of their index in the directory.
+- 2. Negative directory indices. Identifiers are, by convention, passed to semantic routines as the
+  negative of their index in the directory.
 
-- 3. Registers. These are in the form of indices in a table of symbolic registers. Assignments to actual machine registers are made during the assembly phase.
+- 3. Registers. These are in the form of indices in a table of symbolic registers. Assignments to
+  actual machine registers are made during the assembly phase.
 
 - 4. Objects.
 
-- 5. Two arguments connected by a + sign. The value is the sum of the arguments. a syntactic ambiguity diagnostic will result from an argument of the form arg+arg+arg; the diagnostic may be ignored.
+- 5. Two arguments connected by a + sign. The value is the sum of the arguments. a syntactic
+  ambiguity diagnostic will result from an argument of the form arg+arg+arg; the diagnostic may be
+  ignored.
 
-Objects are pointers into a stack which holds the expressions being processed by the semantics of the current production. An object corresponds to some <class,name> in the production an instance of which is being compiled. Objects either are identifiers from the program being compiled, or have been constructed by semantics operating on and/or combining other objects.
+Objects are pointers into a stack which holds the expressions being processed by the semantics of
+the current production. An object corresponds to some <class,name> in the production an instance of
+which is being compiled. Objects either are identifiers from the program being compiled, or have
+been constructed by semantics operating on and/or combining other objects.
 
-Objects come in five flavors: Name, Register, Constant, Variable and Memory: All but Name will have an arithmetic type (real or integer), and may have associated with them some object code which computes the expression of which the object is the value.
+Objects come in five flavors: Name, Register, Constant, Variable and Memory: All but Name will have
+an arithmetic type (real or integer), and may have associated with them some object code which
+computes the expression of which the object is the value.
 
-- Name - Has no properties other than a name. Is turned into another type of object by semantic routine NAME (q.v.). Names will not pop up as operands; they will have been passed through NAME on their way to becoming <VBL>s.
+- Name - Has no properties other than a name. Is turned into another type of object by semantic
+  routine NAME (q.v.). Names will not pop up as operands; they will have been passed through NAME on
+  their way to becoming <VBL>s.
 
-- Register - Has no properties other than a register. A Register object usually designates a register holding the result of a computation.
+- Register - Has no properties other than a register. A Register object usually designates a
+  register holding the result of a computation.
 
-- Constant - May be a constant from the source program (in which case it has a name), or a computed one. In any event, it has a value.
+- Constant - May be a constant from the source program (in which case it has a name), or a computed
+  one. In any event, it has a value.
 
 - Variable - Designates a simple variable, with maybe a constant subscript. No other properties.
 
-- Memory - Designates some address in memory too complicated to be a Variable. May have any or all of a name, a constant subscript, an index register (containing the value of a computed subscript), and even an indirect bit.
+- Memory - Designates some address in memory too complicated to be a Variable. May have any or all
+  of a name, a constant subscript, an index register (containing the value of a computed subscript),
+  and even an indirect bit.
 
 ###### 2.3.3.1.1: Calling Conventions for Semantic Routines.
 
-The semantic part of a syntax statement may consist of a call to a semantic routine, in standard IMP subroutine call format. The arguments of the call may be either:
+The semantic part of a syntax statement may consist of a call to a semantic routine, in standard IMP
+subroutine call format. The arguments of the call may be either:
 
-- 1. Constants, unsigned, less than 30 bits. The argument passed to the semantic routine is that number.
+- 1. Constants, unsigned, less than 30 bits. The argument passed to the semantic routine is that
+  number.
 
-- 2. Identifiers appearing as names of instances of classes in the production (e.g., A in the example of Section 2.3.1). The argument passed to the semantic routine is a "stack pointer" to the object recognized as that part of the production.
+- 2. Identifiers appearing as names of instances of classes in the production (e.g., A in the
+  example of Section 2.3.1). The argument passed to the semantic routine is a "stack pointer" to the
+  object recognized as that part of the production.
 
-- 3. Identifiers not appearing as names of instances of classes. The argument passed to the semantic routine is the negative of the directory index of the name.
+- 3. Identifiers not appearing as names of instances of classes. The argument passed to the semantic
+  routine is the negative of the directory index of the name.
 
 - 4. Another call to a semantic routine. The argument passed is the value of the semantic routine.
 
 - 5. Any two of the above connected by a + sign. The argument passed is the indicated sum.
 
-Although a semantic part consisting of calls on semantic routines looks like part of an IMP program, there are certain conventions which the semantics writer may take advantage of here. Semantic routines may have up to 10 arguments. Arguments are evaluated strictly left to right within one function call. If more or fewer arguments are provided than the routine demands, no difficulty is encountered (except that a reference to a missing argument will refer to a random location in user core).
+Although a semantic part consisting of calls on semantic routines looks like part of an IMP program,
+there are certain conventions which the semantics writer may take advantage of here. Semantic
+routines may have up to 10 arguments. Arguments are evaluated strictly left to right within one
+function call. If more or fewer arguments are provided than the routine demands, no difficulty is
+encountered (except that a reference to a missing argument will refer to a random location in user
+core).
 
-Therefore, although the ";" operator is not provided in the syntax for semantic routine calls, its effects often can be achieved through the use of arguments which will be evaluated but not used. For example, the effect of
+Therefore, although the ";" operator is not provided in the syntax for semantic routine calls, its
+effects often can be achieved through the use of arguments which will be evaluated but not used. For
+example, the effect of
 
 **F(A,B); G(C,D,E)**
 
@@ -889,11 +1280,14 @@ may be obtained by
 
 if it does not matter that in the latter case C, D and E are evaluated first.
 
-The following is an example of a syntax statement using semantic subroutines to specify semantics. It is suggested that the reader interpret the semantic routine calls using the table below. Operation 3 of the abstract machine is COMPL, the ones complement.
+The following is an example of a syntax statement using semantic subroutines to specify semantics.
+It is suggested that the reader interpret the semantic routine calls using the table below.
+Operation 3 of the abstract machine is COMPL, the ones complement.
 
 **<ATOM>::= INV ( <ATOM,A> ) ::= DEWOP(3,AREG1(1,15B),A);**
 
-After this statement has been compiled (in a file of syntax, Section 3.4), the expression INV(5) has the value -6.
+After this statement has been compiled (in a file of syntax, Section 3.4), the expression INV(5) has
+the value -6.
 
 ###### 2.3.3.1.2: Table of Semantic Routines
 
@@ -905,17 +1299,21 @@ In this table, the types of arguments expected are indicated as follows:
 
 - I, J, N: Constants or (when specified) negative directory indices.
 
-- * Indicates a routine which is object machine-dependant (i.e., which must be altered if code for another computer is to be generated.)
+- * Indicates a routine which is object machine-dependant (i.e., which must be altered if code for
+  another computer is to be generated.)
 
 - NAME AND ARGUMENTS EFFECT AND RESULT RETURNED.
 
 - ADDOP(I,S,T)
 
-*Performs a binary operation on S and T. It is defined as HOOK(S,T, DEWOP(I,REGOF(FETCH(T)),S)). This could be written in semantics but using ADDOP saves compiler table space and is clearer besides.
+*Performs a binary operation on S and T. It is defined as HOOK(S,T, DEWOP(I,REGOF(FETCH(T)),S)).
+This could be written in semantics but using ADDOP saves compiler table space and is clearer
+besides.
 
 - ADDR(S)
 
-*Result is S. The operand of an operation of the abstract machine may be a constant, so that no object with the value in the address field is needed.
+*Result is S. The operand of an operation of the abstract machine may be a constant, so that no
+object with the value in the address field is needed.
 
 - AREG(I)
 
@@ -923,23 +1321,33 @@ Returns the register index for hardware register I.
 
 - AREG1(I,J)
 
-Returns a brand-new register, a temporary of the abstract machine, of which there is an unlimited supply. The arguments, which restricted the choice of a register of the PDP-10, are accepted and give no restriction (they must be between 0 and 177B).
+Returns a brand-new register, a temporary of the abstract machine, of which there is an unlimited
+supply.
 
 - BYTEP(S,T,U)
 
-*S is a Variable-type object. Makes a byte pointer for S<T,U>, computed when the code runs (Section 2.2.6). Result is S, whose value is now the byte pointer. Good things to DEWOP on S are the byte operations 24 to 27.
+*S is a Variable-type object. Makes a byte pointer for S<T,U>, computed when the code runs
+(Section 2.2.6). Result is S, whose value is now the byte pointer. Good things to DEWOP on S are the
+byte operations 24 to 27.
 
 - CONOP(S,T,I,U)
 
-Performs an operation designated by I on two Constant-type objects S and T. See file SYNTAX or the source for CONOP for the codes for I. Feel free to add a few more operations if it will generate better code. U is the implicand in cases of CON RELOP CON=>U. Result is S, with code for T hooked in first if there is any.
+Performs an operation designated by I on two Constant-type objects S and T. See file SYNTAX or the
+source for CONOP for the codes for I. Feel free to add a few more operations if it will generate
+better code. U is the implicand in cases of CON RELOP CON=>U. Result is S, with code for T hooked in
+first if there is any.
 
 - COPY(S)
 
-Produces a copy of the object S, including a copy of the code associated with it, if any. Useful if S is to be hooked in in two different places in code to be generated. Care must be taken to use the copy of S in the place which is hooked in first, since trying to copy an object that has already been hooked in may imperil the internal tranquility of the compiler.
+Produces a copy of the object S, including a copy of the code associated with it, if any. Useful if
+S is to be hooked in in two different places in code to be generated. Care must be taken to use the
+copy of S in the place which is hooked in first, since trying to copy an object that has already
+been hooked in may imperil the internal tranquility of the compiler.
 
 - DATAST(S)
 
-For use in DATA statements. S is any old object; it gets clobbered. Unpacks the current list (see ENLIST), and generates code for the DATA statement whose constants and variables are in the list.
+For use in DATA statements. S is any old object; it gets clobbered. Unpacks the current list (see
+ENLIST), and generates code for the DATA statement whose constants and variables are in the list.
 
 - DECL
 
@@ -949,23 +1357,39 @@ Special semantic routines to implement declarations.
 
 - DEWFUN(S,I,J)
 
-Adds the code to the object S which instructs the assembly pass to perform special function I, with argument J.
+Adds the code to the object S which instructs the assembly pass to perform special function I, with
+argument J.
 
 - DEWOP(I,R,S)
 
-*Performs operation I of the abstract machine (the table below) upon object S and (if nonzero) register R. This is a very smart routine and is happy with any object (except a Name) as S. Caution: If DEWOP is used to implement a binary operator (as in DEWOP(OP,REGOF(T),S), the code for T must be hooked on to the code for S after the DEWOP is performed, otherwise it will be lost. See ADDOP. Result of DEWOP is S. If R is nonzero, S is now a Register object, with value in the register designated by R.
+*Performs operation I of the abstract machine (the table below) upon object S and (if nonzero)
+register R. This is a very smart routine and is happy with any object (except a Name) as S. Caution:
+If DEWOP is used to implement a binary operator (as in DEWOP(OP,REGOF(T),S), the code for T must be
+hooked on to the code for S after the DEWOP is performed, otherwise it will be lost. See ADDOP.
+Result of DEWOP is S. If R is nonzero, S is now a Register object, with value in the register
+designated by R.
 
 - ENLIST(S)
 
-Places the object S at the bottom of the current list. ENLIST is part of a general recursive list mechanism for stacking up lists of things to be fed all at once to some semantic routine. NEWLIST(S) creates an empty list, and, if S is nonzero, puts the object S on it. GETLIST(S) is a non-semantic subroutine which unpacks the current list on a first-in-first-out basis. If the list is not empty, GETLIST(S) puts the top object into the object S (clobbering the old value), and returns a non-zero value. If the list is empty, GETLIST returns 0, and reopens the list which was current at the last call to NEWLIST. See DECLARE (file IMPSEM) for an example of a semantic routine which uses GETLIST. The result of ENLIST is 0.
+Places the object S at the bottom of the current list. ENLIST is part of a general recursive list
+mechanism for stacking up lists of things to be fed all at once to some semantic routine. NEWLIST(S)
+creates an empty list, and, if S is nonzero, puts the object S on it. GETLIST(S) is a non-semantic
+subroutine which unpacks the current list on a first-in-first-out basis. If the list is not empty,
+GETLIST(S) puts the top object into the object S (clobbering the old value), and returns a non-zero
+value. If the list is empty, GETLIST returns 0, and reopens the list which was current at the last
+call to NEWLIST. See DECLARE (file IMPSEM) for an example of a semantic routine which uses GETLIST.
+The result of ENLIST is 0.
 
 - ENSTACK(I)
 
-Creates an object of type Name, where I is the directory index (either positive or negative) of the name. For example to make the object corresponding to the variable VAR, write NAME(ENSTACK(VAR)).
+Creates an object of type Name, where I is the directory index (either positive or negative) of the
+name. For example to make the object corresponding to the variable VAR, write NAME(ENSTACK(VAR)).
 
 - ERROR(N,V)
 
-Produces the compiler error message which is the name of the variable V. N is 0, 1 or 2 for a fatal, ordinary, or advisory error respctively. For error messages containing spaces, etc., enclose the message in ! signs to make it into a variable name. Example: ERROR(2,!You Goofed.!).
+Produces the compiler error message which is the name of the variable V. N is 0, 1 or 2 for a fatal,
+ordinary, or advisory error respctively. For error messages containing spaces, etc., enclose the
+message in ! signs to make it into a variable name. Example: ERROR(2,!You Goofed.!).
 
 - FETCH(S)
 
@@ -979,23 +1403,24 @@ Produces the compiler error message which is the name of the variable V. N is 0,
 
 *Generates code to convert S from integer to floating point. Value is S.
 
-- FREEZE(S)
-
-Result is S. The original flagged the code so that the assembly pass would not optimize out the MOVE instructions in it; LLVM does the optimizing here, and FREEZE has no effect.
-
 - HOOK(U,S,T)
 
-Hooks the code for T on after the code for S. U gets this code, and the value of T. U may be one of S or T (and usually is). HOOK thus performs the ";" operator, among its other uses. It must be used whenever two or more arguments which might have code attached appear in a production, except in the few cases where another semantic routine invokes HOOK implicitly. The result of HOOK is U.
+Hooks the code for T on after the code for S. U gets this code, and the value of T. U may be one of
+S or T (and usually is). HOOK thus performs the ";" operator, among its other uses. It must be used
+whenever two or more arguments which might have code attached appear in a production, except in the
+few cases where another semantic routine invokes HOOK implicitly. The result of HOOK is U.
 
 - MAXWELL
 
 - MAXEND
 
-Specialized subroutines to handle the job of switching parser output into a temporary array rather than feeding it to the code generator. Used to implement quoted semantics.
+Specialized subroutines to handle the job of switching parser output into a temporary array rather
+than feeding it to the code generator. Used to implement quoted semantics.
 
 - NAME(S)
 
-S is a Name-type object. NAME turns it into a variable, adding an arithmetic type, and making things right if S is a register or subroutine parameter. Result is S.
+S is a Name-type object. NAME turns it into a variable, adding an arithmetic type, and making things
+right if S is a register or subroutine parameter. Result is S.
 
 - NEWLIST(S)
 
@@ -1003,11 +1428,14 @@ See ENLIST.
 
 - OJUMPOP(I)
 
-*I is the code of a relational operator (1 <, 2 =, 3 LE, 5 GE, 6 NE, 7 >). OJUMPOP returns the code of the negation of that operator. If I has the 10B bit set, OJUMPOP returns the code for the reverse negation (the reverse of >, for example, is <.)
+*I is the code of a relational operator (1 <, 2 =, 3 LE, 5 GE, 6 NE, 7 >). OJUMPOP returns the code
+of the negation of that operator. If I has the 10B bit set, OJUMPOP returns the code for the reverse
+negation (the reverse of >, for example, is <.)
 
 - PAR(I)
 
-Used in CASE semantics to refer to the Ith argument (counting from 0) of the CASE argument list (see section 2.3.3.3.).
+Used in CASE semantics to refer to the Ith argument (counting from 0) of the CASE argument list (see
+section 2.3.3.3.).
 
 - PRINCAL
 
@@ -1021,31 +1449,42 @@ Result is the register of the object S, or 0 if it doesn't have one.
 
 - REG2S(S)
 
-If S is of type register, and the register was assigned by AREG1 so as to reserve two consecutive registers, then the value of S becomes the contents of the second register. S is otherwise unchanged. If S is not as specified, undefined things happen. The value of REG2S is S.
+If S is of type register, and the register was assigned by AREG1 so as to reserve two consecutive
+registers, then the value of S becomes the contents of the second register. S is otherwise
+unchanged. If S is not as specified, undefined things happen. The value of REG2S is S.
 
 - REMOTE(S)
 
-Causes the code associated with S to be inserted at the end of the compilation instead of at the current point. Result is S, but with no code. (This may lead to incorrect results if an attempt is made to compute with the value of S.)
+Causes the code associated with S to be inserted at the end of the compilation instead of at the
+current point. Result is S, but with no code. (This may lead to incorrect results if an attempt is
+made to compute with the value of S.)
 
 - REPVAL(S,T)
 
-Part of the semantics for syntax. Generalizes the VALUE class S within the quoted semantics T (see Section 2.3.3.4).
+Part of the semantics for syntax. Generalizes the VALUE class S within the quoted semantics T (see
+Section 2.3.3.4).
 
 - RETURN(S)
 
-*Generates code to return from the current subroutine with S as the value of the subroutine. Result is S, not that it matters.
+*Generates code to return from the current subroutine with S as the value of the subroutine. Result
+is S, not that it matters.
 
 - STACKUP(I)
 
-I is either a negative directory index or a constant. This routine is used to create objects and place them on the stack. (If I is a constant, the constant is first entered in the directory, so that a directory index for the item exists.) NAME(ENSTACK(I)) is then performed to make the object. Result is stack index of the item.
+I is either a negative directory index or a constant. This routine is used to create objects and
+place them on the stack. (If I is a constant, the constant is first entered in the directory, so
+that a directory index for the item exists.) NAME(ENSTACK(I)) is then performed to make the object.
+Result is stack index of the item.
 
 - SETPRI(I)
 
-Part of the semantics for syntax. Sets the designated priority bits in the semantics being generated.
+Part of the semantics for syntax. Sets the designated priority bits in the semantics being
+generated.
 
 - STACK(I)
 
-Returns the Ith argument of the production. Used to refer to arguments which are VALUE classes in default semantics (i.e., semantics which are not conditional.)
+Returns the Ith argument of the production. Used to refer to arguments which are VALUE classes in
+default semantics (i.e., semantics which are not conditional.)
 
 - STORE(S,T)
 
@@ -1053,23 +1492,34 @@ Returns the Ith argument of the production. Used to refer to arguments which are
 
 - SUBBEG(S)
 
-*Generates code for the beginning of subroutine S, where S is a Name-type object. Result is S, with the code attached.
+*Generates code for the beginning of subroutine S, where S is a Name-type object. Result is S, with
+the code attached.
 
 - SUBPR0(I)
 
-Called with I=0 at the beginning, and I=1 at the end, of every subroutine call. Keeps track of the level of calls, and resets the index of the next temporary for subroutine arguments to 0 whenever it gets up to level 0.
+Called with I=0 at the beginning, and I=1 at the end, of every subroutine call. Keeps track of the
+level of calls, and resets the index of the next temporary for subroutine arguments to 0 whenever it
+gets up to level 0.
 
 - SUBRCALL(S)
 
-*S must be of type Variable. Generates a subroutine call to S (the operation CALLB), and a reference to the function S. The call is completed by a DEWFUN(T,2,REGOF(T),SUBPR0(1)), where T is the complete subroutine call with arguments. The result of SUBRCALL is S, whose value is now register 0R, which is where subroutines return values.
+*S must be of type Variable. Generates a subroutine call to S (the operation CALLB), and a reference
+to the function S. The call is completed by a DEWFUN(T,2,REGOF(T),SUBPR0(1)), where T is the
+complete subroutine call with arguments. The result of SUBRCALL is S, whose value is now
+register 0R, which is where subroutines return values.
 
 - SUBRPAR(S,T)
 
-*S is a subroutine call or some similar thing being built, and T is an argument. The address of T is passed as the next argument of the call (the operation ARG). If T has no address, the address is that of a temporary containing the value of T. The code for T is hooked on to the beginning of S. The result is S.
+*S is a subroutine call or some similar thing being built, and T is an argument. The address of T is
+passed as the next argument of the call (the operation ARG). If T has no address, the address is
+that of a temporary containing the value of T. The code for T is hooked on to the beginning of S.
+The result is S.
 
 - SUBSCRIPT(S,T)
 
-*Generates code for the Variable- or Memory-type object S[T]. Is smart about not computing constant subscripts, etc. S and T may be any type except name. Result is S, with the code for T hooked on before.
+*Generates code for the Variable- or Memory-type object S[T]. Is smart about not computing constant
+subscripts, etc. S and T may be any type except name. Result is S, with the code for T hooked on
+before.
 
 - SVAL(I)
 
@@ -1081,23 +1531,29 @@ Turns on the compiler switch which is the Ith letter of the alphabet.
 
 - TAG(S)
 
-S had better be an object of type Name, or Variable without a subscript. Adds to S the code which defines the tag S at that point. Result is S.
+S had better be an object of type Name, or Variable without a subscript. Adds to S the code which
+defines the tag S at that point. Result is S.
 
 - VAL(S)
 
-Returns the low order 32 bits of the value of the object S. If S is a constant, then this is the low 32 bits of its value. If S is the result of a VALUE semantics, then this is the value specified there. If S has had a value set by SVAL, then this is that value.
+Returns the low order 32 bits of the value of the object S. If S is a constant, then this is the
+low 32 bits of its value. If S is the result of a VALUE semantics, then this is the value specified
+there. If S has had a value set by SVAL, then this is that value.
 
 - VALU(S,T)
 
-Part of the semantics for syntax. Defines the current semantics to be VALUE S OF T, where S is a Constant object and T is a Name object.
+Part of the semantics for syntax. Defines the current semantics to be VALUE S OF T, where S is a
+Constant object and T is a Name object.
 
 - MOVEBLK(S,N,T)
 
-Generates the call of the library routine that copies the N+1 words from S to T; the semantics of MOVE.
+Generates the call of the library routine that copies the N+1 words from S to T; the semantics of
+MOVE.
 
 - JOP(C)
 
-The jump operation (41 to 46) for the relational operator with code C; 10 more for a comparison of reals.
+The jump operation (41 to 46) for the relational operator with code C; 10 more for a comparison of
+reals.
 
 - CJUMP(OP,P,R,S)
 
@@ -1105,15 +1561,19 @@ Jump to the tag S if P and R are related by the jump operation OP.
 
 - CVAL(S)
 
-Makes the name S the name of a C function that is called with its arguments by value (Section 2.4.1); the semantics of CCALL use it.
+Makes the name S the name of a C function that is called with its arguments by value
+(Section 2.4.1); the semantics of CCALL use it.
 
 - FCON(A,B,C)
 
 Makes the floating point constant A.B"C.
 
-In addition to the above, there are a number of semantic routines which define the semantics for syntax, all on file RSYN. See Section 4.4 for documentation.
+In addition to the above, there are a number of semantic routines which define the semantics for
+syntax, all on file RSYN. See Section 4.4 for documentation.
 
-The operations of the abstract machine are the following. The accumulator RD is a register and V the operand. Integers are 64-bit two's complement numbers; DIV truncates toward zero and MOD has the sign of the dividend.
+The operations of the abstract machine are the following. The accumulator RD is a register and V the
+operand. Integers are 64-bit two's complement numbers; DIV truncates toward zero and MOD has the
+sign of the dividend.
 
 ```
 1 LOAD  RD=V      2 NEG  RD=-V      3 COMPL  RD=~V      4 ADDR  RD=the address of V
@@ -1140,27 +1600,47 @@ The operations of the abstract machine are the following. The accumulator RD is 
 66 HRLM  67 HRRM  the low 32 bits of RD into the left or right half of V
 ```
 
-The operand V is a register, a constant, a variable, or a subscripted variable (a variable plus 8 times a word offset, plus 8 times a register). An address is a byte address.
+The operand V is a register, a constant, a variable, or a subscripted variable (a variable plus 8
+times a word offset, plus 8 times a register). An address is a byte address.
 
 ##### 2.3.3.2: Conditional Semantics.
 
-We saw above that semantics may consist of either a semantic routine call or quoted semantics. It is possible to invoke one of a number of semantics for a given syntactic production, depending on the particular case of that production being compiled. First an example:
+We saw above that semantics may consist of either a semantic routine call or quoted semantics. It is
+possible to invoke one of a number of semantics for a given syntactic production, depending on the
+particular case of that production being compiled. First an example:
 
 **<ATOM>::= NOT <ATOM,A>  ::= "NOT B0CON"=>CONOP(B,0,6) ELSE**
 
 **DEWOP(3,AREG1(1,15B),A);**
 
-The semantic part of this syntax statement invokes different semantics for the special case of NOT-constant.
+The semantic part of this syntax statement invokes different semantics for the special case of
+NOT-constant.
 
-Semantics may consist of a number of alternatives, separated by the identifier ELSE. One alternative may consist simply of a semantic routine call or quoted semantics: this is the semantics executed if none of the special cases obtain. The other alternatives are of the form
+Semantics may consist of a number of alternatives, separated by the identifier ELSE. One alternative
+may consist simply of a semantic routine call or quoted semantics: this is the semantics executed if
+none of the special cases obtain. The other alternatives are of the form
 
 **condition => semantics**
 
-where the semantics is a semantic routine call or quoted semantics, and the condition is an IMP expression which is a case of the production, enclosed in double quotes. The arguments of the semantics should be identifiers which designate arguments in the condition. Referring to identifiers which designate arguments in the syntax part will not give a diagnostic but might produce undesired results.
+where the semantics is a semantic routine call or quoted semantics, and the condition is an IMP
+expression which is a case of the production, enclosed in double quotes. The arguments of the
+semantics should be identifiers which designate arguments in the condition. Referring to identifiers
+which designate arguments in the syntax part will not give a diagnostic but might produce undesired
+results.
 
-The condition is satisfied if the expression being parsed matches the expression in the condition. Constants in the condition will match any constant with the same value, even if the names are different. (But constant expressions in the condition are not evaluated. Thus, "-18" in a condition would only match in cases where a minus sign was actually used before a constant with value 18. One should trust the compiler to perform constant arithmetic, and write 1777777777777777777756B instead, which will match any constant expression which evaluates to -18.) Variable names will match any <EXP>, unless they are tagged with modifiers. If the same name appears twice or more in the condition, the expressions matching all occurrences must be identical.
+The condition is satisfied if the expression being parsed matches the expression in the condition.
+Constants in the condition will match any constant with the same value, even if the names are
+different. (But constant expressions in the condition are not evaluated. Thus, "-18" in a condition
+would only match in cases where a minus sign was actually used before a constant with value 18. One
+should trust the compiler to perform constant arithmetic, and write 1777777777777777777756B instead,
+which will match any constant expression which evaluates to -18.) Variable names will match any
+<EXP>, unless they are tagged with modifiers. If the same name appears twice or more in the
+condition, the expressions matching all occurrences must be identical.
 
-Modifiers may be added to the first occurrence of a given variable name in a condition by adding the character '0' to the name, followed by the modifiers. Modifiers all consist of three letters,sometimes followed by one or two twodigit octal numbers. For example, A0CON, FOO0REG0115, I0IGRVARMEMREG. The modifiers are:
+Modifiers may be added to the first occurrence of a given variable name in a condition by adding the
+character '0' to the name, followed by the modifiers. Modifiers all consist of three
+letters,sometimes followed by one or two twodigit octal numbers. For example, A0CON, FOO0REG0115,
+I0IGRVARMEMREG. The modifiers are:
 
 - Arithmetic type modifiers (Identifiers with neither of these match either type):
 
@@ -1168,21 +1648,26 @@ Modifiers may be added to the first occurrence of a given variable name in a con
 
 - FLT: Identifier matches only objects of type real.
 
-- Object type modifiers (Identifiers with none of these match any object type; identifiers with several match any of the indicated types):
+- Object type modifiers (Identifiers with none of these match any object type; identifiers with
+  several match any of the indicated types):
 
 - REG: Matches objects of type Register.
 
 - REGii: Matches objects guaranteed to be in register ii.
 
-- REGiijj: Matches objects guaranteed to be in a register between ii and jj. Range for ii and jj is 0-37 (octal).
+- REGiijj: Matches objects guaranteed to be in a register between ii and jj. Range for ii and jj
+  is 0-37 (octal).
 
 - CON: Matches objects of type constant.
 
 - CONii: Matches objects which are constant, and zero except for the ii rightmost bits.
 
-- CONiijj: Matches objects which are constant, and zero except for the ii bits starting jj from the right end of the word. Range for ii and jj is 0-77 (octal).
+- CONiijj: Matches objects which are constant, and zero except for the ii bits starting jj from the
+  right end of the word. Range for ii and jj is 0-77 (octal).
 
-- CNG: Same as CON (and may have ii or iijj or attached), but matches objects which are constant in the designated field, with all bits outside that field set to 1. CON and CNG should not both be used to modify the same identifier.
+- CNG: Same as CON (and may have ii or iijj or attached), but matches objects which are constant in
+  the designated field, with all bits outside that field set to 1. CON and CNG should not both be used
+  to modify the same identifier.
 
 - VAR: Matches objects of type Variable.
 
@@ -1190,11 +1675,16 @@ Modifiers may be added to the first occurrence of a given variable name in a con
 
 - Code modifier:
 
-- WRD: Matches objects with exactly one word of code associated with them. May not always succeed when one might think it should, due to the order in which objects are combined by the code generator, but will always fail when it should.
+- WRD: Matches objects with exactly one word of code associated with them. May not always succeed
+  when one might think it should, due to the order in which objects are combined by the code
+  generator, but will always fail when it should.
 
-Numerous examples of conditional semantics may be found on file SYNTAX, which contains the syntax for IMP72.
+Numerous examples of conditional semantics may be found on file SYNTAX, which contains the syntax
+for IMP72.
 
-Care should be taken to specify special cases as cases of the proper production. For example, suppose one wished to refer to the low 32 bits (the right half) of a variable by the construct /VARIABLE/. This might be accomplished by
+Care should be taken to specify special cases as cases of the proper production. For example,
+suppose one wished to refer to the low 32 bits (the right half) of a variable by the construct
+/VARIABLE/. This might be accomplished by
 
 **<VBL> ::= / <VBL,A> / ::= "A<32,0>"**
 
@@ -1208,18 +1698,27 @@ and store the value of the expression in the right half of variable, one might t
 
 **ELSE "/A/:=B" => "A<32,0>:=B"**
 
-But /A/:=B is a special case not of this production but of the production for ":=". The above syntax statement would produce an error diagnostic. The correct definition would be (the token `:=` is written in quotes in the syntax part of a syntax statement, like the other characters that the notation uses)
+But /A/:=B is a special case not of this production but of the production for ":=". The above syntax
+statement would produce an error diagnostic. The correct definition would be (the token `:=` is
+written in quotes in the syntax part of a syntax statement, like the other characters that the
+notation uses)
 
 ```
 <VBL> ::= / <VBL,A> / ::= "A<32,0>";
 <EXP>  ::= <VBL,A> ':=' <EXP,B> ::= "/A/:=B" => "A<32,0>:=B"
 ```
 
-This would produce an advisory diagnostic, since the syntax in the second statement duplicates a production already in the language, but this is permitted in order to allow defining additional special cases of semantics, exactly as is done here.
+This would produce an advisory diagnostic, since the syntax in the second statement duplicates a
+production already in the language, but this is permitted in order to allow defining additional
+special cases of semantics, exactly as is done here.
 
 ##### 2.3.3.3: CASEs.
 
-If two or more productions have exactly the same syntax, except for terminal symbols (i.e., they contain the same syntactic classes in the same order, and are instances of the same class), and if their semantics are defined by identical semantic routine calls, with perhaps only a few constants changed (e.g., different opcodes), then it is possible to define a general case, and define the semantics of each production as a special case of it.
+If two or more productions have exactly the same syntax, except for terminal symbols (i.e., they
+contain the same syntactic classes in the same order, and are instances of the same class), and if
+their semantics are defined by identical semantic routine calls, with perhaps only a few constants
+changed (e.g., different opcodes), then it is possible to define a general case, and define the
+semantics of each production as a special case of it.
 
 Example:
 
@@ -1233,33 +1732,57 @@ Example:
        CASE (23,0,0,17) OF SHIFTS;
 ```
 
-The first statement defines the syntax for I LS J. The semantic part defines the case SHIFTS to consist of the set of semantic alternatives within the parentheses following the identifier SHIFTS. (Notice that the A0CON LS B0CON alternative is not part of the SHIFTS definition but is an alternative to it.) The list of constants following the identifier CASE is the "parameter list" for this particular instance (LS) of the case SHIFTS. These constants are referred to in the semantics for SHIFTS by PAR(0) and PAR(3); the first is the operation of the abstract machine (21 is LSH) and the fourth is the code of the operation for CONOP.
+The first statement defines the syntax for I LS J. The semantic part defines the case SHIFTS to
+consist of the set of semantic alternatives within the parentheses following the identifier SHIFTS.
+(Notice that the A0CON LS B0CON alternative is not part of the SHIFTS definition but is an
+alternative to it.) The list of constants following the identifier CASE is the "parameter list" for
+this particular instance (LS) of the case SHIFTS. These constants are referred to in the semantics
+for SHIFTS by PAR(0) and PAR(3); the first is the operation of the abstract machine (21 is LSH) and
+the fourth is the code of the operation for CONOP.
 
-The other two statements define the syntax and semantics for two other kinds of shifts. The semantics is defined by invoking SHIFTS with different parameter lists. The semantics are the same, but PAR(i) will refer to the i-th element of the appropriate parameter list.
+The other two statements define the syntax and semantics for two other kinds of shifts. The
+semantics is defined by invoking SHIFTS with different parameter lists. The semantics are the same,
+but PAR(i) will refer to the i-th element of the appropriate parameter list.
 
-A case, such as SHIFTS, may not be defined in more than one place. It is not necessary to have parameter lists be the same length for different instances of a case, but it is the user's responsibility to insure that parameters that are not supplied are not referred to. In any event, parameter lists must always contain at least one constant.
+A case, such as SHIFTS, may not be defined in more than one place. It is not necessary to have
+parameter lists be the same length for different instances of a case, but it is the user's
+responsibility to insure that parameters that are not supplied are not referred to. In any event,
+parameter lists must always contain at least one constant.
 
-Several CASE semantics may appear as some or all of the alternatives in a semantic part. A CASE semantics may not be the semantics part of a conditional semantics alternative (i.e., "condition"=>CASE (...) OF FOO is illegal.)
+Several CASE semantics may appear as some or all of the alternatives in a semantic part. A CASE
+semantics may not be the semantics part of a conditional semantics alternative (i.e.,
+"condition"=>CASE (...) OF FOO is illegal.)
 
 ##### 2.3.3.4: The VALUE Kludge.
 
-Occasionally, it is necessary to refer in conditional semantics to an argument of the production which can not be written as an identifier. This is not possible using the mechanisms defined so far. The VALUE kludge is a way to accomplish this. Take for example the syntax for conditionals. Relational operators are defined as follows:
+Occasionally, it is necessary to refer in conditional semantics to an argument of the production
+which can not be written as an identifier. This is not possible using the mechanisms defined so far.
+The VALUE kludge is a way to accomplish this. Take for example the syntax for conditionals.
+Relational operators are defined as follows:
 
 **<RELOP> ::= NE  ::= VALUE 6 OF EQ;**
 
 **<RELOP> ::= '<' ::= VALUE 1 OF EQ;**
 
-and so on. The semantics specifies that these productions are special cases of a class of productions labeled EQ, and gives a 32-bit value to be associated with the particular production.
+and so on. The semantics specifies that these productions are special cases of a class of
+productions labeled EQ, and gives a 32-bit value to be associated with the particular production.
 
-In syntax statements involving the class <RELOP>, it is possible to specify that any case of EQ may be recognized as matching a particular element in a semantic condition. This is done as follows:
+In syntax statements involving the class <RELOP>, it is possible to specify that any case of EQ may
+be recognized as matching a particular element in a semantic condition. This is done as follows:
 
-- 1. In quoted unconditional semantics: prefix the quoted part by EQ/. The corresponding instance of RELOP in the syntax part must be named EQ. (Last line in the example below).
+- 1. In quoted unconditional semantics: prefix the quoted part by EQ/. The corresponding instance of
+  RELOP in the syntax part must be named EQ. (Last line in the example below).
 
 - 2. In semantic conditions: Prefix the condition by EQ/.
 
-- 3. In semantics: The element may be referred to in quoted semantics by prefixing the quoted part by EQ/ as in (1). In semantic routine calls, the element may be referenced by STACK(i), where the element comes to the right of exactly i identifiers in the condition (or, in unconditional semantics, i arguments of the production).
+- 3. In semantics: The element may be referred to in quoted semantics by prefixing the quoted part
+  by EQ/ as in (1). In semantic routine calls, the element may be referenced by STACK(i), where the
+  element comes to the right of exactly i identifiers in the condition (or, in unconditional
+  semantics, i arguments of the production).
 
-The particular instance of EQ may be determined by referring to VAL(STACK(i)), with i as in (2) above. The value of this semantic routine call will be the value specified in the VALUE semantics defining the instance of <RELOP> in the expression being compiled.
+The particular instance of EQ may be determined by referring to VAL(STACK(i)), with i as in (2)
+above. The value of this semantic routine call will be the value specified in the VALUE semantics
+defining the instance of <RELOP> in the expression being compiled.
 
 Example:
 
@@ -1271,35 +1794,54 @@ Example:
 
 ##### 2.3.3.5: Priority Semantics.
 
-Usually, the semantics for an expression is not executed until enough of the context of the expression has been parsed in order to determine the particular special case involved. If it is known that no special cases involving subexpressions of a production exist, or if it is desired for other reasons to defeat the special case matching mechanism and invoke the semantics for a production immediately it is recognized, the PRIORITY semantics is used.
+Usually, the semantics for an expression is not executed until enough of the context of the
+expression has been parsed in order to determine the particular special case involved. If it is
+known that no special cases involving subexpressions of a production exist, or if it is desired for
+other reasons to defeat the special case matching mechanism and invoke the semantics for a
+production immediately it is recognized, the PRIORITY semantics is used.
 
 A PRIORITY semantics is a semantic part consisting entirely of
 
 **PRIORITY n s**
 
-where n is a digit in the range 0-7, and s is a semantic part containing no conditional semantics or ELSE alternatives.
+where n is a digit in the range 0-7, and s is a semantic part containing no conditional semantics or
+ELSE alternatives.
 
-n is interpreted as a three-bit mask, and the semantics s for the production is executed immediately, bypassing the special case matching process, in the event that the current priority mask of the matching routine and n have any bits set in the same position.
+n is interpreted as a three-bit mask, and the semantics s for the production is executed
+immediately, bypassing the special case matching process, in the event that the current priority
+mask of the matching routine and n have any bits set in the same position.
 
-The priority mask of the matching routine is set to k by the semantic routine SETPRI(k). The interpretations of the bits are:
+The priority mask of the matching routine is set to k by the semantic routine SETPRI(k). The
+interpretations of the bits are:
 
 - 1. Normally set. Used to force immediate semantic execution under normal circumstances.
 
-- 2. Set during interpretation of double-quoted expressions. In this mode, semantics are not interpreted unless they are PRIORITY 2. The output of the parser is stored instead, for use as data by the compiler. However, PRIORITY 2 semantics are executed, providing a way to terminate this state.
+- 2. Set during interpretation of double-quoted expressions. In this mode, semantics are not
+  interpreted unless they are PRIORITY 2. The output of the parser is stored instead, for use as data
+  by the compiler. However, PRIORITY 2 semantics are executed, providing a way to terminate this
+  state.
 
 - 4. Set during synonym processing (LET statement).
 
 #### 2.3.4: Syntactic Ambiguity and How to Make it Work for You.
 
-The IMP72 parser allows ambiguity in the syntax. For example, notice that in many examples above, we present different definitions of the construct ABS(E). The syntax allows two interpretations of this construct: the special construct we are defining, or a call on the subroutine ABS. The parser notes the two interpretations, and chooses between them, as follows:
+The IMP72 parser allows ambiguity in the syntax. For example, notice that in many examples above, we
+present different definitions of the construct ABS(E). The syntax allows two interpretations of this
+construct: the special construct we are defining, or a call on the subroutine ABS. The parser notes
+the two interpretations, and chooses between them, as follows:
 
-- 1. If an identifier is an expression in one interpretation, and a terminal symbol (i.e., appears as itself in the production, such as ABS in the example of Section 2.3.1), in the other interpretation, the interpretation with the terminal symbol is chosen.
+- 1. If an identifier is an expression in one interpretation, and a terminal symbol (i.e., appears
+  as itself in the production, such as ABS in the example of Section 2.3.1), in the other
+  interpretation, the interpretation with the terminal symbol is chosen.
 
-- 2. Otherwise, the interpretation involving the smallest number of different syntax rules is chosen.
+- 2. Otherwise, the interpretation involving the smallest number of different syntax rules is
+  chosen.
 
 - 3. Otherwise, the compiler makes an arbitrary choice.
 
-Thus, referring to the example in Section 2.3.3.2 of the construct /variable/, the special case /variable/:=expression was defined by a special case in the semantics. It would alternatively be possible to define the case by introducing a deliberate syntactic ambiguity, as follows:
+Thus, referring to the example in Section 2.3.3.2 of the construct /variable/, the special case
+/variable/:=expression was defined by a special case in the semantics. It would alternatively be
+possible to define the case by introducing a deliberate syntactic ambiguity, as follows:
 
 ```
 <VBL> ::= / <VBL,A> /
@@ -1308,13 +1850,23 @@ Thus, referring to the example in Section 2.3.3.2 of the construct /variable/, t
                     ::= "A<32,0>:=B"
 ```
 
-The expression /X/:=5, e.g., could be recognized in two ways, by using the first syntax statement above plus the rule for <VAR>:=<EXP>, or by using the second syntax statement above. But according to rule 2, the parser chooses the second interpretation, as involving one syntax rule as opposed to two rules for the first interpretation. This is precisely the choice that is desired.
+The expression /X/:=5, e.g., could be recognized in two ways, by using the first syntax statement
+above plus the rule for <VAR>:=<EXP>, or by using the second syntax statement above. But according
+to rule 2, the parser chooses the second interpretation, as involving one syntax rule as opposed to
+two rules for the first interpretation. This is precisely the choice that is desired.
 
 #### 2.3.5: Peaceful Co-Existence with Your Extensible Compiler.
 
-This section presents the results of some experience with syntax and semantic definition in IMP72, in order to help others avoid some problems.
+This section presents the results of some experience with syntax and semantic definition in IMP72,
+in order to help others avoid some problems.
 
-The parser works by carrying along all possible parses of the program up to the symbol it is reading at the moment. It usually manages to resolve all ambiguity every couple of symbols at most. If a syntactic production is entered which requires it to read a large number of symbols before it can choose which syntax rule it is following, the parser may require inordinate amounts of space and time. This condition may be diagnosed by looking at the compiler statistics at the bottom of the source program listing. If the Max. Parse Space goes over 1500+500, or the Max. Output Space is over 150, the condition may exist.
+The parser works by carrying along all possible parses of the program up to the symbol it is reading
+at the moment. It usually manages to resolve all ambiguity every couple of symbols at most. If a
+syntactic production is entered which requires it to read a large number of symbols before it can
+choose which syntax rule it is following, the parser may require inordinate amounts of space and
+time. This condition may be diagnosed by looking at the compiler statistics at the bottom of the
+source program listing. If the Max. Parse Space goes over 1500+500, or the Max. Output Space is
+over 150, the condition may exist.
 
 An example of syntax which may cause the problem is:
 
@@ -1323,14 +1875,19 @@ An example of syntax which may cause the problem is:
 <EXP> ::= <EXP,A> => <EXP,B> ELSE <ST,C>
 ```
 
-When the compiler sees A=>(.......), it is not able to decide until the right parenthesis whether it is trying to form an ST or an EXP. Thus it must carry along two parses while it is parsing the entire contents of the parentheses, which may be an arbitrarily long expression. The syntax IMP uses is
+When the compiler sees A=>(.......), it is not able to decide until the right parenthesis whether it
+is trying to form an ST or an EXP. Thus it must carry along two parses while it is parsing the
+entire contents of the parentheses, which may be an arbitrarily long expression. The syntax IMP uses
+is
 
 ```
           <EXP> ::= <EXP,A> => <ST,B>;
           <EXP> ::= <EXP,A> => <ST,B> ELSE <ST,C>
 ```
 
-which avoids the parser problem (although it introduces the necessity for parenthesizing the ELSE clause). The method for storing syntax rules combines all rules whose right-hand parts begin identically, up to the point at which they differ. Thus, the parser stores these two rules as:
+which avoids the parser problem (although it introduces the necessity for parenthesizing the ELSE
+clause). The method for storing syntax rules combines all rules whose right-hand parts begin
+identically, up to the point at which they differ. Thus, the parser stores these two rules as:
 
 ```
                         =:: <EXP>
@@ -1342,7 +1899,11 @@ which avoids the parser problem (although it introduces the necessity for parent
 
 and only carries along one parse until it has finished parsing the <ST,B>.
 
-Another difficulty which may arise is that special semantic cases may be specified in a syntax statement, but the compiler will refuse to recognize them. This may arise from the way in which the patterns for special cases are recognized. Semantics are performed for subexpressions of a syntax production from left to right. For an element in a syntactic conditional to be recognized, it must already have been reduced by semantics to one object. An example will illustrate the pitfall:
+Another difficulty which may arise is that special semantic cases may be specified in a syntax
+statement, but the compiler will refuse to recognize them. This may arise from the way in which the
+patterns for special cases are recognized. Semantics are performed for subexpressions of a syntax
+production from left to right. For an element in a syntactic conditional to be recognized, it must
+already have been reduced by semantics to one object. An example will illustrate the pitfall:
 
 ```
        <EXP> ::= <ATOM,A> NE <EXP,B> ::= .....;
@@ -1350,21 +1911,38 @@ Another difficulty which may arise is that special semantic cases may be specifi
               "A NE 0=>B" => ..... ELSE .....
 ```
 
-where the ..... represents semantics whose exact form is nonessential to the point being illustrated. If the statement
+where the ..... represents semantics whose exact form is nonessential to the point being
+illustrated. If the statement
 
 **A NE 0=>X:=X+4**
 
-is encountered by the compiler, an attempt to match the special case "A NE 0=>B" is made, but fails since X:=X+4 is not a single object; the semantics for := and + have not yet been performed. Since the special case fails, the semantics for the subexpressions of the statement are invoked, from left to right. First, the semantics for A NE B is performed. Checks are made at every step to see if the current expression matches some special case, but now A NE 0 is a single object, and will only match patterns of the form "X=>...". Thus the compiler will fail to recognize the special case "A NE 0=>B".
+is encountered by the compiler, an attempt to match the special case "A NE 0=>B" is made, but fails
+since X:=X+4 is not a single object; the semantics for := and + have not yet been performed. Since
+the special case fails, the semantics for the subexpressions of the statement are invoked, from left
+to right. First, the semantics for A NE B is performed. Checks are made at every step to see if the
+current expression matches some special case, but now A NE 0 is a single object, and will only match
+patterns of the form "X=>...". Thus the compiler will fail to recognize the special case "A
+NE 0=>B".
 
-It is in order to avoid this problem that IMP has separate productions for A=>B and A <RELOP> B=>C (where <RELOP> is the class of relational operators).
+It is in order to avoid this problem that IMP has separate productions for A=>B and A <RELOP> B=>C
+(where <RELOP> is the class of relational operators).
 
 ### 2.4:  Calling C and Being Called from C.
 
-An IMP routine is a function of the `C` calling convention of the system, and a `C` function can be called from IMP. The files are in the object format of the system (ELF or Mach-O), so that they link with C objects and libraries. The runtime library of IMP programs, `libimp72.a`, must be linked with them.
+An IMP routine is a function of the `C` calling convention of the system, and a `C` function can be
+called from IMP. The files are in the object format of the system (ELF or Mach-O), so that they link
+with C objects and libraries. The runtime library of IMP programs, `libimp72.a`, must be linked with
+them.
 
 #### 2.4.1: Calling C: CCALL.
 
-`CCALL NAME(A,B,...)` calls the `C` function `NAME` passing the values of its arguments, as C does, and has the value that the function returns. An ordinary call `NAME(A,B)` of an IMP routine passes addresses. The arguments go in the registers and on the stack that the `C` ABI of the system uses, so that a call may have more than six. Every function is taken to be `long NAME(long, ...)`: the arguments are integers or pointers, and the result is the integer of a pointer's size. The address of a variable or of a string constant, which a `C` function expects for a pointer, is written LOC(X) or LOC('text'): a string constant is bytes ended by a zero byte. For example
+`CCALL NAME(A,B,...)` calls the `C` function `NAME` passing the values of its arguments, as C does,
+and has the value that the function returns. An ordinary call `NAME(A,B)` of an IMP routine passes
+addresses. The arguments go in the registers and on the stack that the `C` ABI of the system uses,
+so that a call may have more than six. Every function is taken to be `long NAME(long, ...)`: the
+arguments are integers or pointers, and the result is the integer of a pointer's size. The address
+of a variable or of a string constant, which a `C` function expects for a pointer, is written LOC(X)
+or LOC('text'): a string constant is bytes ended by a zero byte. For example
 
 ```
 N:=CCALL strlen(LOC('hello, world'));
@@ -1372,9 +1950,15 @@ PRINT STG 0,'length ',IGR 0,N,/;
 CCALL puts(LOC('puts adds a newline'));
 ```
 
-call `strlen` and `puts`. (`CCALL printf(LOC('%ld'),N)` prints with the formats of C.) A C `int` result comes back in half a register, so that its upper bits are undefined: mask it with `AND 4294967295` before comparing it with a negative number. A `C` function that takes or returns a `double` or a `float`, or a structure by value, cannot be called with CCALL; call it through a small `C` function that takes and returns integers (a REAL is the bits of an IEEE double, Section 2.4.3). The compiler does not check the number or the types of the arguments.
+call `strlen` and `puts`. (`CCALL printf(LOC('%ld'),N)` prints with the formats of C.) A C `int`
+result comes back in half a register, so that its upper bits are undefined: mask it with
+`AND 4294967295` before comparing it with a negative number. A `C` function that takes or returns a
+`double` or a `float`, or a structure by value, cannot be called with CCALL; call it through a small
+`C` function that takes and returns integers (a REAL is the bits of an IEEE double, Section 2.4.3).
+The compiler does not check the number or the types of the arguments.
 
-A `C` function may call an IMP routine back: `LOC(ROUTINE)` is its address. An IMP routine receives its arguments as addresses, which is what `qsort` gives its comparison function:
+A `C` function may call an IMP routine back: `LOC(ROUTINE)` is its address. An IMP routine receives
+its arguments as addresses, which is what `qsort` gives its comparison function:
 
 ```
 V IS 6 LONG;
@@ -1387,11 +1971,20 @@ SUBR CMP(A,B) IS A-B
 %%
 ```
 
-sorts the array and prints ` 1 2 3 5 7 9`. A routine that a `C` function calls with arguments by value (a signal handler) receives each value as the address in its parameter: LOC(A) is the value that C passed. To call a function through an address, `CCALL impcallp(F,A,...)` calls the function at F with the arguments by value and has the result as a C `long`, and `CCALL impcallw(F,A,...)` has the result as an IMP word of 64 bits; `CCALL impcallw(LOC(TWICE),LOC(Y))` calls the IMP routine TWICE with the address of Y.
+sorts the array and prints ` 1 2 3 5 7 9`. A routine that a `C` function calls with arguments by
+value (a signal handler) receives each value as the address in its parameter: LOC(A) is the value
+that C passed. To call a function through an address, `CCALL impcallp(F,A,...)` calls the function
+at F with the arguments by value and has the result as a C `long`, and `CCALL impcallw(F,A,...)` has
+the result as an IMP word of 64 bits; `CCALL impcallw(LOC(TWICE),LOC(Y))` calls the IMP routine
+TWICE with the address of Y.
 
 #### 2.4.2: Being Called from C.
 
-A SUBR is a `C` function that takes pointers to 64-bit words and returns a 64-bit integer. `SUBR ADD2(A,B) IS A+B` is declared in `C` as `int64_t ADD2(int64_t *, int64_t *)`. The header `imp72.h`, installed in the `include` directory, has the `C` types of the words. The symbol is the name as written; the routine is called with the address of each argument. For example, with the file `lib.imp`
+A SUBR is a `C` function that takes pointers to 64-bit words and returns a 64-bit integer. `SUBR
+ADD2(A,B) IS A+B` is declared in `C` as `int64_t ADD2(int64_t *, int64_t *)`. The header `imp72.h`,
+installed in the `include` directory, has the `C` types of the words. The symbol is the name as
+written; the routine is called with the address of each argument. For example, with the file
+`lib.imp`
 
 ```
 COUNT IS COMMON;
@@ -1423,28 +2016,50 @@ int main(void) {
 }
 ```
 
-the commands `imp72 -c lib.imp` and `cc -no-pie -o m main.c lib.o libimp72.a` make a program that prints 7, 20 and 7 (`-no-pie` is for a `C` compiler that makes position-independent executables by default). A file with no main program (no statements before the first SUBR) defines no `impmain`, so that it is linked into a `C` program but not into a program that uses the main of the library (Section 2.4.4).
+the commands `imp72 -c lib.imp` and `cc -no-pie -o m main.c lib.o libimp72.a` make a program that
+prints 7, 20 and 7 (`-no-pie` is for a `C` compiler that makes position-independent executables by
+default). A file with no main program (no statements before the first SUBR) defines no `impmain`, so
+that it is linked into a `C` program but not into a program that uses the main of the library
+(Section 2.4.4).
 
 #### 2.4.3: COMMON and EXTERNAL Variables.
 
-A variable declared COMMON is a global symbol of the object file, with the name as written, so that `C` declares it `extern int64_t X;` (an array `A IS COMMON,8 LONG` is `extern int64_t A[8];`). Every file of the program that uses it declares it COMMON. A variable that is not COMMON belongs to its file and `C` cannot name it. A COMMON variable that no routine of a file uses is not made by that file, as the example above uses TABLE in GETT.
+A variable declared COMMON is a global symbol of the object file, with the name as written, so that
+`C` declares it `extern int64_t X;` (an array `A IS COMMON,8 LONG` is `extern int64_t A[8];`). Every
+file of the program that uses it declares it COMMON. A variable that is not COMMON belongs to its
+file and `C` cannot name it. A COMMON variable that no routine of a file uses is not made by that
+file, as the example above uses TABLE in GETT.
 
-A REAL is an IEEE 754 double in a word that is the double's own bits, so that `C` declares a `COMMON REAL` as `extern double X;`. `C` code that handles the word of a REAL as an integer converts it with `imp_real_to_double` and `imp_double_to_real` of `imp72.h`.
+A REAL is an IEEE 754 double in a word that is the double's own bits, so that `C` declares a `COMMON
+REAL` as `extern double X;`. `C` code that handles the word of a REAL as an integer converts it with
+`imp_real_to_double` and `imp_double_to_real` of `imp72.h`.
 
-`X IS EXTERNAL` declares a variable that is defined elsewhere, in the `C` library for example. Nothing is defined in the file, and LOC(X) is the address of the variable that the linker finds. The names that are not IMP names are written as special identifiers (Section 2.2.1):
+`X IS EXTERNAL` declares a variable that is defined elsewhere, in the `C` library for example.
+Nothing is defined in the file, and LOC(X) is the address of the variable that the linker finds. The
+names that are not IMP names are written as special identifiers (Section 2.2.1):
 
 ```
 !environ! IS EXTERNAL;
 PRINT STG 0,'environ is set: ',IGR 0,(!environ! NE 0),/;
 ```
 
-prints `environ is set: -1`. A COMMON variable or a SUBR with the name `!a-b!` is the symbol `a_2db`: a byte that is not a letter, a digit or an underscore is written as an underscore and two hexadecimal digits.
+prints `environ is set: -1`. A COMMON variable or a SUBR with the name `!a-b!` is the symbol
+`a_2db`: a byte that is not a letter, a digit or an underscore is written as an underscore and two
+hexadecimal digits.
 
 #### 2.4.4: Names, Programs and Command Line.
 
-Names are case sensitive and a symbol is the name as written; `SUBR Add` and `SUBR ADD` are two functions. The IMP names are the names of C (letters, digits and underscores), and the symbols of the runtime library and the compiler are lower case (`impmain`, `imppr`, `imprd`) or begin with `RTL`; a program should not use them for its own.
+Names are case sensitive and a symbol is the name as written; `SUBR Add` and `SUBR ADD` are two
+functions. The IMP names are the names of C (letters, digits and underscores), and the symbols of
+the runtime library and the compiler are lower case (`impmain`, `imppr`, `imprd`) or begin with
+`RTL`; a program should not use them for its own.
 
-The statements before the first SUBR of a file are the function `impmain` of that file. The library has a `main` that calls `impmain` with the command line kept for the program. A program with a `main` of its own (in `C`, or a SUBR called `main`) does not link the `main` of the library, and calls `impmain` itself if it has one. The command line is read with `CCALL impargc(0)`, the number of arguments, and `CCALL impargvp(0)`, the address of the array of pointers; the routine IMPARGET(OUT,V,I) stores element I of such an array in the word at OUT, so that
+The statements before the first SUBR of a file are the function `impmain` of that file. The library
+has a `main` that calls `impmain` with the command line kept for the program. A program with a
+`main` of its own (in `C`, or a SUBR called `main`) does not link the `main` of the library, and
+calls `impmain` itself if it has one. The command line is read with `CCALL impargc(0)`, the number
+of arguments, and `CCALL impargvp(0)`, the address of the array of pointers; the routine
+IMPARGET(OUT,V,I) stores element I of such an array in the word at OUT, so that
 
 ```
 N:=CCALL impargc(0);
@@ -1454,7 +2069,8 @@ FINI(0)
 %%
 ```
 
-prints the number of arguments and the program's name. Exactly one of the files of a program has statements before its first SUBR.
+prints the number of arguments and the program's name. Exactly one of the files of a program has
+statements before its first SUBR.
 
 ## 3: How to Compile and Run IMP72 Programs.
 
@@ -1467,7 +2083,11 @@ imp72 [options] file.imp ...
 imp72 -i [-s LETTERS] [file.imp ...]
 ```
 
-A file named on the command line is a source file (any name; `.imp` by custom), a file of syntax and declarations (`.imc`, Section 3.4) or an object file or library (`.o`, `.a`, `.so`) to link. A `.imc` file is read before each source file. Each source file is compiled by itself, to an object file; the objects are linked with the others named, and with the runtime library `libimp72.a`, to the executable program. The options are
+A file named on the command line is a source file (any name; `.imp` by custom), a file of syntax and
+declarations (`.imc`, Section 3.4) or an object file or library (`.o`, `.a`, `.so`) to link. A
+`.imc` file is read before each source file. Each source file is compiled by itself, to an object
+file; the objects are linked with the others named, and with the runtime library `libimp72.a`, to
+the executable program. The options are
 
 ```
 -c          Compile to an object file, file.o, and do not link.  With several sources
@@ -1475,9 +2095,9 @@ A file named on the command line is a source file (any name; `.imp` by custom), 
 -S          Compile to the assembly of the target, file.s.
 -Sir        Compile to LLVM IR text, file.ll.
 -o FILE     Name the output (a.out for a program).  With -c or -S, one source only.
--s LETTERS  Set the switches of the original compiler (below).
+-s LETTERS  Set the compiler switches (below).
 -I IMAGE    Start from the compiler saved by /U or /V (Section 3.4).
--i          Read the commands of the original compiler from the terminal (Section 3.1.2).
+-i          Read commands from the terminal (Section 3.1.2).
 --run       Compile and run the program in the process of the compiler.
 --target=TRIPLE  Compile for another system (Section 3.1.3).
 --sysroot=DIR, --runtime=FILE   Where the files of that system are.
@@ -1485,11 +2105,21 @@ A file named on the command line is a source file (any name; `.imp` by custom), 
 --help      Print the options.
 ```
 
-The compiler finds its syntax file `syntax64.imc`, the file of the C interface `ffi.imc` and `libimp72.a` next to itself (`share/imp72` and `lib/imp72` of its installation prefix); the environment variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others. It makes its temporary files under TMPDIR, or in the current directory. The messages go to the standard error. A compilation with errors writes no output and exits with the status 1; a wrong command line exits with the status 2. The compiler is made of LLVM and lld libraries and runs no other program, except `ld.lld` where its lld is not a library.
+The compiler finds its syntax file `syntax64.imc`, the file of the C interface `ffi.imc` and
+`libimp72.a` next to itself (`share/imp72` and `lib/imp72` of its installation prefix); the
+environment variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others. It makes its temporary files
+under TMPDIR, or in the current directory. The messages go to the standard error. A compilation with
+errors writes no output and exits with the status 1; a wrong command line exits with the status 2.
+The compiler is made of LLVM and lld libraries and runs no other program, except `ld.lld` where its
+lld is not a library.
 
-If you want to compile the IMP program on file `sum.imp`, the simplest way is `imp72 sum.imp`, and `./a.out` runs it. `imp72 --run sum.imp` compiles and runs it in one step. `imp72 -c a.imp b.imp` makes `a.o` and `b.o`, and `imp72 main.imp lib.imp -o prog` compiles two files and links them; a variable that the two share is declared COMMON in both (Section 2.1.4).
+If you want to compile the IMP program on file `sum.imp`, the simplest way is `imp72 sum.imp`, and
+`./a.out` runs it. `imp72 --run sum.imp` compiles and runs it in one step. `imp72 -c a.imp b.imp`
+makes `a.o` and `b.o`, and `imp72 main.imp lib.imp -o prog` compiles two files and links them; a
+variable that the two share is declared COMMON in both (Section 2.1.4).
 
-The switches of the original compiler are given as the letters of the argument of `-s`, and the listing and printouts go to the standard error:
+The compiler switches are given as the letters of the argument of `-s`, and the listing and
+printouts go to the standard error:
 
 ```
 A  Print the code the compiler produced, one line for each operation of the abstract machine
@@ -1498,42 +2128,68 @@ L  Print a source listing.
 Y  Print the source program as it is compiled (as L, on the terminal).
 ```
 
-The letters B, F, G, I, M, N, P, S, T, X and Z print tables of the compiler (the assembler's debugging output, free storage, the parse, the directory, the code tree, the connectivity matrices, the semantics arrays, the syntax graph and statistics); they are of use to the person who works on the compiler. The switch R is accepted: the code is always reentrant.
+The letters B, F, G, I, M, N, P, S, T, X and Z print tables of the compiler (the assembler's
+debugging output, free storage, the parse, the directory, the code tree, the connectivity matrices,
+the semantics arrays, the syntax graph and statistics); they are of use to the person who works on
+the compiler.
 
 #### 3.1.1: The Compiler Listing.
 
-The source listing of the compiler has a number at the left of each line of code. This indicates the level of parenthesis nesting at the beginning of the line. Parentheses contained within # or ' signs are not counted. If the compiler detects an error, the listing from that point in the source file on is written.
+The source listing of the compiler has a number at the left of each line of code. This indicates the
+level of parenthesis nesting at the beginning of the line. Parentheses contained within # or ' signs
+are not counted. If the compiler detects an error, the listing from that point in the source file on
+is written.
 
 #### 3.1.2: Interactive Commands.
 
-`imp72 -i` reads the commands of the original compiler from the standard input. It prints its version and the date as a banner and an asterisk as the prompt. A command line has the format
+`imp72 -i` reads commands from the standard input. It prints its version and the date as a banner
+and an asterisk as the prompt. A command line has the format
 
 ```
 obj,list_file.ext/a/b
 ```
 
-All fields are optional. The source is read from `file.ext`; if the extension is omitted the compiler looks for a file with no extension, then `file.imp`, then `file.imc`. The object file is written on `obj.o` (it is what the original wrote as `obj.REL`; it defaults to `file.o`). Listings that the switches ask for go on `list.lst`, or on `file.lst` if no list file is named. The `_` that separates the list file from the source is the character the original typed as an arrow; in a command it is not a letter. The switches /A, /C, /H, /L, /R, /U, /V and /Y are given after the file.
+All fields are optional. The source is read from `file.ext`; if the extension is omitted the
+compiler looks for a file with no extension, then `file.imp`, then `file.imc`. The object file is
+written on `obj.o` (it defaults to `file.o`). Listings that the switches ask for go on `list.lst`,
+or on `file.lst` if no list file is named. The `_` that separates the list file from the source is
+not a letter in a command. The switches /A, /C, /H, /L, /U, /V and /Y are given after the file.
 
 ```
 /A  Produce a listing of the code the compiler produced (as the switch A above).
 /C  Continue after this file: the compiler prompts for another command; without /C it ends.
 /H  Help: list the switches.
 /L  Produce a source listing.
-/R  Accepted; the code is always reentrant.
 /U  Exit to save the compiler: NAME_/U writes the compiler, with the syntax compiled so far, on NAME.img.
 /V  The same as /U.
 /Y  List the source program on the terminal as it is compiled.
 ```
 
-A command with no file name goes on with the current file. A file that cannot be found is answered by `? FILE NOT FOUND`. `/D` lists the debugging switches. If the end of the input file is reached without the two % signs, the message PREMATURE END OF INPUT FILE is printed (Section 3.2).
+A command with no file name goes on with the current file. A file that cannot be found is answered
+by `? FILE NOT FOUND`. `/D` lists the debugging switches. If the end of the input file is reached
+without the two % signs, the message PREMATURE END OF INPUT FILE is printed (Section 3.2).
 
 #### 3.1.3: Cross Compiling.
 
-`--target=TRIPLE` (the names of LLVM, with the vendor left out if desired: `aarch64-linux-gnu`, `riscv64-linux-musl`, `i686-linux-gnu`, `armv7-linux-gnueabihf`, `x86_64-apple-darwin`) with `-c`, `-S` or `-Sir` makes the object in the format of that system, with 32-bit or 64-bit pointers as it has; the word of the program remains 64 bits. A target of the other byte order than the compiler's is refused. To link for another system, the compiler must be told where the files of that system are: `--sysroot=DIR` (its root, with `crt1.o`, `crti.o`, `crtn.o` and the `C` library under `DIR/usr/lib`, or for macOS the SDK directory) and `--runtime=FILE` (the `libimp72.a` built for it), or the environment variables IMP72SYSROOT and IMP72RUNTIME. Without them the message lists what is missing and how to give it, or compile with `-c` and link on the other system. The runtime library of a system is built by the compiler itself, with no `C` compiler. `--run` is for the system the compiler runs on.
+`--target=TRIPLE` (the names of LLVM, with the vendor left out if desired: `aarch64-linux-gnu`,
+`riscv64-linux-musl`, `i686-linux-gnu`, `armv7-linux-gnueabihf`, `x86_64-apple-darwin`) with `-c`,
+`-S` or `-Sir` makes the object in the format of that system, with 32-bit or 64-bit pointers as it
+has; the word of the program remains 64 bits. A target of the other byte order than the compiler's
+is refused. To link for another system, the compiler must be told where the files of that system
+are: `--sysroot=DIR` (its root, with `crt1.o`, `crti.o`, `crtn.o` and the `C` library under
+`DIR/usr/lib`, or for macOS the SDK directory) and `--runtime=FILE` (the `libimp72.a` built for it),
+or the environment variables IMP72SYSROOT and IMP72RUNTIME. Without them the message lists what is
+missing and how to give it, or compile with `-c` and link on the other system. The runtime library
+of a system is built by the compiler itself, with no `C` compiler. `--run` is for the system the
+compiler runs on.
 
 ### 3.2: Compilation Error Diagnostics.
 
-The compiler reports on three classes of errors: fatal errors, errors, and advisory errors. Advisory errors indicate a condition which may not be an error but should be brought to the programmer's attention. They are labeled ADVISORY. Fatal errors terminate compilation immediately. Regular errors do not terminate compilation, but subsequent compilation may be affected. A message is written on the standard error as
+The compiler reports on three classes of errors: fatal errors, errors, and advisory errors. Advisory
+errors indicate a condition which may not be an error but should be brought to the programmer's
+attention. They are labeled ADVISORY. Fatal errors terminate compilation immediately. Regular errors
+do not terminate compilation, but subsequent compilation may be affected. A message is written on
+the standard error as
 
 ```
 ** ERROR - NESTED SUBROUTINES.
@@ -1542,101 +2198,148 @@ The compiler reports on three classes of errors: fatal errors, errors, and advis
 
 After an error no object file is written and the exit status is 1.
 
-The philosophy behind the error diagnostics in IMP presumes a certain amount of maturity on the part of the programmer. He is less restricted than in a language such as FORTRAN, but he is also less protected from his own errors. Thus, a number of potential error conditions that may be used usefully are not checked for by the compiler. This is especially true of syntax statements. This is not to imply that few useful diagnostics are provided, however. The compiler does not report a tag defined twice, a vector declared twice, a variable that is never given a value, or a GO TO to a tag that is not defined (that name is a variable).
+The philosophy behind the error diagnostics in IMP presumes a certain amount of maturity on the part
+of the programmer. He is less restricted than in a language such as FORTRAN, but he is also less
+protected from his own errors.
 
-The following are the error diagnostics provided by the compiler. They are regular errors unless otherwise indicated.
+The following are the error diagnostics provided by the compiler. They are regular errors unless
+otherwise indicated.
 
-- ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE (Fatal): A syntax statement named a semantic routine that does not exist (you already got UNDEFINED SEMANTIC ROUTINE for that), and an instance of the production has been compiled.
+- ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE (Fatal): A syntax statement named a semantic routine
+  that does not exist (you already got UNDEFINED SEMANTIC ROUTINE for that), and an instance of the
+  production has been compiled.
 
-- AN OPERATION OF THE PDP-10 THAT THE IR MACHINE DOES NOT HAVE: A semantic routine was called with an operation number of 256 or more, an opcode of the PDP-10. The operations of the abstract machine are those of Section 2.3.3.1.2.
-
-- ANTECEDENT NOT A HARDWARE REGISTER IN SYNONYM DECLARATION: In a declaration such as A IS B, which makes A a synonym of the register B, B is not one of 0R to 15R.
+- ANTECEDENT NOT A HARDWARE REGISTER IN SYNONYM DECLARATION: In a declaration such as A IS B, which
+  makes A a synonym of the register B, B is not one of 0R to 15R.
 
 - BAD MODIFIER: A semantic condition has an identifier with a bad modifier.
 
-- BAD RESULT OF SEMANTICS; IGNORED (Advisory): A semantic routine has returned a value for a semantic part which is not an object on the semantics routine stack. This may or may not cause trouble later on.
+- BAD RESULT OF SEMANTICS; IGNORED (Advisory): A semantic routine has returned a value for a
+  semantic part which is not an object on the semantics routine stack. This may or may not cause
+  trouble later on.
 
-- BAD TYPE IN SEMANTICS (Fatal): An entry of the semantics array has a type that the compiler does not know. This is a bug in the compiler or in a syntax file.
+- BAD TYPE IN SEMANTICS (Fatal): An entry of the semantics array has a type that the compiler does
+  not know. This is a bug in the compiler or in a syntax file.
 
-- CALCULATED CONSTANT IS SUBSCRIPTED (Advisory): An expression has been evaluated to a constant and now an attempt is being made to subscript it. Since the calculation yields only one word, this doesn't make much sense.
+- CALCULATED CONSTANT IS SUBSCRIPTED (Advisory): An expression has been evaluated to a constant and
+  now an attempt is being made to subscript it. Since the calculation yields only one word, this
+  doesn't make much sense.
 
-- CANNOT GET CORE TO INITIALIZE FREE STORAGE (Fatal): The system did not give the compiler the address space it reserves for its tables.
+- CANNOT GET CORE TO INITIALIZE FREE STORAGE (Fatal): The system did not give the compiler the
+  address space it reserves for its tables.
 
-- CANT USE NONTERMINALS IN CASE ARG LIST: The parameter list of a CASE contains something that is not a constant.
+- CANT USE NONTERMINALS IN CASE ARG LIST: The parameter list of a CASE contains something that is
+  not a constant.
 
-- CASE CONTAINS SUBEXPRESSION WHICH IS CASE BUT WONT GENERALIZE (Advisory): You are warned that a semantic condition in a CASE definition contains a subexpression which is also an instance of the production in the syntax part. The main expression will generalize to other instances of the CASE, but the subexpression won't.
+- CASE CONTAINS SUBEXPRESSION WHICH IS CASE BUT WONT GENERALIZE (Advisory): You are warned that a
+  semantic condition in a CASE definition contains a subexpression which is also an instance of the
+  production in the syntax part. The main expression will generalize to other instances of the CASE,
+  but the subexpression won't.
 
 - CASE DEFINED TWICE OR SAME NAME AS SEMANTIC ROUTINE: A CASE may be defined in one place only.
 
 - CASE UNDEFINED (Fatal): You tried to reference a CASE semantics, but the case was never defined.
 
-- CODE GENERATION STACK DID NOT REDUCE TO ONE ITEM: The program parsed correctly, but semantics for some of the program could not be found. If you added your own syntax in the program, check it.
-
-- COMPUTED GO TO WITHOUT ITS TABLE: A GO TO whose address is computed, such as GO TO [LOC(TAG)]. Only a tag, or GO TO (L0,L1,...) E, is accepted.
+- CODE GENERATION STACK DID NOT REDUCE TO ONE ITEM: The program parsed correctly, but semantics for
+  some of the program could not be found. If you added your own syntax in the program, check it.
 
 - ERROR CORRECTOR GIVES UP. (Fatal): The error corrector was unable to correct a syntax error.
 
-- ERROR CORRECTOR GIVES UP AT % (Fatal): The error corrector was unable to correct a syntax error, and read past the % sign while trying.
+- ERROR CORRECTOR GIVES UP AT % (Fatal): The error corrector was unable to correct a syntax error,
+  and read past the % sign while trying.
 
-- EXPONENT OUT OF RANGE: The power of ten of a floating point constant is too large or too small for a double.
+- EXPONENT OUT OF RANGE: The power of ten of a floating point constant is too large or too small for
+  a double.
 
-- FREE STORAGE EXHAUSTED (Fatal): Your program has demanded more space to compile than the compiler's tables hold. If you had syntax errors, you may be able to compile when the errors are repaired. Otherwise, make your program smaller.
+- FREE STORAGE EXHAUSTED (Fatal): Your program has demanded more space to compile than the
+  compiler's tables hold. If you had syntax errors, you may be able to compile when the errors are
+  repaired. Otherwise, make your program smaller.
 
 - FREE STORAGE UNLINKED (Fatal): A bug in the compiler.
 
-- GO TO name, WHICH IS NOT IN THE SUBROUTINE: A GO TO names a tag that is neither in the routine nor in the main program.
+- GO TO name, WHICH IS NOT IN THE SUBROUTINE: A GO TO names a tag that is neither in the routine nor
+  in the main program.
 
-- ILLEGAL CHARACTER IN FLOATING CONSTANT: A floating point constant has a character that is not a digit, the point, the " or a minus sign.
+- ILLEGAL CHARACTER IN FLOATING CONSTANT: A floating point constant has a character that is not a
+  digit, the point, the " or a minus sign.
 
 - IN ADDCHAR - NAME > 80 CHARACTERS: A syntactic class name is too long.
 
-- IN AREG1 - I OR J OUT OF RANGE: Argument to AREG1 negative or greater than 177B.
+- MODIFIER ON OTHER THAN FIRST OCCURRENCE OF NAME IS IGNORED: In a semantic condition the modifiers
+  belong to the first occurrence of a name only.
 
-- MODIFIER ON OTHER THAN FIRST OCCURRENCE OF NAME IS IGNORED: In a semantic condition the modifiers belong to the first occurrence of a name only.
+- MORE THAN 2047 REGISTERS IN ONE COMPILATION (Fatal): The code of a source file names more
+  than 2047 registers (temporaries and the registers of the program). Split the file.
 
-- MORE THAN 2047 REGISTERS IN ONE COMPILATION (Fatal): The code of a source file names more than 2047 registers (temporaries and the registers of the program). Split the file.
-
-- N NOT A CONSTANT IN N LONG: N may be a constant expression but must contain no variables (except those syntactically defined as constants).
+- N NOT A CONSTANT IN N LONG: N may be a constant expression but must contain no variables (except
+  those syntactically defined as constants).
 
 - NAME TOO LONG (Fatal): You used an identifier longer than 100 characters in a syntactic condition.
 
 - NESTED CASE DEFINITIONS ILLEGAL: A CASE was defined inside a CASE.
 
-- NESTED SUBROUTINES: Due probably to mismatched parentheses, a subroutine definition has been initiated before the previous one was closed out.
+- NESTED SUBROUTINES: Due probably to mismatched parentheses, a subroutine definition has been
+  initiated before the previous one was closed out.
 
-- NON-CONSTANT EXPRESSION IN DATA STATEMENT: The items of a DATA statement are constants and strings.
+- NON-CONSTANT EXPRESSION IN DATA STATEMENT: The items of a DATA statement are constants and
+  strings.
 
-- NON-OCTAL PJ OR PN: In FILE designator of PRINT or READ statement, that is.
+- NUMBER MISSING OR OUT OF PLACE IN SEMANTICS IDENTIFIER: In a semantic conditional, you had a
+  number in the wrong format or wrong place.
 
-- NUMBER MISSING OR OUT OF PLACE IN SEMANTICS IDENTIFIER: In a semantic conditional, you had a number in the wrong format or wrong place.
+- OPERATION ON A REAL CONSTANT: The compiler does not evaluate that operation on real constants; put
+  the value in a variable first.
 
-- OPERATION ON A REAL CONSTANT: The compiler does not evaluate that operation on real constants; put the value in a variable first.
+- OUT OF MEMORY FOR RELOCATION TABLE (Fatal): The compiler could not get memory for a table of the
+  free storage.
 
-- OUT OF MEMORY FOR RELOCATION TABLE (Fatal): The compiler could not get memory for a table of the free storage.
+- PREMATURE END OF INPUT FILE (Fatal): Compiler read the entire input file but did not encounter the
+  %% which terminates IMP programs. Perhaps you: 1. Only had one %. 2. Failed to match # or ' with
+  another one, so that the % sign got absorbed in a constant/comment. Check the numbers down the left
+  margin of the listing to see when they stopped following the parenthesis nesting of the code.
 
-- PREMATURE END OF INPUT FILE (Fatal): Compiler read the entire input file but did not encounter the %% which terminates IMP programs. Perhaps you: 1. Only had one %. 2. Failed to match # or ' with another one, so that the % sign got absorbed in a constant/comment. Check the numbers down the left margin of the listing to see when they stopped following the parenthesis nesting of the code.
+- PRODUCTION DUPLICATES ONE ALREADY IN SYNTAX (Advisory): The production in a syntax statement is
+  identical to one already in the syntax. This is not an error, and is used to add special semantic
+  cases to already defined syntax. The driver of the compiler does not print it.
 
-- PRODUCTION DUPLICATES ONE ALREADY IN SYNTAX (Advisory): The production in a syntax statement is identical to one already in the syntax. This is not an error, and is used to add special semantic cases to already defined syntax. The driver of the compiler does not print it.
-
-- PROPERTY DECLARED IS NOT APPLICABLE TO REGISTER, PROPERTY MAY ONLY BE DECLARED FOR REGISTERS: COMMON, REAL, INTEGER or N LONG was declared for a register, or RESERVED, SCRATCH, PROTECTED, AVAILABLE or RELEASED for a name that is not a register.
+- PROPERTY DECLARED IS NOT APPLICABLE TO REGISTER, PROPERTY MAY ONLY BE DECLARED FOR REGISTERS:
+  COMMON, REAL, INTEGER or N LONG was declared for a register, or RELEASED for a name that is not a
+  register.
 
 - PUSHDOWN STACK UNDERFLOW ERROR (Fatal): Indicates a compiler bug.
 
-- QUOTED SEMANTICS NOT AN INSTANCE OF PRODUCTION: A semantic condition was not an instance of the production in the syntax statement in which it appeared.
+- QUOTED SEMANTICS NOT AN INSTANCE OF PRODUCTION: A semantic condition was not an instance of the
+  production in the syntax statement in which it appeared.
 
-- SEMANTIC CONDITION TOO COMPLEX (Fatal), SEMANTIC ROUTINES NESTED TOO DEEP (Fatal): A semantic condition or a nest of semantic routine calls beyond the limits of the compiler.
+- SEMANTIC CONDITION TOO COMPLEX (Fatal), SEMANTIC ROUTINES NESTED TOO DEEP (Fatal): A semantic
+  condition or a nest of semantic routine calls beyond the limits of the compiler.
 
-- SEMANTICS STACK OVERFLOW (Fatal): There is exactly one major table in the compiler which is not dynamically expandable, and your program has stuffed it full. This can only happen through the use of a very complex semantic routine call in a semantics part of a syntax statement, or maybe a bug in a semantic routine, or a very long list of names in your program.
+- SEMANTICS STACK OVERFLOW (Fatal): There is exactly one major table in the compiler which is not
+  dynamically expandable, and your program has stuffed it full. This can only happen through the use
+  of a very complex semantic routine call in a semantics part of a syntax statement, or maybe a bug in
+  a semantic routine, or a very long list of names in your program.
 
 - STACK UNDERFLOW IN FSUB (Fatal): Indicates a compiler bug.
 
 - SUBSCRIPTED REGISTER - IGNORED: The subscript on a register is disregarded.
 
-- SYNTACTIC AMBIGUITY; UNRESOLVED AT %: The parser has found a syntactic ambiguity which it was not able to resolve by the end of your program. If your program contains syntax statements, check them.
+- SYNTACTIC AMBIGUITY; UNRESOLVED AT %: The parser has found a syntactic ambiguity which it was not
+  able to resolve by the end of your program. If your program contains syntax statements, check them.
 
-- SYNTACTIC AMBIGUITY: The compiler was able to interpret a portion of your program in two conflicting ways, and was not able to decide which way you had in mind. The ambiguous segment of the program is indicated on the listing (after a fashion) by a list of the identifiers (variable names and constants) which appear in the segment, printed in reverse order. Some constructs which may produce this error are: A=>B=>C ELSE D, which is really ambiguous and should be parenthesized explicitly, and (A RELOP B)=>C, where RELOP is any relational operator, which is not ambiguous, and will generate correct code, but the parentheses may be removed to get rid of the error message.
+- SYNTACTIC AMBIGUITY: The compiler was able to interpret a portion of your program in two
+  conflicting ways, and was not able to decide which way you had in mind. The ambiguous segment of the
+  program is indicated on the listing (after a fashion) by a list of the identifiers (variable names
+  and constants) which appear in the segment, printed in reverse order. Some constructs which may
+  produce this error are: A=>B=>C ELSE D, which is really ambiguous and should be parenthesized
+  explicitly, and (A RELOP B)=>C, where RELOP is any relational operator, which is not ambiguous, and
+  will generate correct code, but the parentheses may be removed to get rid of the error message.
 
-- SYNTAX ERROR: The parser has not been able to interpret your program as a legal IMP expression. It has attempted to continue the compilation by replacing part of your program at the point of the error by what it hopes is a correction of the error. It is possible that more errors will result from this correction later on. The offending line is written with a line feed inserted at the point at which the error was detected, followed by the line ** SYNTAX ERROR ** and a mark under the place, and then the correction:
+- SYNTAX ERROR: The parser has not been able to interpret your program as a legal IMP expression. It
+  has attempted to continue the compilation by replacing part of your program at the point of the
+  error by what it hopes is a correction of the error. It is possible that more errors will result
+  from this correction later on. The offending line is written with a line feed inserted at the point
+  at which the error was detected, followed by the line ** SYNTAX ERROR ** and a mark under the place,
+  and then the correction:
 
 ```
 X:=1 +
@@ -1646,54 +2349,91 @@ X:=1 +
 ** SYNTAX ERROR - "* " IS REPLACED BY "0 * "
 ```
 
-- THE ADDRESS OF A COMPUTED CONSTANT: LOC was applied to a constant that is not a word of the program (a constant expression).
+- THE ADDRESS OF A COMPUTED CONSTANT: LOC was applied to a constant that is not a word of the
+  program (a constant expression).
 
-- TOO MANY ARGS TO SEMANTIC RTN OR PARAM STACK UNDERFLOW (Fatal): Either you tried to execute a semantic routine with more than 10 arguments, or else there is a compiler bug.
+- TOO MANY ARGS TO SEMANTIC RTN OR PARAM STACK UNDERFLOW (Fatal): Either you tried to execute a
+  semantic routine with more than 10 arguments, or else there is a compiler bug.
 
-- TOO MANY ERRORS: STOPPED, TOO MANY SYNTAX ERRORS (Fatal): A large number of errors have been detected in your program, and the compiler sees no point in proceeding.
+- TOO MANY ERRORS: STOPPED, TOO MANY SYNTAX ERRORS (Fatal): A large number of errors have been
+  detected in your program, and the compiler sees no point in proceeding.
 
-- TOO MANY LOCAL SYMBOLS IN REFERENCED SEMANTICS (Fatal): You tried to reference quoted semantics with more than 10 local symbols.
+- TOO MANY LOCAL SYMBOLS IN REFERENCED SEMANTICS (Fatal): You tried to reference quoted semantics
+  with more than 10 local symbols.
 
-- TWO LENGTHS IN SAME DECLARATION, TWO REGISTERS IN SAME DECLARATION: A declaration with two N LONG, or with two synonyms for registers.
+- TWO LENGTHS IN SAME DECLARATION, TWO REGISTERS IN SAME DECLARATION: A declaration with two N LONG,
+  or with two synonyms for registers.
 
 - UNDEFINED SEMANTIC ROUTINE: A syntax statement calls a semantic routine that does not exist.
 
-- UNKNOWN OPERATION IN THE CODE: The code generator found an operation it cannot translate. This is a bug in the compiler or in a syntax file.
+- UNKNOWN OPERATION IN THE CODE: The code generator found an operation it cannot translate. This is
+  a bug in the compiler or in a syntax file.
 
 - VALUE NOT A CONSTANT: Value in VALUE semantics must be a constant.
 
-The commands also print messages of their own: `imp72: unknown option`, `imp72: missing argument to`, `imp72: cannot name the output with more than one source to compile`, `? FILE NOT FOUND: name` for a source that cannot be read, `imp72: no target` for a target that LLVM does not have, and the messages of the linker (for example `undefined symbol: impmain` when no file has a main program).
+The commands also print messages of their own: `imp72: unknown option`, `imp72: missing argument
+to`, `imp72: cannot name the output with more than one source to compile`, `? FILE NOT FOUND: name`
+for a source that cannot be read, `imp72: no target` for a target that LLVM does not have, and the
+messages of the linker (for example `undefined symbol: impmain` when no file has a main program).
 
 ### 3.3: Linking and Running.
 
-The compiler links the program: its object files and those named on the command line, the runtime library `libimp72.a` and the `C` library, with lld in its own process. The result is an executable of the system, which is run by its name. For a program of several files:
+The compiler links the program: its object files and those named on the command line, the runtime
+library `libimp72.a` and the `C` library, with lld in its own process. The result is an executable
+of the system, which is run by its name. For a program of several files:
 
 ```
 imp72 -c a.imp b.imp
 imp72 a.o b.o -o prog
 ```
 
-Exactly one of the files has a main program (statements before its first SUBR); with none the link stops with `undefined symbol: impmain`. The objects may be linked by another linker with the `C` library and `libimp72.a` (Section 2.4.2). If your program does any I/O, it should call FINI (see Section 2.2.7) to complete the I/O operations.
+Exactly one of the files has a main program (statements before its first SUBR); with none the link
+stops with `undefined symbol: impmain`. The objects may be linked by another linker with the `C`
+library and `libimp72.a` (Section 2.4.2). If your program does any I/O, it should call FINI (see
+Section 2.2.7) to complete the I/O operations.
 
-If your program should fail at run time, it is a Unix process: an integer division by zero or a reference to a bad address ends it with a signal, and the files are not closed. The program has no symbol table of its own; `lldb` and `gdb` use the symbols of the object, which are the names of the routines and of the COMMON variables.
+If your program should fail at run time, it is a Unix process: an integer division by zero or a
+reference to a bad address ends it with a signal, and the files are not closed. The program has no
+symbol table of its own; `lldb` and `gdb` use the symbols of the object, which are the names of the
+routines and of the COMMON variables.
 
 ### 3.4: Extended Compilers.
 
-The language is defined by the syntax file the compiler reads: new syntax is added by syntax statements (Section 2.3) in three ways.
+The language is defined by the syntax file the compiler reads: new syntax is added by syntax
+statements (Section 2.3) in three ways.
 
-- 1. In the source program itself: a syntax statement is a statement and takes effect from where it is.
+- 1. In the source program itself: a syntax statement is a statement and takes effect from where it
+  is.
 
-- 2. In a file named `file.imc` on the command line, which is read before each source file: `imp72 inv.imc p1.imp`. It ends with two % signs, like a program. The file `ffi.imc` of the compiler, which defines CCALL and EXTERNAL, is such a file.
+- 2. In a file named `file.imc` on the command line, which is read before each source file: `imp72
+  inv.imc p1.imp`. It ends with two % signs, like a program. The file `ffi.imc` of the compiler, which
+  defines CCALL and EXTERNAL, is such a file.
 
-- 3. In an image of the compiler. With `imp72 -i`, the command `inv.imc/C` reads the file and continues, and the command `myc_/U` saves the compiler with the syntax read so far on `myc.img`. A program is then compiled by the extended compiler with `imp72 -I myc.img p1.imp`.
+- 3. In an image of the compiler. With `imp72 -i`, the command `inv.imc/C` reads the file and
+  continues, and the command `myc_/U` saves the compiler with the syntax read so far on `myc.img`. A
+  program is then compiled by the extended compiler with `imp72 -I myc.img p1.imp`.
 
-The file `syntax64.imc` is the definition of IMP72, and the compiler reads it first. To make a compiler with a different language, change the file (or point IMP72SYNTAX at another) and the semantic routines it calls. The compiler is built from its sources by `make` in the source tree, which needs a C99 compiler and the LLVM libraries (and lld, as a library, to link in the process). `make check` runs the tests, and `make install PREFIX=DIR` installs `bin/imp72`, `share/imp72/syntax64.imc`, `share/imp72/ffi.imc` and `lib/imp72/libimp72.a`. The sources of the compiler are in IMP72 (directory `src`) and compile with the compiler (Section 4).
+The file `syntax64.imc` is the definition of IMP72, and the compiler reads it first. To make a
+compiler with a different language, change the file (or point IMP72SYNTAX at another) and the
+semantic routines it calls. The compiler is built from its sources by `make` in the source tree,
+which needs a C99 compiler and the LLVM libraries (and lld, as a library, to link in the process).
+`make check` runs the tests, and `make install PREFIX=DIR` installs `bin/imp72`,
+`share/imp72/syntax64.imc`, `share/imp72/ffi.imc` and `lib/imp72/libimp72.a`. The sources of the
+compiler are in IMP72 (directory `src`) and compile with the compiler (Section 4).
 
 ## 4: Internal Documentation of the IMP72 Compiler.
 
-This section provides an overview of the organization of the IMP72 compiler. Documentation of specific routines, data bases, etc., is included at the beginning of each file of source code. The intent of the present section is to provide a frame of reference for the reader who wishes to tinker with the compiler. For those with a more intellectual interest in the compiler's workings and design, [Bilofsky 1973], [Irons 1971] and [Weingart 1973] may be more edifying.
+This section provides an overview of the organization of the IMP72 compiler. Documentation of
+specific routines, data bases, etc., is included at the beginning of each file of source code. The
+intent of the present section is to provide a frame of reference for the reader who wishes to tinker
+with the compiler. For those with a more intellectual interest in the compiler's workings and
+design, [Bilofsky 1973], [Irons 1971] and [Weingart 1973] may be more edifying.
 
-The compiler is programmed modularly wherever possible, at some cost in efficiency. (This cost has been substantially reduced by replacing many subroutine calls by in-line syntactic macros.) This philosophy was adopted in order to enable replacement and modification of portions of the compiler with minimal repercussions. Accordingly, there is no common data base in the compiler. Necessary information concerning another module's data base is acquired via subroutine calls.
+The compiler is programmed modularly wherever possible, at some cost in efficiency. (This cost has
+been substantially reduced by replacing many subroutine calls by in-line syntactic macros.) This
+philosophy was adopted in order to enable replacement and modification of portions of the compiler
+with minimal repercussions. Accordingly, there is no common data base in the compiler. Necessary
+information concerning another module's data base is acquired via subroutine calls.
 
 The compiler may be divided conceptually into the following sections:
 
@@ -1773,95 +2513,218 @@ IMP72MAIN, IMP72SYS     The main program, the system's values.
 
 ### 4.1: Parsing.
 
-The general flow of control within the compiler is as follows: PARSE obtains a stream of input symbols (in the form of directory indices) from LEX, and produces a stream of parser output in the form of terminal symbols (negative directory indices) and production numbers (positive integers n, conventionally indicated by [n]. In fact, n is an index in the semantics array, for historical reasons, but need not be.). The parser output is in Polish Postfix form.
+The general flow of control within the compiler is as follows: PARSE obtains a stream of input
+symbols (in the form of directory indices) from LEX, and produces a stream of parser output in the
+form of terminal symbols (negative directory indices) and production numbers (positive integers n,
+conventionally indicated by [n]. In fact, n is an index in the semantics array, for historical
+reasons, but need not be.). The parser output is in Polish Postfix form.
 
-The parser is a bottom-up parser (Irons 1971), driven through one cycle by each input symbol. At the end of the cycle, it has a set of possible parses for the input string so far. It takes one of the following actions, depending on the number of parses in the set.
+The parser is a bottom-up parser (Irons 1971), driven through one cycle by each input symbol. At the
+end of the cycle, it has a set of possible parses for the input string so far. It takes one of the
+following actions, depending on the number of parses in the set.
 
-- 1. If there are no parses, a syntax error has occurred. ERCOR is called to generate a string of symbols which may be inserted into the parse to form a syntactically correct expression. (ERCOR uses the philosophy, but not the exact method, of (Irons 1963)).
+- 1. If there are no parses, a syntax error has occurred. ERCOR is called to generate a string of
+  symbols which may be inserted into the parse to form a syntactically correct expression. (ERCOR uses
+  the philosophy, but not the exact method, of (Irons 1963)).
 
-- 2. If there is more than one parse, AMBIG is called to decide if an ambiguity has generated multiple parses, and to discard the redundant parses if this is the case.
+- 2. If there is more than one parse, AMBIG is called to decide if an ambiguity has generated
+  multiple parses, and to discard the redundant parses if this is the case.
 
-- 3. If there is one unique parse, the portion of the parser output stream generated since the last time there was one unique parse is passed to the semantics portion of the compiler by calling COTREE.
+- 3. If there is one unique parse, the portion of the parser output stream generated since the last
+  time there was one unique parse is passed to the semantics portion of the compiler by calling
+  COTREE.
 
-All other functions performed by the compiler, including addition of syntax and semantics to the compiler tables, and invoking the assembly phase, are performed by semantic routines invoked by the productions which PARSE passes to COTREE for interpretation. Thus the entire flow of control of the compiler is directed by the syntax and semantics of the language.
+All other functions performed by the compiler, including addition of syntax and semantics to the
+compiler tables, and invoking the assembly phase, are performed by semantic routines invoked by the
+productions which PARSE passes to COTREE for interpretation. Thus the entire flow of control of the
+compiler is directed by the syntax and semantics of the language.
 
 ### 4.2: Semantics.
 
-COTREE maintains a code generation stack, which starts off as the parser output in postfix form, but is collapsed as the productions in the stack are applied to their arguments, by invoking the appropriate semantics for the productions, to produce a single stack entry (semantic object) which is inserted back in the stack in place of the production and its arguments. This could always be be done at the bottom of the stack (we will consider the working end to be the bottom), as soon as the parser supplied a production, were it not for the special semantic cases. These require that a production not be applied to its arguments until enough additional parser output has been supplied to ensure that the production is not part of some special case.
+COTREE maintains a code generation stack, which starts off as the parser output in postfix form, but
+is collapsed as the productions in the stack are applied to their arguments, by invoking the
+appropriate semantics for the productions, to produce a single stack entry (semantic object) which
+is inserted back in the stack in place of the production and its arguments. This could always be be
+done at the bottom of the stack (we will consider the working end to be the bottom), as soon as the
+parser supplied a production, were it not for the special semantic cases. These require that a
+production not be applied to its arguments until enough additional parser output has been supplied
+to ensure that the production is not part of some special case.
 
-In order to do this, all special cases are kept in a code generation tree, which is built and accessed by routines in the code tree module, ENTREE. The special cases are entered in the tree as nodes which may match either a particular class of objects (as specified by the modifiers in the semantic condition see Section 2.3.3.2), or a particular production. When a new successor is added to a node, it is carefully inserted among existing successors so that the order of successors of a node, from left to right, is in order of increasing generality. This is done by ENTREE, and by subroutines INSNO and COMPNO. This order insures that the most specific case in the tree is the one to match a given piece of parser output (subject to the difficulties mentioned in Section 2.3.5), since nodes are searched left-to-right while attempting a match.
+In order to do this, all special cases are kept in a code generation tree, which is built and
+accessed by routines in the code tree module, ENTREE. The special cases are entered in the tree as
+nodes which may match either a particular class of objects (as specified by the modifiers in the
+semantic condition see Section 2.3.3.2), or a particular production. When a new successor is added
+to a node, it is carefully inserted among existing successors so that the order of successors of a
+node, from left to right, is in order of increasing generality. This is done by ENTREE, and by
+subroutines INSNO and COMPNO. This order insures that the most specific case in the tree is the one
+to match a given piece of parser output (subject to the difficulties mentioned in Section 2.3.5),
+since nodes are searched left-to-right while attempting a match.
 
-The definition of unconditional semantics for a production causes the most general possible case of that production to be entered in the code generation tree, ensuring that if no special case is found the semantics for the general case will be invoked.
+The definition of unconditional semantics for a production causes the most general possible case of
+that production to be entered in the code generation tree, ensuring that if no special case is found
+the semantics for the general case will be invoked.
 
-The terminal nodes of the code generation tree must always match some production. In order to avoid excessive fanout to these nodes, the terminal nodes coming from any given node are condensed into one. The entry for each production in the semantics array contains a pointer to a list for that production, in the array PROSEM (part of the semantics module), containing the names of all the terminal nodes in the code generation tree where that production may match, and a pointer back to the semantics array entry for the semantics to be invoked at that node. The PROSEM entry for a production also contains a bit vector telling at which levels of the code generation tree the production may match some node, either terminal or otherwise. This information makes it possible for COTREE to ascertain in many cases that no match is possible starting at a given point in the code generation stack, without having to search the entire tree.
+The terminal nodes of the code generation tree must always match some production. In order to avoid
+excessive fanout to these nodes, the terminal nodes coming from any given node are condensed into
+one. The entry for each production in the semantics array contains a pointer to a list for that
+production, in the array PROSEM (part of the semantics module), containing the names of all the
+terminal nodes in the code generation tree where that production may match, and a pointer back to
+the semantics array entry for the semantics to be invoked at that node. The PROSEM entry for a
+production also contains a bit vector telling at which levels of the code generation tree the
+production may match some node, either terminal or otherwise. This information makes it possible for
+COTREE to ascertain in many cases that no match is possible starting at a given point in the code
+generation stack, without having to search the entire tree.
 
-Certain non-terminal nodes in the code generation tree may match a class of productions defined by a VALUE kludge.
+Certain non-terminal nodes in the code generation tree may match a class of productions defined by a
+VALUE kludge.
 
-COTREE performs the following algorithm: It is called once from PARSE with each item of parser output. The item is added to the bottom of the code generation stack. If it is a terminal symbol, no other action is taken. If it is a production number, an attempt is made to match some substring in the stack with some pattern in the code generation tree. A match is attempted starting at each node in the stack, starting at the top.
+COTREE performs the following algorithm: It is called once from PARSE with each item of parser
+output. The item is added to the bottom of the code generation stack. If it is a terminal symbol, no
+other action is taken. If it is a production number, an attempt is made to match some substring in
+the stack with some pattern in the code generation tree. A match is attempted starting at each node
+in the stack, starting at the top.
 
-- 1. If a match is found which might be continued past the end of the stack, no action is taken, and COTREE returns control to the parser for more parser output. In this case, more context is needed to determine whether this is a special case.
+- 1. If a match is found which might be continued past the end of the stack, no action is taken, and
+  COTREE returns control to the parser for more parser output. In this case, more context is needed to
+  determine whether this is a special case.
 
-- 2. If no match is found at any position, another symbol is requested from the parser. This is in fact an error condition, but is not checked for until completion of the parse.
+- 2. If no match is found at any position, another symbol is requested from the parser. This is in
+  fact an error condition, but is detected only at the completion of the parse.
 
-- 3. If a match is found, all the way through to a terminal node of the code generation tree, the appropriate semantics are applied.
+- 3. If a match is found, all the way through to a terminal node of the code generation tree, the
+  appropriate semantics are applied.
 
-The semantics are applied by moving the objects in the matched section of the stack onto the semantics stack, and calling the semantics module, DOSEM, with the index in the semantics array of the semantics to be invoked. DOSEM will usually supply a single object as the result of the semantics. COTREE then inserts this object into the stack in place of all the objects and productions matched, and goes back to look for another pattern match.
+The semantics are applied by moving the objects in the matched section of the stack onto the
+semantics stack, and calling the semantics module, DOSEM, with the index in the semantics array of
+the semantics to be invoked. DOSEM will usually supply a single object as the result of the
+semantics. COTREE then inserts this object into the stack in place of all the objects and
+productions matched, and goes back to look for another pattern match.
 
-Quoted semantics are stored in the semantics array essentially as parser output, with special indicators for local symbols and for places where the arguments are to be inserted (copying the associated code, if any, for all but the first insertion of each argument). DOSEM performs quoted semantics by calling CODENT, in the code generation stack package, to add each item in the quoted semantics onto the bottom of the code generation stack. CODENT also sets a flag for COTREE, so that when DOSEM returns control to COTREE special action is taken to rearrange the stack so that the entire result of the quoted semantics is inserted in place of the matched portion of the stack. Thus, it is quite possible to have semantics generate more items on the stack than were necessary to invoke it. This process is used in the semantics for IMP72 conditionals, where several quoted semantic rewrites of a conditional expression may be used to put it into a form which generates good object code.
+Quoted semantics are stored in the semantics array essentially as parser output, with special
+indicators for local symbols and for places where the arguments are to be inserted (copying the
+associated code, if any, for all but the first insertion of each argument). DOSEM performs quoted
+semantics by calling CODENT, in the code generation stack package, to add each item in the quoted
+semantics onto the bottom of the code generation stack. CODENT also sets a flag for COTREE, so that
+when DOSEM returns control to COTREE special action is taken to rearrange the stack so that the
+entire result of the quoted semantics is inserted in place of the matched portion of the stack.
+Thus, it is quite possible to have semantics generate more items on the stack than were necessary to
+invoke it. This process is used in the semantics for IMP72 conditionals, where several quoted
+semantic rewrites of a conditional expression may be used to put it into a form which generates good
+object code.
 
-There is also a special switch in COTREE which causes it not to enter the parser output in the code generation stack at all, but rather to store it in an array for later interpretation by certain semantic routines. The semantic routines MAXWELL and MAXEND turn this switch on and off repsectively, the production invoking the latter making use of the PRIORITY mechanism to avoid being stored and ignored itself. This mechanism is used to implement quoted semantics and semantic conditionals.
+There is also a special switch in COTREE which causes it not to enter the parser output in the code
+generation stack at all, but rather to store it in an array for later interpretation by certain
+semantic routines. The semantic routines MAXWELL and MAXEND turn this switch on and off
+repsectively, the production invoking the latter making use of the PRIORITY mechanism to avoid being
+stored and ignored itself. This mechanism is used to implement quoted semantics and semantic
+conditionals.
 
 ### 4.3: Semantics and Code Generation.
 
-Semantic routines are invoked by DOSEM, which merely interprets the entries in the semantics array. The routine is completely explained by the data structure, which is well-documented on the source file.
+Semantic routines are invoked by DOSEM, which merely interprets the entries in the semantics array.
+The routine is completely explained by the data structure, which is well-documented on the source
+file.
 
-The semantic routines that generate code (CODE, CODE2, CODE3 and IMPSEM) build for each object a chain of records in a free storage array. A record is one operation of the abstract machine (Section 2.3.3.1.2) with its register and its operand, or a tag, or a constant of a DATA statement. HOOK joins chains. When the parse of a statement of the main program or of a routine is complete, ASSEMC passes the chains to DEMIT, which walks them and writes the text of the intermediate representation: one function for each routine, with its variables, its calls and its jumps. IR2LL translates that text to a module of LLVM IR, and LLVM makes from the module what the options ask for: an object file, the assembly of the target, the IR text, or a program run by ORC in the process. The driver links objects with the runtime library. Register allocation, instruction selection and the optimization of the code are done by LLVM.
+The semantic routines that generate code (CODE, CODE2, CODE3 and IMPSEM) build for each object a
+chain of records in a free storage array. A record is one operation of the abstract machine
+(Section 2.3.3.1.2) with its register and its operand, or a tag, or a constant of a DATA statement.
+HOOK joins chains. When the parse of a statement of the main program or of a routine is complete,
+ASSEMC passes the chains to DEMIT, which walks them and writes the text of the intermediate
+representation: one function for each routine, with its variables, its calls and its jumps. IR2LL
+translates that text to a module of LLVM IR, and LLVM makes from the module what the options ask
+for: an object file, the assembly of the target, the IR text, or a program run by ORC in the
+process. The driver links objects with the runtime library. Register allocation, instruction
+selection and the optimization of the code are done by LLVM.
 
-(The confusing routines in the semantics package, and there are very confusing ones indeed, have to do with the semantics for syntax, which is discussed below.)
+(The confusing routines in the semantics package, and there are very confusing ones indeed, have to
+do with the semantics for syntax, which is discussed below.)
 
 ### 4.4: How Extensibility is Implemented.
 
-The syntax of IMP72 is stored in a syntax graph and two associated connectivity matrices, as described in (Irons 1971), except that the graph is not back-optimized, in order to be able to add new productions without great fuss. New productions are added to the graph, and the matrix updated, by subroutine GRAPH, which is called with one production. The parser accesses the graph via other subroutines in the syntax graph module.
+The syntax of IMP72 is stored in a syntax graph and two associated connectivity matrices, as
+described in (Irons 1971), except that the graph is not back-optimized, in order to be able to add
+new productions without great fuss. New productions are added to the graph, and the matrix updated,
+by subroutine GRAPH, which is called with one production. The parser accesses the graph via other
+subroutines in the syntax graph module.
 
-Initially, the graph is empty. Subroutine RSYN has built into it a syntax and semantics for very simple syntax statements. The process of creating an IMP compiler begins by calling RSYN (from the driver program IMPM) to read a similar syntax and semantics from the first part of the syntax file, up to its first % sign. Once this is done, the compiler is bootstrapped (it says SYNTAX BOOTSTRAPPED when it is not run quietly) and uses the syntax and semantics in its internal tables. The first statements it reads are the syntax and semantics for more complex syntax statements. After this comes the syntax for the computational portion of the language. The compiler then goes on to the files named on the command line. Thus, except for lexical conventions and the syntax built into RSYN (which is only used to bootstrap the compiler), the entire syntax and semantics for IMP72 comes from file `syntax64.imc` and the semantic subroutines referred to on it. The compiler can be saved after it has read its syntax (Section 3.4).
+Initially, the graph is empty. Subroutine RSYN has built into it a syntax and semantics for very
+simple syntax statements. The process of creating an IMP compiler begins by calling RSYN (from the
+driver program IMPM) to read a similar syntax and semantics from the first part of the syntax file,
+up to its first % sign. Once this is done, the compiler is bootstrapped (it says SYNTAX BOOTSTRAPPED
+when it is not run quietly) and uses the syntax and semantics in its internal tables. The first
+statements it reads are the syntax and semantics for more complex syntax statements. After this
+comes the syntax for the computational portion of the language. The compiler then goes on to the
+files named on the command line. Thus, except for lexical conventions and the syntax built into RSYN
+(which is only used to bootstrap the compiler), the entire syntax and semantics for IMP72 comes from
+file `syntax64.imc` and the semantic subroutines referred to on it. The compiler can be saved after
+it has read its syntax (Section 3.4).
 
-The other routines on files RSYN and RSYN2 implement the semantics for syntax statements. They were at once the first and the most complex semantic routines implemented, and, to put it kindly, are rather obscure. The routines SYTRM, SYNT, and SYNTS build up a production in array SN which is then entered in the syntax graph by semantic routine SYNTAX. At this point, a list of the names of the arguments of the production is in array NA for use in compiling the semantics.
+The other routines on files RSYN and RSYN2 implement the semantics for syntax statements. They were
+at once the first and the most complex semantic routines implemented, and, to put it kindly, are
+rather obscure. The routines SYTRM, SYNT, and SYNTS build up a production in array SN which is then
+entered in the syntax graph by semantic routine SYNTAX. At this point, a list of the names of the
+arguments of the production is in array NA for use in compiling the semantics.
 
-Basically, semantics are compiled into array SEMS in the semantics package via calls on SETSEM. Semantic routine calls are compiled by semantic routines SEMP and SEMR, which check NA to see if identifiers are arguments of the production.
+Basically, semantics are compiled into array SEMS in the semantics package via calls on SETSEM.
+Semantic routine calls are compiled by semantic routines SEMP and SEMR, which check NA to see if
+identifiers are arguments of the production.
 
-Quoted semantics are processed by semantic routine QUOSEM, which converts parser output into semantics which it enters in the semantics array via SETSEM.
+Quoted semantics are processed by semantic routine QUOSEM, which converts parser output into
+semantics which it enters in the semantics array via SETSEM.
 
-When a semantic condition is encountered, semantic routine QUOSEM enters the pattern in the code generation tree with a call to ENTREE, which returns a list of the formal arguments of the condition. QUOSEM then calls SEMFIX (in the semantic package) to process the semantics, which have already been entered in the semantics array, to conform with the new list of formal arguments.
+When a semantic condition is encountered, semantic routine QUOSEM enters the pattern in the code
+generation tree with a call to ENTREE, which returns a list of the formal arguments of the
+condition. QUOSEM then calls SEMFIX (in the semantic package) to process the semantics, which have
+already been entered in the semantics array, to conform with the new list of formal arguments.
 
-When a modifier for a VALUE kludge is encountered on quoted semantics, semantic routine REPVAL performs the necessary alteration on the parser output before QUOSEM gets it.
+When a modifier for a VALUE kludge is encountered on quoted semantics, semantic routine REPVAL
+performs the necessary alteration on the parser output before QUOSEM gets it.
 
-Semantic package routine SEMFX1 is called to perform a similar alteration on default case semantics in the event that a VALUE kludge applies to them.
+Semantic package routine SEMFX1 is called to perform a similar alteration on default case semantics
+in the event that a VALUE kludge applies to them.
 
 ## 5: Source and Licence.
 
-The sources of the compiler, of the runtime library, of this manual and of the tests are in one tree. Its main directories are `src` (the compiler: the kernel in `src`, the code generator in `src/llvm-ir`), `lib` (the runtime library and `ffi.imc`), `tests`, `tools` (the tools that make this manual among them), `docs` and `decus` (the original compiler, as it was distributed by DECUS, program 10-198, for the PDP-10). The manual is `docs/manual/imp72.rno`, the RUNOFF source of the manual of the original with the changes that describe this implementation; the page `imp72.7` and the file `imp72.md` are made from it by the tools `runoff2mdoc` and `runoff2md`.
+The sources of the compiler, of the runtime library, of this manual and of the tests are in one
+tree. Its main directories are `src` (the compiler: the kernel in `src`, the code generator in
+`src/llvm-ir`), `lib` (the runtime library and `ffi.imc`), `tests`, `tools` (the tools that make
+this manual among them), `docs` and `decus` (the original compiler, as it was distributed by DECUS,
+program 10-198, for the PDP-10). The manual is `docs/manual/imp72.rno`, a RUNOFF source; the page
+`imp72.7` and the file `imp72.md` are made from it by the tools `runoff2mdoc` and `runoff2md`.
 
-The software is distributed under the ISC licence (the file `LICENSE`): permission to use, copy, modify and distribute it for any purpose, with or without fee, is granted provided that the copyright notice and the permission notice appear in all copies; the software is provided "as is", without warranty.
+The software is distributed under the ISC licence (the file `LICENSE`): permission to use, copy,
+modify and distribute it for any purpose, with or without fee, is granted provided that the
+copyright notice and the permission notice appear in all copies; the software is provided "as is",
+without warranty.
 
-The original compiler was designed and implemented by Walt Bilofsky at the Yale University Department of Computer Science, based largely on previous work of E. T. Irons, with substantial contributions by Steven Weingart and Terry Lyons.
+The original compiler was designed and implemented by Walt Bilofsky at the Yale University
+Department of Computer Science, based largely on previous work of E. T. Irons, with substantial
+contributions by Steven Weingart and Terry Lyons.
 
 ## Appendix I. Runtime Library Routines.
 
-The IMP run-time library, file `libimp72.a`, contains the routines that the code of a program calls (PRINT and READ among them) and the routines below, which a program may call. The library has no counterpart for the package of subroutines FORTIO of the original, which interfaced with the DECsystem-10 monitor (SAVREG, OPEN, INIT, LOOKUP, ENTER, SIXBIT, RAD50 and the others): a program uses the `C` library instead (Section 2.4.1). The arguments of an IMP routine are addresses, so that in a call with CCALL the address of a variable is its argument. Names are case sensitive.
+The IMP run-time library, file `libimp72.a`, contains the routines that the code of a program calls
+(PRINT and READ among them) and the routines below, which a program may call. A program calls the
+`C` library through CCALL (Section 2.4.1). The arguments of an IMP routine are addresses, so that in
+a call with CCALL the address of a variable is its argument. Names are case sensitive.
 
-- FINI(I): closes all the files and returns the output and the input to the standard files; exits from the program if I is 0 (Section 2.2.7).
+- FINI(I): closes all the files and returns the output and the input to the standard files; exits
+  from the program if I is 0 (Section 2.2.7).
 
-- IFIX(X): the integer part of the REAL X, truncated toward zero. A value beyond the range is the least integer.
+- IFIX(X): the integer part of the REAL X, truncated toward zero. A value beyond the range is the
+  least integer.
 
 - impargc(0): the number of arguments of the command line of the program.
 
 - impargvp(0): the address of the array of pointers to the arguments.
 
-- IMPARGET(OUT,V,I): stores element I of the array of pointers V (a `char *[]`) in the word at the address OUT.
+- IMPARGET(OUT,V,I): stores element I of the array of pointers V (a `char *[]`) in the word at the
+  address OUT.
 
 - IMPARGSET(V,I,P): stores the pointer P as element I of the array V.
 
-- IMPSTDIN(0), IMPSTDOUT(0): the `FILE *` of the standard input and the standard output of the `C` library, to give to `fputs`, `fgets` and the like with CCALL.
+- IMPSTDIN(0), IMPSTDOUT(0): the `FILE *` of the standard input and the standard output of the `C`
+  library, to give to `fputs`, `fgets` and the like with CCALL.
 
 - impcalli(CODE,AC): the routine that CALLI(CODE,AC) calls (Section 2.2.9).
 
@@ -1869,7 +2732,11 @@ The IMP run-time library, file `libimp72.a`, contains the routines that the code
 
 - impmain: the function that the statements before the first SUBR of a file make.
 
-The other symbols of the library are lower case names that begin with `imp` (`imppr`, `imprd`, `impxct`, `impibp`, `impldb`, `impdpb`, `implsh`, `impash`, `improt`, `impblt`, `impac`, `impca`, `impbpp`, `impbpv`, `impxw`) or upper case names that begin with `RTL`, `SC` or `IMPCORE`: the compiler calls them for PRINT, READ, byte pointers, shifts by a variable count, EXECUTE and the like, and the library uses them itself. A program should not define a name of that kind.
+The other symbols of the library are lower case names that begin with `imp` (`imppr`, `imprd`,
+`impxct`, `impibp`, `impldb`, `impdpb`, `implsh`, `impash`, `improt`, `impblt`, `impac`, `impca`,
+`impbpp`, `impbpv`, `impxw`) or upper case names that begin with `RTL`, `SC` or `IMPCORE`: the
+compiler calls them for PRINT, READ, byte pointers, shifts by a variable count, EXECUTE and the
+like, and the library uses them itself. A program should not define a name of that kind.
 
 ## Appendix II: Syntax of IMP72.
 
@@ -1933,10 +2800,6 @@ The other symbols of the library are lower case names that begin with `imp` (`im
 <PROP>	::= REAL
 <PROP>	::= INTEGER
 <PROP>	::= REGISTER
-<PROP>	::= RESERVED
-<PROP>	::= SCRATCH
-<PROP>	::= PROTECTED
-<PROP>	::= AVAILABLE
 <PROP>	::= RELEASED
 <PROP>	::= LOCAL
 <SYN>	::= LET
@@ -2014,8 +2877,6 @@ The other symbols of the library are lower case names that begin with `imp` (`im
 <PITEM>	::= STG <A>
 <PITEM>	::= FILE <NAM,A>
 <PITEM>	::= FILE <NAM,A>.<B>
-<PITEM>	::= FILE <NAM,A>[<C>,<D>]
-<PITEM>	::= FILE <NAM,A>.<B>[<C>,<D>]
 <PITEM>	::= /
 <PITEM>	::= DEVICE <A>
 <PITEM>	::= IMAGE MODE
@@ -2039,11 +2900,8 @@ The other symbols of the library are lower case names that begin with `imp` (`im
 <EXP>	::= <VBL,A> '<' R > ':=' <B>
 <EXP>	::= <VBL,A> '<' L > ':=' <B>
 <ST>	::= EXECUTE <A>
-<ST>	::= CALL ME <NAM,A>
-<ST>	::= TWOSEG
 <ATOM>	::= IDPB(<A>,<B>)
 <ATOM>	::= ILDB(<A>)
-<ATOM>	::= R<VBL,A>
 <ION>	::= CALLI(<A>,<B>)
 <ATOM>	::= XWD <A>,<B>
 <ATOM>	::= IOWD <A>,<B>
@@ -2068,15 +2926,18 @@ Defense Analyses, Princeton, N.J.
 
 - Irons 1970: Experience with an Extensible Language, Comm. of the ACM, Vol. 13 No. 1, Jan. 1970
 
-- Irons 1971: Syntax Graphs and Fast Context Free Parsing, Research Report No. 71-1, Department of Computer Science, Yale University.
+- Irons 1971: Syntax Graphs and Fast Context Free Parsing, Research Report No. 71-1, Department of
+  Computer Science, Yale University.
 
-- Naur 1963: Revised Report on the Algorithmic Language ALGOL 60. Comm. of the ACM, Vol. 6 No. 1, Jan. 1963. Section 1.1 defines BNF.
+- Naur 1963: Revised Report on the Algorithmic Language ALGOL 60. Comm. of the ACM, Vol. 6 No. 1,
+  Jan. 1963. Section 1.1 defines BNF.
 
 - Shakespeare 1612: The Tempest
 
 - Webster's 1967: Webster's 7th New Collegiate Dictionary, G&C Merriam Co., Pub., 1967.
 
-- Weingart 1973: An Efficient and Systematic Method of Code Generation, Ph.D. Thesis, Department of Computer Science, Yale University, June 1973.
+- Weingart 1973: An Efficient and Systematic Method of Code Generation, Ph.D. Thesis, Department of
+  Computer Science, Yale University, June 1973.
 
 ## Index
 

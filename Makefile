@@ -31,7 +31,7 @@ $(RTLIB): build/llvm-ir2/imp72stage-llvm-ir tools/mkrt.sh tools/sysconst.sh lib/
 
 # stage 1 by the seed, stage 2 by stage 1 (skipped where the LLVM libraries are missing)
 llvm-ir: stage0 $(LIB)
-	@sh tools/guard.sh sh tools/llvm-ir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
+	@LDFLAGS="$(LDFLAGS)" sh tools/guard.sh sh tools/llvm-ir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 
 stage0:
 	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
