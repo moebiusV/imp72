@@ -21,7 +21,7 @@ grep -q 'FAILED: image' "$log" && { IMP72COREDEBUG=1 sh tests/image/run.sh 2>&1 
 { ls /usr/lib /usr/include 2>/dev/null | grep -i 'lld\|libLLVM'; pkg_info -Q lld 2>/dev/null | head -8; pkg_info -Q llvm 2>/dev/null | head -8; pkg_info 2>/dev/null | grep -i 'llvm\|lld'; } 2>&1 | ann "packages"
 # the logs of the stages of the compilers' build (tools/llvm-ir.sh, tools/direct.sh): what the step that failed said, or that it said nothing
 for f in build/llvm-ir1.log build/llvm-ir2.log build/llvm-ir1/*.log build/llvm-ir2/*.log; do
-    [ -s "$f" ] && { head -c 500 "$f"; printf ' ... '; tail -c 500 "$f"; } | ann "$f"
+    [ -s "$f" ] && { dd bs=500 count=1 if="$f" 2>/dev/null; printf ' ... '; tail -c 500 "$f"; } | ann "$f"
 done
 ls -la build/llvm-ir1 build/llvm-ir2 2>&1 | tail -n 12 | ann "ls"
 exit 2

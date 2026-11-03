@@ -40,20 +40,34 @@ rm -f a.out
 [ "$("$w" --version 2>&1)" = "imp72 0.9.0" ] || bad "--version"
 "$w" --help 2>&1 | grep -q '^usage: imp72' || bad "--help"
 case $(sh "$root/tools/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac       # a big endian host refuses a target of the other byte order (aarch64, riscv64, i686, Mach-O are little endian): those checks are for the others
-mach() { od -An -tu1 -j18 -N2 "$1" | awk '{print $1 + 256 * $2}'; }
+mach() { od -An -tu1 -v -N20 "$1" | tr -s ' \n' '  ' | awk '{print $19 + 256 * $20}'; }       # (bytes 18 and 19 of the header; no -j, which the BSDs' od takes otherwise)
+have() { "$w" -c --target=$1 lib2.imp -o probe.o > probe.log 2>&1; ! grep -q 'No available targets' probe.log; }       # does the LLVM of this compiler have the target (a system's own LLVM may be built with its architecture alone: OpenBSD's has X86 and AMDGPU)
 if [ "$be" = 0 ]; then
 # another system: the object is in its format (ELF, e_machine at byte 18: x86-64 62, aarch64 183, riscv 243) and 32 bit pointers for a 32 bit one
+if have aarch64-linux-gnu; then
 "$w" -c --target=aarch64-linux-gnu lib2.imp -o a64.o >/dev/null 2>&1 && [ "$(mach a64.o)" = 183 ] || bad "--target=aarch64-linux-gnu"
-"$w" -c --target=riscv64-linux-gnu lib2.imp -o rv.o >/dev/null 2>&1 && [ "$(mach rv.o)" = 243 ] || bad "--target=riscv64-linux-gnu"
-"$w" -Sir --target=i686-linux-gnu lib2.imp -o i.ll >/dev/null 2>&1 && grep -q 'i32 %a0' i.ll || bad "--target=i686: 32 bit pointers in the IR"
 "$w" -S --target=aarch64-linux-gnu lib2.imp -o a64.s >/dev/null 2>&1 && grep -q 'ret' a64.s && ! grep -q 'rdi' a64.s || bad "--target=aarch64: assembly for it"
+fi
+if have riscv64-linux-gnu; then
+"$w" -c --target=riscv64-linux-gnu lib2.imp -o rv.o >/dev/null 2>&1 && [ "$(mach rv.o)" = 243 ] || bad "--target=riscv64-linux-gnu"
+fi
+if have i686-linux-gnu; then
+"$w" -Sir --target=i686-linux-gnu lib2.imp -o i.ll >/dev/null 2>&1 && grep -q 'i32 %a0' i.ll || bad "--target=i686: 32 bit pointers in the IR"
+fi
 # the other system for the link tests is not this one (an arm64 Linux host links aarch64-linux-gnu natively)
-case $(uname -m)-$(uname -s) in aarch64-Linux|arm64-Linux) oth=riscv64-linux-gnu ;; *) oth=aarch64-linux-gnu ;; esac
+oth=
+for t in aarch64-linux-gnu riscv64-linux-gnu x86_64-linux-gnu; do
+    case $(uname -m)-$(uname -s):$t in x86_64-Linux:x86_64-*|amd64-Linux:x86_64-*|aarch64-Linux:aarch64-*|arm64-Linux:aarch64-*) continue ;; esac     # (that one is the host's: it links)
+    have $t && { oth=$t; break; }
+done
+if [ -n "$oth" ]; then
 # linking for another system needs that system's files: without them the message says which and how to give them (--sysroot, --runtime)
 "$w" --target=$oth main.imp lib2.imp > xl.log 2>&1 && bad "linking for another system with no sysroot succeeded"
 grep -q -e '--sysroot=DIR' xl.log && grep -q -e '--runtime=FILE' xl.log && grep -q 'crt1.o' xl.log || bad "the message for a link for another system does not say what is needed and how to say where"
 "$w" --target=$oth --sysroot=$root/build/cli/nosuchroot main.imp lib2.imp > xl2.log 2>&1 && bad "a sysroot with nothing in it linked"
 grep -q 'Looked for crt1.o in' xl2.log || bad "the message does not say where crt1.o was looked for"
+fi
+if have arm64-apple-darwin; then
 # Mach-O from any system: the object (magic cf fa ed fe), the message for the SDK, and the Mach-O driver of lld in this compiler (a fake SDK and an empty runtime: it must get as far as lld's complaint)
 "$w" -c --target=arm64-apple-darwin lib2.imp -o m.o >/dev/null 2>&1 && [ "$(od -An -tx1 -N4 m.o | tr -d ' \n')" = cffaedfe ] || bad "--target=arm64-apple-darwin: a Mach-O object"
 "$w" --target=arm64-apple-darwin main.imp lib2.imp > xm.log 2>&1 && bad "linking for macOS with no SDK succeeded"
@@ -61,7 +75,8 @@ grep -q 'libSystem.tbd' xm.log && grep -q -e '--sysroot=DIR' xm.log || bad "the 
 mkdir -p fakesdk/usr/lib && printf -- '--- !tapi-tbd\ntbd-version: 4\ntargets: [ arm64-macos ]\ninstall-name: "/usr/lib/libSystem.B.dylib"\nexports:\n  - targets: [ arm64-macos ]\n    symbols: [ dyld_stub_binder ]\n...\n' > fakesdk/usr/lib/libSystem.tbd
 ar rcs empty.a 2>/dev/null
 "$w" --target=arm64-apple-darwin --sysroot=$root/build/cli/fakesdk --runtime=$root/build/cli/empty.a main.imp lib2.imp > xm2.log 2>&1 && bad "the Mach-O link with no runtime succeeded"
-grep -q 'ld64.lld: error: undefined symbol' xm2.log || { [ ! -x "$(command -v ar)" ] || bad "the Mach-O driver of lld did not run in this compiler"; }
+[ "$(uname -s)" = Darwin ] || grep -q 'ld64.lld: error: undefined symbol' xm2.log || { [ ! -x "$(command -v ar)" ] || bad "the Mach-O driver of lld did not run in this compiler"; }       # (on a Mac that target is the host's: no cross link to refuse)
+fi
 "$w" -c --target=nonsense lib2.imp >/dev/null 2>&1 && bad "a nonsense target was accepted"
 fi
 if [ "$(uname -m)" = x86_64 ] && [ "$(getconf LONG_BIT)" = 64 ]; then       # the host's own architecture and system, whatever the vendor and the C library: a target that links
@@ -88,7 +103,7 @@ printf '\n' | "$w" -i -I my2.img 2>&1 | head -1 | grep -q '0\.9\.0(B)  ' || bad 
 rm -f zprog.o
 printf 'zprog\n' | "$w" -i -I my.img > i6.log 2>&1
 [ -s zprog.o ] || bad "-i -I: the saved compiler compiles zprog"
-if [ "$be" = 0 ]; then
+if [ "$be" = 0 ] && have aarch64-linux-gnu; then
 rm -f okp.o
 printf 'okp\n' | "$w" -i --target=aarch64-linux-gnu > i7.log 2>&1
 [ -s okp.o ] && [ "$(mach okp.o)" = 183 ] || bad "-i --target=aarch64-linux-gnu makes an aarch64 object"
