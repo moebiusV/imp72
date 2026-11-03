@@ -26,12 +26,13 @@ def quiet(t, idle=4, limit=600, until=None):
 
 
 def tapetext(p, n):
-    """the program as the original reads it: its assignment is _ and not :=; a file in the scratch directory of the tree, named for the program.
-    The converter this used (tools/imp-assign.imp) was removed on 2026-11-03 (nothing else needed it): to capture new output from the real machine, convert the programs first"""
+    """the program as the original reads it: its assignment is _ and not := (tools/imp-assign.imp -t, run by tools/imptool.sh); a file in the scratch directory of the tree, named for the program"""
     d = os.path.join(here, "..", "tmp", "oracle-text")
     os.makedirs(d, exist_ok=True)
     q = os.path.join(d, os.path.basename(p))
-    raise SystemExit("oracle-run: the converter of := to _ (tools/imp-assign) was removed; convert %s to the tape's text by hand or restore it from git history (before 2026-11-03)" % p)
+    with open(q, "wb") as g:
+        subprocess.run(["sh", os.path.join(here, "imptool.sh"), "imp-assign", "-t", os.path.abspath(p)], stdout=g, check=True)    # IMP does it: tools/imp-assign.imp
+    return q
 
 
 def run(progs, outdir, lst=False):
