@@ -62,9 +62,12 @@ elements, `HRL` and `HRR` (halfword stores) are `HRL`/`HRR` of `syntax64.imc` to
 | `impsem` | `IINIT` | the first use of the register and list tables (the tape initialised them inline) |
 | `impsem` | `PAIRFIRST` | is register J the first of a pair (flag `40B` of the register table) |
 
-## What is left to decide (the user's)
+## Decided (the user, 2026-11-03)
 
-1. **`CORE`**: my recommendation is no; `IMPCORESET` does the work and a second name for it adds nothing.
-2. **`RLEAS`**: decide with study 3 (channel I/O); if channels come back, it returns with them as `fclose`.
-3. **(b)**: my recommendation is to keep the new routines as they are. The header accessors (`FBACK` … `FSETL`) and `SEMCALL` could be folded into the tape's routines (`FREES` with a mask, a table call without the frame stack),
-   at the cost of the 64-bit layout being less explicit; I see no reason to.
+The recommendations below are accepted, to be **examined again when channel I/O is back** (study 3 of `pre-1.0-studies.md`), because `RLEAS` and possibly `CORE` depend on it:
+
+1. **`CORE`**: not brought back; `IMPCORESET` does the work.
+2. **`RLEAS`**: not brought back now; decided again with channel I/O, as the `fclose` of a channel if channels return.
+3. **(b), the new routines**: kept as they are (the header accessors `FBACK` … `FSETL`, `SEMCALL` and the rest).
+
+`CCALL` keeps its name (asked 2026-11-03: it says "by value, as C does", which a bare `CALL` would not).
