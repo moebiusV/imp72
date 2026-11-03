@@ -5,6 +5,21 @@
 #include "imp.h"
 #include "check.h"
 
+/* the words of a text constant are in memory order (convc): the word of the name for the first character in the low byte on a little endian host, swapped on a big endian one */
+static word
+memw(word w)
+{
+    unsigned x = 1;
+    uword u = (uword)w, r = 0;
+    int i;
+
+    if (*(unsigned char *)&x != 0)
+        return w;
+    for (i = 0; i < 8; i++, u >>= 8)
+        r = (r << 8) | (u & 0377);
+    return (word)r;
+}
+
 int
 main(void)
 {
@@ -80,9 +95,9 @@ main(void)
     CHECK(convc(dir("1777777777777777777777B")) == -1 && convc_const == -1);
     v = convc(dir("'ABC"));                     /* string: pointer to words */
     CHECK(v > 0 && FREE(v) == 1);
-    CHECK(convc_const == dname(dir("ABC"), 0));
+    CHECK(convc_const == memw(dname(dir("ABC"), 0)));
     v = convc(dir("'ABCDEFGH"));
-    CHECK(FREE(v) == 2 && FREE(v + 1) == dname(dir("ABCDEFGH"), 0)
+    CHECK(FREE(v) == 2 && FREE(v + 1) == memw(dname(dir("ABCDEFGH"), 0))
         && FREE(v + 2) == 0);
     CHECK(strcmp(gname(stcon(15)), "17B") == 0);
     CHECK(strcmp(gname(stcon(0)), "0B") == 0);
