@@ -74,7 +74,7 @@ armv7, riscv64, ppc64le, s390x and loong64 (mips64le is not run). The seed has n
    preference is for the latter); file names that match Unix's limits (the
    tape's six characters and three of the extension, where `MKNAME` allows 15 and 7); the empty string `''`, which is a
    syntax error today (a program that needs an empty C string passes the address of a zero byte), and whether it should be a literal.
-   (Assignment is written `:=` and `_` is a letter of names, so that IMP names are ELF and C names: done; see `tape/README.md`.) The syntax
+   (Assignment is written `:=` and `_` is a letter of names, so that IMP names are ELF and C names: done.) The syntax
    of IMP72 does not change further until the study is done and decided.
 7. Later: a function pointer from the compiler for a single definition
    (`libimp72`, over ORC). A target for the 36-bit PDP-10 is not planned.
@@ -101,8 +101,8 @@ on a simulated KA10, and everything after that is checked against what it
 prints.
 
 The second was a seed: a port of the kernel to C, which reads the original
-`syntax.imc` of `tape/` (the tape's, with `:=` for `_`). Its code generator still makes PDP-10 instructions, but
-a translator turns them into an intermediate representation, and LLVM makes
+64-bit syntax (`src/llvm-ir/syntax64.imc`, the tape's with words of 64 bits). Its code generator, a C port of the
+one in `src/llvm-ir/`, makes an intermediate representation directly, and LLVM makes
 the machine code. That compiler can compile IMP programs for a modern machine,
 and it can compile the tape's own modules.
 
@@ -143,7 +143,6 @@ IMP expressions have **no operator precedence** (`A+B*C` is `A+(B*C)`), and
 
     decus/          the DECUS 10-198 tape, unchanged, with hashes
                     (SHA256SUMS, SHA256SUMS.bin) and PROVENANCE.md
-    tape/           the 22 .imc files of decus/ with := for _ (tools/tape.sh makes them; the seed reads them)
     src/            the compiler's sources in 64-bit IMP: the kernel modules,
                     impsyn64.imc (the syntax they are written in)
     src/llvm-ir/      the code generator, the syntax file syntax64.imc, demit.imp

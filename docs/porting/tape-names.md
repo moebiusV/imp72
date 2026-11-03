@@ -1,6 +1,6 @@
 # The names of the tape, and of the port
 
-An audit, made by comparing the `SUBR` names of each module of the tape (`tape/*.imc`, the `:=` copy of `decus/`) with those of the module that replaces it in `src/` (the kernel in `src/*.imp`; the code generator and the
+An audit, made by comparing the `SUBR` names of each module of the tape (`decus/*.imc`; the assignment there is `_` and here `:=`, which changes no name) with those of the module that replaces it in `src/` (the kernel in `src/*.imp`; the code generator and the
 semantics in `src/llvm-ir/*.imp`). Nothing has been renamed or removed because of it; this is the list to decide from. Written 2026-11-02 from the tree at the time; to repeat it, list `SUBR NAME` lines of both files and `comm` them.
 
 Not routines, so not in the lists: `FREES`, `FLEN`, `FADD` and the other macros of `impsyn.imc` are syntax, and keep their names in `src/impsyn64.imc`.

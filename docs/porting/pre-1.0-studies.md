@@ -49,7 +49,7 @@ decided. The recommendations are mine. "Looked at" means I read the code named; 
 
 ## 8. The count
 
-The README says eight and names seven things in a list; the fourth (the type that a routine returns, and whether C's return types are declared) is two questions, and that makes eight. Assignment `:=` and the underscore as a letter are done (`tape/README.md`).
+The README says eight and names seven things in a list; the fourth (the type that a routine returns, and whether C's return types are declared) is two questions, and that makes eight. Assignment `:=` and the underscore as a letter are done.
 
 ## Order I would do them in
 

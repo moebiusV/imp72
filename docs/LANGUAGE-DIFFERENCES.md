@@ -1,15 +1,13 @@
 # IMP72 on the PDP-10 and IMP72 here
 
-The language is the original's (`docs/manual/imp72.md` is its manual; `tape/syntax.imc`, the tape's `decus/syntax.imc` with `:=`, is its definition). What differs
+The language is the original's (`docs/manual/imp72.md` is its manual; `src/llvm-ir/syntax64.imc`, the tape's `decus/syntax.imc` with `:=` and words of 64 bits, is its definition). What differs
 comes from the machine, and from the runtime.
 
 - **Assignment is `:=`, and `_` is a letter.** The tape wrote `X_5`; IMP72 writes `X:=5`, which the lexer reads as one token (`::=`, the separator of syntax statements, is not
-  `:` followed by `:=`), and a name may contain `_`, so that every name is a valid C name. `tape/` is `decus/` so translated by `tools/tape.sh`; `docs/manual/imp72.md` keeps the
-  original's text, with `_`. In a syntax statement the token is quoted, `':='`. A command line of `imp72 -i` is not IMP source: there `_` still separates (`OBJ,LIST_SRC`).
-  `tools/imp-assign.imp`, an IMP program the compiler builds (`tools/imp-assign.sh`) converts a program in either direction (it leaves comments, text constants and `!names!` alone).
+  `:` followed by `:=`), and a name may contain `_`, so that every name is a valid C name. `decus/` keeps the original's `_`, and so does `docs/manual/imp72.md`. In a syntax statement the token is quoted, `':='`. A command line of `imp72 -i` is not IMP source: there `_` still separates (`OBJ,LIST_SRC`).
 - **The word is 64 bits.** Integers are 64 bit two's complement, addresses are byte addresses, and `A[I]` scales by 8. Arithmetic
-  that overflowed 36 bits does not here. A constant is folded as the program would compute it, in 36 bits for arithmetic
-  except left shifts (64). The octal constant `777777777777B` is -1, as on the PDP-10.
+  that overflowed 36 bits does not here, and a constant is folded as the program would compute it, in 64 bits. An octal constant is a 64 bit number:
+  `777777777777B` is 2**36-1 (36 ones), and -1 is `1777777777777777777777B`.
 - **Reals** are IEEE 754 binary64, not the PDP-10's 27 bit floating point: arithmetic is in double precision, a constant is
   the double nearest to it (`0.25` is exact; the original's was one unit low), and `FIX` and `FLOAT` convert exactly.
   `PRINT FLT m.n` keeps PMOD's layout (no 0 before the point, fixed notation unless it does not fit the field, then

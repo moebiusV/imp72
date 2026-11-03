@@ -27,7 +27,7 @@ By hand:
 dumps), `-c FILE` (the IR), `-T TARGET`, then the syntax file and the files to compile. `imp72stage-llvm-ir` and
 `imp72` are the same program with the driver around it: they find the syntax file and the library, make the object with LLVM in the process and link.
 
-The seed alone: `cd stage0 && make`, then `./imp72s0 -s TSX -o dump.txt ../tape/syntax.imc`, or
+The seed alone: `cd stage0 && make`, then `./imp72s0 -s TSX -o dump.txt ../src/llvm-ir/syntax64.imc`, or
 `stage0/imp72stage0 -o prog prog.imp`.
 
 LLVM in the process: where `llvm-config` and the LLVM C API headers are installed (`llvm-NN-dev`, `llvm-dev`), `tools/llvm.sh` gives the flags

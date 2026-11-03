@@ -71,7 +71,6 @@ check-run:
 	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
 	bd=`sh tools/llvm.sh bindir`; bdd=; [ -n "$$bd" ] && bdd="-DIMP72_LLVM_BINDIR=$$bd"; \
 	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
-	sh tests/tape/run.sh
 	sh tests/native/run.sh
 	sh tests/oracle/run.sh
 	sh tests/ieee/run.sh
