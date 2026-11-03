@@ -45,9 +45,9 @@ decided. The recommendations are mine. "Looked at" means I read the code named; 
 *Recommendation.* Yes, a literal: `''` is the empty string, and within a string two apostrophes remain one apostrophe, so `''''` is one apostrophe. The ambiguity is only in the lexer (a pair of apostrophes with nothing between them), settled by "an empty string is two apostrophes not followed by a third".
 *Effect.* One case in `lex.imp`, one test; with study 5 an empty string is a header of length 0 and a zero byte.
 
-## 8. File names and the rest that the README lists as done
+## 8. The count
 
-Assignment `:=` and the underscore as a letter are done (`tape/README.md`). The eighth item of the README's count, if it meant something else than the seven above, is not in the text; tell me which and I will add it.
+The README says eight and names seven things in a list; the fourth (the type that a routine returns, and whether C's return types are declared) is two questions, and that makes eight. Assignment `:=` and the underscore as a letter are done (`tape/README.md`).
 
 ## Order I would do them in
 

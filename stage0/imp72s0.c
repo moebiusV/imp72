@@ -21,11 +21,11 @@
  *
  *     imp72stage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...
  *
- * It reads the syntax of the language (syntax.imc) and the extension ffi.imc,
+ * It reads the syntax of the language (src/llvm-ir/syntax64.imc) and the extension ffi.imc,
  * compiles the files with the kernel above to IR, and makes the IR, with LLVM
  * in this process, into an executable (default), an object (-c), LLVM IR (-S)
  * or a run (--run, with ORC).  It finds its parts relative to
- * itself: in the source tree (stage0/imp72stage0, decus/, build/) or installed
+ * itself: in the source tree (stage0/imp72stage0, src/llvm-ir/, lib/, build/) or installed
  * (PREFIX/bin/imp72stage0, PREFIX/lib/imp72/, PREFIX/share/imp72/).
  */
 /* the compiler driver below uses POSIX (readlink, realpath, mkdtemp) */

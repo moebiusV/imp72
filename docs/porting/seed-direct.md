@@ -56,5 +56,5 @@ on the real machine) are still compared (`tests/oracle/run.sh`).
 * `src/dosem.imp` `SETSEM`: `SEMS[1]` was `(1 LS 41) OR 1`, a word of type 0; now `(1 LS 44) OR 1`, a type 1 as the tape's, in `dosem.c` too.
 * `src/llvm-ir/code2.imp` `PRINPAR`: `SV:=SV OR (KK:=J-(10*KK)) LS SH` recomputed `KK` from the digit it already held, so a `FILE` with a project or programmer number got a wrong value; now `SV:=SV OR KK LS SH` as the tape's, in `gen_code2.c` too.
 * `src/llvm-ir/code3.imp` `OPN`: the names of `CALLB`, `ARG`, `CALLE` and `PITEM` were two places off against `irsyn.imc` (only the `/A` listing is affected); fixed, in `gen_code3.c` too.
-* `src/debug.imp` prints the last-block column header for a `K` past the end (a `FOR` that runs once). Copied, not fixed.
+* `src/debug.imp` prints the column header of the last block of the code-tree matrix once even when it has fewer than four columns (a `FOR` that runs once). Not a bug: the comparison with the real machine matched this dump word for word (`docs/ORACLE.md`), so it is the original's.
 * IMP facts the C port depends on and measured: call arguments are evaluated right to left; a `FOR` body runs once even when the end is below the start; a relation as a value is -1 for true.

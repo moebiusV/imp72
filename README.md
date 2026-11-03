@@ -48,33 +48,24 @@ routines, the code generator (`src/llvm-ir/`), the diagnostic print-outs, and th
 driver program. Its words are 64 bits wide, names are eight characters to a
 word, and `EXECUTE` runs an instruction of the IR machine.
 
-`make check` passes on amd64 and i386, and the build and tests ran clean on
-arm64, armv7, riscv64, ppc64le and s390x (some of them before LLVM was the only
-back end). loong64, mips64le and the BSDs and macOS have not been run since the
-translation of the tables and the driver program.
+`make check` passes in CI on Linux (amd64, arm64, the Debian package), macOS, FreeBSD, OpenBSD, NetBSD and the Alpine containers of amd64, 386, arm64,
+armv7, riscv64, ppc64le, s390x and loong64 (mips64le is not run). The seed has no PDP-10 in it any more: it reads the 64-bit syntax and its code generator is a C port of the one in
+`src/llvm-ir/`, and the two write the same IR byte for byte (`tests/seed`, [docs/porting/seed-direct.md](docs/porting/seed-direct.md)).
 
 
 **What is next.**
 
-1. Run the remaining platforms (loong64, mips64le, the BSDs, macOS) and get CI green everywhere.
-2. All C is IMP but the seed (`stage0/` and its tests, the trusted stage 0, which stays C and builds stage 1). `imp72` has
-   already the driver, the system part, the image, the table of semantic routines, the IR builders and the names, the
-   glue to LLVM's C API (`src/llvm.imp`), the LLVM IR writer (`src/ir2ll.imp`, `src/ir2llx.imp`; the seed keeps `tools/ir2ll.c` and `stage0/llvmorc.c`), `main`, and the runtime
-   library (PRINT, READ, FINI and the rest) in IMP over `CCALL`. Left: only the little C that says what only C can (`lib/imp72sys.c`, `lib/imphost.c`) (`docs/porting/c-to-imp.md`).
-   `stage0/impld.cpp` stays: lld has no C interface.
-   The link (lld, library or program) is the same C-library-independent table for every system; `lib/imphost.c` finds the loader and the C library.
-3. Bring the code generator in `src/llvm-ir/` closer to the tape's names and text.
-   Restore the tape where a departure is marked provisional in
-   `docs/porting/modules.md` (`COMPIL`, inline in the tape's main program).
-4. Compare the compiler's dumps (directory, code tree, semantics array, graph)
-   with the original's, and the `/A` listings. Done for `dr.imp` and the 19 programs of the oracle
-   (`tests/oracle/dumps.sh`, [docs/ORACLE.md](docs/ORACLE.md)); open: the name `U` of the original's directory, the
-   order of colliding names in it, and more programs for the dumps.
-5. Make the seed-to-stage-2 build the only way the compiler is built and
-   installed, and bring the Makefile, CI and docs in line.
+1. The runtime library is IMP too (`lib/*.imp`), and `imp72` builds it for any target (`tools/mkrt.sh`); the only C left is the seed (`stage0/` and its tests, the trusted
+   stage 0, which stays C and builds stage 1), `stage0/impld.cpp` (lld has no C interface) and the tests of C calling IMP (`tests/native/*_main.c`, which stay if the user says so).
+2. Bring the code generator in `src/llvm-ir/` closer to the tape's names and text: the list of the differences is [docs/porting/tape-names.md](docs/porting/tape-names.md), for the
+   user to decide from, and `docs/porting/modules.md` marks the departures that are provisional (`COMPIL`, inline in the tape's main program).
+3. Compare with the original: retired for the dumps and `/A` listings (they were 36-bit and the seed is not; the captures and the tools stay, [docs/ORACLE.md](docs/ORACLE.md)); the
+   output of the programs is still compared with the real machine (`tests/oracle/run.sh`).
+4. The seed-to-stage-2 build is the way the compiler is built and installed, and the library installed is the one stage 2 made.
+5. Decide what the audit and the studies below recommend (the user's).
 6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study in
-   depth (do not implement) eight things, and write up the recommendations and
-   the impact on the code: UTF-8 symbols for operators; C's syntax for strings
+   depth (do not implement) eight things (the type of a routine's result and whether C's return types are declared are two of them), and write up the recommendations and
+   the impact on the code (done: [docs/porting/pre-1.0-studies.md](docs/porting/pre-1.0-studies.md), to be decided): UTF-8 symbols for operators; C's syntax for strings
    and characters; the tape's channel I/O (`INIT`, `LOOKUP`, `INPUT`, the buffer
    header) kept as it is with `fopen` and `putc` underneath; the type that a
    routine returns, `int64_t` for an IMP routine against `long` for a C function

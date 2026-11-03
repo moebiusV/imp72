@@ -111,9 +111,8 @@ formats, `/`, TAB, FILL, kept between items and statements as in the manual.
 
 ## Survey
 
-`tools/survey.sh` runs every module of the tape through stage 0. All but
-`impm` (the system dependent module, which writes TOPS-10 UUOs as inline
-`DATA`) translate.
+(There was a `tools/survey.sh` that ran every module of the tape through the seed; the seed reads the 64-bit syntax now and the tape's own
+modules need the 36-bit one, so it is gone. All but `impm`, the system dependent module that writes TOPS-10 UUOs as inline `DATA`, translated when it last ran.)
 
 ## Not done yet
 
