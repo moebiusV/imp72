@@ -97,7 +97,7 @@ if [ -n "$bindir" ]; then echo "SUBR SCBINDIR(Z) IS LOC('$bindir');"; else echo 
 case $stdkind in
 arr)
     echo "SUBR IMPSTDIN(Z) IS LOC(!__sF!);"
-    echo "SUBR IMPSTDOUT(Z) IS LOC(!__sF!)+$filesz" ;;
+    echo "SUBR IMPSTDOUT(Z) IS (Q ARE LOCAL; Q:=LOC(!__sF!); Q+$filesz)        # (IN A VARIABLE: THE SEED TAKES LOC(X)+N FOR N WORDS) #" ;;
 addr)
     echo "SUBR IMPSTDIN(Z) IS LOC(!$stdin!);                    # (THE SYMBOL IS THE FILE) #"
     echo "SUBR IMPSTDOUT(Z) IS LOC(!$stdsym!)" ;;

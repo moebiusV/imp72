@@ -27,12 +27,13 @@ SUBR DBGON(Z) IS (CCALL getenv(LOC('IMP72COREDEBUG')) NE 0 => 1 ELSE 0);
 SUBR DBGS(S) IS (CCALL write(2,S,CCALL strlen(S)); 0);
 
 SUBR DBGN(N) IS (
- V,I,D ARE LOCAL;
+ V,I,D,DP ARE LOCAL;
+ DP:=LOC(DBUF);                                                  # (IN A VARIABLE: THE SEED TAKES LOC(X)+N FOR N WORDS) #
  V:=N; I:=31;
  V<0 => (DBGS(LOC('-')); V:=0-V);
- D:=48+(V-((V/10)*10)); CCALL memcpy(LOC(DBUF)+I,LOC(D)+(SCBE(0)*7),1); V:=V/10;
- DN1: V NE 0 => (I:=I-1; D:=48+(V-((V/10)*10)); CCALL memcpy(LOC(DBUF)+I,LOC(D),1); V:=V/10; GO TO DN1);
- CCALL write(2,LOC(DBUF)+I,32-I); 0);
+ D:=48+(V-((V/10)*10)); CCALL memcpy(DP+I,LOC(D)+(SCBE(0)*7),1); V:=V/10;
+ DN1: V NE 0 => (I:=I-1; D:=48+(V-((V/10)*10)); CCALL memcpy(DP+I,LOC(D)+(SCBE(0)*7),1); V:=V/10; GO TO DN1);
+ CCALL write(2,DP+I,32-I); 0);
 
 # THE ARENA: ITS BASE (RESERVED ON THE FIRST CALL), OR 0 #
 SUBR IMPCOREBASE(Z) IS (
