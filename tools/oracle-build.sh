@@ -30,12 +30,12 @@ if [ ! -f decus/exact/imp.low.words ]; then
         curl -sSL -o oracle/dl/decus-tape/decuslib10-03.tap.bz2 https://pdp-10.trailing-edge.com/tapes/decuslib10-03.tap.bz2
     echo "$TAPE_SHA  oracle/dl/decus-tape/decuslib10-03.tap.bz2" | sha256sum -c -
     bzip2 -dkf oracle/dl/decus-tape/decuslib10-03.tap.bz2
-    python3 tools/decus-exact.py oracle/dl/decus-tape/decuslib10-03.tap decus/exact
+    sh tools/imptool.sh decus-exact oracle/dl/decus-tape/decuslib10-03.tap decus/exact
 fi
 
 # 4. an (empty) tape drive file, long enough for anything: the simulator takes the tape's size
 #    from the file when it is attached
-[ -f oracle/tapes/in.tap ] || python3 tools/pdp10tap.py put oracle/tapes/in.tap
+[ -f oracle/tapes/in.tap ] || sh tools/imptool.sh pdp10tap put oracle/tapes/in.tap
 cp oracle/dl/decus-tape/decuslib10-03.tap oracle/tapes/decus3.tap 2>/dev/null || :
 echo "oracle built; start it with tools/oracle-boot.sh, then put the compiler on its disk:"
-echo "  tools/oracle-put.py decus/exact/imp.low.words=IMP.LOW decus/exact/imp.shr.words=IMP.SHR decus/exact/implib.lib.words=IMPLIB.LIB"
+echo "  tools/imptool.sh oracle-put decus/exact/imp.low.words=IMP.LOW decus/exact/imp.shr.words=IMP.SHR decus/exact/implib.lib.words=IMPLIB.LIB"

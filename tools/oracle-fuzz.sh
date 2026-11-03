@@ -7,7 +7,7 @@ seed=${1:-1}; count=${2:-5}
 d=build/oracle/fuzz$seed
 mkdir -p $d
 python3 tools/${GEN:-imp-fuzz.py} $seed $count $d
-python3 tools/oracle-run.py -d $d $d/*z*.imp || exit 1
+sh tools/imptool.sh oracle-run -d $d $d/*z*.imp || exit 1
 bad=0
 for p in $d/[a-z]z[0-9][0-9].imp; do
     n=$(basename $p .imp)

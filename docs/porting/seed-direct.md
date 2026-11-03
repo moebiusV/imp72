@@ -36,7 +36,7 @@ Goes: `codegen.c`, `impsem.c`, `trans.c`, `pcode.c` and the 36-bit side of `sem.
 `MASK18`; the `/A` listing of PDP-10 instructions; `tests/stage0/test_codegen.sh` and its golden.
 
 **Lost, and the user was told**: the comparison of the seed's dumps (`-s S|T|X|I`) and `/A` listings with the captures of the real TOPS-10 compiler (`tests/oracle/dumps.sh`,
-`tools/dump-compare.py`, `tools/lst-compare.py`). They are 36 bit octal with halves of 18 bits and names of 5 characters to a word; the seed no longer makes them. The captures stay in
+`tools/dump-compare.imp`, `tools/lst-compare.imp`). They are 36 bit octal with halves of 18 bits and names of 5 characters to a word; the seed no longer makes them. The captures stay in
 `tests/golden/oracle-dumps` and `oracle-lst`, with `oracle/` (the SIMH setup), for whoever wants them again; the run outputs of the original (`tests/golden/oracle/*.out`, programs run
 on the real machine) are still compared (`tests/oracle/run.sh`).
 

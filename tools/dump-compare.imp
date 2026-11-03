@@ -1,0 +1,604 @@
+#DUMP-COMPARE.IMP -- COMPARE A DEBUGGING DUMP OF THE ORIGINAL COMPILER WITH OURS, AS STREAMS OF WORDS (SO THAT TABS AND THE WRAPPING OF THE BIT MATRICES DO NOT COUNT).  RUN BY TOOLS/IMPTOOL.SH.
+
+    DUMP-COMPARE KIND ORACLE.LST OURS.TXT [SOURCE.IMP]
+
+KIND: S (THE SEMANTICS ARRAY, SWITCH /S), T (THE CODE TREE AND ITS BIT MATRIX, /T), X (THE SYNTAX GRAPH, /X) OR I (THE DIRECTORY OF NAMES, /I).  THE CAPTURES OF THE ORIGINAL ARE IN TESTS/GOLDEN/ORACLE-DUMPS;
+THE SEED NO LONGER MAKES THE 36 BIT DUMPS, SO THIS IS KEPT FOR WHOEVER BRINGS THE ORACLE BACK.  IT IS THE TRANSLATION OF THE PYTHON PROGRAM THAT WAS HERE (DIFFLIB'S SEQUENCEMATCHER INCLUDED), AND PRINTS
+WHAT IT PRINTED.
+
+What it takes for equal, and counts so that nothing is hidden:
+
+  - the trailer: the original's listing follows its dump (the source, the statistics); SOURCE.imp, if given, ends the dump at the first line of the source.  Our dump comes twice (once
+    when the syntax is read, once at the end); the first is compared.
+  - addresses: a word of the semantics array or the tree that names a routine or a constant by its address has the address of imp.shr in the original and a slot of a table (or a place in
+    our free storage) here.  Such a pair differs in the low 18 bits only; they are equal if, over the whole dump, the original's address always meets the same one of ours and the other
+    way round (a one to one map).  A pair that breaks the map is a difference.
+  - the matrix: the tape's loop prints one column past the matrix (the word after it in free storage: not ours to know), the last cell of the last chunk of each row, which is masked.
+  - the TERMINAL lines that end the graph dump are compared as a set: they come in the order of the directory (below).
+  - the directory (I): the names in the order of its slots.  Compared: the set of names (the program's own, DR, IMP, IFIX... are the original's alone; anything of ours alone is a
+    difference), the hash code of each (it depends only on the name; the names that start with a hash sign and have 6 characters or more, which ADDCHAR makes by shifting, have a stray bit in the original's
+    word that ours, with a byte to a character, does not have, and so another code: counted, not a difference), and the order of the names that remain (it depends on the order they
+    were entered when two collide: counted).
+
+Prints the counts and the first differences with some words before them; exit status 1 if there is any difference that is not one of these.#
+
+SA,SLA,SB,SLB,CNT,STA,PSA,POPU,FIL,RWO,RWN,TLO,TLN,NTO,BI,BJ,BS,MKK,MKJ,STK,MBI,MBJ,MBK,NMB,OPT,OI1,OI2,OJ1,OJ2,NOP,MATCHES,HT,STRT,NID,WORD,BUF,N ARE COMMON;
+KIND,NARG,TK,NT,MASKED,TEXT,LNS,NLN,WT,INM,TKA,NTA,MKA,TKB,NTB,MKB,EXPL,KOU,EH,EN,NEN,NMK,MKP,PROG,CURH ARE COMMON;
+
+# THE MAIN PROGRAM #
+NARG:=CCALL impargc(0);
+((NARG<4) OR (NARG>5)) => USAGE(0);
+CCALL strlen(ARG(1)) NE 1 => USAGE(0);
+KIND:=GETB(ARG(1),0);
+((KIND=73) OR (KIND=83) OR (KIND=84) OR (KIND=88)) => 0 ELSE USAGE(0);
+HT:=CCALL calloc(4194304,8); STRT:=CCALL calloc(2000100,8); EXPL:=CCALL calloc(2000100,8); KOU:=CCALL calloc(2000100,8);
+KNOWN(0);
+KIND=73 => CCALL exit(DIRECTORY(ARG(2),ARG(3)));
+CCALL exit(COMPARE(ARG(2),ARG(3),(NARG=5 => ARG(4) ELSE 0)));
+
+SUBR USAGE(Z) IS (
+ CCALL write(2,LOC('usage: dump-compare KIND ORACLE.lst OURS.txt [SOURCE.imp]  (KIND: S, T, X or I)'),82);
+ PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1); CCALL exit(1));
+
+# THE NAMES THAT ONLY OURS HAS (W=1), AND THOSE THAT ONLY THE ORIGINAL HAS (W=2), WITH WHY #
+SUBR ADDK(KEY,WHY,W) IS (
+ ID ARE LOCAL;
+ ID:=INTERN(KEY);
+ W=1 => SW(KOU,ID,WHY) ELSE SW(EXPL,ID,WHY);
+ 0);
+
+SUBR KNOWN(Z) IS (
+ ADDK(LOC('CVAL'),LOC('a call of a C function by value (stage0/impsem.c: not in the original)'),1);
+ ADDK(LOC(':='),LOC('the assignment: one token, where the original has _ (the captures were compared with the tape''s text read with := for _)'),1);
+ ADDK(LOC(''':='),LOC('its quoted form in a syntax statement, as the original''s ''_ (RSYN removes the quote of a single character; SYTERM does it for '':= too)'),1);
+ ADDK(LOC('\'),LOC('the backslash of the TOPS-10 command line: file specs DEV:FILE.EXT[PPN]\PROGRAM, entered by the scanner at decus/lex.imc:96; the host''s argv replaces it'),2);
+ ADDK(LOC('IMP'),LOC('the default file extension of the TOPS-10 command line (decus/impm.imc:268); how it gets into the directory was not traced, it goes with the file name handling the host''s argv replaces'),2);
+ ADDK(LOC('IFIX'),LOC('entered at the start by the code generator (decus/code2.imc:22) for the library call that makes an integer of a real; imp72 uses an operation of the IR (OFIX), the seed enters it when a FIX needs it'),2);
+ ADDK(LOC('%TMP2'),LOC('a temporary RMOD, the register allocator, makes when it spills a register (decus/rmod.imc:246); LLVM allocates here'),2);
+ ADDK(LOC('_'),LOC('the assignment of the original: IMP72 writes := (the tape''s text was read with := for _), and _ is a letter of names, so that a name is a valid C name; the directory has no _ entered by the grammar'),2);
+ ADDK(LOC('U'),LOC('NOT EXPLAINED: entered before any program is read, in no production of syntax.imc or impsyn.imc and by no DIR call of the tape; the graph, tree and semantics dumps are identical, so nothing uses it'),2);
+ 0);
+
+# THE BYTE I OF THE MEMORY AT P, AND STORING ONE #
+SUBR GETB(P,I) IS (
+ Q ARE LOCAL;
+ Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>);
+
+SUBR PUTB(P,I,V) IS (
+ Q ARE LOCAL;
+ Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>:=V; 0);
+
+# THE WORD I OF THE ARRAY AT P, AND STORING ONE #
+SUBR GW(P,I) IS [P+(8*I)];
+
+SUBR SW(P,I,V) IS ([P+(8*I)]:=V; 0);
+
+SUBR ARG(I) IS (
+ IMPARGET(LOC(WORD),impargvp(0),I);
+ WORD);
+
+# A MESSAGE ON THE STANDARD ERROR, AND THE END WITH STATUS 1 #
+SUBR DIE(M,A) IS (
+ CCALL write(2,M,CCALL strlen(M)); A NE 0 => (CCALL write(2,LOC(': '),2); CCALL write(2,A,CCALL strlen(A)));
+ PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1); CCALL exit(1));
+
+# OUTPUT: A TEXT, A NUMBER, A CHARACTER, A NEW LINE (THE STANDARD OUTPUT OF THE C LIBRARY, FLUSHED BY EXIT) #
+SUBR OUTS(P) IS (CCALL printf(LOC('%s'),P); 0);
+SUBR OUTD(V) IS (CCALL printf(LOC('%ld'),V); 0);
+SUBR OUTC(C) IS (CCALL putchar(C); 0);
+SUBR OUTNL(Z) IS (CCALL putchar(10); 0);
+
+# THE FILE INTO BUF, N BYTES, A ZERO AFTER THEM; THE LINE ENDS OF A TEXT FILE IN PYTHON ARE ALL NEW LINES: CR LF AND CR BECOME LF #
+SUBR SLURP(PATH) IS (
+ F,I,K,C ARE LOCAL;
+ F:=CCALL fopen(PATH,LOC('rb'));
+ F=0 => DIE(LOC('cannot read'),PATH);
+ CCALL fseek(F,0,2); N:=CCALL ftell(F); CCALL fseek(F,0,0);
+ BUF:=CCALL calloc(N+16,1);
+ N>0 => CCALL fread(BUF,1,N,F) NE N => DIE(LOC('cannot read'),PATH);
+ CCALL fclose(F);
+ I:=0; K:=0;
+ WHILE I<N DO (
+    C:=GETB(BUF,I);
+    C=13 => (C:=10; (I+1)<N => (GETB(BUF,I+1)=10 => I:=I+1));
+    PUTB(BUF,K,C); K:=K+1; I:=I+1);
+ PUTB(BUF,K,0); N:=K;
+ 0);
+
+# IS THE CHARACTER WHITE SPACE FOR PYTHON'S SPLIT AND STRIP: BLANK, TAB TO CR, THE SEPARATORS 28 TO 31 #
+SUBR ISWS(C) IS (((C=32) OR ((C>8) AND (C<14)) OR ((C>27) AND (C<32))));
+
+SUBR ISTK(C) IS ((C NE 0) AND (ISWS(C)=0));
+
+# THE WORD, A NAME, GETS AN IDENTITY: THE SAME TEXT IS THE SAME NUMBER.  STRT HAS THE TEXT OF EACH. #
+SUBR INTERN(P) IS (
+ H,C,I,S,Q ARE LOCAL;
+ H:=5381; I:=0;
+ C:=GETB(P,0);
+ WHILE C NE 0 DO (H:=(H*33)+C; I:=I+1; C:=GETB(P,I));
+ H:=H AND 4194303;
+ L1: S:=GW(HT,H);
+ S=0 => (
+    NID>2000000 => DIE(LOC('too many different words'),0);
+    Q:=CCALL strdup(P); SW(STRT,NID,Q); NID:=NID+1; SW(HT,H,NID); RETURN (NID-1));
+ SCMP(GW(STRT,S-1),P)=0 => RETURN (S-1);
+ H:=(H+1) AND 4194303; GO TO L1);
+
+# THE C COMPARISONS OF TEXTS: AN INT, WHICH THE CALL TAKES AS A LONG, MADE A NUMBER WITH A SIGN #
+SUBR SCMP(A,B) IS (
+ R ARE LOCAL;
+ R:=(CCALL strcmp(A,B)) AND 4294967295; R>2147483647 => R:=R-4294967296;
+ R);
+
+SUBR SNCMP(A,B,L) IS (
+ R ARE LOCAL;
+ R:=(CCALL strncmp(A,B,L)) AND 4294967295; R>2147483647 => R:=R-4294967296;
+ R);
+
+# THE TEXT OF AN IDENTITY #
+SUBR STRID(ID) IS GW(STRT,ID);
+
+# THE SEQUENCEMATCHER OF PYTHON'S DIFFLIB, ON TWO ARRAYS OF IDENTITIES: PA (NA OF THEM) AND PB (NB OF THEM); AU NE 0 IS AUTOJUNK (WHICH UNIFIED_DIFF HAS AND SEQUENCEMATCHER(...,AUTOJUNK=FALSE) NOT).
+  RESULT: THE MATCHING BLOCKS MBI,MBJ,MBK (NMB OF THEM, THE LAST ONE THE END), THE OPCODES OPT (1 REPLACE, 2 DELETE, 3 INSERT, 4 EQUAL), OI1,OI2,OJ1,OJ2 (NOP OF THEM) AND MATCHES #
+SUBR SMRUN(PA,NA,PB,NB,AU) IS (
+ I,K,ID,NTEST,S,J,ALO,AHI,BLO,BHI,I1,J1,K1,SP,TG ARE LOCAL;
+ SA:=PA; SLA:=NA; SB:=PB; SLB:=NB;
+ CNT:=CCALL calloc(NID+2,8); STA:=CCALL calloc(NID+2,8); POPU:=CCALL calloc(NID+2,8); FIL:=CCALL calloc(NID+2,8);
+ PSA:=CCALL calloc(NB+2,8);
+ RWO:=CCALL calloc(NB+4,8); RWN:=CCALL calloc(NB+4,8); TLO:=CCALL calloc(NB+4,8); TLN:=CCALL calloc(NB+4,8);
+ I:=0;
+ WHILE I<NB DO (ID:=GW(PB,I); SW(CNT,ID,GW(CNT,ID)+1); I:=I+1);
+ ((AU NE 0) AND (NB>199)) => (
+    NTEST:=(NB/100)+1; ID:=0;
+    WHILE ID<NID DO (GW(CNT,ID)>NTEST => (SW(POPU,ID,1); SW(CNT,ID,0)); ID:=ID+1));
+ S:=0; ID:=0;
+ WHILE ID<NID DO (SW(STA,ID,S); S:=S+GW(CNT,ID); ID:=ID+1);
+ I:=0;
+ WHILE I<NB DO (
+    ID:=GW(PB,I);
+    GW(POPU,ID)=0 => (SW(PSA,GW(STA,ID)+GW(FIL,ID),I); SW(FIL,ID,GW(FIL,ID)+1));
+    I:=I+1);
+ # THE MATCHING BLOCKS: A STACK OF RANGES; A BLOCK IS NOTED AT THE INDEX OF ITS START IN A #
+ MKK:=CCALL calloc(NA+2,8); MKJ:=CCALL calloc(NA+2,8); STK:=CCALL calloc(4*(NA+NB+16),8);
+ SW(STK,0,0); SW(STK,1,NA); SW(STK,2,0); SW(STK,3,NB); SP:=1;
+ WHILE SP>0 DO (
+    SP:=SP-1;
+    ALO:=GW(STK,4*SP); AHI:=GW(STK,(4*SP)+1); BLO:=GW(STK,(4*SP)+2); BHI:=GW(STK,(4*SP)+3);
+    FINDL(ALO,AHI,BLO,BHI);
+    BS NE 0 => (
+        SW(MKK,BI,BS); SW(MKJ,BI,BJ);
+        ((ALO<BI) AND (BLO<BJ)) => (SW(STK,4*SP,ALO); SW(STK,(4*SP)+1,BI); SW(STK,(4*SP)+2,BLO); SW(STK,(4*SP)+3,BJ); SP:=SP+1);
+        (((BI+BS)<AHI) AND ((BJ+BS)<BHI)) => (SW(STK,4*SP,BI+BS); SW(STK,(4*SP)+1,AHI); SW(STK,(4*SP)+2,BJ+BS); SW(STK,(4*SP)+3,BHI); SP:=SP+1)));
+ # SORTED (BY THE INDEX IN A) AND ADJACENT BLOCKS JOINED, THEN THE END (NA,NB,0) #
+ MBI:=CCALL calloc(NA+4,8); MBJ:=CCALL calloc(NA+4,8); MBK:=CCALL calloc(NA+4,8);
+ NMB:=0; I1:=0; J1:=0; K1:=0; MATCHES:=0; I:=0;
+ WHILE I<NA DO (
+    K:=GW(MKK,I);
+    K>0 => (
+        J:=GW(MKJ,I); MATCHES:=MATCHES+K;
+        (((I1+K1)=I) AND ((J1+K1)=J)) => K1:=K1+K ELSE (
+            K1>0 => (SW(MBI,NMB,I1); SW(MBJ,NMB,J1); SW(MBK,NMB,K1); NMB:=NMB+1);
+            I1:=I; J1:=J; K1:=K));
+    I:=I+1);
+ K1>0 => (SW(MBI,NMB,I1); SW(MBJ,NMB,J1); SW(MBK,NMB,K1); NMB:=NMB+1);
+ SW(MBI,NMB,NA); SW(MBJ,NMB,NB); SW(MBK,NMB,0); NMB:=NMB+1;
+ # THE OPCODES #
+ OPT:=CCALL calloc((2*NMB)+4,8); OI1:=CCALL calloc((2*NMB)+4,8); OI2:=CCALL calloc((2*NMB)+4,8); OJ1:=CCALL calloc((2*NMB)+4,8); OJ2:=CCALL calloc((2*NMB)+4,8);
+ NOP:=0; I:=0; J:=0; K:=0;
+ WHILE K<NMB DO (
+    I1:=GW(MBI,K); J1:=GW(MBJ,K); K1:=GW(MBK,K);
+    TG:=0;
+    ((I<I1) AND (J<J1)) => TG:=1 ELSE (I<I1 => TG:=2 ELSE (J<J1 => TG:=3));
+    TG NE 0 => (SW(OPT,NOP,TG); SW(OI1,NOP,I); SW(OI2,NOP,I1); SW(OJ1,NOP,J); SW(OJ2,NOP,J1); NOP:=NOP+1);
+    I:=I1+K1; J:=J1+K1;
+    K1 NE 0 => (SW(OPT,NOP,4); SW(OI1,NOP,I1); SW(OI2,NOP,I); SW(OJ1,NOP,J1); SW(OJ2,NOP,J); NOP:=NOP+1);
+    K:=K+1);
+ 0);
+
+# THE LONGEST MATCHING BLOCK OF A[ALO:AHI] AND B[BLO:BHI] (THE FIRST OF THE LONGEST IN A, THEN IN B): BI,BJ,BS #
+SUBR FINDL(ALO,AHI,BLO,BHI) IS (
+ I,J,K,ID,P,E,BSZ,BA,BB,NN,Q,T,X ARE LOCAL;
+ BA:=ALO; BB:=BLO; BSZ:=0; NTO:=0;
+ I:=ALO;
+ WHILE I<AHI DO (
+    ID:=GW(SA,I); P:=GW(STA,ID); E:=P+GW(CNT,ID); NN:=0;
+    WHILE P<E DO (
+       J:=GW(PSA,P);
+       J<BLO => P:=P+1 ELSE (
+          J<BHI => (
+             K:=GW(RWO,J)+1; SW(RWN,J+1,K); SW(TLN,NN,J+1); NN:=NN+1;
+             K>BSZ => (BSZ:=K; BA:=(I-K)+1; BB:=(J-K)+1);
+             P:=P+1)
+          ELSE P:=E));
+    Q:=0;
+    WHILE Q<NTO DO (SW(RWO,GW(TLO,Q),0); Q:=Q+1);
+    T:=RWO; RWO:=RWN; RWN:=T; T:=TLO; TLO:=TLN; TLN:=T; NTO:=NN;
+    I:=I+1);
+ Q:=0;
+ WHILE Q<NTO DO (SW(RWO,GW(TLO,Q),0); Q:=Q+1);
+ # THE BLOCK GROWS OVER WHAT IS EQUAL (THE ELEMENTS THAT WERE LEFT OUT AS POPULAR) #
+ X:=1;
+ WHILE X NE 0 DO (
+    X:=0;
+    BA>ALO => (BB>BLO => (GW(SA,BA-1)=GW(SB,BB-1) => (BA:=BA-1; BB:=BB-1; BSZ:=BSZ+1; X:=1))));
+ X:=1;
+ WHILE X NE 0 DO (
+    X:=0;
+    (BA+BSZ)<AHI => ((BB+BSZ)<BHI => (GW(SA,BA+BSZ)=GW(SB,BB+BSZ) => (BSZ:=BSZ+1; X:=1))));
+ BI:=BA; BJ:=BB; BS:=BSZ;
+ 0);
+
+
+# A STRING AS PYTHON'S REPR WRITES IT: 'IN SINGLE QUOTES', OR "IN DOUBLE" IF IT HAS A ' AND NO " #
+SUBR REPR(P) IS (
+ Q,I,C,L ARE LOCAL;
+ Q:=39;
+ CCALL strchr(P,39) NE 0 => (CCALL strchr(P,34)=0 => Q:=34);
+ OUTC(Q); I:=0; C:=GETB(P,0);
+ WHILE C NE 0 DO (
+    C=92 => (OUTC(92); OUTC(92)) ELSE (
+    C=Q => (OUTC(92); OUTC(C)) ELSE (
+    C=10 => (OUTC(92); OUTC(110)) ELSE (
+    C=13 => (OUTC(92); OUTC(114)) ELSE (
+    C=9 => (OUTC(92); OUTC(116)) ELSE (
+    ((C<32) OR (C=127)) => CCALL printf(LOC('\x%02x'),C) ELSE OUTC(C))))));
+    I:=I+1; C:=GETB(P,I));
+ OUTC(Q); 0);
+
+# A LIST OF IDENTITIES (THE ARRAY AT P, N OF THEM) AS PYTHON PRINTS A LIST OF STRINGS #
+SUBR LISTOUT(P,NN) IS (
+ I ARE LOCAL;
+ OUTC(91); I:=0;
+ WHILE I<NN DO (I>0 => (OUTC(44); OUTC(32)); REPR(STRID(GW(P,I))); I:=I+1);
+ OUTC(93); 0);
+
+# THE TOKENS OF THE LINE AT P (WHITE SPACE REPLACED BY ZEROS): THEIR ADDRESSES IN WT, THEIR NUMBER #
+SUBR SPLITTOK(P) IS (
+ Q,NW ARE LOCAL;
+ Q:=P; NW:=0;
+ L2: ISWS(GETB(Q,0)) NE 0 => (Q:=Q+1; GO TO L2);
+ GETB(Q,0)=0 => RETURN NW;
+ SW(WT,NW,Q); NW:=NW+1;
+ WHILE ISTK(GETB(Q,0)) DO Q:=Q+1;
+ GETB(Q,0)=0 => RETURN NW;
+ PUTB(Q,0,0); Q:=Q+1; GO TO L2);
+
+# THE TEXT OF BUF CUT AT THE LINE ENDS, THE POINTERS TO THE LINES IN LNS: NLN (EVEN THE EMPTY ONE AFTER THE LAST) #
+SUBR SPLITLINES(Z) IS (
+ I,C,L ARE LOCAL;
+ L:=CCALL strlen(TEXT);
+ LNS:=CCALL calloc(L+4,8); NLN:=1; SW(LNS,0,TEXT); I:=0;
+ WHILE I<L DO (
+    C:=GETB(TEXT,I);
+    C=10 => (PUTB(TEXT,I,0); SW(LNS,NLN,TEXT+(I+1)); NLN:=NLN+1);
+    I:=I+1);
+ 0);
+
+# THE PART OF BUF THAT STARTS AT THE FIRST MK AND ENDS BEFORE THE SECOND ONE, OR AT THE END; EMPTY IF THERE IS NO MK #
+SUBR SECTION(MK) IS (
+ P,Q ARE LOCAL;
+ P:=CCALL strstr(BUF,MK);
+ P=0 => RETURN CCALL calloc(1,1);
+ Q:=CCALL strstr(P+CCALL strlen(MK),MK);
+ Q=0 => RETURN CCALL strdup(P);
+ CCALL strndup(P,Q-P));
+
+SUBR ISEOL(C) IS ((C=10) OR (C=0));
+
+# TEXT CUT BEFORE THE LINE THAT HAS THE FIRST LINE OF THE SOURCE (WITHOUT ITS BLANKS) #
+SUBR TRIM(SRC) IS (
+ S,E,F,K,C ARE LOCAL;
+ SLURP(SRC);
+ S:=0;
+ WHILE ISWS(GETB(BUF,S)) NE 0 DO S:=S+1;
+ GETB(BUF,S)=0 => RETURN 0;               # (A SOURCE WITH NOTHING IN IT) #
+ E:=S;
+ WHILE ISEOL(GETB(BUF,E))=0 DO E:=E+1;
+ WHILE ISWS(GETB(BUF,E-1)) NE 0 DO E:=E-1;
+ F:=CCALL strndup(BUF+S,E-S);
+ K:=CCALL strstr(TEXT,F);
+ K=0 => RETURN 0;
+ K:=K-TEXT;
+ K>0 => (
+    C:=K-1;
+    L5: C<0 => GO TO L6;
+    GETB(TEXT,C)=10 => GO TO L6;
+    C:=C-1; GO TO L5;
+    L6: PUTB(TEXT,C+1,0));
+ 0);
+
+# THE OCTAL DIGIT; A WORD OF 12 DIGITS THAT HAS AN ADDRESS OF IMP.SHR IN ITS LOW HALF (SIX DIGITS, 00, FOUR DIGITS) #
+SUBR ISOCT(C) IS ((C>47) AND (C<56));
+
+SUBR ADDRQ(P) IS (
+ I,F ARE LOCAL;
+ CCALL strlen(P) NE 12 => RETURN 0;
+ F:=1; I:=0;
+ WHILE I<12 DO (
+    ((I=6) OR (I=7)) => (GETB(P,I) NE 48 => F:=0) ELSE (ISOCT(GETB(P,I))=0 => F:=0);
+    I:=I+1);
+ F);
+
+# TWO WORDS THAT PAIR AS ADDRESSES: BOTH ARE ONE, AND THE FIRST SIX DIGITS ARE THE SAME #
+SUBR PAIROK(X,Y) IS (
+ SX,SY ARE LOCAL;
+ SX:=STRID(X); SY:=STRID(Y);
+ ADDRQ(SX)=0 => RETURN 0;
+ ADDRQ(SY)=0 => RETURN 0;
+ (SNCMP(SX,SY,6)=0 => 1 ELSE 0));
+
+# A WORD OF THE BIT MATRIX: ALL DIGITS; EXACTLY LEN OF THE CHARACTERS 0 AND 1 #
+SUBR ALLDIG(P) IS (
+ I,C,F ARE LOCAL;
+ C:=GETB(P,0);
+ C=0 => RETURN 0;
+ F:=1; I:=0;
+ WHILE C NE 0 DO (((C<48) OR (C>57)) => F:=0; I:=I+1; C:=GETB(P,I));
+ F);
+
+SUBR BITS(P,LEN) IS (
+ I,C,F ARE LOCAL;
+ CCALL strlen(P) NE LEN => RETURN 0;
+ F:=1; I:=0;
+ WHILE I<LEN DO (C:=GETB(P,I); ((C=48) OR (C=49)) => 0 ELSE F:=0; I:=I+1);
+ F);
+
+# IS THE LINE OF NW WORDS (AT WT) A ROW OF THE MATRIX: A NUMBER, GROUPS OF FIVE 0 AND 1, ONE LAST 0 OR 1 #
+SUBR ROWOK(NW) IS (
+ K,F ARE LOCAL;
+ NW<3 => RETURN 0;
+ ALLDIG(GW(WT,0))=0 => RETURN 0;
+ F:=1; K:=1;
+ WHILE K<(NW-1) DO (BITS(GW(WT,K),5)=0 => F:=0; K:=K+1);
+ F=0 => RETURN 0;
+ BITS(GW(WT,NW-1),1));
+
+# THE WORDS OF ONE LINE ONTO TK (THE LAST OF A ROW OF THE MATRIX LEFT OUT) #
+SUBR ONELINE(P) IS (
+ K,NW,DR ARE LOCAL;
+ CCALL strstr(P,LOC('CODE TREE BIT MATRIX')) NE 0 => INM:=1;
+ NW:=SPLITTOK(P);
+ DR:=0;
+ KIND=84 => (INM NE 0 => (ROWOK(NW) NE 0 => (DR:=1; MASKED:=MASKED+1)));
+ K:=0;
+ WHILE K<(NW-DR) DO (SW(TK,NT,INTERN(GW(WT,K))); NT:=NT+1; K:=K+1);
+ 0);
+
+# THE LINE WITH TERMINAL _ AS TERMINAL := #
+SUBR REPLT(P) IS (
+ R,Q,S,L ARE LOCAL;
+ R:=CCALL calloc((CCALL strlen(P)*2)+16,1); L:=0; Q:=P;
+ L7: S:=CCALL strstr(Q,LOC('TERMINAL _'));
+ S=0 => (CCALL strcpy(R+L,Q); RETURN R);
+ CCALL memcpy(R+L,Q,S-Q); L:=L+(S-Q);
+ CCALL memcpy(R+L,LOC('TERMINAL :='),11); L:=L+11;
+ Q:=S+10; GO TO L7);
+
+# THE LINES OF THE GRAPH DUMP FOR X: BLANKS SQUEEZED TO ONE, _ AS :=, AND THE TERMINAL LINES AT THE END SORTED #
+SUBR XLINES(Z) IS (
+ I,NW,K,T,S1,R,L,J,NL2,NT2,Q,ZZ ARE LOCAL;
+ NL2:=CCALL calloc(NLN+2,8);
+ I:=0;
+ WHILE I<NLN DO (
+    S1:=REPLT(GW(LNS,I));
+    R:=CCALL calloc((CCALL strlen(S1)*2)+16,1); L:=0; T:=0;
+    NW:=SPLITTOK(S1);
+    WHILE T<NW DO (
+       T>0 => (PUTB(R,L,32); L:=L+1);
+       Q:=GW(WT,T);
+       ((GETB(Q,0)=95) AND (GETB(Q,1)=0)) => (PUTB(R,L,58); PUTB(R,L+1,61); L:=L+2) ELSE (CCALL strcpy(R+L,Q); L:=L+CCALL strlen(Q));
+       T:=T+1);
+    SW(NL2,I,R); I:=I+1);
+ K:=0;
+ L8: K<NLN => (SNCMP(GW(NL2,K),LOC('TERMINAL '),9) NE 0 => (K:=K+1; GO TO L8));
+ NT2:=K;                                       # (THE LINES BEFORE THE FIRST TERMINAL LINE, THEN THE TERMINAL LINES SORTED) #
+ J:=K;
+ WHILE J<NLN DO (
+    SNCMP(GW(NL2,J),LOC('TERMINAL '),9)=0 => (
+       S1:=GW(NL2,J); I:=NT2;
+       ZZ:=1;
+       WHILE ZZ NE 0 DO (I>K => (SCMP(GW(NL2,I-1),S1)>0 => (SW(NL2,I,GW(NL2,I-1)); I:=I-1) ELSE ZZ:=0) ELSE ZZ:=0);
+       SW(NL2,I,S1);
+       NT2:=NT2+1);
+    J:=J+1);
+ LNS:=NL2; NLN:=NT2;
+ 0);
+
+# THE TOKENS OF THE FILE'S SECTION FOR KIND: IDENTITIES IN TK, NT OF THEM, MASKED THE CELLS LEFT OUT #
+SUBR TOKENS(PATH,SRC) IS (
+ I,MK,TL ARE LOCAL;
+ SLURP(PATH);
+ MK:=(KIND=83 => LOC('*** SEMANTICS ***') ELSE (KIND=84 => LOC('** CODE GENERATION TREE') ELSE LOC('HERE IS THE GRAPH')));
+ TEXT:=SECTION(MK);
+ SRC NE 0 => TRIM(SRC);
+ TL:=CCALL strlen(TEXT);
+ SPLITLINES(0);
+ WT:=CCALL calloc((TL/2)+16,8);
+ KIND=88 => XLINES(0);
+ NT:=0; MASKED:=0; INM:=0;
+ TK:=CCALL calloc((TL/2)+16,8);
+ I:=0;
+ WHILE I<NLN DO (ONELINE(GW(LNS,I)); I:=I+1);
+ 0);
+
+# THE WORDS I1 TO I2 (AT MOST MAXN OF THEM) OF THE TOKENS AT P, WITH BLANKS BETWEEN #
+SUBR JOINT(P,I1,I2,MAXN) IS (
+ I,E ARE LOCAL;
+ E:=I2; (I2-I1)>MAXN => E:=I1+MAXN;
+ I:=I1;
+ WHILE I<E DO (I>I1 => OUTC(32); OUTS(STRID(GW(P,I))); I:=I+1);
+ 0);
+
+SUBR TAGNAME(TG) IS (TG=1 => LOC('replace') ELSE (TG=2 => LOC('delete') ELSE LOC('insert')));
+
+SUBR COMPARE(PA,PB,SRC) IS (
+ K,TG,I1,I2,J1,J2,Z,X,Y,F,B,OKP,OKM,C1,PAIRS,NFWD,NREAL,FWD,BACK,RTG,RI1,RI2,RJ1,RJ2,S1 ARE LOCAL;
+ TOKENS(PA,SRC); TKA:=TK; NTA:=NT; MKA:=MASKED;
+ TOKENS(PB,SRC); TKB:=TK; NTB:=NT; MKB:=MASKED;
+ CCALL printf(LOC('%c: %ld words (oracle), %ld words (ours); %ld past-the-matrix cells masked (oracle), %ld (ours)'),KIND,NTA,NTB,MKA,MKB); OUTNL(0);
+ SMRUN(TKA,NTA,TKB,NTB,0);
+ FWD:=CCALL calloc(NID+2,8); BACK:=CCALL calloc(NID+2,8);
+ RTG:=CCALL calloc(16,8); RI1:=CCALL calloc(16,8); RI2:=CCALL calloc(16,8); RJ1:=CCALL calloc(16,8); RJ2:=CCALL calloc(16,8);
+ PAIRS:=0; NFWD:=0; NREAL:=0;
+ K:=0;
+ WHILE K<NOP DO (
+    TG:=GW(OPT,K);
+    TG NE 4 => (
+       I1:=GW(OI1,K); I2:=GW(OI2,K); J1:=GW(OJ1,K); J2:=GW(OJ2,K);
+       OKP:=0;
+       ((TG=1) AND ((I2-I1)=(J2-J1))) => (
+          OKP:=1; Z:=0;
+          WHILE Z<(I2-I1) DO (PAIROK(GW(TKA,I1+Z),GW(TKB,J1+Z))=0 => OKP:=0; Z:=Z+1);
+          OKP NE 0 => (
+             OKM:=1; Z:=0;
+             WHILE Z<(I2-I1) DO (
+                X:=GW(TKA,I1+Z); Y:=GW(TKB,J1+Z);
+                F:=GW(FWD,X);
+                F=0 => (SW(FWD,X,Y+1); NFWD:=NFWD+1; C1:=0) ELSE C1:=((F-1) NE Y);
+                C1 NE 0 => OKM:=0 ELSE (
+                   B:=GW(BACK,Y);
+                   B=0 => SW(BACK,Y,X+1) ELSE ((B-1) NE X => OKM:=0));
+                Z:=Z+1);
+             OKP:=OKM));
+       OKP NE 0 => PAIRS:=PAIRS+(I2-I1) ELSE (
+          NREAL<12 => (SW(RTG,NREAL,TG); SW(RI1,NREAL,I1); SW(RI2,NREAL,I2); SW(RJ1,NREAL,J1); SW(RJ2,NREAL,J2));
+          NREAL:=NREAL+1));
+    K:=K+1);
+ CCALL printf(LOC('%ld words are addresses that pair one to one (%ld distinct); %ld other differing runs'),PAIRS,NFWD,NREAL); OUTNL(0);
+ K:=0;
+ WHILE K<NREAL DO (
+    K<12 => (
+       I1:=GW(RI1,K); I2:=GW(RI2,K); J1:=GW(RJ1,K); J2:=GW(RJ2,K);
+       CCALL printf(LOC('  %s oracle[%ld:%ld] ours[%ld:%ld]'),TAGNAME(GW(RTG,K)),I1,I2,J1,J2); OUTNL(0);
+       OUTS(LOC('     before: ')); Z:=I1-6; Z<0 => Z:=0; JOINT(TKA,Z,I1,1000); OUTNL(0);
+       OUTS(LOC('     oracle: ')); JOINT(TKA,I1,I2,14); OUTNL(0);
+       OUTS(LOC('     ours:   ')); JOINT(TKB,J1,J2,14); OUTNL(0));
+    K:=K+1);
+ (NREAL>0 => 1 ELSE 0));
+
+# ARE THE CHARACTERS A TO B-1 OF THE MEMORY AT P ALL BLANKS #
+SUBR ISSPN(P,A,B) IS (
+ I,F ARE LOCAL;
+ F:=1; I:=A;
+ WHILE I<B DO (GETB(P,I) NE 32 => F:=0; I:=I+1);
+ F);
+
+# A NAME OF THE DIRECTORY: THE LINE AT P (L LONG) FROM THE 12TH CHARACTER ON, WITHOUT BLANKS AT THE END, WITH ITS HASH CODE H #
+SUBR PUSHENT(P,L,H) IS (
+ E ARE LOCAL;
+ E:=L;
+ WHILE ((E>11) AND (ISWS(GETB(P,E-1)) NE 0)) DO E:=E-1;
+ SW(EH,NEN,H); SW(EN,NEN,INTERN(CCALL strndup(P+11,E-11))); NEN:=NEN+1;
+ 0);
+
+# THE ENTRIES OF THE DIRECTORY (HASH CODE, TOKEN) OF THE DUMP IN BUF: THE WHICH-TH ONE (-1: THE LAST): THE HASH CODES AT EH, THE IDENTITIES OF THE NAMES AT EN, NEN OF THEM #
+SUBR GETENT(WHICH) IS (
+ P,I,J,S,E,L,H,NM,AT,Q ARE LOCAL;
+ MKP:=CCALL calloc((N/17)+4,8); NM:=0;
+ P:=CCALL strstr(BUF,LOC('HASH CODE   TOKEN'));
+ WHILE P NE 0 DO (SW(MKP,NM,P-BUF); NM:=NM+1; P:=CCALL strstr(P+17,LOC('HASH CODE   TOKEN')));
+ NMK:=NM;
+ NM=0 => DIE(LOC('no directory in the dump'),0);
+ AT:=WHICH; WHICH<0 => AT:=NM-1;
+ AT<NM => 0 ELSE DIE(LOC('no such directory in the dump'),0);
+ I:=GW(MKP,AT); J:=N; (AT+1)<NM => J:=GW(MKP,AT+1);
+ EH:=CCALL calloc(J-I+8,8); EN:=CCALL calloc(J-I+8,8); NEN:=0; H:=0;
+ S:=I;
+ L9: S<J => (GETB(BUF,S) NE 10 => (S:=S+1; GO TO L9));
+ WHILE S<J DO (
+    S:=S+1; E:=S;
+    L10: E<J => (GETB(BUF,E) NE 10 => (E:=E+1; GO TO L10));
+    L:=E-S; Q:=BUF+S;
+    L>10 => (
+       ((ISSPN(Q,0,4) NE 0) AND (ISOCT(GETB(Q,4)) NE 0) AND (ISOCT(GETB(Q,5)) NE 0) AND (ISOCT(GETB(Q,6)) NE 0) AND (ISSPN(Q,7,11) NE 0)) => (
+          H:=CCALL strndup(Q+4,3); PUSHENT(Q,L,H))
+       ELSE (((ISSPN(Q,0,11) NE 0) AND (H NE 0)) => PUSHENT(Q,L,H)));
+    S:=E);
+ 0);
+
+SUBR FRAC4(M,T) IS (
+ NUM,Q,R,R2,QO ARE LOCAL;
+ T=0 => (OUTS(LOC('1.0000')); RETURN 0);
+ NUM:=(2*M)*10000; Q:=NUM/T; R:=NUM-(Q*T);
+ R2:=2*R;
+ R2>T => Q:=Q+1;
+ R2=T => (QO:=Q AND 1; QO=1 => Q:=Q+1);
+ CCALL printf(LOC('%ld.%04ld'),Q/10000,Q-((Q/10000)*10000));
+ 0);
+
+# THE NAMES SORTED BY THEIR TEXT (INSERTION: THEY ARE FEW) #
+SUBR SORTIDS(P,NN) IS (
+ I,J,X,Z ARE LOCAL;
+ I:=1;
+ WHILE I<NN DO (
+    X:=GW(P,I); J:=I; Z:=1;
+    WHILE Z NE 0 DO (J>0 => (SCMP(STRID(GW(P,J-1)),STRID(X))>0 => (SW(P,J,GW(P,J-1)); J:=J-1) ELSE Z:=0) ELSE Z:=0);
+    SW(P,J,X); I:=I+1);
+ 0);
+
+SUBR DIRECTORY(PO,PU) IS (
+ I,K,ID,NNA,NNB,Q,P,BASE,L,IPR,IQPR,I1000,NOO,NEX,NNAM,NOU,NAD,NOU2,NQ,NBH,NCA,NCB,OO,EXI,NAMD,OUA,ADD,QUI,BAD,CA,CB,INA,INB,HA,HB,QF,AH,AN,BH,BN,NHUNK,OO2,OU2 ARE LOCAL;
+ SLURP(PO); GETENT(0); AH:=EH; AN:=EN; NNA:=NEN;
+ SLURP(PU); GETENT(0-1); BH:=EH; BN:=EN; NNB:=NEN;
+ # THE NAME OF THE PROGRAM: THE FILE NAME UP TO THE FIRST POINT, IN CAPITALS #
+ BASE:=PO; Q:=CCALL strrchr(PO,47); Q NE 0 => BASE:=Q+1;
+ PROG:=CCALL strdup(BASE); Q:=CCALL strchr(PROG,46); Q NE 0 => PUTB(Q,0,0);
+ I:=0; WHILE GETB(PROG,I) NE 0 DO (PUTB(PROG,I,CCALL toupper(GETB(PROG,I))); I:=I+1);
+ IPR:=INTERN(PROG);
+ P:=CCALL calloc(CCALL strlen(PROG)+4,1); CCALL sprintf(P,LOC('''%s'),PROG);
+ IQPR:=INTERN(P); I1000:=INTERN(LOC('1000'));
+ INA:=CCALL calloc(NID+2,8); INB:=CCALL calloc(NID+2,8); HA:=CCALL calloc(NID+2,8); HB:=CCALL calloc(NID+2,8); QF:=CCALL calloc(NID+2,8);
+ I:=0; WHILE I<NNA DO (ID:=GW(AN,I); SW(INA,ID,1); SW(HA,ID,GW(AH,I)); I:=I+1);
+ I:=0; WHILE I<NNB DO (ID:=GW(BN,I); SW(INB,ID,1); SW(HB,ID,GW(BH,I)); I:=I+1);
+ OO:=CCALL calloc(NNA+2,8); EXI:=CCALL calloc(NNA+2,8); NAMD:=CCALL calloc(NNA+2,8); OO2:=CCALL calloc(NNA+2,8);
+ OUA:=CCALL calloc(NNB+2,8); ADD:=CCALL calloc(NNB+2,8); OU2:=CCALL calloc(NNB+2,8);
+ NOO:=0; NEX:=0; NNAM:=0; NOU2:=0; NOU:=0; NAD:=0; NBH:=0;
+ I:=0;
+ WHILE I<NNA DO (
+    ID:=GW(AN,I);
+    GW(INB,ID)=0 => (
+       GW(EXPL,ID) NE 0 => (SW(EXI,NEX,ID); NEX:=NEX+1);
+       ((ID=IPR) OR (ID=IQPR) OR (ID=I1000)) => (SW(NAMD,NNAM,ID); NNAM:=NNAM+1);
+       ((GW(EXPL,ID)=0) AND (ID NE IPR) AND (ID NE IQPR) AND (ID NE I1000)) => (SW(OO2,NOO,ID); NOO:=NOO+1));
+    I:=I+1);
+ I:=0;
+ WHILE I<NNB DO (
+    ID:=GW(BN,I);
+    GW(INA,ID)=0 => (
+       GW(KOU,ID) NE 0 => (SW(ADD,NAD,ID); NAD:=NAD+1) ELSE (SW(OU2,NOU2,ID); NOU2:=NOU2+1));
+    I:=I+1);
+ # THE HASH CODES THAT DIFFER: THE NAMES WITH A HASH SIGN AND 6 CHARACTERS OR MORE (BY DESIGN), AND THE OTHERS #
+ QUI:=CCALL calloc(NID+2,8); BAD:=CCALL calloc(NID+2,8); NQ:=0; NBH:=0;
+ ID:=0;
+ WHILE ID<NID DO (
+    ((GW(HA,ID) NE 0) AND (GW(HB,ID) NE 0)) => (
+       SCMP(GW(HA,ID),GW(HB,ID)) NE 0 => (
+          ((GETB(STRID(ID),0)=35) AND (CCALL strlen(STRID(ID))>5)) => (SW(QF,ID,1); SW(QUI,NQ,ID); NQ:=NQ+1)
+          ELSE (SW(BAD,NBH,ID); NBH:=NBH+1)));
+    ID:=ID+1);
+ SORTIDS(QUI,NQ); SORTIDS(BAD,NBH);
+ CA:=CCALL calloc(NNA+2,8); CB:=CCALL calloc(NNB+2,8); NCA:=0; NCB:=0;
+ I:=0; WHILE I<NNA DO (ID:=GW(AN,I); ((GW(INB,ID) NE 0) AND (GW(QF,ID)=0)) => (SW(CA,NCA,ID); NCA:=NCA+1); I:=I+1);
+ I:=0; WHILE I<NNB DO (ID:=GW(BN,I); ((GW(INA,ID) NE 0) AND (GW(QF,ID)=0)) => (SW(CB,NCB,ID); NCB:=NCB+1); I:=I+1);
+ SMRUN(CA,NCA,CB,NCB,0);
+ NHUNK:=0; K:=0; WHILE K<NOP DO (GW(OPT,K) NE 4 => NHUNK:=NHUNK+1; K:=K+1);
+ CCALL printf(LOC('I: %ld names (oracle), %ld (ours)'),NNA,NNB); OUTNL(0);
+ OUTS(LOC('   names of the original alone, explained:')); OUTNL(0);
+ I:=0;
+ WHILE I<NEX DO (OUTS(LOC('      ')); ID:=GW(EXI,I); CCALL printf(LOC('%s: %s'),STRID(ID),GW(EXPL,ID)); OUTNL(0); I:=I+1);
+ OUTS(LOC('   names of the original alone, the program''s own: ')); LISTOUT(NAMD,NNAM); OUTNL(0);
+ OUTS(LOC('   names of the original alone, unexplained: ')); LISTOUT(OO2,NOO); OUTNL(0);
+ OUTS(LOC('   names of ours alone, added on purpose: ')); OUTC(91);
+ I:=0;
+ WHILE I<NAD DO (
+    I>0 => (OUTC(44); OUTC(32));
+    ID:=GW(ADD,I); P:=CCALL calloc(CCALL strlen(STRID(ID))+CCALL strlen(GW(KOU,ID))+8,1);
+    CCALL sprintf(P,LOC('%s (%s)'),STRID(ID),GW(KOU,ID)); REPR(P); I:=I+1);
+ OUTC(93); OUTNL(0);
+ OUTS(LOC('   names of ours alone, unexplained: ')); LISTOUT(OU2,NOU2); OUTNL(0);
+ CCALL printf(LOC('   hash codes of the stray-bit ''#'' names, another code by design: %ld '),NQ); LISTOUT(QUI,NQ); OUTNL(0);
+ OUTS(LOC('   hash codes that differ otherwise: ')); LISTOUT(BAD,NBH); OUTNL(0);
+ CCALL printf(LOC('   order of the %ld common names: %ld differing runs (collisions entered in another order), ratio '),NCA,NHUNK);
+ FRAC4(MATCHES,NCA+NCB); OUTNL(0);
+ (((NOU2 NE 0) OR (NOO NE 0)) OR (NBH NE 0)) => 1 ELSE 0)
+%%

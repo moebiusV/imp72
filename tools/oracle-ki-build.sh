@@ -18,6 +18,6 @@ if [ ! -f oracle/disks-ki/ki_dskb0.rp3 ]; then
     (cd "$PREBSD" && ./prebsd -f tops10-603-ki)       # fetches the tape and makes the disks
     for n in 0 1 2 3; do cp "$PREBSD/images/ki_dskb$n.rp3" oracle/disks-ki/; done
 fi
-[ -f oracle/tapes/in.tap ] || python3 tools/pdp10tap.py put oracle/tapes/in.tap
+[ -f oracle/tapes/in.tap ] || sh tools/imptool.sh pdp10tap put oracle/tapes/in.tap
 echo "KI10 oracle built.  tools/oracle-boot.sh ki; then ORACLE_USER=1,2 ORACLE_PASS=FAILSA (the account of that system)"
-echo "and tools/oracle-put.py the compiler as for the KA10 (docs/ORACLE.md)."
+echo "and sh tools/imptool.sh oracle-put the compiler as for the KA10 (docs/ORACLE.md)."

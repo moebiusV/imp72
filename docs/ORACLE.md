@@ -11,11 +11,11 @@ simulators), the same monitor and kind of machine it was made for. Programs are 
 tools/oracle-build.sh        # once: prebsd, the simulator, disks, tape, exact binaries (about 400 MB; see oracle/PROVENANCE.md)
 tools/oracle-boot.sh [ka|ki] # start TOPS-10 in the background through prebsd (1 to 3 minutes; prebsd restarts it if the boot hangs)
 tools/oracle-boot.sh stop
-tools/oracle-put.py decus/exact/imp.low.words=IMP.LOW decus/exact/imp.shr.words=IMP.SHR \
+sh tools/imptool.sh oracle-put decus/exact/imp.low.words=IMP.LOW decus/exact/imp.shr.words=IMP.SHR \
                     decus/exact/implib.lib.words=IMPLIB.LIB     # once per fresh disk
-tools/oracle-run.py -d DIR prog.imp...      # compile, link, run; DIR/prog.oracle (and .tty, .compile)
+sh tools/imptool.sh oracle-run -d DIR prog.imp...      # compile, link, run; DIR/prog.oracle (and .tty, .compile)
 tools/oracle-update.sh       # make tests/golden/oracle from tests/oracle/LIST
-tools/oracle.py "DIR" "TYPE X.IMP"          # any TOPS-10 commands, over the simulated terminal line
+sh tools/imptool.sh oracle "DIR" "TYPE X.IMP"  # any TOPS-10 commands, over the simulated terminal line
 ```
 
 `make check` does not need the oracle: `tests/oracle/run.sh` compiles the listed programs with
@@ -27,16 +27,16 @@ What can be done by [prebsd](https://github.com/moebiusV/prebsd) is: building th
 with the tape patch), fetching the disks, making the KI10's from Cornwell's tape, and booting (`prebsd -k` leaves the system running; its console stays held
 by prebsd, the DC lines are ours). imp72 sets `PREBSD=/path` (default `../prebsd`, cloned from the
 repository if absent) and does only what is specific to the oracle: the transfer tapes
-(`tools/pdp10tap.py`), the terminal sessions (`tools/oracle.py`), the exact binaries of the
+(`tools/pdp10tap.imp`), the terminal sessions (`tools/oracle.imp`), the exact binaries of the
 compiler and the goldens.
 
 ## How it works
 
-- **The terminal line.** The simulator's DC device listens on telnet port 10603; `tools/oracle.py`
+- **The terminal line.** The simulator's DC device listens on telnet port 10603; `tools/oracle.imp`
   logs in as `[100,100]` (password `demo1`) and types slowly (the line drops characters sent
   in a burst). A job left over from a dropped session must be `^C`ed first, and KJOB needs the `F`
   option; `Session.close()` does both.
-- **Getting files in.** Files are written as a SIMH `.tap` (`tools/pdp10tap.py`): one record of
+- **Getting files in.** Files are written as a SIMH `.tap` (`tools/pdp10tap.imp`): one record of
   128 words (the size PIP reads), five frames to a word (bits 35-28, 27-20, 19-12, 11-4, then 3-0
   in the low nibble: the drive's core-dump mode), then a tape mark. `PIP DSK:NAME=TAPE:/B`
   copies it. Text goes in as five 7-bit characters to a word with CR LF line ends. The tape file
@@ -53,7 +53,7 @@ compiler and the goldens.
 - **The extracted files on the archive are damaged.** `decus/imp.low`, `imp.shr` and `implib.lib`
   (the archive's "5 bytes to a word" form) keep only 35 of the 36 bits of every word: every byte
   is below 0x80 and the last bit is gone (about 40% of the words had it set). They load but
-  do not run correctly. The DECUS tape image has all the bits; `tools/decus-exact.py` finds each
+  do not run correctly. The DECUS tape image has all the bits; `tools/decus-exact.imp` finds each
   word in the tape (the extracted file says which words) and takes its last bit from there. The
   exact files are `decus/exact/*.words`, five frames to a word as on tape. All 12090, 20436 and
   4655 words were found.
@@ -118,13 +118,13 @@ Richard Cornwell's system tape by [prebsd](https://github.com/moebiusV/prebsd)'s
 
 **Retired (2026-11-03).** The comparison of the seed's dumps and `/A` listings with the original's (`tests/oracle/dumps.sh`) is no longer made: the seed no longer emulates the
 36-bit PDP-10 (words of 64 bits, halves of 32, eight characters to a word, no PDP-10 instruction records), so it cannot print what the original printed. The captures stay
-(`tests/golden/oracle-dumps`, `tests/golden/oracle-lst`), with `tools/dump-compare.py` and `tools/lst-compare.py` and the evidence below, for whoever brings a 36-bit path back; what
+(`tests/golden/oracle-dumps`, `tests/golden/oracle-lst`), with `tools/dump-compare.imp` and `tools/lst-compare.imp` and the evidence below, for whoever brings a 36-bit path back; what
 is still compared with the real machine is the output of the programs (`tests/oracle/run.sh`). The stage compilers' dumps and the seed's are compared with each other instead
 (`docs/porting/seed-direct.md`). What follows describes the comparison as it was.
 
-`tests/oracle/dumps.sh` (in `make check`, no oracle needed) compares the debugging dumps and the `/A` listings of the seed with what the original printed, stored in `tests/golden/oracle-dumps/` (the semantics array S, the code tree and bit matrix T, the syntax graph X and the directory I, of `dr.imp`) and `tests/golden/oracle-lst/` (the 19 programs of `tests/oracle/LIST`). Capture with `ORACLE_SW=/S tools/oracle-run.py --lst -d DIR prog.imp` (`/T`, `/X`, `/I`, `/A`).
+`tests/oracle/dumps.sh` (in `make check`, no oracle needed) compares the debugging dumps and the `/A` listings of the seed with what the original printed, stored in `tests/golden/oracle-dumps/` (the semantics array S, the code tree and bit matrix T, the syntax graph X and the directory I, of `dr.imp`) and `tests/golden/oracle-lst/` (the 19 programs of `tests/oracle/LIST`). Capture with `ORACLE_SW=/S sh tools/imptool.sh oracle-run --lst -d DIR prog.imp` (`/T`, `/X`, `/I`, `/A`).
 
-- **S, T, X are the original's, word for word**, with these differences, which `tools/dump-compare.py` counts and does not hide: the words that name a routine (403 in S, 82 distinct) or a constant by its address in `imp.shr` pair one to one with the slots of ours; the cell one past the bit matrix, which the tape's loop prints and which holds whatever follows the matrix in free storage (324 cells); the TERMINAL lines of X are compared as a set, as they come in the order of the directory.
+- **S, T, X are the original's, word for word**, with these differences, which `tools/dump-compare.imp` counts and does not hide: the words that name a routine (403 in S, 82 distinct) or a constant by its address in `imp.shr` pair one to one with the slots of ours; the cell one past the bit matrix, which the tape's loop prints and which holds whatever follows the matrix in free storage (324 cells); the TERMINAL lines of X are compared as a set, as they come in the order of the directory.
 - **The directory (I)** has the same names and hash codes, except: the original's alone (its program, and `\`, `IMP`, `IFIX`, `%TMP2`, `U`, and `_`, which is `:=` here: the assignment is one token of two characters, and tape/ is decus/ translated), ours alone (`CVAL`, added by the port), ten `#` names (`#ELIST`...) whose hash differs (ADDCHAR shifts a name and leaves a stray bit in the word of the original; ours has a byte to a character), and 18 runs where colliding names were entered in another order. `\` and `IMP` are the TOPS-10 command line (`decus/lex.imc` 92-111, `decus/impm.imc`); `%TMP2` is a spill temporary of RMOD; `IFIX` is entered at the start by the code generator, by the seed when a FIX needs it, and not used by imp72 (an operation of the IR does it); **`U` is not explained**: it is there before any program is read, in no production and no `DIR` call.
-- **The listings** are the same sequence of instructions and labels as the original's after named rules (`tools/lst-compare.py` has them and the evidence): redundant reloads that the original's AMOD suppresses (it does not take a store through a pointer to change a variable), register copies its allocator removes, spill code of RMOD (`%TMPn`), byte pointers it builds in registers where ours names a descriptor, and the half-word float immediates of the PDP-10 where ours has whole-word IEEE constants. The comparison is of mnemonics and labels, not of operands; the values of REAL constants are covered by the run-output goldens.
+- **The listings** are the same sequence of instructions and labels as the original's after named rules (`tools/lst-compare.imp` has them and the evidence): redundant reloads that the original's AMOD suppresses (it does not take a store through a pointer to change a variable), register copies its allocator removes, spill code of RMOD (`%TMPn`), byte pointers it builds in registers where ours names a descriptor, and the half-word float immediates of the PDP-10 where ours has whole-word IEEE constants. The comparison is of mnemonics and labels, not of operands; the values of REAL constants are covered by the run-output goldens.
 - Found and fixed by it: the matrix of the code-tree dump had a stray `0` in its column labels (the tape's `IGR 6` has no value and prints nothing) and a width of our own (the original's is 36 bits times the words its highest column needs, at least 5).

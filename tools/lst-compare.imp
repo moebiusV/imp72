@@ -1,0 +1,730 @@
+#LST-COMPARE.IMP -- COMPARE THE INSTRUCTIONS THE ORIGINAL COMPILER ASSEMBLED (ITS /A LISTING) WITH THE CODE CHAIN IMP72S0 -S A PRINTS, AND SAY WHAT DIFFERS AND WHY.  RUN BY TOOLS/IMPTOOL.SH.
+
+    LST-COMPARE [-V] ORACLE.LST OURS.TXT
+
+THE CAPTURES OF THE ORIGINAL ARE IN TESTS/GOLDEN/ORACLE-LST; THE SEED NO LONGER PRINTS THE CHAIN IN THE FORM THIS READS (VIRTUAL REGISTERS R66 AND THE LIKE, SF0 LABELS), SO THIS IS KEPT FOR WHOEVER BRINGS THE ORACLE
+BACK.  IT IS THE TRANSLATION OF THE PYTHON PROGRAM THAT WAS HERE (DIFFLIB'S SEQUENCEMATCHER AND UNIFIED_DIFF INCLUDED), AND PRINTS WHAT IT PRINTED.
+
+The original's listing is after the register allocator and the assembler (RMOD, AMOD, OMOD: registers are numbers, constants are at the end); ours is the chain before them (virtual
+registers R66 and the like), made for a back end that allocates the registers itself.  So the two are not the same text, and each difference between them has a reason that is checked,
+here, in the code of the original or in the choices of the port.  Both sides are reduced by the rules below (each counted), and what is left is compared as sequences of mnemonics and
+labels; anything left over is reported as unexplained and the exit status is 1.
+
+Not instructions, on either side:
+  - words of data the listing took for instructions: the lists of PRINT (a number where the mnemonic should be), the byte pointer words (the word after a %BYTEn: tag);
+  - the special functions SF0 to SF11 of AMOD (tags and register declarations), CONST and END of ours.
+
+Rules on the original's side (what the port does without):
+  spill      an instruction that names a spill temporary, %TMPn: RMOD saves a register in memory around a call and loads it back (rmod.imc: NEWNAME('TMP')); LLVM allocates here.
+  bytepair   HRRZI r,A and HRLI r,SP before LDB/DPB/ILDB/IDPB/IBP: the original builds the byte pointer in a register where it is used; ours names a descriptor (src/llvm-ir/code3.imp
+             BYTEP) and the operation reads it.
+  float      the half-word immediates of the PDP-10 (HRLZI, HRLOI, FADRI, FSBRI, FMPRI, FDVRI, and MOVEI r,0 for a 0.0 that a floating operation uses) are a real constant of 18 bits in the left half; a REAL is an IEEE double here, a whole
+             word of the constant pool, loaded by MOVE and used by FADR, FSBR, FMPR, FDVR.  Seen as the same operation.
+Rules on ours:
+  reload     MOVE r,X where X is in a register already on the straight path to it (a MOVE or MOVEM of X, or SKIPcc/AOS/SOS/xxxB with X and a register, with nothing between that
+             stores X, a call, a tag, a jump that is not the second half of a skip): the original's AMOD tracks the contents of the registers and suppresses the load (rmod.imc REGSET,
+             RFL).  Its REGSET zaps what a store changes only when the store is not indirect (IND=0): it does not take a store through a pointer to change a variable, which is not
+             always so (a parameter by reference can be the variable); ours keeps the load.
+  copy       MOVE r,s of one register to another: the original's allocation gives them one register and suppresses the move (rmod.imc: AC=W, OB=5, RFL_1).
+-v lists every instruction a rule took away.#
+
+SA,SLA,SB,SLB,CNT,STA,PSA,POPU,FIL,RWO,RWN,TLO,TLN,NTO,BI,BJ,BS,MKK,MKJ,STK,MBI,MBJ,MBK,NMB,OPT,OI1,OI2,OJ1,OJ2,NOP,MATCHES,HT,STRT,NID,WORD,BUF,N ARE COMMON;
+NARG,FL,FTG,MNP,OPP,LABP,LGM,LGO,LGN,LGCAP,UM,UO,UI,NU,DROP,IDJRST,IDHRRZI,IDHRLI,IDMOVEI,IDMOVE,LNS,NLN,ORM,ORO,NOR,ORI,XI,NX,UDX,UDY,STARTED ARE COMMON;
+
+# THE MAIN PROGRAM #
+NARG:=CCALL impargc(0);
+HT:=CCALL calloc(4194304,8); STRT:=CCALL calloc(2000100,8); FL:=CCALL calloc(2000100,8); FTG:=CCALL calloc(2000100,8);
+FLAGS(0);
+IDJRST:=INTERN(LOC('JRST')); IDHRRZI:=INTERN(LOC('HRRZI')); IDHRLI:=INTERN(LOC('HRLI')); IDMOVEI:=INTERN(LOC('MOVEI')); IDMOVE:=INTERN(LOC('MOVE'));
+MAIN(0);
+CCALL exit(0);
+
+SUBR USAGE(Z) IS (
+ CCALL write(2,LOC('usage: lst-compare [-v] ORACLE.lst OURS.txt'),43);
+ PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1); CCALL exit(1));
+
+SUBR MAIN(Z) IS (
+ I,VERB,NP,P1,P2,A ARE LOCAL;
+ VERB:=0; NP:=0; I:=1;
+ WHILE I<NARG DO (
+    A:=ARG(I);
+    SCMP(A,LOC('-v'))=0 => VERB:=1 ELSE (
+       NP=0 => P1:=CCALL strdup(A);
+       NP=1 => P2:=CCALL strdup(A);
+       NP:=NP+1);
+    I:=I+1);
+ NP<2 => USAGE(0);
+ CCALL exit(COMPARE(P1,P2,VERB)));
+
+# THE SETS OF MNEMONICS, AS FLAGS OF THEIR IDENTITIES: 1 STORES, 2 HOLDS, 4 CALLS, 8 BYTEOPS, 16 FLOAT_IMM (FTG: WHAT IT IS SEEN AS), 32 THE FLOATING OPERATIONS, 64 NOT INSTRUCTIONS #
+SUBR FLAG(NAME,BIT) IS (
+ ID ARE LOCAL;
+ ID:=INTERN(NAME); SW(FL,ID,GW(FL,ID) OR BIT); 0);
+
+SUBR FTARGET(NAME,TO) IS (
+ SW(FTG,INTERN(NAME),INTERN(TO)); 0);
+
+SUBR FLAGS(Z) IS (
+ FLAG(LOC('000'),64);
+ FLAG(LOC('CONST'),64);
+ FLAG(LOC('END'),64);
+ FLAG(LOC('SF0'),64);
+ FLAG(LOC('SF1'),64);
+ FLAG(LOC('SF10'),64);
+ FLAG(LOC('SF11'),64);
+ FLAG(LOC('SF2'),64);
+ FLAG(LOC('SF3'),64);
+ FLAG(LOC('SF4'),64);
+ FLAG(LOC('SF5'),64);
+ FLAG(LOC('SF6'),64);
+ FLAG(LOC('SF7'),64);
+ FLAG(LOC('SF8'),64);
+ FLAG(LOC('SF9'),64);
+ FLAG(LOC('ADDB'),1);
+ FLAG(LOC('ADDM'),1);
+ FLAG(LOC('ANDB'),1);
+ FLAG(LOC('ANDM'),1);
+ FLAG(LOC('AOS'),1);
+ FLAG(LOC('AOSE'),1);
+ FLAG(LOC('AOSN'),1);
+ FLAG(LOC('BLT'),1);
+ FLAG(LOC('DPB'),1);
+ FLAG(LOC('EXCH'),1);
+ FLAG(LOC('FADB'),1);
+ FLAG(LOC('FADM'),1);
+ FLAG(LOC('FDVB'),1);
+ FLAG(LOC('FDVM'),1);
+ FLAG(LOC('FMPB'),1);
+ FLAG(LOC('FMPM'),1);
+ FLAG(LOC('FSBB'),1);
+ FLAG(LOC('FSBM'),1);
+ FLAG(LOC('HRLM'),1);
+ FLAG(LOC('HRRM'),1);
+ FLAG(LOC('IDIVM'),1);
+ FLAG(LOC('IDPB'),1);
+ FLAG(LOC('IMULB'),1);
+ FLAG(LOC('IMULM'),1);
+ FLAG(LOC('IORB'),1);
+ FLAG(LOC('IORM'),1);
+ FLAG(LOC('MOVEM'),1);
+ FLAG(LOC('MOVNB'),1);
+ FLAG(LOC('MOVNM'),1);
+ FLAG(LOC('MOVSM'),1);
+ FLAG(LOC('SETCAM'),1);
+ FLAG(LOC('SETCMM'),1);
+ FLAG(LOC('SETOM'),1);
+ FLAG(LOC('SETZM'),1);
+ FLAG(LOC('SOS'),1);
+ FLAG(LOC('SOSE'),1);
+ FLAG(LOC('SOSN'),1);
+ FLAG(LOC('SUBB'),1);
+ FLAG(LOC('SUBM'),1);
+ FLAG(LOC('XORB'),1);
+ FLAG(LOC('XORM'),1);
+ FLAG(LOC('ADDB'),2);
+ FLAG(LOC('ANDB'),2);
+ FLAG(LOC('AOS'),2);
+ FLAG(LOC('IMULB'),2);
+ FLAG(LOC('IORB'),2);
+ FLAG(LOC('MOVE'),2);
+ FLAG(LOC('MOVEM'),2);
+ FLAG(LOC('MOVNB'),2);
+ FLAG(LOC('SKIPA'),2);
+ FLAG(LOC('SKIPE'),2);
+ FLAG(LOC('SKIPG'),2);
+ FLAG(LOC('SKIPGE'),2);
+ FLAG(LOC('SKIPL'),2);
+ FLAG(LOC('SKIPLE'),2);
+ FLAG(LOC('SKIPN'),2);
+ FLAG(LOC('SOS'),2);
+ FLAG(LOC('SUBB'),2);
+ FLAG(LOC('XORB'),2);
+ FLAG(LOC('CALL'),4);
+ FLAG(LOC('JRA'),4);
+ FLAG(LOC('JSA'),4);
+ FLAG(LOC('JSP'),4);
+ FLAG(LOC('POPJ'),4);
+ FLAG(LOC('PUSHJ'),4);
+ FLAG(LOC('DPB'),8);
+ FLAG(LOC('IBP'),8);
+ FLAG(LOC('IDPB'),8);
+ FLAG(LOC('ILDB'),8);
+ FLAG(LOC('LDB'),8);
+ FLAG(LOC('FADRI'),16); FTARGET(LOC('FADRI'),LOC('FADR'));
+ FLAG(LOC('FSBRI'),16); FTARGET(LOC('FSBRI'),LOC('FSBR'));
+ FLAG(LOC('FMPRI'),16); FTARGET(LOC('FMPRI'),LOC('FMPR'));
+ FLAG(LOC('FDVRI'),16); FTARGET(LOC('FDVRI'),LOC('FDVR'));
+ FLAG(LOC('HRLZI'),16); FTARGET(LOC('HRLZI'),LOC('MOVE'));
+ FLAG(LOC('HRLOI'),16); FTARGET(LOC('HRLOI'),LOC('MOVE'));
+ FLAG(LOC('FADR'),32);
+ FLAG(LOC('FSBR'),32);
+ FLAG(LOC('FMPR'),32);
+ FLAG(LOC('FDVR'),32);
+ FLAG(LOC('FADRI'),32);
+ FLAG(LOC('FSBRI'),32);
+ FLAG(LOC('FMPRI'),32);
+ FLAG(LOC('FDVRI'),32);
+ 0);
+
+# THE BYTE I OF THE MEMORY AT P, AND STORING ONE #
+SUBR GETB(P,I) IS (
+ Q ARE LOCAL;
+ Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>);
+
+SUBR PUTB(P,I,V) IS (
+ Q ARE LOCAL;
+ Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>:=V; 0);
+
+# THE WORD I OF THE ARRAY AT P, AND STORING ONE #
+SUBR GW(P,I) IS [P+(8*I)];
+
+SUBR SW(P,I,V) IS ([P+(8*I)]:=V; 0);
+
+SUBR ARG(I) IS (
+ IMPARGET(LOC(WORD),impargvp(0),I);
+ WORD);
+
+# A MESSAGE ON THE STANDARD ERROR, AND THE END WITH STATUS 1 #
+SUBR DIE(M,A) IS (
+ CCALL write(2,M,CCALL strlen(M)); A NE 0 => (CCALL write(2,LOC(': '),2); CCALL write(2,A,CCALL strlen(A)));
+ PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1); CCALL exit(1));
+
+# OUTPUT: A TEXT, A NUMBER, A CHARACTER, A NEW LINE (THE STANDARD OUTPUT OF THE C LIBRARY, FLUSHED BY EXIT) #
+SUBR OUTS(P) IS (CCALL printf(LOC('%s'),P); 0);
+SUBR OUTD(V) IS (CCALL printf(LOC('%ld'),V); 0);
+SUBR OUTC(C) IS (CCALL putchar(C); 0);
+SUBR OUTNL(Z) IS (CCALL putchar(10); 0);
+
+# THE FILE INTO BUF, N BYTES, A ZERO AFTER THEM; THE LINE ENDS OF A TEXT FILE IN PYTHON ARE ALL NEW LINES: CR LF AND CR BECOME LF #
+SUBR SLURP(PATH) IS (
+ F,I,K,C ARE LOCAL;
+ F:=CCALL fopen(PATH,LOC('rb'));
+ F=0 => DIE(LOC('cannot read'),PATH);
+ CCALL fseek(F,0,2); N:=CCALL ftell(F); CCALL fseek(F,0,0);
+ BUF:=CCALL calloc(N+16,1);
+ N>0 => CCALL fread(BUF,1,N,F) NE N => DIE(LOC('cannot read'),PATH);
+ CCALL fclose(F);
+ I:=0; K:=0;
+ WHILE I<N DO (
+    C:=GETB(BUF,I);
+    C=13 => (C:=10; (I+1)<N => (GETB(BUF,I+1)=10 => I:=I+1));
+    PUTB(BUF,K,C); K:=K+1; I:=I+1);
+ PUTB(BUF,K,0); N:=K;
+ 0);
+
+# IS THE CHARACTER WHITE SPACE FOR PYTHON'S SPLIT AND STRIP: BLANK, TAB TO CR, THE SEPARATORS 28 TO 31 #
+SUBR ISWS(C) IS (((C=32) OR ((C>8) AND (C<14)) OR ((C>27) AND (C<32))));
+
+SUBR ISTK(C) IS ((C NE 0) AND (ISWS(C)=0));
+
+# THE WORD, A NAME, GETS AN IDENTITY: THE SAME TEXT IS THE SAME NUMBER.  STRT HAS THE TEXT OF EACH. #
+SUBR INTERN(P) IS (
+ H,C,I,S,Q ARE LOCAL;
+ H:=5381; I:=0;
+ C:=GETB(P,0);
+ WHILE C NE 0 DO (H:=(H*33)+C; I:=I+1; C:=GETB(P,I));
+ H:=H AND 4194303;
+ L1: S:=GW(HT,H);
+ S=0 => (
+    NID>2000000 => DIE(LOC('too many different words'),0);
+    Q:=CCALL strdup(P); SW(STRT,NID,Q); NID:=NID+1; SW(HT,H,NID); RETURN (NID-1));
+ SCMP(GW(STRT,S-1),P)=0 => RETURN (S-1);
+ H:=(H+1) AND 4194303; GO TO L1);
+
+# THE C COMPARISONS OF TEXTS: AN INT, WHICH THE CALL TAKES AS A LONG, MADE A NUMBER WITH A SIGN #
+SUBR SCMP(A,B) IS (
+ R ARE LOCAL;
+ R:=(CCALL strcmp(A,B)) AND 4294967295; R>2147483647 => R:=R-4294967296;
+ R);
+
+SUBR SNCMP(A,B,L) IS (
+ R ARE LOCAL;
+ R:=(CCALL strncmp(A,B,L)) AND 4294967295; R>2147483647 => R:=R-4294967296;
+ R);
+
+# THE TEXT OF AN IDENTITY #
+SUBR STRID(ID) IS GW(STRT,ID);
+
+# THE SEQUENCEMATCHER OF PYTHON'S DIFFLIB, ON TWO ARRAYS OF IDENTITIES: PA (NA OF THEM) AND PB (NB OF THEM); AU NE 0 IS AUTOJUNK (WHICH UNIFIED_DIFF HAS AND SEQUENCEMATCHER(...,AUTOJUNK=FALSE) NOT).
+  RESULT: THE MATCHING BLOCKS MBI,MBJ,MBK (NMB OF THEM, THE LAST ONE THE END), THE OPCODES OPT (1 REPLACE, 2 DELETE, 3 INSERT, 4 EQUAL), OI1,OI2,OJ1,OJ2 (NOP OF THEM) AND MATCHES #
+SUBR SMRUN(PA,NA,PB,NB,AU) IS (
+ I,K,ID,NTEST,S,J,ALO,AHI,BLO,BHI,I1,J1,K1,SP,TG ARE LOCAL;
+ SA:=PA; SLA:=NA; SB:=PB; SLB:=NB;
+ CNT:=CCALL calloc(NID+2,8); STA:=CCALL calloc(NID+2,8); POPU:=CCALL calloc(NID+2,8); FIL:=CCALL calloc(NID+2,8);
+ PSA:=CCALL calloc(NB+2,8);
+ RWO:=CCALL calloc(NB+4,8); RWN:=CCALL calloc(NB+4,8); TLO:=CCALL calloc(NB+4,8); TLN:=CCALL calloc(NB+4,8);
+ I:=0;
+ WHILE I<NB DO (ID:=GW(PB,I); SW(CNT,ID,GW(CNT,ID)+1); I:=I+1);
+ ((AU NE 0) AND (NB>199)) => (
+    NTEST:=(NB/100)+1; ID:=0;
+    WHILE ID<NID DO (GW(CNT,ID)>NTEST => (SW(POPU,ID,1); SW(CNT,ID,0)); ID:=ID+1));
+ S:=0; ID:=0;
+ WHILE ID<NID DO (SW(STA,ID,S); S:=S+GW(CNT,ID); ID:=ID+1);
+ I:=0;
+ WHILE I<NB DO (
+    ID:=GW(PB,I);
+    GW(POPU,ID)=0 => (SW(PSA,GW(STA,ID)+GW(FIL,ID),I); SW(FIL,ID,GW(FIL,ID)+1));
+    I:=I+1);
+ # THE MATCHING BLOCKS: A STACK OF RANGES; A BLOCK IS NOTED AT THE INDEX OF ITS START IN A #
+ MKK:=CCALL calloc(NA+2,8); MKJ:=CCALL calloc(NA+2,8); STK:=CCALL calloc(4*(NA+NB+16),8);
+ SW(STK,0,0); SW(STK,1,NA); SW(STK,2,0); SW(STK,3,NB); SP:=1;
+ WHILE SP>0 DO (
+    SP:=SP-1;
+    ALO:=GW(STK,4*SP); AHI:=GW(STK,(4*SP)+1); BLO:=GW(STK,(4*SP)+2); BHI:=GW(STK,(4*SP)+3);
+    FINDL(ALO,AHI,BLO,BHI);
+    BS NE 0 => (
+        SW(MKK,BI,BS); SW(MKJ,BI,BJ);
+        ((ALO<BI) AND (BLO<BJ)) => (SW(STK,4*SP,ALO); SW(STK,(4*SP)+1,BI); SW(STK,(4*SP)+2,BLO); SW(STK,(4*SP)+3,BJ); SP:=SP+1);
+        (((BI+BS)<AHI) AND ((BJ+BS)<BHI)) => (SW(STK,4*SP,BI+BS); SW(STK,(4*SP)+1,AHI); SW(STK,(4*SP)+2,BJ+BS); SW(STK,(4*SP)+3,BHI); SP:=SP+1)));
+ # SORTED (BY THE INDEX IN A) AND ADJACENT BLOCKS JOINED, THEN THE END (NA,NB,0) #
+ MBI:=CCALL calloc(NA+4,8); MBJ:=CCALL calloc(NA+4,8); MBK:=CCALL calloc(NA+4,8);
+ NMB:=0; I1:=0; J1:=0; K1:=0; MATCHES:=0; I:=0;
+ WHILE I<NA DO (
+    K:=GW(MKK,I);
+    K>0 => (
+        J:=GW(MKJ,I); MATCHES:=MATCHES+K;
+        (((I1+K1)=I) AND ((J1+K1)=J)) => K1:=K1+K ELSE (
+            K1>0 => (SW(MBI,NMB,I1); SW(MBJ,NMB,J1); SW(MBK,NMB,K1); NMB:=NMB+1);
+            I1:=I; J1:=J; K1:=K));
+    I:=I+1);
+ K1>0 => (SW(MBI,NMB,I1); SW(MBJ,NMB,J1); SW(MBK,NMB,K1); NMB:=NMB+1);
+ SW(MBI,NMB,NA); SW(MBJ,NMB,NB); SW(MBK,NMB,0); NMB:=NMB+1;
+ # THE OPCODES #
+ OPT:=CCALL calloc((2*NMB)+4,8); OI1:=CCALL calloc((2*NMB)+4,8); OI2:=CCALL calloc((2*NMB)+4,8); OJ1:=CCALL calloc((2*NMB)+4,8); OJ2:=CCALL calloc((2*NMB)+4,8);
+ NOP:=0; I:=0; J:=0; K:=0;
+ WHILE K<NMB DO (
+    I1:=GW(MBI,K); J1:=GW(MBJ,K); K1:=GW(MBK,K);
+    TG:=0;
+    ((I<I1) AND (J<J1)) => TG:=1 ELSE (I<I1 => TG:=2 ELSE (J<J1 => TG:=3));
+    TG NE 0 => (SW(OPT,NOP,TG); SW(OI1,NOP,I); SW(OI2,NOP,I1); SW(OJ1,NOP,J); SW(OJ2,NOP,J1); NOP:=NOP+1);
+    I:=I1+K1; J:=J1+K1;
+    K1 NE 0 => (SW(OPT,NOP,4); SW(OI1,NOP,I1); SW(OI2,NOP,I); SW(OJ1,NOP,J1); SW(OJ2,NOP,J); NOP:=NOP+1);
+    K:=K+1);
+ 0);
+
+# THE LONGEST MATCHING BLOCK OF A[ALO:AHI] AND B[BLO:BHI] (THE FIRST OF THE LONGEST IN A, THEN IN B): BI,BJ,BS #
+SUBR FINDL(ALO,AHI,BLO,BHI) IS (
+ I,J,K,ID,P,E,BSZ,BA,BB,NN,Q,T,X ARE LOCAL;
+ BA:=ALO; BB:=BLO; BSZ:=0; NTO:=0;
+ I:=ALO;
+ WHILE I<AHI DO (
+    ID:=GW(SA,I); P:=GW(STA,ID); E:=P+GW(CNT,ID); NN:=0;
+    WHILE P<E DO (
+       J:=GW(PSA,P);
+       J<BLO => P:=P+1 ELSE (
+          J<BHI => (
+             K:=GW(RWO,J)+1; SW(RWN,J+1,K); SW(TLN,NN,J+1); NN:=NN+1;
+             K>BSZ => (BSZ:=K; BA:=(I-K)+1; BB:=(J-K)+1);
+             P:=P+1)
+          ELSE P:=E));
+    Q:=0;
+    WHILE Q<NTO DO (SW(RWO,GW(TLO,Q),0); Q:=Q+1);
+    T:=RWO; RWO:=RWN; RWN:=T; T:=TLO; TLO:=TLN; TLN:=T; NTO:=NN;
+    I:=I+1);
+ Q:=0;
+ WHILE Q<NTO DO (SW(RWO,GW(TLO,Q),0); Q:=Q+1);
+ # THE BLOCK GROWS OVER WHAT IS EQUAL (THE ELEMENTS THAT WERE LEFT OUT AS POPULAR) #
+ X:=1;
+ WHILE X NE 0 DO (
+    X:=0;
+    BA>ALO => (BB>BLO => (GW(SA,BA-1)=GW(SB,BB-1) => (BA:=BA-1; BB:=BB-1; BSZ:=BSZ+1; X:=1))));
+ X:=1;
+ WHILE X NE 0 DO (
+    X:=0;
+    (BA+BSZ)<AHI => ((BB+BSZ)<BHI => (GW(SA,BA+BSZ)=GW(SB,BB+BSZ) => (BSZ:=BSZ+1; X:=1))));
+ BI:=BA; BJ:=BB; BS:=BSZ;
+ 0);
+
+
+SUBR ISDIG(C) IS ((C>47) AND (C<58));
+SUBR ISOCT(C) IS ((C>47) AND (C<56));
+SUBR ISUP(C) IS ((C>64) AND (C<91));
+SUBR ISWORD(C) IS ((C=95) OR (ISDIG(C) NE 0) OR (ISUP(C) NE 0) OR ((C>96) AND (C<123)));
+
+# SIX OCTAL DIGITS AT I #
+SUBR OCT6(P,I) IS (
+ K,F ARE LOCAL;
+ F:=1; K:=0;
+ WHILE K<6 DO (ISOCT(GETB(P,I+K))=0 => F:=0; K:=K+1);
+ F);
+
+# THE INSTRUCTION OF A LINE OF THE ORIGINAL'S LISTING: WHITE SPACE, THE ADDRESS (6 OCTAL DIGITS), WHITE SPACE, 6 DIGITS, A BLANK, 6 DIGITS (THE WORD), WHITE SPACE, THE MNEMONIC (MNP), WHITE SPACE, THE REST (OPP, WITHOUT BLANKS AT THE END) #
+SUBR ORAC1(P) IS (
+ I,S,E ARE LOCAL;
+ I:=0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ I=0 => RETURN 0;
+ OCT6(P,I)=0 => RETURN 0;
+ I:=I+6;
+ ISWS(GETB(P,I))=0 => RETURN 0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ OCT6(P,I)=0 => RETURN 0;
+ I:=I+6;
+ GETB(P,I) NE 32 => RETURN 0;
+ I:=I+1;
+ OCT6(P,I)=0 => RETURN 0;
+ I:=I+6;
+ ISWS(GETB(P,I))=0 => RETURN 0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ ISTK(GETB(P,I))=0 => RETURN 0;
+ S:=I;
+ WHILE ISTK(GETB(P,I)) DO I:=I+1;
+ MNP:=CCALL strndup(P+S,I-S);
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ E:=CCALL strlen(P);
+ WHILE ((E>I) AND (ISWS(GETB(P,E-1)) NE 0)) DO E:=E-1;
+ OPP:=CCALL strndup(P+I,E-I);
+ 1);
+
+# A LABEL OF THE ORIGINAL'S LISTING: AT LEAST 10 BLANKS, THEN A WORD OF NO BLANKS THAT ENDS WITH A COLON, NOTHING ELSE (LABP) #
+SUBR ORAC2(P) IS (
+ I,S,E ARE LOCAL;
+ I:=0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ I<10 => RETURN 0;
+ ISTK(GETB(P,I))=0 => RETURN 0;
+ S:=I;
+ WHILE ISTK(GETB(P,I)) DO I:=I+1;
+ E:=I;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ GETB(P,I) NE 0 => RETURN 0;
+ (E-S)<2 => RETURN 0;
+ GETB(P,E-1) NE 58 => RETURN 0;
+ LABP:=CCALL strndup(P+S,E-S);
+ 1);
+
+# OUR LINE: A NUMBER, SF0, A WORD THAT HAS A COLON (LABP: UP TO THE LAST COLON OF THE WORD) #
+SUBR OURS1(P) IS (
+ I,S,E,K,L ARE LOCAL;
+ I:=0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ ISDIG(GETB(P,I))=0 => RETURN 0;
+ WHILE ISDIG(GETB(P,I)) NE 0 DO I:=I+1;
+ ISWS(GETB(P,I))=0 => RETURN 0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ GETB(P,I) NE 83 => RETURN 0;
+ GETB(P,I+1) NE 70 => RETURN 0;
+ GETB(P,I+2) NE 48 => RETURN 0;
+ I:=I+3;
+ ISWS(GETB(P,I))=0 => RETURN 0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ ISTK(GETB(P,I))=0 => RETURN 0;
+ S:=I;
+ WHILE ISTK(GETB(P,I)) DO I:=I+1;
+ E:=I; L:=0;
+ K:=S+1;
+ WHILE K<E DO (GETB(P,K)=58 => L:=K; K:=K+1);
+ L=0 => RETURN 0;
+ LABP:=CCALL strndup(P+S,(L-S)+1);
+ 1);
+
+# OUR LINE: A NUMBER, THEN A MNEMONIC (CAPITALS, DIGITS, POINTS; THE LONGEST ONE THAT ENDS AT A WORD BOUNDARY) AND THE REST (MNP, OPP) #
+SUBR OURS2(P) IS (
+ I,S,E,LN,Q,F,PV,NX,E2 ARE LOCAL;
+ I:=0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ ISDIG(GETB(P,I))=0 => RETURN 0;
+ WHILE ISDIG(GETB(P,I)) NE 0 DO I:=I+1;
+ ISWS(GETB(P,I))=0 => RETURN 0;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ ISUP(GETB(P,I))=0 => RETURN 0;
+ S:=I; I:=I+1;
+ WHILE ((ISUP(GETB(P,I)) NE 0) OR (ISDIG(GETB(P,I)) NE 0) OR (GETB(P,I)=46)) DO I:=I+1;
+ LN:=I-S; F:=0;
+ WHILE F=0 DO (
+    LN<1 => F:=2 ELSE (
+       PV:=ISWORD(GETB(P,S+LN-1)); NX:=ISWORD(GETB(P,S+LN));
+       ((PV NE 0) AND (NX=0)) => F:=1 ELSE (((PV=0) AND (NX NE 0)) => F:=1 ELSE LN:=LN-1)));
+ F NE 1 => RETURN 0;
+ MNP:=CCALL strndup(P+S,LN);
+ I:=S+LN;
+ WHILE ISWS(GETB(P,I)) NE 0 DO I:=I+1;
+ E:=CCALL strlen(P);
+ WHILE ((E>I) AND (ISWS(GETB(P,E-1)) NE 0)) DO E:=E-1;
+ OPP:=CCALL strndup(P+I,E-I);
+ 1);
+
+# IS THE TEXT ALL OCTAL DIGITS, AT LEAST ONE #
+SUBR ALLOCT(P) IS (
+ I,C,F ARE LOCAL;
+ C:=GETB(P,0);
+ C=0 => RETURN 0;
+ F:=1; I:=0;
+ WHILE C NE 0 DO (ISOCT(C)=0 => F:=0; I:=I+1; C:=GETB(P,I));
+ F);
+
+# THE LINES OF BUF CUT AT THE NEW LINES, IN LNS: NLN #
+SUBR SPLITB(Z) IS (
+ I,C,S,NL ARE LOCAL;
+ LNS:=CCALL calloc(N+4,8); NL:=0; S:=0; I:=0;
+ WHILE I<N DO (
+    C:=GETB(BUF,I);
+    C=10 => (PUTB(BUF,I,0); SW(LNS,NL,BUF+S); NL:=NL+1; S:=I+1);
+    I:=I+1);
+ S<N => (SW(LNS,NL,BUF+S); NL:=NL+1);
+ NLN:=NL;
+ 0);
+
+# THE ORIGINAL'S INSTRUCTIONS AND LABELS: ORM (MNEMONICS) AND ORO (THEIR REST), NOR OF THEM #
+SUBR ORACLE(PATH) IS (
+ I,DT,P ARE LOCAL;
+ SLURP(PATH); SPLITB(0);
+ ORM:=CCALL calloc(NLN+4,8); ORO:=CCALL calloc(NLN+4,8); NOR:=0; DT:=0;
+ I:=0;
+ WHILE I<NLN DO (
+    P:=GW(LNS,I);
+    ORAC1(P) NE 0 => (
+       DT NE 0 => DT:=0 ELSE (
+          ALLOCT(MNP)=0 => (SW(ORM,NOR,MNP); SW(ORO,NOR,OPP); NOR:=NOR+1)))
+    ELSE (ORAC2(P) NE 0 => (
+       SNCMP(LABP,LOC('%BYTE'),5)=0 => DT:=1 ELSE (SW(ORM,NOR,LABP); SW(ORO,NOR,CCALL calloc(1,1)); NOR:=NOR+1)));
+    I:=I+1);
+ 0);
+
+# OUR CHAIN: UM (THE MNEMONICS OR LABELS), UO (THEIR REST), UI (THE IDENTITIES OF UM), NU OF THEM #
+SUBR OURS(PATH) IS (
+ I,P ARE LOCAL;
+ SLURP(PATH); SPLITB(0);
+ UM:=CCALL calloc(NLN+4,8); UO:=CCALL calloc(NLN+4,8); UI:=CCALL calloc(NLN+4,8); NU:=0;
+ I:=0;
+ WHILE I<NLN DO (
+    P:=GW(LNS,I);
+    OURS1(P) NE 0 => (SW(UM,NU,LABP); SW(UO,NU,CCALL calloc(1,1)); SW(UI,NU,INTERN(LABP)); NU:=NU+1)
+    ELSE (OURS2(P) NE 0 => (
+       (GW(FL,INTERN(MNP)) AND 64)=0 => (SW(UM,NU,MNP); SW(UO,NU,OPP); SW(UI,NU,INTERN(MNP)); NU:=NU+1)));
+    I:=I+1);
+ 0);
+
+# AN INSTRUCTION AN OPERATION TOOK AWAY: THE CATEGORY, THE MNEMONIC, THE REST #
+SUBR LOGADD(CAT,M,O) IS (
+ SW(LGM,(CAT*LGCAP)+GW(LGN,CAT),M); SW(LGO,(CAT*LGCAP)+GW(LGN,CAT),O); SW(LGN,CAT,GW(LGN,CAT)+1);
+ 0);
+
+# DOES THE TEXT HAVE %TMP AND A DIGIT #
+SUBR HASTMP(P) IS (
+ Q,F ARE LOCAL;
+ F:=0; Q:=CCALL strstr(P,LOC('%TMP'));
+ WHILE Q NE 0 DO (ISDIG(GETB(Q,4)) NE 0 => F:=1; Q:=CCALL strstr(Q+1,LOC('%TMP')));
+ F);
+
+# DOES THE TEXT HAVE DIGITS, A COMMA AND A 0 AND NO MORE #
+SUBR OPFLT(P) IS (
+ I ARE LOCAL;
+ I:=0;
+ ISDIG(GETB(P,0))=0 => RETURN 0;
+ WHILE ISDIG(GETB(P,I)) NE 0 DO I:=I+1;
+ GETB(P,I) NE 44 => RETURN 0;
+ GETB(P,I+1) NE 48 => RETURN 0;
+ (GETB(P,I+2)=0 => 1 ELSE 0));
+
+# THE ORIGINAL'S INSTRUCTIONS AFTER THE RULES OF ITS SIDE: THE IDENTITIES OF THE MNEMONICS IN XI, NX OF THEM #
+SUBR REDUCE(Z) IS (
+ I,K,N1,N2,ID,F,S1M,S1O,S1I,S2M,S2O,S2I ARE LOCAL;
+ S1M:=CCALL calloc(NOR+4,8); S1O:=CCALL calloc(NOR+4,8); S1I:=CCALL calloc(NOR+4,8);
+ S2M:=CCALL calloc(NOR+4,8); S2O:=CCALL calloc(NOR+4,8); S2I:=CCALL calloc(NOR+4,8);
+ XI:=CCALL calloc(NOR+4,8);
+ I:=0; N1:=0;
+ WHILE I<NOR DO (
+    HASTMP(GW(ORO,I)) NE 0 => LOGADD(0,GW(ORM,I),GW(ORO,I)) ELSE (
+       SW(S1M,N1,GW(ORM,I)); SW(S1O,N1,GW(ORO,I)); SW(S1I,N1,INTERN(GW(ORM,I))); N1:=N1+1);
+    I:=I+1);
+ I:=0; N2:=0;
+ WHILE I<N1 DO (
+    F:=0;
+    GW(S1I,I)=IDHRRZI => ((I+2)<N1 => (GW(S1I,I+1)=IDHRLI => ((GW(FL,GW(S1I,I+2)) AND 8) NE 0 => F:=1)));
+    F NE 0 => (LOGADD(1,GW(S1M,I),GW(S1O,I)); LOGADD(1,GW(S1M,I+1),GW(S1O,I+1)); I:=I+2) ELSE (
+       SW(S2M,N2,GW(S1M,I)); SW(S2O,N2,GW(S1O,I)); SW(S2I,N2,GW(S1I,I)); N2:=N2+1; I:=I+1));
+ K:=0;
+ WHILE K<N2 DO (
+    ID:=GW(S2I,K);
+    (GW(FL,ID) AND 16) NE 0 => (LOGADD(2,GW(S2M,K),GW(S2O,K)); SW(XI,K,GW(FTG,ID))) ELSE (
+       F:=0;
+       ID=IDMOVEI => (OPFLT(GW(S2O,K)) NE 0 => ((K+1)<N2 => ((GW(FL,GW(S2I,K+1)) AND 32) NE 0 => F:=1)));
+       F NE 0 => (LOGADD(2,GW(S2M,K),GW(S2O,K)); SW(XI,K,IDMOVE)) ELSE SW(XI,K,ID));
+    K:=K+1);
+ NX:=N2;
+ 0);
+
+# THE REST OF AN OPERAND LIKE R12,X (THE ADDRESS OF X), OR 0 #
+SUBR RMATCH(OP) IS (
+ I ARE LOCAL;
+ GETB(OP,0) NE 82 => RETURN 0;
+ ISDIG(GETB(OP,1))=0 => RETURN 0;
+ I:=1;
+ WHILE ISDIG(GETB(OP,I)) NE 0 DO I:=I+1;
+ GETB(OP,I) NE 44 => RETURN 0;
+ GETB(OP,I+1)=0 => RETURN 0;
+ OP+(I+1));
+
+# IS THE TEXT A REGISTER: R AND DIGITS #
+SUBR RFULL(X) IS (
+ I ARE LOCAL;
+ GETB(X,0) NE 82 => RETURN 0;
+ ISDIG(GETB(X,1))=0 => RETURN 0;
+ I:=1;
+ WHILE ISDIG(GETB(X,I)) NE 0 DO I:=I+1;
+ (GETB(X,I)=0 => 1 ELSE 0));
+
+SUBR PFX(P,Q) IS ((SNCMP(P,Q,CCALL strlen(Q))=0 => 1 ELSE 0));
+
+# THE MNEMONIC STARTS A SKIP OR A JUMP: ONE OF THE SKIPS OF THE PYTHON #
+SUBR ISSKIP(P) IS (
+ ((PFX(P,LOC('CAM')) NE 0) OR (PFX(P,LOC('CAI')) NE 0) OR (PFX(P,LOC('SKIP')) NE 0) OR (PFX(P,LOC('TRN')) NE 0) OR (PFX(P,LOC('TLN')) NE 0) OR (PFX(P,LOC('TDN')) NE 0)
+  OR (PFX(P,LOC('TSN')) NE 0) OR (PFX(P,LOC('AOS')) NE 0) OR (PFX(P,LOC('SOS')) NE 0) OR (PFX(P,LOC('JUMP')) NE 0) OR (PFX(P,LOC('AOJ')) NE 0) OR (PFX(P,LOC('SOJ')) NE 0)));
+
+# IS THE MOVE AT J OF OURS THE LOAD OF SOMETHING THAT A REGISTER HAS ALREADY: 1 COPY, 2 RELOAD, 0 NO #
+SUBR HOLDQ(J) IS (
+ OP,X,K,A,B,MM,TGT,P ARE LOCAL;
+ GW(UI,J) NE IDMOVE => RETURN 0;
+ OP:=GW(UO,J); X:=RMATCH(OP);
+ X=0 => RETURN 0;
+ RFULL(X) NE 0 => RETURN 1;
+ K:=J-1;
+ H1: K<0 => RETURN 0;
+ A:=GW(UI,K); B:=GW(UO,K); P:=GW(UM,K);
+ GETB(P,CCALL strlen(P)-1)=58 => RETURN 0;
+ (GW(FL,A) AND 4) NE 0 => RETURN 0;
+ A=IDJRST => (
+    K>0 => (ISSKIP(GW(UM,K-1)) NE 0 => GO TO H2);
+    RETURN 0);
+ H2: MM:=RMATCH(B);
+ (GW(FL,A) AND 2) NE 0 => (MM NE 0 => (SCMP(MM,X)=0 => RETURN 2));
+ (GW(FL,A) AND 1) NE 0 => (
+    MM NE 0 => TGT:=MM ELSE TGT:=B;
+    SCMP(TGT,X)=0 => RETURN 0);
+ K:=K-1; GO TO H1);
+
+# A NEIGHBOUR OF AN INSERTED INSTRUCTION: IF IT IS THERE, NOT TAKEN AWAY ALREADY, AND LOADS WHAT A REGISTER HAS #
+SUBR CAND(Q) IS (
+ Q<0 => RETURN 0;
+ Q<NU => 0 ELSE RETURN 0;
+ GW(DROP,Q) NE 0 => RETURN 0;
+ HOLDQ(Q));
+
+# A RANGE AS UNIFIED_DIFF WRITES IT: START+1 AND LENGTH, OR ONE NUMBER #
+SUBR RANGE(START,STOP) IS (
+ BEG,LN ARE LOCAL;
+ BEG:=START+1; LN:=STOP-START;
+ LN=1 => (OUTD(BEG); RETURN 0);
+ LN=0 => BEG:=BEG-1;
+ OUTD(BEG); OUTC(44); OUTD(LN);
+ 0);
+
+# THE LINES A TO B-1 OF THE ARRAY P, EACH AFTER THE CHARACTER CH #
+SUBR PRL(P,A,B,CH) IS (
+ I ARE LOCAL;
+ I:=A;
+ WHILE I<B DO (OUTC(CH); OUTS(STRID(GW(P,I))); OUTNL(0); I:=I+1);
+ 0);
+
+# THE LINES OF A GROUP OF OPCODES: THE LINES OF X (-) AND Y (+) #
+SUBR EMITG(GT,GI1,GI2,GJ1,GJ2,NG) IS (
+ K,I,TG ARE LOCAL;
+ STARTED=0 => (OUTS(LOC('--- oracle')); OUTNL(0); OUTS(LOC('+++ ours')); OUTNL(0); STARTED:=1);
+ OUTS(LOC('@@ -')); RANGE(GW(GI1,0),GW(GI2,NG-1)); OUTS(LOC(' +')); RANGE(GW(GJ1,0),GW(GJ2,NG-1)); OUTS(LOC(' @@')); OUTNL(0);
+ K:=0;
+ WHILE K<NG DO (
+    TG:=GW(GT,K);
+    TG=4 => PRL(UDX,GW(GI1,K),GW(GI2,K),32);
+    TG=1 => PRL(UDX,GW(GI1,K),GW(GI2,K),45);
+    TG=2 => PRL(UDX,GW(GI1,K),GW(GI2,K),45);
+    TG=1 => PRL(UDY,GW(GJ1,K),GW(GJ2,K),43);
+    TG=3 => PRL(UDY,GW(GJ1,K),GW(GJ2,K),43);
+    K:=K+1);
+ 0);
+
+# DIFFLIB.UNIFIED_DIFF(X,Y,'ORACLE','OURS',LINETERM='',N=2) #
+SUBR UDIFF(PX,NXX,PY,NYY) IS (
+ K,TG,I1,I2,J1,J2,NG,GT,GI1,GI2,GJ1,GJ2,NN,NC,CT,CI1,CI2,CJ1,CJ2,E,SKP ARE LOCAL;
+ UDX:=PX; UDY:=PY; STARTED:=0; NN:=2;
+ SMRUN(PX,NXX,PY,NYY,1);
+ NC:=NOP;
+ CT:=CCALL calloc(NOP+4,8); CI1:=CCALL calloc(NOP+4,8); CI2:=CCALL calloc(NOP+4,8); CJ1:=CCALL calloc(NOP+4,8); CJ2:=CCALL calloc(NOP+4,8);
+ K:=0;
+ WHILE K<NOP DO (SW(CT,K,GW(OPT,K)); SW(CI1,K,GW(OI1,K)); SW(CI2,K,GW(OI2,K)); SW(CJ1,K,GW(OJ1,K)); SW(CJ2,K,GW(OJ2,K)); K:=K+1);
+ NC=0 => (SW(CT,0,4); SW(CI1,0,0); SW(CI2,0,1); SW(CJ1,0,0); SW(CJ2,0,1); NC:=1);
+ GW(CT,0)=4 => (
+    E:=GW(CI2,0)-NN; E>GW(CI1,0) => SW(CI1,0,E);
+    E:=GW(CJ2,0)-NN; E>GW(CJ1,0) => SW(CJ1,0,E));
+ GW(CT,NC-1)=4 => (
+    E:=GW(CI1,NC-1)+NN; E<GW(CI2,NC-1) => SW(CI2,NC-1,E);
+    E:=GW(CJ1,NC-1)+NN; E<GW(CJ2,NC-1) => SW(CJ2,NC-1,E));
+ GT:=CCALL calloc(NC+8,8); GI1:=CCALL calloc(NC+8,8); GI2:=CCALL calloc(NC+8,8); GJ1:=CCALL calloc(NC+8,8); GJ2:=CCALL calloc(NC+8,8);
+ NG:=0; K:=0;
+ WHILE K<NC DO (
+    TG:=GW(CT,K); I1:=GW(CI1,K); I2:=GW(CI2,K); J1:=GW(CJ1,K); J2:=GW(CJ2,K);
+    ((TG=4) AND ((I2-I1)>(NN+NN))) => (
+       E:=I1+NN; I2<E => E:=I2; SW(GT,NG,TG); SW(GI1,NG,I1); SW(GI2,NG,E);
+       E:=J1+NN; J2<E => E:=J2; SW(GJ1,NG,J1); SW(GJ2,NG,E); NG:=NG+1;
+       EMITG(GT,GI1,GI2,GJ1,GJ2,NG);
+       NG:=0;
+       E:=I2-NN; E>I1 => I1:=E;
+       E:=J2-NN; E>J1 => J1:=E);
+    SW(GT,NG,TG); SW(GI1,NG,I1); SW(GI2,NG,I2); SW(GJ1,NG,J1); SW(GJ2,NG,J2); NG:=NG+1;
+    K:=K+1);
+ SKP:=0;
+ ((NG=1) AND (GW(GT,0)=4)) => SKP:=1;
+ ((NG>0) AND (SKP=0)) => EMITG(GT,GI1,GI2,GJ1,GJ2,NG);
+ 0);
+
+SUBR CATNAME(C) IS (
+ C=0 => RETURN LOC('spill');
+ C=1 => RETURN LOC('bytepair');
+ C=2 => RETURN LOC('float');
+ C=3 => RETURN LOC('reload');
+ LOC('copy'));
+
+SUBR CATDESC(C) IS (
+ C=0 => RETURN LOC('spill code (RMOD, %TMPn)');
+ C=1 => RETURN LOC('byte pointers built in registers');
+ C=2 => RETURN LOC('PDP-10 float immediates');
+ C=3 => RETURN LOC('redundant reloads (AMOD)');
+ LOC('register copies (allocation)'));
+
+SUBR COMPARE(PA,PB,VERB) IS (
+ K,J,J1,J2,R,JJ,C,I,NY,Y,SAME,FIRST,E ARE LOCAL;
+ ORACLE(PA); OURS(PB);
+ LGCAP:=NOR+NU+8; LGM:=CCALL calloc(5*LGCAP,8); LGO:=CCALL calloc(5*LGCAP,8); LGN:=CCALL calloc(8,8);
+ REDUCE(0);
+ SMRUN(XI,NX,UI,NU,0);
+ DROP:=CCALL calloc(NU+4,8);
+ K:=0;
+ WHILE K<NOP DO (
+    GW(OPT,K)=3 => (
+       J:=GW(OJ1,K); J2:=GW(OJ2,K);
+       WHILE J<J2 DO (
+          R:=HOLDQ(J); JJ:=J;
+          R=0 => (
+             R:=CAND(J-1);
+             R NE 0 => JJ:=J-1 ELSE (R:=CAND(J+1); R NE 0 => JJ:=J+1));
+          R NE 0 => (SW(DROP,JJ,1); R=1 => LOGADD(4,GW(UM,JJ),GW(UO,JJ)) ELSE LOGADD(3,GW(UM,JJ),GW(UO,JJ)));
+          J:=J+1));
+    K:=K+1);
+ Y:=CCALL calloc(NU+4,8); NY:=0; K:=0;
+ WHILE K<NU DO (GW(DROP,K)=0 => (SW(Y,NY,GW(UI,K)); NY:=NY+1); K:=K+1);
+ # WHAT THE RULES TOOK AWAY, IN THE ORDER OF THE PYTHON #
+ SAME:=0;
+ NX=NY => (SAME:=1; K:=0; WHILE K<NX DO (GW(XI,K) NE GW(Y,K) => SAME:=0; K:=K+1));
+ VERB NE 0 => (
+    C:=0;
+    WHILE C<5 DO (
+       K:=0;
+       WHILE K<GW(LGN,C) DO (
+          OUTS(LOC('  ')); OUTS(CATNAME(C)); OUTS(LOC(': ')); OUTS(GW(LGM,(C*LGCAP)+K)); OUTC(32); OUTS(GW(LGO,(C*LGCAP)+K)); OUTNL(0);
+          K:=K+1);
+       C:=C+1));
+ SAME NE 0 => (
+    OUTS(LOC('same after: '));
+    FIRST:=1; C:=0;
+    WHILE C<5 DO (GW(LGN,C) NE 0 => (FIRST=0 => OUTS(LOC(', ')); OUTS(CATDESC(C)); OUTC(32); OUTD(GW(LGN,C)); FIRST:=0); C:=C+1);
+    FIRST NE 0 => OUTS(LOC('no rule needed'));
+    OUTS(LOC(' (')); OUTD(NX); OUTS(LOC(' instructions and labels)')); OUTNL(0);
+    RETURN 0);
+ OUTS(LOC('UNEXPLAINED; rules applied: '));
+ FIRST:=1; C:=0;
+ WHILE C<5 DO (GW(LGN,C) NE 0 => (FIRST=0 => OUTS(LOC(', ')); OUTS(CATDESC(C)); OUTC(32); OUTD(GW(LGN,C)); FIRST:=0); C:=C+1);
+ FIRST NE 0 => OUTS(LOC('none'));
+ OUTNL(0);
+ UDIFF(XI,NX,Y,NY);
+ 1)
+%%

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Oracle goldens: the programs named in tests/oracle/LIST (in tests/oracle/ or tests/native/)
-# were compiled and run by the original compiler (IMP 1.5 on TOPS-10, tools/oracle-run.py);
+# were compiled and run by the original compiler (IMP 1.5 on TOPS-10, tools/oracle-run.imp);
 # their output is in tests/golden/oracle/NAME.out.  Here imp72stage0 compiles the same programs
 # and the output must be the same.  tools/oracle-update.sh makes the goldens again.
 root=$(cd "$(dirname "$0")/../.." && pwd)

@@ -19,3 +19,10 @@ not something this port changed.
 - **`FOR I TO N` includes N; `FOR I FROM N` counts down to 0.**
 - **`IS 100 LONG` declares an array**; an undeclared subscripted name is a
   one word variable.
+- **A condition that is two parenthesized tests needs one more pair of parentheses.** `WHILE (A=1) AND (B=1) DO S` runs zero times (the `AND` is taken as part of what follows the first
+  parenthesis, there being no precedence); `WHILE ((A=1) AND (B=1)) DO S` is the loop. The same for `(A) AND (B) => S` and `A AND B => S`: parenthesize the whole condition. (Both compilers agree on this.)
+- **`[P+8]` is the word 8 words after `P`**, that is the address `P+64`: a constant added inside the brackets is scaled by the word. For a byte offset write `[P+(8*I)]` for words, or put the
+  byte address in a variable first and add to that. The same holds for `LOC(X)+N` with a bare constant `N` in the seed's old form; both compilers now count `N` as bytes when the address is in a
+  variable or the offset is parenthesized.
+- **`>=` and `<=` are not operators**: write `GE` and `LE`. An empty text constant `''` is a syntax error. A `#` comment that is not closed by a `#` swallows the rest of the file.
+- **A C `int` result comes back in half a register**: mask it (`AND 4294967295`, or the `SCMASK` of the library) before comparing it with a negative number or a 64-bit value.
