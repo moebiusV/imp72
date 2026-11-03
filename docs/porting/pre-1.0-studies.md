@@ -17,6 +17,8 @@ decided. The recommendations are mine. "Looked at" means I read the code named; 
 
 ## 3. The tape's channel I/O (`INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`, the buffer header)
 
+*(Rule from the user: what comes back from the tape comes back working, in the new idiom, not as a stub. `RLEAS`, which released a channel, would be the `fclose` of this study.)*
+
 *Now.* `PRINT`, `READ` and `PRINT FILE` are in `lib/imp72io.imp`. The channel operations (`INIT`, `LOOKUP`, …) are not in the tape's `syntax.imc` or `impsyn.imc` (I searched for them and found none): the original reaches them through its libraries, which are not ported. So "keeping them" means a new library part and new declarations, not enabling something that is there.
 *Recommendation.* Keep the tape's statements with their meaning, over `fopen`/`getc`/`putc`: a channel is an index into a table of `FILE *`, the buffer header is a small record the program may read (count, pointer) kept in step by the library. Programs of the tape that call them would then compile; the buffer is a fiction kept for them.
 *Effect.* A new part of the library (about the size of `imp72io.imp`'s file part) and the statements in an extension file. Not measured: how many routines of `decus/` use the header words directly, which is what decides whether the fiction is cheap.

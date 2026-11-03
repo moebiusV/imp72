@@ -34,8 +34,24 @@ Not routines, so not in the lists: `FREES`, `FLEN`, `FADD` and the other macros 
 | `code3` | `PCODE1` | See (a). |
 | `impsem` | `CVAL`, `IINIT`, `ISCVAL`, `PAIRFIRST` | Not read one by one. |
 
-## What to look at
+## The rule (decided by the user, 2026-11-03)
 
-- No tape routine has been *renamed*. The two earlier cases (the `I`-prefixed free routines and `FCORE` for `CORE`) were put back or removed, as the table shows.
-- (a) is all PDP-10 or 18-bit machinery. If you want any of it kept as a stub with the tape's name (for instance `CORE` returning 1), say which.
-- (b) is the part to read: `FBACK` … `FSETL` and `SEMCALL` … `SEMREMAP` are small and could be folded into the tape's routines (`FREES` with a mask, a table call without the frame stack) if you want fewer new names, at the cost of the 64-bit layout being less explicit.
+A tape routine that is not in the port does not come back as a stub. Either it is gone for good, because what it did has no meaning here, or it comes back **fully functional, in the new idiom**:
+64-bit words, Unix, UTF-8, the C library underneath. The example given: file names follow the limits of Unix, not those of TOPS-10 (six characters and three of the extension).
+
+Read that way, the dropped routines of `impm` (read one by one on 2026-11-03):
+
+| routine | what it did on TOPS-10 | in this idiom |
+|---|---|---|
+| `CORE(N)` | monitor call to grow the core | could return as "make N words of the arena usable" over `IMPCORESET`; the arena is reserved once and `free.imp` already grows the usable part, so it is optional |
+| `RLEAS(CH)` | release a channel | `fclose` of the channel's file; belongs to the channel I/O of study 3 in `pre-1.0-studies.md` |
+| `TMPCOR`, `TMPFL`, `GETMP` | the command line passed through temporary core or a temporary file `I10` | `argv`: `IMPARGV` and `COMPIL` do it; gone for good |
+| `OPENOUT` | open the `.REL` output on a channel | the driver opens the object file (`IMPOBJ`, `IMPOPENIR`); gone for good |
+| `PEEKAT` | tell a "bulldog" watcher program of the monitor which file is compiled | nothing; gone for good |
+
+The same holds for the others in (a): the `*ORGFIX` routines, `PCODE1`, `RCOCHK`, `ADDCODE`, `OPCODE`, `SUBTAG` and the modules `amod`, `omod`, `rmod` are PDP-10 machinery whose work is done by something else (the arena, the IR code generator, LLVM).
+
+## What is left to decide
+
+- Whether `CORE` and `RLEAS` return (the first is optional, the second goes with study 3).
+- (b), the new routines: `FBACK` … `FSETL` and `SEMCALL` … `SEMREMAP` are small and could be folded into the tape's routines (`FREES` with a mask, a table call without the frame stack) if you want fewer new names, at the cost of the 64-bit layout being less explicit.
