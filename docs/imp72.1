@@ -1,0 +1,270 @@
+.\" Copyright (c) 2026 The imp72 authors.  ISC licence, see LICENSE.
+.Dd November 3, 2026
+.Dt IMP72 1
+.Os
+.Sh NAME
+.Nm imp72
+.Nd compile IMP72 programs to native code
+.Sh SYNOPSIS
+.Nm
+.Op Fl c | S | Sir
+.Op Fl o Ar output
+.Op Fl -target Ns = Ns Ar triple
+.Op Fl -sysroot Ns = Ns Ar dir
+.Op Fl -runtime Ns = Ns Ar file
+.Op Fl s Ar letters
+.Op Fl I Ar image
+.Ar file ...
+.Nm
+.Fl -run
+.Ar file ...
+.Nm
+.Fl i
+.Op Fl s Ar letters
+.Op Ar file ...
+.Nm
+.Fl -version | Fl -help
+.Sh DESCRIPTION
+.Nm
+compiles programs in IMP72, the extensible systems language of Ned Irons as
+implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a), to native code,
+and links them.
+The syntax of the language is read at start from
+.Pa syntax64.imc
+and the C interface from
+.Pa ffi.imc .
+The code generator makes an intermediate representation, and LLVM, inside the
+compiler's own process, makes the machine code.
+Executables are linked with lld, in the process where lld is installed as a
+library and otherwise by running
+.Xr ld.lld 1
+.Pq Xr ld64.lld 1
+on macOS.
+No other compiler or linker runs.
+.Pp
+The word of IMP72 is 64 bits and its arguments are passed by reference.
+A
+.Sy SUBR
+is therefore a C function of pointers to its arguments, returning a 64-bit word.
+.Sy CCALL F(A, B)
+calls the C function
+.Fn F
+with the values of
+.Va A
+and
+.Va B .
+A variable declared
+.Sy COMMON
+is a global symbol.
+.Pp
+An argument ending in
+.Pa .o ,
+.Pa .a
+or
+.Pa .so
+is linked.
+An argument ending in
+.Pa .imc
+is a file of syntax and declarations, read before the sources, as the
+original compiler reads a file given with the
+.Ql /C
+switch.
+Any other argument is a source file.
+Each source is compiled separately, as a C compiler compiles its files; the
+output for
+.Pa NAME.imp
+is
+.Pa NAME.o ,
+.Pa NAME.s
+or
+.Pa NAME.ll .
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl c
+Compile to an object file
+.Pa NAME.o
+for each source and do not link.
+The object is what a REL file is on TOPS-10: ELF, Mach-O or whatever the
+system uses.
+.It Fl S
+Compile to the assembly of the target,
+.Pa NAME.s .
+.It Fl Sir
+Compile to LLVM IR text,
+.Pa NAME.ll .
+.It Fl o Ar file
+Name the output: the executable
+.Pa a.out
+by default.
+It is an error to use
+.Fl o
+with
+.Fl c
+or
+.Fl S
+and more than one source.
+.It Fl -run
+Compile with ORC and run the program in this process.
+It cannot be combined with
+.Fl -target .
+.It Fl -target Ns = Ns Ar triple
+Make output for another system (LLVM's names, the vendor may be left out:
+.Ql aarch64-linux-gnu ,
+.Ql riscv64-linux-musl ,
+.Ql x86_64-apple-darwin ) .
+Objects, assembly and IR are written for it.
+A target of the other byte order from the host's is refused.
+.It Fl -sysroot Ns = Ns Ar dir
+With
+.Fl -target
+and no
+.Fl c :
+the root of the target system, for its C library start files
+.Pq Pa dir/usr/lib/crt1.o , No ... ,
+or for macOS the SDK directory.
+.It Fl -runtime Ns = Ns Ar file
+With
+.Fl -target
+and no
+.Fl c :
+the runtime library built for the target.
+.It Fl s Ar letters
+The switches of the original compiler, one letter each.
+The listings and dumps go to the standard error.
+.Ql A
+the assembly listing (the chain of IR records),
+.Ql L
+the source listing,
+.Ql G
+the parser trace,
+.Ql I
+the directory of names,
+.Ql N
+the connectivity matrices,
+.Ql P
+the parse output and the semantics execution,
+.Ql M
+the code-tree matching,
+.Ql S
+the semantics array,
+.Ql T
+the code tree,
+.Ql X
+the syntax graph,
+.Ql F
+the free-storage map,
+.Ql Z
+statistics.
+.It Fl I Ar image
+Start from a compiler saved with the
+.Ql /U
+or
+.Ql /V
+switch of
+.Fl i
+instead of reading the syntax files.
+.It Fl i
+Read the original compiler's commands from the terminal:
+.Ql OBJ,LIST_SOURCE/switches ,
+one compilation for each line.
+.Ql NAME_/U
+saves the compiler as
+.Pa NAME.img .
+.It Fl -version
+Print the version and exit.
+.It Fl -help , Fl h
+Print the usage and exit.
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev IMP72SYNTAX
+The syntax file, instead of
+.Pa share/imp72/syntax64.imc .
+.It Ev IMP72FFI
+The C interface file, instead of
+.Pa share/imp72/ffi.imc .
+.It Ev IMP72LIB
+The runtime library linked into programs, instead of
+.Pa lib/imp72/libimp72.a .
+.It Ev IMP72SYSROOT , Ev IMP72RUNTIME
+The values of
+.Fl -sysroot
+and
+.Fl -runtime .
+.It Ev SDKROOT
+On macOS, the SDK to link with; otherwise the Command Line Tools' and then Xcode's.
+.It Ev TMPDIR
+The directory for the temporary files of a compilation.
+The default is the current directory.
+.It Ev IMP72LDSHOW
+If set, the arguments of the linker are printed to the standard error.
+.It Ev PATH
+.Xr ld.lld 1
+is searched here, and then in the directory of the LLVM the compiler was built
+with, when lld is not linked in.
+.El
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa /usr/share/imp72/syntax64.imc
+The syntax of IMP72.
+.It Pa /usr/share/imp72/ffi.imc
+The extension that adds
+.Sy CCALL
+and
+.Sy EXTERNAL .
+.It Pa /usr/lib/imp72/libimp72.a
+The runtime library.
+.It Pa /usr/include/imp72.h
+C declarations for code that shares data with IMP72 programs.
+.It Pa a.out , Pa NAME.o , Pa NAME.s , Pa NAME.ll
+Output.
+.El
+.Pp
+The compiler finds these relative to its own place, so the prefix may be
+other than
+.Pa /usr .
+.Sh EXIT STATUS
+.Bl -tag -width Ds -compact
+.It 0
+Success.
+.It 1
+An error was reported in a source, a file could not be read or written, or
+the link failed.
+.It 2
+The command line was wrong.
+.El
+.Sh EXAMPLES
+Compile and run a program:
+.Bd -literal -offset indent
+imp72 hello.imp && ./a.out
+.Ed
+.Pp
+Compile two sources and link them with a C object:
+.Bd -literal -offset indent
+imp72 main.imp lib.imp util.o -o prog
+.Ed
+.Pp
+Run without writing a file:
+.Bd -literal -offset indent
+imp72 --run hello.imp
+.Ed
+.Pp
+An object for another system:
+.Bd -literal -offset indent
+imp72 -c --target=aarch64-linux-gnu hello.imp
+.Ed
+.Pp
+LLVM IR of a program, and the code tree of its compilation:
+.Bd -literal -offset indent
+imp72 -Sir hello.imp
+imp72 -s T -c hello.imp 2> tree.txt
+.Ed
+.Sh SEE ALSO
+.Xr imp72stage0 1 ,
+.Xr imp72 7 ,
+.Pa /usr/share/doc/imp72/
+.Sh AUTHORS
+The original IMP72 is by
+.An Walter Bilofsky ;
+the IMP language by
+.An Ned Irons .

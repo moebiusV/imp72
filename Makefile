@@ -41,7 +41,7 @@ stage0:
 # Installed layout (imp72stage0 finds its parts relative to its own place):
 #   PREFIX/bin/imp72stage0 (the seed; also as imp72 where stage 2 cannot be built)   PREFIX/bin/imp72 (stage 2)
 #   PREFIX/lib/imp72/libimp72.a (made by stage 2, else by the seed)   PREFIX/share/imp72/syntax64.imc
-#   PREFIX/share/imp72/{syntax.imc,ffi.imc}  PREFIX/share/man/man1/imp72stage0.1
+#   PREFIX/share/imp72/ffi.imc  PREFIX/share/man/man1/{imp72.1,imp72stage0.1}
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp72 \
 	    $(DESTDIR)$(PREFIX)/share/imp72 $(DESTDIR)$(PREFIX)/share/man/man1
@@ -57,7 +57,7 @@ install: all
 	install -m 644 lib/imp72.h $(DESTDIR)$(PREFIX)/include/imp72.h
 	install -m 644 src/llvm-ir/syntax64.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp72/
 	install -m 644 docs/imp72stage0.1 $(DESTDIR)$(PREFIX)/share/man/man1/imp72stage0.1
-	echo '.so man1/imp72stage0.1' > $(DESTDIR)$(PREFIX)/share/man/man1/imp72.1
+	install -m 644 docs/imp72.1 $(DESTDIR)$(PREFIX)/share/man/man1/imp72.1
 	install -d $(DESTDIR)$(PREFIX)/share/man/man7
 	install -m 644 docs/manual/imp72.7 $(DESTDIR)$(PREFIX)/share/man/man7/imp72.7
 	install -d $(DESTDIR)$(PREFIX)/share/doc/imp72

@@ -1,75 +1,66 @@
-# Stage 0, part 3: semantics, the code tree, RSYN and the driver
+# The seed, part 3: semantics, the code tree, RSYN and the driver
 
-Ports of `dosem.imc`, `entree.imc`, `cotree.imc` and `rsyn.imc` (and the bits
-of `impsem.imc` and `code2.imc` that reading syntax needs) to `stage0/dosem.c`,
-`entree.c`, `cotree.c`, `rsyn.c` and `sem.c`, with `debug.c` extended with
-`TPRIN1`, `SEMPR1` and `PSTAC1`, and a driver, `imp72s0`.
+`stage0/dosem.c`, `entree.c`, `cotree.c`, `rsyn.c`, `semtab.c` and `debug.c` correspond to `src/dosem.imp`,
+`src/entree.imp`, `src/cotree.imp`, `src/rsyn.imp`, `src/dir.imp` (the table of semantic routines) and `src/debug.imp`.
+`imp72s0.c` is the driver. The code generating routines are `stage0/gen_*.c` (`code-generator.md`).
 
-**What runs:** `stage0/imp72s0 src/llvm-ir/syntax64.imc` reads the whole syntax file of
-the IMP72 compiler: RSYN reads the syntax for syntax with the lexer alone,
-then the parser, the code tree and the semantic stack, driven by the productions
-just defined, read the remaining 150-odd syntax statements. It ends with the
-syntax graph, the semantics array and the code tree built, and 177
-productions entered (the number of syntax statements in the file). `make
-check` runs it (`tests/stage0/test_syntax.sh`).
+## What runs
 
-## The data
+    stage0/imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]
 
-`SEMS`, `PROSEM`, the code tree's stuff words, the code stack and the semantic
-stack keep the **36 bit formats of the original** (`imp.h`: `u36`, `sx36`,
-`L18`, `R18`, `W18`, `ls36`), held sign-extended in a 64 bit `word`, so that
-`debug.c` can print the same octal as the original compiler. The syntax graph
-(see part 2) and the code tree's links word do not, since nothing prints
-them raw.
+`imp72s0 src/llvm-ir/syntax64.imc` reads the syntax file of the language. `rsyn` reads the syntax for syntax with the
+lexer alone; the parser, the code tree and the semantic stack, driven by the productions just defined, read the remaining
+statements. The result is the syntax graph, the semantics array and the code tree, with 177 productions entered (the
+number of syntax statements in the file). `tests/stage0/test_syntax.sh` (run by `make -C stage0 check`) checks the
+count and the two `DUPLICATES ONE ALREADY` advisories the file produces, runs the dump switches `S`, `T`, `X` and `N`, and
+loads `src/impsyn64.imc` after the syntax file.
+
+Every further file is parsed with the syntax so far: `stinit`, `cotree(0)`, `parse("#PG")`, `ckdone`. `-c IRFILE` writes the
+IR of the program (`-` is standard output); `-T` names the machine the IR is lowered for (`ir_settarget`: `amd64`,
+`aarch64`, `i386`, `arm`); `-o FILE` receives the listing and the dumps. The switches of `-s` are the original's
+`/A /B ...`, one letter each (`finam[5]`, `stage0/imp.h`): `A` assembly listing, `E` trace productions entered, `G` trace
+the parser and error corrector, `I` print the directory, `L` source listing, `M` trace tree matching, `N` print the
+connectivity matrices, `P` trace semantics execution, `S` print the semantics array, `T` print the code tree, `X` print
+the graph, `Y` list the source on the terminal, `Z` statistics.
+
+The same binary is the compiler `imp72stage0` when it is called by a name that begins `imp72stage`. It reads
+`src/llvm-ir/syntax64.imc` and `lib/ffi.imc`, runs the kernel with `-c` into a temporary directory, and makes an
+executable (default), an object (`-c`), LLVM IR (`-S`) or a run (`--run`) with the LLVM back end in the process
+(`stage0/llvmorc.c`) and the linker in the process (`stage0/impld.cpp`). Where its parts are is found relative to
+the executable, in the source tree or installed; `IMP72SYNTAX`, `IMP72FFI` and `IMP72LIB` override them.
+
+## The words
+
+`SEMS`, `PROSEM`, the code tree, the code stack and the semantic stack have the 64 bit formats of the IMP modules
+(`docs/porting/layouts.md`); the comment at the head of `dosem.c`, `entree.c` and `cotree.c` gives each. `debug.c`
+prints raw words in octal as the 64 bit numbers they are (`OCT 17` for a word of `SEMS`, `OCT 22` for a stuff word of
+the code tree), and prints the bit matrix `NBITM` as the masks that the 64 bit `BIT` gives.
 
 ## Semantic routines
 
-The original calls a routine by its address, taken from the 'SEM' property of
-its name. Here the property is the routine's id (1 + its slot in `sem.c`'s
-table). A routine is a function `word fn(const word *p)`; `p` is the array of
-arguments (`PARS` of the original, so that arguments beyond those passed are
-left over from earlier calls, as there).
+A semantic routine is registered by name with `dsem(name, fn)`; the id stored as the `SEM` property of the name is 1
+plus its slot in the table of `semtab.c`. `dosem` calls it through `semcall(id, pars)` with `word fn(const word *p)`:
+`p` is the array `PARS` (`MARGS` = 10 words), so that arguments beyond those passed hold what earlier calls left
+there. `dsemi` registers a routine written in IMP, which takes its arguments by reference. `IMP_SLOG` in the
+environment logs each call.
 
-`sem.c` registers every routine the PDP-10 compiler registers with `DSEM`, so
-that `SEMR` accepts the names in `syntax.imc`; the ones that generate code
-(`code.imc`, `code2.imc`, `code3.imc`, most of `impsem.imc`) are *not ported*
-and stop with `SEMANTIC ROUTINE X IS NOT YET PORTED` if called. Reading syntax
-statements calls only `HOOK`, `ASSEMC`, `NEWLIST`, `ENLIST`, `GETLIST` among
-them, for entries without code attached (`HOOK` and `ASSEMC` stop if code is
-attached). They are replaced when the compiler switches to IR.
+The routines registered are:
 
-## Differences and decisions
+- `dosem.c`: `PAR`, `STACK`.
+- `cotree.c`: `MAXWELL`, `MAXEND`, `SETPRI`.
+- `rsyn.c`: `CASE`, `DEFCASE`, `QUOSEM`, `EQUOSE`, `SEMBIT`, `SYTRM`, `SYNTS`, `SEMANTICS`, `SYNTAX`, `SEMR`, `SEMP`,
+  `SYNT`, `ENSTACK`, `VALU`, `REPVAL`. The bootstrapped syntax calls them for the rest of the syntax file.
+- `gen_*.c`: every routine of the code generator, entered by `gen_init` in the order of `IMPSEM`, `CODEI`, `CODE2I`,
+  `CODE3I` of the IMP modules.
 
-- `CODEID` (taking identifiers like `Q0REG0115` apart) is a literal port of the
-  state machine, including that it takes any name that starts with a
-  three letter indicator for that indicator (`REGISTER` would be `REG`
-  followed by garbage); the original loops forever on such a name.
-- `MATCH` does not reject a register outside the limits of the pattern: the
-  original calls `RMATCH` and then `MEX` turns its 0 into a match. The call is
-  dropped.
-- `ONEWORD` is 0 for an entry without code, so a `WRD` pattern matches only
-  entries with code, as in the original.
+## Differences from the original
+
+- `CODEID` takes an identifier like `Q0REG0115` apart: the name `Q`, then the indicator `REG` with the numeric
+  arguments `01` and `15`. The characters are the bytes of the name, the first in the low byte of a word.
+- `MATCH` does not call `RMATCH` for a register item: a register matches whatever its number. A pattern that asks for
+  a word of code (`WRD`) matches only entries for which `g_oneword` holds, as `ONEWORD` is 0 for an entry without
+  code.
 - `MAXWELL(N)` makes N+1 phony entries (`FOR J FROM N`).
-- In `TPRIN1` the width of the bit matrix is that of the original's 36 bit
-  words for the same columns, at least 5 words.
-
-## Not yet checked against the oracle
-
-The 177 productions and the dumps have not been compared with the original
-compiler's. The two `PRODUCTION DUPLICATES` advisories on `syntax.imc` are
-from the production check in `GRAPH`; whether the original prints them is part
-of that comparison.
-
-## Declarations (`impsem.c`)
-
-`impsyn.imc` runs IMP declarations (`ALF IS COMMON;`), so the declaration
-routines of `impsem.imc` are ported: `NAME`, `TSTRN`, `AREG`, `AREG1`, `REG2`,
-`DECL`, `DECLARE`, `VAL`, `SVAL`, `STACKUP`, `SWITCH`, `NSUBP`. `imp72s0 syntax.imc
-impsyn.imc` loads (215 productions); `tests/stage0/test_decl.c` checks the
-routines directly. Register declarations call `DEWFUN`, which generates
-code and is still a stub.
-
-## Next
-
-The semantic routines that generate code (`code*.imc`, the rest of
-`impsem.imc`), which the switch to IR replaces.
+- `TPRIN1` prints the bit matrix at least 5 words wide.
+- The chains of code that `cotree.c` copies (`g_copyco`) and compares (`sameas` through `g_mcode`) are the records of the
+  IR machine (`docs/porting/llvm-ir-machine.md`).

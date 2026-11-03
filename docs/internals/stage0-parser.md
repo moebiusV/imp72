@@ -1,65 +1,41 @@
-# Stage 0, part 2: the syntax graph and the parser
+# The seed, part 2: the syntax graph and the parser
 
-Ports of `graph.imc`, `parse.imc` and `ercor.imc` to `stage0/graph.c`,
-`parse.c` and `ercor.c`. `tests/stage0/test_parse.c` builds a small grammar
-with `graph()` and `gmatr()` and runs `parse()` over it.
+`stage0/graph.c`, `parse.c` and `ercor.c` correspond to `src/graph.imp`, `src/parse.imp` and `src/ercor.imp` (and to
+`decus/graph.imc`, `parse.imc`, `ercor.imc`). `tests/stage0/test_parse.c` builds a small grammar with `graph()` and
+`gmatr()` and runs `parse()` over it.
 
-## How it fits together
+## How the parts fit
 
-`graph(synt, nsynt, pn)` enters one production. `synt` is a free array of
-directory indices: the nonterminal produced, then the symbols of the
-production (a nonterminal's name carries a leading `#`, as `RSYN`'s `SYNT`
-makes it). `gmatr(0)` rebuilds the connectivity matrices after each; `RSYN`
-calls it after every syntax statement. `parse("#PG")` then reads symbols with
-`lex` and calls `parse_cotree(k)` for each output `k` as it becomes certain:
-a production number, or minus the directory index of a name or symbol that
-matched `NAM#` or `SYM#`. `parse_cotree` is a hook until the semantic stack
-reducer (`cotree`, `entree`, `dosem`) is ported.
+`graph(synt, nsynt, pn)` enters one production. `synt` is a free array of directory indices: the nonterminal produced,
+then the symbols of the production. A nonterminal's name carries a leading `#` (`SYNT` of `rsyn` puts it there).
+`gmatr(0)` rebuilds the connectivity matrices; `SYNTAX` in `rsyn.c` calls it after every production it enters.
+`parse("#PG")` reads symbols with `lex` and calls `parse_cotree(k)` for each output `k` as it becomes certain: a
+production number, or minus the directory index of a name or symbol that matched `NAM#` or `SYM#`. `parse_cotree` is a
+function pointer; `imp72s0` sets it to `cotree` and `test_parse` sets it to a recorder.
 
-`graph.c`'s header comment gives the node layout; `parse.c`'s gives the parse
-and output formats. Both differ from the originals' in the position of fields
-(32 bit halves) and not otherwise.
+The header comment of `graph.c` gives the node layout and that of `parse.c` the parse and output formats. A graph node
+is two words: left half ALT, right half SCR; the second word has the node type in bits 48-50, the row `NB` in the
+bit matrix `NBITM` in bits 32-47, and the directory index (or production number) in the right half. Node types are 0
+nonterminal, 1 terminal, 2 circled nonterminal, 3 boxed production, 5 on the chain of terminal entry points.
 
-## Choices that matter when comparing with the original
+## Points that matter when comparing with the original
 
-- **`FREE` and `FREES` are functions** (static inline). Free storage moves:
-  with a macro, `FREES(a, dir(s))` can store through the `fmem` it loaded before
-  `dir` grew it. AddressSanitizer found this in a test.
-- **Output chain halves.** `parse.imc`'s comment says an output entry has the
-  value in bits 0-17 and the link in 18-35. The code puts them the other way,
-  as `parse.c` does.
-- **`bit()` is bounds checked** (see part 1). `GRAPH` and `GMATR` ask for
-  rows one past the last node; the original reads whatever memory follows.
-- **`GMARK`'s `BIT(BITM,NN,MAKENT)`** inside `GRAPH` is a read whose result is
-  thrown away. It is kept as a call (it counts in the statistics) with its
-  result ignored.
-- **Parse time statistics** use process time and omit the original's one
-  millisecond bias per measurement.
-- The step by step trace of the error corrector (`/G`) is reduced to its main
-  lines; the parser's trace is close to the original's. `PARTRA` and `GPRINT`,
-  which call debugging routines from `debug.imc`, are hooks (`gprint_hook`).
+- **Output chain halves.** An output entry holds the value in the left half and the link in the right half. The comment
+  in `parse.imc` says the opposite; the code is as in `parse.c`.
+- **`bit()` is bounds checked** (`stage0-foundation.md`).
+- **`FREE` and `FREES` are functions.** Free storage moves during a call that allocates, and a macro
+  `FREES(a, dir(s))` would store through the `fmem` loaded before `dir` grew it.
+- **`GMARK`'s `BIT(BITM,NN,MAKENT)`** inside `GRAPH` is a read whose result is discarded. It is kept as a call (it counts
+  in the statistics).
+- **Statistics** use process time (`imp_msec`).
+- **Traces.** The step by step trace of the error corrector (switch `G`) is reduced to its summary lines. `PARTRA` of the
+  original is `partr1` in `debug.c`.
 
-## Things the original does that look like bugs
+## Behaviour of the original that the seed reproduces
 
-Reproduced, with the reason to check them against the oracle:
-
-1. **Output is put out twice after error correction.** The round in which
-   all parses die has already added output to the surviving parses in `P`;
-   after the correction the same round runs again from the same parses.
-   (`test_parse` expects `2 2 1 3` for a missing `B`.)
-2. **`ERCOR` continues past circled nodes without checking the goal.** After a
-   goal is made, backing up tries going on from the circled node through its
-   `SCR` chain, which holds the tails of every production that *begins* with
-   that nonterminal; the parser filters those with `GNEXT`, `ERCOR` does not.
-   With `#PG ::= #S %` (a production starting with the nonterminal) and input
-   `A C % %` it "corrects" `%` to `%` forever; a grammar whose productions do
-   not begin with the nonterminal (`#PG ::= G #S %`) corrects properly. The
-   real syntax has many productions starting with a nonterminal, so either the
-   real compiler lives with it, or the oracle will show I misread something.
-3. `ISNAME` starts with `NM = R''''`, comparing a stale `NM`; it never holds.
-4. `PARSE` caches `ISNAME` in the directory (`ISNM`) and then calls it again.
-
-## Open
-
-The oracle comparison (graph dump after `GMATR`, parse traces) is not done.
-Nothing here has been run on the real `syntax.imc` yet; that needs `rsyn`.
+1. **Output is put out twice after error correction.** The round in which every parse dies has already added output to
+   the surviving parses; after the correction the same round runs again from the same parses. `test_parse` expects
+   `2 2 1 3` for a missing `B`.
+2. **`ISNAME` starts with `NM = R''''`**, a comparison with the value left in `NM` by the previous call; it never holds
+   (`decus/ercor.imc`, `ercor.c`).
+3. **`PARSE` caches `ISNAME` in the directory (`ISNM`) and then calls it again** (`parse.c`).

@@ -1,12 +1,12 @@
 #!/bin/sh
 # docs/manual/imp72.md and imp72.7 are what tools/runoff2md.imp and tools/runoff2mdoc.imp (IMP programs, built by the compiler of the tree:
-# tools/imptool.sh) make of decus/imp.rno (with tools/runoff-fixes.txt): regenerate and compare.  mandoc, if present, must find no errors in the page.
+# tools/imptool.sh) make of docs/manual/imp72.rno (with tools/runoff-fixes.txt): regenerate and compare.  mandoc, if present, must find no errors in the page.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 mkdir -p build
 fail=0
-sh tools/imptool.sh runoff2md decus/imp.rno > build/imp72.md.new || { echo "FAILED: tools/runoff2md" >&2; exit 1; }
-sh tools/imptool.sh runoff2mdoc decus/imp.rno > build/imp72.7.new || { echo "FAILED: tools/runoff2mdoc" >&2; exit 1; }
+sh tools/imptool.sh runoff2md docs/manual/imp72.rno > build/imp72.md.new || { echo "FAILED: tools/runoff2md" >&2; exit 1; }
+sh tools/imptool.sh runoff2mdoc docs/manual/imp72.rno > build/imp72.7.new || { echo "FAILED: tools/runoff2mdoc" >&2; exit 1; }
 for f in imp72.md imp72.7; do
     cmp -s build/$f.new docs/manual/$f || { diff build/$f.new docs/manual/$f | head -5
         echo "FAILED: docs/manual/$f is not what its converter makes" >&2; fail=1; }

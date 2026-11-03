@@ -1,223 +1,139 @@
 # imp72
 
-IMP72 on modern Unix: Ned Irons's extensible systems language, as implemented
-by Walter Bilofsky for the PDP-10 (DECUS 10-198, 1973), compiled to native code
-for Linux, the BSDs and macOS through LLVM's ORC JIT, in the compiler's own
-process, and calling C and ELF objects through the C ABI.
+IMP72 on modern Unix machines: the extensible systems language of Ned Irons, as
+implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a, 1973). The
+compiler is the original's design and source, translated to IMP for 64-bit
+words and IEEE 754 doubles. It compiles to native code through LLVM, in its own
+process, and calls C and ELF or Mach-O objects through the C ABI.
 
 Almost none of the language is built in. A small kernel (a lexer, Irons's
 multi-track parser, a syntax graph, a code-tree matcher, a semantic stack)
-starts empty; a bootstrap reader, `RSYN`, reads a tiny notation for syntax
-statements; and `syntax.imc` then defines the whole language in statements of
-the form
+starts empty. A bootstrap reader, `RSYN`, reads a notation for syntax
+statements, and `src/llvm-ir/syntax64.imc` then defines the language in
+statements of the form
 
     <CLASS> ::= elements ::= semantics ;
 
-each carrying the semantics that generates its code. The language is extended by
-adding such statements.
+each carrying the semantics that generates its code. A language extension is a
+file of such statements; `lib/ffi.imc` is one (`CCALL`, `EXTERNAL`).
 
-## Status
+## Quick start
 
-**Where the project is.** The compiler is the original's source, translated to
-64-bit IMP in `src/` (the tape itself is kept untouched in `decus/`). It
-compiles IMP to an intermediate representation (the IR: its text is the tree
-format of a compiler's pass 2, kept from the first back end, pcc; none of pcc's
-code is used), which the LLVM back end turns into machine code in the compiler's
-own process through the LLVM C API: there is no clang, no host C compiler and no
-other process in the compiling, and the compiler is built where the LLVM libraries
-are installed. `imp72 --run prog.imp` compiles a program with ORC and runs it in the process;
-to write an executable file the driver links the object with the runtime library with lld: in the process through lld's library
-(`stage0/impld.cpp`, a few lines of C++ that give lld's driver a C name) where the system has it, else by running lld as a program
-(`ld.lld`, `ld64.lld`: OpenBSD's own linker is lld and has no library). The system and the architecture decide the arguments, and the
-C library and the loader are the ones this very program runs with (Linux glibc and musl on eight architectures, FreeBSD, NetBSD, OpenBSD, macOS).
-There is no other linker, and no `cc`.
-The compiler builds and compiles itself on little- and big-endian hosts, 32 and 64 bit
-(tried on amd64, i386, arm64, s390x and a 32-bit big-endian PowerPC under emulation). The language, `PRINT` and `READ`, reals
-(IEEE 754), `CCALL` to C functions, and the programs of the test suite work, and
-their output matches what the original compiler's programs print on a
-simulated TOPS-10 (`docs/ORACLE.md`), apart from the word size and IEEE 754.
-The build has three steps. The seed, a C port of the compiler in `stage0/`,
-compiles `src/` into stage 1. Stage 1 compiles `src/` again into stage 2, and
-stage 2 writes the same IR as stage 1 for every test program. Stage 2 is the
-compiler that is installed.
+    make                                  # the seed, the runtime library, stage 1 and stage 2
+    make check
+    make install PREFIX=/usr/local
 
-Translated to IMP so far: free storage, the directory, the lexer, the syntax
-graph, the parser, error correction, the code tree, the semantic stack
-reducer, the semantics interpreter, `RSYN`, the register and declaration
-routines, the code generator (`src/llvm-ir/`), the diagnostic print-outs, and the
-driver program. Its words are 64 bits wide, names are eight characters to a
-word, and `EXECUTE` runs an instruction of the IR machine.
+    imp72 hello.imp && ./a.out            # compile, link, run
+    imp72 --run hello.imp                 # compile with ORC and run in the process
+    imp72 -c a.imp b.imp                  # a.o and b.o
+    imp72 -S hello.imp                    # assembly, hello.s
+    imp72 -Sir hello.imp                  # LLVM IR text, hello.ll
+    imp72 -c --target=aarch64-linux-gnu hello.imp    # an object for another system
 
-`make check` passes in CI on Linux (amd64, arm64, the Debian package), macOS, FreeBSD, OpenBSD, NetBSD and the Alpine containers of amd64, 386, arm64,
-armv7, riscv64, ppc64le, s390x and loong64 (mips64le is not run). The seed has no PDP-10 in it any more: it reads the 64-bit syntax and its code generator is a C port of the one in
-`src/llvm-ir/`, and the two write the same IR byte for byte (`tests/seed`, [docs/porting/seed-direct.md](docs/porting/seed-direct.md)).
+The build needs a C99 compiler, a C++ compiler, GNU make, the LLVM C API
+(`llvm-dev`) and, to link in the process, lld as a library (`liblld-dev`).
+`docs/BUILDING.md` has the details. The options are in `docs/imp72.1`
+(`man imp72` after installing).
 
+A program is the statements before its first `SUBR`; it ends at `%%`:
 
-**What is next.**
+    PRINT STG 0,'HELLO, WORLD',/;
+    X:=6*7; PRINT STG 0,'THE ANSWER IS ',IGR 0,X,/;
+    (PRINT IGR 3,K,STG 3,' SQ',IGR 6,K*K,/) FOR K TO 4;
+    FINI(0)
+    %%
 
-1. The runtime library is IMP too (`lib/*.imp`), and `imp72` builds it for any target (`tools/mkrt.sh`); the only C left is the seed (`stage0/` and its tests, the trusted
-   stage 0, which stays C and builds stage 1), `stage0/impld.cpp` (lld has no C interface) and the tests of C calling IMP (`tests/native/*_main.c`, which stay if the user says so).
-2. Bring the code generator in `src/llvm-ir/` closer to the tape's names and text: the list of the differences is [docs/porting/tape-names.md](docs/porting/tape-names.md), for the
-   user to decide from, and `docs/porting/modules.md` marks the departures that are provisional (`COMPIL`, inline in the tape's main program).
-3. Compare with the original: retired for the dumps and `/A` listings (they were 36-bit and the seed is not; the captures and the tools stay, [docs/ORACLE.md](docs/ORACLE.md)); the
-   output of the programs is still compared with the real machine (`tests/oracle/run.sh`).
-4. The seed-to-stage-2 build is the way the compiler is built and installed, and the library installed is the one stage 2 made.
-5. Decide what the audit and the studies below recommend (the user's).
-6. Release the current set of changes as v0.9.0. Then, before v1.0.0, study in
-   depth (do not implement) eight things (the type of a routine's result and whether C's return types are declared are two of them), and write up the recommendations and
-   the impact on the code (done: [docs/porting/pre-1.0-studies.md](docs/porting/pre-1.0-studies.md), to be decided): UTF-8 symbols for operators; C's syntax for strings
-   and characters; the tape's channel I/O (`INIT`, `LOOKUP`, `INPUT`, the buffer
-   header) kept as it is with `fopen` and `putc` underneath; the type that a
-   routine returns, `int64_t` for an IMP routine against `long` for a C function
-   called with `CCALL`, and whether C's return types should be declared;
-   NUL-terminated C strings in IMP against strings that carry their length (the
-   preference is for the latter); file names that match Unix's limits (the
-   tape's six characters and three of the extension, where `MKNAME` allows 15 and 7); the empty string `''`, which is a
-   syntax error today (a program that needs an empty C string passes the address of a zero byte), and whether it should be a literal.
-   (Assignment is written `:=` and `_` is a letter of names, so that IMP names are ELF and C names: done.) The syntax
-   of IMP72 does not change further until the study is done and decided.
-7. Later: a function pointer from the compiler for a single definition
-   (`libimp72`, over ORC). A target for the 36-bit PDP-10 is not planned.
+IMP expressions have no operator precedence and group right to left:
+`A+B*C` is `A+(B*C)`. `FOR K TO N` runs K from 0 through N.
+`docs/LANGUAGE-NOTES.md` lists the other points where programs go wrong.
 
-## Contents
+## How the compiler is built
 
-- [From the PDP-10 to amd64](#from-the-pdp-10-to-amd64)
-- [How IMP72 works](#how-imp72-works)
-- [Repository layout](#repository-layout)
-- [Building and running](#building-and-running)
-- [Design decisions](#design-decisions)
-- [Documentation](#documentation)
-- [Provenance and licence](#provenance-and-licence)
+The compiler is IMP, apart from the seed and a short C++ file.
 
-## From the PDP-10 to amd64
+- **The seed** (`stage0/`, C99) is a port of the kernel and of the code
+  generator to C. It builds stage 1 and is installed as `imp72stage0`.
+- **Stage 1** is `src/` (the kernel, the driver, the LLVM glue, the IR writer)
+  and `src/llvm-ir/` (the code generator), compiled by the seed.
+- **Stage 2** is the same sources compiled by stage 1. It is installed as
+  `imp72`.
+- **`stage0/impld.cpp`** (41 lines of C++) gives lld's driver a C name, because
+  lld has no C interface.
 
-The compiler was written in IMP for the PDP-10 and compiles IMP for the PDP-10.
-Its source is a tape from 1973: 36-bit words, 18-bit halves, five 7-bit
-characters to a word, floating point with a 27-bit fraction, code generated as
-PDP-10 instructions and assembled by routines written in IMP too.
+The seed and stage 2 write byte-identical LLVM IR for the same program;
+`tests/seed` checks it over the native tests, the oracle programs, the runtime
+library and the code generator's own modules. Stage 1 and stage 2 also write
+the same IR (`tests/direct/stage2.sh`). `docs/BOOTSTRAP.md` describes the route.
 
-The first step was to get the original running as it was. It runs under TOPS-10
-on a simulated KA10, and everything after that is checked against what it
-prints.
+LLVM is the back end, in the compiler's process: `--run` compiles with ORC and
+runs, the other modes write an object file, assembly or LLVM IR. The driver links
+executables with lld in the process where lld is installed as a library, and by
+running `ld.lld` (`ld64.lld` on macOS) where it is not. It never runs `cc`.
 
-The second was a seed: a port of the kernel to C, which reads the original
-64-bit syntax (`src/llvm-ir/syntax64.imc`, the tape's with words of 64 bits). Its code generator, a C port of the
-one in `src/llvm-ir/`, makes an intermediate representation directly, and LLVM makes
-the machine code. That compiler can compile IMP programs for a modern machine,
-and it can compile the tape's own modules.
+The runtime library `libimp72.a` (`PRINT`, `READ`, `FINI`, the entry `main`,
+the helpers that generated code calls) is IMP too, in `lib/*.imp`.
+`tools/mklib.sh` builds it with the seed, for the compilers themselves.
+`tools/mkrt.sh` builds it with `imp72` for any target; `make install` installs
+that one.
 
-The third step is the one still under way: translating the tape itself, module
-by module, into IMP for a 64-bit machine. The word becomes 64 bits and the
-halves 32; names are eight characters to a word, as a C string is; reals are
-IEEE 754; the code generator emits the IR instead of PDP-10 instructions. The
-seed compiles the translated modules into a first compiler, the first compiler
-compiles them again, and when the two agree the C seed is no longer needed to
-build the compiler.
+## Platforms
 
-## How IMP72 works
-
-The pieces, in the order the language manual (section 4) gives them:
-
-| module | role |
-|---|---|
-| `free`, `dir`, `stack` | relocatable free storage; the name directory (hash coded); the semantic stack, a pushdown stack, bit matrices |
-| `lex` | input and lexical analysis |
-| `rsyn` | the bootstrap reader for the initial syntax, and the routines that enter productions |
-| `graph`, `parse`, `ercor` | the syntax graph and its connectivity matrices; Irons's parser; error correction and ambiguity resolution |
-| `entree`, `cotree`, `dosem` | the code-generation tree; the semantic stack reducer; the semantics interpreter |
-| `code*`, `impsem` | the semantic routines that generate code (the IR) and the register and declaration routines |
-| `debug` | diagnostic dumps (graph, tree, semantics, parser trace) |
-| `impm` | the driver program |
-
-A compiler is made in stages. `RSYN` reads the first part of the syntax file
-(the syntax for syntax) with the lexer alone. The parser, now able to read
-syntax statements, reads the rest, which defines the base language and its
-semantics; quoted semantics (`"A LS 32" => DEWOP(...)`) become patterns in the
-code tree that are matched against the code-generation stack, most specific
-first.
-
-IMP expressions have **no operator precedence** (`A+B*C` is `A+(B*C)`), and
-`FOR I TO N` includes `N`.
+`make check` runs in CI on Linux (amd64 and arm64, and the Debian package),
+macOS arm64, FreeBSD, OpenBSD, NetBSD, and Alpine containers (musl) for amd64,
+386, arm64, armv7, riscv64, ppc64le, s390x and loong64. Hosts are little- and
+big-endian, 32 and 64 bit; a 32-bit host holds the 64-bit word in a
+`long long`. `--target` writes objects for every target the installed LLVM
+has; linking for another system needs that system's C library files
+(`--sysroot`, `--runtime`).
 
 ## Repository layout
 
-    decus/          the DECUS 10-198 tape, unchanged, with hashes
-                    (SHA256SUMS, SHA256SUMS.bin) and PROVENANCE.md
-    src/            the compiler's sources in 64-bit IMP: the kernel modules,
-                    impsyn64.imc (the syntax they are written in)
-    src/llvm-ir/      the code generator, the syntax file syntax64.imc, demit.imp
-    stage0/         the seed: a C port of the compiler that builds the first
-                    stage (it stays C), and the glue to LLVM's C API
-                    (llvmorc.c), which is to become IMP
-    lib/            the runtime library (PRINT, READ, FINI in IMP; the little C
-                    that remains), ffi.imc
-    tools/          the build scripts, the oracle drivers, the fuzzers, ir2ll.c (the seed's)
-    tests/          native programs, oracle goldens, the fixed-point tests
-    oracle/         the TOPS-10 simulator setup
-    docs/           the manual, internals, the porting notes
-    debian/ packaging/  Debian and Alpine packages
+    decus/          the DECUS 10-198 tape, unchanged (hashes, PROVENANCE.md)
+    src/            the compiler in 64-bit IMP: the kernel, the driver, llvm.imp, ir2ll*.imp
+    src/llvm-ir/    the code generator, and syntax64.imc, the language's syntax
+    stage0/         the seed (C99), the glue to the LLVM C API, impld.cpp
+    lib/            the runtime library (IMP), ffi.imc, imp72.h
+    tools/          build scripts, tools written in IMP (run by imptool.sh), fuzzers (Python), CI scripts
+    tests/          native programs, goldens, the bootstrap and seed tests
+    oracle/         the setup for the original compiler on simulated TOPS-10
+    docs/           guides, the language manual, internals, porting notes
+    debian/ packaging/   Debian and Alpine packages
 
-## Building and running
+## Design
 
-    make                                  # the seed, the runtime, then stage 1 and stage 2
-    make check
-    make install PREFIX=/usr/local
-    imp72 hello.imp && ./a.out            # as the C compiler: -c (an object, hello.o), -S (assembly), -Sir (LLVM IR), -o
-    imp72 --run hello.imp                 # compile with ORC and run in the process
-    imp72 -c --target=aarch64-linux-gnu hello.imp    # cross-compiling: the object of another system
+**The word.** The IMP word is 64 bits, a half is 32 bits, pointers are byte
+addresses, `A[I]` scales by 8, so IMP data and C data are the same data.
+Strings are NUL-terminated bytes. The name directory packs eight characters to
+a word.
 
-The seed is C99 and needs libc and the LLVM libraries (the C API). See
-[docs/BUILDING.md](docs/BUILDING.md).
+**Reals** are IEEE 754 doubles; a `REAL` variable holds the double's bits.
 
-The compiler takes the original's switches as letters (`-s TSX`): `A` assembly
-listing, `G` trace the parser, `I` print the directory, `N` print the
-connectivity matrices, `P` trace semantics execution, `M` trace tree matching,
-`S` print the semantics array, `T` print the code tree, `X` print the syntax
-graph, `L` list the source, `E` trace productions entered, `Z` statistics. Dumps
-go to the file given with `-o`. `-c FILE` writes the IR instead of making
-an object. The exit status is 1 if an error (not an advisory) was reported.
+**Calls.** A `SUBR` is a C function that takes pointers to its arguments and
+returns a word. `CCALL F(A,B)` calls a C function with arguments by value.
+`docs/FFI.md` has both.
 
-## Design decisions
-
-**The word.** The IMP word is 64 bits, halves are 32 bits, pointers are byte
-addresses and `A[i]` scales by 8, so IMP data and C data are the same data.
-Strings are NUL-terminated bytes; the name directory keeps eight characters to
-a word, the first in the low byte. The tables of the compiler (code tree,
-semantics array, stack entries) have fields laid out for 64 bits.
-
-**Reals** are IEEE 754 doubles.
-
-**Calls.** An IMP `SUBR` is a C function taking and returning words, with
-arguments by reference; `CCALL F(A,B)` calls a C function with arguments by
-value (`docs/FFI.md`).
-
-**Code generation.** The code generator builds the IR directly: `DEWOP`
-and the routines around it take the operations of a machine whose instructions
-are those of the IR (`docs/porting/llvm-ir-machine.md`), and `src/llvm-ir/demit.imp`
-writes the chains out as IR text for the LLVM back end (`src/ir2ll.imp`, in the process). `EXECUTE` runs one
-instruction of that machine from a word, with registers `0R` to `15R` as its
-accumulators. A `GO TO` to a tag of another routine is a `longjmp`.
-
-**Free storage** is one growable array of words addressed by index; the arrays
-in it are relocatable and doubly linked as in the original.
+**Code generation.** The code generator builds chains of records whose
+operations are those of an IR machine (`docs/porting/llvm-ir-machine.md`).
+`src/llvm-ir/demit.imp` turns the chains into IR trees, `src/ir2ll.imp` writes
+them as LLVM IR text, and LLVM makes the object. `docs/ARCHITECTURE.md` is the
+map.
 
 **The oracle.** The original compiler runs on TOPS-10 6.03 on a simulated KA10
-(open-simh), set up by `tools/oracle-build.sh` and driven by `tools/oracle-*.py`
-([docs/ORACLE.md](docs/ORACLE.md)). Its output for the programs in
-`tests/oracle/LIST` is in `tests/golden/oracle/`, and `make check` compares the
-compiler's with it. The three binaries in the archive lose a bit of every word;
-the exact words are in `decus/exact/`.
+or KI10 (`docs/ORACLE.md`). The output of the programs in `tests/oracle/LIST`
+on it is in `tests/golden/oracle/`, and `make check` compares the compiler's
+output with it.
 
 ## Documentation
 
-- [docs/manual/imp72.md](docs/manual/imp72.md), [imp72.7](docs/manual/imp72.7): the language manual (the 1973 RUNOFF source rendered as Markdown and as an mdoc page)
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the route to a compiler that compiles itself
-- [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md)
+- [docs/manual/imp72.md](docs/manual/imp72.md), [docs/manual/imp72.7](docs/manual/imp72.7): the language manual (the 1973 RUNOFF source rendered as Markdown and as an mdoc page)
+- [docs/imp72.1](docs/imp72.1), [docs/imp72stage0.1](docs/imp72stage0.1): the manual pages of the compiler and of the seed
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the build route
+- [docs/BUILDING.md](docs/BUILDING.md): building, cross-compiling, tests, CI
+- [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md): pitfalls
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
-- [docs/BUILDING.md](docs/BUILDING.md), [docs/ORACLE.md](docs/ORACLE.md)
-- [docs/porting/llvm-ir-path.md](docs/porting/llvm-ir-path.md), [llvm-ir-machine.md](docs/porting/llvm-ir-machine.md): the code generator and its machine
-- [docs/porting/modules.md](docs/porting/modules.md): the modules and what differs from the tape; [layouts.md](docs/porting/layouts.md): the layout of the compiler's words
-- [docs/internals/](docs/internals/): the kernel module by module
+- [docs/ROADMAP.md](docs/ROADMAP.md): planned language and interop work
+- [docs/ORACLE.md](docs/ORACLE.md): the original compiler as a reference
+- [docs/internals/](docs/internals/): the kernel module by module; [docs/porting/](docs/porting/): the code generator's machine, layouts, modules, routine names compared with the tape
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages
 
 ## Provenance and licence

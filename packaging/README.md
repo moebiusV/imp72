@@ -2,40 +2,42 @@
 
 ## Which machines
 
-Any 64 bit machine: the language's word is 64 bits (so i386, armhf, armel and
-the other 32 bit ports are out; their `long` is not a word). The suite
-(`make check`, 23 checks) passes in Alpine edge containers, native or under QEMU
-user mode (`tools/ci-arch.sh ARCH STAGE`, stages build, check and link), on:
+The language's word is 64 bits; on a 32-bit machine the compiler holds it in a
+`long long`. The code generator is LLVM's, in the compiler's process, so a
+machine needs the LLVM libraries with a target for it, and the C library's
+development files (the driver links with the C library's start files and never
+runs a C compiler).
 
-| Alpine | Debian | tested here |
-|---|---|---|
-| x86_64 | amd64 | native and in a musl container |
-| aarch64 | arm64 | musl container, QEMU |
-| ppc64le | ppc64el | musl container, QEMU |
-| riscv64 | riscv64 | musl container, QEMU |
-| s390x | s390x | musl container, QEMU |
-| loongarch64 | loong64 | musl container, QEMU |
+The packages list these architectures:
 
-So both distributions list those architectures. The code generator is LLVM's, in
-the compiler's process, so a machine needs the LLVM libraries and a target in them. Most of
-these runs were made before LLVM was the only back end (the others used the C back end, which is
-to go); the whole suite on s390x with LLVM is the one rerun that is recorded. mips64el has
-not been tried (no container for it). Only the amd64 build of the Debian package
-has been made (not run through lintian); the Alpine recipe was built with `abuild` (x86_64, edge, from a
-`git archive` of the tree standing in for the release tarball), its tests passed, and the package
-compiled and ran a program once installed; the container runs build the programs from the repository, not from the packages.
+| distribution | architectures |
+|---|---|
+| Debian (`debian/control`) | amd64, i386, arm64, armhf, ppc64el, riscv64, s390x, loong64 |
+| Alpine (`packaging/alpine/APKBUILD`) | x86_64, x86, aarch64, armv7, ppc64le, riscv64, s390x, loongarch64 |
+
+CI runs `make check` in Alpine edge containers for amd64, 386, arm64, armv7,
+riscv64, ppc64le, s390x and loong64, natively or under QEMU user mode
+(`tools/ci-arch.sh ARCH STAGE`, stages `build`, `check` and `link`). The container
+runs build the programs from the repository, not from the packages. CI builds,
+installs and exercises the Debian package on amd64 only.
 
 ## Debian: `debian/`
 
-A native source package (3.0 native), using debhelper (compat 13) with `dh` and a few overrides in `debian/rules`:
+A native source package (3.0 native) using debhelper (compat 13) with `dh` and
+a few overrides in `debian/rules`. Build dependencies are `llvm-dev`,
+`liblld-dev`, `binutils`, and `libclang-rt-dev` on i386 and armhf (the division
+of 64 bits that the 32-bit targets take from compiler-rt). The package depends
+on `libc6-dev | libc-dev`.
 
     dpkg-buildpackage -us -uc          # source and binary, with the tests
     DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b
 
 The source package leaves out build products, git data, and the PDP-10 binaries
-of the original compiler.
+of the original compiler (`debian/source/options`).
 
 ## Alpine: `packaging/alpine/APKBUILD`
 
-For `aports` (`community/imp72`). The `sha512sums` of the release tarball must be
-filled in with `abuild checksum` once the tag `v0.9.0` exists.
+For `aports` (`community/imp72`). It depends on `musl-dev` and builds with
+`llvm-dev`, `lld-dev` and `compiler-rt`. The `sha512sums` of the release
+tarball for `pkgver` are filled in with `abuild checksum` once the tag
+`v$pkgver` exists.

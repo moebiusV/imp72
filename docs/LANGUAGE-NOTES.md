@@ -1,28 +1,63 @@
 # Things to know when writing IMP72
 
-Found by writing test programs; all of it is how the original language works,
-not something this port changed.
+All of this is how the original language works, and both compilers (the seed
+and `imp72`) agree on it.
+
+## Expressions
 
 - **No precedence, right to left.** `3*N+1` is `3*(N+1)`; write `(3*N)+1`.
   `A-B-C` is `A-(B-C)`.
-- **Variables are global to the compilation**, except formal arguments (which
-  are references to the caller's argument). A subroutine's "locals" are shared
-  by every subroutine that uses the same name, and an argument expression is
-  evaluated into a call temporary that is also global. **So a subroutine
-  cannot call itself** and expect its variables, or an argument expression of an
-  outer call, to survive: `FIB(N-1)+FIB(N-2)` does not work. Recursion is done
-  with an explicit stack (`PUSHMI`/`PULLYU` in the compiler's own sources).
-- **Keywords are not reserved but the syntax is ambiguous with them:** a
-  variable called `FOR` or `TO` will confuse `FOR` loops.
-- **The main program is the statements before the first `SUBR`**; the last
-  `SUBR` before `%%` has no `;` after it.
-- **`FOR I TO N` includes N; `FOR I FROM N` counts down to 0.**
+- **A condition of two parenthesized tests needs one more pair of
+  parentheses.** `WHILE (A=1) AND (B=1) DO S` runs zero times (the `AND` is
+  taken as part of what follows the first parenthesis, there being no
+  precedence); `WHILE ((A=1) AND (B=1)) DO S` is the loop. The same holds for
+  `(A) AND (B) => S` and `A AND B => S`: parenthesize the whole condition. In
+  `X AND Y => S` and `X OR Y => S` the `=>` takes only `Y`, so write
+  `((X) AND (Y)) => S`.
+- **`>=` and `<=` are not operators**: write `GE` and `LE`. A relation used as
+  a value is -1 for true.
+- **A constant added inside brackets counts words, a variable counts bytes.**
+  `[P+8]` is the word 8 words after `P`, the address `P+64`, and so is
+  `[P+(2*4)]`, since a constant expression is folded first. `[P+K]` is the
+  word at the byte address `P+K`. To reach word `K` write `[P+(8*K)]`. Outside
+  brackets, `LOC(X)+N` and `P+K` add `N` or `K` bytes.
+- **A C `int` result comes back in half a register**: mask it (`AND 4294967295`)
+  before comparing it with a negative number or a 64-bit value.
+
+## Statements and declarations
+
+- **The main program is the statements before the first `SUBR`**; subroutines
+  are separated by `;`, the last `SUBR` before `%%` has no `;` after it, and
+  `%%` ends the file.
+- **`FOR I TO N` runs I from 0 through N; `FOR I FROM N` counts down from N to
+  0.** The body runs once even when the end is below the start, because the
+  test is at the end of the loop.
 - **`IS 100 LONG` declares an array**; an undeclared subscripted name is a
-  one word variable.
-- **A condition that is two parenthesized tests needs one more pair of parentheses.** `WHILE (A=1) AND (B=1) DO S` runs zero times (the `AND` is taken as part of what follows the first
-  parenthesis, there being no precedence); `WHILE ((A=1) AND (B=1)) DO S` is the loop. The same for `(A) AND (B) => S` and `A AND B => S`: parenthesize the whole condition. (Both compilers agree on this.)
-- **`[P+8]` is the word 8 words after `P`**, that is the address `P+64`: a constant added inside the brackets is scaled by the word. For a byte offset write `[P+(8*I)]` for words, or put the
-  byte address in a variable first and add to that. The same holds for `LOC(X)+N` with a bare constant `N` in the seed's old form; both compilers now count `N` as bytes when the address is in a
-  variable or the offset is parenthesized.
-- **`>=` and `<=` are not operators**: write `GE` and `LE`. An empty text constant `''` is a syntax error. A `#` comment that is not closed by a `#` swallows the rest of the file.
-- **A C `int` result comes back in half a register**: mask it (`AND 4294967295`, or the `SCMASK` of the library) before comparing it with a negative number or a 64-bit value.
+  one-word variable. A name in capital letters declared `COMMON` is a global
+  symbol.
+- **`ELSE` after a chain of conditions is a syntactic ambiguity**: parenthesize the
+  inner test, as in `A=1 => (B=2 => C:=1 ELSE C:=2) ELSE C:=3`.
+- **A `#` comment that is not closed by a `#` swallows the rest of the file.**
+- **The empty string `''` is a syntax error.**
+- **Keywords are not reserved but the syntax is ambiguous with them:** a
+  variable called `FOR` or `TO` confuses `FOR` loops.
+
+## Variables, labels and calls
+
+- **Variables are static and shared within the compilation unit**, except formal
+  arguments (references to the caller's argument). A subroutine's locals are
+  shared by every call of it, and an argument expression is evaluated into a
+  call temporary that is also static. **So a subroutine cannot call itself** and
+  expect its variables, or an argument expression of an outer call, to
+  survive: `FIB(N-1)+FIB(N-2)` returns a wrong number. Recursion is done with
+  an explicit stack (`PUSHMI` and `PULLYU` in the compiler's own sources): a
+  recursive routine pushes what it needs, copies its arguments into variables
+  at once, and takes the values back after each call.
+- **Arguments of a call are evaluated right to left.** Two arguments with side
+  effects run in that order.
+- **Labels are global to the compilation, not to the routine.** The same label
+  in two routines is not an error, and a `GO TO` can land in the other one.
+- **A block from `calloc` is addressed `[P+(8*K)]`**, not `P[K]`: an array in IMP
+  is the variable's own storage.
+- **A compilation can name 2047 registers.** The compiler stops with a message
+  past that: split the file into modules.

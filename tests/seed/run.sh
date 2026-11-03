@@ -1,6 +1,6 @@
 #!/bin/sh
 # The seed (stage0/imp72stage0, C) and the stage 2 compiler (IMP) are one code generator in two languages: they must write the same LLVM IR, byte for byte, for the same program
-# (docs/porting/seed-direct.md).  Compared: the native tests, the oracle programs, the runtime library (as tools/mklib.sh compiles it) and the modules of the code generator itself.
+# (docs/BOOTSTRAP.md).  Compared: the native tests, the oracle programs, the runtime library (as tools/mklib.sh compiles it) and the modules of the code generator itself.
 # Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1

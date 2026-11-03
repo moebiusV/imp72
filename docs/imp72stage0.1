@@ -1,34 +1,49 @@
 .\" Copyright (c) 2026 The imp72 authors.  ISC licence, see LICENSE.
-.Dd October 19, 2026
+.Dd November 3, 2026
 .Dt IMP72STAGE0 1
 .Os
 .Sh NAME
 .Nm imp72stage0
-.Nd compile IMP72 programs to native code
+.Nd the seed compiler for IMP72, written in C
 .Sh SYNOPSIS
 .Nm
-.Op Fl C
-.Op Fl S | Fl c
+.Op Fl S | c | Fl -run
 .Op Fl o Ar output
 .Op Fl s Ar letters
 .Ar file.imp ...
 .Sh DESCRIPTION
 .Nm
-compiles programs in IMP72, the extensible systems language of Ned Irons as
-implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a), to native code.
-The syntax of the language is read from the syntax file
+is the seed of the IMP72 compiler
+.Xr imp72 1 :
+a C99 port of the kernel and of the code generator, which builds the stage
+compilers.
+It compiles programs in IMP72, the extensible systems language of Ned Irons as
+implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a), to native code
+for the machine it runs on.
+It reads the syntax of the language from
 .Pa syntax64.imc
-(the original with words of 64 bits).
-The compiler's code generator makes an intermediate form directly, and from
-there LLVM makes machine code.
+and the C interface from
+.Pa ffi.imc .
+Its code generator writes the same LLVM IR as the code generator of
+.Xr imp72 1
+for the same program.
 .Pp
-IMP72 passes arguments by reference, as FORTRAN does, and a word is 64 bits
-(32 bit hosts hold it in a
+All the files named are compiled together as one program, and the output is
+named after the first.
+LLVM, in the process, makes the machine code.
+Executables are linked with lld, in the process where it is installed as a
+library and otherwise as
+.Xr ld.lld 1
+.Pq Xr ld64.lld 1
+on macOS.
+.Pp
+IMP72 passes arguments by reference, and a word is 64 bits (32-bit hosts hold
+it in a
 .Vt long long ) .
-A subroutine
+A
 .Sy SUBR
-is therefore a C function of pointers to its arguments, returning a word,
-and a C program can call it.
+is therefore a C function of pointers to its arguments, returning a word, and a
+C program can call it.
 .Sy CCALL F(A, B)
 calls the C function
 .Fn F
@@ -36,48 +51,68 @@ with the values of
 .Va A
 and
 .Va B .
-Variables are common symbols.
-.Pp
-Unless told otherwise,
-.Nm
-makes the machine code with LLVM, in its own process.
+A variable declared
+.Sy COMMON
+is a global symbol.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl S
-Stop after writing the LLVM IR.
+Stop after writing the LLVM IR as text,
+.Pa NAME.ll .
 .It Fl c
-Stop after generating the object file.
+Stop after generating the object file,
+.Pa NAME.o .
+.It Fl -run
+Compile with ORC and run the program in this process.
 .It Fl o Ar output
 Name of the output file.
+The default is the first source's name without
+.Pa .imp ,
+in the current directory.
 .It Fl s Ar letters
-Switches for the compiler proper: listings and dumps of its tables, as in the
-original.
+Switches for the compiler proper, one letter each, as in the original:
+listings and dumps of its tables.
+They go to the standard error.
 .Ql A
-assembly listing,
+the code chain,
 .Ql T
-code tree,
+the code tree,
 .Ql S
-semantics,
+the semantics array,
 .Ql X
-syntax graph.
+the syntax graph,
+.Ql I
+the directory of names.
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev IMP72SYNTAX , Ev IMP72FFI , Ev IMP72LIB
+Other files for the syntax, the C interface and the runtime library.
+.It Ev TMPDIR
+The directory for temporary files.
+.It Ev IMP72LDSHOW
+If set, the arguments of the linker are printed.
+.It Ev SDKROOT
+On macOS, the SDK to link with.
 .El
 .Sh FILES
 .Bl -tag -width Ds
-.It Pa /usr/share/imp72/syntax.imc
+.It Pa /usr/share/imp72/syntax64.imc
 The syntax of IMP72.
 .It Pa /usr/share/imp72/ffi.imc
 The extension that adds
-.Sy CCALL .
-.It Pa /usr/lib/imp72/
-The compiler proper, the back ends and the runtime library
-.Pa libimp72.a .
+.Sy CCALL
+and
+.Sy EXTERNAL .
+.It Pa /usr/lib/imp72/libimp72.a
+The runtime library.
 .El
+.Pp
+The seed finds these relative to its own place.
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
-.Xr cc 1
-.Pp
-.Pa /usr/share/doc/imp72/
+.Xr imp72 1
 .Sh AUTHORS
 The original IMP72 is by
 .An Walter Bilofsky ;

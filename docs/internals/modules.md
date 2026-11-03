@@ -1,148 +1,145 @@
 # The kernel module by module
 
-One section for each module of the compiler: what it does, the original it ports, the data it keeps, what differs from
-the PDP-10 original, and where it stands (C in `stage0/`, or also IMP in `src/`). Each C file's header comment is the
-detailed reference; `docs/porting/` has the notes of each module ported to IMP; `docs/internals/stage0-*.md` and
-`codegen-and-translation.md` explain the groups. `ARCHITECTURE.md` has the map and `BOOTSTRAP.md` the route to the
-compiler that compiles itself.
+One section for each module of the compiler: what it does, the original it comes from, the data it keeps, and what
+differs from the PDP-10 original. The modules exist in IMP in `src/` (the compiler `imp72`) and in C in `stage0/` (the
+seed). Each file's header comment is the detailed reference. `docs/porting/modules.md` lists the differences of the IMP
+modules from the tape and `docs/porting/layouts.md` the layout of the words. `stage0-*.md` describe the C modules,
+`code-generator.md` the code generating routines, `docs/ARCHITECTURE.md` the map and `docs/BOOTSTRAP.md` the route to
+the compiler that compiles itself.
 
-| Module | Original | C | IMP | Port notes |
-|---|---|---|---|---|
-| free | `decus/free.imc` | `stage0/free.c`, `free_imp.c` | `src/free.imp` | `porting/free.md` |
-| dir | `dir.imc` | `dir.c` | `src/dir.imp` | `porting/dir.md` |
-| stack | `stack.imc` | `stack.c` | `src/stack.imp` | `porting/stack.md` |
-| lex | `lex.imc` | `lex.c` | `src/lex.imp` | `porting/lex.md` |
-| graph | `graph.imc` | `graph.c` | `src/graph.imp` | `porting/graph.md` |
-| parse | `parse.imc` | `parse.c` | `src/parse.imp` | `porting/parse.md` |
-| ercor | `ercor.imc` | `ercor.c` | `src/ercor.imp` | `porting/ercor.md` |
-| entree | `entree.imc` | `entree.c` | `src/entree.imp` | `porting/entree.md` |
-| cotree | `cotree.imc` | `cotree.c` | `src/cotree.imp` | `porting/cotree.md` |
-| dosem | `dosem.imc` | `dosem.c` | `src/dosem.imp` | `porting/dosem.md` |
-| rsyn | `rsyn.imc` | `rsyn.c` | `src/rsyn.imp` | `porting/rsyn.md` |
-| impsem | `impsem.imc` | `impsem.c`, `impsem_imp.c` | `src/impsem.imp` | `porting/impsem.md` |
-| sem, codegen | `impsem.imc` (lists), `code*.imc` | `sem.c`, `codegen.c` | no | |
-| trans, ir, pcode | `amod.imc`, `rmod.imc`, `omod.imc` (replaced) | `trans.c`, `ir.c`, `pcode.c` | no | |
-| debug | `debug.imc` | `debug.c`, `debug_imp.c`, `pr.c` | `src/debug.imp` | `porting/debug.md` |
-| pr, error | PMOD (part), `impm.imc` (ERROR, MSG) | `pr.c`, `error.c` | no | |
-| driver | `impm.imc` | `imp72s0.c` | no | |
+| Module | Original | C (seed) | IMP |
+|---|---|---|---|
+| free | `decus/free.imc` | `stage0/free.c` | `src/free.imp` |
+| dir | `dir.imc` | `dir.c`, `semtab.c` | `src/dir.imp` |
+| stack | `stack.imc` | `stack.c` | `src/stack.imp` |
+| lex | `lex.imc` | `lex.c` | `src/lex.imp` |
+| graph | `graph.imc` | `graph.c` | `src/graph.imp` |
+| parse | `parse.imc` | `parse.c` | `src/parse.imp` |
+| ercor | `ercor.imc` | `ercor.c` | `src/ercor.imp` |
+| entree | `entree.imc` | `entree.c` | `src/entree.imp` |
+| cotree | `cotree.imc` | `cotree.c` | `src/cotree.imp` |
+| dosem | `dosem.imc` | `dosem.c` | `src/dosem.imp` |
+| rsyn | `rsyn.imc` | `rsyn.c` | `src/rsyn.imp` |
+| debug | `debug.imc` | `debug.c`, `pr.c` | `src/debug.imp` |
+| impsem, code, code2, code3 | `impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` | `gen_impsem.c`, `gen_code.c`, `gen_code2.c`, `gen_code3.c` | `src/llvm-ir/impsem.imp`, `code.imp`, `code2.imp`, `code3.imp` |
+| demit | `amod.imc`, `rmod.imc`, `omod.imc` (not translated) | `gen_demit.c`, `ir.c` | `src/llvm-ir/demit.imp`, `ix.imp` |
+| driver | `impm.imc` | `imp72s0.c`, `error.c` | `src/impm.imp`, `src/driver.imp` |
+| back end | none | `llvmorc.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imp`, `src/ir2ll.imp`, `src/ir2llx.imp`, `lib/imphost.imp` |
+| image | none (the monitor's `SSAVE`) | none | `src/image.imp` |
 
 ## free: free storage
 
-All the tables of the compiler live in one growable block of words, `fmem`, as a doubly linked list of "arrays", each
-with a four word header (links, name, increment and length, and the registration of a relocatable array). An array is
-named by the index of its first data word. Arrays move when the block grows or is packed, so a pointer held elsewhere
-goes stale: a relocatable array (FRELOT) has a registered variable that is updated after each move, and `fb` (the base
-of `fmem`) is refreshed by the glue after any call that may allocate. Entry points: `FREE`, `FREES`, `FLEN`, `FNAME`,
-`FADD`, `FALLOT`, `FRELOT`, `FINCSET`, `FADDEX`, `FCLOSE`, `FMAP`, `FSTATS`, `FTRACE`. Differences from `free.imc`: the
-block is a `realloc`ed C heap, not the TOPS-10 low segment; a relocatable array's pointer location is a registry slot,
-since a C address does not fit in a halfword; the 64000 word ceiling on a gap is gone. `IMP_FCHECK` checks the list
-(`docs/porting/helpers.md`). Ported to IMP (the allocation routines; the diagnostics stay in C), `docs/porting/free.md`.
+All the tables of the compiler live in one block of words, a doubly linked list of arrays, each with a four word header
+(links, name, increment and length, registration of a relocatable array). An array is named by the index of its first
+data word. Arrays move when the block is packed or an array is resized, so a pointer held elsewhere goes stale: a
+relocatable array (`FRELOT`) has a registered variable that is updated after each move. Entry points: `FREE`, `FREES`,
+`FLEN`, `FNAME`, `FADD`, `FALLOT`, `FRELOT`, `FINCSET`, `FADDEX`, `FCLOSE`, `FMAP`, `FSTATS`, `FTRACE`.
+
+Differences from `free.imc`: a relocatable array's pointer location is a registry slot, because a C address does not fit
+in a half word; there is no 64000 word ceiling on a gap; a new named array is `FNEW(name,n)` in IMP (`fallot_new` in C),
+because a name of eight characters in a 64 bit word cannot be told from an index.
+
+The seed's block is a `realloc`ed C heap. In the IMP module the block is an arena of reserved address space at `FB`
+that `CORE` makes usable with `mprotect` (`lib/imp72sys.imp`), so the arena never moves and a byte pointer into an array
+stays good until the array itself moves.
 
 ## dir: the directory of names
 
-A hash coded directory: free array `PRP` is 512 buckets of three word nodes with overflow nodes after them, `ALF` holds
-the names packed five characters to a word. A name's directory index is its node's index in `PRP`, the same number the
-PDP-10 compiler computes (the hash is the original's, over the first five characters packed as they were). Entry points:
-`DIR`, `DSEQ`, `PNAME`, `DNAME`, `GNAME`, `DSTATS`, `DSPILL`, `RADI50`, `CONVC`, `STCON`, `NEWNAME`, and the property
-accessors (`DPROP`, `DPROPS`). The names keep the original packing (7 bit characters, 36 bits of a word): that is what
-makes the dumps comparable with the oracle's. Ported to IMP.
+A hash coded directory: free array `PRP` is 512 buckets of three word nodes with overflow nodes after them; `ALF` holds
+the names, eight characters (bytes) to a word, the first in the low byte. A name's directory index is its node's index
+in `PRP`. Entry points: `DIR`, `DSEQ`, `PNAME`, `DNAME`, `GNAME`, `DSTATS`, `DSPILL`, `RADI50`, `CONVC`, `STCON`,
+`NEWNAME`, and the property accessors `DPROP` and `DPROPS`.
+
+`src/dir.imp` also holds the table of semantic routines: `DSEM(name,routine)` enters a routine and stores its id (1 plus
+its slot) as the `SEM` property of the name, `SEMCALL(id,pars)` calls it with a copy of the parameters on a stack of its
+own, and `SEMCOUNT`, `SEMNAME`, `SEMREMAP` give the table to the image. In the seed the table is `stage0/semtab.c`.
 
 ## stack: the semantic stack, the pushdown stack, bit matrices
 
-The semantic stack is three word entries in free array `STACK`; `STPUSH`, `STPOP`, `STACK(n)` return the free storage
-index of an entry. `PUSHMI`/`PULLYU` are a plain pushdown stack. A bit matrix is a three word descriptor and one
-relocatable array; `BITS`, `BIT`, `BITZ`, `BITOR` and `BSTATS` are its operations. Differences: the matrix packs 64 bits
-to a word, not 36 (the dumps print the masks as the 36 bit original would, so the numbers agree). Ported to IMP, the
-first module to be (the pattern for the others).
+The semantic stack is three word entries in free array `STACK`; `STPUSH`, `STPOP`, `STACK(n)` return free storage
+indices. `PUSHMI` and `PULLYU` are a plain pushdown stack. A bit matrix is a three word descriptor and one relocatable
+array; `BITS`, `BIT`, `BITZ`, `BITOR` and `BSTATS` are its operations. The matrix packs 64 bits to a word.
 
 ## lex: input and lexical analysis
 
-A character at a time machine. A token is a run of letters and digits, an apostrophe string, `!text!`, or one other
-non-blank character; blanks and control characters separate tokens and `#...#` is a comment. Entry points `LEXIN`,
-`LEX`, `NEXTCHAR`, `PLINE1`, `PLINE`. Not ported: the TOPS-10 command line routines (`GETTY`, `READCMD`, …); the driver
-takes arguments from `argv`. The file is read whole instead of by buffer. Ported to IMP.
+A character at a time machine. A token is a run of letters and digits (and `_`), an apostrophe string, `!text!`, or one
+other non-blank character; blanks and control characters separate tokens and `#...#` is a comment. `:=` is one token.
+Entry points `LEXIN`, `LEX`, `NEXTCHAR`, `PLINE1`, `PLINE`.
+
+In IMP the line and the token are packed arrays stepped with byte pointers, as in the original, and bytes of 128 and up
+are letters, so that a name can be in UTF-8. `src/lex.imp` also has `GETTY`, `READCMD`, `PUTN`, `PUTO`, `PUTSW`,
+`LEXSAV`, `LEXRES` for the commands of `imp72 -i`. The seed's lexer reads the whole file into a buffer, takes ASCII
+letters only, and has none of the command line routines.
 
 ## graph: the syntax graph
 
-The syntax is a free array `GA` of two word nodes (alternate and successor links; type, row and id), plus the connectivity
-bit matrices `BITM` (node n can lead to nonterminal nt) and `NBITM` (reached through circled or boxed nodes only). Entry
-points `GRAPH` (add a production), `GMATR`, `GGOAL`, `GNEXT`, `GALT`, `GCONN`, and the node accessors `SCR`, `ALT`,
-`GTYPE`, `GVAL`, `GNB`. The node word keeps the same three fields in 64 bits (type at bit 48, row at 32, id at 0) where the
-original packs them in 36. Ported to IMP.
+The syntax is a free array `GA` of two word nodes (alternate and successor links; type, row and id), plus the
+connectivity bit matrices `BITM` (node n can lead to nonterminal nt) and `NBITM` (reached through circled or boxed nodes
+only). Entry points `GRAPH` (add a production), `GMATR`, `GGOAL`, `GNEXT`, `GALT`, `GCONN`, and the node accessors
+`SCR`, `ALT`, `GTYPE`, `GVAL`, `GNB`. The node word keeps the three fields in 64 bits: type at bit 48, row at 32, id
+at 0.
 
 ## parse: the Irons fast multi-track parser
 
-Reads symbols with `LEX` and follows every parse still possible at once, as runs of words in free arrays `P` and `PP`
-(the current and the next symbol's parses); the output (production numbers, and minus the directory index of a name or
-symbol) is chained in `O`, newest first, and handed to `COTREE` whenever one parse remains. `PARSE`, `SYMBOL`, `PFORCE`,
-`COPY`, `POUT`, `PSTATS`. Errors go to `ercor`. Ported to IMP.
+Reads symbols with `LEX` and follows every parse still possible at once, as runs of words in free arrays `P` and `PP`;
+the output (production numbers, and minus the directory index of a name or symbol) is chained in `O`, newest first, and
+handed to `COTREE` whenever one parse remains. `PARSE`, `SYMBOL`, `PFORCE`, `COPY`, `POUT`, `PSTATS`. Errors go to
+`ERCOR`.
 
 ## ercor: error correction and disambiguation
 
-`ERCOR` finds the cheapest sequence of terminal symbols to insert before the symbol that killed every parse, searching the
-syntax graph up to `MAXPATH` terminals deep; `AMBIG` and `ISNAME` decide between parses that are all alive. The step trace
-of `/G` is reduced to its summary lines. Ported to IMP.
+`ERCOR` finds the cheapest sequence of terminal symbols to insert before the symbol that killed every parse, searching
+the syntax graph up to `MAXPATH` terminals deep; `AMBIG` and `ISNAME` decide between parses that are all alive. The
+step trace of switch `G` is reduced to its summary lines in the seed.
 
 ## entree: the code tree
 
 The special cases of the semantics are kept in a tree in free array `CT`: a node matches an item of the pattern, an
-identifier, a kind of stack item (the `WSVCRN` bits) or a production. `ENTREE` adds a pattern, `INSNO`/`COMPNO` keep the
-alternates of a node in order of increasing generality, `MATCH` matches the stack against the tree. The stuff words keep
-the original's 36 bit layout; the links word has three 20 bit fields (the original's 12 bit fields limited the tree to
-4095 words). Ported to IMP.
+identifier, a kind of stack item or a production. `ENTREE` adds a pattern, `INSNO` and `COMPNO` keep the alternates of
+a node in order of increasing generality, `MATCH` matches the stack against the tree, `CODEID` takes an identifier of a
+pattern apart. The links word has three 20 bit fields (`SCR`, `ALT`, `NODEN`).
 
 ## cotree: the semantic stack reducer
 
-`COTREE(S)` adds one item of parser output to the code stack; for a production it tries a match between a path in the code
-tree and the stack from each position on, and a match is copied to the semantic stack and given to `DOSEM`, whose result
-replaces what matched. `CODENT`, `CFUDGE`, `MAXWELL`/`MAXEND` (the quoted semantics collector), `SETPRI`, `SAMEAS`,
-`PSTACK`. The stack entries keep their 36 bit words; the code attached to an entry (CB, CE) is a chain of PDP-10
-instruction words in free array `CO`. Ported to IMP.
+`COTREE(S)` adds one item of parser output to the code stack; for a production it tries a match between a path in the
+code tree and the stack from each position on, and a match is copied to the semantic stack and given to `DOSEM`, whose
+result replaces what matched. `CODENT`, `CFUDGE`, `MAXWELL` and `MAXEND` (the quoted semantics collector), `SETPRI`,
+`SAMEAS`, `PSTACK`. The code attached to an entry (`CB`, `CE`) is a chain of records in free array `CO`.
 
 ## dosem: the semantics array and its interpreter
 
 The semantics of a production is a run of words in `SEMS` (value, argument count, and a type: call a routine, push a
-parameter, enter a node, `CASE` constants, …); `PROSEM` records where in the code tree each production can match.
-`DOSEM` interprets one; `SETSEM`, `SEMFIX`, `SEMFX1`, `DOCASE`, `ENPROD`, `MATCHP`, `RESETSEM` and the rest build and
-query it. The words keep the original layout. Semantic routines are C functions reached through the table of `sem.c`
-(the original jumps to the routine's address). Ported to IMP.
+parameter, enter a node, `CASE` constants, and so on); `PROSEM` records where in the code tree each production can
+match. `DOSEM` interprets one; `SETSEM`, `SEMFIX`, `SEMFX1`, `DOCASE`, `ENPROD`, `MATCHP`, `RESETSEM` and the rest build
+and query it.
 
 ## rsyn: the bootstrap reader
 
-Reads, with `LEX` alone, the part of `decus/syntax.imc` up to the first `%%`: statements `<CLASS> ::= elements ::=
-semantics` in a tiny notation, making the graph and the semantics array, exactly as the full compiler does once the
-"syntax for syntax" is in. Its routines (`SYNT`, `SYTRM`, `SEMP`, `SEMR`, `QUOSEM`, `SYNTAX`, `REPVAL`, `VALU`, …) are
-semantic routines too, registered by name, because the bootstrapped syntax calls them for the rest of the file. Ported to IMP.
+Reads, with `LEX` alone, the part of the syntax file up to the first `%%`: statements `<CLASS> ::= elements ::=
+semantics` in a small notation, making the graph and the semantics array as the full compiler does once the syntax for
+syntax is in. Its routines (`SYNT`, `SYTRM`, `SEMP`, `SEMR`, `QUOSEM`, `SYNTAX`, `REPVAL`, `VALU`, and others) are semantic
+routines too, registered by name, because the bootstrapped syntax calls them for the rest of the file. `RSYNI` is the
+head of `RSYN` alone, used when the compiler starts from an image.
 
-## sem, impsem, codegen: the semantic routines
+## debug: the diagnostic print-outs
 
-`impsem` is ported to IMP (`docs/porting/impsem.md`); `sem.c` and `codegen.c` are C.
+`GPRIN1`, `PARTR1`, `TPRIN1`, `SEMPR1`, `PSTAC1` and `HELPD` print the tables as the switches ask. `src/debug.imp` does it
+with `PRINT`; `stage0/debug.c` with `stage0/pr.c`, the part of PMOD (`pmod.md`) that it needs. `PCODE1` lists the code
+and is in `src/llvm-ir/code3.imp`. The dumps print the 64 bit words in octal.
 
-`sem.c` is the table of routines (`dsem(name, fn)`; a routine's id is stored as the `SEM` property of its name) and the
-list routines `NEWLIST`, `ENLIST`, `GETLIST`, plus `ASSEMC`, which hands a finished program to the translator.
-`impsem.c` has the machine independent routines declarations need (`NAME`, `AREG`, `AREG1`, `DECL`, `DECLARE`, `VAL`,
-`SVAL`, `STACKUP`, `SWITCH`, `NSUBP`) and `codegen.c` the code generating ones (`DEWOP`, `ADDOP`, `FETCH`, `STORE`,
-`SUBSCRIPT`, `SUBCALL`, `CONOP`, …). They are the original's, kept in its design: they make PDP-10 code as a chain of
-instruction words (instruction, constant, link, special function) with virtual registers `R65`…, and constant-fold in 64
-bits. The registers are those of the original's array `RG`. Not ported: the PDP-10 assembler, register allocator and
-object module (below). These files are the modern-platform port; a 36 bit PDP-10 build would be a separate thing.
+## impsem, code, code2, code3, demit: the code generator
 
-## trans, ir, pcode: from code chains to IR
+See `code-generator.md`.
 
-`trans.c` reads each code chain as a PDP-10 program over virtual registers and writes IR (`ir.c` writes the text),
-one function at a time; the meaning of an instruction is the PDP-10's with the changes for a 64 bit machine with byte
-addresses (`docs/internals/codegen-and-translation.md`). It replaces `amod`, `rmod` and `omod`. `pcode.c` lists a chain as
-PDP-10 assembly (`-s A`), standing in for `PCODE1` and `ALIST`.
+## driver
 
-## debug, pr, error: services
+`src/impm.imp` is the kernel's driver program: `IMPK` reads the command line (`-s`, `-o`, `-c`, `-T`, `-I`, `-i`), reads
+the syntax with `RSYN`, and compiles the files with `COMPIL`; `ERROR` and `MSG` write to standard error, and a fatal
+error returns from `IMPK`. With `-i` it reads the commands of the original from the terminal (`GETTY`, `READCMD`).
+`src/image.imp` writes and reads an image (`NAME_/U`, `/V`, `-I`). `src/driver.imp` is the main program of `imp72`: it
+finds its parts relative to itself, runs `IMPK`, then the back end (`src/llvm.imp`) and the link. In the seed, `imp72s0`
+is the kernel and `imp72stage0` the compiler, the same program under another name (`stage0-semantics.md`).
 
-`debug.c` ports the diagnostic print-outs (`GPRIN1`, `PARTR1`, the table dumps) so that they match the oracle's, and
-`src/debug.imp` does so with PRINT, as the original (`docs/porting/debug.md`);
-`pr.c` is the part of PMOD (the formatted print module, `docs/internals/pmod.md`) the C version uses; `error.c` is `ERROR` and `MSG`
-of the driver: `N<=1` sets the error flag (which lists the source from the first error on), `N=0` abandons the compilation.
-
-## driver: imp72s0.c
-
-Two programs in one binary, by its name: `imp72s0` (the kernel: read the bootstrap syntax with RSYN, then compile files;
-`-s` switches, `-c` IR) and `imp72stage0`/`imp72` (the compiler: syntax and `ffi.imc`, then LLVM in the process
-to an executable, an object or LLVM IR). It finds its parts relative to itself, in the tree or installed.
+The runtime library is in `lib/`: `imp72io.imp` (`PRINT`, `READ`, `FINI`), `imp72rt.imp` (`CALLI`, shifts, byte pointers,
+`EXECUTE`), `imp72sys.imp` (the arena, argument vectors), `imp72main.imp` (the C `main`), `imphost.imp` and
+`impvars.imp` (what the link and the images need of the host).

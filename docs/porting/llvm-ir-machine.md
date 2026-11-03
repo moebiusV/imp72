@@ -1,67 +1,81 @@
-# The machine the code generator compiles to: IR
+# The machine the code generator compiles to
 
-The code generating routines of the tape (`code.imc`, `code2.imc`, `code3.imc`) generate PDP-10 instructions into free array `CO`.
-The translation in `src/llvm-ir/` generates the operations of the machine this port compiles to, which is the intermediate representation
-of the compiler (`stage0/ir.h`; its text is that of pcc's pass 2, where it comes from): 64 bit words, byte addresses, `double` for REAL, an unlimited supply of virtual registers (IR temporaries), and
-the C procedure call standard. `amod`, `rmod` and `omod` (the assembler, the register allocator and the object writer) are not
-translated: `src/llvm-ir/demit.imp` walks the chains and calls `ir.c`, and LLVM (`tools/ir2ll.c`) makes the object file for the machine at hand.
+The code generating routines of the tape (`code.imc`, `code2.imc`, `code3.imc`) generate PDP-10 instructions into free array
+`CO`. The routines of `src/llvm-ir/` generate the operations of the machine this implementation compiles to: 64 bit
+words, byte addresses, `double` for `REAL`, an unlimited supply of virtual registers (IR temporaries), and the C procedure
+call standard. The operation numbers are the macros of `src/llvm-ir/irsyn.imc`; `src/llvm-ir/syntax64.imc` uses the
+numbers themselves, because a semantics cannot name a macro.
 
-The structure of the original is kept: the code of a stack entry is a chain in `CO`, `HOOK` joins chains, `ADDCODE` extends one,
-`DEWOP(OP,R,S)` adds an instruction with accumulator R and the operand S, and the same routines (`STORE`, `FETCH`, `ADDOP`, `CONOP`, ...)
-are called by the rules of the language (`src/syntax64.imc`, a translation of `decus/syntax.imc`). What changes is the instruction.
+The assembler, the register allocator and the object writer of the tape (`amod`, `rmod`, `omod`) have no counterpart:
+`src/llvm-ir/demit.imp` walks the chains and writes IR (`docs/internals/code-generator.md`), and LLVM makes the object file.
+
+The structure of the original is kept: the code of a stack entry is a chain in `CO`, `HOOK` joins chains, `ADDREC` extends
+one (where the tape has `ADDCODE`), and `DEWOP(OP,R,S)` adds an operation with accumulator `R` and the operand `S`. The
+rules of the language call `STORE`, `FETCH`, `ADDOP`, `CONOP` and the rest. The instruction is the machine's.
 
 ## The stack entry
 
-Unchanged (the parser, the code tree and the semantic stack are the tape's): three words,
+Three words (`docs/porting/layouts.md`):
 
     word 0   bits 5-0 TY: 2 register, 4 constant, 8 identifier, 16 subscripted variable; bits 7-6 AR: 1 integer, 2 real, 3 byte;
-             bits 35-18 DI, a directory index (36 bit layout, as before: L18, SX36)
+             the left half DI, a directory index
     word 1   TY 4: the constant, a full 64 bit word (a REAL is the IEEE double's bits)
-             TY 2, 8, 16: bit 35 the indirect bit, bits 28-18 the register (a temporary), bits 17-0 the offset in words
-    word 2   the code: left half the first record of the chain, right half the last (32 bit halves; 0: no code)
+             TY 2, 8, 16: bit 63 the indirect bit, bits 32-42 the register (a temporary), the right half the offset (signed)
+    word 2   the code: left half the first record of the chain, right half the last (0: no code)
 
 ## The records of a chain
 
-A record is five words of `CO`:
+A record is five words of `CO` (`RECW` in `irsyn.imc`):
 
     word 0   left half: the next record of the chain (0 ends it); right half: bits 7-0 KIND, bits 15-8 OP
     word 1   RD, a temporary (a register index), or 0
-    word 2   V0 \  the operand: words 0 and 1 of a stack entry, as `UNPCK` reads them
+    word 2   V0 \  the operand: words 0 and 1 of a stack entry, as UNPCK reads them
     word 3   V1 /
     word 4   X, a second operand (a directory index of a tag, or a count)
 
-KIND 1 is an operation, 2 a tag (`X` = its directory index), 3 a constant word of a DATA statement (`V1` is the value).
+KIND 1 is an operation, 2 a tag (`X` is its directory index), 3 a constant word of a `DATA` statement (`V1` is the value).
 
-## The operations (OP)
+## The operations (OP, decimal)
 
-`RD` is the accumulator (a temporary), `V` the operand. Integers are 64 bit two's complement; `DIV` truncates toward zero.
+`RD` is the accumulator (a temporary) and `V` the operand. Integers are 64 bit two's complement; `DIV` truncates toward zero
+and `MOD` has the sign of the dividend.
 
-    1 LOAD  RD = V          2 NEG  RD = -V          3 COMPL  RD = ~V         4 ADDR  RD = the address of V
+    1 LOAD  RD = V          2 NEG  RD = -V          3 COMPL  RD = ~V          4 ADDR  RD = the address of V
     5 STORE V = RD
-    6 ADD   7 SUB   8 MUL   9 DIV   10 MOD                  RD = RD op V
+    6 ADD   7 SUB   8 MUL   9 DIV   10 MOD                                    RD = RD op V
     11 AND  12 ANDCA (~RD & V)  13 ANDCM (RD & ~V)  14 ANDCB (~RD & ~V)
     15 IOR  16 ORCA (~RD | V)   17 ORCM (RD | ~V)   18 ORCB (~RD | ~V)
     19 XOR  20 EQV (~(RD ^ V))
+    21 LSH  RD shifted logically by the signed count V (left if positive; 64 places or more give 0)
+    22 ASH  the same, arithmetic (a right shift keeps the sign)
+    23 ROT  RD rotated left by V
+    24 LDB  RD = the byte field V names         25 DPB  the low bits of RD into the field V names
+    26 ILDB, 27 IDPB                            the same after stepping the byte pointer V
     28 ADDX RD = RD + 8*V (a word index added to a pointer)
-    21 LSH  RD shifted logically by the signed count V (left if positive; a count of 64 or more gives 0)
-    22 ASH  the same, arithmetic (right shifts keep the sign)
-    23 ROT  rotated left by V (64 bit)
-    30 FADD  31 FSUB  32 FMUL  33 FDIV                      RD = RD op V, on doubles
-    34 FLOAT RD = (double) V (V an integer)     35 FIX  RD = (long) V (V a double)
-    40 JUMP  to the tag named by V
-    41 JEQ  42 JLT  43 JLE  44 JGE  45 JGT  46 JNE          jump to the tag X if RD cmp V (integers)
-    51 .. 56 FJEQ .. FJNE                                    the same on doubles
-    60 CALLB begin a call of the function named by V        61 ARG the address of V is the next argument
-    62 CALLE end the call; RD receives its value (0: none)  63 PITEM print list item: X = the format code, V its operand
-    64 CALLI  RD = imp_calli(V, RD) (the monitor call V with the AC RD)    65 XCT    do the PDP-10 instruction in the word V (imp_xct); 66 HRLM, 67 HRRM  the halfword stores of impsyn.imc
-    70 ENTRY the subroutine named by V begins (its formal parameters: X of them)       71 RET return RD
+    30 FADD  31 FSUB  32 FMUL  33 FDIV                                         RD = RD op V, on doubles
+    34 FLOAT RD = (double) V (V an integer)     35 FIX  RD = (long) V (V a double, truncated)
+    36 FNEG  RD = V with the sign bit flipped
+    40 JUMP  to the tag named by V (a computed GO TO when V is a subscripted variable)
+    41 JEQ  42 JLT  43 JLE  44 JGE  45 JGT  46 JNE                            jump to the tag X if RD cmp V (integers)
+    51 .. 56 FJEQ .. FJNE                                                      the same on doubles
+    60 CALLB begin a call of the function named by V      61 ARG the address of V is the next argument
+    62 CALLE end the call; RD receives its value (0: none)
+    63 PITEM print list item: X is the format code, V its operand (0: none)
+    64 CALLI  RD = impcalli(V, RD)                         65 XCT  do the machine instruction in the word V (impxct)
+    66 HRLM, 67 HRRM  the low 32 bits of RD into the left (66) or the right (67) half of V
+    68 REMOTE marks the code that follows as the remote code of the routine named by X
+    70 ENTRY the subroutine named by V begins          71 RET return RD          72 PARAM RD receives the next pointer parameter
 
-The operand V is read the way the entry says: TY 2 the register, TY 4 the constant, TY 8 the word of the variable DI plus the offset,
-TY 16 the same indexed by the register and indirect if bit 35 is set. The address of a variable is its byte address; the offset and the
-index register count words when there is a variable (`V[I]` is `&V + 8*I`) and bytes when there is none (`[P+3]` is `P+3` bytes).
+The operand `V` is read the way the entry says: TY 2 the register, TY 4 the constant (a text constant used as a value is
+the word whose bytes are its first eight characters), TY 8 the word of the variable DI plus the offset, TY 16 the same
+indexed by the register and indirect if bit 63 is set. The address of a variable is its byte address and the offset
+counts words: with a variable `V`, an offset `O` and a register `R` it is `&V + 8*O + 8*R`; with a register and no
+variable, `R + 8*O`, `R` holding a byte address; with neither, the absolute address `O`.
 
-## Original modules
+## Instruction words
 
-Every module of decus/ compiles with the IR compiler. REMOTE code is emitted with its routine (ops 66 HRLM, 67 HRRM map HRL/HRR of impsyn.imc; 68 marks remote code).
-
-A GO TO to a tag of another routine (ERROR of impm.imc goes to FIN of the main program) is a longjmp: the routine that has the tag takes a `_setjmp` into `imp_jb_<tag>` at its entry, and the jumping routine calls `longjmp` on it. Like the PDP-10 jump it does not return, and it needs the routine with the tag to be still running (the main program is). A GO TO to a tag that no routine has is an error naming the tag.
+`EXECUTE A` runs the one operation of this machine that the word `A` holds: the operation number in bits 56-63 (1 to 23,
+28 and 64 are done), the accumulator in 52-55, the index register in 48-51, bit 47 for an immediate operand, and the
+address or number in the low 47 bits, signed. `impxct` in `lib/imp72rt.imp` does it with the registers `0R` to `15R` as the
+accumulators; jumps and floating point operations are an error at run time. `XWD A,B` is `(A AND HMASK) LS 32 OR (B AND
+HMASK)` and `IOWD A,B` is `XWD -A,B-1`.

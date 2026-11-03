@@ -1,11 +1,10 @@
 # Provenance of the oracle's inputs
 
 Everything downloaded goes to `oracle/dl/<name>/` (git-ignored; untrusted data, hashed,
-never run from there). `tools/oracle-build.sh` fetches and checks all of it.  The simulators and
+never run from there). `tools/oracle-build.sh` fetches and checks all of it. The simulators and
 the TOPS-10 disks are prebsd's (<https://github.com/moebiusV/prebsd>): its
 `simh.json` pins the simulator sources by commit and `images.json` has the disks' URLs and
-checksums.  The rows below are what it
-fetches for us.
+checksums. The rows below are what it fetches.
 
 | What | Where from | SHA-256 |
 |---|---|---|
