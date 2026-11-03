@@ -1,0 +1,795 @@
+#RUNOFF2MDOC-PAGE.IMP -- THE THIRD FILE OF TOOLS/RUNOFF2MDOC.IMP: THE SOURCE LINES AND THE CORRECTIONS OF THE SOURCE, THE EVENTS (COMMANDS AND TEXT), THE LAYOUT (LISTS, TAGS, BLOCKS) AND THE PAGE.#
+
+LET KW=1, KIC=2, KAR=3, KLI=4, KPA=5, KSY=6, KNAME=7, KGROUP=8;
+LET F_KIND=0, F_TEXT=1, F_PRE=2, F_POST=3, F_SUF=4, F_TOKS=5, F_QUOTE=6;
+LET SP=32, DQ=34, SQ=39, BS=92, HAT=94, LF=10;
+# THE VARIABLES THE MODULES SHARE (THE SAME DECLARATIONS IN EACH OF THE THREE FILES; A VARIABLE THAT IS NOT COMMON BELONGS TO ITS FILE) #
+ARGW,FIXPATH,FIXOLD,FIXNEW,CASER,SPANS,OUT,EV,ST_LIST,ST_ITEM,ST_SUB,ST_RAG,ST_FIRSTPAR,ST_LIT,ST_PP,ST_MARGIN,CRT,CRF,GQ_TODO ARE COMMON;
+NAMES_SET,MACROS_SET,VARNEXT_SET,EMPH_SET,PLAIN_SET,PAPER_SET,FILEEXT_SET,ABBR1_L,ABBR2_L ARE COMMON;
+SET_PRE,SET_POST,SET_QPOST,SET_BPOST,UPPER_SET,LOWER_SET,ALPHA_SET,ALNUM_SET,ALNUMUP_SET,DIGIT_SET,CAPSPACE_SET,PUNCT3,PUNCT4,SPACES_SET ARE COMMON;
+TABSTR,MARK1,MARK2,MARK3,EMDASH,TDASH,RSQ,LDQ,RDQ,ORDTH ARE COMMON;
+CMDW,CMDA,FMHEAD,FMBODY,FFHEAD,FFBODY,FNNAME,NH_TAG,NH_BODY,MR_G1,MR_G2,M2_G1,M2_G2 ARE COMMON;
+
+# ---- THE FILES ---- #
+
+# THE FILE AT PATH, ITS LINES (CR LF AND A LONE CR END A LINE; THE LAST LINE IS THE TEXT AFTER THE LAST END, LIKE PYTHON'S SPLIT) AS A LIST; 0 IF IT CANNOT BE READ AND SOFT NE 0 #
+SUBR READ_LINES(PATH,SOFT) IS (
+ F,N,BUF,I,C,B,S,PREV,LST ARE LOCAL;
+ F:=CCALL fopen(PATH,LOC('rb'));
+ F=0 => (SOFT NE 0 => RETURN 0);
+ F=0 => DIE(LOC('cannot read'),PATH);
+ CCALL fseek(F,0,2); N:=CCALL ftell(F); CCALL fseek(F,0,0);
+ BUF:=CCALL calloc(N+16,1);
+ N>0 => CCALL fread(BUF,1,N,F) NE N => DIE(LOC('cannot read'),PATH);
+ CCALL fclose(F);
+ LST:=L_NEW(0); B:=B_NEW(0); I:=0; PREV:=0;
+ WHILE I<N DO (
+    C:=GETB(BUF,I);
+    ((C=10) AND (PREV=13)) => (PREV:=0)
+    ELSE (
+      ((C=10) OR (C=13)) => (S:=B_GET(B); L_ADD(LST,S); WR(B,0,0); PUTB(RD(B,2),0,0))
+      ELSE B_CH(B,C);
+      PREV:=C);
+    I:=I+1);
+ S:=B_GET(B); L_ADD(LST,S);
+ LST);
+
+# THE LIST OF THE PIECES OF S BETWEEN THE CHARACTERS C (PYTHON'S SPLIT) #
+SUBR S_SPLIT(S,C) IS (
+ R,I,N,J,F,G ARE LOCAL;
+ R:=L_NEW(0); N:=CCALL strlen(S); I:=0; F:=1;
+ WHILE F NE 0 DO (
+    J:=I; G:=1;
+    WHILE G NE 0 DO (J<N => (GETB(S,J) NE C => J:=J+1 ELSE G:=0) ELSE G:=0);
+    L_ADD(R,S_SUB(S,I,J));
+    J<N => I:=J+1 ELSE F:=0);
+ R);
+
+# THE LIST OF THE WORDS OF A STRING, SEPARATED BY SPACES #
+SUBR WORDS_OF(S) IS (
+ R,L,I,W ARE LOCAL;
+ L:=S_SPLIT(S,32); R:=L_NEW(0); I:=0;
+ WHILE I<L_LEN(L) DO (W:=L_GET(L,I); S_LEN(W)>0 => L_ADD(R,W); I:=I+1);
+ R);
+
+# THE CORRECTIONS OF THE SOURCE: PAIRS OLD, NEW IN FIXOLD AND FIXNEW #
+SUBR LOAD_FIXES(PATH) IS (
+ L,I,N,LN,P ARE LOCAL;
+ FIXOLD:=L_NEW(0); FIXNEW:=L_NEW(0);
+ L:=READ_LINES(PATH,1);
+ L=0 => RETURN 0;
+ N:=L_LEN(L); I:=0;
+ WHILE I<N DO (
+    LN:=L_GET(L,I);
+    P:=S_INDEX(LN,TABSTR,0);
+    ((S_LEN(LN)>0) AND (GETB(LN,0) NE 35) AND (P GE 0)) => (
+       L_ADD(FIXOLD,S_SUB(LN,0,P)); P:=P+1; L_ADD(FIXNEW,S_FROM(LN,P)));
+    I:=I+1);
+ 0);
+
+# THE TEXT WITH EVERY CORRECTION APPLIED #
+SUBR FIXP(S) IS (
+ T,I,N,A,B ARE LOCAL;
+ T:=S; N:=L_LEN(FIXOLD); I:=0;
+ WHILE I<N DO (A:=L_GET(FIXOLD,I); B:=L_GET(FIXNEW,I); T:=S_REPL(T,A,B); I:=I+1);
+ T);
+
+# ---- THE EVENTS ---- #
+
+# AN EVENT IS [0, NAME, ARGUMENT] FOR A COMMAND OR [1, 0, LINES] FOR TEXT #
+SUBR EV_NEW(T,NAME,ARG) IS (
+ E ARE LOCAL;
+ E:=CCALL calloc(3,8); WR(E,0,T); WR(E,1,NAME); WR(E,2,ARG); E);
+
+# THE COMMAND OF A SOURCE LINE THAT STARTS WITH A DOT: ITS NAME IN CAPITALS INTO CMDW AND THE REST OF THE LINE AFTER ITS WHITE SPACE INTO CMDA; 0 IF THERE IS NO NAME #
+SUBR SPLIT_CMD(RAW) IS (
+ I,N,B,C,F ARE LOCAL;
+ N:=S_LEN(RAW); I:=1;
+ WHILE IS_ALPHA(GETB(RAW,I)) NE 0 DO I:=I+1;
+ I=1 => RETURN 0;
+ B:=B_NEW(0); C:=1;
+ WHILE C<I DO (B_CH(B,TO_UPPER(GETB(RAW,C))); C:=C+1);
+ CMDW:=B_GET(B); F:=1;
+ WHILE F NE 0 DO (I<N => (IS_SPACE(GETB(RAW,I)) NE 0 => I:=I+1 ELSE F:=0) ELSE F:=0);
+ CMDA:=S_FROM(RAW,I);
+ 1);
+
+# THE SOURCE LINES OF THE LIST (FROM START ON) AS EVENTS #
+SUBR EVENTS(LINES,START) IS (
+ R,BUF,I,N,RAW,M,E,T,SKIP ARE LOCAL;
+ R:=L_NEW(0); BUF:=L_NEW(0); N:=L_LEN(LINES); I:=START;
+ WHILE I<N DO (
+    RAW:=L_GET(LINES,I); I:=I+1;
+    GETB(RAW,0)=46 => (
+       M:=SPLIT_CMD(RAW); SKIP:=0;
+       M NE 0 => (IN_WORDS(PAPER_SET,CMDW) NE 0 => SKIP:=1);
+       SKIP=0 => (
+          L_LEN(BUF)>0 => (E:=EV_NEW(1,0,BUF); L_ADD(R,E); BUF:=L_NEW(0));
+          M NE 0 => (T:=S_STRIP(CMDA); E:=EV_NEW(0,CMDW,T); L_ADD(R,E))))
+    ELSE (S_LEN(S_STRIP(RAW))>0 => L_ADD(BUF,RAW)));
+ L_LEN(BUF)>0 => (E:=EV_NEW(1,0,BUF); L_ADD(R,E));
+ R);
+
+# ---- THE PIECES OF THE LAYOUT ---- #
+
+# PYTHON'S ARG: THE MARGIN OF A TAG #
+SUBR ESC_LIT(LINE) IS (
+ T,C ARE LOCAL;
+ T:=S_RSTRIP(LINE); T:=S_REPL(T,LOC('\'),LOC('\e'));
+ C:=GETB(T,0);
+ ((C=0) OR (C=46) OR (C=39)) => T:=S_CAT(LOC('\&'),T);
+ T);
+
+# THE FIRST PIECE OF THE FORM NAME(ARGS) OF A TAG, WITH THE PARTS OF THE ARGUMENTS #
+SUBR FN_PARTS(HEAD) IS (
+ P,NAME,REST,N,I,C,DEPTH,CUR,ARGS,RES,A,PARTS,K,X,L,Q,R ARE LOCAL;
+ P:=S_INDEX(HEAD,LOC('('),0);
+ NAME:=S_SUB(HEAD,0,P);
+ N:=S_LEN(HEAD)-1; Q:=P+1; REST:=S_SUB(HEAD,Q,N);
+ N:=S_LEN(REST); I:=0; DEPTH:=0; CUR:=B_NEW(0); ARGS:=L_NEW(0);
+ WHILE I<N DO (
+    C:=GETB(REST,I);
+    C=60 => DEPTH:=DEPTH+1;
+    C=62 => DEPTH:=DEPTH-1;
+    ((C=44) AND (DEPTH=0)) => (X:=B_GET(CUR); L_ADD(ARGS,X); CUR:=B_NEW(0))
+    ELSE B_CH(CUR,C);
+    I:=I+1);
+ X:=B_GET(CUR);
+ S_LEN(S_STRIP(X))>0 => L_ADD(ARGS,X);
+ # EACH ARGUMENT STRIPPED, AND <A,B> SPLIT INTO <A AND B> #
+ RES:=L_NEW(0); K:=0;
+ WHILE K<L_LEN(ARGS) DO (
+    A:=S_STRIP(L_GET(ARGS,K)); L:=S_LEN(A);
+    ((L>1) AND (GETB(A,0)=60) AND (GETB(A,L-1)=62) AND (S_COUNT(A,44)>0)) => (
+       Q:=L-1; X:=S_SUB(A,1,Q); PARTS:=S_SPLIT(X,44);
+       Q:=L_LEN(PARTS);
+       R:=L_GET(PARTS,0); R:=S_CAT(LOC('<'),R); L_ADD(RES,R);
+       I:=1;
+       WHILE I<(Q-1) DO (L_ADD(RES,L_GET(PARTS,I)); I:=I+1);
+       Q:=Q-1; R:=L_GET(PARTS,Q); R:=S_CAT(R,LOC('>')); L_ADD(RES,R))
+    ELSE L_ADD(RES,A);
+    K:=K+1);
+ FNNAME:=NAME;
+ RES);
+
+# THE FIRST COLON FOLLOWED BY WHITE SPACE OR THE END, AT OR AFTER F; -1 IF THERE IS NONE #
+SUBR COLON_AT(S,F) IS (
+ I,N ARE LOCAL;
+ N:=S_LEN(S); I:=F;
+ WHILE I<N DO (
+    GETB(S,I)=58 => (((IS_SPACE(GETB(S,I+1)) NE 0) OR (I=(N-1))) => RETURN I);
+    I:=I+1);
+ -1);
+
+# A MESSAGE AND ITS EXPLANATION: MOSTLY RAISED LETTERS UP TO THE FIRST COLON; THE MESSAGE INTO FMHEAD AND THE EXPLANATION INTO FMBODY; 1 IF THERE IS ONE #
+SUBR FIND_MESSAGE(TXT) IS (
+ P,HEAD,FLAGGED,LETTERS,I,N,C,E ARE LOCAL;
+ P:=COLON_AT(TXT,0);
+ P<0 => RETURN 0;
+ ((P>140) OR (P<4)) => RETURN 0;
+ HEAD:=S_SUB(TXT,0,P);
+ N:=S_LEN(HEAD); I:=0; FLAGGED:=0; LETTERS:=0;
+ WHILE I<N DO (
+    C:=GETB(HEAD,I);
+    IS_ALPHA(C) NE 0 => LETTERS:=LETTERS+1;
+    ((C=94) AND (IS_UP(GETB(HEAD,I+1)) NE 0)) => (FLAGGED:=FLAGGED+1; LETTERS:=LETTERS+1; I:=I+1);
+    I:=I+1);
+ LETTERS=0 => RETURN 0;
+ (FLAGGED*10)<(LETTERS*6) => RETURN 0;
+ FLAGGED<4 => RETURN 0;
+ E:=P+1; IS_SPACE(GETB(TXT,P+1)) NE 0 => E:=P+2;
+ N:=S_LEN(TXT); E>N => E:=N;
+ FMHEAD:=HEAD; FMBODY:=S_STRIP(S_FROM(TXT,E));
+ 1);
+
+# NAME(ARGS): DESCRIPTION, WITH THE NAME RAISED OR IN A ^^ SPAN; THE HEAD INTO FFHEAD AND THE DESCRIPTION INTO FFBODY; 1 IF THERE IS ONE #
+SUBR FIND_FUNCTION(TXT) IS (
+ P,G1,G2,N,I,HEAD,C,L,E ARE LOCAL;
+ N:=S_LEN(TXT);
+ ((GETB(TXT,0) NE 94) OR (GETB(TXT,1) NE 94)) => RETURN 0;
+ P:=S_INDEX(TXT,LOC(':'),2);
+ P<0 => (G1:=TXT; G2:=S_E(0))
+ ELSE (
+    IS_SPACE(GETB(TXT,P+1)) NE 0 => (
+       G1:=S_SUB(TXT,0,P); I:=P+1;
+       WHILE IS_SPACE(GETB(TXT,I)) NE 0 DO I:=I+1;
+       G2:=S_FROM(TXT,I))
+    ELSE RETURN 0);
+ S_LEN(G1)>80 => RETURN 0;
+ HEAD:=CASE_FRESH(G1); HEAD:=S_SQUEEZE(HEAD); HEAD:=S_STRIP(HEAD);
+ # A LETTER, LETTERS AND DIGITS, A PARENTHESIS, ANYTHING, A PARENTHESIS AT THE END #
+ L:=S_LEN(HEAD);
+ IS_ALPHA(GETB(HEAD,0))=0 => RETURN 0;
+ I:=1;
+ WHILE IS_ALNUM(GETB(HEAD,I)) NE 0 DO I:=I+1;
+ GETB(HEAD,I) NE 40 => RETURN 0;
+ L<(I+2) => RETURN 0;
+ GETB(HEAD,L-1) NE 41 => RETURN 0;
+ FFHEAD:=HEAD; FFBODY:=S_STRIP(G2);
+ 1);
+
+# THE ARGUMENTS OF AN .IT LINE FOR THE TOKENS OF A TAG #
+SUBR TAG_LINE(TOKS) IS (
+ N,I,T,J,K,PARTS,PLAIN,X,Y,Z,MACRO,ARGS,CODE,P,KIND,A,C,B,F,TX ARE LOCAL;
+ N:=L_LEN(TOKS);
+ N=1 => (
+    T:=L_GET(TOKS,0); X:=S_CAT(RD(T,F_TEXT),RD(T,F_POST)); K:=S_LEN(X);
+    ((K>1) AND (GETB(X,K-1)=46) AND (ALL_IN(S_SUB(X,0,K-1),0,DIGIT_SET) NE 0)) => RETURN X);
+ # ALL WORDS: ONE LITERAL #
+ K:=1; I:=0;
+ WHILE I<N DO (T:=L_GET(TOKS,I); RD(T,F_KIND) NE KW => K:=0; I:=I+1);
+ K NE 0 => (
+    B:=L_NEW(0); I:=0;
+    WHILE I<N DO (T:=L_GET(TOKS,I); X:=S_CAT3(RD(T,F_PRE),RD(T,F_TEXT),RD(T,F_POST)); L_ADD(B,X); I:=I+1);
+    X:=S_JOINL(B,LOC(' ')); Y:=ESC(X,1); RETURN S_CAT(LOC('Li '),Y));
+ PARTS:=L_NEW(0); PLAIN:=L_NEW(0); I:=0;
+ TG1: I<N => (
+    T:=L_GET(TOKS,I);
+    RD(T,F_KIND)=KW => (
+       X:=S_CAT3(RD(T,F_PRE),RD(T,F_TEXT),RD(T,F_POST)); X:=UTF8IZE(X); L_ADD(PLAIN,X); I:=I+1; GO TO TG1);
+    TAG_FLUSH(PARTS,PLAIN);
+    P:=RD(T,F_PRE); K:=0;
+    ((S_LEN(P)>0) AND (S_EQ(P,LOC('(')) NE 0)) => K:=0 ELSE (S_LEN(P)>0 => K:=1);
+    X:=RD(T,F_POST);
+    ((S_LEN(X)>0) AND (GETB(X,0)=93)) => K:=1;
+    K NE 0 => (
+       X:=S_CAT3(RD(T,F_PRE),RD(T,F_TEXT),RD(T,F_POST)); Y:=ESC(X,1); L_ADD(PARTS,S_CAT(LOC('Li '),Y)); I:=I+1; GO TO TG1);
+    KIND:=RD(T,F_KIND); ARGS:=L_NEW(0); L_ADD(ARGS,RD(T,F_TEXT)); J:=I+1; F:=1;
+    WHILE F NE 0 DO (
+       J<N => (
+          X:=L_GET(TOKS,J); Y:=L_GET(TOKS,J-1);
+          ((RD(X,F_KIND)=KIND) AND (S_LEN(RD(X,F_PRE))=0) AND (S_LEN(RD(Y,F_POST))=0)) => (L_ADD(ARGS,RD(X,F_TEXT)); J:=J+1) ELSE F:=0)
+       ELSE F:=0);
+    ((KIND=KLI) AND (L_LEN(ARGS)>1)) => (X:=S_JOINL(ARGS,LOC(' ')); ARGS:=L_NEW(0); L_ADD(ARGS,X));
+    CODE:=0; ((KIND=KLI) OR (KIND=KIC) OR (KIND=KPA)) => CODE:=1;
+    B:=L_NEW(0); K:=0;
+    WHILE K<L_LEN(ARGS) DO (
+       X:=L_GET(ARGS,K);
+       CODE=0 => X:=UTF8IZE(X);
+       Y:=ESC(X,CODE); L_ADD(B,Y); K:=K+1);
+    X:=S_JOINL(B,LOC(' '));
+    Y:=L_GET(TOKS,J-1);
+    MACRO:=KMAC(KIND);
+    S_LEN(RD(T,F_PRE))>0 => (Z:=ESC(RD(T,F_PRE),0); Z:=S_CAT3(LOC('Pf '),Z,LOC(' ')); Z:=S_CAT(Z,MACRO)) ELSE Z:=MACRO;
+    Z:=S_CAT3(Z,LOC(' '),X);
+    S_LEN(RD(Y,F_POST))>0 => (X:=S_JOINC(RD(Y,F_POST)); Z:=S_CAT3(Z,LOC(' '),X));
+    L_ADD(PARTS,Z);
+    I:=J; GO TO TG1);
+ TAG_FLUSH(PARTS,PLAIN);
+ S_JOINL(PARTS,LOC(' ')));
+
+# THE PLAIN WORDS COLLECTED IN PLAIN BECOME A PART (WITH No BEFORE THEM UNLESS THEY ARE THE FIRST) #
+SUBR TAG_FLUSH(PARTS,PLAIN) IS (
+ B,I,N,X,Y ARE LOCAL;
+ N:=L_LEN(PLAIN);
+ N>0 => (
+    B:=L_NEW(0); I:=0;
+    WHILE I<N DO (X:=L_GET(PLAIN,I); Y:=ESC(X,0); L_ADD(B,Y); I:=I+1);
+    X:=S_JOINL(B,LOC(' '));
+    L_LEN(PARTS)>0 => X:=S_CAT(LOC('No '),X);
+    L_ADD(PARTS,X); WR(PLAIN,0,0));
+ 0);
+
+# ---- THE STATE OF THE LAYOUT ---- #
+
+SUBR CLOSE_SUB(Z) IS (
+ ST_SUB NE 0 => (L_ADD(OUT,LOC('.El')); ST_SUB:=0);
+ 0);
+
+SUBR CLOSE_ALL(Z) IS (
+ CLOSE_SUB(0);
+ ST_RAG NE 0 => (L_ADD(OUT,LOC('.Ed')); ST_RAG:=0);
+ ST_LIST NE 0 => (L_ADD(OUT,LOC('.El')); ST_LIST:=0; ST_FIRSTPAR:=0);
+ ST_ITEM:=0;
+ 0);
+
+# A PARAGRAPH: THE LINES (A LIST) JOINED, CORRECTED, TOKENIZED AND WRITTEN #
+SUBR PAR(LINES) IS (
+ TXT,TOKS ARE LOCAL;
+ TXT:=S_JOINL(LINES,LOC(' ')); TXT:=FIXP(TXT);
+ TOKS:=TOKENIZE(TXT,CASER,1);
+ WR(CASER,0,0);
+ EMIT_PAR(TOKS,OUT);
+ 0);
+
+# A PARAGRAPH OF THE BODY OF THE CURRENT ITEM OR BLOCK #
+SUBR BODY_PAR(LINES) IS (
+ ST_PP NE 0 => (ST_FIRSTPAR=0 => L_ADD(OUT,LOC('.Pp')));
+ ST_PP:=0;
+ PAR(LINES);
+ ST_FIRSTPAR:=0; 0);
+
+# THE LITERAL BLOCK THAT .NOFILL OPENED IS DONE: LONG LINES WITHOUT INDENT ARE A PARAGRAPH, THE OTHERS A LITERAL BLOCK #
+SUBR FINISH_LIT(Z) IS (
+ L,N,I,F,X,OK,SUMW,IND,K,C,P,R,SP ARE LOCAL;
+ L:=ST_LIT;
+ L=0 => RETURN 0;
+ F:=1;
+ WHILE F NE 0 DO (L_LEN(L)>0 => (X:=L_GET(L,0); S_LEN(S_STRIP(X))=0 => L_DEL1(L,0) ELSE F:=0) ELSE F:=0);
+ F:=1;
+ WHILE F NE 0 DO (L_LEN(L)>0 => (K:=L_LEN(L)-1; X:=L_GET(L,K); S_LEN(S_STRIP(X))=0 => L_POP(L) ELSE F:=0) ELSE F:=0);
+ N:=L_LEN(L); OK:=0; SUMW:=0;
+ N>0 => (
+    OK:=1; I:=0;
+    WHILE I<N DO (
+       X:=L_GET(L,I);
+       S_LEN(S_STRIP(X))>0 => (IS_SPACE(GETB(X,0)) NE 0 => OK:=0);
+       SUMW:=SUMW+S_NWORDS(X);
+       I:=I+1));
+ OK NE 0 => (SUMW<(6*N) => OK:=0);
+ OK NE 0 => (
+    ST_PP NE 0 => (ST_FIRSTPAR=0 => L_ADD(OUT,LOC('.Pp')));
+    R:=L_NEW(0); I:=0;
+    WHILE I<N DO (X:=L_GET(L,I); S_LEN(S_STRIP(X))>0 => L_ADD(R,X); I:=I+1);
+    PAR(R);
+    ST_PP:=1; ST_FIRSTPAR:=0; ST_LIT:=0; RETURN 0);
+ (ST_ITEM NE 0) AND (ST_FIRSTPAR=0) => L_ADD(OUT,LOC('.Pp'));
+ # THE INDENT TAKEN OUT: THE SMALLEST NUMBER OF LEADING SPACES #
+ IND:=-1; I:=0;
+ WHILE I<N DO (
+    X:=L_GET(L,I);
+    S_LEN(S_STRIP(X))>0 => (
+       K:=0; WHILE GETB(X,K)=32 DO K:=K+1;
+       ((IND<0) OR (K<IND)) => IND:=K);
+    I:=I+1);
+ IND<0 => IND:=0;
+ L_ADD(OUT,LOC('.Bd -literal -offset indent'));
+ I:=0;
+ WHILE I<N DO (
+    X:=L_GET(L,I); K:=S_LEN(X);
+    IND>K => X:=S_E(0) ELSE X:=S_FROM(X,IND);
+    X:=ESC_LIT(X); L_ADD(OUT,X); I:=I+1);
+ L_ADD(OUT,LOC('.Ed'));
+ ST_FIRSTPAR:=0; ST_PP:=1; ST_LIT:=0;
+ 0);
+
+# ---- THE PATTERNS OF THE TAGS ---- #
+
+# DIGITS, A DOT AND WHITE SPACE AT THE FRONT #
+SUBR IS_NUMITEM(S) IS (
+ I ARE LOCAL;
+ I:=0;
+ WHILE IS_DIG(GETB(S,I)) NE 0 DO I:=I+1;
+ I=0 => RETURN 0;
+ GETB(S,I) NE 46 => RETURN 0;
+ IS_SPACE(GETB(S,I+1)));
+
+# DIGITS, A DOT, WHITE SPACE AND THE REST: THE DIGITS AND THE DOT INTO NH_TAG, THE REST INTO NH_BODY #
+SUBR NUMHEAD(S) IS (
+ I,J,N ARE LOCAL;
+ I:=0;
+ WHILE IS_DIG(GETB(S,I)) NE 0 DO I:=I+1;
+ I=0 => RETURN 0;
+ GETB(S,I) NE 46 => RETURN 0;
+ IS_SPACE(GETB(S,I+1))=0 => RETURN 0;
+ J:=I+1; NH_TAG:=S_SUB(S,0,J);
+ WHILE IS_SPACE(GETB(S,J)) NE 0 DO J:=J+1;
+ NH_BODY:=S_FROM(S,J);
+ 1);
+
+# A TEXT THAT STARTS WITH WORDS AND A YEAR-LIKE NUMBER OF FOUR DIGITS, THEN A COLON AND WHITE SPACE: THE FIRST PART INTO MR_G1 AND THE REST INTO MR_G2 #
+SUBR MATCH_MREF(S) IS (
+ C,I,N,J ARE LOCAL;
+ C:=S_INDEX(S,LOC(':'),0);
+ C<5 => RETURN 0;
+ I:=C-4;
+ WHILE I<C DO (IS_DIG(GETB(S,I))=0 => RETURN 0; I:=I+1);
+ IS_SPACE(GETB(S,C-5))=0 => RETURN 0;
+ IS_SPACE(GETB(S,C+1))=0 => RETURN 0;
+ MR_G1:=S_SUB(S,0,C);
+ J:=C+1; WHILE IS_SPACE(GETB(S,J)) NE 0 DO J:=J+1;
+ MR_G2:=S_FROM(S,J);
+ 1);
+
+# ^^ ... TWO BACKSLASHES, OR <NAME>, THEN A COLON AND THE REST: THE TAG INTO M2_G1 AND THE REST INTO M2_G2 #
+SUBR MATCH_M2(S) IS (
+ P,I,N,J,F ARE LOCAL;
+ N:=S_LEN(S);
+ ((GETB(S,0)=94) AND (GETB(S,1)=94)) => (
+    P:=2; F:=1;
+    WHILE F NE 0 DO (
+       P<N => (
+          ((GETB(S,P)=92) AND (GETB(S,P+1)=92) AND (GETB(S,P+2)=58)) => F:=0 ELSE P:=P+1)
+       ELSE F:=0);
+    P<N => (
+       J:=P+2; M2_G1:=S_SUB(S,0,J); J:=J+1;
+       WHILE IS_SPACE(GETB(S,J)) NE 0 DO J:=J+1;
+       M2_G2:=S_FROM(S,J); RETURN 1));
+ GETB(S,0) NE 60 => RETURN 0;
+ I:=1;
+ WHILE ((GETB(S,I) NE 0) AND (GETB(S,I) NE 60) AND (GETB(S,I) NE 62) AND (IS_SPACE(GETB(S,I))=0)) DO I:=I+1;
+ I=1 => RETURN 0;
+ GETB(S,I) NE 62 => RETURN 0;
+ GETB(S,I+1) NE 58 => RETURN 0;
+ J:=I+1; M2_G1:=S_SUB(S,0,J); J:=J+1;
+ WHILE IS_SPACE(GETB(S,J)) NE 0 DO J:=J+1;
+ M2_G2:=S_FROM(S,J);
+ 1);
+
+# THE FOLLOWING ARE .SUBTITLE'S: THE STRING WITHOUT ITS TRAILING DOTS #
+SUBR S_RSTRIP_DOTS(S) IS (
+ J,F ARE LOCAL;
+ J:=S_LEN(S); F:=1;
+ WHILE F NE 0 DO (J>0 => (GETB(S,J-1)=46 => J:=J-1 ELSE F:=0) ELSE F:=0);
+ S_SUB(S,0,J));
+
+# EVERY PAIR OF QUOTE MARKS AND THE TEXT BETWEEN THEM, WITH CURLY QUOTES #
+SUBR CURLY(S) IS (
+ B,I,N,J,D ARE LOCAL;
+ B:=B_NEW(0); N:=S_LEN(S); I:=0;
+ WHILE I<N DO (
+    D:=0;
+    GETB(S,I)=34 => (
+       J:=S_INDEX(S,LOC('"'),I+1);
+       J GE 0 => (B_STR(B,LDQ); B_STR(B,S_SUB(S,I+1,J)); B_STR(B,RDQ); I:=J+1; D:=1));
+    D=0 => (B_CH(B,GETB(S,I)); I:=I+1));
+ B_GET(B));
+
+# IS THE LINE FIVE OR MORE DASHES, OR A !  #
+SUBR IS_DASHES(S) IS (
+ N ARE LOCAL;
+ N:=S_LEN(S);
+ ((N=1) AND (GETB(S,0)=33)) => RETURN 1;
+ ((N>4) AND (ALL_IN(S,0,LOC('-')) NE 0)));
+
+# ---- THE EVENTS TO MDOC LINES ---- #
+
+SUBR RUN_EVENTS(Z) IS (
+ I,N,E,CMD,ARG,LN,K,X,Y,W,LINES,COND,L1,TOKS,RK,RL,J,F,F2,C2,CHUNK,JOINED,PROSE,BASE,TITLE,HEAD,PN,DEPTH,P,Q,TAGS,BODY,BRK,WIDTH,FIRST,TXT,TG,F0,MK,NEXTOK,NM,REST,TX,ARGS,A,M,FMOK ARE LOCAL;
+ I:=0; N:=L_LEN(EV);
+ EVL: I<N => (
+    E:=L_GET(EV,I); I:=I+1;
+    RD(E,0)=1 => (
+       LN:=RD(E,2);
+       ST_LIT NE 0 => (
+          K:=0;
+          WHILE K<L_LEN(LN) DO (
+             X:=L_GET(LN,K); Y:=S_LSTRIP(X);
+             S_STARTS(Y,LOC('^&'))=0 => (W:=CS_RUN(CASER,X); L_ADD(ST_LIT,W));
+             K:=K+1);
+          GO TO EVL);
+       LINES:=L_NEW(0); K:=0;
+       WHILE K<L_LEN(LN) DO (
+          X:=L_GET(LN,K); Y:=S_LSTRIP(X); W:=S_STRIP(X);
+          COND:=0;
+          S_STARTS(Y,LOC('^&')) NE 0 => COND:=1;
+          IS_DASHES(W) NE 0 => COND:=1;
+          COND=0 => L_ADD(LINES,X);
+          K:=K+1);
+       L_LEN(LINES)=0 => GO TO EVL;
+       # A PARAGRAPH IN A MARGIN REGION: NUMBERED ITEMS, OR AN INDENTED BLOCK #
+       ((ST_MARGIN NE 0) AND (ST_LIST=0) AND (ST_RAG=0) AND (ST_SUB=0)) => (
+          X:=L_GET(LINES,0);
+          IS_NUMITEM(X) NE 0 => (L_ADD(OUT,LOC('.Bl -tag -width 3n -compact')); ST_LIST:=1)
+          ELSE (L_ADD(OUT,LOC('.Bd -ragged -offset indent')); ST_RAG:=1; ST_FIRSTPAR:=1));
+       ST_LIST=1 => (
+          W:=S_JOINL(LINES,LOC(' '));
+          NUMHEAD(W) NE 0 => (
+             X:=S_CAT(LOC('.It '),NH_TAG); L_ADD(OUT,X);
+             Y:=L_NEW(0); L_ADD(Y,NH_BODY); PAR(Y); GO TO EVL));
+       L1:=L_LEN(LINES);
+       # A SYNTAX LINE BEFORE AN .INDENT: IT IS CENTERED #
+       ((L1=1) AND (I<N)) => (
+          X:=L_GET(LINES,0);
+          S_INDEX(X,LOC('::='),0) GE 0 => (
+             Y:=L_GET(EV,I);
+             ((RD(Y,0)=0) AND (S_EQ(RD(Y,1),LOC('INDENT')) NE 0)) => (
+                S_INT(RD(Y,2)) GE 0 => (
+                   X:=EV_NEW(0,LOC('CENTER'),S_E(0)); K:=I-1; L_INS(EV,K,X); N:=N+1; I:=I-1; GO TO EVL))));
+       # A LINE OF CODE BETWEEN SKIPS: A DISPLAYED LINE #
+       ((L1=1) AND (I GE 2)) => (
+          K:=I-2; Y:=L_GET(EV,K);
+          ((RD(Y,0)=0) AND ((S_EQ(RD(Y,1),LOC('SKIP')) NE 0) OR (S_EQ(RD(Y,1),LOC('BREAK')) NE 0))) => (
+             NEXTOK:=1;
+             I<N => (
+                Y:=L_GET(EV,I);
+                RD(Y,0)=0 => (
+                   NM:=RD(Y,1); NEXTOK:=0;
+                   ((S_EQ(NM,LOC('SKIP')) NE 0) OR (S_EQ(NM,LOC('BREAK')) NE 0) OR (S_EQ(NM,LOC('LEFT')) NE 0)) => NEXTOK:=1));
+             NEXTOK NE 0 => (
+                X:=L_GET(LINES,0);
+                TOKS:=TOKENIZE(X,CASER,0);
+                K:=L_LEN(TOKS); COND:=0;
+                K>0 => (
+                   COND:=1; J:=0;
+                   WHILE J<K DO (Y:=L_GET(TOKS,J); RD(Y,F_KIND)=KW => COND:=0; J:=J+1));
+                COND NE 0 => (
+                   COND:=0;
+                   K>1 => COND:=1;
+                   Y:=L_GET(TOKS,0); RD(Y,F_KIND)=KLI => COND:=1);
+                COND NE 0 => (
+                   RL:=L_NEW(0); J:=0;
+                   WHILE J<K DO (Y:=L_GET(TOKS,J); W:=S_CAT3(RD(Y,F_PRE),RD(Y,F_TEXT),RD(Y,F_POST)); L_ADD(RL,W); J:=J+1);
+                   X:=S_JOINL(RL,LOC(' '));
+                   ST_PP NE 0 => (ST_FIRSTPAR=0 => L_ADD(OUT,LOC('.Pp')));
+                   Y:=ESC(X,1); W:=S_CAT(LOC('.Dl '),Y); L_ADD(OUT,W);
+                   ST_PP:=1; ST_FIRSTPAR:=0; GO TO EVL))));
+       BODY_PAR(LINES);
+       GO TO EVL);
+    CMD:=RD(E,1); ARG:=RD(E,2);
+    ST_LIT NE 0 => (
+       ((S_EQ(CMD,LOC('FILL'))=0) AND (S_EQ(CMD,LOC('SUBTITLE'))=0)) => GO TO EVL);
+    # .CENTER, OR .INDENT WITH A POSITIVE ARGUMENT, AND TEXT AFTER IT: A RUN OF SUCH PAIRS IS A LITERAL BLOCK UNLESS IT IS PROSE #
+    COND:=0;
+    S_EQ(CMD,LOC('CENTER')) NE 0 => COND:=1;
+    S_EQ(CMD,LOC('INDENT')) NE 0 => (S_INT(ARG) GE 0 => COND:=1);
+    ((COND NE 0) AND (I<N)) => (
+       Y:=L_GET(EV,I);
+       RD(Y,0)=1 => (
+          RK:=L_NEW(0); RL:=L_NEW(0); J:=I-1; F:=1;
+          WHILE F NE 0 DO (
+             F2:=0;
+             J<N => (
+                Y:=L_GET(EV,J);
+                RD(Y,0)=0 => (
+                   C2:=0;
+                   S_EQ(RD(Y,1),LOC('CENTER')) NE 0 => C2:=1;
+                   S_EQ(RD(Y,1),LOC('INDENT')) NE 0 => (S_INT(RD(Y,2)) GE 0 => C2:=1);
+                   ((C2 NE 0) AND ((J+1)<N)) => (X:=L_GET(EV,J+1); RD(X,0)=1 => F2:=1)));
+             F2=0 => F:=0
+             ELSE (
+                CHUNK:=RD(X,2); JOINED:=S_JOINL(CHUNK,LOC(' '));
+                PROSE:=0;
+                W:=S_RSTRIP(JOINED);
+                ((S_LEN(W)>0) AND (S_NWORDS(JOINED)>5)) => (GETB(W,S_LEN(W)-1)=46 => PROSE:=1);
+                PROSE NE 0 => F:=0
+                ELSE (
+                   K:=0;
+                   S_EQ(RD(Y,1),LOC('INDENT')) NE 0 => K:=S_INT(RD(Y,2));
+                   P:=0;
+                   WHILE P<L_LEN(CHUNK) DO (L_ADD(RK,K); L_ADD(RL,L_GET(CHUNK,P)); P:=P+1);
+                   J:=J+2)));
+          L_LEN(RL)>0 => (
+             BASE:=L_GET(RK,0); P:=1;
+             WHILE P<L_LEN(RK) DO (K:=L_GET(RK,P); K<BASE => BASE:=K; P:=P+1);
+             ST_PP NE 0 => (ST_FIRSTPAR=0 => L_ADD(OUT,LOC('.Pp')));
+             L_ADD(OUT,LOC('.Bd -literal -offset indent'));
+             P:=0;
+             WHILE P<L_LEN(RL) DO (
+                K:=L_GET(RK,P); K:=K-BASE;
+                X:=CASE_FRESH(L_GET(RL,P));
+                WHILE K>0 DO (X:=S_CAT(LOC(' '),X); K:=K-1);
+                X:=ESC_LIT(X); L_ADD(OUT,X); P:=P+1);
+             L_ADD(OUT,LOC('.Ed'));
+             ST_PP:=1; ST_FIRSTPAR:=0; I:=J; GO TO EVL)));
+    S_EQ(CMD,LOC('SUBTITLE')) NE 0 => (
+       FINISH_LIT(0); CLOSE_ALL(0); ST_MARGIN:=0;
+       TITLE:=CASE_FRESH(ARG); TITLE:=S_SQUEEZE(TITLE); TITLE:=S_STRIP(TITLE); TITLE:=S_RSTRIP_DOTS(TITLE);
+       # A NUMBER OF DIGITS AND DOTS, THEN A COLON #
+       P:=0; WHILE ((GETB(TITLE,P)=46) OR (IS_DIG(GETB(TITLE,P)) NE 0)) DO P:=P+1;
+       ((P>0) AND (GETB(TITLE,P)=58)) => (
+          X:=S_SUB(TITLE,0,P); DEPTH:=S_COUNT(X,46)+1;
+          Q:=P+1; WHILE IS_SPACE(GETB(TITLE,Q)) NE 0 DO Q:=Q+1;
+          Y:=S_FROM(TITLE,Q); X:=S_RSTRIP_DOTS(X); HEAD:=S_CAT3(X,LOC(' '),Y))
+       ELSE (DEPTH:=1; HEAD:=S_REPL(TITLE,LOC(':'),S_E(0)));
+       HEAD:=S_SQUEEZE(HEAD); HEAD:=S_STRIP(HEAD);
+       W:=S_UPPER(HEAD);
+       S_EQ(W,LOC('INDEX')) NE 0 => GO TO EVL;
+       HEAD:=CURLY(HEAD);
+       HEAD:=UTF8IZE(HEAD);
+       DEPTH=1 => (HEAD:=S_UPPER(HEAD); X:=LOC('.Sh ')) ELSE X:=LOC('.Ss ');
+       Y:=ESC(HEAD,0); W:=S_CAT(X,Y); L_ADD(OUT,W);
+       ST_FIRSTPAR:=1; ST_PP:=0;
+       # THE HEADING'S OWN COPY: .CENTER AND ONE TEXT EVENT, POSSIBLY AFTER OTHER LAYOUT COMMANDS #
+       K:=I; F:=1;
+       WHILE F NE 0 DO (
+          K<N => (
+             Y:=L_GET(EV,K);
+             RD(Y,0)=0 => (
+                NM:=RD(Y,1);
+                ((S_EQ(NM,LOC('PAGE')) NE 0) OR (S_EQ(NM,LOC('SKIP')) NE 0) OR (S_EQ(NM,LOC('INDEX')) NE 0) OR (S_EQ(NM,LOC('TEST')) NE 0) OR (S_EQ(NM,LOC('RIGHT')) NE 0) OR (S_EQ(NM,LOC('TAB')) NE 0) OR (S_EQ(NM,LOC('LEFT')) NE 0)) => K:=K+1 ELSE F:=0)
+             ELSE F:=0)
+          ELSE F:=0);
+       ((K<N) AND ((K+1)<N)) => (
+          Y:=L_GET(EV,K);
+          ((RD(Y,0)=0) AND (S_EQ(RD(Y,1),LOC('CENTER')) NE 0)) => (
+             X:=L_GET(EV,K+1);
+             RD(X,0)=1 => (
+                W:=RD(X,2); REST:=L_SLICE(W,1,L_LEN(W));
+                I:=K+2;
+                L_LEN(REST)>0 => (X:=EV_NEW(1,0,REST); L_INS(EV,I,X); N:=N+1))));
+       GO TO EVL);
+    S_EQ(CMD,LOC('NOFILL')) NE 0 => (ST_LIT:=L_NEW(0); GO TO EVL);
+    S_EQ(CMD,LOC('FILL')) NE 0 => (FINISH_LIT(0); GO TO EVL);
+    S_EQ(CMD,LOC('LEFT')) NE 0 => (
+       CLOSE_SUB(0);
+       # MARGIN, WHITE SPACE, DIGITS (ANY CASE) #
+       M:=0;
+       S_EQ(S_UPPER(S_SUB(ARG,0,6)),LOC('MARGIN')) NE 0 => (
+          IS_SPACE(GETB(ARG,6)) NE 0 => (
+             P:=6; WHILE IS_SPACE(GETB(ARG,P)) NE 0 DO P:=P+1;
+             IS_DIG(GETB(ARG,P)) NE 0 => (M:=1; X:=S_FROM(ARG,P); Q:=S_INT(X))));
+       ((M NE 0) AND (Q=0)) => (CLOSE_ALL(0); ST_MARGIN:=0)
+       ELSE (M NE 0 => (ST_MARGIN:=Q; ST_FIRSTPAR:=1));
+       GO TO EVL);
+    ((S_EQ(CMD,LOC('PARAGRAPH')) NE 0) OR (S_EQ(CMD,LOC('SKIP')) NE 0) OR (S_EQ(CMD,LOC('BREAK')) NE 0)) => (
+       S_EQ(CMD,LOC('BREAK'))=0 => (CLOSE_SUB(0); ST_PP:=1);
+       GO TO EVL);
+    S_EQ(CMD,LOC('INDENT')) NE 0 => (
+       K:=S_INT(ARG);
+       K GE 0 => (
+          I<N => (
+             Y:=L_GET(EV,I);
+             RD(Y,0)=1 => (
+                ST_SUB=0 => (L_ADD(OUT,LOC('.Bl -bullet -compact -offset indent')); ST_SUB:=1);
+                L_ADD(OUT,LOC('.It')); W:=RD(Y,2); PAR(W); I:=I+1));
+          GO TO EVL);
+       WIDTH:=0-K;
+       CLOSE_SUB(0);
+       TAGS:=L_NEW(0); BODY:=0;
+       I<N => (Y:=L_GET(EV,I); RD(Y,0)=1 => (L_ADD(TAGS,RD(Y,2)); I:=I+1));
+       F:=1;
+       WHILE F NE 0 DO (
+          F2:=0;
+          ((I<N) AND ((I+1)<N)) => (
+             Y:=L_GET(EV,I);
+             ((RD(Y,0)=0) AND (S_EQ(RD(Y,1),LOC('INDENT')) NE 0) AND (S_INT(RD(Y,2))=K)) => (X:=L_GET(EV,I+1); RD(X,0)=1 => F2:=1));
+          F2=0 => F:=0 ELSE (L_ADD(TAGS,RD(X,2)); I:=I+2));
+       BRK:=0;
+       I<N => (Y:=L_GET(EV,I); ((RD(Y,0)=0) AND (S_EQ(RD(Y,1),LOC('BREAK')) NE 0)) => BRK:=1);
+       ((L_LEN(TAGS)>0) AND (BRK=0)) => (
+          W:=L_GET(TAGS,0); X:=L_GET(W,0);
+          S_STARTS(X,LOC('(*)')) NE 0 => (ST_PP:=1; BODY_PAR(W); GO TO EVL));
+       BRK NE 0 => I:=I+1
+       ELSE (
+          L_LEN(TAGS)>0 => FIRST:=L_GET(TAGS,0) ELSE FIRST:=L_NEW(0);
+          TXT:=S_JOINL(FIRST,LOC(' '));
+          TAGS:=L_NEW(0); BODY:=0;
+          Y:=MATCH_MREF(TXT);
+          FMOK:=FIND_MESSAGE(TXT);
+          W:=FIND_FUNCTION(TXT);
+          M:=NUMHEAD(TXT);
+          K:=MATCH_M2(TXT);
+          M NE 0 => (X:=L_NEW(0); L_ADD(X,NH_TAG); L_ADD(TAGS,X); BODY:=NH_BODY)
+          ELSE (
+            ((Y NE 0) AND (S_LEN(MR_G1)<40)) => (
+               X:=S_SQUEEZE(CASE_FRESH(MR_G1)); X:=S_CAT(MARK2,X); Q:=L_NEW(0); L_ADD(Q,X); L_ADD(TAGS,Q); BODY:=MR_G2)
+            ELSE (
+              W NE 0 => (X:=S_CAT(MARK1,FFHEAD); Q:=L_NEW(0); L_ADD(Q,X); L_ADD(TAGS,Q); BODY:=FFBODY)
+              ELSE (
+                FMOK NE 0 => (X:=S_CAT(MARK3,FMHEAD); Q:=L_NEW(0); L_ADD(Q,X); L_ADD(TAGS,Q); BODY:=FMBODY)
+                ELSE (
+                  K NE 0 => (Q:=L_NEW(0); L_ADD(Q,M2_G1); L_ADD(TAGS,Q); BODY:=M2_G2)
+                  ELSE BODY:=TXT)))));
+       L_LEN(TAGS)=0 => (
+          BODY NE 0 => (
+             S_LEN(BODY)>0 => (Y:=L_NEW(0); L_ADD(Y,BODY); BODY_PAR(Y); ST_PP:=1));
+          GO TO EVL);
+       ST_LIST=0 => (X:=S_NUM(WIDTH); WIDTH<3 => X:=LOC('3'); X:=S_CAT3(LOC('.Bl -tag -width '),X,LOC('n -compact')); L_ADD(OUT,X); ST_LIST:=2);
+       K:=0;
+       WHILE K<L_LEN(TAGS) DO (
+          TG:=L_GET(TAGS,K); F0:=L_GET(TG,0); MK:=GETB(F0,0);
+          MK=2 => (X:=S_FROM(F0,1); X:=UTF8IZE(X); X:=ESC(X,0); X:=S_CAT(LOC('.It '),X); L_ADD(OUT,X))
+          ELSE (MK=1 => (
+             X:=S_FROM(F0,1); ARGS:=FN_PARTS(X);
+             X:=ESC(FNNAME,1); X:=S_CAT(LOC('.It Fn '),X);
+             A:=0;
+             WHILE A<L_LEN(ARGS) DO (Y:=ESC(L_GET(ARGS,A),1); X:=S_CAT3(X,LOC(' '),Y); A:=A+1);
+             L_ADD(OUT,X))
+          ELSE (MK=3 => (
+             X:=S_FROM(F0,1); X:=CASE_FRESH(X); X:=S_SQUEEZE(X); X:=S_STRIP(X); X:=ESC(X,1); X:=S_CAT(LOC('.It Li '),X); L_ADD(OUT,X))
+          ELSE (
+             X:=S_JOINL(TG,LOC(' ')); TOKS:=TOKENIZE(X,CASER,0); X:=TAG_LINE(TOKS); X:=S_CAT(LOC('.It '),X); L_ADD(OUT,X))));
+          K:=K+1);
+       ST_ITEM:=1; ST_FIRSTPAR:=1; ST_PP:=0;
+       BODY NE 0 => (S_LEN(BODY)>0 => (Y:=L_NEW(0); L_ADD(Y,BODY); PAR(Y); ST_FIRSTPAR:=0));
+       GO TO EVL);
+    GO TO EVL);
+ 0);
+
+# ---- THE PAGE ---- #
+
+SUBR MK3(A,B,C) IS (
+ S ARE LOCAL;
+ S:=CCALL calloc(16,1); PUTB(S,0,A); PUTB(S,1,B); PUTB(S,2,C); S);
+
+SUBR INIT_SETS(Z) IS (
+ S ARE LOCAL;
+ NAMES_SET:=LOC(' IMP IMP72 PDP ASCII FORTRAN TENEX APL ALGOL CDC DEC BNF DDT UUO IM II III IV VI TTY REL CR LIB CMD DSK RSYN IMPLIB PMOD AMOD RMOD OMOD MAC RNO HLP IML FORTIO MAXWELL MAXEND DEBUG IMPSEM COTREE DOSEM ERCOR ENTREE PARSE GRAPH LEX FREE STACK DIR SAMPLE EXPRESSION MEANING CONTENTS ');
+ S:=LOC(' Ad An Ao Ac Ap Aq Ar At Bc Bd Bf Bk Bl Bo Bq Brc Bro Brq Bsx Bt Bx Cd Cm D1 Db Dc Dd Dl Do Dq Dt Dv Dx Ec Ed Ef Ek El Em En Eo Er Es Ev Ex Fa Fc Fd Fl Fn Fo Fr Ft Fx Hf Ic In It Lb Li Lk Lp Ms Mt Nd Nm ');
+ MACROS_SET:=S_CAT(S,LOC('No Ns Nx Oc Oo Op Os Ot Ox Pa Pc Pf Po Pp Pq Qc Ql Qo Qq Re Rs Rv Sc Sh Sm So Sq Ss St Sx Sy Ta Tn Ud Ux Va Vt Xc Xo Xr '));
+ VARNEXT_SET:=LOC(' IS ARE AND OR NE LE GE LT GT EQ LS RS LROT RROT ALS ARS XOR EQV HAS IMPLIES LEFT RIGHT FOR WILL BEING DO MAY MUST SHOULD CAN WAS WERE WHICH ');
+ EMPH_SET:=LOC(' EXCEPTION NOTA BENE YOUR SYNTACTICALLY SEMANTICALLY CORRECT MEANINGFUL ');
+ PLAIN_SET:=LOC(' I/O N.B ');
+ PAPER_SET:=LOC(' INDEX PAGE TEST RIGHT TAB SPACING NUMBER JUSTIFY TITLE PRINT FOOTNOTE ');
+ FILEEXT_SET:=LOC(' IMP REL LIB TMP CMD MAC RNO SHR LOW HLP LST CRF DAT TXT BAK EXE ');
+ SET_PRE:=LOC('(["''');
+ SET_POST:=LOC('.,:;)]?!"''');
+ SET_QPOST:=LOC('.,:;)]?!');
+ SET_BPOST:=LOC('.,:;)]?"''');
+ UPPER_SET:=LOC('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+ LOWER_SET:=LOC('abcdefghijklmnopqrstuvwxyz');
+ ALPHA_SET:=LOC('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+ ALNUM_SET:=LOC('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+ ALNUMUP_SET:=LOC('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+ DIGIT_SET:=LOC('0123456789');
+ CAPSPACE_SET:=LOC('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ');
+ PUNCT3:=LOC(',;.');
+ PUNCT4:=LOC('.,;:');
+ SPACES_SET:=CCALL calloc(16,1);
+ PUTB(SPACES_SET,0,9); PUTB(SPACES_SET,1,10); PUTB(SPACES_SET,2,11); PUTB(SPACES_SET,3,12); PUTB(SPACES_SET,4,13); PUTB(SPACES_SET,5,32);
+ TABSTR:=S_C(9); MARK1:=S_C(1); MARK2:=S_C(2); MARK3:=S_C(3);
+ EMDASH:=CCALL calloc(16,1); PUTB(EMDASH,0,32); PUTB(EMDASH,1,226); PUTB(EMDASH,2,128); PUTB(EMDASH,3,148); PUTB(EMDASH,4,32);
+ TDASH:=LOC(' - ');
+ RSQ:=MK3(226,128,153);
+ LDQ:=MK3(226,128,156);
+ RDQ:=MK3(226,128,157);
+ ORDTH:=CCALL calloc(16,1); PUTB(ORDTH,0,226); PUTB(ORDTH,1,128); PUTB(ORDTH,2,153); PUTB(ORDTH,3,116); PUTB(ORDTH,4,104);
+ ABBR1_L:=WORDS_OF(LOC('etc sect sec fig vs approx'));
+ ABBR2_L:=WORDS_OF(LOC('etc sect sec fig vs approx e.g i.e'));
+ GQ_TODO:=L_NEW(0);
+ CMDW:=S_E(0); CMDA:=S_E(0); FMHEAD:=S_E(0); FMBODY:=S_E(0); FFHEAD:=S_E(0); FFBODY:=S_E(0); FNNAME:=S_E(0); NH_TAG:=S_E(0); NH_BODY:=S_E(0);
+ MR_G1:=S_E(0); MR_G2:=S_E(0); M2_G1:=S_E(0); M2_G2:=S_E(0);
+ 0);
+
+# THE LINES OF THE HEADER OF THE PAGE #
+SUBR HEADER(Z) IS (
+ L_ADD(OUT,LOC('.\" Generated by tools/runoff2mdoc.imp from decus/imp.rno: do not edit.'));
+ L_ADD(OUT,LOC('.Dd August 1, 1973'));
+ L_ADD(OUT,LOC('.Dt IMP72 7'));
+ L_ADD(OUT,LOC('.Os'));
+ L_ADD(OUT,LOC('.Sh NAME'));
+ L_ADD(OUT,LOC('.Nm imp72'));
+ L_ADD(OUT,LOC('.Nd the IMP72 systems programming language, reference manual'));
+ L_ADD(OUT,LOC('.Sh DESCRIPTION'));
+ L_ADD(OUT,LOC('This is the reference manual of IMP72 version 1.5, written for the PDP-10 by Walt Bilofsky'));
+ L_ADD(OUT,LOC('at the Yale University Department of Computer Science (DECUS program 10-198), August 1973.'));
+ L_ADD(OUT,LOC('The compiler was based largely on previous work of E. T. Irons;'));
+ L_ADD(OUT,LOC('substantial contributions were made by Steven Weingart and Terry Lyons.'));
+ L_ADD(OUT,LOC('The manual reflects version 1.5 of the compiler, written to run under version 5.06 of the'));
+ L_ADD(OUT,LOC('DECsystem-10'));
+ L_ADD(OUT,LOC('operating system and run successfully under version 1.31.23 of'));
+ L_ADD(OUT,LOC('TENEX.'));
+ L_ADD(OUT,LOC('.Pp'));
+ L_ADD(OUT,LOC('The text is the author''s own, converted from the RUNOFF source'));
+ L_ADD(OUT,LOC('with the typesetting of 1973 replaced by mdoc markup.'));
+ 0);
+
+# THE PAGE: THE LINES OF OUT, EXCEPT A .PP BEFORE A LINE THAT STARTS A BLOCK, EACH WITH A NEWLINE #
+SUBR WRITE_TIDY(Z) IS (
+ B,I,N,L,X,SKIP ARE LOCAL;
+ B:=B_NEW(0); N:=L_LEN(OUT); I:=0;
+ WHILE I<N DO (
+    L:=L_GET(OUT,I); SKIP:=0;
+    S_EQ(L,LOC('.Pp')) NE 0 => (
+       (I+1)<N => (
+          X:=L_GET(OUT,I+1);
+          ((S_STARTS(X,LOC('.Bd')) NE 0) OR (S_STARTS(X,LOC('.Bl')) NE 0) OR (S_STARTS(X,LOC('.Pp')) NE 0) OR (S_STARTS(X,LOC('.Sh')) NE 0) OR (S_STARTS(X,LOC('.Ss')) NE 0) OR (S_STARTS(X,LOC('.It')) NE 0) OR (S_STARTS(X,LOC('.El')) NE 0) OR (S_STARTS(X,LOC('.Ed')) NE 0)) => SKIP:=1));
+    SKIP=0 => (B_STR(B,L); B_CH(B,10));
+    I:=I+1);
+ CCALL fwrite(RD(B,2),1,RD(B,0),IMPSTDOUT(0));
+ 0);
+
+# THE WHOLE JOB: THE SOURCE AT PATH TO THE PAGE ON THE STANDARD OUTPUT #
+SUBR MAIN(PATH) IS (
+ SRC,I,N,K,L,A,B,START,F ARE LOCAL;
+ OUT:=L_NEW(0);
+ INIT_SETS(0);
+ LOAD_FIXES(FIXPATH);
+ SRC:=READ_LINES(PATH,0);
+ N:=L_LEN(SRC);
+ # THE CORRECTIONS APPLY TO THE TEXT LINES (THOSE THAT DO NOT START WITH A DOT) #
+ K:=0;
+ WHILE K<L_LEN(FIXOLD) DO (
+    A:=L_GET(FIXOLD,K); B:=L_GET(FIXNEW,K); I:=0;
+    WHILE I<N DO (
+       L:=L_GET(SRC,I);
+       GETB(L,0) NE 46 => (L:=S_REPL(L,A,B); L_SET(SRC,I,L));
+       I:=I+1);
+    K:=K+1);
+ START:=-1; I:=0;
+ WHILE I<N DO (
+    L:=L_GET(SRC,I);
+    S_STARTS(L,LOC('.SUBTITLE 1:')) NE 0 => (START:=I; I:=N);
+    I:=I+1);
+ START<0 => DIE(LOC('no .SUBTITLE 1: in'),PATH);
+ EV:=EVENTS(SRC,START);
+ HEADER(0);
+ CASER:=CS_NEW(0);
+ ST_LIST:=0; ST_ITEM:=0; ST_SUB:=0; ST_RAG:=0; ST_FIRSTPAR:=1; ST_LIT:=0; ST_PP:=0; ST_MARGIN:=0;
+ RUN_EVENTS(0);
+ CLOSE_ALL(0);
+ WRITE_TIDY(0);
+ 0)
+%%
+%%

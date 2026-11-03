@@ -67,7 +67,7 @@ compiler and the goldens.
 expressions; `GEN=imp-fuzz2.py`: subroutines, arrays, loops, conditionals), runs them on the
 original and on imp72stage0, and reports the programs whose output differs. The programs keep
 their values small and shift only non-negative values, so the 36 bit original and the 64 bit
-port must agree. `tools/imp-trace.py` adds a PRINT of the variables after every statement of
+port must agree. `tools/imp-trace.imp` (`sh tools/imptool.sh imp-trace IN.imp OUT.imp`) adds a PRINT of the variables after every statement of
 every SUBR, to find the statement where the two part. It found, in the port:
 
 - constant-folded comparisons gave 1 for true (IMP's true is -1);

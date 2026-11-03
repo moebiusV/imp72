@@ -1,0 +1,112 @@
+#ELFDUMP.IMP -- THE SECTIONS AND SYMBOLS OF A 64 BIT LITTLE ENDIAN ELF OBJECT THAT CONCERN "RETGUARD" (OPENBSD'S RETURN PROTECTOR), AND ITS COMDAT GROUPS.  THE COMPILER BUILDS IT (TOOLS/IMPTOOL.SH).
+
+    ELFDUMP FILE...     FOR EACH FILE A LINE "== FILE", THEN AT MOST 6 SECTIONS WHOSE NAME HAS RETGUARD IN IT OR THAT ARE GROUPS (NAME, TYPE, FLAGS, LINK, INFO, AND FOR A GROUP ITS FLAGS, MEMBERS AND SIGNATURE SYMBOL),
+                        THEN AT MOST 4 SYMBOLS WITH RETGUARD IN THE NAME (NOT SECTION SYMBOLS).  IT REPLACES TOOLS/ELFDUMP.PY, BYTE FOR BYTE.#
+
+BUF,N,WORD,NA,SHOFF,SHNUM,SHSTR,SYMSEC,NSYM,LINES,FI ARE COMMON;
+
+# THE MAIN PROGRAM #
+NA:=CCALL impargc(0);
+FI:=1;
+WHILE FI<NA DO (
+   CCALL printf(LOC('== %s%c'),ARG(FI),10); LINES:=0;
+   SLURP(ARG(FI)); DUMP(0);
+   CCALL printf(LOC('%c'),10);
+   FI:=FI+1);
+CCALL fflush(IMPSTDOUT(0));
+CCALL exit(0);
+
+SUBR GETB(P,I) IS (
+ Q ARE LOCAL;
+ Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>);
+
+SUBR PUTB(P,I,V) IS (
+ Q ARE LOCAL;
+ Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>:=V; 0);
+
+SUBR R16(P) IS ((GETB(P,1) LS 8) OR GETB(P,0));
+
+SUBR R32(P) IS ((GETB(P,3) LS 24) OR (GETB(P,2) LS 16) OR (GETB(P,1) LS 8) OR GETB(P,0));
+
+SUBR R64(P) IS ((R32(P+4) LS 32) OR R32(P));
+
+SUBR ARG(I) IS (
+ IMPARGET(LOC(WORD),impargvp(0),I);
+ WORD);
+
+SUBR DIE(M,A) IS (
+ CCALL write(2,M,CCALL strlen(M)); CCALL write(2,LOC(': '),2); CCALL write(2,A,CCALL strlen(A));
+ PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1); CCALL exit(1));
+
+SUBR SLURP(PATH) IS (
+ F ARE LOCAL;
+ F:=CCALL fopen(PATH,LOC('rb'));
+ F=0 => DIE(LOC('cannot read'),PATH);
+ CCALL fseek(F,0,2); N:=CCALL ftell(F); CCALL fseek(F,0,0);
+ BUF:=CCALL calloc(N+16,1);
+ N>0 => CCALL fread(BUF,1,N,F) NE N => DIE(LOC('cannot read'),PATH);
+ CCALL fclose(F);
+ 0);
+
+# THE ADDRESS OF SECTION HEADER I, AND ITS FIELDS #
+SUBR SH(I) IS (BUF+SHOFF+(I*64));
+SUBR SNAME(I) IS NM(SHSTR,R32(SH(I)));
+
+# THE NAME (AN ADDRESS) AT OFFSET O OF THE STRING SECTION S #
+SUBR NM(S,O) IS (BUF+R64(SH(S)+24)+O);
+
+# A NEW LINE OF OUTPUT: THE LINES ARE JOINED BY NEW LINES, AND THE LAST ONE IS ENDED BY ONE #
+SUBR BEGIN(Z) IS (LINES>0 => CCALL printf(LOC('%c'),10); LINES:=LINES+1; 0);
+
+SUBR DUMP(Z) IS (
+ I,T,NS,NY,M,K,P,Q,G,NMEM ARE LOCAL;
+ SHOFF:=R64(BUF+40); SHNUM:=R16(BUF+60); SHSTR:=R16(BUF+62);
+ SYMSEC:=0-1; NSYM:=0;
+ I:=0;
+ WHILE I<SHNUM DO (R32(SH(I)+4)=2 => (SYMSEC:=I; NSYM:=R64(SH(I)+32)/24); I:=I+1);
+ NS:=0;
+ I:=0;
+ WHILE I<SHNUM DO (
+   P:=SH(I); T:=R32(P+4);
+   ((CCALL strstr(NM(SHSTR,R32(P)),LOC('retguard')) NE 0) OR (T=17)) => (
+      NS<6 => (
+         BEGIN(0);
+         CCALL printf(LOC('sec%d %s type='),I,NM(SHSTR,R32(P)));
+         T=1 => CCALL printf(LOC('PROGBITS')) ELSE
+         T=2 => CCALL printf(LOC('SYMTAB')) ELSE
+         T=3 => CCALL printf(LOC('STRTAB')) ELSE
+         T=4 => CCALL printf(LOC('RELA')) ELSE
+         T=9 => CCALL printf(LOC('REL')) ELSE
+         T=17 => CCALL printf(LOC('GROUP')) ELSE
+         T=0 => CCALL printf(LOC('NULL')) ELSE
+         T=8 => CCALL printf(LOC('NOBITS')) ELSE CCALL printf(LOC('%d'),T);
+         CCALL printf(LOC(' flags=0x%lx link=%d info=%d'),R64(P+8),R32(P+40),R32(P+44));
+         T=17 => (
+            NMEM:=R64(P+32)/4; Q:=BUF+R64(P+24);
+            CCALL printf(LOC(' groupflags=%x members=['),R32(Q));
+            K:=1;
+            WHILE K<NMEM DO (
+               K>1 => CCALL printf(LOC(', '));
+               CCALL printf(LOC('%c%s%c'),39,SNAME(R32(Q+(K*4))),39);
+               K:=K+1);
+            CCALL printf(LOC('] signature_sym[%d]='),R32(P+44));
+            ((NSYM>0) AND (R32(P+44)<NSYM)) => (
+               CCALL printf(LOC('%s'),NM(R32(SH(SYMSEC)+40),R32(BUF+R64(SH(SYMSEC)+24)+(R32(P+44)*24))))) ELSE CCALL printf(LOC('None'))));
+      NS:=NS+1);
+   I:=I+1);
+ NSYM>0 => (
+   M:=0; K:=0;
+   WHILE K<NSYM DO (
+     Q:=BUF+R64(SH(SYMSEC)+24)+(K*24);
+     G:=NM(R32(SH(SYMSEC)+40),R32(Q));
+     ((CCALL strstr(G,LOC('retguard')) NE 0) AND ((GETB(Q,4) AND 15) NE 3) AND (M<4)) => (
+        BEGIN(0);
+        CCALL printf(LOC('sym[%d] %s bind=%d type=%d vis=%d'),K,G,GETB(Q,4) RS 4,GETB(Q,4) AND 15,GETB(Q,5) AND 3);
+        I:=R16(Q+6);
+        CCALL printf(LOC(' shndx=%d('),I);
+        I<SHNUM => CCALL printf(LOC('%s'),SNAME(I)) ELSE CCALL printf(LOC('?'));
+        CCALL printf(LOC(') val=%lu size=%lu'),R64(Q+8),R64(Q+16));
+        M:=M+1);
+     K:=K+1));
+ 0)
+%%

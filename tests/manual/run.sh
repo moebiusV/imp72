@@ -1,13 +1,12 @@
 #!/bin/sh
-# docs/manual/imp72.md and imp72.7 are what tools/runoff2md.py and tools/runoff2mdoc.py make of decus/imp.rno
-# (with tools/runoff-fixes.txt): regenerate and compare.  mandoc, if present, must find no errors in the page.
+# docs/manual/imp72.md and imp72.7 are what tools/runoff2md.imp and tools/runoff2mdoc.imp (IMP programs, built by the compiler of the tree:
+# tools/imptool.sh) make of decus/imp.rno (with tools/runoff-fixes.txt): regenerate and compare.  mandoc, if present, must find no errors in the page.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-command -v python3 >/dev/null 2>&1 || { echo "manual check skipped: no python3"; exit 0; }
 mkdir -p build
 fail=0
-python3 tools/runoff2md.py decus/imp.rno > build/imp72.md.new
-python3 tools/runoff2mdoc.py decus/imp.rno > build/imp72.7.new
+sh tools/imptool.sh runoff2md decus/imp.rno > build/imp72.md.new || { echo "FAILED: tools/runoff2md" >&2; exit 1; }
+sh tools/imptool.sh runoff2mdoc decus/imp.rno > build/imp72.7.new || { echo "FAILED: tools/runoff2mdoc" >&2; exit 1; }
 for f in imp72.md imp72.7; do
     cmp -s build/$f.new docs/manual/$f || { diff build/$f.new docs/manual/$f | head -5
         echo "FAILED: docs/manual/$f is not what its converter makes" >&2; fail=1; }

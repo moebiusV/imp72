@@ -1,0 +1,159 @@
+#PROBE-FIELDS.IMP -- BIT FIELD READS AND STORES, V<S,P> AND V<S,P>:=E, ON A GRID OF SIZES AND POSITIONS AND SEVERAL VALUES, IN CHUNKS OF 50 (ONE FUNCTION MAY HAVE ONLY SO MANY TEMPORARIES), EACH COMPILED WITH DRIVER AND COMPARED WITH EXACT 64 BIT ARITHMETIC.
+THE COMPILER BUILDS IT (TOOLS/IMPTOOL.SH).  IT REPLACES TOOLS/PROBE-FIELDS.PY, BYTE FOR BYTE.
+
+    PROBE-FIELDS DRIVER      DRIVER IS THE COMPILER TO TEST (DRIVER -O EXE SOURCE).  THE FILES ARE IN TMP/FIELDPROBE (OF THE CURRENT DIRECTORY).  PRINTS THE (SIZE, POSITION) PAIRS THAT ARE WRONG, WITH A COUNT; EXIT 1 IF THERE ARE ANY.#
+
+SZ IS 23 LONG;
+PO IS 17 LONG;
+VL IS 4 LONG;
+CK IS 2500 LONG;
+CV IS 2500 LONG;
+CS IS 2500 LONG;
+CP IS 2500 LONG;
+EX IS 50 LONG;
+GT IS 50 LONG;
+GK IS 50 LONG;
+BC IS 800 LONG;
+BV IS 800 LONG;
+BE IS 800 LONG;
+BG IS 800 LONG;
+BK IS 800 LONG;
+WORD,NA,NC,KM,DRV,C0,VI,SI,PI,NBAD,KEY,CMD,LINE,TMP ARE COMMON;
+
+# THE MAIN PROGRAM #
+NA:=CCALL impargc(0);
+NA NE 2 => DIE(LOC('usage'),LOC('probe-fields DRIVER'));
+DRV:=ARG(1);
+CMD:=CCALL calloc(4096,1); LINE:=CCALL calloc(4096,1); TMP:=CCALL calloc(4096,1);
+SIZES(0);
+CCALL mkdir(LOC('tmp'),511); CCALL mkdir(LOC('tmp/fieldprobe'),511);
+NC:=0;
+VI:=0;
+WHILE VI<4 DO (
+   SI:=0;
+   WHILE SI<23 DO (
+      PI:=0;
+      WHILE PI<17 DO ((SZ[SI]+PO[PI]) LE 64 => CASE(0,VI,SI,PI); PI:=PI+1);
+      SI:=SI+1);
+   VI:=VI+1);
+SI:=0;
+WHILE SI<23 DO (
+   PI:=0;
+   WHILE PI<17 DO ((SZ[SI]+PO[PI]) LE 64 => CASE(1,0,SI,PI); PI:=PI+1);
+   SI:=SI+1);
+C0:=0;
+WHILE C0<NC DO (CHUNK(C0); C0:=C0+50);
+NBAD:=0;
+KEY:=0;
+WHILE KEY<782 DO (
+   BC[KEY]>0 => (
+      NBAD:=NBAD+1; KM:=KEY; KEY<391 => 0 ELSE KM:=KEY-391;
+      CCALL printf(LOC('%s <%d,%d>: wrong for %d of the values, e.g. value %ld'),(KEY<391 => LOC('read ') ELSE LOC('store')),SZ[KM/17],PO[KM-((KM/17)*17)],BC[KEY],BV[KEY]);
+      CCALL printf(LOC(' expected %ld got '),BE[KEY]);
+      BK[KEY] NE 0 => CCALL printf(LOC('%ld%c'),BG[KEY],10) ELSE CCALL printf(LOC('None%c'),10));
+   KEY:=KEY+1);
+CCALL printf(LOC('%d cases, %d (kind, size, position) wrong%c'),NC,NBAD,10);
+CCALL fflush(IMPSTDOUT(0));
+NBAD NE 0 => CCALL exit(1);
+CCALL exit(0);
+
+SUBR GETB(P,I) IS (
+ Q ARE LOCAL;
+ Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>);
+
+SUBR PUTB(P,I,V) IS (
+ Q ARE LOCAL;
+ Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>:=V; 0);
+
+SUBR ARG(I) IS (
+ IMPARGET(LOC(WORD),impargvp(0),I);
+ WORD);
+
+SUBR DIE(M,A) IS (
+ CCALL write(2,M,CCALL strlen(M)); CCALL write(2,LOC(': '),2); CCALL write(2,A,CCALL strlen(A));
+ PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1); CCALL exit(1));
+
+# THE SIZES, THE POSITIONS AND THE VALUES #
+SUBR SIZES(Z) IS (
+ SZ[0]:=1; SZ[1]:=2; SZ[2]:=3; SZ[3]:=7; SZ[4]:=8; SZ[5]:=9; SZ[6]:=12; SZ[7]:=16; SZ[8]:=17; SZ[9]:=18; SZ[10]:=19; SZ[11]:=24;
+ SZ[12]:=31; SZ[13]:=32; SZ[14]:=33; SZ[15]:=35; SZ[16]:=36; SZ[17]:=37; SZ[18]:=40; SZ[19]:=48; SZ[20]:=60; SZ[21]:=62; SZ[22]:=63;
+ PO[0]:=0; PO[1]:=1; PO[2]:=7; PO[3]:=8; PO[4]:=9; PO[5]:=17; PO[6]:=18; PO[7]:=19; PO[8]:=24; PO[9]:=27; PO[10]:=31; PO[11]:=32; PO[12]:=35;
+ PO[13]:=36; PO[14]:=40; PO[15]:=45; PO[16]:=55;
+ VL[0]:=8152436061464415713; VL[1]:=0-5124095576030430; VL[2]:=17179869183; VL[3]:=0-1;
+ 0);
+
+# THE TEXT OF A VALUE AS A LITERAL OF A PROGRAM: V, OR (0-V) #
+SUBR LIT(V) IS (
+ V<0 => CCALL snprintf(TMP,64,LOC('(0-%lu)'),0-V) ELSE CCALL snprintf(TMP,64,LOC('%ld'),V);
+ TMP);
+
+SUBR CASE(K,V,S,P) IS (
+ CK[NC]:=K; CV[NC]:=V; CS[NC]:=S; CP[NC]:=P; NC:=NC+1; 0);
+
+# ONE CHUNK OF 50 CASES FROM C: THE PROGRAM, ITS COMPILATION, ITS RUN, AND THE COMPARISON #
+SUBR CHUNK(C) IS (
+ N,K,F,V,S,P,NW,MK,EV,BADI,KEYI,NN,GOTV,Z1,Z2 ARE LOCAL;
+ NN:=NC-C; NN>50 => NN:=50;
+ CCALL snprintf(CMD,4000,LOC('tmp/fieldprobe/c%d.imp'),C);
+ F:=CCALL fopen(CMD,LOC('wb'));
+ F=0 => DIE(LOC('cannot write'),CMD);
+ CCALL fputs(LOC('A,B ARE COMMON;'),F); CCALL fputc(10,F);
+ N:=0;
+ WHILE N<NN DO (
+    K:=C+N;
+    V:=VL[CV[K]]; S:=SZ[CS[K]]; P:=PO[CP[K]];
+    MK:=(1 LS S)-1;
+    CK[K]=0 => (
+       CCALL fprintf(F,LOC('A:=%s; PRINT STG 0,''%d '',IGR 0,A<%d,%d>,/;'),LIT(V),N,S,P);
+       EX[N]:=(V RS P) AND MK) ELSE (
+       NW:=406913472214181285 AND MK;
+       MK:=MK LS P;
+       CCALL fprintf(F,LOC('A:=%s; A<%d,%d>:='),LIT(V),S,P);
+       CCALL fprintf(F,LOC('%ld; PRINT STG 0,''%d '',IGR 0,A,/;'),NW,N);
+       EX[N]:=(V AND (NOT MK)) OR ((NW LS P) AND MK));
+    CCALL fputc(10,F);
+    N:=N+1);
+ CCALL fputs(LOC('FINI(0)'),F); CCALL fputc(10,F); CCALL fputc(37,F); CCALL fputc(37,F); CCALL fputc(10,F);
+ CCALL fclose(F);
+ # COMPILE: DRIVER -O EXE SOURCE, ITS OUTPUTS IN TWO FILES #
+ CCALL snprintf(CMD,4000,LOC('''%s'' -o tmp/fieldprobe/c%d'),DRV,C);
+ CCALL snprintf(LINE,4000,LOC('%s tmp/fieldprobe/c%d.imp > tmp/fieldprobe/log.out 2> tmp/fieldprobe/log.err'),CMD,C);
+ CCALL system(LINE) NE 0 => (
+    CCALL printf(LOC('chunk %d does not compile: '),C);
+    SHOWTAIL(0);
+    RETURN 0);
+ CCALL snprintf(LINE,4000,LOC('tmp/fieldprobe/c%d > tmp/fieldprobe/run.out'),C);
+ CCALL system(LINE);
+ N:=0; WHILE N<50 DO (GK[N]:=0; N:=N+1);
+ F:=CCALL fopen(LOC('tmp/fieldprobe/run.out'),LOC('rb'));
+ F NE 0 => (
+    L5: CCALL fgets(LINE,4000,F) NE 0 => (
+       CCALL sscanf(LINE,LOC('%ld %ld %s'),LOC(Z1),LOC(Z2),TMP+1024)  = 2 => (
+          GOTV:=0;
+          ((Z1 GE 0) AND (Z1<50)) => (GT[Z1]:=Z2; GK[Z1]:=1));
+       GO TO L5);
+    CCALL fclose(F));
+ N:=0;
+ WHILE N<NN DO (
+    K:=C+N;
+    ((GK[N]=0) OR (GT[N] NE EX[N])) => (
+       KEYI:=(CK[K]*391)+(CS[K]*17)+CP[K];
+       BC[KEYI]=0 => (BV[KEYI]:=VL[CV[K]]; BE[KEYI]:=EX[N]; BG[KEYI]:=GT[N]; BK[KEYI]:=GK[N]);
+       BC[KEYI]:=BC[KEYI]+1);
+    N:=N+1);
+ 0);
+
+# THE LAST 200 CHARACTERS OF THE STANDARD OUTPUT AND THE STANDARD ERROR OF THE COMPILATION, IN THAT ORDER #
+SUBR SHOWTAIL(Z) IS (
+ F,L,I,T ARE LOCAL;
+ L:=0;
+ F:=CCALL fopen(LOC('tmp/fieldprobe/log.out'),LOC('rb'));
+ F NE 0 => (L:=CCALL fread(TMP,1,2000,F); CCALL fclose(F));
+ F:=CCALL fopen(LOC('tmp/fieldprobe/log.err'),LOC('rb'));
+ F NE 0 => (I:=CCALL fread(TMP+L,1,2000,F); L:=L+I; CCALL fclose(F));
+ T:=0;
+ L>200 => T:=L-200;
+ L>T => CCALL fwrite(TMP+T,1,L-T,IMPSTDOUT(0));
+ CCALL printf(LOC('%c'),10);
+ 0)
+%%

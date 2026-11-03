@@ -95,7 +95,7 @@ failure of those jobs can be looked into with a shell and a debugger. The three 
 
 Everything is in `tmp/vm/OS`. Stop a machine with `stop` and not by killing it: an OpenBSD that is killed while it relinks its kernel at boot comes up with files missing and needs `clean` and
 `start` again. `VM_CPUS` (default 6-9) and `VM_MEM` (default 5G) say where and how big. The OpenBSD image comes up with its network card without a carrier and has no login on the serial port: the
-tool logs in on the video console through the QEMU monitor (`type.py`) and brings the interface up again.
+tool logs in on the video console through the QEMU monitor (`tools/bsd-vm/type.imp`, an IMP program that writes the `sendkey` commands, which `socat` in the container carries to the monitor's socket) and brings the interface up again.
 
 ### The fuzzers of the arithmetic
 

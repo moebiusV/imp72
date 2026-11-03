@@ -64,7 +64,7 @@ start)
     running && die "$os is running"
     docker rm -f "$ctr" >/dev/null 2>&1 || true
     docker run -d --init --name "$ctr" --device /dev/kvm --cpuset-cpus "$cpus" --memory 10g -v "$dir:/vm" -v "$here:/tools:ro" alpine:edge sleep infinity >/dev/null
-    inctr sh -c 'apk add --no-cache qemu-system-x86_64 qemu-img openssh-client sshpass python3 >/dev/null 2>&1' || die "cannot install qemu in the container"
+    inctr sh -c 'apk add --no-cache qemu-system-x86_64 qemu-img openssh-client sshpass socat >/dev/null 2>&1' || die "cannot install qemu in the container"
     rm -f "$dir"/work.qcow2 "$dir"/vars.fd "$dir"/*.sock "$dir"/console.log
     if [ $os = openbsd ]; then
         inctr sh -c 'cd /vm && qemu-img create -q -f qcow2 -b img/'$img' -F qcow2 work.qcow2 40G && cp /usr/share/qemu/edk2-i386-vars.fd vars.fd'
@@ -74,7 +74,9 @@ start)
         echo "bsd-vm: waiting for the console of $os (about a minute)"
         i=0; while ! inctr grep -q 'starting local daemons' /vm/console.log 2>/dev/null; do i=$((i+1)); [ $i -gt 90 ] && die "the machine did not boot"; sleep 5; done
         sleep 25
-        inctr python3 /tools/type.py root runner 'ifconfig vio0 down; ifconfig vio0 up; sleep 3; dhcpleasectl vio0' >/dev/null
+        # (tools/bsd-vm/type.imp runs here, on the host, built by the compiler of the tree; it writes the monitor commands, and socat in the container carries them to the socket of QEMU, which is root's and inside)
+        mkdir -p "$root/build/tools/bsd-vm"
+        sh "$root/tools/imptool.sh" bsd-vm/type root runner 'ifconfig vio0 down; ifconfig vio0 up; sleep 3; dhcpleasectl vio0' | inctr socat -t 3 - UNIX-CONNECT:/vm/mon.sock >/dev/null
     else
         inctr sh -c 'cd /vm && qemu-img create -q -f qcow2 -b vm/disk.img -F raw work.qcow2 40G'
         inctr sh -c 'qemu-system-x86_64 -enable-kvm -cpu host -m '$mem' -smp 4 -machine pc -display none -chardev socket,id=ser,path=/vm/ser.sock,server=on,wait=off,logfile=/vm/console.log -serial chardev:ser -monitor unix:/vm/mon.sock,server=on,wait=off -device virtio-scsi-pci -device scsi-hd,drive=drive0,bootindex=0 -drive if=none,file=/vm/work.qcow2,id=drive0,format=qcow2 -netdev user,id=n0,hostfwd=tcp::'$port'-:22 -device virtio-net-pci,netdev=n0 >/vm/qemu.log 2>&1 &'
