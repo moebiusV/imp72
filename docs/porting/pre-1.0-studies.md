@@ -29,16 +29,17 @@ decided. The recommendations are mine. "Looked at" means I read the code named; 
 *Recommendation.* Declare it: `EXTERNAL !name! RETURNS INT | LONG | PTR | DOUBLE | VOID` in `ffi.imc`, with `LONG` the default (today's behaviour). `INT` sign extends, `PTR` zero extends, `DOUBLE` is read as a `REAL`. The hand-written masks of `imp72sys.imp` go away.
 *Effect.* `ffi.imc`, `IXCALL` and the call lowering in `src/ir2ll.imp`; the existing declarations keep working. This is the study with the clearest gain: the sign-extended pointers and the widened results that had to be fixed by hand in the library on the 32-bit machines this session came from here.
 
-## 5. NUL-terminated strings against strings that carry their length
+## 5. NUL-terminated strings, and strings that carry their length
 
-*Now.* String constants are NUL-terminated bytes, so they pass to C unchanged; `STG` and `RTLPUT` count to the NUL.
-*Decision (the user, 2026-11-03): strings carry their length, and they are ALSO NUL-terminated, always.* The invariant, for every string, a constant or one built at run time:
-one word before the first byte holds the length in bytes (the NUL not counted), the bytes follow, and a zero byte follows them; one address (that of the first byte) names the string and serves C
-unchanged. Any routine that makes or changes a string keeps both: the length and the final zero. The cost is accepted.
-*Effect.* The constant emitter (the length word and the zero), `STG`/`PRINT` (use the length, not a scan), the library's text routines (`RTLPUT`, the file items, `MKNAME`, the lexer's token buffers where they
-are strings), the `LOC('...')` of a constant (the address of the first byte, as now), and every place that builds a string by `snprintf` or by hand (the length must be set after). `CCALL` of C strings is
-unchanged: the zero is there. A C string coming back from C has no length word: it needs a way to be wrapped (a library routine that reads `strlen` and builds the header in a buffer), and a routine that
-takes a string must say whether it takes one with a length or a plain C one (this goes with study 4's declarations). It is the largest change of the eight; after 2 and 4.
+*Now.* String constants are ASCIZ, as in the original: the bytes, then a zero (`docs/manual/imp72.md`: "an ASCII string always terminates with at least one zero character"). They pass to C unchanged; `STG`
+and `RTLPUT` scan to the zero.
+*Decision (the user, 2026-11-03): the ASCIZ string stays, as in the original.* Nothing about the constants, `STG`, `LOC('...')` or `CCALL` of C strings changes. **A string that carries its length is a separate
+object type, with its own set of handler functions**, added beside the ASCIZ one, not instead of it.
+*The new type (to be designed when it is done, as a library and declarations, not a change of the constants).* A counted string is a record: a length word (bytes, the NUL not counted), the bytes, and a
+zero byte after them (the user's earlier requirement that it also be NUL-terminated, so that the address of its bytes can be given to C), made and handled only by routines of its own: create from a
+constant or a C string (`strlen` once), length, copy, concatenate, compare, slice, search, append, print. A routine that takes a counted string and one that takes an ASCIZ one are different
+routines (with the declarations of study 4 saying which). No existing program changes.
+*Effect.* A new part of the library and its declarations; the lexer, the code generators and the existing library are untouched. Much smaller than the change first studied. After 2 and 4.
 
 ## 6. File names that match Unix's limits
 
@@ -46,11 +47,12 @@ takes a string must say whether it takes one with a length or a plain C one (thi
 *Recommendation.* Keep the tape's form for `PRINT FILE 'NAME'.'EXT'` but let the name be as long as the string given (limit: `NAME_MAX`), since the library takes it from the string, not from a packed word. The compiler's own `MKNAME` is for names on its command line, which a shell has already limited: lift it to `PATH_MAX`.
 *Effect.* Small: `MKNAME` and the buffer `NMB`; the `%.7s` of the library's file items (`CM6` in `imp72io.imp`) becomes the length of the buffer. Test with a name of 200 characters.
 
-## 7. The empty string `''`
+## 7. The empty string ''
 
-*Now.* A syntax error; a program that needs an empty C string passes the address of a zero byte.
-*Recommendation.* Yes, a literal: `''` is the empty string, and within a string two apostrophes remain one apostrophe, so `''''` is one apostrophe. The ambiguity is only in the lexer (a pair of apostrophes with nothing between them), settled by "an empty string is two apostrophes not followed by a third".
-*Effect.* One case in `lex.imp`, one test; with study 5 an empty string is a header of length 0 and a zero byte.
+*Now.* A syntax error here; a program that needs an empty C string passes the address of a zero byte.
+*Decision (the user, 2026-11-03): '' keeps its original meaning.* The manual says "The string '' is the same as 0": the empty ASCIZ string is just its terminating zero, which as a value is the number 0.
+So '' is the constant 0, and a quote inside a string is still written doubled (four apostrophes are one quote).
+*Effect.* One case in `lex.imp` (two apostrophes with no third following: the constant 0) and a test; nothing else. As a `STG` argument, '' is 0, the same as any other zero word.
 
 ## 8. The count
 
@@ -58,4 +60,6 @@ The README says eight and names seven things in a list; the fourth (the type tha
 
 ## Decided (the user, 2026-11-03)
 
-All the recommendations above are accepted, with the decision on strings in study 5. The order: 4, 7, 2 and 1 (the lexer, together), 6, 3, and 5 last. The syntax of IMP72 may now change in these ways, one study at a time, each with its tests and with the seed and stage 2 still writing the same IR (`tests/seed`).
+All the recommendations above are accepted, with these two changes of the original proposals: **strings stay ASCIZ** and counted strings are a separate object type with their own functions (study 5), and **'' keeps its
+original meaning, the number 0** (study 7). The order: 4, 7, 2 and 1 (the lexer, together), 6, 3, and 5 last. The syntax of IMP72 may now change in these ways, one study at a time, each with its tests and with the
+seed and stage 2 still writing the same IR (`tests/seed`).
