@@ -36,7 +36,7 @@ jobs:
     env:
       LLVM_CONFIG: /opt/homebrew/opt/llvm/bin/llvm-config
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: brew install llvm lld
       - name: make
         run: |

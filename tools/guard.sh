@@ -23,6 +23,8 @@ trap 'pkill -KILL -g $pid 2>/dev/null; kill -KILL $pid 2>/dev/null; kill $watch 
         sleep 1
         [ -n "$dirs" ] || continue
         used=$(du -sk $dirs 2>/dev/null | awk '{ s += $1 } END { print s + 0 }')
+        # the virtual machines of tools/bsd-vm (images of GB, put there on purpose and not grown by a job) do not count
+        if [ -d "$root/tmp/vm" ]; then vmk=$(du -sk "$root/tmp/vm" 2>/dev/null | awk '{ print $1 + 0 }'); used=$((used - vmk)); fi
         if [ "$used" -gt "$limit" ]; then
             echo "guard: build/ and tmp/ are $((used / 1024)) MB, over the limit of $limtxt: killing $*" >&2
             du -sk $dirs 2>/dev/null | sort -rn | head -3 | sed 's/^/guard:   /' >&2

@@ -35,7 +35,7 @@
  <ATOM> ::= IRNE ::= "26";    <ATOM> ::= IRLE ::= "27";     <ATOM> ::= IRLT ::= "28";     <ATOM> ::= IRGE ::= "29";
  <ATOM> ::= IRGT ::= "30";    <ATOM> ::= IRSCONV ::= "37";  <ATOM> ::= IRPCONV ::= "38";
  <ATOM> ::= TUCHAR ::= "3";   <ATOM> ::= TINT ::= "6";      <ATOM> ::= TLONG ::= "8";     <ATOM> ::= TULONG ::= "9";
- <ATOM> ::= TDOUBLE ::= "13"; <ATOM> ::= TPLONG ::= "40";   <ATOM> ::= TPFTN ::= "296";
+ <ATOM> ::= TDOUBLE ::= "13"; <ATOM> ::= TPLONG ::= "40"; <ATOM> ::= TPUCHAR ::= "35";   <ATOM> ::= TPFTN ::= "296";
 
 
  # THE HALFWORD STORES OF IMPSYN.IMC: HRL AND HRR (THE TAPE'S ADDOP(506B,..) AND ADDOP(542B,..) ARE HRLM AND HRRM, THE OPERATIONS OF THIS MACHINE) #

@@ -68,10 +68,10 @@ jobs:
     # the summary, the logs) still run
     timeout-minutes: 340
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # the work of the stages (the copy of the tree, the build, the logs) is kept: a run again of the same commit goes on from the stages that finished, and make from its objects
       - id: cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: work
           key: alpine-${{ matrix.arch }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -81,7 +81,7 @@ jobs:
           mkdir -p work/logs
           { echo "== $(date -u +%FT%TZ) ${{ matrix.arch }} on ${{ matrix.runner }}, commit ${{ github.sha }}, attempt ${{ github.run_attempt }}"; uname -srm; docker version --format 'docker {{.Server.Version}}'; df -h . | tail -1; free -m | sed -n 2p; ls work | tr '\n' ' '; echo; } >> work/logs/setup.log 2>&1
       - if: matrix.qemu
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: all
       # Docker's alpine image has no loongarch64: import Alpine's minirootfs.  The emulator is the one setup-qemu registered; if that one does not run it, qemu-user-static of the
@@ -121,13 +121,13 @@ jobs:
       - if: always()
         run: sudo chown -R "$(id -u):$(id -g)" work 2>/dev/null || true
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: logs-${{ strategy.job-index }}-${{ matrix.arch == 'arm/v7' && 'armv7' || matrix.arch }}
           path: work/logs
           if-no-files-found: ignore
       - if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: work
           key: alpine-${{ matrix.arch }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}

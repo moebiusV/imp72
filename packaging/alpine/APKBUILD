@@ -8,8 +8,8 @@ url="https://github.com/moebiusV/imp72"
 # LLVM, in the compiler's own process.  Tested in Alpine containers of each (tools/ci-arch.sh).
 arch="x86_64 x86 aarch64 armv7 ppc64le riscv64 s390x loongarch64"
 license="ISC AND BSD-2-Clause AND BSD-3-Clause"
-# a C compiler and linker are used to assemble and link the programs it makes
-depends="gcc musl-dev"
+# the programs it makes are linked by lld, inside the compiler: the start files and the C library (musl-dev) are all it needs, no C compiler
+depends="musl-dev"
 # python3 runs the manual and glue checks
 checkdepends="binutils python3"
 makedepends="llvm-dev lld-dev compiler-rt"

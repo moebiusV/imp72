@@ -75,6 +75,28 @@ stage fails. A stage that finished leaves a stamp and is skipped when asked for 
 "Re-run failed jobs" on the same commit goes on from where the last run stopped. Each failed stage writes its own annotations, the tails of the logs are in the summary of the job, and
 the logs are uploaded as an artifact (`logs-*`).
 
+### Runaway jobs
+
+A compiler that loops printing an error, or a test that writes without end, must not fill the disk. `make` and `make check` run under `tools/guard.sh`, which kills the whole job (its process
+group, not the shell that started it) when `build/` and `tmp/` together pass 10 GB (`-g GB`, `-m MB`; `GUARD_OFF=1` turns it off; `tmp/vm`, the images of `tools/bsd-vm`, does not count).
+The scripts source `tools/limits.sh` (2 GB for a file one process writes, 40 minutes of CPU for one process, best effort), and a log that may grow goes through `tools/capped.sh FILE CMD...` (at most
+200 MB, the beginning, which says why). The only scratch directory is `tmp/` of the tree (not in git), never `/tmp`.
+
+### The BSDs of CI on one's own machine
+
+`tools/bsd-vm/bsd-vm.sh` runs the machines the BSD jobs use, OpenBSD 8.0 and NetBSD 11.0 (amd64), under QEMU with KVM in a container (only docker and `/dev/kvm` are needed), so that a
+failure of those jobs can be looked into with a shell and a debugger. The three bugs the BSDs found in this tree (the standard output of OpenBSD 8.0 and of NetBSD, and the flush at exit of NetBSD) were found this way.
+
+    sh tools/bsd-vm/bsd-vm.sh fetch openbsd     # the image of the cross-platform-actions project, once (0.8 GB; NetBSD 0.3 GB, 1.4 GB extracted)
+    sh tools/bsd-vm/bsd-vm.sh start openbsd     # a new machine on a copy-on-write overlay: the image is never written to
+    sh tools/bsd-vm/bsd-vm.sh ci openbsd        # copy the tree (committed and not) and run tools/ci-run.sh there; `ci openbsd check` runs only gmake check
+    sh tools/bsd-vm/bsd-vm.sh ssh openbsd [CMD] # a shell as runner (gdb on NetBSD: pkg_add gdb as root)
+    sh tools/bsd-vm/bsd-vm.sh stop openbsd      # halts the guest from inside, then the container
+
+Everything is in `tmp/vm/OS`. Stop a machine with `stop` and not by killing it: an OpenBSD that is killed while it relinks its kernel at boot comes up with files missing and needs `clean` and
+`start` again. `VM_CPUS` (default 6-9) and `VM_MEM` (default 5G) say where and how big. The OpenBSD image comes up with its network card without a carrier and has no login on the serial port: the
+tool logs in on the video console through the QEMU monitor (`type.py`) and brings the interface up again.
+
 ### The fuzzers of the arithmetic
 
 `tests/fuzz64/run.sh` (in `make check`) compiles random programs with both code generators, the seed and imp72, and compares what they print with an answer worked out in Python from the rules of the 64 bit word, never from a compiler. Three generators:
@@ -101,4 +123,4 @@ the logs are uploaded as an artifact (`logs-*`).
 A file of syntax and declarations (`.imc`) is read by each compilation before the source, as the original's `/C` files are. `-o` with `-c` or `-S` and more than one source is refused, as the C compiler does.
 
 **Cross-compiling** is `--target=TRIPLE` (LLVM's names, the vendor may be left out: `aarch64-linux-gnu`, `riscv64-linux-musl`, `i686-linux-gnu`, `armv7-linux-gnueabihf`, `x86_64-apple-darwin`) with `-c`, `-S` or `-Sir`: the object is in the format of that system, with
-32 or 64 bit pointers as it has. **Linking for another system** (Linux and macOS targets so far; the ELF and Mach-O drivers of lld are both in the compiler, wherever it runs, so a Linux build links macOS programs and the reverse; COFF and WebAssembly are not linked, the runtime library being POSIX) works when imp72 is told where that system's files are: `--sysroot=DIR` (the root of that system: its `crt1.o`, `crti.o`, `crtn.o` and C library under `DIR/usr/lib/...`, or for macOS the `MacOSX.sdk` directory; or `IMP72SYSROOT`) and `--runtime=FILE` (the `libimp72.a` built for it, or put next to its C library; or `IMP72RUNTIME`). lld links for any target, so the linker is not what is needed. Without them the message lists what is missing and how to give it. The `libimp72.a` of a system can be built by `imp72` itself for any target once the runtime's C is IMP (`lib/imp72sys.c`, `lib/imphost.c`; not yet); until then build it on that system (`make`). A target of the other byte order (s390x, big-endian PowerPC) is refused with a message.
+32 or 64 bit pointers as it has. **Linking for another system** (Linux and macOS targets so far; the ELF and Mach-O drivers of lld are both in the compiler, wherever it runs, so a Linux build links macOS programs and the reverse; COFF and WebAssembly are not linked, the runtime library being POSIX) works when imp72 is told where that system's files are: `--sysroot=DIR` (the root of that system: its `crt1.o`, `crti.o`, `crtn.o` and C library under `DIR/usr/lib/...`, or for macOS the `MacOSX.sdk` directory; or `IMP72SYSROOT`) and `--runtime=FILE` (the `libimp72.a` built for it, or put next to its C library; or `IMP72RUNTIME`). lld links for any target, so the linker is not what is needed. Without them the message lists what is missing and how to give it. The `libimp72.a` of a system is built by `imp72` itself, with no C compiler: `sh tools/mkrt.sh TRIPLE` (`build/rt-TRIPLE/libimp72.a`; with no triple, this machine's, `build/rt-host`), the runtime being IMP (`lib/*.imp`, and `sysgen.imp` from `tools/sysconst.sh`). That was tried by building the library for `aarch64-linux-musl` on x86-64, cross-linking nine of the native tests against it with an Alpine sysroot (`--sysroot`) and running them on aarch64: all print what they print natively. A system whose C library `tools/sysconst.sh` cannot describe from here (the size of a `FILE` on NetBSD) is refused: build the library on it (`make`). The library the compilers themselves are linked with is still made by the seed (`tools/mklib.sh`). A target of the other byte order (s390x, big-endian PowerPC) is refused with a message.
