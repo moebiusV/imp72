@@ -49,12 +49,12 @@ on the real machine) are still compared (`tests/oracle/run.sh`).
 3. **Switch**: `imp72s0.c` reads `syntax64.imc`; remove the old files, the 36-bit helpers, `tools/direct.sh`'s `stage0/*.o` exclusions; install `syntax64.imc`; retire the tests above.
 4. **Docs and CI**: `docs/BOOTSTRAP.md`, `BUILDING.md`, `imp72stage0.1`, `README`.
 
-## Found on the way, and kept in both compilers (to fix in the IMP and the C together)
+## Found on the way
 
-* `src/dir.imp` `HASH` and `DSEQ`: **fixed** (locals named like the syntax atoms `HSH` and `NMARK`; now `HV`, `NMK`). The C kernel had the right hash.
-* `src/debug.imp` `TPRIN1`: `COLS:=(MXC//36)+1` where `//` is the remainder in IMP, so the matrix of the code-tree dump is much wider than meant; `stage0/debug.c` copies it (`mc % 36 + 1`).
-* `src/dosem.imp` `SETSEM`: `SEMS[1]` is `(1 LS 41) OR 1`, a word of type 0 (the tape's is type 1), so the semantics dump prints it as a production header. Copied.
-* `src/debug.imp` prints the last-block column header for a `K` past the end (a `FOR` that runs once). Copied.
-* `src/llvm-ir/code2.imp` `PRINPAR`: `SV:=SV OR (KK:=J-(10*KK)) LS SH` recomputes `KK` from the digit it already holds, so a `FILE` with a project or programmer number gets a wrong value (the tape does not do this). Copied in `gen_code2.c`.
-* The `/A` name table of `code3.imp` (`PCODE`) is off by 2 for `CALLB`, `ARG`, `CALLE` and `PITEM` against `irsyn.imc`; it only affects that listing.
+* `src/dir.imp` `HASH` and `DSEQ`: locals named like the syntax atoms `HSH` and `NMARK`; renamed `HV`, `NMK`. The C kernel had the right hash.
+* `src/debug.imp` `TPRIN1`: `COLS:=(MXC//36)+1` where `//` is the remainder in IMP; now `MXC/36`, in `debug.c` too.
+* `src/dosem.imp` `SETSEM`: `SEMS[1]` was `(1 LS 41) OR 1`, a word of type 0; now `(1 LS 44) OR 1`, a type 1 as the tape's, in `dosem.c` too.
+* `src/llvm-ir/code2.imp` `PRINPAR`: `SV:=SV OR (KK:=J-(10*KK)) LS SH` recomputed `KK` from the digit it already held, so a `FILE` with a project or programmer number got a wrong value; now `SV:=SV OR KK LS SH` as the tape's, in `gen_code2.c` too.
+* `src/llvm-ir/code3.imp` `OPN`: the names of `CALLB`, `ARG`, `CALLE` and `PITEM` were two places off against `irsyn.imc` (only the `/A` listing is affected); fixed, in `gen_code3.c` too.
+* `src/debug.imp` prints the last-block column header for a `K` past the end (a `FOR` that runs once). Copied, not fixed.
 * IMP facts the C port depends on and measured: call arguments are evaluated right to left; a `FOR` body runs once even when the end is below the start; a relation as a value is -1 for true.
