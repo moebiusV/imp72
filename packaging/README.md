@@ -38,4 +38,4 @@ of the original compiler.
 ## Alpine: `packaging/alpine/APKBUILD`
 
 For `aports` (`community/imp72`). The `sha512sums` of the release tarball must be
-filled in with `abuild checksum` once the tag `v0.1.0` exists.
+filled in with `abuild checksum` once the tag `v0.9.0` exists.

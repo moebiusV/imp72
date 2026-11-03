@@ -1,3 +1,17 @@
+imp72 (0.9.0) unstable; urgency=low
+
+  * The compiler is IMP all the way down but the seed: the runtime library is
+    IMP and imp72 builds it for any target (tools/mkrt.sh), the code generator
+    is LLVM in the compiler's own process, and the programs are linked by lld
+    in that process, so the package needs the C library's development files
+    and no C compiler.
+  * The seed (imp72stage0) no longer emulates the 36 bit PDP-10: it reads the
+    64 bit syntax and its code generator is a C port of the compiler's own.
+  * Runs on Linux, macOS, FreeBSD, OpenBSD, NetBSD, and amd64, i386, arm64,
+    armv7, riscv64, ppc64le, s390x and loong64.
+
+ -- David Walther <tederific@gmail.com>  Tue, 03 Nov 2026 07:39:05 -0700
+
 imp72 (0.1.0) unstable; urgency=low
 
   * First packaging: the stage 0 compiler (a C port of the kernel of
