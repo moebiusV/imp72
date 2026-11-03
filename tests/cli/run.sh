@@ -31,16 +31,18 @@ rm -f a.out
 "$w" main.o lib2.o -o exe2 >/dev/null 2>&1 && [ "$(./exe2)" = "ANSWER 42" ] || bad "linking the objects"
 "$w" -c -o x.o main.imp lib2.imp >/dev/null 2>&1 && bad "-o with -c and two sources was accepted"
 "$w" -c -o one.o lib2.imp >/dev/null 2>&1 && [ -s one.o ] || bad "-c -o one.o"
-"$w" -S lib2.imp >/dev/null 2>&1 && grep -q '\.text' lib2.s || bad "-S makes assembly (lib2.s)"
+"$w" -S lib2.imp >/dev/null 2>&1 && grep -q -e '\.text' -e '__TEXT,__text' lib2.s || bad "-S makes assembly (lib2.s)"
 "$w" -Sir lib2.imp >/dev/null 2>&1 && grep -q '^define' lib2.ll || bad "-Sir makes LLVM IR (lib2.ll)"
-"$w" -S -o named.s lib2.imp >/dev/null 2>&1 && grep -q '\.text' named.s || bad "-S -o named.s"
+"$w" -S -o named.s lib2.imp >/dev/null 2>&1 && grep -q -e '\.text' -e '__TEXT,__text' named.s || bad "-S -o named.s"
 "$w" nosuch.imp >/dev/null 2>&1 && bad "a missing file was accepted"
 "$w" -z lib2.imp >/dev/null 2>&1 && bad "an unknown option was accepted"
 "$w" -o >/dev/null 2>&1 && bad "-o with no argument was accepted"
 [ "$("$w" --version 2>&1)" = "imp72 0.9.0" ] || bad "--version"
 "$w" --help 2>&1 | grep -q '^usage: imp72' || bad "--help"
-# another system: the object is in its format (ELF, e_machine at byte 18: x86-64 62, aarch64 183, riscv 243) and 32 bit pointers for a 32 bit one
+case $(sh "$root/tools/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac       # a big endian host refuses a target of the other byte order (aarch64, riscv64, i686, Mach-O are little endian): those checks are for the others
 mach() { od -An -tu1 -j18 -N2 "$1" | awk '{print $1 + 256 * $2}'; }
+if [ "$be" = 0 ]; then
+# another system: the object is in its format (ELF, e_machine at byte 18: x86-64 62, aarch64 183, riscv 243) and 32 bit pointers for a 32 bit one
 "$w" -c --target=aarch64-linux-gnu lib2.imp -o a64.o >/dev/null 2>&1 && [ "$(mach a64.o)" = 183 ] || bad "--target=aarch64-linux-gnu"
 "$w" -c --target=riscv64-linux-gnu lib2.imp -o rv.o >/dev/null 2>&1 && [ "$(mach rv.o)" = 243 ] || bad "--target=riscv64-linux-gnu"
 "$w" -Sir --target=i686-linux-gnu lib2.imp -o i.ll >/dev/null 2>&1 && grep -q 'i32 %a0' i.ll || bad "--target=i686: 32 bit pointers in the IR"
@@ -61,6 +63,7 @@ ar rcs empty.a 2>/dev/null
 "$w" --target=arm64-apple-darwin --sysroot=$root/build/cli/fakesdk --runtime=$root/build/cli/empty.a main.imp lib2.imp > xm2.log 2>&1 && bad "the Mach-O link with no runtime succeeded"
 grep -q 'ld64.lld: error: undefined symbol' xm2.log || { [ ! -x "$(command -v ar)" ] || bad "the Mach-O driver of lld did not run in this compiler"; }
 "$w" -c --target=nonsense lib2.imp >/dev/null 2>&1 && bad "a nonsense target was accepted"
+fi
 if [ "$(uname -m)" = x86_64 ] && [ "$(getconf LONG_BIT)" = 64 ]; then       # the host's own architecture and system, whatever the vendor and the C library: a target that links
     "$w" --target=x86_64-linux-gnu main.imp lib2.imp -o hosted >/dev/null 2>&1 && [ "$(./hosted)" = "ANSWER 42" ] || { [ "$(uname -s)" != Linux ] || bad "the host's own triple is a target that links"; }
 fi
@@ -71,7 +74,7 @@ printf '<ATOM> ::= ZED ::= "7"%%%%\n' > ext.imc
 printf 'SUBR ADD2(A) IS A+ZED\n%%%%\n' > zprog.imp
 printf 'okp\n' | "$w" -i > i1.log 2>&1
 [ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "-i: okp makes okp.o and no IR"
-head -1 i1.log | grep -q "$(date +%d-%b-%y | tr a-z A-Z)" || bad "-i: the banner has the date of today ($(head -1 i1.log))"
+head -1 i1.log | grep -q " $(date +%e-%b-%y | tr a-z A-Z | sed 's/^ *//')" || bad "-i: the banner has the date of today ($(head -1 i1.log))"
 rm -f okp.o
 printf 'ext/C\nzprog\n' | "$w" -i > i2.log 2>&1
 [ -s zprog.o ] && [ ! -e ext.o ] || bad "-i: ext/C then zprog makes zprog.o and no ext.o"
@@ -85,8 +88,10 @@ printf '\n' | "$w" -i -I my2.img 2>&1 | head -1 | grep -q '0\.9\.0(B)  ' || bad 
 rm -f zprog.o
 printf 'zprog\n' | "$w" -i -I my.img > i6.log 2>&1
 [ -s zprog.o ] || bad "-i -I: the saved compiler compiles zprog"
+if [ "$be" = 0 ]; then
 rm -f okp.o
 printf 'okp\n' | "$w" -i --target=aarch64-linux-gnu > i7.log 2>&1
 [ -s okp.o ] && [ "$(mach okp.o)" = 183 ] || bad "-i --target=aarch64-linux-gnu makes an aarch64 object"
+fi
 [ $fail = 0 ] && echo ok
 exit $fail

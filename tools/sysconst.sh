@@ -72,6 +72,9 @@ else
 fi
 echo "SCZ IS 1 LONG;                                          # AN EMPTY C STRING #"
 echo
+# the byte order of this machine (tools/endian.sh says which file of names the compiler reads): the numbers of the files the library reads are in it
+case $(sh "$(dirname "$0")/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac
+echo "SUBR SCBE(Z) IS $be;                                   # 1 ON A BIG ENDIAN MACHINE #"
 echo "SUBR SCPTR(Z) IS $((bits / 8));                         # SIZEOF A POINTER #"
 if [ $bits = 32 ]; then echo "SUBR SCMASK(Z) IS 4294967295;                 # THE BITS OF A POINTER #"; else echo "SUBR SCMASK(Z) IS 0-1;"; fi
 echo "SUBR SCANON(Z) IS $anon;                             # MAP_ANON #"

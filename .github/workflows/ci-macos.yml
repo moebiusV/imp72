@@ -62,7 +62,9 @@ jobs:
             # what the commands of tests/cli say (its test sends it to /dev/null)
             ( cd build/cli 2>/dev/null && w=$PWD/../llvm-ir2/imp72stage-llvm-ir && export IMP72SYNTAX=$PWD/../../src/llvm-ir/syntax64.imc IMP72FFI=$PWD/../../lib/ffi.imc IMP72LIB=$PWD/../lib/libimp72.a
               for c in "-S lib2.imp -o d1.s" "-c --target=aarch64-linux-gnu lib2.imp -o d2.o" "-c --target=riscv64-linux-gnu lib2.imp -o d3.o" "-c --target=x86_64-linux-gnu lib2.imp -o d4.o"; do
-                echo "::error::macos cli [$c]: $($w $c 2>&1 | head -c 500 | tr '\n%' ' _')"
+                o=$(echo "$c" | sed 's/.* -o //'); rm -f "$o"
+                m=$($w $c 2>&1 | head -c 400 | tr '\n%' ' _'); r=$?
+                echo "::error::macos cli [$c]: $m | file: $(od -An -tx1 -N24 "$o" 2>&1 | tr '\n%' ' _') | $($w --version 2>&1 | head -c 80)"
               done ) || true
             exit $rc
           fi
