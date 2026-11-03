@@ -32,8 +32,13 @@ decided. The recommendations are mine. "Looked at" means I read the code named; 
 ## 5. NUL-terminated strings against strings that carry their length
 
 *Now.* String constants are NUL-terminated bytes, so they pass to C unchanged; `STG` and `RTLPUT` count to the NUL.
-*Recommendation (as you prefer length-carrying).* A string is a pair (pointer, length); a constant `'abc'` is both and also ends in a zero byte, so `LOC('abc')` still serves C. The length lives before the bytes (a header word) so that one address names the string. Strings built at run time carry the length and keep the NUL as a courtesy, which makes the cost one word and one store.
-*Effect.* The constant emitter, `STG`/`PRINT` (use the length), the library's text routines, `CCALL` of C strings (unchanged, the NUL is there). It is the largest change of the eight; I would do it after 2 and 4.
+*Decision (the user, 2026-11-03): strings carry their length, and they are ALSO NUL-terminated, always.* The invariant, for every string, a constant or one built at run time:
+one word before the first byte holds the length in bytes (the NUL not counted), the bytes follow, and a zero byte follows them; one address (that of the first byte) names the string and serves C
+unchanged. Any routine that makes or changes a string keeps both: the length and the final zero. The cost is accepted.
+*Effect.* The constant emitter (the length word and the zero), `STG`/`PRINT` (use the length, not a scan), the library's text routines (`RTLPUT`, the file items, `MKNAME`, the lexer's token buffers where they
+are strings), the `LOC('...')` of a constant (the address of the first byte, as now), and every place that builds a string by `snprintf` or by hand (the length must be set after). `CCALL` of C strings is
+unchanged: the zero is there. A C string coming back from C has no length word: it needs a way to be wrapped (a library routine that reads `strlen` and builds the header in a buffer), and a routine that
+takes a string must say whether it takes one with a length or a plain C one (this goes with study 4's declarations). It is the largest change of the eight; after 2 and 4.
 
 ## 6. File names that match Unix's limits
 
@@ -51,6 +56,6 @@ decided. The recommendations are mine. "Looked at" means I read the code named; 
 
 The README says eight and names seven things in a list; the fourth (the type that a routine returns, and whether C's return types are declared) is two questions, and that makes eight. Assignment `:=` and the underscore as a letter are done.
 
-## Order I would do them in
+## Decided (the user, 2026-11-03)
 
-4 (the clearest gain, small), 7, 2 and 1 (the lexer, together), 6, 3, and 5 last.
+All the recommendations above are accepted, with the decision on strings in study 5. The order: 4, 7, 2 and 1 (the lexer, together), 6, 3, and 5 last. The syntax of IMP72 may now change in these ways, one study at a time, each with its tests and with the seed and stage 2 still writing the same IR (`tests/seed`).
