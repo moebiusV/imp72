@@ -26,16 +26,19 @@ case $os in
 openbsd)
     url=https://github.com/cross-platform-actions/openbsd-builder/releases/download/v0.15.0/openbsd-8.0-x86-64.qcow2
     img=openbsd-8.0-x86-64.qcow2; size=815595520; port=2222 ;;
+freebsd)
+    url=https://github.com/cross-platform-actions/freebsd-builder/releases/download/v0.17.0/freebsd-15.0-x86-64.qcow2
+    img=freebsd-15.0-x86-64.qcow2; size=390987776; port=2224 ;;
 netbsd)
     url=https://github.com/cross-platform-actions/netbsd-builder/releases/download/v1.2.0/netbsd-11.0-x86-64.tar.zst
     img=netbsd-11.0-x86-64.tar.zst; size=279738071; port=2223 ;;
-*) die "usage: bsd-vm.sh fetch|start|ssh|ci|status|stop|clean openbsd|netbsd" ;;
+*) die "usage: bsd-vm.sh fetch|start|ssh|ci|status|stop|clean openbsd|netbsd|freebsd" ;;
 esac
 
 inctr() { docker exec -i "$ctr" "$@"; }                  # (-i: the tree of `ci` comes in on the standard input; the others read none: </dev/null)
 # a command on the machine as runner (the image says how it is let in: OpenBSD with the password runner, NetBSD with none)
 vm() {
-    if [ $os = openbsd ]; then
+    if [ $os = openbsd ] || [ $os = freebsd ]; then
         inctr sshpass -p runner ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=30 -o ServerAliveInterval=30 -p $port runner@127.0.0.1 "$@"
     else
         inctr ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=30 -o ServerAliveInterval=30 -o PreferredAuthentications=none -p $port runner@127.0.0.1 "$@"
@@ -66,17 +69,21 @@ start)
     docker run -d --init --name "$ctr" --device /dev/kvm --cpuset-cpus "$cpus" --memory 10g -v "$dir:/vm" -v "$here:/tools:ro" alpine:edge sleep infinity >/dev/null
     inctr sh -c 'apk add --no-cache qemu-system-x86_64 qemu-img openssh-client sshpass socat >/dev/null 2>&1' || die "cannot install qemu in the container"
     rm -f "$dir"/work.qcow2 "$dir"/vars.fd "$dir"/*.sock "$dir"/console.log
-    if [ $os = openbsd ]; then
+    if [ $os != netbsd ]; then
         inctr sh -c 'cd /vm && qemu-img create -q -f qcow2 -b img/'$img' -F qcow2 work.qcow2 40G && cp /usr/share/qemu/edk2-i386-vars.fd vars.fd'
         # the image boots with UEFI; its disk and network are virtio
         q='qemu-system-x86_64 -enable-kvm -cpu host -m '$mem' -smp 4 -machine pc -display none'
         q="$q -chardev socket,id=ser,path=/vm/ser.sock,server=on,wait=off,logfile=/vm/console.log"
         q="$q -serial chardev:ser -monitor unix:/vm/mon.sock,server=on,wait=off"
-        q="$q -drive if=pflash,format=raw,readonly=on,file=/usr/share/qemu/edk2-x86_64-code.fd"
-        q="$q -drive if=pflash,format=raw,file=/vm/vars.fd -drive file=/vm/work.qcow2,if=virtio"
+        if [ $os = openbsd ]; then       # (FreeBSD's image boots with the BIOS)
+            q="$q -drive if=pflash,format=raw,readonly=on,file=/usr/share/qemu/edk2-x86_64-code.fd"
+            q="$q -drive if=pflash,format=raw,file=/vm/vars.fd"
+        fi
+        q="$q -drive file=/vm/work.qcow2,if=virtio"
         q="$q -netdev user,id=n0,hostfwd=tcp::$port-:22"
         q="$q -device virtio-net-pci,netdev=n0 >/vm/qemu.log 2>&1 &"
         inctr sh -c "$q"
+        if [ $os = openbsd ]; then
         # its network card boots with no carrier (and so no address): log in on the console (the only way in) and bring the interface up again
         echo "bsd-vm: waiting for the console of $os (about a minute)"
         i=0; while ! inctr grep -q 'starting local daemons' /vm/console.log 2>/dev/null; do i=$((i+1)); [ $i -gt 90 ] && die "the machine did not boot"; sleep 5; done
@@ -84,13 +91,16 @@ start)
         # (tools/bsd-vm/type.imp runs here, on the host, built by the compiler of the tree; it writes the monitor commands, and socat in the container carries them to the socket of QEMU, which is root's and inside)
         mkdir -p "$root/build/tools/bsd-vm"
         sh "$root/tools/imptool.sh" bsd-vm/type root runner 'ifconfig vio0 down; ifconfig vio0 up; sleep 3; dhcpleasectl vio0' | inctr socat -t 3 - UNIX-CONNECT:/vm/mon.sock >/dev/null
+        fi
     else
         inctr sh -c 'cd /vm && qemu-img create -q -f qcow2 -b vm/disk.img -F raw work.qcow2 40G'
         inctr sh -c 'qemu-system-x86_64 -enable-kvm -cpu host -m '$mem' -smp 4 -machine pc -display none -chardev socket,id=ser,path=/vm/ser.sock,server=on,wait=off,logfile=/vm/console.log -serial chardev:ser -monitor unix:/vm/mon.sock,server=on,wait=off -device virtio-scsi-pci -device scsi-hd,drive=drive0,bootindex=0 -drive if=none,file=/vm/work.qcow2,id=drive0,format=qcow2 -netdev user,id=n0,hostfwd=tcp::'$port'-:22 -device virtio-net-pci,netdev=n0 >/vm/qemu.log 2>&1 &'
     fi
     i=0; until up; do i=$((i+1)); [ $i -gt 90 ] && die "no ssh to $os"; sleep 5; done
     # what CI installs on the machine
-    if [ $os = openbsd ]; then
+    if [ $os = freebsd ]; then
+        vm 'sudo pkg install -y gmake python3 llvm zstd' </dev/null >/dev/null 2>&1 || die "pkg install failed"
+    elif [ $os = openbsd ]; then
         vm 'sudo pkg_add gmake' </dev/null >/dev/null 2>&1 || die "pkg_add gmake failed"
     else
         rootvm </dev/null 'PKG_PATH=https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/amd64/11.0/All /usr/sbin/pkg_add gmake llvm lld' >/dev/null 2>&1 || die "pkg_add failed"
@@ -116,12 +126,12 @@ status)
     if running; then if up; then echo "$os: running, ssh works"; else echo "$os: running, no ssh yet"; fi; else echo "$os: not running"; fi ;;
 stop)
     running || { docker stop "$ctr" >/dev/null 2>&1 || true; echo "$os: not running"; exit 0; }
-    if [ $os = openbsd ]; then vm 'sudo shutdown -p now' </dev/null >/dev/null 2>&1 || true; else vm 'sudo /sbin/shutdown -p now' </dev/null >/dev/null 2>&1 || true; fi
+    if [ $os != netbsd ]; then vm 'sudo shutdown -p now' </dev/null >/dev/null 2>&1 || true; else vm 'sudo /sbin/shutdown -p now' </dev/null >/dev/null 2>&1 || true; fi
     i=0; while qalive; do i=$((i+1)); [ $i -gt 30 ] && die "the machine did not halt"; sleep 5; done
     docker stop "$ctr" >/dev/null; echo "$os: stopped" ;;
 clean)
     docker rm -f "$ctr" >/dev/null 2>&1 || true
     rm -f "$dir"/work.qcow2 "$dir"/vars.fd "$dir"/*.sock "$dir"/console.log "$dir"/qemu.log "$dir"/tree.tar "$dir"/run.log
     echo "$os: forgotten (the image is kept in $dir)" ;;
-*) die "usage: bsd-vm.sh fetch|start|ssh|ci|status|stop|clean openbsd|netbsd" ;;
+*) die "usage: bsd-vm.sh fetch|start|ssh|ci|status|stop|clean openbsd|netbsd|freebsd" ;;
 esac

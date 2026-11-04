@@ -12,3 +12,4 @@ llabs of a LLONG
 a llong result
 a ullong result is the whole word
 rand() takes no argument
+srand and rand are repeatable

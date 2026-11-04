@@ -17,7 +17,7 @@ for p in tests/native/*.imp; do
     n=$(basename "$p" .imp)
     [ -f tests/native/${n}_main.c ] && continue                      # these need a C main
     [ "$n" = ffi2 ] && [ "$(getconf LONG_BIT)" != 64 ] && continue
-    IMP72LIB=$root/$lib "$w" -o $out/$n "$p" > $out/$n.log 2>&1 || { bad "$n: the program did not link with the library imp72 made"; continue; }
+    IMP72LIB=$root/$lib "$w" -o $out/$n "$(sh tools/nativesrc.sh "$p" $out)" > $out/$n.log 2>&1 || { bad "$n: the program did not link with the library imp72 made"; continue; }
     ( cd $out && ./$n < /dev/null > $n.got 2>&1 )
     cmp -s $out/$n.got tests/native/$n.out || bad "$n: the output differs with the library imp72 made"
 done

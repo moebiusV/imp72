@@ -36,5 +36,8 @@ R=(0-1) => CCALL puts('a ullong result is the whole word') ELSE CCALL puts('wron
 CCALL srand(1);
 R:=CCALL rand();
 R GE 0 => CCALL puts('rand() takes no argument') ELSE CCALL puts('wrong: rand');
+CCALL srand(1);
+S:=CCALL rand();
+R=S => CCALL puts('srand and rand are repeatable') ELSE CCALL puts('wrong: srand');
 FINI(0)
 %%
