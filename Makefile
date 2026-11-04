@@ -87,6 +87,7 @@ check-run:
 	sh tests/llvm/gen.sh
 	sh tests/link/run.sh
 	sh tests/runtime/run.sh
+	sh tests/version/run.sh
 	sh tests/seed/run.sh
 	sh tests/cli/run.sh
 	sh tests/fuzz64/run.sh

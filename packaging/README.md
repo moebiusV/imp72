@@ -46,6 +46,6 @@ tarball for `pkgver` are filled in with `abuild checksum` once the tag
 
 A port for `lang/imp72`: `Makefile`, `distinfo`, `pkg/DESCR` and `pkg/PLIST`. It builds with the base system's compiler, links the base `libLLVM`, runs the base `ld.lld` to link
 programs, and needs `gmake`. `ONLY_FOR_ARCHS` is `amd64`, the architecture the test suite has been run on. The manual pages go in `${PREFIX}/man`
-(`MANDIR` of the `Makefile`). `distinfo` holds the checksum of the tarball of the tag in `GH_TAGNAME`, and is made again with `make makesum` when the tag changes.
+(`MANDIR` of the `Makefile`). `distinfo` holds the checksum of the tarball of the tag in `GH_TAGNAME`: `make makesum` makes it once that tag exists.
 
 To try it, put the directory in a ports tree as `lang/imp72` and run `make package`; `make test` runs the whole suite.

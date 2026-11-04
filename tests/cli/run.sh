@@ -37,7 +37,8 @@ rm -f a.out
 "$w" nosuch.imp >/dev/null 2>&1 && bad "a missing file was accepted"
 "$w" -z lib2.imp >/dev/null 2>&1 && bad "an unknown option was accepted"
 "$w" -o >/dev/null 2>&1 && bad "-o with no argument was accepted"
-[ "$("$w" --version 2>&1)" = "imp72 0.9.0" ] || bad "--version"
+ver=$(cat "$root/VERSION"); verre=$(printf %s "$ver" | sed 's/\./\\./g')
+[ "$("$w" --version 2>&1)" = "imp72 $ver" ] || bad "--version"
 "$w" --help 2>&1 | grep -q '^usage: imp72' || bad "--help"
 case $(sh "$root/tools/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac       # a big endian host refuses a target of the other byte order (aarch64, riscv64, i686, Mach-O are little endian): those checks are for the others
 mach() { od -An -tu1 -v -N20 "$1" | tr -s ' \n' '  ' | awk '{print $19 + 256 * $20}'; }       # (bytes 18 and 19 of the header; no -j, which the BSDs' od takes otherwise)
@@ -97,9 +98,9 @@ printf 'mine,mine_okp/L\n' | "$w" -i > i3.log 2>&1
 [ -s mine.o ] && [ -s mine.lst ] || bad "-i: mine,mine_okp/L makes mine.o and mine.lst"
 printf 'ext/C\nmy_/U\n' | "$w" -i > i4.log 2>&1
 [ -s my.img ] && grep -q 'COMPILER SAVED ON my.img' i4.log || bad "-i: ext/C then my_/U saves my.img"
-printf '\n' | "$w" -i -I my.img 2>&1 | head -1 | grep -q '0\.9\.0(A)  ' || bad "-i -I: the saved compiler shows (A)"
+printf '\n' | "$w" -i -I my.img 2>&1 | head -1 | grep -q "$verre(A)  " || bad "-i -I: the saved compiler shows (A)"
 printf 'ext/C\nmy2_/V\n' | "$w" -i -I my.img > i5.log 2>&1
-printf '\n' | "$w" -i -I my2.img 2>&1 | head -1 | grep -q '0\.9\.0(B)  ' || bad "-i -I: the one saved from it shows (B)"
+printf '\n' | "$w" -i -I my2.img 2>&1 | head -1 | grep -q "$verre(B)  " || bad "-i -I: the one saved from it shows (B)"
 rm -f zprog.o
 printf 'zprog\n' | "$w" -i -I my.img > i6.log 2>&1
 [ -s zprog.o ] || bad "-i -I: the saved compiler compiles zprog"

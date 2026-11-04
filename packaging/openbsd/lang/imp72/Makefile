@@ -2,7 +2,7 @@ COMMENT =		compiler for the IMP72 systems programming language
 
 GH_ACCOUNT =		moebiusV
 GH_PROJECT =		imp72
-GH_TAGNAME =		v0.9.1
+GH_TAGNAME =		v0.10.0
 
 CATEGORIES =		lang
 

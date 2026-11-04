@@ -360,7 +360,7 @@ SUBR OPTS(Z) IS (
       CCALL strcmp(A,LOC('-S'))=0 => (DSTOP:=123B; DSIR:=0; GO TO OP1);
       CCALL strcmp(A,LOC('-Sir'))=0 => (DSTOP:=123B; DSIR:=1; GO TO OP1);
       CCALL strcmp(A,LOC('--run'))=0 => (DJIT:=1; GO TO OP1);
-      CCALL strcmp(A,LOC('--version'))=0 => (CCALL puts(LOC('imp72 0.9.0')); CCALL exit(0));
+      CCALL strcmp(A,LOC('--version'))=0 => (CCALL puts(LOC('imp72 0.10.0')); CCALL exit(0));
       ((CCALL strcmp(A,LOC('--help'))=0) OR (CCALL strcmp(A,LOC('-h'))=0)) => (DRVHELP(0); CCALL exit(0));
       STARTS(A,LOC('--target='))=1 => (DTGT:=A+9; GO TO OP1);
       STARTS(A,LOC('--sysroot='))=1 => (DSYSROOT:=A+10; GO TO OP1);

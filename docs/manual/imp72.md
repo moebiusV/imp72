@@ -2,7 +2,7 @@
 
 ```
 IMP72 REFERENCE MANUAL
-IMP72 VERSION 0.9.0
+IMP72 VERSION 0.10.0
 CONTENTS
 1:      Introduction.
 1.1:      Description.
@@ -65,7 +65,7 @@ CONTENTS
 
 The IMP72 compiler was designed and implemented at the Yale University Department of Computer
 Science by Walt Bilofsky, based largely on previous work of E. T. Irons. Substantial contributions
-were made by Steven Weingart and Terry Lyons. This manual describes version 0.9.0 of the IMP72
+were made by Steven Weingart and Terry Lyons. This manual describes version 0.10.0 of the IMP72
 compiler, which translates IMP72 to native code on 64-bit Unix systems.
 
 ## 1: Introduction.
@@ -288,9 +288,9 @@ each other.
 
 #### 2.1.5: Compiler Version.
 
-The version of the compiler is printed by the command `imp72 --version` (the text `imp72 0.9.0`) and
-appears, with the date, in the banner of the interactive mode (Section 3.1.2). An extended compiler
-(Section 3.4) has the version number of the compiler it was made from.
+The version of the compiler is printed by the command `imp72 --version` (the text `imp72 0.10.0`)
+and appears, with the date, in the banner of the interactive mode (Section 3.1.2). An extended
+compiler (Section 3.4) has the version number of the compiler it was made from.
 
 ### 2.2:  The Expressions.
 
@@ -2100,7 +2100,7 @@ the executable program. The options are
 --run       Compile and run the program in the process of the compiler.
 --target=TRIPLE  Compile for another system (Section 3.1.3).
 --sysroot=DIR, --runtime=FILE   Where the files of that system are.
---version   Print the version (imp72 0.9.0).
+--version   Print the version (imp72 0.10.0).
 --help      Print the options.
 ```
 
