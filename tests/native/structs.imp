@@ -6,10 +6,11 @@ STRUCT PAIR (LONG SEC, LONG NSEC);
 STRUCT MIX (CHAR A, SHORT B, INT C, LONG D, PTR E, DOUBLE F, FLOAT G, UCHAR H[5], PAIR T, USHORT U, UINT V, ULONG W, LLONG X, ULLONG Y, UCHAR Z);
 STRUCT TM (INT SEC, INT MIN, INT HOUR, INT MDAY, INT MON, INT YEAR, INT WDAY, INT YDAY, INT ISDST);
 STRUCT REC (INT KEY, DOUBLE W);
+STRUCT PROBE (CHAR C, LLONG L);
 CALLBACK INT BYKEY(PTR, PTR);
 W:=SIZEOF(PTR);
-# sizes and offsets: the 8 byte types align to 4 on the i386 and to 8 elsewhere #
-A8:=8; W=4 => A8:=4;
+# sizes and offsets: the alignment of the 8 byte types is that of the target (4 on the i386, else 8) #
+A8:=OFFSETOF(PROBE,L);
 PRINT STG 0,'sizes ',IGR 0,SIZEOF(CHAR),STG 0,' ',IGR 0,SIZEOF(SHORT),STG 0,' ',IGR 0,SIZEOF(INT),STG 0,' ',IGR 0,SIZEOF(LLONG),STG 0,' ',IGR 0,SIZEOF(DOUBLE),STG 0,' ',IGR 0,SIZEOF(FLOAT),/;
 SIZEOF(LONG)=W => PRINT STG 0,'long is a word',/ ELSE PRINT STG 0,'wrong: long',/;
 SIZEOF(PAIR)=(2*W) => PRINT STG 0,'size of PAIR is two words',/ ELSE PRINT STG 0,'wrong: PAIR',/;
@@ -62,9 +63,9 @@ R:=FIELD(P,MIX.F)+FIELD(P,MIX.G);
 PRINT FLT 0.3,R,/;
 FIELD(P,MIX.C):=FIELD(P,MIX.C)+1;
 PRINT IGR 0,FIELD(P,MIX.C),/;
-# the address by hand and by a field agree #
-Q:=P+OFFSETOF(MIX,D);
-[Q]=FIELD(P,MIX.D) => PRINT STG 0,'FIELD agrees with the offset',/ ELSE PRINT STG 0,'wrong: offset',/;
+# the address by hand and by a field agree (a word is 8 bytes, as the LLONG field is) #
+Q:=P+OFFSETOF(MIX,X);
+[Q]=FIELD(P,MIX.X) => PRINT STG 0,'FIELD agrees with the offset',/ ELSE PRINT STG 0,'wrong: offset',/;
 CCALL free(P);
 # struct tm from the C library #
 TMP:=CCALL calloc(1,SIZEOF(TM)+64);
