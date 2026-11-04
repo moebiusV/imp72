@@ -58,13 +58,19 @@ and `MOD` has the sign of the dividend.
     40 JUMP  to the tag named by V (a computed GO TO when V is a subscripted variable)
     41 JEQ  42 JLT  43 JLE  44 JGE  45 JGT  46 JNE                            jump to the tag X if RD cmp V (integers)
     51 .. 56 FJEQ .. FJNE                                                      the same on doubles
-    60 CALLB begin a call of the function named by V      61 ARG the address of V is the next argument
+    60 CALLB begin a call of the function named by V      61 ARG the address of V is the next argument (X: the C type, below)
     62 CALLE end the call; RD receives its value (0: none)
     63 PITEM print list item: X is the format code, V its operand (0: none)
     64 CALLI  RD = impcalli(V, RD)                         65 XCT  do the machine instruction in the word V (impxct)
     66 HRLM, 67 HRRM  the low 32 bits of RD into the left (66) or the right (67) half of V
     68 REMOTE marks the code that follows as the remote code of the routine named by X
     70 ENTRY the subroutine named by V begins          71 RET return RD          72 PARAM RD receives the next pointer parameter
+
+The X of an ARG record is 0 for an argument of an IMP routine or of a C function that is not declared. For a function declared with
+`EXTERNAL` (`docs/FFI.md`) it is the number of the C type the argument is converted to (1 CHAR, 2 UCHAR, 3 SHORT, 4 USHORT, 5 INT, 6 UINT,
+7 LONG, 8 ULONG, 9 LLONG, 10 ULLONG, 11 SIZE, 12 PTR, 13 DOUBLE, 14 FLOAT), plus 16 for the address of a text constant passed to a PTR.
+The conversion of the value (`FLOAT`, `FIX`) is done by the semantics, in the records of the argument, and the declaration is in the
+table CPR of `impsem` (`CPHEAD`, `CPTYPE`), which `ECALL` reads for the result.
 
 The operand `V` is read the way the entry says: TY 2 the register, TY 4 the constant (a text constant used as a value is
 the word whose bytes are its first eight characters), TY 8 the word of the variable DI plus the offset, TY 16 the same

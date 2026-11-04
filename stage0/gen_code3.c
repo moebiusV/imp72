@@ -2,6 +2,7 @@
  * gen_code3.c -- ports src/llvm-ir/code3.imp: SUBCALL, SUBSCRIPT, BYTEP, PCODE and PCODE1 (the listing of the code, /A), and CODE3I
  * (the DSEMs of this file).  See gen_code2.c.
  */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "gen.h"
@@ -17,6 +18,103 @@ g_subcall(word a, word b)
     g_dewfun(a, 2, g_regof(a));
     g_subpr0(1);
     return a;
+}
+
+/* CSUBCALL(A,B): CCALL F(B), a call of a C function with its arguments by value (lib/ffi.imc; not in the original).  The arguments of a declared
+ * function (EXTERNAL INT F(PTR);) are counted and converted to the types of the declaration (CPAR); one that is not declared is called as IMP
+ * calls a subroutine, by value */
+word
+g_csubcall(word a, word b)
+{
+    word d, h, k;
+
+    d = HL(FREE(a));
+    h = g_cphead(d);
+    if (h == 0)
+        return g_subcall(a, b);
+    a = g_subrcall(g_name(a));
+    k = 0;
+    while (g_getlist(b) != 0) {
+        if (k < 16)
+            a = g_cpar(a, b, d, k);
+        k = k + 1;
+    }
+    g_cpcount(d, k);
+    g_dewfun(a, 2, g_regof(a));
+    g_subpr0(1);
+    return a;
+}
+
+/* CCALL F(), with no arguments: as the syntax of a call (DEWFUN(SUBRCALL(NAME(A)),2,REGOF(A),SUBPR0(1))), and the count of a declared function checked */
+word
+g_c0call(word a)
+{
+    word d, r;
+
+    d = HL(FREE(a));
+    if (g_cphead(d) != 0)
+        g_cpcount(d, 0);
+    a = g_subrcall(g_name(a));
+    r = g_regof(a);
+    g_subpr0(1);
+    return g_dewfun(a, 2, r);
+}
+
+/* The number K of arguments of a call of the declared function D: at least the parameters of a variadic one, else exactly */
+word
+g_cpcount(word d, word k)
+{
+    word h, np;
+    char cmsg[320];
+
+    h = g_cphead(d);
+    np = (h >> 4) & 31;
+    if (k > 16) {
+        snprintf(cmsg, 300, "CCALL %s HAS MORE THAN 16 ARGUMENTS.", g_irsymname(d));
+        imp_error(1, cmsg);
+        return 0;
+    }
+    if ((h & 512) != 0) {
+        if (k < np) {
+            snprintf(cmsg, 300, "CCALL %s TAKES AT LEAST %ld ARGUMENTS, NOT %ld.", g_irsymname(d), (long)np, (long)k);
+            imp_error(1, cmsg);
+        }
+        return 0;
+    }
+    if (k != np) {
+        snprintf(cmsg, 300, "CCALL %s TAKES %ld ARGUMENTS, NOT %ld.", g_irsymname(d), (long)np, (long)k);
+        imp_error(1, cmsg);
+    }
+    return 0;
+}
+
+/* The argument PP, the K'th of a call S of the declared function D, converted as C would: to the type of the parameter, or, for one of the arguments
+ * of a variadic call that have no parameter, to a double for a real and to a long for an integer.  A real is floated for a double or a float and
+ * fixed for any other type; a text constant for a PTR is passed by its address (+16 in the type of the record).  The X of the OARG record is the type */
+word
+g_cpar(word s, word pp, word d, word k)
+{
+    word t, sf, x, h, p;
+
+    h = g_cphead(d);
+    sf = FREE(pp);
+    if (k < ((h >> 4) & 31))
+        t = g_cptype(d, k);
+    else {
+        t = 7;
+        if ((sf & 0300) == 0200)
+            t = 13;
+    }
+    x = t;
+    if (t == 13 || t == 14)
+        g_float(pp);
+    else if (t == 12 && (sf & 077) == 4 && HL(sf) != 0 && g_irkind(HL(sf)) == 1)
+        x = t + 16;
+    else if ((sf & 0300) == 0200)
+        g_fix(pp);
+    p = g_subarg(s, pp);
+    g_addrec(s, KOP, OARG, 0, FREE(p), FREE(p + 1), x);
+    return g_hook(s, p, s);
 }
 
 /* SUBSCRIPT(S,T): the subscripted variable S[T] (S=0: [T], the word at address T) */
@@ -210,6 +308,8 @@ g_pcode1(word s, word ns)
 
 static word w_subscript(const word *p) { return g_subscript(p[0], p[1]); }
 static word w_subcall(const word *p) { return g_subcall(p[0], p[1]); }
+static word w_csubcall(const word *p) { return g_csubcall(p[0], p[1]); }
+static word w_c0call(const word *p) { return g_c0call(p[0]); }
 static word w_bytep(const word *p) { return g_bytep(p[0], p[1], p[2], p[3]); }
 
 /* CODE3I(NIL): the DSEMs of this file */
@@ -218,5 +318,7 @@ gen_code3_dsems(void)
 {
     dsem("SUBSCRIPT", w_subscript);
     dsem("SUBCALL", w_subcall);
+    dsem("CSUBCALL", w_csubcall);
+    dsem("CCALL0", w_c0call);
     dsem("BYTEP", w_bytep);
 }

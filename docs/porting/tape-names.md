@@ -59,6 +59,8 @@ of the `FINAM` switches) is not defined in `impsyn64.imc`, and the modules test 
 | `code2` | `MOVEBLK` | a block move, through the runtime routine `impblk` |
 | `code2` | `SETNEXT` | set the link to the next record of the chain |
 | `impsem` | `CVAL`, `ISCVAL` | a name is a C function (called with `CCALL`): its table `CVT` |
+| `impsem` | `CDECL`, `CTYPEOF`, `CPFIND`, `CPADD`, `CPHEAD`, `CPTYPE` | the typed declaration of a C function (`EXTERNAL INT puts(PTR);`) and its table `CPR` (`docs/FFI.md`) |
+| `code3` | `CSUBCALL`, `CCALL0`, `CPCOUNT`, `CPAR` | the `CCALL` of a declared function: the count of the arguments and their conversion to the declared types |
 | `impsem` | `IINIT` | the first use of the register and list tables (the tape initialises them inline) |
 | `impsem` | `PAIRFIRST` | is register J the first of a pair (flag `40B` of the register table) |
 

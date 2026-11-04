@@ -109,5 +109,25 @@ rm -f okp.o
 printf 'okp\n' | "$w" -i --target=aarch64-linux-gnu > i7.log 2>&1
 [ -s okp.o ] && [ "$(mach okp.o)" = 183 ] || bad "-i --target=aarch64-linux-gnu makes an aarch64 object"
 fi
+# declarations of C functions (EXTERNAL INT puts(PTR);): the count of the arguments, the types and the declarations are checked at compile time
+cat > cdecl_bad.imp <<'E'
+EXTERNAL INT puts(PTR);
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL INT f(FOO);
+EXTERNAL INT ldexp(INT, INT);
+EXTERNAL DOUBLE ldexp(DOUBLE, INT);
+CCALL puts();
+CCALL puts('a','b');
+CCALL printf();
+CCALL strlen('x');
+EXTERNAL INT strlen(PTR);
+EXTERNAL INT g(VOID, INT)
+%%
+E
+"$w" -c cdecl_bad.imp > cdecl_bad.log 2>&1 && bad "cdecl: a program with wrong declarations and calls was accepted"
+for m in 'FOO IS NOT A C TYPE' 'ldexp IS DECLARED TWICE WITH DIFFERENT TYPES' 'CCALL puts TAKES 1 ARGUMENTS, NOT 0' 'CCALL puts TAKES 1 ARGUMENTS, NOT 2' \
+    'CCALL printf TAKES AT LEAST 1 ARGUMENTS, NOT 0' 'strlen IS DECLARED AFTER A CALL OF IT THAT HAD NO DECLARATION' 'VOID IS ONLY THE WHOLE LIST OF PARAMETERS'; do
+    grep -q "$m" cdecl_bad.log || bad "cdecl: no error '$m' ($(head -c 300 cdecl_bad.log))"
+done
 [ $fail = 0 ] && echo ok
 exit $fail

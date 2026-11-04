@@ -1563,6 +1563,12 @@ Jump to the tag S if P and R are related by the jump operation OP.
 Makes the name S the name of a C function that is called with its arguments by value
 (Section 2.4.1); the semantics of CCALL use it.
 
+- CDECL(T,F,L,V)
+
+Enters the types of the C function F, of the result type T and the parameter types in the list L (0
+for none); V is 1 if the function takes more arguments (Section 2.4.1). CSUBCALL(S,L) and CCALL0(S)
+call it, checking the number of the arguments and converting them to the declared types.
+
 - FCON(A,B,C)
 
 Makes the floating point constant A.B"C.
@@ -1937,8 +1943,9 @@ them.
 
 `CCALL NAME(A,B,...)` calls the `C` function `NAME` passing the values of its arguments, as C does,
 and has the value that the function returns. An ordinary call `NAME(A,B)` of an IMP routine passes
-addresses. The arguments go in the registers and on the stack that the `C` ABI of the system uses,
-so that a call may have more than six. Every function is taken to be `long NAME(long, ...)`: the
+addresses; a call of a C function is always written with CCALL. The arguments go in the registers
+and on the stack that the `C` ABI of the system uses, so that a call may have more than six (sixteen
+at most). A function that is not declared (see below) is taken to be `long NAME(long, ...)`: the
 arguments are integers or pointers, and the result is the integer of a pointer's size. The address
 of a variable or of a string constant, which a `C` function expects for a pointer, is written LOC(X)
 or LOC('text'): a string constant is bytes ended by a zero byte. For example
@@ -1950,11 +1957,61 @@ CCALL puts(LOC('puts adds a newline'));
 ```
 
 call `strlen` and `puts`. (`CCALL printf(LOC('%ld'),N)` prints with the formats of C.) A C `int`
-result comes back in half a register, so that its upper bits are undefined: mask it with
-`AND 4294967295` before comparing it with a negative number. A `C` function that takes or returns a
-`double` or a `float`, or a structure by value, cannot be called with CCALL; call it through a small
-`C` function that takes and returns integers (a REAL is the bits of an IEEE double, Section 2.4.3).
-The compiler does not check the number or the types of the arguments.
+result of a function that is not declared comes back in half a register, so that its upper bits are
+undefined: mask it with `AND 4294967295` before comparing it with a negative number. A function that
+is not declared cannot take or return a `double` or a `float`. A declaration removes these limits.
+
+A declaration gives the types of a C function once, as a statement:
+
+```
+EXTERNAL INT puts(PTR);
+EXTERNAL DOUBLE ldexp(DOUBLE, INT);
+EXTERNAL PTR malloc(SIZE);
+EXTERNAL VOID free(PTR);
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL LONG write(INT, PTR, SIZE);
+```
+
+The types are those of C, written in capitals (names are case sensitive): `CHAR UCHAR SHORT USHORT
+INT UINT LONG ULONG LLONG ULLONG SIZE PTR DOUBLE FLOAT`, and `VOID` for a result or as the whole
+list of parameters (`(VOID)` is no parameter). `LONG`, `ULONG` and `SIZE` have the width of a C
+`long`, which is 32 bits where pointers are 32 bits; `LLONG` and `ULLONG` are 64 bits everywhere,
+and `PTR` is the width of a pointer. The name is the C name as written; a name that is not an IMP
+name is a special identifier (Section 2.2.1). Three dots after the last type declare a function of a
+variable number of arguments. A declaration holds to the end of the file, and a function that
+several files call is declared in each. A function declared twice with different types, declared
+after a call of it that had no declaration, or declared with a type that is not one of those, is an
+error.
+
+In a call `CCALL NAME(ARGS)` of a declared function the compiler counts the arguments (a wrong
+number is an error, and a variadic function takes at least the declared ones) and converts each as C
+does. An integer is truncated or extended to the type of the parameter. A `PTR` takes a word as its
+value, or a string constant directly: `CCALL puts('hello')` passes the address of the bytes, ended
+by a zero byte, with no LOC. A `DOUBLE` or a `FLOAT` takes a REAL, which is the bits of a double
+(Section 2.4.3), or an integer, which is converted to real; a REAL given to an integer type or a
+`PTR` is converted to an integer. The arguments of a variadic call that have no declared type get
+the promotions of C: a REAL is passed as a `double`, and an integer as a `long`; the address of a
+string constant there is written LOC('text'). The result is the word the program sees: the signed
+types are sign-extended, the unsigned types and `PTR` are zero-extended, a `DOUBLE` or a `FLOAT` is
+a REAL, and `VOID` gives 0. A function declared `DOUBLE` or `FLOAT` has a REAL as its value, which
+mixes with other reals; a variable or a function that holds one is declared REAL. For example
+
+```
+EXTERNAL INT puts(PTR);
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL DOUBLE ldexp(DOUBLE, INT);
+X IS REAL;
+CCALL puts('ldexp scales by a power of two');
+X:=CCALL ldexp(1.5,4);
+CCALL printf('%.1f%c',X,10);
+FINI(0)
+%%
+```
+
+prints `ldexp scales by a power of two` and `24.0`. `CCALL puts('a','b')` is an error: `CCALL puts
+TAKES 1 ARGUMENTS, NOT 2.` The compiler links the C library and not the math library, so where the
+math functions are a library of their own (`sqrt` and `pow` in libm of glibc) they can be declared
+and called but not linked.
 
 A `C` function may call an IMP routine back: `LOC(ROUTINE)` is its address. An IMP routine receives
 its arguments as addresses, which is what `qsort` gives its comparison function:
@@ -2907,6 +2964,10 @@ like, and the library uses them itself. A program should not define a name of th
 <ST>	::= <EXP,A> => <ST,C> ELSE <ST,D>
 <ION>	::= CCALL <NAM,A> ( )
 <ION>	::= CCALL <NAM,A> ( <ELIST,B> )
+<ST>	::= EXTERNAL <NAM,T> <NAM,F> ( )
+<ST>	::= EXTERNAL <NAM,T> <NAM,F> ( <NLIST,L> )
+<ST>	::= EXTERNAL <NAM,T> <NAM,F> ( <NLIST,L> , . . . )
+<ST>	::= EXTERNAL <NAM,T> <NAM,F> ( . . . )
 <PROP>	::= EXTERNAL
 ## References
 

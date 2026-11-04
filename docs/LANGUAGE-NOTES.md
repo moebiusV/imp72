@@ -19,8 +19,10 @@ and `imp72`) agree on it.
   `[P+(2*4)]`, since a constant expression is folded first. `[P+K]` is the
   word at the byte address `P+K`. To reach word `K` write `[P+(8*K)]`. Outside
   brackets, `LOC(X)+N` and `P+K` add `N` or `K` bytes.
-- **A C `int` result comes back in half a register**: mask it (`AND 4294967295`)
-  before comparing it with a negative number or a 64-bit value.
+- **A C `int` result comes back in half a register** from a function that is
+  not declared: mask it (`AND 4294967295`) before comparing it with a negative
+  number or a 64-bit value, or declare the function (`EXTERNAL INT f(PTR);`,
+  `docs/FFI.md`), which sign-extends the result.
 
 ## Statements and declarations
 

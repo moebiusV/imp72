@@ -445,6 +445,193 @@ variadic_fixed(const char *nm)
     return 0;
 }
 
+/* ---- the calls of declared C functions ------------------------------------------------------------------------------------------
+ * The code generator names such a function NAME@SIG in the call: SIG is the letter of the type of the result (c C s S i I l L q Q z p d f v: CHAR UCHAR
+ * SHORT USHORT INT UINT LONG ULONG LLONG ULLONG SIZE PTR DOUBLE FLOAT VOID), then the letters of the arguments, with a dot before those of a variadic call
+ * that have no parameter.  The arguments are words (pointer sized); a double, a float and a long long are the address of a word of 64 bits. */
+
+static struct { char *name; char *decl; } tprotos[256];
+static int ntprotos;
+
+static const char *
+tytext(int c)
+{
+    switch (c) {
+    case 'c': case 'C': return "i8";
+    case 's': case 'S': return "i16";
+    case 'i': case 'I': return "i32";
+    case 'l': case 'L': case 'z': return IPT;
+    case 'q': case 'Q': return "i64";
+    case 'p': return "ptr";
+    case 'd': return "double";
+    case 'f': return "float";
+    case 'v': return "void";
+    default: die("unknown C type in a call", "");
+    }
+    return NULL;
+}
+
+static const char *
+tyattr(int c)
+{
+    switch (c) {
+    case 'c': case 's': case 'i': return " signext";
+    case 'C': case 'S': case 'I': return " zeroext";
+    default: return "";
+    }
+}
+
+/* the value of the argument with the C type c, from v: a pointer sized integer */
+static char *
+targ(int c, char *v)
+{
+    char *t, *p;
+
+    switch (c) {
+    case 'c': case 'C':
+        t = newval();
+        ins("%s = trunc %s %s to i8", t, IPT, v);
+        return t;
+    case 's': case 'S':
+        t = newval();
+        ins("%s = trunc %s %s to i16", t, IPT, v);
+        return t;
+    case 'i': case 'I':
+        if (!ptr32) {
+            t = newval();
+            ins("%s = trunc i64 %s to i32", t, v);
+            return t;
+        }
+        return v;
+    case 'p':
+        t = newval();
+        ins("%s = inttoptr %s %s to ptr", t, IPT, v);
+        return t;
+    case 'q': case 'Q': case 'd': case 'f':
+        p = newval();
+        ins("%s = inttoptr %s %s to ptr", p, IPT, v);
+        t = newval();
+        ins("%s = load %s, ptr %s, align 8", t, c == 'd' || c == 'f' ? "double" : "i64", p);
+        if (c == 'f') {
+            char *u = newval();
+
+            ins("%s = fptrunc double %s to float", u, t);
+            return u;
+        }
+        return t;
+    default:
+        return v;
+    }
+}
+
+static char *
+typedcall(const char *nm, const char *sig, char **vals, int nargs)
+{
+    int res = sig[0], k = 0, nfix = -1, dots = 0;
+    const char *s;
+    char *o = fmt(""), *ft = fmt(""), *r, *t;
+    char *fixed = fmt("");
+
+    for (s = sig + 1; *s; s++) {
+        if (*s == '.') {
+            nfix = k;
+            continue;
+        }
+        if (k >= nargs)
+            die("call with fewer arguments than its signature", nm);
+        if (nfix < 0 || k < nfix)
+            fixed = fmt("%s%s%s%s", fixed, k ? ", " : "", tytext(*s), tyattr(*s));
+        k++;
+    }
+    if (k != nargs)
+        die("call with more arguments than its signature", nm);
+    dots = nfix >= 0;
+    if (dots) {
+        char *fp = fmt("");
+        int j;
+
+        s = sig + 1;
+        for (j = 0; j < nfix; j++)
+            fp = fmt("%s%s%s", fp, j ? ", " : "", tytext(s[j]));
+        ft = fmt("(%s%s...) ", fp, nfix ? ", " : "");
+    }
+    k = 0;
+    for (s = sig + 1; *s; s++) {
+        if (*s == '.')
+            continue;
+        t = targ(*s, vals[k]);
+        o = fmt("%s%s%s%s %s", o, k ? ", " : "", tytext(*s), nfix >= 0 && k >= nfix ? "" : tyattr(*s), t);
+        k++;
+    }
+    if (ntprotos < 256) {
+        int j;
+
+        for (j = 0; j < ntprotos; j++)
+            if (strcmp(tprotos[j].name, nm) == 0)
+                break;
+        if (j == ntprotos) {
+            tprotos[j].name = xstrdup(nm);
+            tprotos[j].decl = xstrdup(fmt("declare %s %s(%s%s)", tytext(res), gname(nm), fixed, dots ? (nfix ? ", ..." : "...") : ""));
+            ntprotos++;
+        }
+    }
+    if (res == 'v') {
+        ins("call void %s%s(%s)", ft, gname(nm), o);
+        return fmt("0");
+    }
+    r = newval();
+    ins("%s = call %s %s%s(%s)", r, tytext(res), ft, gname(nm), o);
+    switch (res) {
+    case 'c': case 's': case 'i':
+        t = newval();
+        ins("%s = sext %s %s to i64", t, tytext(res), r);
+        return t;
+    case 'C': case 'S': case 'I':
+        t = newval();
+        ins("%s = zext %s %s to i64", t, tytext(res), r);
+        return t;
+    case 'l':
+        if (ptr32) {
+            t = newval();
+            ins("%s = sext i32 %s to i64", t, r);
+            return t;
+        }
+        return r;
+    case 'L': case 'z':
+        if (ptr32) {
+            t = newval();
+            ins("%s = zext i32 %s to i64", t, r);
+            return t;
+        }
+        return r;
+    case 'p': {
+        char *u = newval();
+
+        ins("%s = ptrtoint ptr %s to %s", u, r, IPT);
+        if (ptr32) {
+            t = newval();
+            ins("%s = zext i32 %s to i64", t, u);
+            return t;
+        }
+        return u;
+    }
+    case 'd':
+        t = newval();
+        ins("%s = bitcast double %s to i64", t, r);
+        return t;
+    case 'f': {
+        char *u = newval();
+
+        ins("%s = fpext float %s to double", u, r);
+        t = newval();
+        ins("%s = bitcast double %s to i64", t, u);
+        return t;
+    }
+    default:
+        return r;
+    }
+}
+
 /* a call: the value is an i64 */
 static char *
 callexpr(struct node *n)
@@ -452,9 +639,14 @@ callexpr(struct node *n)
     struct node *fn = n->l, *args[64] = { NULL }, *list[64], *c;
     char *vals[64], *r, *o;
     int nargs, k, top = -1, nl = 0, nfix, cf, ind;
+    const char *sig;
 
     if (fn->op != ICON || fn->name == NULL)
         die("call of a computed function", "");
+    if ((sig = strchr(fn->name, '@')) != NULL) {         /* a declared C function: NAME@SIGNATURE */
+        *(char *)sig = '\0';
+        sig++;
+    }
     /* a call through an address: CCALL IMPCALLP(F,A,...) (the result a C long) or IMPCALLW(F,A,...) (the result an IMP word, 64 bits) calls the function at F with the arguments A, ... by value */
     ind = strcmp(fn->name, "impcallp") == 0 || strcmp(fn->name, "impcallw") == 0;
     if (!ind)
@@ -503,6 +695,8 @@ callexpr(struct node *n)
         }
         vals[k] = v;
     }
+    if (sig != NULL)
+        return typedcall(fn->name, sig, vals, nargs);
     if (ind) {
         char *f = newval(), *ft = fmt("(");
         int j;
@@ -1056,6 +1250,7 @@ ir2ll_run(FILE *in, FILE *out, int p32)
     inp = in;
     outp = out;
     ptr32 = p32;
+    ntprotos = 0;
     bodyf = open_memstream(&body, &blen);
     datafile = open_memstream(&data, &dlen);
     bodyfile = bodyf;
@@ -1093,6 +1288,17 @@ ir2ll_run(FILE *in, FILE *out, int p32)
 
         if (inset(&funcs, nm))
             continue;
+        {
+            int j;
+
+            for (j = 0; j < ntprotos; j++)
+                if (strcmp(tprotos[j].name, nm) == 0)
+                    break;
+            if (j < ntprotos) {
+                fprintf(outp, "%s\n", tprotos[j].decl);
+                continue;
+            }
+        }
         if (strcmp(nm, "_setjmp") == 0 || strcmp(nm, "setjmp") == 0)
             fprintf(outp, "declare %s %s(...) returns_twice\n", IPT, gname(nm));
         else if (variadic_fixed(nm) > 0)

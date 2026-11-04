@@ -2816,6 +2816,23 @@ function that is called with its arguments by value (Section 2.4.1);
 the semantics of
 .Ic CCALL
 use it.
+.It Li CDECL(T,F,L,V\&)
+Enters the types of the
+.Ar C
+function
+.Ar F ,
+of the result type
+.Ar T
+and the parameter types in the list
+.Ar L
+(0 for none);
+.Ar V
+is 1 if the function takes more arguments (Section 2.4.1).
+.Li CSUBCALL(S,L\&)
+and
+.Li CCALL0(S\&)
+call it, checking the number of the arguments and converting them to
+the declared types.
 .It Li FCON(A,B,C\&)
 Makes the floating point constant A.B"C.
 .Pp
@@ -3378,11 +3395,15 @@ passing the values of its arguments, as
 does, and has the value that the function returns.
 An ordinary call
 .Li NAME(A,B\&)
-of an IMP routine passes addresses.
+of an IMP routine passes addresses; a call of a
+.Ar C
+function is always written with
+.Ic CCALL .
 The arguments go in the registers and on the stack that the
 .Li C
-ABI of the system uses, so that a call may have more than six.
-Every function is taken to be
+ABI of the system uses, so that a call may have more than six (sixteen
+at most).
+A function that is not declared (see below) is taken to be
 .Li "long NAME(long, ...\&)" :
 the arguments are integers or pointers, and the result is the integer
 of a pointer’s size.
@@ -3406,24 +3427,144 @@ and
 A
 .Ar C
 .Li int
-result comes back in half a register, so that its upper bits are undefined:
-mask it with
+result of a function that is not declared comes back in half a register,
+so that its upper bits are undefined: mask it with
 .Li "AND 4294967295"
 before comparing it with a negative number.
-.Ar A
-.Li C
-function that takes or returns a
+A function that is not declared cannot take or return a
 .Li double
 or a
-.Li float ,
-or a structure by value, cannot be called with
-.Ic CCALL ;
-call it through a small
-.Li C
-function that takes and returns integers (a
+.Li float .
+A declaration removes these limits.
+.Pp
+A declaration gives the types of a
+.Ar C
+function once, as a statement:
+.Bd -literal -offset indent
+EXTERNAL INT puts(PTR);
+EXTERNAL DOUBLE ldexp(DOUBLE, INT);
+EXTERNAL PTR malloc(SIZE);
+EXTERNAL VOID free(PTR);
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL LONG write(INT, PTR, SIZE);
+.Ed
+.Pp
+The types are those of
+.Ar C ,
+written in capitals (names are case sensitive):
+.Li "CHAR UCHAR SHORT USHORT INT UINT LONG ULONG LLONG ULLONG SIZE PTR DOUBLE FLOAT" ,
+and
+.Li VOID
+for a result or as the whole list of parameters
+.Li "((VOID) is no parameter\&)" .
+.Li "LONG, ULONG"
+and
+.Li SIZE
+have the width of a
+.Ar C
+.Li long ,
+which is 32 bits where pointers are 32 bits;
+.Li LLONG
+and
+.Li ULLONG
+are 64 bits everywhere, and
+.Li PTR
+is the width of a pointer.
+The name is the
+.Ar C
+name as written; a name that is not an IMP name is a special identifier
+(Section 2.2.1).
+Three dots after the last type declare a function of a variable number
+of arguments.
+A declaration holds to the end of the file, and a function that several
+files call is declared in each.
+A function declared twice with different types, declared after a call
+of it that had no declaration, or declared with a type that is not one
+of those, is an error.
+.Pp
+In a call
+.Li "CCALL NAME(ARGS\&)"
+of a declared function the compiler counts the arguments (a wrong number
+is an error, and a variadic function takes at least the declared ones)
+and converts each as
+.Ar C
+does.
+An integer is truncated or extended to the type of the parameter.
+.Ar A
+.Li PTR
+takes a word as its value, or a string constant directly:
+.Li "CCALL puts(\(aqhello\(aq\&)"
+passes the address of the bytes, ended by a zero byte, with no
+.Ic LOC .
+.Ar A
+.Li DOUBLE
+or a
+.Li FLOAT
+takes a
+.Ic REAL ,
+which is the bits of a double (Section 2.4.3), or an integer, which
+is converted to real; a
 .Ic REAL
-is the bits of an IEEE double, Section 2.4.3).
-The compiler does not check the number or the types of the arguments.
+given to an integer type or a
+.Li PTR
+is converted to an integer.
+The arguments of a variadic call that have no declared type get the
+promotions of
+.Ar C :
+a
+.Ic REAL
+is passed as a
+.Li double ,
+and an integer as a
+.Li long ;
+the address of a string constant there is written LOC('text').
+The result is the word the program sees: the signed types are sign-extended,
+the unsigned types and
+.Li PTR
+are zero-extended, a
+.Li DOUBLE
+or a
+.Li FLOAT
+is a
+.Ic REAL ,
+and
+.Li VOID
+gives 0.
+A function declared
+.Li DOUBLE
+or
+.Li FLOAT
+has a
+.Ic REAL
+as its value, which mixes with other reals; a variable or a function
+that holds one is declared
+.Ic REAL .
+For example
+.Bd -literal -offset indent
+EXTERNAL INT puts(PTR);
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL DOUBLE ldexp(DOUBLE, INT);
+X IS REAL;
+CCALL puts('ldexp scales by a power of two');
+X:=CCALL ldexp(1.5,4);
+CCALL printf('%.1f%c',X,10);
+FINI(0)
+%%
+.Ed
+.Pp
+prints
+.Li "ldexp scales by a power of two"
+and
+.Li 24.0 .
+.Li "CCALL puts(\(aqa\(aq,\(aqb\(aq\&)"
+is an error:
+.Li "CCALL puts TAKES 1 ARGUMENTS, NOT 2\&."
+The compiler links the
+.Ar C
+library and not the math library, so where the math functions are a
+library of their own
+.Li "(sqrt and pow in libm of glibc\&)"
+they can be declared and called but not linked.
 .Pp
 .Ar A
 .Li C
@@ -4941,6 +5082,10 @@ A program should not define a name of that kind.
 <ST>	::= <EXP,A> => <ST,C> ELSE <ST,D>
 <ION>	::= CCALL <NAM,A> ( )
 <ION>	::= CCALL <NAM,A> ( <ELIST,B> )
+<ST>	::= EXTERNAL <NAM,T> <NAM,F> ( )
+<ST>	::= EXTERNAL <NAM,T> <NAM,F> ( <NLIST,L> )
+<ST>	::= EXTERNAL <NAM,T> <NAM,F> ( <NLIST,L> , . . . )
+<ST>	::= EXTERNAL <NAM,T> <NAM,F> ( . . . )
 <PROP>	::= EXTERNAL
 .Ed
 .Sh REFERENCES

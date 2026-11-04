@@ -158,6 +158,12 @@ word g_letsyn(word s);
 word g_errsrt(word n, word e);
 word g_cval(word a);
 word g_iscval(word d);
+word g_ctypeof(word d);
+word g_cpfind(word d);
+void g_cpadd(word d, word h, word t0, word t1);
+word g_cphead(word d);
+word g_cptype(word d, word k);
+word g_cdecl(word t, word f, word l, word v);
 word g_fcon(word a, word b, word e);
 void gen_impsem_dsems(void);                    /* IMPSEM: the DSEMs of gen_impsem.c */
 
@@ -208,6 +214,10 @@ void gen_code2_dsems(void);
 /* ---- code3.imp --------------------------------------------------------------------------------------------------------- */
 
 word g_subcall(word a, word b);
+word g_csubcall(word a, word b);
+word g_c0call(word a);
+word g_cpcount(word d, word k);
+word g_cpar(word s, word pp, word d, word k);
 word g_subscript(word s, word t);
 word g_bytep(word a, word s, word p, word flag);
 word g_pcode(word s, word ns);

@@ -376,7 +376,7 @@ ir_xcall(struct irn *fn, struct irn **a, int n, int cret)
             f = ir_un(IR_FUNARG, v->type, v);
             cm = cm == NULL ? f : ir_bin(IR_CM, T_INT, cm, f);
         }
-        if (cret)
+        if (cret == 1)
             rt = T_INT;
     } else {
         /* the arguments beyond the registers go in the outgoing stack area, which the back end reserves for any assignment to memory
@@ -399,7 +399,7 @@ ir_xcall(struct irn *fn, struct irn **a, int n, int cret)
 
             cm = cm == NULL ? as : ir_bin(IR_CM, T_INT, cm, as);
         }
-        if (cret && irtgt->wordll)
+        if (cret == 1 && irtgt->wordll)
             rt = T_INT;
         if (cret && n > 0 && strcmp(irtgt->name, "amd64") == 0)   /* varargs: %al = vector registers used */
             cm = ir_bin(IR_CM, T_INT, cm, ir_assign(ir_reg(R_RAX, T_LONG), ir_icon(0, T_LONG)));

@@ -9,6 +9,7 @@
  * The IMP locals are static; a routine here that is entered again (through SEMANTICS, which LETSYN calls) shares nothing it
  * would need to keep, so the C ones are automatic, except where a comment says so.
  */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "gen.h"
@@ -21,6 +22,7 @@ static word subpar, nsubpar, partmp, npartmp, lists, listb, liste, blist, regdec
 static word subtmpn, subtmp, subtmpk, subcnt, subrtn, subnam, relnm;
 static word props, plong, pregsyn;
 static word cvt, ncvt;
+static word cpr, ncpr;                          /* CPR, NCPR: the C functions called or declared in the unit (CPADD) */
 
 /* NEWNAME of a name given as a word: its first eight characters (imp.h's newname takes a string) */
 word
@@ -505,6 +507,7 @@ g_assemc(word a)
         }
         g_demit(a);
     }
+    ncpr = 0;                                           /* the declarations of C functions are the unit's */
     return 0;
 }
 
@@ -668,6 +671,8 @@ g_cval(word a)
     word d;
 
     d = HL(FREE(a));
+    if (g_cpfind(d) < 0)
+        g_cpadd(d, 0, 0, 0);                    /* (called in this unit: a declaration after this is an error) */
     if (g_iscval(d) != 0)
         return a;
     if (cvt == 0)
@@ -690,6 +695,129 @@ g_iscval(word d)
         } while (i <= ncvt - 1);
     }
     return 0;
+}
+
+/* The typed declarations of C functions (EXTERNAL INT puts(PTR); of lib/ffi.imc; not in the original).  The types are numbered 1 CHAR, 2 UCHAR,
+ * 3 SHORT, 4 USHORT, 5 INT, 6 UINT, 7 LONG, 8 ULONG, 9 LLONG, 10 ULLONG, 11 SIZE, 12 PTR, 13 DOUBLE, 14 FLOAT, 15 VOID.  CPR holds the names of the
+ * unit that have been called or declared, four words each: the name (a directory index), the head, and the types of the parameters 0 to 7 and 8 to
+ * 15, four bits each.  The head is the type of the result, plus 16 times the number of parameters, plus 512 if the function is variadic; 0 is a name
+ * that has been called and is not declared.  The table is emptied when the unit ends (ASSEMC). */
+word
+g_ctypeof(word d)
+{
+    static const char *const tn[] = { "CHAR", "UCHAR", "SHORT", "USHORT", "INT", "UINT", "LONG", "ULONG", "LLONG", "ULLONG", "SIZE", "PTR",
+                                      "DOUBLE", "FLOAT", "VOID" };
+    const char *s = g_irsymname(d);
+    int k;
+
+    for (k = 0; k < 15; k++)
+        if (strcmp(s, tn[k]) == 0)
+            return k + 1;
+    return 0;
+}
+
+/* the index in CPR of the name D, or -1 */
+word
+g_cpfind(word d)
+{
+    word i;
+
+    if (ncpr > 0)
+        for (i = 0; i <= ncpr - 4; i += 4)
+            if (FREE(cpr + i) == d)
+                return i;
+    return -1;
+}
+
+void
+g_cpadd(word d, word h, word t0, word t1)
+{
+    if (cpr == 0)
+        frelot(&cpr, "CPROT", 16, NULL);
+    fadd(&cpr, &ncpr, d); fadd(&cpr, &ncpr, h); fadd(&cpr, &ncpr, t0); fadd(&cpr, &ncpr, t1);
+}
+
+/* the head of the declaration of the name D, or 0 */
+word
+g_cphead(word d)
+{
+    word i = g_cpfind(d);
+
+    return i < 0 ? 0 : FREE((cpr + i) + 1);
+}
+
+/* the type of parameter K of the declared name D */
+word
+g_cptype(word d, word k)
+{
+    word i = g_cpfind(d), w;
+
+    if (i < 0)
+        return 0;
+    if (k < 8)
+        return (FREE((cpr + i) + 2) >> (4 * k)) & 15;
+    w = FREE((cpr + i) + 3);
+    return (w >> (4 * (k - 8))) & 15;
+}
+
+/* EXTERNAL T F(L) and EXTERNAL T F(L, ...): V is 1 for the dots.  L is the list of the type names, or 0 */
+word
+g_cdecl(word t, word f, word l, word v)
+{
+    word r, d, np, nv, ty, h, t0, t1, e;
+    char cmsg[320];
+
+    d = HL(FREE(f));
+    r = g_ctypeof(HL(FREE(t)));
+    if (r == 0) {
+        snprintf(cmsg, 300, "%s IS NOT A C TYPE.", g_irsymname(HL(FREE(t))));
+        imp_error(1, cmsg);
+        r = 5;
+    }
+    np = 0; nv = 0; t0 = 0; t1 = 0;
+    if (l != 0)
+        while (g_getlist(l) != 0) {
+            ty = g_ctypeof(HL(FREE(l)));
+            if (ty == 0) {
+                snprintf(cmsg, 300, "%s IS NOT A C TYPE.", g_irsymname(HL(FREE(l))));
+                imp_error(1, cmsg);
+                ty = 5;
+            }
+            if (ty == 15)
+                nv = nv + 1;
+            if (np < 8)
+                t0 = t0 | (ty << (4 * np));
+            else if (np < 16)
+                t1 = t1 | (ty << (4 * (np - 8)));
+            np = np + 1;
+        }
+    if (np > 16) {
+        imp_error(1, "MORE THAN 16 PARAMETERS IN A C FUNCTION.");
+        np = 16;
+    }
+    if (nv > 0) {
+        if (nv == 1 && np == 1 && v == 0) {
+            np = 0;
+            t0 = 0;
+        } else
+            imp_error(1, "VOID IS ONLY THE WHOLE LIST OF PARAMETERS, AS IN (VOID).");
+    }
+    h = r + (16 * np);
+    if (v != 0)
+        h = h + 512;
+    e = g_cpfind(d);
+    if (e < 0)
+        g_cpadd(d, h, t0, t1);
+    else if (FREE((cpr + e) + 1) == 0) {
+        snprintf(cmsg, 300, "%s IS DECLARED AFTER A CALL OF IT THAT HAD NO DECLARATION.", g_irsymname(d));
+        imp_error(1, cmsg);
+    } else if (FREE((cpr + e) + 1) != h || FREE((cpr + e) + 2) != t0 || FREE((cpr + e) + 3) != t1) {
+        snprintf(cmsg, 300, "%s IS DECLARED TWICE WITH DIFFERENT TYPES.", g_irsymname(d));
+        imp_error(1, cmsg);
+    }
+    if (r == 13 || r == 14)
+        dprops(DP_ATYPE, d, 2);
+    return enstack(0);
 }
 
 /* FCON(A,B,E): the floating constant A.B"E, whose parts are the names of stack entries A and B (digits) and the constant E (or 0), as the bits
@@ -792,6 +920,7 @@ static word w_reg2s(const word *p) { return g_reg2s(p[0]); }
 static word w_error(const word *p) { return g_errsrt(p[0], p[1]); }
 static word w_letsyn(const word *p) { return g_letsyn(p[0]); }
 static word w_cval(const word *p) { return g_cval(p[0]); }
+static word w_cdecl(const word *p) { return g_cdecl(p[0], p[1], p[2], p[3]); }
 static word w_fcon(const word *p) { return g_fcon(p[0], p[1], p[2]); }
 
 /* IMPSEM(NIL): the DSEMs of this file, in the order of impsem.imp */
@@ -821,6 +950,7 @@ gen_impsem_dsems(void)
     dsem("ERROR", w_error);
     dsem("LETSYN", w_letsyn);
     dsem("CVAL", w_cval);
+    dsem("CDECL", w_cdecl);
     dsem("FCON", w_fcon);
 }
 

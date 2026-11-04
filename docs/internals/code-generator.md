@@ -72,9 +72,22 @@ function loads it into the result register.
 - **Calls.** IMP passes arguments by reference: a call is `CALLB` (the function), one `ARG` record per argument (the
   address of the value; a constant is pooled, a register is stored in a temporary word), and `CALLE`, which gives the
   value to a register. A subroutine is a function whose parameters are those pointers and which returns a word. A
-  function declared with `CCALL` or `EXTERNAL` is called by value: the arguments are the values, not the addresses. Up to
+  function called with `CCALL` or declared `EXTERNAL` is called by value: the arguments are the values, not the addresses. Up to
   16 arguments; those beyond the registers of the machine go in the outgoing stack area (`FUNARG` nodes pushed by pass 2
   on `i386`).
+- **Typed calls.** `EXTERNAL INT puts(PTR);` (`CDECL`, from `lib/ffi.imc`) enters the types of the function in the table `CPR`
+  of `impsem.imp` (four words a name: the name, the head, the types of the parameters; `CPHEAD`, `CPTYPE`), which `ASSEMC`
+  empties at the end of the unit. A name that `CCALL` calls without a declaration is entered with the head 0, so that a
+  declaration after the call is an error. `CSUBCALL` (and `CCALL0` for a call with no arguments) counts the arguments and
+  `CPAR` converts each to the declared type before it is stored (`FLOAT` for a `DOUBLE` or `FLOAT`, `FIX` for a real given to an
+  integer type); the type is the X of its `ARG` record. A declared `DOUBLE` or `FLOAT` function gets the property `ATYPE` real,
+  so the value of its call is a real. `DEMIT` (`ECALLT`) names the function `NAME@SIGNATURE` in the IR: the letter of the result type,
+  then one letter for each argument (`c C s S i I l L q Q z p d f v`), with a dot before the arguments of a variadic call that have no
+  declared type. The arguments are words; `DOUBLE`, `FLOAT`, `LLONG` and `ULLONG` ones are stored in the words `imp_cw0` to
+  `imp_cw15` and the address of the word is the argument. The call has the result code 2 of `IXCALL`: type long on every machine,
+  where an undeclared C call has the type int on the machines with 32-bit words. The IR writers read the signature, make the LLVM
+  call with the types (`signext` and `zeroext` on the parameters narrower than a word), and convert the result to the word.
+  `docs/FFI.md` has the rules of the conversions.
 - **`GO TO` out of a routine.** A tag of another routine is reached by `longjmp`: the routine that has the tag calls
   `_setjmp` into `imp_jb_<tag>` (a 512 byte `.comm`) at its entry, and the jumping routine calls `_longjmp` on it. The
   routine with the tag has to be running. A tag that no routine has is an error that names the tag.
@@ -137,4 +150,6 @@ in the return register. A function is
 compiler for any target LLVM has. A word is `i64`, a real a `double` moved through the scratch words, an address an `i64`
 made a pointer where it is dereferenced. `ir2ll` is `src/ir2ll.imp` with `src/ir2llx.imp` (two files, because the code
 generator can name only 2047 registers in one compilation), and `tools/ir2ll.c` in the seed. `tests/direct/ir2ll.sh`
-and `tools/ir2ll-fuzz.py` compare the two.
+and `tools/ir2ll-fuzz.py` compare the two. A C function called with `CCALL` and not declared is marked by the line
+`* # cfunc NAME`: it returns a C long (an `int` on the 32-bit machines), and its arguments are pointer-sized integers. A declared one
+needs no line: the call names it `NAME@SIGNATURE` (typed calls, above).

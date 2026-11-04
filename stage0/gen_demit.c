@@ -12,6 +12,7 @@
  * statements: the arguments of a call from the right to the left (ASG(RV(RD),VEXPR(V0,V1)) runs VEXPR first).  Each place with two arguments
  * that have effects is written as the statements in that order.
  */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "gen.h"
@@ -36,6 +37,8 @@ static word tble, ntble;                        /* the labels (index of record, 
 static word ddl, nddl, ddw, nddw;               /* data: triples (tag, first word, count) and the words */
 static word callfn, nargs, callmode, retlab, rettmp, shused, cpflag;
 static struct irn *args[16];                    /* ARGS, PARGS */
+static word atys[16];                           /* ATYS: the C type of each argument (the X of its record) */
+static word cwused;                             /* CWUSED: the words imp_cw0 to imp_cw(CWUSED-1) the unit uses */
 static struct irn *pargs[2];
 static struct irn *plast;                       /* PLAST: the call of a print list item, written when the next one starts */
 
@@ -604,6 +607,66 @@ eshift(word op, word rd, word v0, word v1)
     asg(rv(rd), x1);
 }
 
+/* The letter of the C type T (1 to 15) in the signature of a typed call: CHAR c, UCHAR C, SHORT s, USHORT S, INT i, UINT I, LONG l, ULONG L, LLONG q,
+ * ULLONG Q, SIZE z, PTR p, DOUBLE d, FLOAT f, VOID v.  The writers of LLVM IR read them */
+static int
+ctlet(word t)
+{
+    static const char l[] = "cCsSiIlLqQzpdfv";
+
+    return t >= 1 && t <= 14 ? l[t - 1] : 'v';
+}
+
+/* End a call of a declared C function (EXTERNAL INT F(PTR);): the function is named in the IR by its name, an @ and its signature, the letter of the type
+ * of the result, then those of the arguments, with a dot before the arguments of a variadic call that have no parameter (f@ip.d: INT F(PTR, ...) called with
+ * a PTR and a DOUBLE).  Every argument is a word of the IR; a DOUBLE, a FLOAT and a LLONG are the address of a word of 64 bits (imp_cw0 to imp_cw15, stored
+ * just before), which the writer of LLVM IR loads with the type, for a call cannot carry 64 bits on a 32 bit machine.  A text constant for a PTR is its
+ * address.  The value of the call is the word the program sees (the writer converts it), so the call has the type long on every machine (cret 2) */
+static void
+ecallt(word rd, word h)
+{
+    static char cwnb[16][64], csig[32], cnb[400];
+    struct irn *tree, *v, *x1;
+    word k, t, np, q;
+
+    np = (h >> 4) & 31;
+    q = 0;
+    csig[q++] = (char)ctlet(h & 15);
+    k = 0;
+    while (k < nargs) {
+        if ((h & 512) != 0)
+            if (k == np)
+                csig[q++] = '.';
+        t = atys[k] & 15;
+        if (t == 0)
+            t = 7;
+        if ((atys[k] & 16) != 0)
+            v = ir_un(IR_PCONV, TLONG, args[k]);
+        else
+            v = ir_deref(args[k], TLONG);
+        if (t == 9 || t == 10 || t == 13 || t == 14) {
+            snprintf(cwnb[k], 64, "imp_cw%ld", (long)k);
+            x1 = ir_name(cwnb[k], 0, TLONG); asg(x1, v);
+            v = ir_sym(cwnb[k], 0, TPLONG);
+            if (k >= cwused)
+                cwused = k + 1;
+        }
+        args[k] = v;
+        csig[q++] = (char)ctlet(t);
+        k = k + 1;
+    }
+    if ((h & 512) != 0)
+        if (nargs <= np)
+            csig[q++] = '.';
+    csig[q] = '\0';
+    snprintf(cnb, sizeof cnb, "%s@%s", g_irsymname(callfn), csig);
+    tree = ir_xcall(ir_sym(cnb, 0, TPFTN), args, (int)nargs, 2);
+    if (rd != 0)
+        asg(rv(rd), tree);
+    else
+        ir_stmt(tree);
+}
+
 /* End a call (CALLE): the call of the function CALLFN with the arguments ARGS; RD is where the value goes */
 static void
 ecall(word rd)
@@ -628,6 +691,10 @@ ecall(word rd)
         cret = g_irruntime(callfn);
     if (nfn < 60)
         fadd(&fnames, &nfn, callfn);
+    if (g_cphead(callfn) != 0) {
+        ecallt(rd, g_cphead(callfn));
+        return;
+    }
     if (cval != 0) {
         /* the IMP runs this once for K=0 even with NARGS=0 (a FOR body runs once); it dereferences a stale ARGS[0] and nothing uses the result */
         for (k = 0; k <= nargs - 1; k++)
@@ -1235,6 +1302,7 @@ erec(word r)
     if (op == OARG) {
         if (nargs < 16) {
             args[nargs] = eaddr(v0, v1);
+            atys[nargs] = G_RX(r);
             nargs = nargs + 1;
         }
         return;
@@ -1618,6 +1686,14 @@ edata(void)
     if (ir_usedfs != 0) {
         ir_pass(" .comm imp_fs0,8,8"); ir_pass(" .comm imp_fs1,8,8"); ir_pass(" .comm imp_fsr,8,8");
     }
+    if (cwused > 0) {
+        char nb[64];
+
+        for (i = 0; i <= cwused - 1; i++) {
+            snprintf(nb, sizeof nb, "imp_cw%ld", (long)i);
+            ir_pass(" .comm %s,8,8", nb);
+        }
+    }
     if (shused != 0) {
         ir_pass(" .comm imp_sa,8,8"); ir_pass(" .comm imp_sb,8,8"); ir_pass(" .comm imp_sr,8,8");
         shused = 0;
@@ -1716,7 +1792,7 @@ g_demit(word a)
         frelot(&xtags, "XTAGS", 20, NULL); frelot(&ddl, "DDL", 20, NULL); frelot(&ddw, "DDW", 20, NULL); frelot(&tble, "TBLE", 20, NULL);
     }
     nrl = 0; nxt = 0; ntags = 0; nused = 0; npool = 0; nfn = 0; nddl = 0; nddw = 0; ntble = 0;
-    ir_usedfs = 0;
+    ir_usedfs = 0; cwused = 0;
     r = HL(FREE(a + 2));
     while (r != 0) {                                    /* EM1 */
         fadd(&rlist, &nrl, r);
