@@ -1,6 +1,6 @@
 #!/bin/sh
-# The link in the process (src/driver.imp: LNK, stage0/impld.cpp): a program is compiled to an executable with -o while no cc is on the PATH (only rm, which the
-# driver runs to clean up), so lld in the process must have made the executable, and it must run and print what the native test prints.  Skipped where the
+# The link in the process (src/driver.imp: LNK, stage0/impld.cpp): a program is compiled to an executable with -o while no cc and no rm is on the PATH (it holds at most ld.lld), so
+# lld in the process must have made the executable, and it must run and print what the native test prints.  Skipped where the
 # compiler has no lld, or the architecture is not one of those whose C library is looked for.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
@@ -15,7 +15,6 @@ x86_64|amd64|i386|i686|aarch64|arm64|armv7l|armv8l|ppc64le|s390x|riscv64|loongar
 esac
 out=build/link
 rm -rf $out; mkdir -p $out/bin
-ln -s "$(command -v rm)" $out/bin/rm
 [ $lld = 0 ] && command -v ld.lld >/dev/null 2>&1 && ln -s "$(command -v ld.lld)" $out/bin/ld.lld         # else the compiler finds it in LLVM's bin directory
 echo "== link"
 fail=0
@@ -29,7 +28,7 @@ if [ $fail = 0 ] && [ -x stage0/imp72stage0 ]; then
     for d in "$w" stage0/imp72stage0; do
         n=$(basename "$d")
         rm -f $out/hello.same
-        IMP72LIB=$root/build/lib/libimp72.a IMP72LDSHOW=1 PATH=$root/$out/bin $root/$d -o $out/hello.same tests/native/hello.imp 2>&1 >/dev/null | sed 's#[^ ]*imp72stage0\.[A-Za-z0-9]*#T#g' >$out/ld.$n
+        IMP72LIB=$root/build/lib/libimp72.a IMP72LDSHOW=1 PATH=$root/$out/bin $root/$d -o $out/hello.same tests/native/hello.imp 2>&1 >/dev/null | sed 's#[^ ]*imp72stage0\.[A-Za-z0-9]*#T#g; s#/proc/self/fd/[0-9]*#T#g' >$out/ld.$n
     done
     [ -s $out/ld.imp72stage-llvm-ir ] && cmp -s $out/ld.imp72stage-llvm-ir $out/ld.imp72stage0 || { echo "FAILED: link: the seed and imp72 do not link with the same arguments" >&2; diff $out/ld.imp72stage-llvm-ir $out/ld.imp72stage0 >&2; fail=1; }
     $out/hello.same | cmp -s - tests/native/hello.out || { echo "FAILED: link: the program linked by the seed does not run" >&2; fail=1; }

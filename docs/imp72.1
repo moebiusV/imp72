@@ -194,8 +194,30 @@ and
 .It Ev SDKROOT
 On macOS, the SDK to link with; otherwise the Command Line Tools' and then Xcode's.
 .It Ev TMPDIR
-The directory for the temporary files of a compilation.
-The default is the current directory.
+The directory for the private directory that holds the object of a program to be linked,
+when it is an absolute path naming a directory in which one can be made.
+The default is
+.Pa tmp/
+of the source tree, and
+.Pa /tmp
+for an installed compiler.
+No temporary file is made for
+.Fl c ,
+.Fl S ,
+.Fl Sir
+or
+.Fl -run ,
+and none for a link on Linux while an unnamed memory file can be used.
+The directory and its files are removed on exit and on
+.Dv SIGHUP ,
+.Dv SIGINT ,
+.Dv SIGQUIT
+and
+.Dv SIGTERM .
+.It Ev IMP72NOMEMFD
+If set and not
+.Ql 0 ,
+a link on Linux uses the private directory and not an unnamed memory file.
 .It Ev IMP72LDSHOW
 If set, the arguments of the linker are printed to the standard error.
 .It Ev PATH

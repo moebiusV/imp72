@@ -225,3 +225,247 @@ imprunld(long argc, long argv)
         ;
     return WIFEXITED(st) && WEXITSTATUS(st) == 0 ? 0 : 1;
 }
+
+/*
+ * The temporary files of the compiler (imptmp*): none unless the link needs a file for the object.  The object of a program to be linked goes to an unnamed memory file on Linux
+ * (memfd_create, found at run time, and the linker is given /proc/self/fd/N), else to a file in a private directory: made when it is first needed, by mkdtemp in $TMPDIR (an
+ * absolute path naming a directory) or else in the default (imptmpbase), checked to be a directory of mode 0700 owned by this user, and removed, with the files made in it, at exit
+ * and by a handler of SIGHUP, SIGINT, SIGQUIT and SIGTERM, with unlink and rmdir and no shell.  lib/imphost.imp (IMPTMPOBJ and the others) is the IMP twin of this.
+ */
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#ifdef __linux__
+#include <sys/syscall.h>
+#endif
+
+#define TD_LIST 65536
+static char td_dflt[4096];                      /* the default base of the private directory */
+static char td_try[4096];                       /* the private directory; it is armed (td_arm) from before mkdtemp makes it */
+static char td_list[TD_LIST];                   /* the files made in it, as C strings one after the other, td_len bytes */
+static volatile size_t td_len;
+static volatile sig_atomic_t td_arm;
+static volatile pid_t td_pid, td_kid;           /* the process that made it (a child of it does not remove it); a child process to stop first */
+static int td_hooked;
+
+/* removal of what was made: async signal safe (unlink, rmdir, kill, waitpid and getpid only, static data) */
+static void
+td_clean(void)
+{
+    const char *p, *e;
+    int k;
+
+    if (!td_arm || getpid() != td_pid)
+        return;
+    if (td_kid > 0) {
+        kill(td_kid, SIGTERM);
+        for (k = 0; k < 3 && waitpid(td_kid, NULL, 0) < 0; k++)
+            ;
+        td_kid = 0;
+    }
+    for (p = td_list, e = td_list + td_len; p < e; p += strlen(p) + 1)
+        unlink(p);
+    rmdir(td_try);
+    td_arm = 0;
+}
+
+static void
+td_atexit(void)
+{
+    td_clean();
+}
+
+static void
+td_handler(int sig)
+{
+    int e = errno;
+
+    td_clean();
+    signal(sig, SIG_DFL);                       /* then the signal does what it does: the exit status is the signal's */
+    errno = e;
+    raise(sig);
+}
+
+static void
+td_hook(void)
+{
+    static const int sigs[] = { SIGHUP, SIGINT, SIGQUIT, SIGTERM };
+    struct sigaction sa, old;
+    size_t k;
+
+    if (td_hooked)
+        return;
+    td_hooked = 1;
+    for (k = 0; k < sizeof sigs / sizeof sigs[0]; k++) {
+        if (sigaction(sigs[k], NULL, &old) == 0 && old.sa_handler == SIG_IGN)
+            continue;                           /* ignored (nohup, a job in the background): it stays so */
+        memset(&sa, 0, sizeof sa);
+        sa.sa_handler = td_handler;
+        sigemptyset(&sa.sa_mask);
+        sigaction(sigs[k], &sa, NULL);
+    }
+    atexit(td_atexit);
+}
+
+/* the default base of the private directory, which is made if it is not there (the source tree's tmp/) */
+long
+imptmpbase(const char *dflt)
+{
+    snprintf(td_dflt, sizeof td_dflt, "%s", dflt);
+    return 0;
+}
+
+/* a private directory in the directory base: 1 if it was made */
+static int
+td_in(const char *base)
+{
+    struct stat st;
+
+    td_arm = 0;
+    snprintf(td_try, sizeof td_try, "%s/imp72stage0.XXXXXX", base);
+    td_pid = getpid();
+    td_len = 0;
+    td_kid = 0;
+    td_arm = 1;                                 /* armed before mkdtemp: a signal between it and the end of this finds the directory */
+    if (mkdtemp(td_try) == NULL) {
+        td_arm = 0;
+        return 0;
+    }
+    if (lstat(td_try, &st) != 0 || !S_ISDIR(st.st_mode) || st.st_uid != geteuid() || (st.st_mode & 0777) != 0700) {
+        rmdir(td_try);
+        td_arm = 0;
+        return 0;
+    }
+    return 1;
+}
+
+static int
+td_make(void)
+{
+    const char *v;
+    DIR *d;
+
+    if (td_arm)
+        return 1;
+    td_hook();
+    v = getenv("TMPDIR");
+    if (v != NULL && v[0] == '/' && (d = opendir(v)) != NULL) {
+        closedir(d);
+        if (td_in(v))
+            return 1;
+    }
+    mkdir(td_dflt, 0777);
+    return td_in(td_dflt);
+}
+
+/* the path of the file name in the private directory, which is made if need be, into out (4096 bytes); the file is to be removed with the directory.  0 if it worked */
+long
+imptmppath(const char *name, char *out)
+{
+    size_t l;
+
+    if (!td_make()) {
+        fprintf(stderr, "imp72: cannot make a temporary directory\n");
+        return 1;
+    }
+    snprintf(out, 4096, "%s/%s", td_try, name);
+    l = strlen(out) + 1;
+    if (td_len + l > TD_LIST) {
+        fprintf(stderr, "imp72: too many temporary files\n");
+        return 1;
+    }
+    memcpy(td_list + td_len, out, l);
+    td_len += l;                                /* (after the copy: the handler goes by td_len) */
+    return 0;
+}
+
+/* a child process the handler stops and waits for before it removes the files (0: none) */
+long
+imptmpkid(long pid)
+{
+    td_kid = (pid_t)pid;
+    return 0;
+}
+
+long
+imptmpclean(long z)
+{
+    (void)z;
+    td_clean();
+    return 0;
+}
+
+static int
+td_nomemfd(void)
+{
+    const char *v = getenv("IMP72NOMEMFD");
+
+    return v != NULL && *v && strcmp(v, "0") != 0;
+}
+
+static int
+td_memfd(void)
+{
+#if defined(__linux__) && defined(SYS_memfd_create)
+    long r = syscall(SYS_memfd_create, "imp72", 0u);      /* (not through memfd_create: an older C library has none); no MFD_CLOEXEC, a linker run as a program has it */
+
+    return r < 0 ? -1 : (int)r;
+#else
+    return -1;
+#endif
+}
+
+static int
+td_write(int fd, const char *p, size_t n)
+{
+    while (n > 0) {
+        ssize_t r = write(fd, p, n);
+
+        if (r <= 0)
+            return 1;
+        p += r;
+        n -= (size_t)r;
+    }
+    return 0;
+}
+
+/* the n bytes of the object at buf in a file for the linker, whose path goes to out (4096 bytes): /proc/self/fd/N of a memory file where there is one, else a file of the private
+ * directory made for the purpose (O_EXCL, mode 0600).  0 if it worked */
+long
+imptmpobj(const char *buf, size_t n, char *out)
+{
+    int fd;
+
+    if (!td_nomemfd() && (fd = td_memfd()) >= 0) {
+        if (td_write(fd, buf, n) == 0) {
+            int t;
+
+            snprintf(out, 4096, "/proc/self/fd/%d", fd);
+            if ((t = open(out, O_RDONLY)) >= 0) {
+                close(t);
+                return 0;
+            }
+        }
+        close(fd);
+    }
+    if (imptmppath("p.o", out) != 0)
+        return 1;
+    fd = open(out, O_WRONLY | O_CREAT | O_EXCL
+#ifdef O_NOFOLLOW
+              | O_NOFOLLOW
+#endif
+#ifdef O_CLOEXEC
+              | O_CLOEXEC
+#endif
+              , 0600);
+    if (fd < 0) {
+        perror(out);
+        return 1;
+    }
+    if (td_write(fd, buf, n) != 0 || close(fd) != 0) {
+        perror(out);
+        return 1;
+    }
+    return 0;
+}

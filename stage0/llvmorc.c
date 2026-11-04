@@ -94,9 +94,9 @@ hostcpu(const char *triple, char **cpu, char **feat)
     return 1;
 }
 
-/* the module m for the host, optimised, as an object file */
-int
-llvm_object(const char *ir, size_t n, const char *path)
+/* the module of the text ir (n bytes) for the host, optimised, as an object file: in the file path, or in memory (path NULL) at *obj, *objn (malloc) */
+static int
+object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
 {
     LLVMContextRef ctx;
     LLVMModuleRef m;
@@ -105,6 +105,7 @@ llvm_object(const char *ir, size_t n, const char *path)
     LLVMTargetDataRef dl;
     LLVMPassBuilderOptionsRef pbo;
     LLVMErrorRef e;
+    LLVMMemoryBufferRef mb;
     char *triple, *cpu, *feat, *msg = NULL;
     int rc = 1;
 
@@ -130,10 +131,25 @@ llvm_object(const char *ir, size_t n, const char *path)
         goto done;
     }
     LLVMDisposePassBuilderOptions(pbo);
-    if (LLVMTargetMachineEmitToFile(tm, m, (char *)path, LLVMObjectFile, &msg)) {
-        fprintf(stderr, "imp72: LLVM: %s: %s\n", path, msg);
-        LLVMDisposeMessage(msg);
-        goto done;
+    if (path != NULL) {
+        if (LLVMTargetMachineEmitToFile(tm, m, (char *)path, LLVMObjectFile, &msg)) {
+            fprintf(stderr, "imp72: LLVM: %s: %s\n", path, msg);
+            LLVMDisposeMessage(msg);
+            goto done;
+        }
+    } else {
+        if (LLVMTargetMachineEmitToMemoryBuffer(tm, m, LLVMObjectFile, &msg, &mb)) {
+            fprintf(stderr, "imp72: LLVM: %s\n", msg);
+            LLVMDisposeMessage(msg);
+            goto done;
+        }
+        *objn = LLVMGetBufferSize(mb);
+        if ((*obj = malloc(*objn + 1)) == NULL) {
+            LLVMDisposeMemoryBuffer(mb);
+            goto done;
+        }
+        memcpy(*obj, LLVMGetBufferStart(mb), *objn);
+        LLVMDisposeMemoryBuffer(mb);
     }
     rc = 0;
 done:
@@ -199,15 +215,16 @@ llvm_run(const char *ir, size_t n, const char *entry, long *result)
 
 extern int ir2ll_run(FILE *in, FILE *out, int p32);                 /* tools/ir2ll.c */
 
-/* the module of LLVM IR for the IR in the file ir, as text in *buf (n bytes) */
+/* the module of LLVM IR for the IR text at ir (n bytes), as text in *buf (n bytes at *len), all in memory */
 static int
-module(const char *ir, char **buf, size_t *n)
+module(const char *ir, size_t n, char **buf, size_t *len)
 {
-    FILE *irf = fopen(ir, "r"), *mem;
+    FILE *irf, *mem;
     int rc;
 
-    if (irf == NULL || (mem = open_memstream(buf, n)) == NULL) {
-        perror(ir);
+    irf = n > 0 ? fmemopen((void *)ir, n, "r") : fopen("/dev/null", "r");
+    if (irf == NULL || (mem = open_memstream(buf, len)) == NULL) {
+        perror("imp72: the IR in memory");
         return 1;
     }
     rc = ir2ll_run(irf, mem, (int)(sizeof(void *) == 4));
@@ -216,45 +233,55 @@ module(const char *ir, char **buf, size_t *n)
     return rc;
 }
 
-/* The entries of the driver (src/driver.imp), which calls them with CCALL, so no underscores: 0 for success. */
+/* The entries of the driver (src/driver.imp), which calls them with CCALL, so no underscores: 0 for success.  The IR text of the kernel is in memory (ir, n bytes). */
 long llvmhave(long z) { (void)z; return 1; }
 
 long
-llvmobj(const char *ir, const char *out)                            /* the object of the program */
+llvmobj(const char *ir, size_t n, const char *out)                  /* the object of the program, in the file out (-c) */
 {
     char *buf = NULL;
-    size_t n = 0;
+    size_t len = 0;
 
-    return module(ir, &buf, &n) != 0 || llvm_object(buf, n, out) != 0;
+    return module(ir, n, &buf, &len) != 0 || object(buf, len, out, NULL, NULL) != 0;
 }
 
 long
-llvmsave(const char *ir, const char *out)                           /* the module as text (-S) */
+llvmobjmem(const char *ir, size_t n, char **obj, size_t *objn)      /* the object of the program, in memory (malloc) */
 {
     char *buf = NULL;
-    size_t n = 0;
+    size_t len = 0;
+
+    return module(ir, n, &buf, &len) != 0 || object(buf, len, NULL, obj, objn) != 0;
+}
+
+long
+llvmsave(const char *ir, size_t n, const char *out)                 /* the module as text (-S) */
+{
+    char *buf = NULL;
+    size_t len = 0;
     FILE *o;
 
-    if (module(ir, &buf, &n) != 0)
+    if (module(ir, n, &buf, &len) != 0)
         return 1;
-    return (o = fopen(out, "w")) == NULL || fwrite(buf, 1, n, o) != n || fclose(o) != 0;
+    return (o = fopen(out, "w")) == NULL || fwrite(buf, 1, len, o) != len || fclose(o) != 0;
 }
 
 long
-llvmrun(const char *ir)                                             /* compile with ORC and run: the main program is impmain */
+llvmrun(const char *ir, size_t n)                                   /* compile with ORC and run: the main program is impmain */
 {
     char *buf = NULL;
-    size_t n = 0;
+    size_t len = 0;
     long r = 0;
 
-    return module(ir, &buf, &n) != 0 || llvm_run(buf, n, "impmain", &r) != 0;
+    return module(ir, n, &buf, &len) != 0 || llvm_run(buf, len, "impmain", &r) != 0;
 }
 
 #else
 long llvmhave(long z) { (void)z; return 0; }
-long llvmobj(const char *ir, const char *out) { (void)ir; (void)out; return 1; }
-long llvmsave(const char *ir, const char *out) { (void)ir; (void)out; return 1; }
-long llvmrun(const char *ir) { (void)ir; return 1; }
+long llvmobj(const char *ir, size_t n, const char *out) { (void)ir; (void)n; (void)out; return 1; }
+long llvmobjmem(const char *ir, size_t n, char **obj, size_t *objn) { (void)ir; (void)n; (void)obj; (void)objn; return 1; }
+long llvmsave(const char *ir, size_t n, const char *out) { (void)ir; (void)n; (void)out; return 1; }
+long llvmrun(const char *ir, size_t n) { (void)ir; (void)n; return 1; }
 #endif
 
 /* lld in the process is stage0/impld.cpp, built where lld is installed (-DHAVE_LLD, tools/llvm.sh); without it the driver links with the system's cc */
