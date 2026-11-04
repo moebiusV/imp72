@@ -17,6 +17,8 @@ WHILE AI<NARG DO (RUNONE(ARG(AI)); AI:=AI+1);
 CLOSE(0);
 CCALL exit(0);
 
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL INT sprintf(PTR, PTR, ...);
 SUBR RUNONE(C) IS (
  B,L ARE LOCAL;
  GETB(C,0)=33 => (

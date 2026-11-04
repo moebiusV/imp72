@@ -26,6 +26,7 @@ WHILE I<NA DO (
 CCALL fflush(IMPSTDOUT(0));
 CCALL exit(0);
 
+EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);
 SUBR GETB(P,I) IS (
  Q ARE LOCAL;
  Q:=BYTEP [P]<7,36>; Q:=Q+I; <+Q>);

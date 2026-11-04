@@ -20,6 +20,10 @@ BG IS 800 LONG;
 BK IS 800 LONG;
 WORD,NA,NC,KM,DRV,C0,VI,SI,PI,NBAD,KEY,CMD,LINE,TMP ARE COMMON;
 
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL INT fprintf(PTR, PTR, ...);
+EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);
+EXTERNAL INT sscanf(PTR, PTR, ...);
 # THE MAIN PROGRAM #
 NA:=CCALL impargc(0);
 NA NE 2 => DIE(LOC('usage'),LOC('probe-fields DRIVER'));

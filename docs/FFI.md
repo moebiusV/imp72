@@ -34,14 +34,19 @@ returns its result as a word. `CCALL` is always written for a call to C; a plain
 `LOC(X)` is the address of X. Registers and stack are used as the target's C ABI
 uses them.
 
-A function that is not declared is taken as `long NAME(long, ...)`: the
-arguments are integers or addresses, a string constant is passed as the
-address `LOC('text')`, and the result is the integer of a pointer's size. A
-pointer or a `long` comes back right. An `int` result arrives in half a
-register with undefined upper bits on a 64-bit host: mask it (`AND 4294967295`)
-before comparing it with a negative number or a 64-bit value. A `double` or
-a `float` cannot cross such a call. A declaration (below) removes these
-limits.
+A function that is not declared is called with a fixed number of arguments,
+each one word (type `long`): the arguments are integers or addresses, a string
+constant is passed as the address `LOC('text')`, and the result is the integer
+of a pointer's size. A pointer or a `long` comes back right. An `int` result
+arrives in half a register with undefined upper bits on a 64-bit host: mask it
+(`AND 4294967295`) before comparing it with a negative number or a 64-bit
+value. A `double` or a `float` cannot cross such a call. A C function that
+takes a variable number of arguments (`printf`, `snprintf`, `sscanf`, `open`,
+`fcntl`, `ioctl`, `syscall`, `execl`) must be declared with `...`, as in
+`EXTERNAL INT printf(PTR, ...);`, before its first call in the compilation
+unit: the calling convention of a variadic function differs from that of a
+fixed one on several targets, and a call of it as a fixed one is wrong there.
+A declaration (below) removes these limits.
 
 ### Declarations of C functions
 
@@ -102,8 +107,8 @@ For a call `CCALL NAME(ARGS)` of a declared function the compiler:
 
 A function declared twice with different types, declared after a call of it
 that had no declaration, or declared with a type name that is not C's, is a
-compile-time error. A function called with `CCALL` and not declared is called as
-before.
+compile-time error. A function called with `CCALL` and not declared is called with a fixed
+number of word arguments.
 In the IR a declared function is named `NAME@SIGNATURE` in the call: the
 signature is a letter for the result and one for each argument (`c C s S i I l L
 q Q z p d f v` for `CHAR UCHAR SHORT USHORT INT UINT LONG ULONG LLONG ULLONG
@@ -466,7 +471,7 @@ uses a declared name right; the compiler does, as for any declaration.
 
 ## Limits
 
-- A function that is not declared is `long f(long, ...)`.
+- A function that is not declared is called with exactly the arguments given, each one `long`, as a fixed call: a variadic C function must be declared with `...`.
 - At most 16 arguments, and 16 parameters in a declaration.
 - A structure by value is not a type: it is not passed, returned or copied by `CCALL`.
 - Structure layouts have no bit fields and no unions, and no `packed` or `aligned` attributes. The layout is what the program declares or `imp72-cimport` writes from a header (which declares what it can express and lists the rest); the compiler reads no header. A union that is read in only one member is declared as that member's structure.

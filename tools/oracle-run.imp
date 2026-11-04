@@ -19,6 +19,8 @@ OUTDIR NE 0 => SHELL(LOC('mkdir -p ''%s'''),OUTDIR);
 RUN(0);
 CCALL exit(0);
 
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL INT sprintf(PTR, PTR, ...);
 SUBR USAGE(Z) IS (DIE(LOC('usage: oracle-run [-d DIR] [--lst] PROG.imp...'),0));
 
 SUBR PARSE(Z) IS (

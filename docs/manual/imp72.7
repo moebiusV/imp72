@@ -3459,10 +3459,19 @@ The arguments go in the registers and on the stack that the
 .Li C
 ABI of the system uses, so that a call may have more than six (sixteen
 at most).
-A function that is not declared (see below) is taken to be
-.Li "long NAME(long, ...\&)" :
+A function that is not declared (see below) is called with a fixed number
+of arguments, each one word (type
+.Li long ) :
 the arguments are integers or pointers, and the result is the integer
 of a pointer’s size.
+A
+.Ar C
+function that takes a variable number of arguments
+.Li "(printf, snprintf, open, fcntl, ioctl, syscall\&)"
+must be declared with
+.Li \&... ,
+because the ABI of several systems calls a variadic function differently
+from a fixed one.
 The address of a variable or of a string constant, which a
 .Li C
 function expects for a pointer, is written
@@ -3479,7 +3488,10 @@ call
 .Li strlen
 and
 .Li puts .
-.Li "(CCALL printf(LOC(\(aq%ld\(aq),N) prints with the formats of C.\&)"
+(after
+.Li "EXTERNAL INT printf(PTR, ...);, CCALL printf(LOC(\(aq%ld\(aq),N\&)"
+prints with the formats of
+.Ar C . )
 A
 .Ar C
 .Li int

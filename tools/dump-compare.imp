@@ -36,6 +36,8 @@ KNOWN(0);
 KIND=73 => CCALL exit(DIRECTORY(ARG(2),ARG(3)));
 CCALL exit(COMPARE(ARG(2),ARG(3),(NARG=5 => ARG(4) ELSE 0)));
 
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL INT sprintf(PTR, PTR, ...);
 SUBR USAGE(Z) IS (
  CCALL write(2,LOC('usage: dump-compare KIND ORACLE.lst OURS.txt [SOURCE.imp]  (KIND: S, T, X or I)'),82);
  PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1); CCALL exit(1));

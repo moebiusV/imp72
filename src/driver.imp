@@ -20,6 +20,8 @@ DTA,DTV,DTO,DTE ARE 8 LONG;                                              # THE F
 
 IMPD(0);
 
+EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);
+EXTERNAL INT sscanf(PTR, PTR, ...);
 # EXISTS(P): CAN THE FILE BE RUN OR READ #
 SUBR EXISTS(P) IS (
  (CCALL access(P,1) AND 37777777777B)=0 => RETURN 1;

@@ -39,6 +39,7 @@ IDJRST:=INTERN(LOC('JRST')); IDHRRZI:=INTERN(LOC('HRRZI')); IDHRLI:=INTERN(LOC('
 MAIN(0);
 CCALL exit(0);
 
+EXTERNAL INT printf(PTR, ...);
 SUBR USAGE(Z) IS (
  CCALL write(2,LOC('usage: lst-compare [-v] ORACLE.lst OURS.txt'),43);
  PUTB(LOC(WORD),0,10); CCALL write(2,LOC(WORD),1); CCALL exit(1));

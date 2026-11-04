@@ -17,6 +17,8 @@ MKDIRS(ARG(2));
 DONE(LOC('imp.low')); DONE(LOC('imp.shr')); DONE(LOC('implib.lib'));
 CCALL exit(0);
 
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL INT sprintf(PTR, PTR, ...);
 # THE BYTE I OF THE MEMORY AT P, AND STORING ONE #
 SUBR GETB(P,I) IS (
  Q ARE LOCAL;

@@ -1971,10 +1971,13 @@ them.
 and has the value that the function returns. An ordinary call `NAME(A,B)` of an IMP routine passes
 addresses; a call of a C function is always written with CCALL. The arguments go in the registers
 and on the stack that the `C` ABI of the system uses, so that a call may have more than six (sixteen
-at most). A function that is not declared (see below) is taken to be `long NAME(long, ...)`: the
-arguments are integers or pointers, and the result is the integer of a pointer's size. The address
-of a variable or of a string constant, which a `C` function expects for a pointer, is written LOC(X)
-or LOC('text'): a string constant is bytes ended by a zero byte. For example
+at most). A function that is not declared (see below) is called with a fixed number of arguments,
+each one word (type `long`): the arguments are integers or pointers, and the result is the integer
+of a pointer's size. A C function that takes a variable number of arguments (`printf`, `snprintf`,
+`open`, `fcntl`, `ioctl`, `syscall`) must be declared with `...`, because the ABI of several systems
+calls a variadic function differently from a fixed one. The address of a variable or of a string
+constant, which a `C` function expects for a pointer, is written LOC(X) or LOC('text'): a string
+constant is bytes ended by a zero byte. For example
 
 ```
 N:=CCALL strlen(LOC('hello, world'));
@@ -1982,10 +1985,11 @@ PRINT STG 0,'length ',IGR 0,N,/;
 CCALL puts(LOC('puts adds a newline'));
 ```
 
-call `strlen` and `puts`. (`CCALL printf(LOC('%ld'),N)` prints with the formats of C.) A C `int`
-result of a function that is not declared comes back in half a register, so that its upper bits are
-undefined: mask it with `AND 4294967295` before comparing it with a negative number. A function that
-is not declared cannot take or return a `double` or a `float`. A declaration removes these limits.
+call `strlen` and `puts`. (after `EXTERNAL INT printf(PTR, ...);`, `CCALL printf(LOC('%ld'),N)`
+prints with the formats of C.) A C `int` result of a function that is not declared comes back in
+half a register, so that its upper bits are undefined: mask it with `AND 4294967295` before
+comparing it with a negative number. A function that is not declared cannot take or return a
+`double` or a `float`. A declaration removes these limits.
 
 A declaration gives the types of a C function once, as a statement:
 
