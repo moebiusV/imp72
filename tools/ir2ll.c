@@ -1170,17 +1170,33 @@ flushdata(void)
             fprintf(datafile, "%s = %s global [%d x i8] c\"%s\", align 8\n", gname(dlabel), link, len, s);
             add(&datadefs, dlabel);
         } else if (ndq > 0) {
-            fprintf(datafile, "%s = %s global [%d x i64] [", gname(dlabel), link, ndq);
+            int mixed = 0;
+
+            if (ptr32)
+                for (i = 0; i < ndq; i++)
+                    if (dqsyms[i] != NULL)
+                        mixed = 1;
+            if (mixed) {
+                fprintf(datafile, "%s = %s global <{ ", gname(dlabel), link);
+                for (i = 0; i < ndq; i++)
+                    fprintf(datafile, "%s%s", i ? ", " : "", dqsyms[i] == NULL ? "i64" : "{ i32, i32 }");
+                fprintf(datafile, " }> <{ ");
+            } else
+                fprintf(datafile, "%s = %s global [%d x i64] [", gname(dlabel), link, ndq);
             for (i = 0; i < ndq; i++) {
                 if (dqsyms[i] == NULL)
                     fprintf(datafile, "%si64 %lld", i ? ", " : "", dquads[i]);
+                else if (mixed && dquads[i] == 0)
+                    fprintf(datafile, "%s{ i32, i32 } { i32 ptrtoint (ptr %s to i32), i32 0 }", i ? ", " : "", gname(dqsyms[i]));
+                else if (mixed)
+                    fprintf(datafile, "%s{ i32, i32 } { i32 add (i32 ptrtoint (ptr %s to i32), i32 %lld), i32 0 }", i ? ", " : "", gname(dqsyms[i]), dquads[i]);
                 else if (dquads[i] == 0)
                     fprintf(datafile, "%si64 ptrtoint (ptr %s to i64)", i ? ", " : "", gname(dqsyms[i]));
                 else
                     fprintf(datafile, "%si64 add (i64 ptrtoint (ptr %s to i64), i64 %lld)", i ? ", " : "", gname(dqsyms[i]), dquads[i]);
                 dqsyms[i] = NULL;
             }
-            fprintf(datafile, "], align 8\n");
+            fprintf(datafile, mixed ? " }>, align 8\n" : "], align 8\n");
             add(&datadefs, dlabel);
         }
     }

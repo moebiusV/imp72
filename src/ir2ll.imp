@@ -437,22 +437,33 @@ SUBR IRLLLSTR(S) IS (
 
 # THE LABEL AND THE DATA OF THE ASSEMBLER LINES SO FAR, AS A GLOBAL VARIABLE #
 SUBR IRLFLUSH(Z) IS (
- S,I,LK ARE LOCAL;
+ S,I,LK,MX ARE LOCAL;
  IRLDLABEL=0 => GO TO FL9;
  LK:=LOC('dso_local'); CCALL strncmp(IRLDLABEL,LOC('.L'),2)=0 => LK:=LOC('internal');
  IRLDSTRING NE 0 => (S:=IRLLLSTR(IRLDSTRING);
                      IRLGN(1,IRLDLABEL); IRLPS(1,LOC(' = ')); IRLPS(1,LK); IRLPS(1,LOC(' global [')); IRLPN(1,IRLLEN); IRLPS(1,LOC(' x i8] c"')); IRLPS(1,S); IRLPS(1,LOC('", align 8')); IRLPC(1,10);
                      IRLADD(2,IRLDLABEL);
                      GO TO FL9);
- IRLNDQ>0 => (IRLGN(1,IRLDLABEL); IRLPS(1,LOC(' = ')); IRLPS(1,LK); IRLPS(1,LOC(' global [')); IRLPN(1,IRLNDQ); IRLPS(1,LOC(' x i64] ['));
+ IRLNDQ>0 => (MX:=0;
+              IRLP32 NE 0 => (I:=0; FL0: I<IRLNDQ => (IRLDS[I] NE 0 => MX:=1; I:=I+1; GO TO FL0));
+              IRLGN(1,IRLDLABEL); IRLPS(1,LOC(' = ')); IRLPS(1,LK); IRLPS(1,LOC(' global '));
+              MX NE 0 => (IRLPS(1,LOC('<{ '));
+                          I:=0;
+                          FL2: I<IRLNDQ => (I>0 => IRLPS(1,LOC(', '));
+                                            IRLDS[I]=0 => IRLPS(1,LOC('i64')) ELSE IRLPS(1,LOC('{ i32, i32 }'));
+                                            I:=I+1; GO TO FL2);
+                          IRLPS(1,LOC(' }> <{ ')))
+                ELSE (IRLPC(1,91); IRLPN(1,IRLNDQ); IRLPS(1,LOC(' x i64] [')));
               I:=0;
               FL1: I<IRLNDQ => (I>0 => IRLPS(1,LOC(', '));
                                 IRLDS[I]=0 => (IRLPS(1,LOC('i64 ')); IRLPN(1,IRLDQ[I]))
-                                  ELSE (IRLDQ[I]=0 => (IRLPS(1,LOC('i64 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i64)')))
-                                          ELSE (IRLPS(1,LOC('i64 add (i64 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i64), i64 ')); IRLPN(1,IRLDQ[I]); IRLPC(1,41));
+                                  ELSE (MX NE 0 => (IRLDQ[I]=0 => (IRLPS(1,LOC('{ i32, i32 } { i32 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i32), i32 0 }')))
+                                                      ELSE (IRLPS(1,LOC('{ i32, i32 } { i32 add (i32 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i32), i32 ')); IRLPN(1,IRLDQ[I]); IRLPS(1,LOC('), i32 0 }'))))
+                                          ELSE (IRLDQ[I]=0 => (IRLPS(1,LOC('i64 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i64)')))
+                                                  ELSE (IRLPS(1,LOC('i64 add (i64 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i64), i64 ')); IRLPN(1,IRLDQ[I]); IRLPC(1,41)));
                                         CCALL free(IRLDS[I]));
                                 I:=I+1; GO TO FL1);
-              IRLPS(1,LOC('], align 8')); IRLPC(1,10);
+              MX NE 0 => IRLPS(1,LOC(' }>, align 8')) ELSE IRLPS(1,LOC('], align 8')); IRLPC(1,10);
               IRLADD(2,IRLDLABEL));
  FL9: IRLDLABEL NE 0 => CCALL free(IRLDLABEL);
  IRLDSTRING NE 0 => CCALL free(IRLDSTRING);
