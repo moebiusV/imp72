@@ -8,6 +8,7 @@
 #include "gen.h"
 
 word g_bdesc, g_nbd;                                    /* BDESC, NBD: the byte descriptors, seven words each */
+word g_fdesc, g_nfd;                                    /* FDESC, NFD: the descriptors of the fields of structures, eight words each (FLDP) */
 
 word
 g_subcall(word a, word b)
@@ -272,6 +273,350 @@ g_bytep(word a, word s, word p, word flag)
     return a;
 }
 
+/* ---- Layouts of C structures (STRUCT of lib/ffi.imc; not in the original) ----------------------------------------------------------------------------------
+ * STT holds the structures of the unit, five words each: the name (a directory index), the size, the alignment, the index in SFT of the first field and the
+ * number of fields.  SFT holds the fields, five words each: the name, the type, the count (0 for a field that is not an array), the offset from the start of the
+ * structure, 0.  A type is 1 to 14, the number of a type of C (the types of the typed declarations), or 64 plus the number of a structure (its index in STT
+ * divided by 5).  The layout is C's for the machine the program is compiled for: the sizes of long and of pointers are those of the word (4 where the pointers are
+ * 32 bits), and the 8 byte types of the i386 align to 4.  STT and SFT are emptied when the unit ends (ASSEMC, STRESET). */
+static word stt, nstt, sft, nsft;
+static word stcur = -1, stoff, stal;                    /* the structure being declared: its index in STT, the offset of the next field, the greatest alignment */
+
+/* 1 if the program is compiled for a machine whose pointers and longs are 32 bits: the generator's own target (-T i386, arm) or the host's, the seed having no other */
+int
+g_stp32(void)
+{
+    return irtgt->wordll != 0 || sizeof(void *) == 4;
+}
+
+/* 1 for the arm, whose 8 byte types align to 8 in a structure where the i386's align to 4 */
+static int
+starm(void)
+{
+    if (irtgt->wordll != 0)
+        return irtgt->pushargs;
+#ifdef __arm__
+    return 1;
+#else
+    return 0;
+#endif
+}
+
+/* the size in bytes of the type T */
+word
+g_tysize(word t)
+{
+    word p32 = g_stp32();
+
+    switch (t) {
+    case 1: case 2: return 1;
+    case 3: case 4: return 2;
+    case 5: case 6: case 14: return 4;
+    case 7: case 8: case 11: case 12: return p32 ? 4 : 8;
+    case 9: case 10: case 13: return 8;
+    default: break;
+    }
+    if (t >= 64)
+        return FREE(stt + 5 * (t - 64) + 1);
+    return 0;
+}
+
+/* the alignment of the type T: its size, except that the i386 aligns the 8 byte types of a structure to 4 */
+word
+g_tyalign(word t)
+{
+    word n;
+
+    if (t >= 64)
+        return FREE(stt + 5 * (t - 64) + 2);
+    n = g_tysize(t);
+    if (n == 8 && g_stp32() != 0 && starm() == 0)
+        n = 4;
+    return n;
+}
+
+/* the index in STT of the structure named D, or -1 */
+static word
+stfind(word d)
+{
+    word i;
+
+    for (i = 0; i < nstt; i += 5)
+        if (FREE(stt + i) == d)
+            return i;
+    return -1;
+}
+
+static void
+sterr(const char *f, const char *a, const char *b)
+{
+    char cmsg[320];
+
+    snprintf(cmsg, 300, f, a, b);
+    imp_error(1, cmsg);
+}
+
+/* the end of the unit */
+word
+g_streset(word z)
+{
+    (void)z;
+    nstt = 0;
+    nsft = 0;
+    stcur = -1;
+    return 0;
+}
+
+/* STRUCT N ( : begins the structure N */
+word
+g_stbeg(word n)
+{
+    word d = HL(FREE(n));
+
+    if (stcur >= 0)
+        g_stend(0);
+    if (stfind(d) >= 0 || g_ctypeof(d) != 0) {
+        sterr("%s IS DECLARED TWICE AS A STRUCTURE OR IS A C TYPE.", g_irsymname(d), "");
+        return enstack(0);
+    }
+    if (stt == 0)
+        frelot(&stt, "STT", 25, NULL);
+    if (sft == 0)
+        frelot(&sft, "SFT", 25, NULL);
+    stcur = nstt;
+    fadd(&stt, &nstt, d); fadd(&stt, &nstt, 0); fadd(&stt, &nstt, 1); fadd(&stt, &nstt, nsft); fadd(&stt, &nstt, 0);
+    stoff = 0;
+    stal = 1;
+    return enstack(0);
+}
+
+/* T F or T F [ N ]: a field of the structure being declared, of the type T (a type of C or a structure declared before), an array of N of them if N is not 0 */
+word
+g_stfld(word t, word f, word n)
+{
+    word td, fd, ty, cnt, k, i, sz, al;
+
+    if (stcur < 0)
+        return enstack(0);
+    td = HL(FREE(t));
+    fd = HL(FREE(f));
+    ty = g_ctypeof(td);
+    if (ty == 15) {
+        sterr("%s IS NOT A TYPE OF A FIELD.", g_irsymname(td), "");
+        ty = 5;
+    } else if (ty == 0) {
+        k = stfind(td);
+        if (k >= 0 && k != stcur)
+            ty = 64 + k / 5;
+        else {
+            sterr("%s IS NOT A C TYPE OR A STRUCTURE DECLARED BEFORE.", g_irsymname(td), "");
+            ty = 5;
+        }
+    }
+    cnt = 0;
+    if (n != 0) {
+        if ((FREE(n) & 077) == 4 && FREE(n + 1) > 0 && FREE(n + 1) < 16777216)
+            cnt = FREE(n + 1);
+        else {
+            sterr("THE LENGTH OF THE ARRAY FIELD %s IS NOT A POSITIVE CONSTANT.", g_irsymname(fd), "");
+            cnt = 1;
+        }
+    }
+    for (i = FREE(stt + stcur + 3); i < nsft; i += 5)
+        if (FREE(sft + i) == fd)
+            sterr("THE FIELD %s IS DECLARED TWICE.", g_irsymname(fd), "");
+    sz = g_tysize(ty);
+    al = g_tyalign(ty);
+    if (al < 1)
+        al = 1;
+    stoff = (stoff + al - 1) / al * al;
+    fadd(&sft, &nsft, fd); fadd(&sft, &nsft, ty); fadd(&sft, &nsft, cnt); fadd(&sft, &nsft, stoff); fadd(&sft, &nsft, 0);
+    FREES(stt + stcur + 4, FREE(stt + stcur + 4) + 1);
+    stoff = stoff + sz * (cnt != 0 ? cnt : 1);
+    if (al > stal)
+        stal = al;
+    return enstack(0);
+}
+
+/* ) : ends the structure: its size is the end of the last field rounded up to the greatest alignment */
+word
+g_stend(word h)
+{
+    (void)h;
+    if (stcur < 0)
+        return enstack(0);
+    if (FREE(stt + stcur + 4) == 0)
+        sterr("THE STRUCTURE %s HAS NO FIELD.", g_irsymname(FREE(stt + stcur)), "");
+    FREES(stt + stcur + 1, (stoff + stal - 1) / stal * stal);
+    FREES(stt + stcur + 2, stal);
+    stcur = -1;
+    return enstack(0);
+}
+
+/* the type of the name D, a type of C or a structure (for SIZEOF), or 0 */
+static word
+sttype(word d)
+{
+    word ty, k;
+
+    ty = g_ctypeof(d);
+    if (ty == 15)
+        return 0;
+    if (ty != 0)
+        return ty;
+    k = stfind(d);
+    if (k >= 0 && k != stcur)
+        return 64 + k / 5;
+    return 0;
+}
+
+/* a constant of the semantics stack */
+static word
+stconst(word v)
+{
+    word e = enstack(0);
+
+    FREES(e, 0104);
+    FREES(e + 1, v);
+    return e;
+}
+
+/* SIZEOF(N): the size in bytes of the type of C or the structure N, a constant */
+word
+g_stsize(word s)
+{
+    word d = HL(FREE(s)), ty;
+
+    ty = sttype(d);
+    if (ty == 0) {
+        sterr("%s IS NOT A C TYPE OR A STRUCTURE.", g_irsymname(d), "");
+        return stconst(0);
+    }
+    return stconst(g_tysize(ty));
+}
+
+/* A path S.F or S,F: the entry holds, in the word 0, 1 and the type (from bit 8, 16 bits) and the count of the array (from bit 24) of the field the path ends at, and in
+ * the word 1 its offset.  Type 0 is a path that failed (the error is said once) */
+#define FPTY(p)  ((word)(((uword)FREE(p) >> 8) & 0xFFFF))
+#define FPCNT(p) ((word)((uword)FREE(p) >> 24))
+
+word
+g_fpbeg(word s, word f)
+{
+    word d = HL(FREE(s)), k, e;
+
+    e = enstack(0);
+    k = stfind(d);
+    if (k < 0 || k == stcur) {
+        sterr("%s IS NOT A STRUCTURE.", g_irsymname(d), "");
+        FREES(e, 1);
+        FREES(e + 1, 0);
+        return e;
+    }
+    FREES(e, 1 | ((word)(64 + k / 5) << 8));
+    FREES(e + 1, 0);
+    return g_fpfld(e, f);
+}
+
+word
+g_fpfld(word p, word f)
+{
+    word fd = HL(FREE(f)), ty = FPTY(p), k, i, n;
+
+    if (ty == 0)
+        return p;
+    if (ty < 64 || FPCNT(p) != 0) {
+        sterr("%s IS NOT A FIELD OF A STRUCTURE TYPE (FOR AN ARRAY OF STRUCTURES ADD THE ELEMENT'S OFFSET TO THE ADDRESS).", g_irsymname(fd), "");
+        FREES(p, 1);
+        return p;
+    }
+    k = 5 * (ty - 64);
+    n = FREE(stt + k + 4);
+    for (i = FREE(stt + k + 3); i < FREE(stt + k + 3) + 5 * n; i += 5)
+        if (FREE(sft + i) == fd) {
+            FREES(p, 1 | (FREE(sft + i + 1) << 8) | (FREE(sft + i + 2) << 24));
+            FREES(p + 1, FREE(p + 1) + FREE(sft + i + 3));
+            return p;
+        }
+    sterr("THE STRUCTURE %s HAS NO FIELD %s.", g_irsymname(FREE(stt + k)), g_irsymname(fd));
+    FREES(p, 1);
+    return p;
+}
+
+/* OFFSETOF(S,F): the offset of the field in bytes, a constant */
+word
+g_stoff(word p)
+{
+    return stconst(FREE(p + 1));
+}
+
+/* FIELD(P,S.F) and FIELD(P,S.F,I): the field F of the structure S at the address P (the Ith element if the field is an array).  The entry is a variable named for a
+ * descriptor in FDESC (eight words: the name, the address P as an operand of two words, the index I as an operand of two words or 0, the offset of the field plus the
+ * offset of the element if I is a constant, the type, the size of an element).  The operations LDB and DPB on it load and store the field with its type (DEMIT) */
+word
+g_fldp(word p, word fp, word idx)
+{
+    word td, e, ty, cnt, off, esz, i0, i1, ci;
+
+    ty = FPTY(fp);
+    cnt = FPCNT(fp);
+    off = FREE(fp + 1);
+    if (ty == 0)
+        ty = 5;
+    else if (ty >= 64) {
+        imp_error(1, "THE FIELD IS OF A STRUCTURE TYPE: NAME A FIELD OF IT (FIELD(P, S.F.G)).");
+        ty = 5;
+    }
+    ci = 0;
+    if (cnt != 0 && idx == 0) {
+        imp_error(1, "THE FIELD IS AN ARRAY: GIVE THE ELEMENT (FIELD(P, S.F, I)).");
+        cnt = 0;
+    } else if (cnt == 0 && idx != 0) {
+        imp_error(1, "THE FIELD IS NOT AN ARRAY, SO IT TAKES NO ELEMENT.");
+        idx = 0;
+    }
+    esz = g_tysize(ty);
+    i0 = 0; i1 = 0;
+    if (idx != 0) {
+        if ((FREE(idx) & 077) == 4) {
+            off = off + FREE(idx + 1) * esz;
+            ci = 1;
+        } else {
+            g_fetch(idx);
+            i0 = FREE(idx); i1 = FREE(idx + 1);
+        }
+    }
+    td = newname("FLD");
+    e = g_name(enstack(td));
+    if ((FREE(p) & 077) != 4)
+        g_fetch(p);
+    if (g_fdesc == 0)
+        frelot(&g_fdesc, "FDESC", 80, NULL);
+    fadd(&g_fdesc, &g_nfd, td);
+    fadd(&g_fdesc, &g_nfd, FREE(p)); fadd(&g_fdesc, &g_nfd, FREE(p + 1));
+    fadd(&g_fdesc, &g_nfd, i0); fadd(&g_fdesc, &g_nfd, i1);
+    fadd(&g_fdesc, &g_nfd, off);
+    fadd(&g_fdesc, &g_nfd, ty);
+    fadd(&g_fdesc, &g_nfd, esz);
+    if (idx != 0 && ci == 0)
+        g_hook(p, p, idx);
+    g_hook(e, p, e);
+    FREES(e + 1, 0);
+    FREES(e, ((ty == 13 || ty == 14 ? 0210 : 0110) | G_L32(td)));
+    return e;
+}
+
+/* FIELD(...) := B: the value is converted to the type of the field (a real for DOUBLE and FLOAT, an integer otherwise) and deposited */
+word
+g_fldst(word a, word b)
+{
+    if ((FREE(a) & 0300) == 0200)
+        g_float(b);
+    else
+        g_fix(b);
+    return g_addop(ODPB, a, b);
+}
+
 /* the names of the operations, one to a word (a text constant of seven characters and its NUL).  The table is the IMP's, which is not
  * the table of the numbers of irsyn.imc after 36 (CALLB is at 62 here and OCALLB is 60): a listing's names are wrong from there */
 static const char *const opn[] = {
@@ -352,6 +697,15 @@ static word w_csubcall(const word *p) { return g_csubcall(p[0], p[1]); }
 static word w_c0call(const word *p) { return g_c0call(p[0]); }
 static word w_cbaddr(const word *p) { return g_cbaddr(p[0]); }
 static word w_bytep(const word *p) { return g_bytep(p[0], p[1], p[2], p[3]); }
+static word w_stbeg(const word *p) { return g_stbeg(p[0]); }
+static word w_stfld(const word *p) { return g_stfld(p[0], p[1], p[2]); }
+static word w_stend(const word *p) { return g_stend(p[0]); }
+static word w_stsize(const word *p) { return g_stsize(p[0]); }
+static word w_fpbeg(const word *p) { return g_fpbeg(p[0], p[1]); }
+static word w_fpfld(const word *p) { return g_fpfld(p[0], p[1]); }
+static word w_stoff(const word *p) { return g_stoff(p[0]); }
+static word w_fldp(const word *p) { return g_fldp(p[0], p[1], p[2]); }
+static word w_fldst(const word *p) { return g_fldst(p[0], p[1]); }
 
 /* CODE3I(NIL): the DSEMs of this file */
 void
@@ -363,4 +717,13 @@ gen_code3_dsems(void)
     dsem("CCALL0", w_c0call);
     dsem("CBADDR", w_cbaddr);
     dsem("BYTEP", w_bytep);
+    dsem("STBEG", w_stbeg);
+    dsem("STFLD", w_stfld);
+    dsem("STEND", w_stend);
+    dsem("STSIZE", w_stsize);
+    dsem("FPBEG", w_fpbeg);
+    dsem("FPFLD", w_fpfld);
+    dsem("STOFF", w_stoff);
+    dsem("FLDP", w_fldp);
+    dsem("FLDST", w_fldst);
 }

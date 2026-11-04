@@ -26,7 +26,7 @@ enum {
     SCONV = 37, PCONV = 38, CALL = 41, UCALL = 42, CM = 48, ASSIGN = 49,
     GOTO = 54
 };
-enum { T_UCHAR = 3, T_INT = 6, T_LONG = 8, T_ULONG = 9, T_DOUBLE = 13, T_VOID = 19 };
+enum { T_CHAR = 2, T_UCHAR = 3, T_SHORT = 4, T_USHORT = 5, T_INT = 6, T_UINT = 7, T_LONG = 8, T_ULONG = 9, T_FLOAT = 12, T_DOUBLE = 13, T_VOID = 19 };
 enum { R_RAX = 0, R_RBP = 6, R_RSP = 7 };
 
 struct node {
@@ -180,8 +180,10 @@ static const char *
 ltype(int t)
 {
     switch (t) {
-    case T_UCHAR: return "i8";
+    case T_CHAR: case T_UCHAR: return "i8";
+    case T_SHORT: case T_USHORT: return "i16";
     case T_INT: return "i32";
+    case T_FLOAT: return "float";
     case T_DOUBLE: return "double";
     default: return "i64";              /* longs and every pointer */
     }
@@ -191,8 +193,9 @@ static int
 bits(int t)
 {
     switch (t) {
-    case T_UCHAR: return 8;
-    case T_INT: return 32;
+    case T_CHAR: case T_UCHAR: return 8;
+    case T_SHORT: case T_USHORT: return 16;
+    case T_INT: case T_FLOAT: return 32;
     default: return 64;
     }
 }
@@ -200,15 +203,16 @@ bits(int t)
 static int
 isunsigned(int t)
 {
-    return t == T_ULONG || t == T_UCHAR;
+    return t == T_ULONG || t == T_UCHAR || t == T_USHORT;
 }
 
 static const char *
 lalign(int t)
 {
     switch (t) {
-    case T_UCHAR: return "1";
-    case T_INT: return "4";
+    case T_CHAR: case T_UCHAR: return "1";
+    case T_SHORT: case T_USHORT: return "2";
+    case T_INT: case T_FLOAT: return "4";
     default: return ptr32 ? "4" : "8";
     }
 }
@@ -267,7 +271,11 @@ conv(char *v, int from, int to)
     if (strcmp(lf, lt) == 0)
         return v;
     r = newval();
-    if (from == T_DOUBLE) {
+    if (from == T_FLOAT && to == T_DOUBLE) {
+        ins("%s = fpext float %s to double", r, v);
+    } else if (from == T_DOUBLE && to == T_FLOAT) {
+        ins("%s = fptrunc double %s to float", r, v);
+    } else if (from == T_DOUBLE) {
         ins("%s = %s %s %s to %s", r, isunsigned(to) ? "fptoui" : "fptosi", lf, v, lt);
     } else if (to == T_DOUBLE) {
         ins("%s = %s %s %s to double", r, isunsigned(from) ? "uitofp" : "sitofp", lf, v);

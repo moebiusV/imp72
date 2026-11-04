@@ -107,6 +107,24 @@ function loads it into the result register.
   that `ECALLT` names `impcallt@SIGNATURE`, the signature including the `p` of the function. The writers of LLVM IR take the
   first argument as the address, drop it and the `p` from the signature, and write an indirect call with the types
   (`typedcall` in `tools/ir2ll.c`, `IRLTCALL` in `src/ir2llx.imp`); no declaration is made.
+- **Structure layouts.** `STRUCT NAME (INT A, DOUBLE B)` (`STBEG`, `STFLD`, `STEND` from `lib/ffi.imc`, in `code3.imp` and
+  `gen_code3.c`) enters the structure in the table `STT` (five words: the name, the size, the alignment, the first field, the number of
+  fields) and its fields in `SFT` (five words: the name, the type, the array count, the offset); both are emptied by `ASSEMC`
+  (`STRESET`). A type is 1 to 14, a C type of the typed declarations, or 64 plus the number of a structure. `TYSIZE` and `TYALIGN` give
+  the sizes and alignments for the machine of the program: `STP32` is 1 where pointers and longs are 32 bits (the generator's own
+  target `-T i386` or `arm`, else the driver's `--target`, else the host: `LVPTR32` of `llvm.imp`), and the 8 byte types align to 4
+  on the i386 only. `SIZEOF(N)` and `OFFSETOF(N, F.G)` (`STSIZE`, `FPBEG`, `FPFLD`, `STOFF`) make constants; a path is a stack entry
+  that holds the type, the array count and the offset of the field it has reached. `FIELD(P, N.F)` (`FLDP`) makes a variable named
+  for a descriptor in `FDESC` (eight words: the name, the address operand, the index operand or 0, the offset, the type, the size
+  of an element) and the operations LDB and DPB on that variable (`DEWOP(24, ...)` for a value, `FLDST` for a store) load and store
+  the field. `DEMIT` (`ELDF`, `EDPF`, `FPLACE`, `FMEMTY` in `ix.imp`, `eldf`, `edpf`, `fplace`, `fmemty` in `gen_demit.c`) finds the
+  descriptor first and writes one typed load or store: `UMUL` of the memory type (`CHAR` 2, `UCHAR` 3, `SHORT` 4, `USHORT` 5,
+  `INT` 6, `LONG` 8, `ULONG` 9, `FLOAT` 12) at the address `PCONV` of the base plus the element times its size plus the offset. A
+  load is `SCONV` to the word, with a mask of 32 bits after an `INT` load for an unsigned 4 byte type; a `DOUBLE` field is the
+  word of 8 bytes (a `REAL` is the double's bits); a `FLOAT` goes through `SCONV` to double and `IXFROMDOUBLE`, and a store through
+  `IXTODOUBLE` and `SCONV` to float. The writers of LLVM IR know the types 2, 4, 5 and 12 for this (`i8`, `i16`, `float`, with `fpext`
+  and `fptrunc`). The stage 2 routines are in `ix.imp` because `demit.imp` is at the limit of 2047 registers of a compilation. In IMP
+  source `FIX(` is the operator that truncates a real, so the conversion of a stored value to an integer is `FLDFIX`, a copy of `FIX`.
 - **`GO TO` out of a routine.** A tag of another routine is reached by `longjmp`: the routine that has the tag calls
   `_setjmp` into `imp_jb_<tag>` (a 512 byte `.comm`) at its entry, and the jumping routine calls `_longjmp` on it. The
   routine with the tag has to be running. A tag that no routine has is an error that names the tag.

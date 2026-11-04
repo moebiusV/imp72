@@ -275,6 +275,7 @@ SUBR ASSEMC(A) IS (
                                                PCODE(A,77777777777B));
                      DEMIT(A));
  NCPR:=0;                                       # THE DECLARATIONS OF C FUNCTIONS ARE THE UNIT'S #
+ STRESET(0);                                    # AND THE STRUCTURES #
  0);
 
 # DECL(I,S): NOTE ONE PROPERTY OF A DECLARATION: 0 A SYNONYM FOR THE REGISTER NAMED AT S, 1 A LENGTH (S IS A CONSTANT), 2 AND OVER A

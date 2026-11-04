@@ -1045,6 +1045,119 @@ enewword(struct irn *old, word m, word v)
     return ir_bin(IR_OR, TLONG, x2, x3);
 }
 
+/* The fields of structures (FIELD of lib/ffi.imc): the descriptors in FDESC, eight words each (FLDP in gen_code3.c).  The IR type of the memory a field of the type TY
+ * occupies; the 4 byte types take the place of long and of pointers where the word is a long long (the i386, the arm) */
+static word
+fdfind(word d)
+{
+    word i;
+
+    if (g_nfd > 0) {
+        i = 0;
+        do {
+            if (FREE(g_fdesc + i) == d)
+                return i;
+            i = i + 8;
+        } while (i <= g_nfd - 8);
+    }
+    return 0 - 1;
+}
+
+static word
+fmemty(word ty)
+{
+    word p32 = g_stp32();
+
+    switch (ty) {
+    case 1: return T_CHAR;
+    case 2: return T_UCHAR;
+    case 3: return T_SHORT;
+    case 4: return T_USHORT;
+    case 5: return T_INT;
+    case 6: return T_INT;                               /* (an unsigned 4 byte type is loaded as an int and masked: fmask32) */
+    case 7: return p32 ? T_INT : T_LONG;
+    case 8: case 11: case 12: return p32 ? T_INT : T_ULONG;
+    case 9: return T_LONG;
+    case 10: return T_ULONG;
+    case 14: return T_FLOAT;
+    default: return T_LONG;                             /* 13: a double is its bits, a word */
+    }
+}
+
+/* 1 if the type TY is a 4 byte unsigned one, which is zero extended with a mask after it is loaded as an int */
+static word
+fmask32(word ty)
+{
+    if (ty == 6)
+        return 1;
+    if (g_stp32() && (ty == 8 || ty == 11 || ty == 12))
+        return 1;
+    return 0;
+}
+
+/* the place of the field of the descriptor at FDESC+J: the address (the word V0,V1, plus the element I times its size, plus the offset) as a pointer to the type */
+static struct irn *
+fplace(word j, word mem)
+{
+    struct irn *x1, *x2;
+    word a0, a1, off, esz;
+
+    a0 = FREE((g_fdesc + j) + 1); a1 = FREE((g_fdesc + j) + 2);
+    x1 = vexpr(a0, a1);
+    if (FREE((g_fdesc + j) + 3) != 0) {
+        a0 = FREE((g_fdesc + j) + 3); a1 = FREE((g_fdesc + j) + 4);
+        esz = FREE((g_fdesc + j) + 7);
+        x2 = vexpr(a0, a1);
+        if (esz != 1)
+            x2 = ir_bin(IR_MUL, TLONG, x2, icn(esz));
+        x1 = ir_bin(IR_PLUS, TLONG, x1, x2);
+    }
+    off = FREE((g_fdesc + j) + 5);
+    if (off != 0)
+        x1 = ir_bin(IR_PLUS, TLONG, x1, icn(off));
+    x2 = ir_un(IR_PCONV, mem | T_PTR, x1);
+    return ir_deref(x2, mem);
+}
+
+/* load a field: RD gets the value of its type as a word (a signed type sign extended, an unsigned one and a pointer zero extended, a float as a double, a double its bits) */
+static void
+eldf(word rd, word j)
+{
+    struct irn *x1, *x2;
+    word ty, mem;
+
+    ty = FREE((g_fdesc + j) + 6);
+    mem = fmemty(ty);
+    x1 = fplace(j, mem);
+    if (ty == 14) {
+        x2 = ir_un(IR_SCONV, T_DOUBLE, x1); x1 = ir_fromdouble(x2);
+    } else if (mem != TLONG) {
+        x1 = ir_un(IR_SCONV, TLONG, x1);
+        if (fmask32(ty) != 0)
+            x1 = ir_bin(IR_AND, TLONG, x1, icn(4294967295LL));
+    }
+    asg(rv(rd), x1);
+}
+
+/* store a field: the word RD converted to the type of the field (the low bits of an integer, a float from the double) */
+static void
+edpf(word rd, word j)
+{
+    struct irn *x1, *x2;
+    word ty, mem;
+
+    ty = FREE((g_fdesc + j) + 6);
+    mem = fmemty(ty);
+    if (ty == 14) {
+        x1 = ir_todouble(rv(rd), 0); x2 = ir_un(IR_SCONV, T_FLOAT, x1);
+    } else if (mem != TLONG)
+        x2 = ir_un(IR_SCONV, mem, rv(rd));
+    else
+        x2 = rv(rd);
+    x1 = fplace(j, mem);
+    asg(x1, x2);
+}
+
 /* Load byte: RD gets the field, right justified.  The operand is a descriptor (A<S,P>) or a variable holding a byte pointer; STEP: ILDB */
 static void
 eldb(word rd, word v0, word v1, word step)
@@ -1055,8 +1168,14 @@ eldb(word rd, word v0, word v1, word step)
 
     j = -1;
     if ((v0 & 077) == 010)
-        if (step == 0)
+        if (step == 0) {
+            j = fdfind(HL(v0));
+            if (j >= 0) {
+                eldf(rd, j);
+                return;
+            }
             j = bdfind(HL(v0));
+        }
     if (j >= 0) {
         a0 = FREE((g_bdesc + j) + 1); a1 = FREE((g_bdesc + j) + 2);
         x1 = vexpr(a0, a1); w = tmpv(x1);
@@ -1095,8 +1214,14 @@ edpb(word rd, word v0, word v1, word step)
 
     j = -1;
     if ((v0 & 077) == 010)
-        if (step == 0)
+        if (step == 0) {
+            j = fdfind(HL(v0));
+            if (j >= 0) {
+                edpf(rd, j);
+                return;
+            }
             j = bdfind(HL(v0));
+        }
     if (j >= 0) {
         a0 = FREE((g_bdesc + j) + 5); a1 = FREE((g_bdesc + j) + 6);
         x1 = vexpr(a0, a1); p = tmpv(x1);

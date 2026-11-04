@@ -515,6 +515,7 @@ g_assemc(word a)
         g_demit(a);
     }
     ncpr = 0;                                           /* the declarations of C functions are the unit's */
+    g_streset(0);                                       /* and the structures */
     return 0;
 }
 

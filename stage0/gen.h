@@ -79,6 +79,7 @@ extern word g_co, g_nco, g_anco, g_remo;
 extern word g_arr, g_narr, g_regn;
 /* the byte descriptors (BDESC, NBD): code3.imp, demit.imp */
 extern word g_bdesc, g_nbd;
+extern word g_fdesc, g_nfd;
 /* the unpacked stack entry, as UNPCK leaves it (code.imp) */
 extern word g_se, g_tse, g_dse, g_se1, g_rse, g_cse;
 /* the assembler names of the directory entries, by index (SYMC, NSYMC of ix.imp: a cache of C strings; the
@@ -222,6 +223,19 @@ word g_cpcount(word d, word k);
 word g_cpar(word s, word pp, word d, word k);
 word g_subscript(word s, word t);
 word g_bytep(word a, word s, word p, word flag);
+int g_stp32(void);
+word g_tysize(word t);
+word g_tyalign(word t);
+word g_streset(word z);
+word g_stbeg(word n);
+word g_stfld(word t, word f, word n);
+word g_stend(word h);
+word g_stsize(word s);
+word g_fpbeg(word s, word f);
+word g_fpfld(word p, word f);
+word g_stoff(word p);
+word g_fldp(word p, word fp, word idx);
+word g_fldst(word a, word b);
 word g_pcode(word s, word ns);
 word g_pcode1(word s, word ns);
 void gen_code3_dsems(void);

@@ -24,5 +24,27 @@
  <ST>   ::= FNPTR <NAM,T> <NAM,F> ( <NLIST,L> , . . . )       ::= CDECL(T,F,L,5);
  <ST>   ::= FNPTR <NAM,T> <NAM,F> ( . . . )                   ::= CDECL(T,F,0,5);
 
+# STRUCT NAME (TYPE FIELD, TYPE FIELD[N], STRUCT FIELD ...); DECLARES THE LAYOUT OF A C STRUCTURE FOR THE MACHINE THE PROGRAM IS COMPILED FOR (THE TYPES OF C, AS FOR EXTERNAL, AND STRUCTURES DECLARED BEFORE),
+  SIZEOF(NAME) IS ITS SIZE (OF A STRUCTURE OR A TYPE OF C), OFFSETOF(NAME, FIELD) THE OFFSET OF A FIELD, AND FIELD(P, NAME.FIELD) THE FIELD OF THE STRUCTURE AT THE ADDRESS P: A VALUE OF THE TYPE OF THE FIELD, OR A PLACE
+  TO STORE TO.  FIELD(P, NAME.FIELD, I) IS ELEMENT I OF AN ARRAY FIELD, FIELD(P, NAME.F.G) A FIELD OF A NESTED STRUCTURE.
+  STRUCT TIMESPEC (LONG SEC, LONG NSEC);  T:=CCALL MALLOC(SIZEOF(TIMESPEC));  FIELD(T, TIMESPEC.SEC):=5;  X:=FIELD(T, TIMESPEC.NSEC) #
+ <SDH>  ::= STRUCT <NAM,N> (                                  ::= STBEG(N);
+ <SDF>  ::= <NAM,T> <NAM,F>                                   ::= STFLD(T,F,0);
+ <SDF>  ::= <NAM,T> <NAM,F> [ <EXP,N> ]                       ::= STFLD(T,F,N);
+ <SDL>  ::= <SDF,A>;
+ <SDL>  ::= <SDL,A> , <SDF,B>;
+ <ST>   ::= <SDH,H> <SDL,L> )                                 ::= STEND(H);
+ <FP>   ::= <NAM,S> . <NAM,F>                                 ::= FPBEG(S,F);
+ <FP>   ::= <FP,P> . <NAM,F>                                  ::= FPFLD(P,F);
+ <FQ>   ::= <NAM,S> , <NAM,F>                                 ::= FPBEG(S,F);
+ <FQ>   ::= <FQ,P> . <NAM,F>                                  ::= FPFLD(P,F);
+ <ATOM> ::= SIZEOF ( <NAM,S> )                                ::= STSIZE(S);
+ <ATOM> ::= OFFSETOF ( <FQ,P> )                               ::= STOFF(P);
+ <ATOM> ::= FIELD ( <EXP,P> , <FP,F> )                        ::= DEWOP(24,AREG1(1,15B),FLDP(P,F,0));
+ <ATOM> ::= FIELD ( <EXP,P> , <FP,F> , <EXP,I> )              ::= DEWOP(24,AREG1(1,15B),FLDP(P,F,I));
+ <FLD>  ::= FIELD ( <EXP,P> , <FP,F> )                        ::= FLDP(P,F,0);
+ <FLD>  ::= FIELD ( <EXP,P> , <FP,F> , <EXP,I> )              ::= FLDP(P,F,I);
+ <EXP>  ::= <FLD,A> ':=' <EXP,B>                              ::= FLDST(A,B);
+
 # X IS EXTERNAL; DECLARES A VARIABLE THAT IS DEFINED ELSEWHERE, IN THE C LIBRARY SAY (!STDOUT!): NOTHING IS DEFINED HERE, AND LOC(X) IS ITS ADDRESS #
  <PROP> ::= EXTERNAL ::= DECL(12,0)%%

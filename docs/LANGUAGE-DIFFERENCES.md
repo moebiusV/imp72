@@ -54,7 +54,9 @@ comes from the machine and from the runtime.
   through an address. A `SUBR` is a C function taking pointers (`docs/FFI.md`);
   `CALLBACK INT CMP(PTR, PTR);` gives a `SUBR` a C signature, `CALLBACK(CMP)` is the
   address of a C function that calls it, and `FNPTR INT F(PTR);` declares the call
-  of a C function through a pointer.
+  of a C function through a pointer. `STRUCT TS (LONG SEC, LONG NSEC);` declares the
+  layout of a C structure, `FIELD(P, TS.SEC)` is a field of the structure at the
+  address `P`, and `SIZEOF(TS)` and `OFFSETOF(TS, NSEC)` are constants.
   These come from `lib/ffi.imc`, a language extension in the original's style.
 - **Objects** are the host's object format, `NAME.o`.
 

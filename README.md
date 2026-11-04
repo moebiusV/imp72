@@ -111,7 +111,8 @@ a word.
 **Calls.** A `SUBR` is a C function that takes pointers to its arguments and
 returns a word. `CCALL F(A,B)` calls a C function with arguments by value, and
 `CALLBACK(F)` is the address of a C entry of a `SUBR`, for `qsort`, `signal` and
-the like. `docs/FFI.md` has all of it.
+the like. `STRUCT` declares the layout of a C structure and `FIELD(P, S.F)` reads
+and writes a field of the structure at an address. `docs/FFI.md` has all of it.
 
 **Code generation.** The code generator builds chains of records whose
 operations are those of an IR machine (`docs/porting/llvm-ir-machine.md`).

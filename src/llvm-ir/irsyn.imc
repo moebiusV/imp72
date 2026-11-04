@@ -35,6 +35,7 @@
  <ATOM> ::= IRNE ::= "26";    <ATOM> ::= IRLE ::= "27";     <ATOM> ::= IRLT ::= "28";     <ATOM> ::= IRGE ::= "29";
  <ATOM> ::= IRGT ::= "30";    <ATOM> ::= IRSCONV ::= "37";  <ATOM> ::= IRPCONV ::= "38";
  <ATOM> ::= TUCHAR ::= "3";   <ATOM> ::= TINT ::= "6";      <ATOM> ::= TLONG ::= "8";     <ATOM> ::= TULONG ::= "9";
+ <ATOM> ::= TCHAR ::= "2";    <ATOM> ::= TSHORT ::= "4";    <ATOM> ::= TUSHORT ::= "5";   <ATOM> ::= TFLOAT ::= "12";
  <ATOM> ::= TDOUBLE ::= "13"; <ATOM> ::= TPLONG ::= "40"; <ATOM> ::= TPUCHAR ::= "35";   <ATOM> ::= TPFTN ::= "296";
 
 

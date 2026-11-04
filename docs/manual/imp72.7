@@ -2849,6 +2849,46 @@ declared a callback
 For a pointer call
 .Ar V
 is 4, or 5 with the dots.
+.It Li STBEG(N\&)
+Begins the declaration of the structure
+.Li N
+(section 2.4.6);
+.Li STFLD(T,F,N\&)
+adds the field
+.Li F
+of the type
+.Li T
+(an array of
+.Li N
+if
+.Li N
+is not 0) and places it by the alignment rules of the target, and
+.Li STEND(H\&)
+ends the structure and rounds its size.
+.It Li STSIZE(S\&)
+Makes the constant that is the size of the structure or type of
+.Ar C
+named
+.Li "S; FPBEG(S,F\&)"
+and
+.Li FPFLD(P,F\&)
+follow a path of fields from a structure, and
+.Li STOFF(P\&)
+makes the constant that is the offset the path ends at.
+.It Li FLDP(P,F,I\&)
+Makes the descriptor of the field at the end of the path
+.Li F
+of the structure at the address
+.Li P ,
+with the element
+.Li I
+(0 for none);
+.Li DEWOP(24,R,D\&)
+loads it and
+.Li FLDST(A,B\&)
+converts
+.Li B
+to its type and stores it, with the operation 25.
 .It Li FCON(A,B,C\&)
 Makes the floating point constant A.B"C.
 .Pp
@@ -3982,7 +4022,181 @@ SUBR HALVE(A) IS (
 prints
 .Li 2.50 .
 A callback has at most 16 parameters and is not variadic; a structure
-is not a type.
+by value is not a type (Section 2.4.6 has the layouts of structures
+in memory).
+.Ss "2.4.6 Structure Layouts"
+A
+.Ar C
+structure is memory at an address.
+.Ar A
+.Li STRUCT
+statement declares its layout, the names and the
+.Ar C
+types of its fields, and
+.Li "FIELD(P, NAME.FIELD\&)"
+reads and writes a field of the structure at the address
+.Li P
+with the type and at the offset that
+.Ar C
+gives it, in place of byte offsets written by hand:
+.Bd -literal -offset indent
+STRUCT PAIR (LONG SEC, LONG NSEC);
+EXTERNAL PTR calloc(SIZE, SIZE);
+T:=CCALL calloc(1,SIZEOF(PAIR));
+FIELD(T,PAIR.SEC):=5;
+FIELD(T,PAIR.NSEC):=0-7;
+PRINT IGR 0,FIELD(T,PAIR.SEC),STG 0,' ',IGR 0,FIELD(T,PAIR.NSEC),STG 0,' ',IGR 0,OFFSETOF(PAIR,NSEC),/;
+FINI(0)
+%%
+.Ed
+.Pp
+prints
+.Li "5 \-7 8" .
+The 8 is the offset of
+.Li NSEC :
+a
+.Li long
+is 8 bytes on a machine whose longs are 64 bits and 4 bytes on one whose
+longs are 32 bits, and the layout is that of the machine the program
+is compiled for
+.Li "(\-\-target included\&)" .
+.Pp
+The declaration is
+.Li "STRUCT name (type field, type field, ...\&)" .
+A type is one of the types of section 2.4.1
+.Li "(CHAR to FLOAT, not VOID\&)"
+or a structure declared earlier in the same file, which makes the field
+a nested structure.
+.Li "type field[N\&]"
+declares an array of
+.Li N
+elements,
+.Li N
+a constant.
+The compiler places each field at the next multiple of its alignment,
+as a
+.Ar C
+compiler does:
+.Li CHAR
+and
+.Li UCHAR
+take 1 byte,
+.Li SHORT
+and
+.Li USHORT
+2,
+.Li "INT, UINT"
+and
+.Li FLOAT
+4,
+.Li "LLONG, ULLONG"
+and
+.Li DOUBLE
+8, and
+.Li "LONG, ULONG, SIZE"
+and
+.Li PTR
+the width of a
+.Ar C
+.Li long ,
+8 bytes or 4 where the pointers are 32 bits.
+Each type aligns to its size, except that the 8 byte types align to
+4 on the i386, as the System
+.Ar V
+ABI has it.
+A structure aligns as its most aligned field and its size is rounded
+up to that alignment.
+Names of structures, like names of fields, are case sensitive, and a
+declaration holds to the end of the file.
+.Pp
+.Li SIZEOF(name\&)
+is the size in bytes of a structure or of a type of
+.Ar C
+.Pf \&( Li SIZEOF(PTR\&) ) ,
+and
+.Li "OFFSETOF(name, field\&)"
+the offset of a field; both are constants.
+A field of a nested structure is named by the path of its fields, separated
+by dots:
+.Li "OFFSETOF(name, outer.inner), FIELD(P, name.outer.inner\&)" .
+.Pp
+.Li "FIELD(P, name.field\&)"
+is a value or a place to store to, in an expression, on the left of
+.Li := ,
+as an argument of
+.Li CCALL .
+As a value it has the type of the field converted as the result of a
+declared function is: a signed type is sign-extended, an unsigned type
+and
+.Li PTR
+are zero-extended,
+.Li DOUBLE
+and
+.Li FLOAT
+are a
+.Li REAL .
+A store converts to the type of the field: an integer field takes the
+low bits of an integer and the integer part of a
+.Li REAL ,
+a
+.Li DOUBLE
+or
+.Li FLOAT
+field takes a
+.Li REAL
+or an integer converted to real.
+A store changes the bytes of its field and no others.
+.Li "FIELD(P, name.field, I\&)"
+is element
+.Li I
+of a field that is an array; the index is not checked.
+An array of structures is reached by adding the offset of the element
+to the address:
+.Li "FIELD(P+(I*SIZEOF(name)), name.field\&)" .
+The address
+.Li P
+is any expression, a pointer from
+.Li malloc ,
+an address of a variable
+.Pf \&( Li LOC(X\&) )
+or a pointer that
+.Ar C
+returned.
+For example, an array of structures sorted by
+.Li qsort
+with a comparison that reads their fields:
+.Bd -literal -offset indent
+STRUCT REC (INT KEY, DOUBLE W);
+CALLBACK INT BYKEY(PTR, PTR);
+EXTERNAL PTR calloc(SIZE, SIZE);
+EXTERNAL VOID qsort(PTR, SIZE, SIZE, PTR);
+N:=4;
+A:=CCALL calloc(N,SIZEOF(REC));
+((FIELD(A+(I*SIZEOF(REC)),REC.KEY):=(N-I)*10) FOR I IN 0,1,N-1);
+CCALL qsort(A,N,SIZEOF(REC),CALLBACK(BYKEY));
+((PRINT IGR 3,FIELD(A+(I*SIZEOF(REC)),REC.KEY)) FOR I IN 0,1,N-1);
+PRINT /;
+FINI(0);
+SUBR BYKEY(X,Y) IS (
+  FIELD(X,REC.KEY)<FIELD(Y,REC.KEY) => RETURN 0-1;
+  FIELD(X,REC.KEY)=FIELD(Y,REC.KEY) => RETURN 0;
+  1)
+%%
+.Ed
+.Pp
+prints
+.Li "10 20 30 40" ,
+each in a field of three.
+The compiler reports at compile time a structure or a field that is
+not declared, a name declared twice, a type that is not a type of
+.Ar C
+or a structure declared earlier, an array field named without an element
+or a field that is not an array named with one, and a field of a structure
+type used as a value.
+Bit fields and unions are not declared, a structure is not passed or
+returned by value, and the attributes that change a layout
+.Li "(packed, aligned\&)"
+are not known; the layout is what the program declares.
 .Sh "3 HOW TO COMPILE AND RUN IMP72 PROGRAMS"
 .Ss "3.1 Compiling Programs"
 The IMP compiler is called by the command
