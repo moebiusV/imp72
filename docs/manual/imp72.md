@@ -44,6 +44,7 @@ CONTENTS
 2.4.2:      Being Called from C.
 2.4.3:      COMMON and EXTERNAL Variables.
 2.4.4:      Names, Programs and Command Line.
+2.4.5:      Callbacks and Function Pointers.
 3:      How to Compile and Run IMP72 Programs.
 3.1:      Compiling Programs.
 3.1.1:      The Compiler Listing.
@@ -1566,8 +1567,14 @@ Makes the name S the name of a C function that is called with its arguments by v
 - CDECL(T,F,L,V)
 
 Enters the types of the C function F, of the result type T and the parameter types in the list L (0
-for none); V is 1 if the function takes more arguments (Section 2.4.1). CSUBCALL(S,L) and CCALL0(S)
-call it, checking the number of the arguments and converting them to the declared types.
+for none); V is the sum of 1 if the function takes more arguments, 2 for a callback and 4 for a call
+through a pointer (Section 2.4.1, 2.4.5). CSUBCALL(S,L) and CCALL0(S) call it, checking the number
+of the arguments and converting them to the declared types.
+
+- CBADDR(A)
+
+Makes the address of the C function that calls the SUBR named A, which CDECL declared a callback (V
+is 2) (Section 2.4.5). For a pointer call V is 4, or 5 with the dots.
 
 - FCON(A,B,C)
 
@@ -2127,6 +2134,90 @@ FINI(0)
 
 prints the number of arguments and the program's name. Exactly one of the files of a program has
 statements before its first SUBR.
+
+#### 2.4.5: Callbacks and Function Pointers.
+
+A `C` function that takes a function pointer (`qsort`, `bsearch`, `signal`, `atexit`) calls it with
+the arguments of `C`, by value and with the types of `C`; an `IMP` routine takes addresses. A
+`CALLBACK` declaration gives a `SUBR` the signature of the call, and `CALLBACK(NAME)` is the address
+of a `C` function that makes the call:
+
+```
+CALLBACK INT CMP(PTR, PTR);
+V IS 6 LONG;
+V[0]:=5; V[1]:=2; V[2]:=9; V[3]:=1; V[4]:=7; V[5]:=3;
+CCALL qsort(LOC(V),6,8,CALLBACK(CMP));
+(PRINT IGR 3,V[I]) FOR I TO 5;
+PRINT /;
+FINI(0);
+SUBR CMP(A,B) IS (
+  [A]<[B] => RETURN 0-1;
+  [A]=[B] => RETURN 0;
+  1)
+%%
+```
+
+sorts the array and prints the numbers 1 2 3 5 7 9, each in a field of three. The declaration has
+the form `CALLBACK result NAME(types)` with the result and the types of Section 2.4.1 (`CHAR` to
+`FLOAT`, `VOID` for the result or as the whole list of parameters); it comes before the `SUBR`, and
+a `SUBR` with another number of parameters than the declaration is an error. Each parameter reaches
+the routine as a word in a variable of its own, converted as the result of a declared function is: a
+signed type is sign-extended, an unsigned type and `PTR` are zero-extended, `DOUBLE` and `FLOAT` are
+a REAL. A parameter declared `PTR` is the address that `C` passed, so `A` is the address of an
+element of the array and `[A]` is the element. The value of the routine is converted to the type of
+the result: an integer type takes the low bits of the word (`RETURN 0-1` is the `int` -1), `DOUBLE`
+and `FLOAT` take a REAL, and `VOID` ignores it. `CALLBACK(NAME)` of a name that is not declared a
+callback is an error, and so is `CCALL NAME(...)` of one: a callback is called without `CCALL`, with
+addresses, as any `SUBR` is.
+
+A callback is a thunk that the compiler writes into the object file of the first `CALLBACK(NAME)` in
+it; the routine itself can be in another file. The variables of an `IMP` routine are static, so a
+callback that is entered again while it runs (a signal handler that interrupts the same routine, a
+comparison that sorts) shares its variables with the first entry. For example
+
+```
+CALLBACK VOID CATCH(INT);
+CALLBACK VOID BYE(VOID);
+EXTERNAL PTR signal(INT, PTR);
+EXTERNAL INT raise(INT);
+EXTERNAL INT atexit(PTR);
+EXTERNAL INT puts(PTR);
+CCALL signal(2,CALLBACK(CATCH));
+CCALL atexit(CALLBACK(BYE));
+CCALL raise(2);
+CCALL puts('after the signal');
+FINI(0);
+SUBR CATCH(S) IS CCALL puts('caught a signal');
+SUBR BYE() IS CCALL puts('bye')
+%%
+```
+
+prints `caught a signal`, `after the signal` and `bye`.
+
+To call a `C` function through a pointer that the program has (from `dlsym`, from a structure, or a
+`CALLBACK(NAME)`), `FNPTR result NAME(types)` declares the signature, and `CCALL NAME(F, A, ...)`
+calls the function at the address `F` with the arguments `A`, ... converted to the types as for a
+declared function. The function is the first argument and counts: a declaration of one type takes
+two arguments. Three dots after the last type declare a function of a variable number of arguments.
+For example
+
+```
+CALLBACK DOUBLE HALVE(DOUBLE);
+FNPTR DOUBLE HALVECALL(DOUBLE);
+EXTERNAL INT printf(PTR, ...);
+X IS REAL;
+X:=CCALL HALVECALL(CALLBACK(HALVE),5.0);
+CCALL printf('%.2f%c',X,10);
+FINI(0);
+SUBR HALVE(A) IS (
+  Y IS REAL;
+  Y:=A;
+  Y:=Y/2.0;
+  Y)
+%%
+```
+
+prints `2.50`. A callback has at most 16 parameters and is not variadic; a structure is not a type.
 
 ## 3: How to Compile and Run IMP72 Programs.
 
@@ -2968,6 +3059,13 @@ like, and the library uses them itself. A program should not define a name of th
 <ST>	::= EXTERNAL <NAM,T> <NAM,F> ( <NLIST,L> )
 <ST>	::= EXTERNAL <NAM,T> <NAM,F> ( <NLIST,L> , . . . )
 <ST>	::= EXTERNAL <NAM,T> <NAM,F> ( . . . )
+<ST>	::= CALLBACK <NAM,T> <NAM,F> ( )
+<ST>	::= CALLBACK <NAM,T> <NAM,F> ( <NLIST,L> )
+<ATOM>	::= CALLBACK ( <NAM,A> )
+<ST>	::= FNPTR <NAM,T> <NAM,F> ( )
+<ST>	::= FNPTR <NAM,T> <NAM,F> ( <NLIST,L> )
+<ST>	::= FNPTR <NAM,T> <NAM,F> ( <NLIST,L> , . . . )
+<ST>	::= FNPTR <NAM,T> <NAM,F> ( . . . )
 <PROP>	::= EXTERNAL
 ## References
 

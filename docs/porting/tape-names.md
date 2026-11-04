@@ -61,6 +61,8 @@ of the `FINAM` switches) is not defined in `impsyn64.imc`, and the modules test 
 | `impsem` | `CVAL`, `ISCVAL` | a name is a C function (called with `CCALL`): its table `CVT` |
 | `impsem` | `CDECL`, `CTYPEOF`, `CPFIND`, `CPADD`, `CPHEAD`, `CPTYPE` | the typed declaration of a C function (`EXTERNAL INT puts(PTR);`) and its table `CPR` (`docs/FFI.md`) |
 | `code3` | `CSUBCALL`, `CCALL0`, `CPCOUNT`, `CPAR` | the `CCALL` of a declared function: the count of the arguments and their conversion to the declared types |
+| `code3` | `CBADDR`, `CBNOCALL` | `CALLBACK(NAME)`, the address of the C entry of a subroutine, and the error of a `CCALL` of a callback (`docs/FFI.md`) |
+| `demit` | `ECBADDR`, `ECALLT`, `CTLET` | the symbol `NAME@SIGNATURE` of a callback and of a typed call; `ECALLT` also names a call through a pointer `impcallt@SIGNATURE` |
 | `impsem` | `IINIT` | the first use of the register and list tables (the tape initialises them inline) |
 | `impsem` | `PAIRFIRST` | is register J the first of a pair (flag `40B` of the register table) |
 

@@ -51,7 +51,10 @@ comes from the machine and from the runtime.
 - **Calls to C.** `CCALL NAME(A,B)` calls a C function with values;
   `EXTERNAL INT NAME(PTR);` declares the types of a C function, and
   `X IS EXTERNAL` a variable defined elsewhere; `impcallp` and `impcallw` call
-  through an address. A `SUBR` is a C function taking pointers (`docs/FFI.md`).
+  through an address. A `SUBR` is a C function taking pointers (`docs/FFI.md`);
+  `CALLBACK INT CMP(PTR, PTR);` gives a `SUBR` a C signature, `CALLBACK(CMP)` is the
+  address of a C function that calls it, and `FNPTR INT F(PTR);` declares the call
+  of a C function through a pointer.
   These come from `lib/ffi.imc`, a language extension in the original's style.
 - **Objects** are the host's object format, `NAME.o`.
 

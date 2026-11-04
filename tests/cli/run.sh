@@ -129,5 +129,40 @@ for m in 'FOO IS NOT A C TYPE' 'ldexp IS DECLARED TWICE WITH DIFFERENT TYPES' 'C
     'CCALL printf TAKES AT LEAST 1 ARGUMENTS, NOT 0' 'strlen IS DECLARED AFTER A CALL OF IT THAT HAD NO DECLARATION' 'VOID IS ONLY THE WHOLE LIST OF PARAMETERS'; do
     grep -q "$m" cdecl_bad.log || bad "cdecl: no error '$m' ($(head -c 300 cdecl_bad.log))"
 done
+# callbacks (CALLBACK INT CMP(PTR, PTR);) and calls through a pointer (FNPTR INT F(PTR);): the declarations are checked against the subr and the calls
+cat > callback_bad.imp <<'E'
+CALLBACK INT CMP(PTR, PTR);
+CALLBACK INT CMP(PTR);
+CALLBACK INT F(FOO);
+FNPTR INT PC(PTR);
+X:=CALLBACK(NOPE);
+X:=CALLBACK(CMP);
+CCALL CMP(1,2);
+CCALL PC(1,2,3);
+CCALL PC();
+FINI(0);
+SUBR CMP(A) IS 0
+%%
+E
+"$w" -c callback_bad.imp > callback_bad.log 2>&1 && bad "callback: a program with wrong declarations and calls was accepted"
+for m in 'CMP IS DECLARED TWICE WITH DIFFERENT TYPES' 'FOO IS NOT A C TYPE' 'NOPE IS NOT DECLARED A CALLBACK' 'CMP IS A CALLBACK, A SUBR' 'CCALL PC TAKES 2 ARGUMENTS, NOT 3' \
+    'CCALL PC TAKES 2 ARGUMENTS, NOT 0' 'CALLBACK CMP HAS 2 PARAMETERS IN ITS DECLARATION AND THE SUBR HAS 1'; do
+    grep -q "$m" callback_bad.log || bad "callback: no error '$m' ($(head -c 300 callback_bad.log))"
+done
+# the C entry of a callback is an internal function NAME@SIGNATURE with the C types, in the module of the target (32 bit pointers on i686)
+cat > callback_ir.imp <<'E'
+CALLBACK INT CMP(PTR, PTR);
+CALLBACK DOUBLE HALF(DOUBLE);
+EXTERNAL VOID qsort(PTR, SIZE, SIZE, PTR);
+CCALL qsort(LOC(CMP),2,8,CALLBACK(CMP));
+CCALL qsort(LOC(CMP),2,8,CALLBACK(HALF));
+FINI(0);
+SUBR CMP(A,B) IS [A]-[B];
+SUBR HALF(A) IS A
+%%
+E
+"$w" callback_ir.imp -Sir > /dev/null 2>&1 && grep -q 'define internal signext i32 @"CMP@ipp"(ptr %p0, ptr %p1)' callback_ir.ll && grep -q 'define internal double @"HALF@dd"(double %p0)' callback_ir.ll \
+    || bad "callback: the C entries in the IR"
+"$w" callback_ir.imp -Sir --target=i686-linux-gnu > /dev/null 2>&1 && grep -q 'call i64 (i32, i32) @"CMP"(i32 %a0, i32 %a1)' callback_ir.ll || bad "callback: the C entry on i686"
 [ $fail = 0 ] && echo ok
 exit $fail

@@ -72,6 +72,12 @@ The X of an ARG record is 0 for an argument of an IMP routine or of a C function
 The conversion of the value (`FLOAT`, `FIX`) is done by the semantics, in the records of the argument, and the declaration is in the
 table CPR of `impsem` (`CPHEAD`, `CPTYPE`), which `ECALL` reads for the result.
 
+The X of an ADDR record is 0 for the address of the operand and 1 for `CALLBACK(NAME)` (`docs/FFI.md`): the operand is then the name of a subroutine
+declared a callback, and the address is that of the symbol `NAME@SIGNATURE`, a function with the C types of the declaration that calls the subroutine
+(`ECBADDR` in `demit.imp`, `CBADDR` in `code3.imp`). The head in `CPR` of a declaration is the type of the result in bits 0 to 3, the number of
+parameters in bits 4 to 8, 512 for a variadic function, 1024 for a callback and 2048 for a call through a pointer (the first parameter is then the
+function, a PTR, and the call is named `impcallt@SIGNATURE`).
+
 The operand `V` is read the way the entry says: TY 2 the register, TY 4 the constant (a text constant used as a value is
 the word whose bytes are its first eight characters), TY 8 the word of the variable DI plus the offset, TY 16 the same
 indexed by the register and indirect if bit 63 is set. The address of a variable is its byte address and the offset

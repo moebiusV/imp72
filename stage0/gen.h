@@ -216,6 +216,8 @@ void gen_code2_dsems(void);
 word g_subcall(word a, word b);
 word g_csubcall(word a, word b);
 word g_c0call(word a);
+word g_cbnocall(word d);
+word g_cbaddr(word a);
 word g_cpcount(word d, word k);
 word g_cpar(word s, word pp, word d, word k);
 word g_subscript(word s, word t);

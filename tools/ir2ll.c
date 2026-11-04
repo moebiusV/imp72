@@ -531,6 +531,17 @@ typedcall(const char *nm, const char *sig, char **vals, int nargs)
     const char *s;
     char *o = fmt(""), *ft = fmt(""), *r, *t;
     char *fixed = fmt("");
+    char *callee = gname(nm);
+    int indirect = strcmp(nm, "impcallt") == 0;
+
+    if (indirect) {                                     /* a call through a pointer (FNPTR): the signature has a p, the function, after the letter of the result */
+        if (nargs < 1 || sig[1] != 'p')
+            die("call through a pointer without the pointer", nm);
+        callee = targ('p', vals[0]);
+        sig = fmt("%c%s", sig[0], sig + 2);
+        vals++;
+        nargs--;
+    }
 
     for (s = sig + 1; *s; s++) {
         if (*s == '.') {
@@ -563,7 +574,7 @@ typedcall(const char *nm, const char *sig, char **vals, int nargs)
         o = fmt("%s%s%s%s %s", o, k ? ", " : "", tytext(*s), nfix >= 0 && k >= nfix ? "" : tyattr(*s), t);
         k++;
     }
-    if (ntprotos < 256) {
+    if (!indirect && ntprotos < 256) {
         int j;
 
         for (j = 0; j < ntprotos; j++)
@@ -576,11 +587,11 @@ typedcall(const char *nm, const char *sig, char **vals, int nargs)
         }
     }
     if (res == 'v') {
-        ins("call void %s%s(%s)", ft, gname(nm), o);
+        ins("call void %s%s(%s)", ft, callee, o);
         return fmt("0");
     }
     r = newval();
-    ins("%s = call %s %s%s(%s)", r, tytext(res), ft, gname(nm), o);
+    ins("%s = call %s %s%s(%s)", r, tytext(res), ft, callee, o);
     switch (res) {
     case 'c': case 's': case 'i':
         t = newval();
@@ -632,6 +643,118 @@ typedcall(const char *nm, const char *sig, char **vals, int nargs)
     }
 }
 
+/* ---- the C entries of the callbacks ---------------------------------------------------------------------------------------------
+ * CALLBACK(NAME) is the address of the symbol NAME@SIG, SIG written as for a typed call (the letter of the result, then one for each parameter).  The module defines
+ * it, at the first use, as an internal function with the C types of SIG: each parameter is converted to a word, stored in a word of its own, and the IMP routine NAME
+ * is called with the addresses of the words (the IMP convention: references, a word as the result); the word it returns is converted to the C type of the result. */
+
+static struct set thunks;
+
+static void
+thunkdef(const char *full)
+{
+    char *base = xstrdup(full), *sig = strchr(base, '@'), *v, *x;
+    int res, np, k;
+    FILE *f = bodyfile;
+
+    *sig++ = '\0';
+    if (inset(&thunks, full)) {
+        free(base);
+        return;
+    }
+    add(&thunks, full);
+    add(&called, base);
+    res = sig[0];
+    np = (int)strlen(sig + 1);
+    fprintf(f, "define internal%s %s %s(", tyattr(res), tytext(res), gname(full));
+    for (k = 0; k < np; k++)
+        fprintf(f, "%s%s%s %%p%d", k ? ", " : "", tytext(sig[k + 1]), tyattr(sig[k + 1]), k);
+    fprintf(f, ") {\nentry:\n");
+    for (k = 0; k < np; k++) {
+        int c = sig[k + 1];
+
+        fprintf(f, "  %%w%d = alloca i64, align 8\n", k);
+        switch (c) {
+        case 'c': case 's': case 'i':
+            fprintf(f, "  %%c%d = sext %s %%p%d to i64\n", k, tytext(c), k);
+            break;
+        case 'C': case 'S': case 'I':
+            fprintf(f, "  %%c%d = zext %s %%p%d to i64\n", k, tytext(c), k);
+            break;
+        case 'l':
+            if (ptr32)
+                fprintf(f, "  %%c%d = sext i32 %%p%d to i64\n", k, k);
+            else
+                fprintf(f, "  %%c%d = add i64 %%p%d, 0\n", k, k);
+            break;
+        case 'L': case 'z':
+            if (ptr32)
+                fprintf(f, "  %%c%d = zext i32 %%p%d to i64\n", k, k);
+            else
+                fprintf(f, "  %%c%d = add i64 %%p%d, 0\n", k, k);
+            break;
+        case 'p':
+            fprintf(f, "  %%u%d = ptrtoint ptr %%p%d to %s\n", k, k, IPT);
+            if (ptr32)
+                fprintf(f, "  %%c%d = zext i32 %%u%d to i64\n", k, k);
+            else
+                fprintf(f, "  %%c%d = add i64 %%u%d, 0\n", k, k);
+            break;
+        case 'd':
+            fprintf(f, "  %%c%d = bitcast double %%p%d to i64\n", k, k);
+            break;
+        case 'f':
+            fprintf(f, "  %%u%d = fpext float %%p%d to double\n", k, k);
+            fprintf(f, "  %%c%d = bitcast double %%u%d to i64\n", k, k);
+            break;
+        default:
+            fprintf(f, "  %%c%d = add i64 %%p%d, 0\n", k, k);
+            break;
+        }
+        fprintf(f, "  store i64 %%c%d, ptr %%w%d, align 8\n", k, k);
+        fprintf(f, "  %%a%d = ptrtoint ptr %%w%d to %s\n", k, k, IPT);
+    }
+    v = xstrdup("(");
+    x = xstrdup("");
+    for (k = 0; k < np; k++) {
+        v = fmt("%s%s%s", v, k ? ", " : "", IPT);
+        x = fmt("%s%s%s %%a%d", x, k ? ", " : "", IPT, k);
+    }
+    fprintf(f, "  %%r = call i64 %s) %s(%s)\n", v, gname(base), x);
+    switch (res) {
+    case 'v':
+        fprintf(f, "  ret void\n");
+        break;
+    case 'c': case 's': case 'i': case 'C': case 'S': case 'I':
+        fprintf(f, "  %%x = trunc i64 %%r to %s\n  ret %s %%x\n", tytext(res), tytext(res));
+        break;
+    case 'l': case 'L': case 'z':
+        if (ptr32)
+            fprintf(f, "  %%x = trunc i64 %%r to i32\n  ret i32 %%x\n");
+        else
+            fprintf(f, "  ret i64 %%r\n");
+        break;
+    case 'p':
+        if (ptr32) {
+            fprintf(f, "  %%t = trunc i64 %%r to i32\n  %%x = inttoptr i32 %%t to ptr\n");
+        } else
+            fprintf(f, "  %%x = inttoptr i64 %%r to ptr\n");
+        fprintf(f, "  ret ptr %%x\n");
+        break;
+    case 'd':
+        fprintf(f, "  %%x = bitcast i64 %%r to double\n  ret double %%x\n");
+        break;
+    case 'f':
+        fprintf(f, "  %%t = bitcast i64 %%r to double\n  %%x = fptrunc double %%t to float\n  ret float %%x\n");
+        break;
+    default:
+        fprintf(f, "  ret i64 %%r\n");
+        break;
+    }
+    fprintf(f, "}\n\n");
+    free(base);
+}
+
 /* a call: the value is an i64 */
 static char *
 callexpr(struct node *n)
@@ -648,7 +771,7 @@ callexpr(struct node *n)
         sig++;
     }
     /* a call through an address: CCALL IMPCALLP(F,A,...) (the result a C long) or IMPCALLW(F,A,...) (the result an IMP word, 64 bits) calls the function at F with the arguments A, ... by value */
-    ind = strcmp(fn->name, "impcallp") == 0 || strcmp(fn->name, "impcallw") == 0;
+    ind = strcmp(fn->name, "impcallp") == 0 || strcmp(fn->name, "impcallw") == 0 || strcmp(fn->name, "impcallt") == 0;
     if (!ind)
         add(&called, fn->name);
     if (strcmp(fn->name, "_setjmp") == 0 || strcmp(fn->name, "setjmp") == 0)
@@ -810,7 +933,9 @@ expr(struct node *n)
     switch (n->op) {
     case ICON:
         if (n->name != NULL) {
-            if (!inset(&called, n->name))
+            if (strchr(n->name, '@') != NULL)               /* CALLBACK(NAME): NAME@SIGNATURE */
+                thunkdef(n->name);
+            else if (!inset(&called, n->name))
                 add(&datarefs, n->name);
             return conv(symaddr(n->name, n->lval), T_LONG, t);
         }
@@ -1251,6 +1376,7 @@ ir2ll_run(FILE *in, FILE *out, int p32)
     outp = out;
     ptr32 = p32;
     ntprotos = 0;
+    thunks.n = 0;
     bodyf = open_memstream(&body, &blen);
     datafile = open_memstream(&data, &dlen);
     bodyfile = bodyf;

@@ -19,6 +19,9 @@ A variable declared `COMMON` is a global symbol, so C declares it
 Any other variable belongs to its module, as in the original, and C cannot see
 it. `tests/native/*_main.c` are C programs that call IMP.
 
+A routine that C calls with its arguments by value (the comparison of `qsort`, a
+signal handler) is a callback, declared with `CALLBACK` (below).
+
 ## C from IMP72, arguments by value
 
 `lib/ffi.imc` (read by both compilers after the language's syntax) adds
@@ -116,6 +119,109 @@ point registers, the count of vector registers of a variadic call on x86-64,
 the 32-bit machines. The call has the type long on every machine, whatever the
 result is, so the 32-bit targets do not truncate a 64-bit result.
 
+### Callbacks: an IMP routine that C calls
+
+A `SUBR` takes its arguments by reference, so its address cannot be handed to C
+for a call with C's arguments by value (`LOC(CMP)` is the address of the
+routine itself, whose parameters are pointers to the values C passed). A
+`CALLBACK` declaration gives a `SUBR` the C signature of the call:
+
+    CALLBACK INT CMP(PTR, PTR);
+    CALLBACK VOID CATCH(INT);
+    CALLBACK DOUBLE HALVE(DOUBLE);
+    CALLBACK VOID BYE(VOID);
+
+The grammar is that of `EXTERNAL` without the dots:
+
+    CALLBACK result name ( )
+    CALLBACK result name ( type , type ... )
+
+The types are those of the declarations of C functions (table above), and
+`(VOID)` is no parameter. `CALLBACK(NAME)` is the address of a C function that
+calls the subroutine `NAME`; it is an expression whose value is an address, and
+it goes wherever a pointer to a function goes:
+
+    CCALL qsort(LOC(ARR), 8, 8, CALLBACK(CMP));
+    CCALL signal(2, CALLBACK(CATCH));
+    CCALL atexit(CALLBACK(BYE));
+
+    SUBR CMP(A, B) IS (
+      [A] < [B] => RETURN 0-1;
+      [A] = [B] => RETURN 0;
+      1)
+
+The C function made for the callback (the thunk) takes C's arguments with C's
+types in the registers and on the stack of the target, converts each to a word,
+puts the word in a variable of its own, and calls the subroutine with the
+addresses of the variables, as any call of a `SUBR` passes them. The words are
+the ones of a declared C function's result (table above): a signed type is
+sign-extended, an unsigned type and `PTR` are zero-extended, `DOUBLE` and
+`FLOAT` are a `REAL`. A parameter declared `PTR` is therefore the address C
+passed: in `CMP`, `A` is the address of an element, and `[A]` is the element. The
+word the subroutine returns is converted to the result type: an integer type
+takes the low bits (`RETURN 0-1` is the `int` -1), `PTR` takes the word as an
+address, `DOUBLE` and `FLOAT` take a `REAL`, `VOID` ignores it. A `REAL` is not
+converted to an integer there, as the subroutine's value is a word.
+
+The thunk is an internal function of the object file, named `NAME@SIGNATURE`
+(the signature is that of a typed call, below), made at the first
+`CALLBACK(NAME)` of the file. Two files that take the address of the same
+callback have each a thunk of their own, and `CALLBACK(NAME)` is not the same
+address in both. The subroutine itself need not be in the file: a file that has
+the declaration and the expression calls the symbol `NAME`, which another file
+defines.
+
+Compile-time checks:
+
+- `CALLBACK(NAME)` of a name that no `CALLBACK` declaration gave a signature is
+  an error (`NOPE IS NOT DECLARED A CALLBACK.`);
+- a `SUBR` defined after the declaration has as many parameters as the
+  declaration, else `CALLBACK CMP HAS 2 PARAMETERS IN ITS DECLARATION AND THE
+  SUBR HAS 1.` (declare before the `SUBR` to have the check);
+- a name declared twice with different types, or with a type that is not C's, is
+  an error, as for `EXTERNAL`;
+- `CCALL CMP(...)` of a callback is an error: the name is a `SUBR`, called
+  without `CCALL`, and its arguments are references.
+
+The variables of an IMP routine are static, so a callback that is entered again
+while it runs (a signal handler that interrupts the same routine, a comparison
+that calls `qsort`, a thread that runs it while another does) shares its
+variables and the temporaries of its calls with the earlier entry. This is how
+IMP routines work (`docs/LANGUAGE-NOTES.md`); a callback that can be re-entered
+keeps what it needs in the stack of its caller or does not use variables that a
+second entry changes. The runtime library of IMP is not thread safe, so a
+callback that a C thread calls (`pthread_create`) does not use `PRINT`, `READ`
+or the other routines of the library while another thread does.
+
+### Calling a function through a pointer
+
+A C function pointer that a program receives (an address from `dlsym`, a field
+of a structure, a callback's own `CALLBACK(NAME)`) is called with C's types by a
+declaration of the signature:
+
+    FNPTR INT CMPCALL(PTR, PTR);
+    FNPTR DOUBLE HALVECALL(DOUBLE);
+    FNPTR INT PRINTCALL(PTR, ...);
+
+with the grammar of `EXTERNAL`: `FNPTR result name ( type , ... )`, the dots for a
+function of a variable number of arguments. The name is then called with the
+function as its first argument, an address; the others are the arguments of C's
+call, converted as for a declared function:
+
+    R := CCALL CMPCALL(F, LOC(X), LOC(Y));
+    X := CCALL HALVECALL(F, 5.0);
+    CCALL PRINTCALL(F, 'a=%d%c', 42, 10);
+
+The first argument is counted: a declaration with one type is called with two
+arguments (`CCALL PC TAKES 2 ARGUMENTS, NOT 3.`). At most 15 types are declared.
+The result is the word the program sees, as for `EXTERNAL`. In the IR the call is
+`impcallt@SIGNATURE`, the signature of a typed call with a `p` (the function)
+after the letter of the result; the writers of LLVM IR make an indirect call with
+the types.
+
+The name of a `FNPTR` declaration belongs to the file as the name of a declared
+C function does. It is not a symbol: no C function by that name is called.
+
 `X IS EXTERNAL;` declares a variable defined elsewhere, in the C library for
 example (`!environ! IS EXTERNAL;`); nothing is defined here, and `LOC(X)` is its
 address. `!name!` writes a name that is not an IMP name.
@@ -142,6 +248,10 @@ Examples that run in the suite:
   `SUBR`.
 - `tests/native/cdecl2.imp`: every integer type as parameter and as result, a
   function with no parameter, `VOID`.
+- `tests/native/callback.imp`: `qsort` and `bsearch` with an IMP comparison, a comparison
+  that calls IMP code and a declared C function, `signal` and `raise`, `atexit`, and
+  callbacks and calls through a pointer with every kind of type (`CHAR`, `UCHAR`,
+  `SHORT`, `UINT`, `LLONG`, `FLOAT`, `DOUBLE`, `PTR`, `VOID`), `printf` through a pointer.
 - `tests/cli/run.sh`: the compile-time errors.
 
 A `REAL` shared with C (a `COMMON REAL`, an array of them) is an IEEE 754
@@ -154,6 +264,9 @@ double in a word that is the double's own bits. C code converts with
 - A function that is not declared is `long f(long, ...)`.
 - At most 16 arguments, and 16 parameters in a declaration.
 - A structure by value is not a type.
+- A callback has at most 16 parameters and is not variadic. A function pointer
+  declaration (`FNPTR`) has at most 15 types besides the function.
+- A callback returns a word; a structure result or parameter is not a type.
 - The compiler links the C library and not the math library: where the math
   functions are a library of their own (glibc's libm), `sqrt`, `pow` and `sin`
   can be declared and called but not linked, while the functions of the C
