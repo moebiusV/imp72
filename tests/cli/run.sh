@@ -40,7 +40,8 @@ rm -f a.out
 ver=$(cat "$root/VERSION"); verre=$(printf %s "$ver" | sed 's/\./\\./g')
 [ "$("$w" --version 2>&1)" = "imp72 $ver" ] || bad "--version"
 "$w" --help 2>&1 | grep -q '^usage: imp72' || bad "--help"
-case $(sh "$root/tools/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac       # a big endian host refuses a target of the other byte order (aarch64, riscv64, i686, Mach-O are little endian): those checks are for the others
+case $(sh "$root/tools/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac
+t64=--target=x86_64-linux-gnu; [ $be = 1 ] && t64=            # (the checks of the amd64 IR: a 32-bit host names its target; a big endian host is 64 bits and cannot be asked for a little endian one)       # a big endian host refuses a target of the other byte order (aarch64, riscv64, i686, Mach-O are little endian): those checks are for the others
 mach() { od -An -tu1 -v -N20 "$1" | tr -s ' \n' '  ' | awk '{print $19 + 256 * $20}'; }       # (bytes 18 and 19 of the header; no -j, which the BSDs' od takes otherwise)
 have() { "$w" -c --target=$1 lib2.imp -o probe.o > probe.log 2>&1; ! grep -q 'No available targets' probe.log; }       # does the LLVM of this compiler have the target (a system's own LLVM may be built with its architecture alone: OpenBSD's has X86 and AMDGPU)
 if [ "$be" = 0 ]; then
@@ -161,7 +162,7 @@ SUBR CMP(A,B) IS [A]-[B];
 SUBR HALF(A) IS A
 %%
 E
-"$w" callback_ir.imp -Sir --target=x86_64-linux-gnu > /dev/null 2>&1 && grep -q 'define internal signext i32 @"CMP@ipp"(ptr %p0, ptr %p1)' callback_ir.ll && grep -q 'define internal double @"HALF@dd"(double %p0)' callback_ir.ll \
+"$w" callback_ir.imp -Sir $t64 > /dev/null 2>&1 && grep -q 'define internal signext i32 @"CMP@ipp"(ptr %p0, ptr %p1)' callback_ir.ll && grep -q 'define internal double @"HALF@dd"(double %p0)' callback_ir.ll \
     || bad "callback: the C entries in the IR"
 if [ $be = 0 ]; then
 "$w" callback_ir.imp -Sir --target=i686-linux-gnu > /dev/null 2>&1 && grep -q 'call i64 (i32, i32) @"CMP"(i32 %a0, i32 %a1)' callback_ir.ll || bad "callback: the C entry on i686"
@@ -198,7 +199,7 @@ Z:=FIELD(X,S.D);
 FINI(0)
 %%
 E
-"$w" struct_ir.imp -Sir --target=x86_64-linux-gnu > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 24$' struct_ir.ll || bad "struct: the typed store on amd64"
+"$w" struct_ir.imp -Sir $t64 > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 24$' struct_ir.ll || bad "struct: the typed store on amd64"
 if [ $be = 0 ]; then
 "$w" struct_ir.imp -Sir --target=i686-linux-gnu > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 16$' struct_ir.ll || bad "struct: the typed store on i686"
 fi
