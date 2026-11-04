@@ -219,7 +219,7 @@ extern long imphostcrtdir(long out);
 
 static const char *ldv[40];
 static int ldn;
-static char c1p[4096], c2p[4096], c3p[4096], cbp[4096], cep[4096], lcp[4096], rtp[4096], libd[4096], dlp[4096], mad[4096];
+static char c1p[4096], c2p[4096], c3p[4096], cbp[4096], cep[4096], lcp[4096], lmp[4096], rtp[4096], libd[4096], dlp[4096], mad[4096];
 
 static void
 ladd(const char *a)
@@ -232,6 +232,14 @@ havef(char *buf, const char *dir, const char *name)
 {
     snprintf(buf, 4096, "%s/%s", dir, name);
     return exists(buf);
+}
+
+/* the math library, which a program that calls sqrt or pow needs and which is not in the C library on every system */
+static void
+laddlm(const char *dir)
+{
+    if (havef(lmp, dir, "libm.so") || havef(lmp, dir, "libm.a"))
+        ladd("-lm");
 }
 
 static int
@@ -318,7 +326,7 @@ lnklin(const char *ha, const char *out, const char *ofile, const char *lib)
             return 9;
     }
     ladd("ld.lld"); ladd("-o"); ladd(out); ladd("-dynamic-linker"); ladd(dlp);
-    ladd(c1p); ladd(c2p); ladd(ofile); ladd(lib); ladd("-L"); ladd(libd); ladd("-lc"); ladd(c3p);
+    ladd(c1p); ladd(c2p); ladd(ofile); ladd(lib); ladd("-L"); ladd(libd); ladd("-lc"); laddlm(libd); ladd(c3p);
     return runld();
 }
 
@@ -351,10 +359,12 @@ lnkbsd(const char *os, const char *ha, const char *out, const char *ofile, const
     if (wh)
         ladd(c2p);
     ladd(cbp); ladd(ofile); ladd(lib);
-    if (obsd)
+    if (obsd) {
         ladd(lcp);
-    else {
-        ladd("-L"); ladd("/usr/lib"); ladd("-lc");
+        if (impfindlib((long)(intptr_t)lmp, (long)(intptr_t)"/usr/lib", (long)(intptr_t)"libm.so."))
+            ladd(lmp);
+    } else {
+        ladd("-L"); ladd("/usr/lib"); ladd("-lc"); laddlm("/usr/lib");
     }
     if (exists(rtp))
         ladd(rtp);

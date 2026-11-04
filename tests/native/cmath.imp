@@ -1,0 +1,12 @@
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL DOUBLE sqrt(DOUBLE);
+EXTERNAL DOUBLE pow(DOUBLE, DOUBLE);
+EXTERNAL DOUBLE floor(DOUBLE);
+X IS REAL;
+X:=CCALL sqrt(2.25);
+CCALL printf('sqrt(2.25) = %.4f%c',X,10);
+X:=CCALL pow(2,10);
+CCALL printf('pow(2,10) = %.1f%c',X,10);
+X:=CCALL floor(-1.5);
+CCALL printf('floor(-1.5) = %.1f%c',X,10)
+%%
