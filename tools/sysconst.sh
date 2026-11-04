@@ -91,6 +91,8 @@ echo "SUBR SCRTLD(Z) IS $rtld;                              # RTLD_DEFAULT #"
 echo "SUBR SCDNAME(Z) IS $dname;                            # OFFSET OF D_NAME IN A STRUCT DIRENT #"
 echo "SUBR SCDL(Z) IS $dl;                                 # DL_ITERATE_PHDR AND DLADDR (NOT ON MACOS) #"
 echo "SUBR IMPHOSTOS(Z) IS LOC('$os');"
+# (the system call by its number: only on Linux, where memfd_create is made; elsewhere the library does not name syscall, which OpenBSD's C library lacks)
+if [ $os = linux ]; then echo "SUBR TDSYSCALL(N,A,B) IS (CCALL syscall(N,A,B));"; else echo "SUBR TDSYSCALL(N,A,B) IS 0-1;"; fi
 if [ $arch = mips64el ]; then echo "SUBR IMPHOSTARCH(Z) IS LOC(SCZ);"; else echo "SUBR IMPHOSTARCH(Z) IS LOC('$arch');"; fi
 if [ -n "$bindir" ]; then echo "SUBR SCBINDIR(Z) IS LOC('$bindir');"; else echo "SUBR SCBINDIR(Z) IS 0;"; fi
 case $stdkind in

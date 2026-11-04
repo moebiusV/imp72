@@ -51,9 +51,10 @@ jobs:
   debian-package:
     if: "github.event_name != 'push' || !contains(github.event.head_commit.message, '[ci:') || contains(github.event.head_commit.message, '[ci:linux]')"
     runs-on: ubuntu-latest
+    container: debian:sid        # (debhelper-compat 14 is Debian's; the runner's Ubuntu has an older debhelper)
     steps:
+      - run: apt-get update && apt-get install -y build-essential debhelper binutils python3 llvm-dev liblld-dev ca-certificates
       - uses: actions/checkout@v6
-      - run: sudo apt-get update && sudo apt-get install -y build-essential debhelper binutils python3 llvm-dev liblld-dev
       - name: build the package
         run: |
           set +e
@@ -64,7 +65,7 @@ jobs:
             exit $rc
           fi
       - run: dpkg-deb -I ../imp72_*_amd64.deb
-      - run: sudo dpkg -i ../imp72_*_amd64.deb
+      - run: dpkg -i ../imp72_*_amd64.deb
       - name: compile and run a program with the installed package
         run: |
           imp72stage0 -o "$RUNNER_TEMP/hello" tests/native/hello.imp
