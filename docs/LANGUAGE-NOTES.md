@@ -51,7 +51,8 @@ and `imp72`) agree on it.
   survive: `FIB(N-1)+FIB(N-2)` returns a wrong number. Recursion is done with
   an explicit stack (`PUSHMI` and `PULLYU` in the compiler's own sources): a
   recursive routine pushes what it needs, copies its arguments into variables
-  at once, and takes the values back after each call.
+  at once, and takes the values back after each call. A callback (`docs/FFI.md`) that C enters again while it runs,
+  from a signal for example, shares its variables in the same way.
 - **Arguments of a call are evaluated right to left.** Two arguments with side
   effects run in that order.
 - **Labels are global to the compilation, not to the routine.** The same label

@@ -12,37 +12,23 @@ by reference: `CCALL` is always written.
 
 ## C interop
 
-The order is: callbacks, structure layouts, import of declarations. Each is a
-step of its own, with its tests. The typed declarations of C functions
-(`EXTERNAL INT puts(PTR);`) that they build on are described in
-`docs/FFI.md`.
+The order is: structure layouts, import of declarations. Each is a step of its
+own, with its tests. The typed declarations of C functions
+(`EXTERNAL INT puts(PTR);`), the callbacks (`CALLBACK INT CMP(PTR, PTR);`) and
+the calls through a pointer (`FNPTR INT F(PTR);`) that they build on are
+described in `docs/FFI.md`.
 
-### 1. Callbacks that C can call
-
-A routine that C calls (the comparison of `qsort`, a signal handler, a callback
-of `dl_iterate_phdr`) takes its arguments by value, with C's types, and returns
-a C type:
-
-    CSUBR CMP(PTR A, PTR B) INT IS ((CCALL strcmp(A, B)) ...)
-
-Its address is `LOC(CMP)`; inside, `A` and `B` are values, not references. Today
-such a callback is an IMP `SUBR` whose parameters are pointers to the values C
-passed. The exact syntax is settled with its implementation.
-
-*Effect on the code.* A second kind of routine in the syntax file, with a
-prologue in the code generator that takes C-convention arguments.
-
-### 2. Structure layouts
+### 1. Structure layouts
 
 A declaration of the layout of a C structure (the names, types and offsets of
 its fields), and a way to read and write a field of a structure at an address,
 in place of byte offsets written by hand. Layouts differ by system, so they
-come from the headers (item 3).
+come from the headers (item 2).
 
 *Effect on the code.* Declarations in `lib/ffi.imc` and a field access that the
 generator turns into a typed load or store at an offset.
 
-### 3. Import of C declarations from headers
+### 2. Import of C declarations from headers
 
 A tool, written in IMP, that reads C prototypes (`int puts(const char *);`) and
 writes the `EXTERNAL` declarations of `docs/FFI.md`. For structures it probes the
@@ -52,7 +38,7 @@ the declarations of a header.
 
 ## Language
 
-### 4. UTF-8 operator symbols (`≤ ≥ ≠ ← ∧ ∨ ¬`)
+### 3. UTF-8 operator symbols (`≤ ≥ ≠ ← ∧ ∨ ¬`)
 
 `src/lex.imp` makes every byte of 128 and up a letter of names, so that a name
 may be UTF-8 text; a symbol in an operator position would be read as the start
@@ -69,7 +55,7 @@ byte for a letter (one routine in `lex.imp`, and in `stage0/lex.c`); the rest
 is a file of rules. A name that used one of those characters would change
 meaning.
 
-### 5. C string syntax `"text\n"`
+### 4. C string syntax `"text\n"`
 
 `'text'` is the string constant today, two apostrophes are one inside it, and
 `!name!` is an exact identifier.
@@ -82,7 +68,7 @@ character would change `STG 0,'A'` and every program of the original.
 *Effect on the code.* The quoting code of the lexer and the rule for the
 constant in `syntax64.imc`. The code generators see a constant either way.
 
-### 6. The empty string `''`
+### 5. The empty string `''`
 
 `''` is a syntax error today. The original manual says the string `''` is the
 same as 0: the empty ASCIZ string is its terminating zero, which as a value is
@@ -94,7 +80,7 @@ Proposed: `''` is the constant 0.
 with no third following: the constant 0) and a test. As a `STG` argument, `''`
 is 0, like any other zero word.
 
-### 7. File names with Unix limits
+### 6. File names with Unix limits
 
 `MKNAME` (`src/impm.imp`) builds a file name from two words (15 characters)
 and an extension of one word (7); the original had six and three. The library
@@ -110,7 +96,7 @@ already limited: raise it to `PATH_MAX`.
 file items of the library take the length of the buffer. A test with a name of
 200 characters.
 
-### 8. The original's channel I/O
+### 7. The original's channel I/O
 
 `PRINT`, `READ` and `PRINT FILE` are in `lib/imp72io.imp`. The channel
 operations of the TOPS-10 library (`INIT`, `LOOKUP`, `ENTER`, `INPUT`,
@@ -128,7 +114,7 @@ of `imp72io.imp`, and the statements in an extension file. How many routines of
 `decus/` use the buffer header words directly decides whether the buffer
 emulation is cheap; it has not been counted.
 
-### 9. Counted strings
+### 8. Counted strings
 
 String constants are ASCIZ, as in the original: the bytes, then a zero. They
 pass to C unchanged, and `STG` and the library scan to the zero. This stays.
@@ -144,7 +130,7 @@ tell apart.
 
 *Effect on the code.* An added part of the library and its declarations. The
 lexer, the code generators and the existing library are untouched, and no
-existing program changes. It depends on item 5.
+existing program changes. It depends on item 4.
 
 ## Open question: tape routines
 
@@ -153,5 +139,5 @@ port's. Two of the tape's routines are not present: `CORE(N)`, a monitor call
 to grow the core (the arena is reserved once and `free.imp` grows its usable
 part, so `CORE` could return as "make N words usable"), and `RLEAS(CH)`,
 which released a channel. Whether either is restored is to be examined
-together with item 8, since `RLEAS` is the `fclose` of a channel and `CORE`
+together with item 7, since `RLEAS` is the `fclose` of a channel and `CORE`
 may depend on it.

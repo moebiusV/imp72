@@ -1,0 +1,23 @@
+sorted: -7 -3 0 1 2 5 8 9
+the comparison ran
+bsearch found 8 at index 6
+bsearch did not find 4
+by absolute value: 0 1 2 -3 5 -7 8 9
+the handler got signal 2
+cmp(3,7) = -1
+cmp(7,3) = 1
+cmp(3,3) = 0
+halve(5.0) = 2.50
+halve(7), an integer converted to double = 3.50
+halvef(9.0) = 4.50
+mix: -3 97 -4464 70000
+mix: a uint parameter is zero extended
+mix: a long long parameter is whole
+mix: a float parameter is a real
+mix: a pointer parameter is an address
+a long long result comes back whole
+a pointer comes back as the same address
+a uint result is zero extended
+variadic through a pointer 42 2.5
+end of the program
+the exit handler ran

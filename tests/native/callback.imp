@@ -1,0 +1,134 @@
+CALLBACK INT CMP(PTR, PTR);
+CALLBACK INT ABSCMP(PTR, PTR);
+CALLBACK VOID BYE(VOID);
+CALLBACK VOID CATCH(INT);
+CALLBACK DOUBLE HALVE(DOUBLE);
+CALLBACK LLONG MIX(CHAR, UCHAR, SHORT, INT, UINT, LLONG, FLOAT, PTR);
+CALLBACK FLOAT HALVEF(FLOAT);
+CALLBACK PTR SECOND(PTR, PTR);
+CALLBACK UINT BIG(VOID);
+FNPTR INT CMPCALL(PTR, PTR);
+FNPTR DOUBLE HALVECALL(DOUBLE);
+FNPTR FLOAT HALVEFCALL(FLOAT);
+FNPTR LLONG MIXCALL(CHAR, UCHAR, SHORT, INT, UINT, LLONG, FLOAT, PTR);
+FNPTR PTR PTRCALL(PTR, PTR);
+FNPTR UINT BIGCALL(VOID);
+!printf! IS EXTERNAL;
+FNPTR INT PRINTCALL(PTR, ...);
+EXTERNAL VOID qsort(PTR, SIZE, SIZE, PTR);
+EXTERNAL PTR bsearch(PTR, PTR, SIZE, SIZE, PTR);
+EXTERNAL INT atexit(PTR);
+EXTERNAL PTR signal(INT, PTR);
+EXTERNAL INT raise(INT);
+EXTERNAL LLONG llabs(LLONG);
+EXTERNAL INT puts(PTR);
+EXTERNAL INT printf(PTR, ...);
+ARR IS 8 LONG;
+KEY IS 2 LONG;
+HITS IS 2 LONG;
+X IS REAL;
+GOT IS 2 LONG;
+
+# qsort with an IMP comparison: the parameters are the addresses of two elements #
+ARR[0]:=5; ARR[1]:=0-3; ARR[2]:=9; ARR[3]:=1; ARR[4]:=0-7; ARR[5]:=2; ARR[6]:=8; ARR[7]:=0;
+CCALL qsort(LOC(ARR),8,8,CALLBACK(CMP));
+CCALL printf('sorted:');
+CCALL printf(' %d',ARR[I]) FOR I IN 0,1,7;
+CCALL printf('%c',10);
+HITS[0]>0 => CCALL puts('the comparison ran') ELSE CCALL puts('wrong: the comparison did not run');
+
+# bsearch finds a key and answers its address #
+KEY[0]:=8;
+P:=CCALL bsearch(LOC(KEY),LOC(ARR),8,8,CALLBACK(CMP));
+P=(LOC(ARR)+48) => CCALL puts('bsearch found 8 at index 6') ELSE CCALL puts('wrong: bsearch 8');
+KEY[0]:=4;
+P:=CCALL bsearch(LOC(KEY),LOC(ARR),8,8,CALLBACK(CMP));
+P=0 => CCALL puts('bsearch did not find 4') ELSE CCALL puts('wrong: bsearch 4');
+
+# a callback that calls IMP code and a declared C function: by absolute value #
+ARR[0]:=5; ARR[1]:=0-3; ARR[2]:=9; ARR[3]:=1; ARR[4]:=0-7; ARR[5]:=2; ARR[6]:=8; ARR[7]:=0;
+CCALL qsort(LOC(ARR),8,8,CALLBACK(ABSCMP));
+CCALL printf('by absolute value:');
+CCALL printf(' %d',ARR[I]) FOR I IN 0,1,7;
+CCALL printf('%c',10);
+
+# signal and raise: the handler is called with the signal number as a C int #
+GOT[0]:=0;
+CCALL signal(2,CALLBACK(CATCH));
+CCALL raise(2);
+CCALL printf('the handler got signal %d%c',GOT[0],10);
+
+# atexit: the handler runs when the program ends #
+CCALL atexit(CALLBACK(BYE));
+
+# C calls through a pointer, with the argument and result types of the declaration #
+F:=CALLBACK(CMP);
+KEY[0]:=3; KEY[1]:=7;
+CCALL printf('cmp(3,7) = %d%c',CCALL CMPCALL(F,LOC(KEY[0]),LOC(KEY[1])),10);
+CCALL printf('cmp(7,3) = %d%c',CCALL CMPCALL(F,LOC(KEY[1]),LOC(KEY[0])),10);
+CCALL printf('cmp(3,3) = %d%c',CCALL CMPCALL(F,LOC(KEY[0]),LOC(KEY[0])),10);
+X:=CCALL HALVECALL(CALLBACK(HALVE),5.0);
+CCALL printf('halve(5.0) = %.2f%c',X,10);
+X:=CCALL HALVECALL(CALLBACK(HALVE),7);
+CCALL printf('halve(7), an integer converted to double = %.2f%c',X,10);
+X:=CCALL HALVEFCALL(CALLBACK(HALVEF),9.0);
+CCALL printf('halvef(9.0) = %.2f%c',X,10);
+KEY[0]:=3;
+R:=CCALL MIXCALL(CALLBACK(MIX),0-3,353,0-70000,70000,4000000000,0-5000000000,1.5,LOC(KEY));
+R=(0-5000000003) => CCALL puts('a long long result comes back whole') ELSE CCALL puts('wrong: long long result');
+P:=CCALL PTRCALL(CALLBACK(SECOND),LOC(KEY[0]),LOC(KEY[1]));
+P=LOC(KEY[1]) => CCALL puts('a pointer comes back as the same address') ELSE CCALL puts('wrong: pointer');
+R:=CCALL BIGCALL(CALLBACK(BIG));
+R=4294967295 => CCALL puts('a uint result is zero extended') ELSE CCALL puts('wrong: uint result');
+CCALL PRINTCALL(LOC(!printf!),'%s %d %.1f%c',LOC('variadic through a pointer'),42,2.5,10);
+CCALL puts('end of the program');
+FINI(0);
+
+SUBR CMP(A,B) IS (
+ HITS[0]:=HITS[0]+1;
+ [A]<[B] => RETURN 0-1;
+ [A]=[B] => RETURN 0;
+ 1);
+
+SUBR ABSV(X) IS (
+ X<0 => RETURN 0-X;
+ X);
+
+SUBR ABSCMP(A,B) IS (
+ V,W ARE LOCAL;
+ V:=CCALL llabs([A]);
+ W:=ABSV([B]);
+ V<W => RETURN 0-1;
+ V=W => RETURN 0;
+ 1);
+
+SUBR BYE() IS CCALL puts('the exit handler ran');
+
+SUBR CATCH(S) IS (GOT[0]:=S; 0);
+
+SUBR HALVE(A) IS (
+ Y IS REAL;
+ Y:=A;
+ Y:=Y/2.0;
+ Y);
+
+SUBR HALVEF(A) IS (
+ Y IS REAL;
+ Y:=A;
+ Y:=Y/2.0;
+ Y);
+
+SUBR MIX(C,UC,SH,I,UI,LL,FL,PT) IS (
+ Z IS REAL;
+ Z:=FL;
+ CCALL printf('mix: %d %d %d %d%c',C,UC,SH,I,10);
+ UI=4000000000 => CCALL puts('mix: a uint parameter is zero extended') ELSE CCALL puts('wrong: uint parameter');
+ LL=(0-5000000000) => CCALL puts('mix: a long long parameter is whole') ELSE CCALL puts('wrong: long long parameter');
+ Z=1.5 => CCALL puts('mix: a float parameter is a real') ELSE CCALL puts('wrong: float parameter');
+ [PT]=3 => CCALL puts('mix: a pointer parameter is an address') ELSE CCALL puts('wrong: pointer parameter');
+ LL+C);
+
+SUBR SECOND(A,B) IS B;
+
+SUBR BIG() IS 4294967295
+%%

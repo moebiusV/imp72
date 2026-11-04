@@ -659,12 +659,39 @@ ecallt(word rd, word h)
         if (nargs <= np)
             csig[q++] = '.';
     csig[q] = '\0';
-    snprintf(cnb, sizeof cnb, "%s@%s", g_irsymname(callfn), csig);
+    if ((h & 2048) != 0)
+        snprintf(cnb, sizeof cnb, "impcallt@%s", csig);
+    else
+        snprintf(cnb, sizeof cnb, "%s@%s", g_irsymname(callfn), csig);
     tree = ir_xcall(ir_sym(cnb, 0, TPFTN), args, (int)nargs, 2);
     if (rd != 0)
         asg(rv(rd), tree);
     else
         ir_stmt(tree);
+}
+
+/* The address of the C function that calls the callback D (CALLBACK(NAME); a record ADDR with X 1): the symbol NAME@SIGNATURE, the signature as in a typed call (the letter
+ * of the result, then one for each parameter).  The writers of LLVM IR define the function at the first use of the symbol (it is internal to the module) and declare the
+ * subr NAME if the module does not define it */
+static void
+ecbaddr(word rd, word v0)
+{
+    static char csig[32], cnb[400];
+    struct irn *x1, *x2;
+    word d, h, np, k, q;
+
+    d = HL(v0);
+    h = g_cphead(d);
+    np = (h >> 4) & 31;
+    q = 0;
+    csig[q++] = (char)ctlet(h & 15);
+    for (k = 0; k < np; k++)
+        csig[q++] = (char)ctlet(g_cptype(d, k));
+    csig[q] = '\0';
+    snprintf(cnb, sizeof cnb, "%s@%s", g_irsymname(d), csig);
+    x1 = ir_sym(cnb, 0, TPLONG);
+    x2 = ir_un(IR_PCONV, TLONG, x1);
+    asg(rv(rd), x2);
 }
 
 /* End a call (CALLE): the call of the function CALLFN with the arguments ARGS; RD is where the value goes */
@@ -691,7 +718,7 @@ ecall(word rd)
         cret = g_irruntime(callfn);
     if (nfn < 60)
         fadd(&fnames, &nfn, callfn);
-    if (g_cphead(callfn) != 0) {
+    if (g_cphead(callfn) != 0 && (g_cphead(callfn) & 1024) == 0) {
         ecallt(rd, g_cphead(callfn));
         return;
     }
@@ -1200,6 +1227,10 @@ erec(word r)
         return;
     }
     if (op == OADDR) {
+        if (G_RX(r) == 1) {
+            ecbaddr(rd, v0);
+            return;
+        }
         x2 = ir_un(IR_PCONV, TLONG, eaddr(v0, v1)); x1 = rv(rd); asg(x1, x2);
         return;
     }

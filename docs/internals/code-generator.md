@@ -88,6 +88,25 @@ function loads it into the result register.
   where an undeclared C call has the type int on the machines with 32-bit words. The IR writers read the signature, make the LLVM
   call with the types (`signext` and `zeroext` on the parameters narrower than a word), and convert the result to the word.
   `docs/FFI.md` has the rules of the conversions.
+- **Callbacks.** `CALLBACK INT CMP(PTR, PTR);` (`CDECL` with V 2) enters the signature in `CPR` with 1024 added to the head; a
+  `SUBR` defined after it has its parameters counted against the declaration (`SUBBEG`). `CALLBACK(NAME)` (`CBADDR` in
+  `code3.imp`) is an `ADDR` record whose X is 1 and whose operand is the name. `DEMIT` (`ECBADDR`) makes of it the address of the
+  symbol `NAME@SIGNATURE`, the signature written as in a typed call: the letter of the result and one for each parameter. The
+  writers of LLVM IR define that symbol at its first use as an internal function with the C types of the signature: each
+  parameter is converted to a word and stored in a word of its own (`alloca i64`), the subroutine `NAME` is called with the
+  addresses of the words as any call of a `SUBR` is, and the returned word is converted to the result type (`signext`
+  or `zeroext` on narrow parameters and results, `ptrtoint` and `zext` of a pointer on a 32-bit machine, `bitcast` for
+  a double, `fpext` and `fptrunc` for a float). The text goes in front of the function being written (`THUNKDEF` in
+  `tools/ir2ll.c`, `IRLTHUNK` in `src/ir2llx.imp`, which keep the symbols made in the set 7 of the names), and the name
+  `NAME` is added to the called names, so that the module declares a subroutine that another file defines. The
+  words keep the 64 bits of an IMP word on every machine, so the thunk is the same on 32-bit and on big-endian
+  targets. The variables of the subroutine are static: a thunk entered again while the subroutine runs shares
+  them.
+- **Calls through a pointer.** `FNPTR INT F(PTR);` (`CDECL` with V 4, and 5 with the dots) enters the signature with a PTR (the
+  function) as the first parameter and 2048 added to the head. A call `CCALL F(P, A)` is a typed call (`CSUBCALL`, `CPAR`)
+  that `ECALLT` names `impcallt@SIGNATURE`, the signature including the `p` of the function. The writers of LLVM IR take the
+  first argument as the address, drop it and the `p` from the signature, and write an indirect call with the types
+  (`typedcall` in `tools/ir2ll.c`, `IRLTCALL` in `src/ir2llx.imp`); no declaration is made.
 - **`GO TO` out of a routine.** A tag of another routine is reached by `longjmp`: the routine that has the tag calls
   `_setjmp` into `imp_jb_<tag>` (a 512 byte `.comm`) at its entry, and the jumping routine calls `_longjmp` on it. The
   routine with the tag has to be running. A tag that no routine has is an error that names the tag.

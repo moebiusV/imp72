@@ -32,6 +32,10 @@ g_csubcall(word a, word b)
     h = g_cphead(d);
     if (h == 0)
         return g_subcall(a, b);
+    if ((h & 1024) != 0) {
+        g_cbnocall(d);
+        return g_subcall(a, b);
+    }
     a = g_subrcall(g_name(a));
     k = 0;
     while (g_getlist(b) != 0) {
@@ -52,12 +56,48 @@ g_c0call(word a)
     word d, r;
 
     d = HL(FREE(a));
-    if (g_cphead(d) != 0)
+    if ((g_cphead(d) & 1024) != 0)
+        g_cbnocall(d);
+    else if (g_cphead(d) != 0)
         g_cpcount(d, 0);
     a = g_subrcall(g_name(a));
     r = g_regof(a);
     g_subpr0(1);
     return g_dewfun(a, 2, r);
+}
+
+/* CCALL of a name that is declared a callback: it is an IMP subr, called without CCALL */
+word
+g_cbnocall(word d)
+{
+    char cmsg[320];
+
+    snprintf(cmsg, 300, "%s IS A CALLBACK, A SUBR: CALL IT WITHOUT CCALL.", g_irsymname(d));
+    imp_error(1, cmsg);
+    return 0;
+}
+
+/* CALLBACK(NAME): the address of the C function that calls the subr NAME (lib/ffi.imc; not in the original).  It is an ADDR record whose X is 1: DEMIT names the symbol
+ * NAME@SIGNATURE, which the writers of LLVM IR define as the function with the C types of the declaration (CALLBACK TYPE NAME(TYPES);) */
+word
+g_cbaddr(word a)
+{
+    word d, h, s, r;
+    char cmsg[320];
+
+    d = HL(FREE(a));
+    h = g_cphead(d);
+    if ((h & 1024) == 0) {
+        snprintf(cmsg, 300, "%s IS NOT DECLARED A CALLBACK.", g_irsymname(d));
+        imp_error(1, cmsg);
+    }
+    s = g_name(a);
+    r = g_areg1(1, 015);
+    g_unpck(s);
+    g_addrec(s, KOP, OADDR, r, g_se, g_se1, 1);
+    FREES(s, (2 | (g_se & 0777700)));
+    FREES(s + 1, G_L32(r));
+    return s;
 }
 
 /* The number K of arguments of a call of the declared function D: at least the parameters of a variadic one, else exactly */
@@ -310,6 +350,7 @@ static word w_subscript(const word *p) { return g_subscript(p[0], p[1]); }
 static word w_subcall(const word *p) { return g_subcall(p[0], p[1]); }
 static word w_csubcall(const word *p) { return g_csubcall(p[0], p[1]); }
 static word w_c0call(const word *p) { return g_c0call(p[0]); }
+static word w_cbaddr(const word *p) { return g_cbaddr(p[0]); }
 static word w_bytep(const word *p) { return g_bytep(p[0], p[1], p[2], p[3]); }
 
 /* CODE3I(NIL): the DSEMs of this file */
@@ -320,5 +361,6 @@ gen_code3_dsems(void)
     dsem("SUBCALL", w_subcall);
     dsem("CSUBCALL", w_csubcall);
     dsem("CCALL0", w_c0call);
+    dsem("CBADDR", w_cbaddr);
     dsem("BYTEP", w_bytep);
 }

@@ -396,6 +396,13 @@ g_subbeg(word a)
         g_addrec(a, KOP, OPARAM, t, 0, 0, 0);
     }
     g_subtmpf();
+    j = g_cphead(subnam);                               /* (a callback declared before the subr has its number of parameters) */
+    if ((j & 1024) != 0 && ((j >> 4) & 31) != nsubpar) {
+        char cmsg[320];
+
+        snprintf(cmsg, 300, "CALLBACK %s HAS %ld PARAMETERS IN ITS DECLARATION AND THE SUBR HAS %ld.", g_irsymname(subnam), (long)((j >> 4) & 31), (long)nsubpar);
+        imp_error(1, cmsg);
+    }
     return a;
 }
 
@@ -775,6 +782,10 @@ g_cdecl(word t, word f, word l, word v)
         r = 5;
     }
     np = 0; nv = 0; t0 = 0; t1 = 0;
+    if ((v & 4) != 0) {
+        np = 1;
+        t0 = 12;
+    }
     if (l != 0)
         while (g_getlist(l) != 0) {
             ty = g_ctypeof(HL(FREE(l)));
@@ -796,15 +807,19 @@ g_cdecl(word t, word f, word l, word v)
         np = 16;
     }
     if (nv > 0) {
-        if (nv == 1 && np == 1 && v == 0) {
-            np = 0;
-            t0 = 0;
+        if (nv == 1 && np == 1 + (v & 4) / 4 && (v & 1) == 0) {
+            np = (v & 4) / 4;
+            t0 = (v & 4) != 0 ? 12 : 0;
         } else
             imp_error(1, "VOID IS ONLY THE WHOLE LIST OF PARAMETERS, AS IN (VOID).");
     }
     h = r + (16 * np);
-    if (v != 0)
+    if ((v & 1) != 0)
         h = h + 512;
+    if ((v & 2) != 0)
+        h = h + 1024;
+    if ((v & 4) != 0)
+        h = h + 2048;
     e = g_cpfind(d);
     if (e < 0)
         g_cpadd(d, h, t0, t1);
@@ -815,6 +830,8 @@ g_cdecl(word t, word f, word l, word v)
         snprintf(cmsg, 300, "%s IS DECLARED TWICE WITH DIFFERENT TYPES.", g_irsymname(d));
         imp_error(1, cmsg);
     }
+    if ((v & 2) != 0)
+        return enstack(0);
     if (r == 13 || r == 14)
         dprops(DP_ATYPE, d, 2);
     return enstack(0);
