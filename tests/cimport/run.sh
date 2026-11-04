@@ -1,7 +1,7 @@
 #!/bin/sh
 # tools/cimport.imp (imp72-cimport): the declarations of C headers as IMP72.  Run from the top of the tree (make check does).
 #   - tests/cimport/cases.txt: each line is NAME INPUT ARGS...; the tool reads the preprocessed text tests/cimport/INPUT (no cc) and its output is compared with tests/cimport/NAME.out
-#   - the output of the first case, with tests/cimport/basic.use.imp after it, is compiled by the seed and by imp72 and run (tests/cimport/basic.use.out)
+#   - the output of the first case, with tests/cimport/basic.use.imp after it, is compiled by the seed and by imp72 and run (basic.use.out; basic.use32.out where long is 32 bits)
 #   - each file of the tool compiles with the seed
 #   - the usage and the errors
 #   - with a C compiler: <string.h>, <stdlib.h> and <stdio.h> declarations used by a program that sorts with qsort and a CALLBACK; the layouts of struct tm, timespec (and stat and dirent on
@@ -33,13 +33,14 @@ tool -o $w/o.imp -n pt -i tests/cimport/basic.i 2>/dev/null; [ -s $w/o.imp ] && 
 # the warning for a name that is not declared (the fixture 'nothing')
 grep -q 'nothing is declared with the name no_such_name' $w/nothing.err || bad "no warning for a name that nothing declares"
 
-# the output compiled with a program, by imp72 and by the seed (one file)
+# the output compiled with a program, by imp72 and by the seed (one file); the sizes in what it prints are those of the machine: basic.use.out (64 bit long) or basic.use32.out
+use=tests/cimport/basic.use.out; [ "$(getconf LONG_BIT)" = 64 ] || use=tests/cimport/basic.use32.out
 cat tests/cimport/basic.out tests/cimport/basic.use.imp > $w/basic_all.imp
 "$two" -o $w/basic_all $w/basic_all.imp > $w/basic_all.log 2>&1 || { cat $w/basic_all.log; bad "imp72 does not accept the declarations of the fixture"; }
-[ -x $w/basic_all ] && { $w/basic_all > $w/basic_all.got 2>&1; cmp -s $w/basic_all.got tests/cimport/basic.use.out || { diff $w/basic_all.got tests/cimport/basic.use.out; bad "the program of the fixture prints something else"; }; }
+[ -x $w/basic_all ] && { $w/basic_all > $w/basic_all.got 2>&1; cmp -s $w/basic_all.got $use || { diff $w/basic_all.got $use; bad "the program of the fixture prints something else"; }; }
 if [ -x "$seed" ]; then
     "$seed" -o $w/basic_seed $w/basic_all.imp > $w/basic_seed.log 2>&1 || { cat $w/basic_seed.log; bad "the seed does not accept the declarations of the fixture"; }
-    [ -x $w/basic_seed ] && { $w/basic_seed > $w/basic_seed.got 2>&1; cmp -s $w/basic_seed.got tests/cimport/basic.use.out || bad "the program of the fixture, by the seed, prints something else"; }
+    [ -x $w/basic_seed ] && { $w/basic_seed > $w/basic_seed.got 2>&1; cmp -s $w/basic_seed.got $use || bad "the program of the fixture, by the seed, prints something else"; }
     # (the files of the tool, each compiled by the seed)
     for f in cimport cimport-tok cimport-parse cimport-out; do
         "$seed" -c -o $w/seed-$f.o tools/$f.imp > $w/seed-$f.log 2>&1 || { cat $w/seed-$f.log; bad "the seed does not compile tools/$f.imp"; }
