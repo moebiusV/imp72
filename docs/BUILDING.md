@@ -126,7 +126,11 @@ architectures as the fallback. The only program the driver starts is `ld.lld`
 `aarch64-linux-gnu`, `riscv64-linux-musl`, `i686-linux-gnu`,
 `armv7-linux-gnueabihf`, `x86_64-apple-darwin`) with `-c`, `-S` or `-Sir`
 writes the output for that system, in its object format and with its pointer
-size. A target of the other byte order from the host's is refused.
+size. A target of the other byte order from the host's is refused, and so is a
+triple whose operating system or environment LLVM does not know by name
+(`x86_64-nonsense-os`): the message is `imp72: unrecognized target "TRIPLE"`,
+the status is 1 and no file is written. The vendor is free text (`alpine`,
+`pc`, `apple`), and a version may follow the system (`freebsd15.0`).
 
 Linking for another system (Linux and macOS targets; the ELF and Mach-O drivers
 of lld are both in the compiler, so a Linux build links macOS programs and the

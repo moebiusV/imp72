@@ -2437,8 +2437,10 @@ without the two % signs, the message PREMATURE END OF INPUT FILE is printed (Sec
 `riscv64-linux-musl`, `i686-linux-gnu`, `armv7-linux-gnueabihf`, `x86_64-apple-darwin`) with `-c`,
 `-S` or `-Sir` makes the object in the format of that system, with 32-bit or 64-bit pointers as it
 has; the word of the program remains 64 bits. A target of the other byte order than the compiler's
-is refused. To link for another system, the compiler must be told where the files of that system
-are: `--sysroot=DIR` (its root, with `crt1.o`, `crti.o`, `crtn.o` and the `C` library under
+is refused, and so is a triple whose operating system or environment is not one that LLVM knows by
+name (`imp72: unrecognized target`; the status is 1 and no file is written). The vendor is free
+text. To link for another system, the compiler must be told where the files of that system are:
+`--sysroot=DIR` (its root, with `crt1.o`, `crti.o`, `crtn.o` and the `C` library under
 `DIR/usr/lib`, or for macOS the SDK directory) and `--runtime=FILE` (the `libimp72.a` built for it),
 or the environment variables IMP72SYSROOT and IMP72RUNTIME. Without them the message lists what is
 missing and how to give it, or compile with `-c` and link on the other system. The runtime library
