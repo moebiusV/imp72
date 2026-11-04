@@ -89,7 +89,7 @@ layout() {  # name header
     tool -n $n $h > $w/l_$n.imp 2>$w/l_$n.err || { cat $w/l_$n.err; bad "$h"; return; }
     line=$(sed -n "s/^STRUCT $n (\(.*\));\$/\1/p" $w/l_$n.imp)
     [ -n "$line" ] || { bad "$h: no STRUCT $n"; return; }
-    fields=$(printf '%s\n' "$line" | tr ',' '\n' | sed 's/^ *[A-Za-z_0-9!]* //; s/\[.*//')
+    fields=$(printf '%s\n' "$line" | tr ',' '\n' | sed 's/^ *[A-Za-z_0-9!]* //; s/\[.*//' | grep -v '^PAD[0-9]')
     { printf '#include <stdio.h>\n#include <stddef.h>\n#include <%s>\nint main(void) {\n' $h
       printf 'printf("size %%ld\\n", (long)sizeof(struct %s));\n' $n
       for f in $fields; do printf 'printf("%s %%ld\\n", (long)offsetof(struct %s, %s));\n' $f $n $f; done

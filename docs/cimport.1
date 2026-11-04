@@ -160,7 +160,19 @@ argument, a
 .Vt long double ,
 complex or 128-bit type, or more than 16 parameters, and parameters whose type
 is not known.
-Structures with a bit field, a union member, a member named
+An unnamed bit field is padding: width 0 writes nothing and a width of whole
+bytes writes a member
+.Ql UCHAR PADn[bytes] ;
+the width may use numbers, enumerators,
+.Ql sizeof
+of a base type, of a type name or of a pointer,
+.Ql ==
+and
+.Ql !=
+(the headers of musl write the padding of
+.Vt struct timespec
+so).
+Structures with a named bit field, an unnamed one whose width cannot be computed, a union member, a member named
 .Ql _ , a member whose type cannot be
 expressed, a flexible array member, an array length that is not a number or a
 sum, difference, product, shift or bitwise or of numbers, a structure defined

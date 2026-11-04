@@ -1,0 +1,10 @@
+# DECLARATIONS FOR IMP72 FROM PREPROCESSED C TEXT, MADE BY IMP72-CIMPORT (FUNCTIONS 0, STRUCTURES 2, CONSTANTS 1; THE LAYOUTS OF THE STRUCTURES ARE COMPUTED BY IMP72 FOR THE MACHINE THE PROGRAM IS COMPILED FOR) #
+LET E_W=3;
+STRUCT timespec_musl (LONG tv_sec, LONG tv_nsec);
+STRUCT pad_be32 (INT a, UCHAR PAD1[4], LONG b, UCHAR PAD2[6], CHAR c);
+# NOT EXPRESSED:
+    structure pad_zero: an unnamed bit field after a member that may not end on a boundary of its type
+    structure pad_odd: an unnamed bit field whose width is not a whole number of bytes
+    structure pad_unknown: an unnamed bit field whose width is not a constant that can be evaluated
+    structure pad_named: a bit field
+#

@@ -432,16 +432,29 @@ defined or is a float, a string or a pointer is listed as not expressed.
 A C name that is a word of the IMP72 grammar or one of the type names (`INT`,
 `PRINT`, `IN`, `LONG`) is written `!name!`; the program writes it the same way.
 
+**Unnamed bit fields.** An unnamed bit field is padding. Its width is computed
+from numbers, enumerators, `sizeof` of a base type, of a type name defined
+earlier in the header or of a pointer (`sizeof(long)`, `sizeof(time_t)`, with
+the values of the machine that runs the tool), `==` and `!=` (musl writes the
+padding of `struct timespec` as `int :8*(sizeof(time_t)-sizeof(long))*(__BYTE_ORDER==4321)`).
+A width of 0 writes nothing. A width of whole bytes writes a member
+`UCHAR PAD1[n]` (`PAD2`, ... in the same structure), so that `OFFSETOF` and
+`SIZEOF` agree with C. A structure is not written when the width cannot be
+computed or is not whole bytes, when the bit field is wider than its type, or
+when the member before it may not end on a boundary of the type of the bit
+field (an array, a structure, a smaller member): the layout cannot be known
+without the C compiler's rules for bit fields.
+
 **What is not written.** The tool lists these in a comment at the end of the
 output, each with its reason, and writes nothing for them:
 
 - functions with a structure or union argument or result, a `va_list`
   parameter, a `long double`, `_Complex`, `__int128` or `_FloatN` type, more than
   16 parameters, or a type name it has not seen declared;
-- structures with a bit field, a union member, a member named `_` (which IMP72 reads as an operator), a member of a type that cannot
+- structures with a named bit field, a union member, a member named `_` (which IMP72 reads as an operator), a member of a type that cannot
   be expressed or of an incomplete structure, a flexible array member, an array
   whose length is not a number or an expression of numbers (`sizeof` is not
-  evaluated: the length depends on the target), a structure defined inside it,
+  evaluated there: the length depends on the target), a structure defined inside it,
   or a `packed` or `aligned` attribute (the layout would differ);
 - enumerators whose value the tool cannot compute (a conditional expression, a
   `sizeof`);
