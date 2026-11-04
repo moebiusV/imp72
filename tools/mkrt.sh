@@ -30,7 +30,7 @@ else
     out=${2:-build/rt-host}
 fi
 # the byte order of the target: the file of byte-order macros (src/impend-be.imc) for the big endian ones, else the little
-case ${arch:-$(cc -dumpmachine 2>/dev/null | sed 's/-.*//')} in
+case ${arch:-$(${CC:-cc} -dumpmachine 2>/dev/null | sed 's/-.*//')} in
 s390x|powerpc|ppc|ppc64|sparc*|mips|mips64|armeb|aarch64_be) endf=src/impend-be.imc ;;
 *) if [ -z "$arch" ]; then endf=$(sh tools/endian.sh); else endf=src/impend-le.imc; fi ;;
 esac
@@ -49,7 +49,7 @@ for m in "imp72rt_imp:$out/imp72rt_all.imp" "imp72sys:lib/imp72sys.imp" "sysgen:
 done
 # the 32 bit machines call __divdi3 and its kin for the division of 64 bits: compiler-rt's members go in the library, as in tools/mklib.sh (the target's, from this machine's LLVM)
 rt=$(sh tools/llvm.sh builtins $triple)
-case ${arch:-$(cc -dumpmachine 2>/dev/null | sed 's/-.*//')} in
+case ${arch:-$(${CC:-cc} -dumpmachine 2>/dev/null | sed 's/-.*//')} in
 i?86|i386|arm*) [ -n "$rt" ] || echo "mkrt: no compiler-rt builtins for ${triple:-this machine} in the LLVM here: the library has no __divdi3 and its kin, and a program linked with it needs them from elsewhere" >&2 ;;
 esac
 if [ -n "$rt" ]; then

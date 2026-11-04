@@ -7,6 +7,8 @@
 
 # Compiler flags and where to install (make install DESTDIR=... PREFIX=...).
 CC       = cc
+CXX      = c++
+export CC CXX                           # the scripts of tools/ use them too
 CFLAGS   = -O1 -g -Wall
 LDFLAGS  =
 DESTDIR  =
@@ -36,7 +38,7 @@ llvm-ir: stage0 $(LIB)
 stage0:
 	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
 	bd=`sh tools/llvm.sh bindir`; bdd=; [ -n "$$bd" ] && bdd="-DIMP72_LLVM_BINDIR=$$bd"; \
-	$(MAKE) -C stage0 CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
+	$(MAKE) -C stage0 CC="$(CC)" CXX="$(CXX)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
 
 # Installed layout (imp72stage0 finds its parts relative to its own place):
 #   PREFIX/bin/imp72stage0 (the seed; also as imp72 where stage 2 cannot be built)   PREFIX/bin/imp72 (stage 2)

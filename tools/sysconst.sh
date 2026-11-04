@@ -8,7 +8,7 @@ os=${1:-${SYSOS:-$(uname -s | tr 'A-Z' 'a-z')}}
 arch=${2:-$SYSARCH}
 bindir=$3
 if [ -z "$arch" ]; then            # this machine's: what its C compiler makes programs for, not the kernel (a 32 bit container on a 64 bit kernel says x86_64 to uname), and a 32 bit userland says so
-    arch=$(cc -dumpmachine 2>/dev/null | sed 's/-.*//')
+    arch=$(${CC:-cc} -dumpmachine 2>/dev/null | sed 's/-.*//')
     [ -n "$arch" ] || arch=$(uname -m)
     if [ "$(getconf LONG_BIT 2>/dev/null)" = 32 ]; then
         case $arch in x86_64|amd64) arch=i386 ;; aarch64|arm64) arch=arm ;; esac
@@ -57,11 +57,11 @@ openbsd)
 netbsd) stdkind=arr; stdsym=__sF; stdin=__sF ;;
 esac
 if [ $stdkind = arr ]; then
-    if [ $here = yes ] && command -v cc >/dev/null 2>&1; then
+    if [ $here = yes ] && command -v ${CC:-cc} >/dev/null 2>&1; then
         # (sizeof(FILE), asked of the C compiler of this machine: the FILEs are not the same size on every machine)
         t=$(mktemp -d "${TMPDIR:-.}/sysconst.XXXXXX") || die "no temporary directory"
         printf '#include <stdio.h>\nint main(void) { printf("%%ld\\n", (long)((char *)stdout - (char *)stdin)); return 0; }\n' > "$t/p.c"
-        cc -o "$t/p" "$t/p.c" 2>/dev/null && filesz=$("$t/p")
+        ${CC:-cc} -o "$t/p" "$t/p.c" 2>/dev/null && filesz=$("$t/p")
         rm -rf "$t"
     fi
     [ -n "$filesz" ] || die "do not know the size of a FILE on $os $arch: build the library on that system"

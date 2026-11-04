@@ -65,7 +65,7 @@ done
 llvmflags=$(sh tools/llvm.sh cflags); llvmlibs=; llvmobjs=
 [ -n "$llvmflags" ] || { echo "direct: imp72 needs the LLVM libraries (llvm-config, tools/llvm.sh)" >&2; exit 1; }
 llvmlibs=$(sh tools/llvm.sh libs)
-case $llvmflags in *HAVE_LLD*) c++ -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/impld.cpp -o $out/impld.o; llvmobjs="$llvmobjs $out/impld.o" ;; esac
+case $llvmflags in *HAVE_LLD*) ${CXX:-c++} -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/impld.cpp -o $out/impld.o; llvmobjs="$llvmobjs $out/impld.o" ;; esac
 keep=
 for o in stage0/*.o; do
     case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/impld.o|stage0/imphost.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/gen_impsem.o|stage0/gen_code.o|stage0/gen_code2.o|stage0/gen_code3.o|stage0/gen_demit.o) continue ;; esac
@@ -73,6 +73,6 @@ for o in stage0/*.o; do
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-cc $LDFLAGS -o $out/imp72d $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
+${CC:-cc} $LDFLAGS -o $out/imp72d $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
 ln -sf imp72d $out/imp72stage-llvm-ir
 echo "built $out/imp72d with the code generator of src/llvm-ir: $modules; the compiler's own: $srcmodules"
