@@ -161,9 +161,11 @@ SUBR CMP(A,B) IS [A]-[B];
 SUBR HALF(A) IS A
 %%
 E
-"$w" callback_ir.imp -Sir > /dev/null 2>&1 && grep -q 'define internal signext i32 @"CMP@ipp"(ptr %p0, ptr %p1)' callback_ir.ll && grep -q 'define internal double @"HALF@dd"(double %p0)' callback_ir.ll \
+"$w" callback_ir.imp -Sir --target=x86_64-linux-gnu > /dev/null 2>&1 && grep -q 'define internal signext i32 @"CMP@ipp"(ptr %p0, ptr %p1)' callback_ir.ll && grep -q 'define internal double @"HALF@dd"(double %p0)' callback_ir.ll \
     || bad "callback: the C entries in the IR"
+if [ $be = 0 ]; then
 "$w" callback_ir.imp -Sir --target=i686-linux-gnu > /dev/null 2>&1 && grep -q 'call i64 (i32, i32) @"CMP"(i32 %a0, i32 %a1)' callback_ir.ll || bad "callback: the C entry on i686"
+fi
 # structure layouts: the errors, and the offsets for amd64 and i686 (a LONG and a PTR are 4 bytes there, a DOUBLE aligns to 4)
 cat > struct_bad.imp <<'E'
 STRUCT S1 (INT A, FOO B, VOID C, INT A, CHAR D[0], S9 E);
@@ -196,7 +198,9 @@ Z:=FIELD(X,S.D);
 FINI(0)
 %%
 E
-"$w" struct_ir.imp -Sir > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 24$' struct_ir.ll || bad "struct: the typed store on amd64"
+"$w" struct_ir.imp -Sir --target=x86_64-linux-gnu > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 24$' struct_ir.ll || bad "struct: the typed store on amd64"
+if [ $be = 0 ]; then
 "$w" struct_ir.imp -Sir --target=i686-linux-gnu > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 16$' struct_ir.ll || bad "struct: the typed store on i686"
+fi
 [ $fail = 0 ] && echo ok
 exit $fail
