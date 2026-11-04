@@ -95,6 +95,10 @@ a pointer zero-extended, a `DOUBLE` the 8 bytes of the field, a `FLOAT` the doub
 the pointer types are 4 byte `INT` accesses. The entry of the descriptor has the real bit set for `DOUBLE` and `FLOAT`, so the register of a
 load is real.
 
+A data word that holds an address is, where the pointers are 32 bits, two 32 bit halves in the global of the words (a packed structure of `i64`
+and `{ i32, i32 }` members): the address in the low half (the targets are little-endian) and 0 in the other, because a `ptrtoint` to `i64` is not
+a relocatable constant on those targets.
+
 ## Instruction words
 
 `EXECUTE A` runs the one operation of this machine that the word `A` holds: the operation number in bits 56-63 (1 to 23,
