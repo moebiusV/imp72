@@ -30,6 +30,7 @@ runs() { "$1" 2>&1 | cmp -s - tests/native/hello.out; }
 # env --default-signal makes them default, where env has it.)
 sigtry() {
     fresh $t
+    rm -f "$4"; mkfifo "$4"                      # (the output is a FIFO with no reader: the linker blocks opening it, so the compiler holds its directory until the signal comes)
     IMP72NOMEMFD=1 TMPDIR=$root/$t $dflsig "$1" -o "$4" $3 >/dev/null 2>&1 &
     pid=$!
     n=0
@@ -41,6 +42,7 @@ sigtry() {
     done
     kill -$2 $pid 2>/dev/null
     wait $pid 2>/dev/null; rc=$?
+    rm -f "$4"
     caught=0; [ $rc -gt 128 ] && caught=1
 }
 # signals $2 sent to the compiler $1 linking the sources $3: TMPDIR is empty after each, the status is the signal's, and the signal did arrive in some of the tries
