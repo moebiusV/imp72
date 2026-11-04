@@ -92,7 +92,8 @@ echo "SUBR SCDNAME(Z) IS $dname;                            # OFFSET OF D_NAME I
 echo "SUBR SCDL(Z) IS $dl;                                 # DL_ITERATE_PHDR AND DLADDR (NOT ON MACOS) #"
 echo "SUBR IMPHOSTOS(Z) IS LOC('$os');"
 # (the system call by its number: only on Linux, where memfd_create is made; elsewhere the library does not name syscall, which OpenBSD's C library lacks)
-if [ $os = linux ]; then echo "SUBR TDSYSCALL(N,A,B) IS (CCALL syscall(N,A,B));"; else echo "SUBR TDSYSCALL(N,A,B) IS 0-1;"; fi
+# (syscall is declared as the C function it is, with ... : a call of a function with a variable argument list that has no prototype is made as a call of one with a fixed list, and on the 64 bit PowerPC the callee then writes its register arguments into the caller's frame, where this routine's saved return address is)
+if [ $os = linux ]; then echo "EXTERNAL LONG syscall(LONG, ...);"; echo "SUBR TDSYSCALL(N,A,B) IS (CCALL syscall(N,A,B));"; else echo "SUBR TDSYSCALL(N,A,B) IS 0-1;"; fi
 if [ $arch = mips64el ]; then echo "SUBR IMPHOSTARCH(Z) IS LOC(SCZ);"; else echo "SUBR IMPHOSTARCH(Z) IS LOC('$arch');"; fi
 if [ -n "$bindir" ]; then echo "SUBR SCBINDIR(Z) IS LOC('$bindir');"; else echo "SUBR SCBINDIR(Z) IS 0;"; fi
 case $stdkind in

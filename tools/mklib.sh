@@ -18,7 +18,8 @@ sysos=${SYSOS:-$(uname -s | tr 'A-Z' 'a-z')}
 sh tools/sysconst.sh "$sysos" "$SYSARCH" "$bd" > "$out/sysgen.imp"
 case $sysos in darwin) vfmt=macho ;; *) vfmt=elf ;; esac
 for m in "imp72sys:lib/imp72sys.imp" "sysgen:$out/sysgen.imp" "impvars:lib/impvars.imp" "impvarsx:lib/impvarsx-$vfmt.imp" "imphost:lib/imphost.imp" "imphostx:lib/imphostx-$vfmt.imp" "imp72main:lib/imp72main.imp"; do
-    env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0 -c -o "$out/${m%%:*}.o" "$endf" "${m#*:}"
+    x=; case ${m%%:*} in sysgen) x=lib/ffi.imc ;; esac                 # (sysgen declares syscall: tools/sysconst.sh)
+    env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0 -c -o "$out/${m%%:*}.o" $x "$endf" "${m#*:}"
 done
 rm -f "$out/libimp72.a"
 rtobjs=
