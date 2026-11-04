@@ -59,10 +59,9 @@ esac
 if [ $stdkind = arr ]; then
     if [ $here = yes ] && command -v ${CC:-cc} >/dev/null 2>&1; then
         # (sizeof(FILE), asked of the C compiler of this machine: the FILEs are not the same size on every machine)
-        t=$(mktemp -d "${TMPDIR:-.}/sysconst.XXXXXX") || die "no temporary directory"
+        . "$(dirname "$0")/mktmpdir.sh"; mktmpdir sysconst
         printf '#include <stdio.h>\nint main(void) { printf("%%ld\\n", (long)((char *)stdout - (char *)stdin)); return 0; }\n' > "$t/p.c"
         ${CC:-cc} -o "$t/p" "$t/p.c" 2>/dev/null && filesz=$("$t/p")
-        rm -rf "$t"
     fi
     [ -n "$filesz" ] || die "do not know the size of a FILE on $os $arch: build the library on that system"
 fi
