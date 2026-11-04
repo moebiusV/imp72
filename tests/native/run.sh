@@ -14,7 +14,7 @@ for p in tests/native/*.imp; do
     echo "== native $n"
     p=$(sh tools/nativesrc.sh "$p" $out)              # (OpenBSD: srand_deterministic)
     # printf's %ld takes 32 bits where the word is 64: ffi2 only holds with a 64 bit long
-    if [ "$n" = ffi2 ] && [ "$(getconf LONG_BIT)" != 64 ]; then echo "skipped: long is not 64 bits"; continue; fi
+    if [ "$n" = ffi2 ] && [ "$(sh tools/longbits.sh)" != 64 ]; then echo "skipped: long is not 64 bits"; continue; fi
     if [ -f tests/native/${n}_main.c ]; then
         $driver -c -o $out/$n.o "$p" \
             || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }

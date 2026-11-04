@@ -34,7 +34,7 @@ tool -o $w/o.imp -n pt -i tests/cimport/basic.i 2>/dev/null; [ -s $w/o.imp ] && 
 grep -q 'nothing is declared with the name no_such_name' $w/nothing.err || bad "no warning for a name that nothing declares"
 
 # the output compiled with a program, by imp72 and by the seed (one file); the sizes in what it prints are those of the machine: basic.use.out (64 bit long) or basic.use32.out
-use=tests/cimport/basic.use.out; [ "$(getconf LONG_BIT)" = 64 ] || use=tests/cimport/basic.use32.out
+use=tests/cimport/basic.use.out; [ "$(sh tools/longbits.sh)" = 64 ] || use=tests/cimport/basic.use32.out
 cat tests/cimport/basic.out tests/cimport/basic.use.imp > $w/basic_all.imp
 "$two" -o $w/basic_all $w/basic_all.imp > $w/basic_all.log 2>&1 || { cat $w/basic_all.log; bad "imp72 does not accept the declarations of the fixture"; }
 [ -x $w/basic_all ] && { $w/basic_all > $w/basic_all.got 2>&1; cmp -s $w/basic_all.got $use || { diff $w/basic_all.got $use; bad "the program of the fixture prints something else"; }; }
@@ -63,7 +63,7 @@ if ! command -v $cc >/dev/null 2>&1; then
     [ $fail = 0 ] && echo ok
     exit $fail
 fi
-if [ "$(getconf LONG_BIT)" != 64 ]; then
+if [ "$(sh tools/longbits.sh)" != 64 ]; then
     echo "cimport: long is not 64 bits: the tests of the headers are skipped"
     [ $fail = 0 ] && echo ok
     exit $fail
