@@ -1,0 +1,164 @@
+#CIMPORT-TOK.IMP -- THE SECOND FILE OF TOOLS/CIMPORT.IMP: THE WORDS OF THE PREPROCESSED C TEXT.  THE TOKENS ARE IN THE LIST TK: IDENTIFIERS, NUMBERS, ONE-CHARACTER PUNCTUATION AND ... ; A STRING OR CHARACTER CONSTANT IS ITS QUOTE
+CHARACTER ALONE.  LINES THAT START WITH A NUMBER SIGN ARE DROPPED; THE WORDS THAT CHANGE NO TYPE FOR THIS PROGRAM (CONST, VOLATILE, RESTRICT, INLINE, STATIC, EXTERN, __EXTENSION__, ...) ARE DROPPED; __ATTRIBUTE__ ((...)), __ASM__ (...), _STATIC_ASSERT (...)
+AND THE LIKE ARE SKIPPED WITH THEIR PARENTHESES; AN ATTRIBUTE THAT SAYS PACKED OR ALIGNED LEAVES THE TOKEN @ WHERE IT WAS, BECAUSE IT CHANGES THE LAYOUT OF A STRUCTURE.#
+
+LET CH_LF=10, CH_SP=32, CH_QUOTE=34, CH_APOS=39, CH_LP=40, CH_RP=41, CH_STAR=42, CH_COMMA=44, CH_SLASH=47, CH_SEMI=59, CH_EQ=61, CH_LB=91, CH_RB=93, CH_LC=123, CH_RC=125;
+TK,NT,TKP,EMPTYS,TDN,TDT,STNAME,STTAG,STSTATE,STBODY,STWHY,STDEPS,STNEED,STEMIT,ALN,ALI,BADL,FNN,FNT,FNW,CNN,CNV,CNK,CNW ARE COMMON;
+SELN,SELP,MACD,INCD,HDR,OUTP,INP,NSEL,TYN,RW,OUT,MACV,MACW,INLEN,DEFORD ARE COMMON;
+SP_TYPE,SP_END,SP_TD,DNAME,DKIND,DSTARS,DGRP,DPS,DPE,DARRN,DBIT,DEND,DOK,EV_OK,EV_VAL,INBODY,CURB,CURDEPS,CURBAD,CURFIRST,ASKIP,AEND,NUMOK,NUMV,TDIR,TFC,TFX ARE COMMON;
+NA,ARGW,TEXT ARE COMMON;
+
+# THE KIND OF A WORD: 0 KEPT, 1 DROPPED, 2 DROPPED WITH THE PARENTHESES THAT FOLLOW IT (AN ATTRIBUTE: A PACKED OR ALIGNED ONE LEAVES @), 3 DROPPED WITH ITS PARENTHESES, 4 TAKEN FOR SIGNED #
+SUBR KWKIND(S) IS (
+ C ARE LOCAL;
+ C:=GETB(S,0);
+ C=95 => (
+    S_EQ(S,LOC('__attribute__')) => RETURN 2;
+    S_EQ(S,LOC('__attribute')) => RETURN 2;
+    S_EQ(S,LOC('__asm__')) => RETURN 3;
+    S_EQ(S,LOC('__asm')) => RETURN 3;
+    S_EQ(S,LOC('__declspec')) => RETURN 3;
+    S_EQ(S,LOC('_Static_assert')) => RETURN 3;
+    S_EQ(S,LOC('_Alignas')) => RETURN 3;
+    S_EQ(S,LOC('__typeof__')) => RETURN 0;
+    S_EQ(S,LOC('__restrict')) => RETURN 1;
+    S_EQ(S,LOC('__restrict__')) => RETURN 1;
+    S_EQ(S,LOC('__const')) => RETURN 1;
+    S_EQ(S,LOC('__volatile')) => RETURN 1;
+    S_EQ(S,LOC('__volatile__')) => RETURN 1;
+    S_EQ(S,LOC('__inline')) => RETURN 1;
+    S_EQ(S,LOC('__inline__')) => RETURN 1;
+    S_EQ(S,LOC('__extension__')) => RETURN 1;
+    S_EQ(S,LOC('_Noreturn')) => RETURN 1;
+    S_EQ(S,LOC('__noreturn__')) => RETURN 1;
+    S_EQ(S,LOC('_Nonnull')) => RETURN 1;
+    S_EQ(S,LOC('_Nullable')) => RETURN 1;
+    S_EQ(S,LOC('_Null_unspecified')) => RETURN 1;
+    S_EQ(S,LOC('_Thread_local')) => RETURN 1;
+    S_EQ(S,LOC('__thread')) => RETURN 1;
+    S_EQ(S,LOC('__cdecl')) => RETURN 1;
+    S_EQ(S,LOC('__stdcall')) => RETURN 1;
+    S_EQ(S,LOC('__fastcall')) => RETURN 1;
+    S_EQ(S,LOC('__signed__')) => RETURN 4;
+    S_EQ(S,LOC('__signed')) => RETURN 4;
+    RETURN 0);
+ C=99 => (S_EQ(S,LOC('const')) => RETURN 1; RETURN 0);
+ C=118 => (S_EQ(S,LOC('volatile')) => RETURN 1; RETURN 0);
+ C=114 => (S_EQ(S,LOC('restrict')) => RETURN 1; S_EQ(S,LOC('register')) => RETURN 1; RETURN 0);
+ C=105 => (S_EQ(S,LOC('inline')) => RETURN 1; RETURN 0);
+ C=115 => (S_EQ(S,LOC('static')) => RETURN 1; RETURN 0);
+ C=101 => (S_EQ(S,LOC('extern')) => RETURN 1; RETURN 0);
+ C=97 => (S_EQ(S,LOC('asm')) => RETURN 3; S_EQ(S,LOC('auto')) => RETURN 1; RETURN 0);
+ 0);
+
+# DOES THE TEXT FROM A TO B (EXCLUSIVE) OF BUF CONTAIN THE WORD PACKED OR ALIGNED #
+SUBR HASPK(BUF,A,B) IS (
+ I,C,D ARE LOCAL;
+ I:=A;
+ WHILE I<B DO (
+    C:=GETB(BUF,I);
+    ((C=112) AND (GETB(BUF,I+1)=97) AND (GETB(BUF,I+2)=99) AND (GETB(BUF,I+3)=107)) => RETURN 1;
+    ((C=97) AND (GETB(BUF,I+1)=108) AND (GETB(BUF,I+2)=105) AND (GETB(BUF,I+3)=103) AND (GETB(BUF,I+4)=110)) => RETURN 1;
+    I:=I+1);
+ 0);
+
+# FROM I (AFTER A WORD OF KIND 2 OR 3) SKIP BLANKS AND, IF A PARENTHESIS FOLLOWS, THE TEXT UP TO ITS PARTNER, WITH THE STRINGS INSIDE; THE START AND END OF THAT TEXT ARE LEFT IN ASKIP AND AEND; THE INDEX AFTER IT #
+SUBR SKIPPAR(BUF,I,N) IS (
+ J,D,C,Q ARE LOCAL;
+ J:=I; ASKIP:=I; AEND:=I;
+ WHILE ((J<N) AND (IS_SPACE(GETB(BUF,J)) NE 0)) DO J:=J+1;
+ GETB(BUF,J) NE 40 => RETURN I;
+ ASKIP:=J; D:=0;
+ SPL: J<N => (
+    C:=GETB(BUF,J);
+    ((C=34) OR (C=39)) => (
+       Q:=C; J:=J+1;
+       WHILE ((J<N) AND (GETB(BUF,J) NE Q)) DO (GETB(BUF,J)=92 => J:=J+1; J:=J+1);
+       J:=J+1; GO TO SPL);
+    C=40 => D:=D+1;
+    C=41 => (D:=D-1; D=0 => (J:=J+1; AEND:=J; RETURN J));
+    J:=J+1; GO TO SPL);
+ AEND:=J; J);
+
+# THE WORDS OF THE N BYTES AT BUF INTO THE LIST TK, AND THE ARRAY TKP OF THEM, THEIR NUMBER NT #
+SUBR TOKENIZE(BUF,N) IS (
+ I,C,J,LS,NM,K,E,Q,D ARE LOCAL;
+ TK:=L_NEW(0); I:=0; LS:=1;
+ TL: I<N => (
+    C:=GETB(BUF,I);
+    C=10 => (LS:=1; I:=I+1; GO TO TL);
+    IS_SPACE(C) NE 0 => (I:=I+1; GO TO TL);
+    C=35 => (
+       LS NE 0 => (WHILE ((I<N) AND (GETB(BUF,I) NE 10)) DO I:=I+1; GO TO TL));
+    LS:=0;
+    IS_IDS(C) NE 0 => (
+       J:=I; WHILE IS_IDC(GETB(BUF,J)) NE 0 DO J:=J+1;
+       D:=GETB(BUF,J);
+       # A PREFIX OF A STRING OR CHARACTER CONSTANT (L, U, u8) IS NOT A WORD #
+       (((D=34) OR (D=39)) AND ((J-I)<3)) => (
+          ((C=76) OR (C=85) OR (C=117)) => (I:=J; GO TO TL));
+       NM:=S_SUB(BUF,I,J); I:=J;
+       K:=KWKIND(NM);
+       K=1 => GO TO TL;
+       K=4 => (L_ADD(TK,S_DUP(LOC('signed'))); GO TO TL);
+       K=2 => (
+          J:=SKIPPAR(BUF,I,N);
+          HASPK(BUF,ASKIP,AEND) NE 0 => L_ADD(TK,S_DUP(LOC('@')));
+          I:=J; GO TO TL);
+       K=3 => (I:=SKIPPAR(BUF,I,N); GO TO TL);
+       L_ADD(TK,NM); GO TO TL);
+    ((C>47) AND (C<58)) => (
+       J:=I+1;
+       NUMLP: E:=GETB(BUF,J);
+       IS_IDC(E) NE 0 => (J:=J+1; GO TO NUMLP);
+       E=46 => (J:=J+1; GO TO NUMLP);
+       (((E=43) OR (E=45)) AND (J>I)) => (
+          D:=GETB(BUF,J-1);
+          ((D=101) OR (D=69) OR (D=112) OR (D=80)) => (J:=J+1; GO TO NUMLP));
+       L_ADD(TK,S_SUB(BUF,I,J)); I:=J; GO TO TL);
+    ((C=46) AND (GETB(BUF,I+1)>47) AND (GETB(BUF,I+1)<58)) => (
+       J:=I+1;
+       FLP: E:=GETB(BUF,J);
+       IS_IDC(E) NE 0 => (J:=J+1; GO TO FLP);
+       ((E=43) OR (E=45)) => (
+          D:=GETB(BUF,J-1);
+          ((D=101) OR (D=69)) => (J:=J+1; GO TO FLP));
+       L_ADD(TK,S_SUB(BUF,I,J)); I:=J; GO TO TL);
+    ((C=34) OR (C=39)) => (
+       Q:=C; J:=I+1;
+       WHILE ((J<N) AND (GETB(BUF,J) NE Q)) DO (GETB(BUF,J)=92 => J:=J+1; J:=J+1);
+       L_ADD(TK,S_SUB(BUF,I,I+1)); I:=J+1; GO TO TL);
+    ((C=46) AND (GETB(BUF,I+1)=46) AND (GETB(BUF,I+2)=46)) => (L_ADD(TK,S_DUP(LOC('...'))); I:=I+3; GO TO TL);
+    L_ADD(TK,S_SUB(BUF,I,I+1)); I:=I+1; GO TO TL);
+ NT:=L_LEN(TK); TKP:=RD(TK,2); NT);
+
+# THE TOKEN I (THE EMPTY STRING PAST THE END), AND ITS FIRST CHARACTER #
+SUBR TOK(I) IS (
+ Q ARE LOCAL;
+ ((I<0) OR (I GE NT)) => RETURN EMPTYS;
+ Q:=TKP+(8*I); [Q]);
+
+SUBR TCH(I) IS (
+ Q,S ARE LOCAL;
+ ((I<0) OR (I GE NT)) => RETURN 0;
+ Q:=TKP+(8*I); S:=[Q]; GETB(S,0));
+
+# IS THE TOKEN I THE TEXT S #
+SUBR TIS(I,S) IS (S_EQ(TOK(I),S));
+
+# IS THE TOKEN I AN IDENTIFIER, AND A NUMBER #
+SUBR TID(I) IS (IS_IDS(TCH(I)));
+
+SUBR TNUM(I) IS ((TCH(I)>47) AND (TCH(I)<58));
+
+# THE INDEX OF THE TOKEN THAT CLOSES THE ( [ OR { AT I, ELSE NT #
+SUBR MATCH(I) IS (
+ J,D,C ARE LOCAL;
+ J:=I; D:=0;
+ ML: J<NT => (
+    C:=TCH(J);
+    ((C=40) OR (C=91) OR (C=123)) => D:=D+1;
+    ((C=41) OR (C=93) OR (C=125)) => (D:=D-1; D=0 => RETURN J);
+    J:=J+1; GO TO ML);
+ NT)
+%%

@@ -352,12 +352,111 @@ double in a word that is the double's own bits. C code converts with
 `imp_real_to_double` and `imp_double_to_real` from `lib/imp72.h`
 (`tests/native/realffi.imp`).
 
+### Declarations from a header
+
+The tool `imp72-cimport` (`tools/cimport.imp`; in the source tree `sh
+tools/imptool.sh cimport ARGS`) reads the declarations of a C header and writes
+the statements above for them, so that a program does not retype the types of
+the C functions it calls.
+
+    imp72-cimport [-n NAME] [-p PREFIX] [-D MACRO] [-I DIR] [-o FILE] HEADER
+    imp72-cimport [-n NAME] [-p PREFIX] [-o FILE] -i FILE
+
+The C preprocessor (`$CC -E`, `cc` by default) reads `#include <HEADER>`, or
+`-i` names a file (`-` is the standard input) of text that it made, and then no
+other program runs. The output is a fragment of IMP72 source. A declaration holds
+to the end of the file, and the compiler reads no header, so the fragment goes in
+front of the program's source:
+
+    imp72-cimport -n qsort -n strlen -n puts -o decls.imp stdlib.h
+    cat decls.imp prog.imp > all.imp
+    imp72 all.imp
+
+Header files are big (`stdio.h` declares 90 functions and includes `bits/*.h`):
+`-n NAME` declares only that name and `-p PREFIX` the names that start with it;
+both may be repeated, and they select functions, structures (by tag or by
+typedef name) and enumerators alike. Without them every name of the text is
+declared. A `-n` name that nothing declares is reported on the standard error.
+A structure that a selected structure contains is declared before it without
+being named.
+
+**What is written.** Each function prototype is an `EXTERNAL` statement:
+
+    EXTERNAL INT puts(PTR);
+    EXTERNAL SIZE strlen(PTR);
+    EXTERNAL INT printf(PTR, ...);
+    EXTERNAL VOID !PRINT!(INT);
+
+The types are those of the table of declarations. `size_t` is `SIZE`; every
+other typedef name is followed through the typedefs of the text to the C type
+it stands for (`ssize_t` is `LONG` where it is `long` and `INT` where it is
+`int`, `uint8_t` is `UCHAR`, `time_t` is `LONG`); every pointer, array
+parameter and function pointer is `PTR`; `_Bool` is `UCHAR`; `char` is `CHAR`, a signed type, also where C's `char` is
+unsigned (the size and the alignment are the same); an enumeration is `INT`. `const`, `volatile`, `restrict`, `static`, `extern`, `inline`,
+`__extension__`, `__attribute__((...))` and `__asm__("...")` are ignored. A
+function with `()` is `(...)`, with `(void)` is `(VOID)`. A function whose body
+is in the header (a `static inline` one) is not a declaration.
+
+Each structure is a `STRUCT` statement under its tag (under the typedef name
+for a structure without one), with the types of its members, `type name[N]`
+for arrays (a multi-dimensional array is flattened to its element count) and
+the name of an earlier structure for a member that is a structure:
+
+    STRUCT timespec (LONG tv_sec, LONG tv_nsec);
+    STRUCT tm (INT tm_sec, INT tm_min, INT tm_hour, INT tm_mday, INT tm_mon, INT tm_year, INT tm_wday, INT tm_yday, INT tm_isdst, LONG tm_gmtoff, PTR tm_zone);
+
+The offsets are computed by the compiler for the machine the program is
+compiled for (the rules of the table of layouts), and `tests/cimport` compares
+them with `offsetof` of the C compiler for `struct tm`, `timespec` and, on
+Linux, `stat`, `dirent` and `timeval`. A typedef name of a structure is not a
+second `STRUCT`; the program says `FIELD(P, tm.tm_sec)` with the tag.
+
+Each enumerator whose value is a number, an earlier enumerator, or an
+expression of those with `+ - * / % << >> & ^ | ~ !` and parentheses is a
+`LET`:
+
+    LET GREEN=5;
+    LET MAUVE=18446744073709551613;   # -3 #
+
+`LET` takes a number, so a negative value is written as its 64-bit pattern
+(it is the same word) with the signed value in a comment. `-D MACRO` (a
+macro of the header, evaluated by the C compiler; repeatable) writes
+`LET MACRO=value;` for an integer macro (`EOF`, `BUFSIZ`, `SEEK_END`,
+`O_RDONLY`): the tool compiles and runs a small C program that includes the
+header, in a private directory (`mkdtemp` in `TMPDIR` if that is an absolute
+path to a directory, else `/tmp`; mode 0700; removed on exit and on `SIGHUP`,
+`SIGINT` and `SIGTERM`), as `tools/sysconst.sh` asks the C compiler for the
+constants of the library. `-D` needs a header, not `-i`. A macro that is not
+defined or is a float, a string or a pointer is listed as not expressed.
+
+A C name that is a word of the IMP72 grammar or one of the type names (`INT`,
+`PRINT`, `IN`, `LONG`) is written `!name!`; the program writes it the same way.
+
+**What is not written.** The tool lists these in a comment at the end of the
+output, each with its reason, and writes nothing for them:
+
+- functions with a structure or union argument or result, a `va_list`
+  parameter, a `long double`, `_Complex`, `__int128` or `_FloatN` type, more than
+  16 parameters, or a type name it has not seen declared;
+- structures with a bit field, a union member, a member named `_` (which IMP72 reads as an operator), a member of a type that cannot
+  be expressed or of an incomplete structure, a flexible array member, an array
+  whose length is not a number or an expression of numbers (`sizeof` is not
+  evaluated: the length depends on the target), a structure defined inside it,
+  or a `packed` or `aligned` attribute (the layout would differ);
+- enumerators whose value the tool cannot compute (a conditional expression, a
+  `sizeof`);
+- variables, function-like macros, and macros not named with `-D`.
+
+A function the tool cannot declare is declared by hand or called as an undeclared function. The tool does not check that the program
+uses a declared name right; the compiler does, as for any declaration.
+`man imp72-cimport` is the reference.
+
 ## Limits
 
 - A function that is not declared is `long f(long, ...)`.
 - At most 16 arguments, and 16 parameters in a declaration.
 - A structure by value is not a type: it is not passed, returned or copied by `CCALL`.
-- Structure layouts have no bit fields and no unions, and no `packed` or `aligned` attributes. The layout is what the program declares; it is not read from a header. A union that is read in only one member is declared as that member's structure.
+- Structure layouts have no bit fields and no unions, and no `packed` or `aligned` attributes. The layout is what the program declares or `imp72-cimport` writes from a header (which declares what it can express and lists the rest); the compiler reads no header. A union that is read in only one member is declared as that member's structure.
 - A callback has at most 16 parameters and is not variadic. A function pointer
   declaration (`FNPTR`) has at most 15 types besides the function.
 - A callback returns a word; a structure result or parameter is not a type.

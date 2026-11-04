@@ -1,4 +1,4 @@
-# Roadmap: planned language and interop work
+# Roadmap: planned language work
 
 Each item says what it is, the syntax proposed, and the effect on the code.
 None is implemented; `docs/LANGUAGE-DIFFERENCES.md` and `docs/FFI.md` describe
@@ -10,25 +10,9 @@ requires the seed and stage 2 to keep writing the same IR.
 A call to C stays visibly different from a call to IMP, whose arguments are
 by reference: `CCALL` is always written.
 
-## C interop
-
-The next step is the import of declarations. The typed declarations of C
-functions (`EXTERNAL INT puts(PTR);`), the callbacks
-(`CALLBACK INT CMP(PTR, PTR);`), the calls through a pointer
-(`FNPTR INT F(PTR);`) and the structure layouts (`STRUCT`, `FIELD`) that it
-builds on are described in `docs/FFI.md`.
-
-### 1. Import of C declarations from headers
-
-A tool, written in IMP, that reads C prototypes (`int puts(const char *);`) and
-writes the `EXTERNAL` declarations of `docs/FFI.md`. For structures it probes the
-layout with the C compiler of the machine and writes the `STRUCT` statements, as `tools/sysconst.sh` does for
-constants, so that a program says `INCLUDE`, or the build runs the tool, and has
-the declarations of a header.
-
 ## Language
 
-### 2. UTF-8 operator symbols (`≤ ≥ ≠ ← ∧ ∨ ¬`)
+### 1. UTF-8 operator symbols (`≤ ≥ ≠ ← ∧ ∨ ¬`)
 
 `src/lex.imp` makes every byte of 128 and up a letter of names, so that a name
 may be UTF-8 text; a symbol in an operator position would be read as the start
@@ -45,7 +29,7 @@ byte for a letter (one routine in `lex.imp`, and in `stage0/lex.c`); the rest
 is a file of rules. A name that used one of those characters would change
 meaning.
 
-### 3. C string syntax `"text\n"`
+### 2. C string syntax `"text\n"`
 
 `'text'` is the string constant today, two apostrophes are one inside it, and
 `!name!` is an exact identifier.
@@ -58,7 +42,7 @@ character would change `STG 0,'A'` and every program of the original.
 *Effect on the code.* The quoting code of the lexer and the rule for the
 constant in `syntax64.imc`. The code generators see a constant either way.
 
-### 4. The empty string `''`
+### 3. The empty string `''`
 
 `''` is a syntax error today. The original manual says the string `''` is the
 same as 0: the empty ASCIZ string is its terminating zero, which as a value is
@@ -70,7 +54,7 @@ Proposed: `''` is the constant 0.
 with no third following: the constant 0) and a test. As a `STG` argument, `''`
 is 0, like any other zero word.
 
-### 5. File names with Unix limits
+### 4. File names with Unix limits
 
 `MKNAME` (`src/impm.imp`) builds a file name from two words (15 characters)
 and an extension of one word (7); the original had six and three. The library
@@ -86,7 +70,7 @@ already limited: raise it to `PATH_MAX`.
 file items of the library take the length of the buffer. A test with a name of
 200 characters.
 
-### 6. The original's channel I/O
+### 5. The original's channel I/O
 
 `PRINT`, `READ` and `PRINT FILE` are in `lib/imp72io.imp`. The channel
 operations of the TOPS-10 library (`INIT`, `LOOKUP`, `ENTER`, `INPUT`,
@@ -104,7 +88,7 @@ of `imp72io.imp`, and the statements in an extension file. How many routines of
 `decus/` use the buffer header words directly decides whether the buffer
 emulation is cheap; it has not been counted.
 
-### 7. Counted strings
+### 6. Counted strings
 
 String constants are ASCIZ, as in the original: the bytes, then a zero. They
 pass to C unchanged, and `STG` and the library scan to the zero. This stays.
@@ -120,7 +104,7 @@ tell apart.
 
 *Effect on the code.* An added part of the library and its declarations. The
 lexer, the code generators and the existing library are untouched, and no
-existing program changes. It depends on item 3.
+existing program changes. It depends on item 2.
 
 ## Open question: tape routines
 
@@ -129,5 +113,5 @@ port's. Two of the tape's routines are not present: `CORE(N)`, a monitor call
 to grow the core (the arena is reserved once and `free.imp` grows its usable
 part, so `CORE` could return as "make N words usable"), and `RLEAS(CH)`,
 which released a channel. Whether either is restored is to be examined
-together with item 6, since `RLEAS` is the `fclose` of a channel and `CORE`
+together with item 5, since `RLEAS` is the `fclose` of a channel and `CORE`
 may depend on it.

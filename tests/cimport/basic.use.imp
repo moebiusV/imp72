@@ -1,0 +1,10 @@
+T ARE COMMON;
+T:=CCALL malloc(SIZEOF(line));
+FIELD(T,line.a.x):=7;
+FIELD(T,line.b.y):=9;
+CCALL puts('hello via cimport');
+CCALL printf('%d %d %d %d%c',FIELD(T,line.a.x),FIELD(T,line.b.y),OFFSETOF(wrap,l),SIZEOF(!IS!),10);
+CCALL printf('%d %d %d %d%c',MAUVE,TEAL,GREEN+BLUE,MASK,10);
+CCALL printf('%d %d %d%c',SIZEOF(later),OFFSETOF(later,m),SIZEOF(expr_len),10);
+CCALL printf('%d%c',CCALL strlen('abcd'),10)
+%%

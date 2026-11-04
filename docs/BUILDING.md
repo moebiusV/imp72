@@ -37,6 +37,7 @@ install` installs stage 2.
 | `build/lib/libimp72.a` | the runtime library, built by the seed (`tools/mklib.sh`); the compilers are linked with it |
 | `llvm-ir` | stage 1 in `build/llvm-ir1`, stage 2 in `build/llvm-ir2` (`tools/llvm-ir.sh`); skipped where there are no LLVM libraries |
 | `runtime` | `build/rt-host/libimp72.a`, built by stage 2 (`tools/mkrt.sh`) |
+| `cimport` | `build/tools/cimport`, the tool `imp72-cimport`, an IMP program (`tools/cimport*.imp`) that stage 2 compiles (`tools/imptool.sh`); skipped where stage 2 is not built |
 
 By hand:
 
@@ -60,10 +61,11 @@ or `stage0/imp72s0 -s TSX -o dump.txt src/llvm-ir/syntax64.imc`.
 
     PREFIX/bin/imp72                       stage 2
     PREFIX/bin/imp72stage0                 the seed
+    PREFIX/bin/imp72-cimport               the declarations of a C header (where stage 2 is built)
     PREFIX/lib/imp72/libimp72.a            the library stage 2 built
     PREFIX/share/imp72/syntax64.imc, ffi.imc
     PREFIX/include/imp72.h
-    PREFIX/share/man/man1/imp72.1, imp72stage0.1
+    PREFIX/share/man/man1/imp72.1, imp72stage0.1, imp72-cimport.1
     PREFIX/share/man/man7/imp72.7          the language manual
     PREFIX/share/doc/imp72/                imp72.md, FFI.md, LANGUAGE-NOTES.md
 
@@ -168,6 +170,7 @@ missing.
 | `tests/tmpfiles/run.sh` | temporary files: none for `-S`, `-c`, `-Sir` and `--run`; a link leaves `TMPDIR` empty, also on a signal; a bad `TMPDIR` is not used |
 | `tests/seed/run.sh` | the seed and stage 2 write the same LLVM IR |
 | `tests/cli/run.sh` | the command line of `imp72` |
+| `tests/cimport/run.sh` | `imp72-cimport`: golden outputs for preprocessed text; with `cc`, the declarations of `string.h`, `stdlib.h`, `stdio.h` used by a program, the layouts of `struct tm`, `timespec`, `stat` against `offsetof`, the values of macros against the C compiler's, and no file left in `TMPDIR` |
 | `tests/fuzz64/run.sh` | random integer, byte-pointer and real programs against 64-bit rules worked out in Python |
 | `tests/manual/run.sh` | `docs/manual/imp72.md` and `imp72.7` are what the RUNOFF converters make of `decus/imp.rno` |
 
