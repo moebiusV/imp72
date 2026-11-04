@@ -45,7 +45,11 @@
 
 
 /* the LLVM back end in the process (stage0/llvmorc.c); llvmhave tells whether the compiler was built with the LLVM libraries */
-extern long llvmhave(long), llvmobj(const char *ir, const char *out), llvmsave(const char *ir, const char *out), llvmrun(const char *ir);
+extern long llvmhave(long), llvmobj(const char *ir, size_t n, const char *out), llvmobjmem(const char *ir, size_t n, char **obj, size_t *objn),
+    llvmsave(const char *ir, size_t n, const char *out), llvmrun(const char *ir, size_t n);
+/* the temporary files (stage0/imphost.c): none unless the link needs a file for the object */
+extern long imptmpbase(const char *dflt), imptmpobj(const char *buf, size_t n, char *out);
+static FILE *kernel_ir;                         /* the driver: where the kernel writes the IR text (a memory stream), else the file of -c */
 
 static void
 cotree_hook(word k)
@@ -96,6 +100,8 @@ kernel_main(int argc, char **argv)
         return 1;
     }
 
+    if (irout == NULL && kernel_ir != NULL)
+        ir_open(kernel_ir);
     if (irout != NULL) {
         FILE *f = strcmp(irout, "-") == 0 ? stdout : fopen(irout, "w");
 
@@ -186,14 +192,6 @@ exe_dir(const char *argv0, char *dir, size_t n)
     return 0;
 }
 
-static const char *
-envor(const char *name, const char *dflt)
-{
-    const char *v = getenv(name);
-
-    return v != NULL && *v ? v : dflt;
-}
-
 /* replace a path by the environment variable's value, if it is set */
 static void
 override(char *path, size_t n, const char *name)
@@ -202,28 +200,6 @@ override(char *path, size_t n, const char *name)
 
     if (v != NULL && *v)
         snprintf(path, n, "%s", v);
-}
-
-/* run a command line made from a format; quote the file names with qs() */
-static char *
-qs(const char *s)
-{
-    static char ring[8][PATH_MAX * 2];
-    static int k;
-    char *o = ring[k = (k + 1) % 8];
-    size_t m = 0;
-
-    o[m++] = '\'';
-    for (; *s && m < sizeof ring[0] - 6; s++) {
-        if (*s == '\'') {
-            memcpy(o + m, "'\\''", 4);
-            m += 4;
-        } else
-            o[m++] = *s;
-    }
-    o[m++] = '\'';
-    o[m] = '\0';
-    return o;
 }
 
 /*
@@ -442,8 +418,9 @@ link_exe(const char *out, const char *ofile, const char *lib)
 static int
 driver_main(int argc, char **argv)
 {
-    char dir[PATH_MAX], root[PATH_MAX], tmp[PATH_MAX], ir[PATH_MAX + 8],
-        ofile[PATH_MAX + 8], cmd[8 * PATH_MAX], base[PATH_MAX];
+    char dir[PATH_MAX], root[PATH_MAX], ofile[4096], base[PATH_MAX];
+    char *irbuf = NULL, *obj = NULL;
+    size_t irlen = 0, objlen = 0;
     char syntax[PATH_MAX], ffi[PATH_MAX], lib[PATH_MAX], tmpbase[PATH_MAX];
     const char *outname = NULL, *sw = NULL;
     int jit = 0;
@@ -506,14 +483,7 @@ driver_main(int argc, char **argv)
     if (blen > 4 && strcmp(base + blen - 4, ".imp") == 0)
         base[blen - 4] = '\0';
 
-    mkdir(tmpbase, 0777);                       /* TMPDIR, else tmp/ of the source tree, else /tmp */
-    snprintf(tmp, sizeof tmp, "%s/imp72stage0.XXXXXX", envor("TMPDIR", tmpbase));
-    if (mkdtemp(tmp) == NULL) {
-        perror("mkdtemp");
-        return 1;
-    }
-    snprintf(ir, sizeof ir, "%s/p.ir", tmp);
-    snprintf(ofile, sizeof ofile, "%s/p.o", tmp);
+    imptmpbase(tmpbase);                        /* TMPDIR, else tmp/ of the source tree, else /tmp: used only if a file is needed */
 
     /* the kernel, in this process */
     kargv = calloc((size_t)nfiles + 10, sizeof *kargv);
@@ -525,36 +495,38 @@ driver_main(int argc, char **argv)
         dup2(2, 1);                             /* the dumps go with the messages */
     } else
         imp_quiet = 1;
-    kargv[k++] = "-c";
-    kargv[k++] = ir;
     kargv[k++] = syntax;
     kargv[k++] = ffi;
     for (; nfiles > 0; nfiles--, i++)
         kargv[k++] = argv[i];
-    if (kernel_main(k, kargv) != 0) {
-        rc = 1;
-        goto done;
+    if ((kernel_ir = open_memstream(&irbuf, &irlen)) == NULL) {
+        perror("open_memstream");
+        return 1;
     }
+    rc = kernel_main(k, kargv);
+    if (fclose(kernel_ir) != 0 || rc != 0) {
+        free(irbuf);
+        return 1;
+    }
+    kernel_ir = NULL;
     fflush(NULL);
 
     {                                               /* LLVM in the process */
         if (jit) {                                  /* compile and run: the main program is impmain */
-            rc = llvmrun(ir) != 0;
+            rc = llvmrun(irbuf, irlen) != 0;
             fflush(NULL);
         } else if (stop == 'S')
-            rc = llvmsave(ir, outname ? outname : (strlcat(base, ".ll", sizeof base), base)) != 0;
+            rc = llvmsave(irbuf, irlen, outname ? outname : strcat(base, ".ll")) != 0;
         else if (stop == 'o')
-            rc = llvmobj(ir, outname ? outname : (strlcat(base, ".o", sizeof base), base)) != 0;
-        else if (llvmobj(ir, ofile) != 0)
+            rc = llvmobj(irbuf, irlen, outname ? outname : strcat(base, ".o")) != 0;
+        else if (llvmobjmem(irbuf, irlen, &obj, &objlen) != 0 || imptmpobj(obj, objlen, ofile) != 0)
             rc = 1;
         else
             rc = link_exe(outname ? outname : base, ofile, lib);
-        goto done;
     }
-done:
-    snprintf(cmd, sizeof cmd, "rm -rf %s", qs(tmp));
-    (void)!system(cmd);
-    return rc;
+    free(irbuf);
+    free(obj);
+    return rc;                                      /* (the temporary directory, if one was made, is removed at exit) */
 }
 
 int

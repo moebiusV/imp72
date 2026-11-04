@@ -70,8 +70,37 @@ or `stage0/imp72s0 -s TSX -o dump.txt src/llvm-ir/syntax64.imc`.
 Where stage 2 cannot be built (no LLVM libraries), `imp72` is a link to
 `imp72stage0` and the library is the seed's. Both compilers find their parts
 relative to their own place, and in the source tree they use the files of the
-tree. `IMP72SYNTAX`, `IMP72FFI` and `IMP72LIB` name other files. The temporary
-directory is `TMPDIR`, else `tmp/` of the tree, else the current directory.
+tree. `IMP72SYNTAX`, `IMP72FFI` and `IMP72LIB` name other files.
+
+### Temporary files
+
+The compilers make no temporary file unless an executable is linked. The
+kernel writes the IR text to memory, and `-c`, `-S`, `-Sir` and `--run` work
+from it, so they need no writable directory. For a link the object goes to a
+file for the linker:
+
+- On Linux the object is written to an unnamed memory file (`memfd_create`,
+  looked up at run time) and the linker is given `/proc/self/fd/N`. No
+  directory is made. A linker run as a program inherits the descriptor.
+- Otherwise, or if the memory file cannot be made or opened as
+  `/proc/self/fd/N`, or if `IMP72NOMEMFD` is set to anything but `0`, the
+  object goes to a private directory made at that point: `imp72stage0.XXXXXX`
+  made by `mkdtemp` (mode 0700, an unguessable name) in `TMPDIR`, else in the
+  default. `TMPDIR` is used only if it is an absolute path naming a directory
+  in which a private directory can be made. The default is `tmp/` of the
+  source tree, and `/tmp` for an installed compiler. The seed checks with
+  `lstat` that the directory is a directory of mode 0700 owned by the
+  effective user; `imp72` makes it private with `chmod`, which only the owner
+  can do. The file in it is created with `O_EXCL`, mode 0600.
+
+The directory and its files are removed with `unlink` and `rmdir` (no shell) at
+exit, on an error, and on `SIGHUP`, `SIGINT`, `SIGQUIT` and `SIGTERM`; the
+signal is then raised again with its default action, so the exit status is the
+signal's. A signal that was ignored when the compiler started stays ignored.
+Compiling several sources with `imp72` runs the compiler on each source as a
+process (no shell), and their objects are in the directory; a signal stops
+the process first. `lld` makes the executable next to its name, as it does
+for any link.
 
 ## LLVM and lld in the process
 
@@ -136,6 +165,7 @@ missing.
 | `tests/llvm/gen.sh` | `tools/llvm.sh imp` in each of its shapes |
 | `tests/link/run.sh` | the link with lld in the process, with no `cc` on the `PATH` |
 | `tests/runtime/run.sh` | the runtime library built by `imp72`, for the host and other targets |
+| `tests/tmpfiles/run.sh` | temporary files: none for `-S`, `-c`, `-Sir` and `--run`; a link leaves `TMPDIR` empty, also on a signal; a bad `TMPDIR` is not used |
 | `tests/seed/run.sh` | the seed and stage 2 write the same LLVM IR |
 | `tests/cli/run.sh` | the command line of `imp72` |
 | `tests/fuzz64/run.sh` | random integer, byte-pointer and real programs against 64-bit rules worked out in Python |
