@@ -57,15 +57,15 @@ jobs:
       - name: build the package
         run: |
           set +e
-          dpkg-buildpackage -us -uc -b > /tmp/dpkg.log 2>&1
+          dpkg-buildpackage -us -uc -b > "$RUNNER_TEMP/dpkg.log" 2>&1
           rc=$?
           if [ $rc != 0 ]; then
-            echo "::error::dpkg-buildpackage failed ($rc): $(tail -c 1500 /tmp/dpkg.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+            echo "::error::dpkg-buildpackage failed ($rc): $(tail -c 1500 "$RUNNER_TEMP/dpkg.log" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
             exit $rc
           fi
       - run: dpkg-deb -I ../imp72_*_amd64.deb
       - run: sudo dpkg -i ../imp72_*_amd64.deb
       - name: compile and run a program with the installed package
         run: |
-          imp72stage0 -o /tmp/hello tests/native/hello.imp
-          /tmp/hello
+          imp72stage0 -o "$RUNNER_TEMP/hello" tests/native/hello.imp
+          "$RUNNER_TEMP/hello"
