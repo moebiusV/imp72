@@ -246,8 +246,8 @@ executing it, and only secondarily, if at all, in its value.
 The identifiers 0R,1R,...,15R name sixteen registers. A register is a 64-bit integer variable. The
 main program and each routine have a set of sixteen of their own, and a register is 0 when the
 routine is entered. A call does not change the registers of the caller. The compiler's own
-temporaries are not these registers: the machine registers are assigned by LLVM. For example, the
-statements `1R:=5; 2R:=1R+3; PRINT IGR 0,2R,/` print 8.
+temporaries are not these registers: the machine registers are assigned by the LLVM code generator.
+For example, the statements `1R:=5; 2R:=1R+3; PRINT IGR 0,2R,/` print 8.
 
 The statement EXECUTE (Section 2.2.9) executes an instruction word of the abstract machine for which
 the compiler generates code, and syntax statements (Section 2.3) can use every operation of that
@@ -1106,9 +1106,10 @@ We will use the term "arguments" of a production or syntax statement to refer to
 appearing in the syntax-part of a syntax statement (i.e., on the right-hand side of the production).
 
 The compiler interprets a program by recognizing instances of certain syntactic classes, such as
-<EXP> (expression), <VBL> (variable), etc. The function of the syntax part of a syntax statement is
-to tell the compiler about a new construct that it must recognize as an instance of a certain class,
-specified by the identifier in <class>. The classes of interest in the IMP language are:
+<EXP> (expression), <VBL> (variable), and so on. The function of the syntax part of a syntax
+statement is to tell the compiler about a new construct that it must recognize as an instance of a
+certain class, specified by the identifier in <class>. The classes of interest in the IMP language
+are:
 
 - <NAM>: Any variable name or constant. Should generally be avoided in favor of <VBL> unless the
   user is sure of what he is doing.
@@ -1516,8 +1517,8 @@ The result is S.
 - SUBSCRIPT(S,T)
 
 *Generates code for the Variable- or Memory-type object S[T]. Is smart about not computing constant
-subscripts, etc. S and T may be any type except name. Result is S, with the code for T hooked on
-before.
+subscripts, and so on. S and T may be any type except name. Result is S, with the code for T hooked
+on before.
 
 - SVAL(I)
 

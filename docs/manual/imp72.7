@@ -349,7 +349,8 @@ The main program and each routine have a set of sixteen of their own,
 and a register is 0 when the routine is entered.
 A call does not change the registers of the caller.
 The compiler’s own temporaries are not these registers: the machine
-registers are assigned by LLVM. For example, the statements
+registers are assigned by the LLVM code generator.
+For example, the statements
 .Li "1R:=5; 2R:=1R+3; PRINT IGR 0,2R,/"
 print 8.
 .Pp
@@ -1991,9 +1992,10 @@ syntactic classes, such as
 .Li <EXP>
 (expression),
 .Li <VBL>
-(variable), etc. The function of the syntax part of a syntax statement
-is to tell the compiler about a new construct that it must recognize
-as an instance of a certain class, specified by the identifier in
+(variable), and so on.
+The function of the syntax part of a syntax statement is to tell the
+compiler about a new construct that it must recognize as an instance
+of a certain class, specified by the identifier in
 .Li <class> .
 The classes of interest in the IMP language are:
 .Bl -tag -width 10n -compact
@@ -2724,7 +2726,7 @@ The result is
 .Li *
 Generates code for the Variable- or Memory-type object
 .Li S[T\&] .
-Is smart about not computing constant subscripts, etc.
+Is smart about not computing constant subscripts, and so on.
 .Ar S
 and
 .Ar T
@@ -2818,8 +2820,8 @@ use it.
 Makes the floating point constant A.B"C.
 .Pp
 In addition to the above, there are a number of semantic routines which
-define the semantics for syntax, all on file RSYN. See Section 4.4 for
-documentation.
+define the semantics for syntax, all on file RSYN.
+See Section 4.4 for documentation.
 .Pp
 The operations of the abstract machine are the following.
 The accumulator
@@ -2921,7 +2923,8 @@ in a condition by adding the character
 to the name, followed by the modifiers.
 Modifiers all consist of three letters, sometimes followed by one or
 two two-digit octal numbers.
-For example, A0CON, FOO0REG0115, I0IGRVARMEMREG. The modifiers are:
+For example, A0CON, FOO0REG0115, I0IGRVARMEMREG.
+The modifiers are:
 Arithmetic type modifiers (Identifiers with neither of these match either
 type):
 .Pp
@@ -3356,8 +3359,9 @@ An IMP routine is a function of the
 .Li C
 calling convention of the system, and a
 .Li C
-function can be called from IMP. The files are in the object format
-of the system (ELF or Mach-O), so that they link with
+function can be called from IMP.
+The files are in the object format of the system (ELF or Mach-O), so
+that they link with
 .Ar C
 objects and libraries.
 The runtime library of IMP programs,
@@ -4400,9 +4404,10 @@ production is not part of some special case.
 .Pp
 In order to do this, all special cases are kept in a code generation
 tree, which is built and accessed by routines in the code tree module,
-ENTREE. The special cases are entered in the tree as nodes which may
-match either a particular class of objects (as specified by the modifiers
-in the semantic condition see Section 2.3.3.2), or a particular production.
+ENTREE.
+The special cases are entered in the tree as nodes which may match either
+a particular class of objects (as specified by the modifiers in the
+semantic condition see Section 2.3.3.2), or a particular production.
 When a new successor is added to a node, it is carefully inserted among
 existing successors so that the order of successors of a node, from
 left to right, is in order of increasing generality.

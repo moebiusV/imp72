@@ -1,0 +1,15 @@
+@bin bin/imp72
+@bin bin/imp72stage0
+include/imp72.h
+lib/imp72/
+@static-lib lib/imp72/libimp72.a
+@man man/man1/imp72.1
+@man man/man1/imp72stage0.1
+@man man/man7/imp72.7
+share/doc/imp72/
+share/doc/imp72/FFI.md
+share/doc/imp72/LANGUAGE-NOTES.md
+share/doc/imp72/imp72.md
+share/imp72/
+share/imp72/ffi.imc
+share/imp72/syntax64.imc

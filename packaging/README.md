@@ -41,3 +41,11 @@ For `aports` (`community/imp72`). It depends on `musl-dev` and builds with
 `llvm-dev`, `lld-dev` and `compiler-rt`. The `sha512sums` of the release
 tarball for `pkgver` are filled in with `abuild checksum` once the tag
 `v$pkgver` exists.
+
+## OpenBSD: `packaging/openbsd/lang/imp72`
+
+A port for `lang/imp72`: `Makefile`, `distinfo`, `pkg/DESCR` and `pkg/PLIST`. It builds with the base system's compiler, links the base `libLLVM`, runs the base `ld.lld` to link
+programs, and needs `gmake`. `ONLY_FOR_ARCHS` is `amd64`, the architecture the test suite has been run on. The manual pages go in `${PREFIX}/man`
+(`MANDIR` of the `Makefile`). `distinfo` holds the checksum of the tarball of the tag in `GH_TAGNAME`, and is made again with `make makesum` when the tag changes.
+
+To try it, put the directory in a ports tree as `lang/imp72` and run `make package`; `make test` runs the whole suite.
