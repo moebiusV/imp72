@@ -114,7 +114,7 @@ object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
     ctx = LLVMContextCreate();
     if ((m = parse(ctx, ir, n)) == NULL)
         goto done;
-    triple = LLVMGetDefaultTargetTriple();
+    triple = LLVMNormalizeTargetTriple(LLVMGetDefaultTargetTriple());
     hostcpu(triple, &cpu, &feat);
     if (LLVMGetTargetFromTriple(triple, &tgt, &msg)) {
         fprintf(stderr, "imp72: LLVM: %s\n", msg);
@@ -173,7 +173,7 @@ llvm_run(const char *ir, size_t n, const char *entry, long *result)
         return 1;
     {
         LLVMOrcLLJITBuilderRef lb = NULL;
-        char *triple = LLVMGetDefaultTargetTriple(), *cpu, *feat;
+        char *triple = LLVMNormalizeTargetTriple(LLVMGetDefaultTargetTriple()), *cpu, *feat;
         LLVMTargetRef tgt;
         char *msg = NULL;
 
