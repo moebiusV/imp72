@@ -21,7 +21,7 @@ RTLIB = build/rt-host/libimp72.a        # the same library made by the compiler 
 
 LLVMIR = build/llvm-ir2/imp72d          # the compiler with the code generator of src/llvm-ir (tools/llvm-ir.sh), where it can be built
 
-all: stage0 $(LIB) llvm-ir runtime
+all: stage0 $(LIB) llvm-ir runtime cimport
 
 $(LIB): stage0 tools/mklib.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.imp lib/imphost.imp lib/imphostx-elf.imp lib/imphostx-macho.imp lib/impvars.imp lib/impvarsx-elf.imp lib/impvarsx-macho.imp tools/sysconst.sh lib/imp72main.imp
 	CFLAGS="$(CFLAGS)" sh tools/guard.sh sh tools/mklib.sh
@@ -32,6 +32,10 @@ runtime: llvm-ir
 
 $(RTLIB): build/llvm-ir2/imp72stage-llvm-ir tools/mkrt.sh tools/sysconst.sh lib/imp72rt.imp lib/imp72io.imp lib/imp72sys.imp lib/imphost.imp lib/imphostx-elf.imp lib/imphostx-macho.imp lib/impvars.imp lib/impvarsx-elf.imp lib/impvarsx-macho.imp lib/imp72main.imp
 	sh tools/guard.sh sh tools/mkrt.sh "" build/rt-host
+
+# the tool imp72-cimport (tools/cimport*.imp, an IMP program the compiler of the tree builds; skipped where stage 2 could not be built)
+cimport: runtime
+	@if [ -x build/llvm-ir2/imp72stage-llvm-ir ]; then sh tools/imptool.sh cimport -h >/dev/null 2>&1; [ $$? = 2 ] || { sh tools/imptool.sh cimport -h; exit 1; }; fi
 
 # stage 1 by the seed, stage 2 by stage 1 (skipped where the LLVM libraries are missing)
 llvm-ir: stage0 $(LIB)
@@ -46,6 +50,7 @@ stage0:
 #   PREFIX/bin/imp72stage0 (the seed; also as imp72 where stage 2 cannot be built)   PREFIX/bin/imp72 (stage 2)
 #   PREFIX/lib/imp72/libimp72.a (made by stage 2, else by the seed)   PREFIX/share/imp72/syntax64.imc
 #   PREFIX/share/imp72/ffi.imc  MANDIR/man1/{imp72.1,imp72stage0.1} (MANDIR is PREFIX/share/man)
+#   PREFIX/bin/imp72-cimport and MANDIR/man1/imp72-cimport.1 (where stage 2 is built)
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp72 \
 	    $(DESTDIR)$(PREFIX)/share/imp72 $(DESTDIR)$(MANDIR)/man1
@@ -62,6 +67,9 @@ install: all
 	install -m 644 src/llvm-ir/syntax64.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp72/
 	install -m 644 docs/imp72stage0.1 $(DESTDIR)$(MANDIR)/man1/imp72stage0.1
 	install -m 644 docs/imp72.1 $(DESTDIR)$(MANDIR)/man1/imp72.1
+	if [ -x build/tools/cimport ]; then \
+	    install -m 755 build/tools/cimport $(DESTDIR)$(PREFIX)/bin/imp72-cimport; \
+	    install -m 644 docs/cimport.1 $(DESTDIR)$(MANDIR)/man1/imp72-cimport.1; fi
 	install -d $(DESTDIR)$(MANDIR)/man7
 	install -m 644 docs/manual/imp72.7 $(DESTDIR)$(MANDIR)/man7/imp72.7
 	install -d $(DESTDIR)$(DOCDIR)
@@ -91,6 +99,7 @@ check-run:
 	sh tests/tmpfiles/run.sh
 	sh tests/seed/run.sh
 	sh tests/cli/run.sh
+	sh tests/cimport/run.sh
 	sh tests/fuzz64/run.sh
 	sh tests/manual/run.sh
 
@@ -100,4 +109,4 @@ clean:
 
 distclean: clean
 
-.PHONY: all stage0 llvm-ir runtime check clean distclean install
+.PHONY: all stage0 llvm-ir runtime cimport check clean distclean install

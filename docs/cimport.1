@@ -1,0 +1,229 @@
+.\" Copyright (c) 2026 The imp72 authors.  ISC licence, see LICENSE.
+.Dd November 3, 2026
+.Dt IMP72-CIMPORT 1
+.Os
+.Sh NAME
+.Nm imp72-cimport
+.Nd write the IMP72 declarations of the functions, structures and constants of a C header
+.Sh SYNOPSIS
+.Nm
+.Op Fl n Ar name
+.Op Fl p Ar prefix
+.Op Fl D Ar macro
+.Op Fl I Ar dir
+.Op Fl o Ar file
+.Ar header
+.Nm
+.Op Fl n Ar name
+.Op Fl p Ar prefix
+.Op Fl o Ar file
+.Fl i Ar file
+.Sh DESCRIPTION
+.Nm
+reads the declarations of a C header and writes an IMP72 source fragment: an
+.Sy EXTERNAL
+statement for each function whose prototype IMP72 can express
+.Pq Ql EXTERNAL INT puts(PTR); ,
+a
+.Sy STRUCT
+statement for each structure whose layout it can express, and a
+.Sy LET
+statement for each enumerator and for each macro named with
+.Fl D .
+What it cannot express is listed in a comment at the end of the output, each
+with its reason.
+.Pp
+The C preprocessor reads
+.Ql #include <header> :
+.Ar header
+is a header name as the directive writes it
+.Pq Ql stdio.h , Ql sys/stat.h ,
+and may be written
+.Ql <name>
+or
+.Ql \&"name\&" .
+The preprocessor is the command in
+.Ev CC
+.Pq Ql cc
+with
+.Fl E .
+With
+.Fl i
+the tool reads text that the preprocessor made instead, from a file or from the
+standard input
+.Pq Ql - ,
+and runs no other program.
+.Pp
+The types of the declarations are those of
+.Pa FFI.md :
+.Ql CHAR UCHAR SHORT USHORT INT UINT LONG ULONG LLONG ULLONG SIZE PTR DOUBLE FLOAT
+and
+.Ql VOID
+for a result.
+Typedef names are followed through the declarations the tool has read
+.Pq Ql size_t
+is
+.Ql SIZE ;
+the others are the type they stand for.
+A pointer of any kind, an array parameter and a function pointer are
+.Ql PTR ;
+.Ql char
+is
+.Ql CHAR ,
+which is signed, also on machines where the C
+.Ql char
+is unsigned;
+an enumeration is
+.Ql INT ;
+.Ql const ,
+.Ql volatile ,
+.Ql restrict ,
+.Ql static ,
+.Ql extern ,
+.Ql inline ,
+.Ql __extension__
+and attributes are ignored.
+A function of a variable number of arguments ends its parameters with
+.Ql ... ;
+a function declared with empty parentheses is
+.Ql (...) .
+.Pp
+A structure is declared under its tag, or under the typedef name of a structure
+without a tag, with the types of its fields, arrays
+.Pq Ql CHAR name[20] ,
+and structures defined earlier as nested structures.
+The declarations are in the order of the header, and a structure that a selected
+structure contains is written before it.
+IMP72 computes the offsets for the machine the program is compiled for, by the
+rules of a C compiler.
+.Pp
+The output is a fragment of a source file, not a file of its own: a declaration
+holds to the end of the compilation unit that has it.
+Put it in front of the program:
+.Bd -literal -offset indent
+imp72-cimport -n qsort -n strlen -o decls.imp stdlib.h
+cat decls.imp prog.imp > all.imp
+imp72 all.imp
+.Ed
+.Pp
+A name that is a word of the IMP72 grammar
+.Pq Ql INT , Ql PRINT , Ql IN
+is written between exclamation marks
+.Pq Ql !PRINT! ;
+names are case sensitive.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl n Ar name
+Declare only this name: a function, a structure (by tag or by typedef name), a
+typedef name of a structure, or an enumerator.
+May be repeated.
+A name that nothing declares is reported on the standard error.
+.It Fl p Ar prefix
+Declare the names that start with
+.Ar prefix .
+May be repeated.
+Without
+.Fl n
+and
+.Fl p
+every name is declared, including those of the headers the header includes.
+.It Fl D Ar macro
+Write
+.Ql LET macro=value;
+for the integer value of a macro.
+The C compiler evaluates it: a program that prints the value is compiled and
+run in a private directory, and the directory is removed afterwards.
+A negative value is written as its 64-bit pattern, with the signed value in a
+comment.
+A macro that is not defined or not an integer is listed as not expressed.
+May be repeated; needs a header.
+.It Fl I Ar dir
+A directory for the preprocessor to search, as for the C compiler.
+May be repeated.
+.It Fl o Ar file
+Write the declarations to
+.Ar file
+instead of the standard output.
+.It Fl i Ar file
+Read preprocessed text from
+.Ar file
+.Pq Ql -
+for the standard input
+instead of running the preprocessor.
+.It Fl h
+Print the usage.
+.El
+.Sh WHAT IT CANNOT EXPRESS
+Functions with a structure or union argument or result, a
+.Vt va_list
+argument, a
+.Vt long double ,
+complex or 128-bit type, or more than 16 parameters, and parameters whose type
+is not known.
+Structures with a bit field, a union member, a member named
+.Ql _ , a member whose type cannot be
+expressed, a flexible array member, an array length that is not a number or a
+sum, difference, product, shift or bitwise or of numbers, a structure defined
+inside the structure, or a
+.Ql packed
+or
+.Ql aligned
+attribute.
+Enumerators whose value is not such an expression.
+Variables, function-like macros, and macros not named with
+.Fl D
+are not declared.
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev CC
+The C compiler, as the words of a shell command
+.Pq Ql cc .
+It preprocesses the header, and for
+.Fl D
+compiles and runs the probe.
+.It Ev TMPDIR
+The directory for the private directory of the probe of
+.Fl D ,
+when it is an absolute path naming a directory; otherwise
+.Pa /tmp .
+The directory is made by
+.Xr mkdtemp 3
+with mode 0700 and removed on exit and on
+.Dv SIGHUP ,
+.Dv SIGINT
+and
+.Dv SIGTERM .
+No other temporary file is made.
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds -compact
+.It 0
+Success.
+.It 1
+A file could not be read or written, the preprocessor failed, or an argument
+was not acceptable.
+.It 2
+The command line was wrong (the usage is printed).
+.El
+.Sh EXAMPLES
+The declarations of two functions and a structure of the C library:
+.Bd -literal -offset indent
+imp72-cimport -n strlen -n memcpy string.h
+imp72-cimport -n tm -n mktime time.h
+.Ed
+.Pp
+The values of macros:
+.Bd -literal -offset indent
+imp72-cimport -n puts -D EOF -D BUFSIZ stdio.h
+.Ed
+.Pp
+Text made earlier:
+.Bd -literal -offset indent
+cc -E -x c header.h > header.i
+imp72-cimport -p mpz_ -i header.i
+.Ed
+.Sh SEE ALSO
+.Xr imp72 1 ,
+.Pa /usr/share/doc/imp72/FFI.md
+.Sh AUTHORS
+.An The imp72 authors .

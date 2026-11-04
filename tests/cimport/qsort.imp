@@ -1,0 +1,27 @@
+STRUCT REC (INT KEY, INT W);
+CALLBACK INT BYKEY(PTR, PTR);
+N ARE COMMON;
+N:=6;
+A:=CCALL malloc(N*SIZEOF(REC));
+K:=0;
+WHILE K<N DO (
+   R:=A+(K*SIZEOF(REC));
+   FIELD(R,REC.KEY):=(N-K)*7;
+   FIELD(R,REC.W):=K;
+   K:=K+1);
+CCALL qsort(A,N,SIZEOF(REC),CALLBACK(BYKEY));
+K:=0;
+WHILE K<N DO (
+   R:=A+(K*SIZEOF(REC));
+   CCALL printf('%d:%d ',FIELD(R,REC.KEY),FIELD(R,REC.W));
+   K:=K+1);
+CCALL puts('end');
+CCALL printf('%d %d %d%c',CCALL strlen('twelve chars'),CCALL abs(0-9),(CCALL strcmp('a','b')<0),10);
+CCALL free(A);
+CCALL puts('done');
+
+SUBR BYKEY(X, Y) IS (
+   FIELD(X,REC.KEY)<FIELD(Y,REC.KEY) => RETURN 0-1;
+   FIELD(X,REC.KEY)=FIELD(Y,REC.KEY) => RETURN 0;
+   1)
+%%

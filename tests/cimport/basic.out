@@ -1,0 +1,77 @@
+# DECLARATIONS FOR IMP72 FROM PREPROCESSED C TEXT, MADE BY IMP72-CIMPORT (FUNCTIONS 31, STRUCTURES 11, CONSTANTS 14; THE LAYOUTS OF THE STRUCTURES ARE COMPUTED BY IMP72 FOR THE MACHINE THE PROGRAM IS COMPILED FOR) #
+LET RED=0;
+LET GREEN=5;
+LET BLUE=6;
+LET MAUVE=18446744073709551613;   # -3 #
+LET TEAL=18446744073709551614;   # -2 #
+LET SHIFT=16;
+LET MASK=271;
+LET ALPHA=10;
+LET BETA=11;
+LET F_A=1;
+LET F_B=3;
+LET F_C=13;
+LET F_E=18446744073709551615;   # -1 #
+LET F_F=2;
+STRUCT pt (INT x, INT y);
+STRUCT cpx (DOUBLE re, DOUBLE im);
+STRUCT line (pt a, pt b, CHAR name[20], UCHAR flags[6], PTR user, PTR cb);
+STRUCT wrap (cpx c, line l);
+STRUCT withptr (PTR next, INT v);
+STRUCT !IS! (INT !IN!, LONG !LONG!);
+STRUCT holder (PTR p);
+STRUCT later (SIZE n, LONG m, ULONG id, INT k, INT w, LONG d, UCHAR b, FLOAT f);
+STRUCT expr_len (CHAR a[16], CHAR b[4]);
+STRUCT fwd_early (INT a);
+STRUCT fwd_late (fwd_early first, LONG second);
+EXTERNAL INT puts(PTR);
+EXTERNAL SIZE strlen(PTR);
+EXTERNAL PTR memcpy(PTR, PTR, SIZE);
+EXTERNAL LONG write(INT, PTR, SIZE);
+EXTERNAL INT printf(PTR, ...);
+EXTERNAL DOUBLE ldexp(DOUBLE, INT);
+EXTERNAL FLOAT sqrtf(FLOAT);
+EXTERNAL INT abs32(INT);
+EXTERNAL UCHAR getbyte(VOID);
+EXTERNAL VOID qsort(PTR, SIZE, SIZE, PTR);
+EXTERNAL PTR signal(INT, PTR);
+EXTERNAL INT atexit(PTR);
+EXTERNAL INT sigaction_like(INT, PTR, PTR);
+EXTERNAL PTR fopen(PTR, PTR);
+EXTERNAL INT fclose(PTR);
+EXTERNAL INT fputs_a(PTR, PTR, PTR, PTR);
+EXTERNAL INT unspecified(...);
+EXTERNAL UCHAR is_ok(UCHAR);
+EXTERNAL USHORT ushort_fn(USHORT, SHORT, CHAR, UCHAR, LLONG, ULLONG);
+EXTERNAL LLONG ll_fn(LLONG, ULLONG);
+EXTERNAL UINT lonely(UINT, LONG, ULONG);
+EXTERNAL INT a_decl_twice(INT);
+EXTERNAL INT paint(INT, INT);
+EXTERNAL INT take_ptr(PTR);
+EXTERNAL INT dist(PTR, PTR);
+EXTERNAL INT !PRINT!(INT);
+EXTERNAL VOID !INT!(VOID);
+EXTERNAL INT IS_THIS(INT);
+EXTERNAL INT after_body(PTR);
+EXTERNAL INT stat(PTR, PTR);
+EXTERNAL INT with_str(CHAR);
+# NOT EXPRESSED:
+    function vprintf: a va_list
+    function powl: long double
+    function make_pt: a structure result
+    function take_pt: a structure passed by value
+    function mystery_t_fn: a parameter without a type
+    function mystery_ret: the unknown type name unknown_t
+    structure bits: a bit field
+    structure uni: a union
+    structure un2: a union
+    structure packed_s: a packed or aligned attribute
+    structure flexi: a flexible array member
+    structure with_ld: long double
+    structure usesinc: a member whose structure is incomplete or cannot be expressed
+    structure sz_len: an array whose length is not a number, a sum or a product of numbers
+    structure fwd_user: a member whose structure is incomplete or cannot be expressed
+    structure under: a member named _, which IMP72 reads as an operator
+    enumerator ODD: its value is not a simple number
+    enumerator F_D: its value is not a simple number
+#

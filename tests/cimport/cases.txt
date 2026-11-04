@@ -1,0 +1,4 @@
+basic basic.i
+select basic.i -n pt -n dist -n puts -n RED -n cpx -p str
+nothing basic.i -n no_such_name
+structs basic.i -p fwd_ -n under -n F_E

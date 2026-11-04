@@ -1,0 +1,8 @@
+# DECLARATIONS FOR IMP72 FROM PREPROCESSED C TEXT, MADE BY IMP72-CIMPORT (FUNCTIONS 0, STRUCTURES 2, CONSTANTS 1; THE LAYOUTS OF THE STRUCTURES ARE COMPUTED BY IMP72 FOR THE MACHINE THE PROGRAM IS COMPILED FOR) #
+LET F_E=18446744073709551615;   # -1 #
+STRUCT fwd_early (INT a);
+STRUCT fwd_late (fwd_early first, LONG second);
+# NOT EXPRESSED:
+    structure fwd_user: a member whose structure is incomplete or cannot be expressed
+    structure under: a member named _, which IMP72 reads as an operator
+#

@@ -2315,6 +2315,21 @@ one, and a field of a structure type used as a value. Bit fields and unions are 
 structure is not passed or returned by value, and the attributes that change a layout (`packed`,
 `aligned`) are not known; the layout is what the program declares.
 
+The compiler reads no C header. The tool `imp72-cimport` does: it runs the C preprocessor on a
+header and writes the `EXTERNAL` declarations of the functions, the `STRUCT` declarations of the
+structures and the `LET` declarations of the enumerators that it can express, and lists the rest in
+a comment with the reason. A declaration holds to the end of its file, so the declarations go in
+front of the program:
+
+```
+imp72-cimport -n qsort -n strlen stdlib.h > decls.imp
+cat decls.imp prog.imp > all.imp
+imp72 all.imp
+```
+
+`-n NAME` and `-p PREFIX` select names, and `-D MACRO` writes the integer value of a macro, which
+the C compiler evaluates. The manual page `imp72-cimport(1)` and `docs/FFI.md` describe the tool.
+
 ## 3: How to Compile and Run IMP72 Programs.
 
 ### 3.1: Compiling Programs.

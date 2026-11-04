@@ -4197,6 +4197,43 @@ Bit fields and unions are not declared, a structure is not passed or
 returned by value, and the attributes that change a layout
 .Li "(packed, aligned\&)"
 are not known; the layout is what the program declares.
+.Pp
+The compiler reads no
+.Ar C
+header.
+The tool
+.Li imp72\-cimport
+does: it runs the
+.Ar C
+preprocessor on a header and writes the
+.Li EXTERNAL
+declarations of the functions, the
+.Li STRUCT
+declarations of the structures and the
+.Li LET
+declarations of the enumerators that it can express, and lists the rest
+in a comment with the reason.
+A declaration holds to the end of its file, so the declarations go in
+front of the program:
+.Bd -literal -offset indent
+imp72-cimport -n qsort -n strlen stdlib.h > decls.imp
+cat decls.imp prog.imp > all.imp
+imp72 all.imp
+.Ed
+.Pp
+.Li "\-n NAME"
+and
+.Li "\-p PREFIX"
+select names, and
+.Li "\-D MACRO"
+writes the integer value of a macro, which the
+.Ar C
+compiler evaluates.
+The manual page
+.Li imp72\-cimport(1\&)
+and
+.Li docs/FFI.md
+describe the tool.
 .Sh "3 HOW TO COMPILE AND RUN IMP72 PROGRAMS"
 .Ss "3.1 Compiling Programs"
 The IMP compiler is called by the command
