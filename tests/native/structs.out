@@ -1,0 +1,26 @@
+sizes 1 2 4 8 8 4
+long is a word
+size of PAIR is two words
+NSEC is at a word
+A 0 B 2 C 4 D 8
+E follows D
+F follows E, aligned
+G follows F
+H follows G
+T is aligned to a word
+T.NSEC is inside T
+the size is a multiple of the greatest alignment
+Z is the last byte before the padding
+-5 -300 -70000 -7
+E holds the pointer
+-3.500 1.250
+1 0 200 255
+-9 999
+65535 4294967295 4294967295 -5000000000 -1 77
+-5 1 -70000
+97 7 3.000
+4.250
+8
+FIELD agrees with the offset
+101 8 9 1 46 40
+7/5.0 14/4.0 21/3.0 28/2.0 35/1.0 42/0 

@@ -30,6 +30,8 @@ SUBR IRLCONV(V,FRM,TYT) IS (
  CCALL strcmp(LF,LT2)=0 => RETURN VV;
  R:=IRLNEWVAL(0);
  IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = '));
+ ((F=12) AND (T2=13)) => (IRLPS(0,LOC('fpext float ')); IRLPS(0,VV); IRLPS(0,LOC(' to double')); IRLE(0); RETURN R);
+ ((F=13) AND (T2=12)) => (IRLPS(0,LOC('fptrunc double ')); IRLPS(0,VV); IRLPS(0,LOC(' to float')); IRLE(0); RETURN R);
  F=13 => (OPN:=LOC('fptosi'); IRLISU(T2) NE 0 => OPN:=LOC('fptoui');
           IRLPS(0,OPN); IRLPC(0,32); IRLPS(0,LF); IRLPC(0,32); IRLPS(0,VV); IRLPS(0,LOC(' to ')); IRLPS(0,LT2); IRLE(0); RETURN R);
  T2=13 => (OPN:=LOC('sitofp'); IRLISU(F) NE 0 => OPN:=LOC('uitofp');

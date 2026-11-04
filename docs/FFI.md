@@ -222,6 +222,99 @@ the types.
 The name of a `FNPTR` declaration belongs to the file as the name of a declared
 C function does. It is not a symbol: no C function by that name is called.
 
+### Structure layouts
+
+A C structure is memory at an address. A `STRUCT` statement declares the layout
+of one, and `FIELD` reads and writes a field of the structure at an address with
+the field's type, in place of byte offsets written by hand:
+
+    STRUCT TIMESPEC (LONG SEC, LONG NSEC);
+    T := CCALL malloc(SIZEOF(TIMESPEC));
+    FIELD(T, TIMESPEC.SEC) := 5;
+    X := FIELD(T, TIMESPEC.NSEC);
+    OFFSETOF(TIMESPEC, NSEC)
+
+The grammar is
+
+    STRUCT name ( type field , type field [ N ] , structname field , ... )
+    SIZEOF ( name )
+    OFFSETOF ( name , field )          OFFSETOF ( name , field . field ... )
+    FIELD ( P , name . field )         FIELD ( P , name . field . field ... )
+    FIELD ( P , name . field , I )
+
+A field type is one of the types of the declarations of C functions except
+`VOID`, or a structure declared earlier in the file, which makes the field a
+nested structure. `type field[N]` is an array of `N` elements, `N` a positive
+constant. Field names are case sensitive and unique in their structure. A
+declaration holds to the end of the file, as a declaration of a C function does.
+A structure name cannot be a type name of C.
+
+**Layout.** The compiler computes the offsets for the machine the program is
+compiled for (`--target`, else the host) by the rules of a C compiler: a field
+is placed at the next multiple of its alignment, an array has the alignment of
+its element, a nested structure the alignment of its most aligned field, and the
+size of a structure is rounded up to its alignment.
+
+| type | size | alignment |
+|---|---|---|
+| `CHAR`, `UCHAR` | 1 | 1 |
+| `SHORT`, `USHORT` | 2 | 2 |
+| `INT`, `UINT`, `FLOAT` | 4 | 4 |
+| `LONG`, `ULONG`, `SIZE`, `PTR` | 8, or 4 where pointers are 32 bits | the size |
+| `LLONG`, `ULLONG`, `DOUBLE` | 8 | 8; 4 on the i386 |
+
+`SIZEOF(name)` is the size of a structure, and also of a type of C
+(`SIZEOF(PTR)` is the width of a pointer). `OFFSETOF` and `SIZEOF` are
+constants. The offsets of the `STRUCT` above are 0 and 8, and 0 and 4 where a
+`long` is 32 bits.
+
+**Access.** `FIELD(P, name.field)` is the field of the structure at the address
+`P`, an expression of any kind (a pointer from `malloc`, `LOC(X)`, a pointer
+that C returned). It is a value and a place to store to: it is used in
+expressions, as an argument of `CCALL`, and on the left of `:=`. The path
+`name.outer.inner` reaches a field of a nested structure. `FIELD(P, name.field, I)` is element `I` of
+a field that is an array, counted from 0 and not checked. An element of an
+array of structures is reached by adding its offset to the address:
+`FIELD(P+(I*SIZEOF(name)), name.field)`.
+
+A value read has the type of the field, converted as the result of a declared
+function is (table of the declarations): a signed type is sign-extended, an
+unsigned type and `PTR` are zero-extended, `DOUBLE` and `FLOAT` are a `REAL`
+(and the expression has the type real). A store converts to the type of the
+field: an integer type takes the low bits of an integer, an integer field
+given a `REAL` takes its integer part (as `FIX` does), a `DOUBLE` or `FLOAT`
+field given an integer takes it converted to real, `FLOAT` rounds to single
+precision. A store changes the bytes of its field and no others. The value of a
+store used as an expression is the value that was stored before conversion.
+
+    STRUCT REC (INT KEY, DOUBLE W);
+    CALLBACK INT BYKEY(PTR, PTR);
+    ...
+    CCALL qsort(A, N, SIZEOF(REC), CALLBACK(BYKEY));
+    SUBR BYKEY(X, Y) IS (
+      FIELD(X, REC.KEY) < FIELD(Y, REC.KEY) => RETURN 0-1;
+      FIELD(X, REC.KEY) = FIELD(Y, REC.KEY) => RETURN 0;
+      1)
+
+**Errors** found at compile time: a structure declared twice or named as a type
+of C; a field declared twice; a field type that is not a type of C or a
+structure declared earlier, or is `VOID`; an array length that is not a positive
+constant; a structure with no field; `SIZEOF` of a name that is neither;
+`OFFSETOF` or `FIELD` of a structure or field that does not exist; an array
+field used without an element, or a field that is not an array used with one; a
+field of a structure type used as a value (name a field of it); a path through
+a field that is not a structure.
+
+In the IR the access is one typed load or store at the address plus the offset:
+the type of the memory is `i8`, `i16`, `i32`, `i64`, `float` or `double`, with
+`sext` or `zext` to the word on a load and `trunc` on a store. A `DOUBLE` field
+is moved as its 64 bits, a `FLOAT` field through `fpext` and `fptrunc`.
+
+Examples that run in the suite: `tests/native/structs.imp` (a structure with
+every type and padding, nested structures, arrays, a round trip of every type
+with negative numbers, `struct tm` filled by `strptime`, an array of structures
+sorted by `qsort`) and the errors in `tests/cli/run.sh`.
+
 `X IS EXTERNAL;` declares a variable defined elsewhere, in the C library for
 example (`!environ! IS EXTERNAL;`); nothing is defined here, and `LOC(X)` is its
 address. `!name!` writes a name that is not an IMP name.
@@ -263,7 +356,8 @@ double in a word that is the double's own bits. C code converts with
 
 - A function that is not declared is `long f(long, ...)`.
 - At most 16 arguments, and 16 parameters in a declaration.
-- A structure by value is not a type.
+- A structure by value is not a type: it is not passed, returned or copied by `CCALL`.
+- Structure layouts have no bit fields and no unions, and no `packed` or `aligned` attributes. The layout is what the program declares; it is not read from a header. A union that is read in only one member is declared as that member's structure.
 - A callback has at most 16 parameters and is not variadic. A function pointer
   declaration (`FNPTR`) has at most 15 types besides the function.
 - A callback returns a word; a structure result or parameter is not a type.

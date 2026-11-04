@@ -27,7 +27,7 @@ enum {
 
 /* types (mip/manifest.h) */
 enum {
-    T_UCHAR = 3, T_INT = 6, T_UINT = 7, T_LONG = 8, T_ULONG = 9, T_DOUBLE = 13, T_VOID = 19,
+    T_CHAR = 2, T_UCHAR = 3, T_SHORT = 4, T_USHORT = 5, T_INT = 6, T_UINT = 7, T_LONG = 8, T_ULONG = 9, T_FLOAT = 12, T_DOUBLE = 13, T_VOID = 19,
     T_PTR = 0x20, T_FTN = 0x40,
     T_PLONG = T_LONG | T_PTR,                   /* pointer to long */
     T_PFTN = (((T_FTN | T_LONG) & ~0x1f) << 2) | T_PTR | T_LONG

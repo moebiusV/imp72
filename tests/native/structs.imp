@@ -1,0 +1,88 @@
+EXTERNAL PTR calloc(SIZE, SIZE);
+EXTERNAL VOID free(PTR);
+EXTERNAL PTR strptime(PTR, PTR, PTR);
+EXTERNAL VOID qsort(PTR, SIZE, SIZE, PTR);
+STRUCT PAIR (LONG SEC, LONG NSEC);
+STRUCT MIX (CHAR A, SHORT B, INT C, LONG D, PTR E, DOUBLE F, FLOAT G, UCHAR H[5], PAIR T, USHORT U, UINT V, ULONG W, LLONG X, ULLONG Y, UCHAR Z);
+STRUCT TM (INT SEC, INT MIN, INT HOUR, INT MDAY, INT MON, INT YEAR, INT WDAY, INT YDAY, INT ISDST);
+STRUCT REC (INT KEY, DOUBLE W);
+CALLBACK INT BYKEY(PTR, PTR);
+W:=SIZEOF(PTR);
+# sizes and offsets: the 8 byte types align to 4 on the i386 and to 8 elsewhere #
+A8:=8; W=4 => A8:=4;
+PRINT STG 0,'sizes ',IGR 0,SIZEOF(CHAR),STG 0,' ',IGR 0,SIZEOF(SHORT),STG 0,' ',IGR 0,SIZEOF(INT),STG 0,' ',IGR 0,SIZEOF(LLONG),STG 0,' ',IGR 0,SIZEOF(DOUBLE),STG 0,' ',IGR 0,SIZEOF(FLOAT),/;
+SIZEOF(LONG)=W => PRINT STG 0,'long is a word',/ ELSE PRINT STG 0,'wrong: long',/;
+SIZEOF(PAIR)=(2*W) => PRINT STG 0,'size of PAIR is two words',/ ELSE PRINT STG 0,'wrong: PAIR',/;
+OFFSETOF(PAIR,NSEC)=W => PRINT STG 0,'NSEC is at a word',/ ELSE PRINT STG 0,'wrong: NSEC',/;
+PRINT STG 0,'A ',IGR 0,OFFSETOF(MIX,A),STG 0,' B ',IGR 0,OFFSETOF(MIX,B),STG 0,' C ',IGR 0,OFFSETOF(MIX,C),STG 0,' D ',IGR 0,OFFSETOF(MIX,D),/;
+OFFSETOF(MIX,E)=(OFFSETOF(MIX,D)+W) => PRINT STG 0,'E follows D',/ ELSE PRINT STG 0,'wrong: E',/;
+OFFSETOF(MIX,F)=((OFFSETOF(MIX,E)+W)+(((OFFSETOF(MIX,E)+W)-(((OFFSETOF(MIX,E)+W)/A8)*A8)) NE 0)*(0-1)*(A8-((OFFSETOF(MIX,E)+W)-(((OFFSETOF(MIX,E)+W)/A8)*A8)))) => PRINT STG 0,'F follows E, aligned',/ ELSE PRINT STG 0,'wrong: F',/;
+OFFSETOF(MIX,G)=(OFFSETOF(MIX,F)+8) => PRINT STG 0,'G follows F',/ ELSE PRINT STG 0,'wrong: G',/;
+OFFSETOF(MIX,H)=(OFFSETOF(MIX,G)+4) => PRINT STG 0,'H follows G',/ ELSE PRINT STG 0,'wrong: H',/;
+OFFSETOF(MIX,T)=(((OFFSETOF(MIX,H)+5)+(W-1))/W)*W => PRINT STG 0,'T is aligned to a word',/ ELSE PRINT STG 0,'wrong: T',/;
+OFFSETOF(MIX,T.NSEC)=(OFFSETOF(MIX,T)+W) => PRINT STG 0,'T.NSEC is inside T',/ ELSE PRINT STG 0,'wrong: T.NSEC',/;
+SIZEOF(MIX)-(((SIZEOF(MIX))/A8)*A8)=0 => PRINT STG 0,'the size is a multiple of the greatest alignment',/ ELSE PRINT STG 0,'wrong: size',/;
+OFFSETOF(MIX,Z)=(SIZEOF(MIX)-A8) => PRINT STG 0,'Z is the last byte before the padding',/ ELSE PRINT STG 0,'Z at ',IGR 0,OFFSETOF(MIX,Z),/;
+# a round trip of every type, with negative numbers #
+P:=CCALL calloc(1,SIZEOF(MIX));
+FIELD(P,MIX.A):=0-5;
+FIELD(P,MIX.B):=0-300;
+FIELD(P,MIX.C):=0-70000;
+FIELD(P,MIX.D):=0-7;
+FIELD(P,MIX.E):=P;
+FIELD(P,MIX.F):=0-3.5;
+FIELD(P,MIX.G):=1.25;
+FIELD(P,MIX.H,0):=1;
+FIELD(P,MIX.H,4):=255;
+K:=2; FIELD(P,MIX.H,K):=200;
+FIELD(P,MIX.T.SEC):=0-9;
+FIELD(P,MIX.T.NSEC):=999;
+FIELD(P,MIX.U):=65535;
+FIELD(P,MIX.V):=4294967295;
+FIELD(P,MIX.W):=4294967295;
+FIELD(P,MIX.X):=0-5000000000;
+FIELD(P,MIX.Y):=0-1;
+FIELD(P,MIX.Z):=77;
+PRINT IGR 0,FIELD(P,MIX.A),STG 0,' ',IGR 0,FIELD(P,MIX.B),STG 0,' ',IGR 0,FIELD(P,MIX.C),STG 0,' ',IGR 0,FIELD(P,MIX.D),/;
+FIELD(P,MIX.E)=P => PRINT STG 0,'E holds the pointer',/ ELSE PRINT STG 0,'wrong: E',/;
+PRINT FLT 0.3,FIELD(P,MIX.F),STG 0,' ',FLT 0.3,FIELD(P,MIX.G),/;
+PRINT IGR 0,FIELD(P,MIX.H,0),STG 0,' ',IGR 0,FIELD(P,MIX.H,1),STG 0,' ',IGR 0,FIELD(P,MIX.H,2),STG 0,' ',IGR 0,FIELD(P,MIX.H,4),/;
+PRINT IGR 0,FIELD(P,MIX.T.SEC),STG 0,' ',IGR 0,FIELD(P,MIX.T.NSEC),/;
+PRINT IGR 0,FIELD(P,MIX.U),STG 0,' ',IGR 0,FIELD(P,MIX.V),STG 0,' ',IGR 0,FIELD(P,MIX.W),STG 0,' ',IGR 0,FIELD(P,MIX.X),STG 0,' ',IGR 0,FIELD(P,MIX.Y),STG 0,' ',IGR 0,FIELD(P,MIX.Z),/;
+# a store reaches only its own field #
+FIELD(P,MIX.B):=1;
+PRINT IGR 0,FIELD(P,MIX.A),STG 0,' ',IGR 0,FIELD(P,MIX.B),STG 0,' ',IGR 0,FIELD(P,MIX.C),/;
+# conversions: a store truncates, a real goes to an integer field, an integer to a real field #
+FIELD(P,MIX.A):=353;
+FIELD(P,MIX.C):=7.9;
+FIELD(P,MIX.F):=3;
+PRINT IGR 0,FIELD(P,MIX.A),STG 0,' ',IGR 0,FIELD(P,MIX.C),STG 0,' ',FLT 0.3,FIELD(P,MIX.F),/;
+R IS REAL;
+R:=FIELD(P,MIX.F)+FIELD(P,MIX.G);
+PRINT FLT 0.3,R,/;
+FIELD(P,MIX.C):=FIELD(P,MIX.C)+1;
+PRINT IGR 0,FIELD(P,MIX.C),/;
+# the address by hand and by a field agree #
+Q:=P+OFFSETOF(MIX,D);
+[Q]=FIELD(P,MIX.D) => PRINT STG 0,'FIELD agrees with the offset',/ ELSE PRINT STG 0,'wrong: offset',/;
+CCALL free(P);
+# struct tm from the C library #
+TMP:=CCALL calloc(1,SIZEOF(TM)+64);
+CCALL strptime('2001-09-09 01:46:40','%Y-%m-%d %H:%M:%S',TMP);
+PRINT IGR 0,FIELD(TMP,TM.YEAR),STG 0,' ',IGR 0,FIELD(TMP,TM.MON),STG 0,' ',IGR 0,FIELD(TMP,TM.MDAY),STG 0,' ',IGR 0,FIELD(TMP,TM.HOUR),STG 0,' ',IGR 0,FIELD(TMP,TM.MIN),STG 0,' ',IGR 0,FIELD(TMP,TM.SEC),/;
+CCALL free(TMP);
+# an array of structures sorted by qsort, the comparison reads the fields #
+N:=6;
+ARR:=CCALL calloc(N,SIZEOF(REC));
+((FIELD(ARR+(I*SIZEOF(REC)),REC.KEY):=(N-I)*7) FOR I IN 0,1,N-1);
+((FIELD(ARR+(I*SIZEOF(REC)),REC.W):=I) FOR I IN 0,1,N-1);
+CCALL qsort(ARR,N,SIZEOF(REC),CALLBACK(BYKEY));
+((PRINT IGR 0,FIELD(ARR+(I*SIZEOF(REC)),REC.KEY),STG 0,'/',FLT 0.1,FIELD(ARR+(I*SIZEOF(REC)),REC.W),STG 0,' ') FOR I IN 0,1,N-1);
+PRINT /;
+CCALL free(ARR);
+FINI(0);
+SUBR BYKEY(A,B) IS (
+  FIELD(A,REC.KEY) < FIELD(B,REC.KEY) => RETURN 0-1;
+  FIELD(A,REC.KEY) = FIELD(B,REC.KEY) => RETURN 0;
+  1)
+%%

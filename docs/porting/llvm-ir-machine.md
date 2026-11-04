@@ -84,6 +84,17 @@ indexed by the register and indirect if bit 63 is set. The address of a variable
 counts words: with a variable `V`, an offset `O` and a register `R` it is `&V + 8*O + 8*R`; with a register and no
 variable, `R + 8*O`, `R` holding a byte address; with neither, the absolute address `O`.
 
+## Fields of structures
+
+`FIELD(P, NAME.FIELD)` (`docs/FFI.md`, structure layouts) is an operand like a byte field: a variable named for a descriptor in the table
+`FDESC` (eight words: the name, the operand of the address `P` in two words, the operand of the element index in two words or 0, the byte
+offset, the C type 1 to 14, the size of an element). The operation LDB with that operand loads the field and DPB stores to it, each as one typed
+memory access at `P + I*size + offset` in IR: a `UMUL` of the type of the memory (2 `CHAR`, 3 `UCHAR`, 4 `SHORT`, 5 `USHORT`, 6 `INT`, 8 `LONG`,
+9 `ULONG`, 12 `FLOAT`, 13 `DOUBLE`) under a `PCONV` of the address. The register holds a word: a signed type is sign-extended, an unsigned type and
+a pointer zero-extended, a `DOUBLE` the 8 bytes of the field, a `FLOAT` the double of the float. Where the pointers are 32 bits, `LONG` and
+the pointer types are 4 byte `INT` accesses. The entry of the descriptor has the real bit set for `DOUBLE` and `FLOAT`, so the register of a
+load is real.
+
 ## Instruction words
 
 `EXECUTE A` runs the one operation of this machine that the word `A` holds: the operation number in bits 56-63 (1 to 23,

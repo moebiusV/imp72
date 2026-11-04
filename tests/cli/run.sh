@@ -164,5 +164,39 @@ E
 "$w" callback_ir.imp -Sir > /dev/null 2>&1 && grep -q 'define internal signext i32 @"CMP@ipp"(ptr %p0, ptr %p1)' callback_ir.ll && grep -q 'define internal double @"HALF@dd"(double %p0)' callback_ir.ll \
     || bad "callback: the C entries in the IR"
 "$w" callback_ir.imp -Sir --target=i686-linux-gnu > /dev/null 2>&1 && grep -q 'call i64 (i32, i32) @"CMP"(i32 %a0, i32 %a1)' callback_ir.ll || bad "callback: the C entry on i686"
+# structure layouts: the errors, and the offsets for amd64 and i686 (a LONG and a PTR are 4 bytes there, a DOUBLE aligns to 4)
+cat > struct_bad.imp <<'E'
+STRUCT S1 (INT A, FOO B, VOID C, INT A, CHAR D[0], S9 E);
+STRUCT S1 (INT A);
+STRUCT S2 (INT A);
+STRUCT S3 (S2 N, LONG L[3]);
+STRUCT INT (INT A);
+X:=SIZEOF(NOPE);
+X:=OFFSETOF(S2,Z);
+X:=OFFSETOF(NOPE,Z);
+X:=FIELD(P,S2.A,1);
+X:=FIELD(P,S3.L);
+X:=FIELD(P,S3.N);
+X:=OFFSETOF(S3,L.Q);
+FINI(0)
+%%
+E
+"$w" -c struct_bad.imp > struct_bad.log 2>&1 && bad "struct: a program with wrong declarations and accesses was accepted"
+for m in 'FOO IS NOT A TYPE OF C OR A STRUCTURE DECLARED BEFORE' 'VOID IS NOT THE TYPE OF A FIELD' 'THE FIELD A IS DECLARED TWICE' 'THE LENGTH OF THE ARRAY FIELD D' 'S9 IS NOT A TYPE OF C OR A STRUCTURE DECLARED BEFORE' \
+    'S1 IS DECLARED TWICE AS A STRUCTURE' 'INT IS A TYPE OF C' 'NOPE IS NOT A TYPE OF C OR A STRUCTURE' 'THE STRUCTURE S2 HAS NO FIELD Z' 'NOPE IS NOT A STRUCTURE' \
+    'THE FIELD IS NOT AN ARRAY' 'THE FIELD IS AN ARRAY' 'THE FIELD IS OF A STRUCTURE TYPE' 'Q IS NOT A FIELD OF A STRUCTURE TYPE'; do
+    grep -q "$m" struct_bad.log || bad "struct: no error '$m' ($(head -c 400 struct_bad.log))"
+done
+cat > struct_ir.imp <<'E'
+STRUCT S (CHAR A, DOUBLE D, PTR P, SHORT H);
+X:=SIZEOF(S);
+Y:=OFFSETOF(S,P);
+FIELD(X,S.H):=1;
+Z:=FIELD(X,S.D);
+FINI(0)
+%%
+E
+"$w" struct_ir.imp -Sir > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 24$' struct_ir.ll || bad "struct: the typed store on amd64"
+"$w" struct_ir.imp -Sir --target=i686-linux-gnu > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 16$' struct_ir.ll || bad "struct: the typed store on i686"
 [ $fail = 0 ] && echo ok
 exit $fail

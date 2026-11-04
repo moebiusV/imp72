@@ -45,6 +45,7 @@ CONTENTS
 2.4.3:      COMMON and EXTERNAL Variables.
 2.4.4:      Names, Programs and Command Line.
 2.4.5:      Callbacks and Function Pointers.
+2.4.6:      Structure Layouts.
 3:      How to Compile and Run IMP72 Programs.
 3.1:      Compiling Programs.
 3.1.1:      The Compiler Listing.
@@ -1576,6 +1577,24 @@ of the arguments and converting them to the declared types.
 Makes the address of the C function that calls the SUBR named A, which CDECL declared a callback (V
 is 2) (Section 2.4.5). For a pointer call V is 4, or 5 with the dots.
 
+- STBEG(N)
+
+Begins the declaration of the structure `N` (section 2.4.6); `STFLD(T,F,N)` adds the field `F` of
+the type `T` (an array of `N` if `N` is not 0) and places it by the alignment rules of the target,
+and `STEND(H)` ends the structure and rounds its size.
+
+- STSIZE(S)
+
+Makes the constant that is the size of the structure or type of C named `S`; `FPBEG(S,F)` and
+`FPFLD(P,F)` follow a path of fields from a structure, and `STOFF(P)` makes the constant that is the
+offset the path ends at.
+
+- FLDP(P,F,I)
+
+Makes the descriptor of the field at the end of the path `F` of the structure at the address `P`,
+with the element `I` (0 for none); `DEWOP(24,R,D)` loads it and `FLDST(A,B)` converts `B` to its
+type and stores it, with the operation 25.
+
 - FCON(A,B,C)
 
 Makes the floating point constant A.B"C.
@@ -2217,7 +2236,84 @@ SUBR HALVE(A) IS (
 %%
 ```
 
-prints `2.50`. A callback has at most 16 parameters and is not variadic; a structure is not a type.
+prints `2.50`. A callback has at most 16 parameters and is not variadic; a structure by value is not
+a type (Section 2.4.6 has the layouts of structures in memory).
+
+#### 2.4.6: Structure Layouts.
+
+A C structure is memory at an address. A `STRUCT` statement declares its layout, the names and the C
+types of its fields, and `FIELD(P, NAME.FIELD)` reads and writes a field of the structure at the
+address `P` with the type and at the offset that C gives it, in place of byte offsets written by
+hand:
+
+```
+STRUCT PAIR (LONG SEC, LONG NSEC);
+EXTERNAL PTR calloc(SIZE, SIZE);
+T:=CCALL calloc(1,SIZEOF(PAIR));
+FIELD(T,PAIR.SEC):=5;
+FIELD(T,PAIR.NSEC):=0-7;
+PRINT IGR 0,FIELD(T,PAIR.SEC),STG 0,' ',IGR 0,FIELD(T,PAIR.NSEC),STG 0,' ',IGR 0,OFFSETOF(PAIR,NSEC),/;
+FINI(0)
+%%
+```
+
+prints `5 -7 8`. The 8 is the offset of `NSEC`: a `long` is 8 bytes on a machine whose longs are 64
+bits and 4 bytes on one whose longs are 32 bits, and the layout is that of the machine the program
+is compiled for (`--target` included).
+
+The declaration is `STRUCT name (type field, type field, ...)`. A type is one of the types of
+section 2.4.1 (`CHAR` to `FLOAT`, not `VOID`) or a structure declared earlier in the same file,
+which makes the field a nested structure. `type field[N]` declares an array of `N` elements, `N` a
+constant. The compiler places each field at the next multiple of its alignment, as a C compiler
+does: `CHAR` and `UCHAR` take 1 byte, `SHORT` and `USHORT` 2, `INT`, `UINT` and `FLOAT` 4, `LLONG`,
+`ULLONG` and `DOUBLE` 8, and `LONG`, `ULONG`, `SIZE` and `PTR` the width of a C `long`, 8 bytes or 4
+where the pointers are 32 bits. Each type aligns to its size, except that the 8 byte types align
+to 4 on the i386, as the System V ABI has it. A structure aligns as its most aligned field and its
+size is rounded up to that alignment. Names of structures, like names of fields, are case sensitive,
+and a declaration holds to the end of the file.
+
+`SIZEOF(name)` is the size in bytes of a structure or of a type of C (`SIZEOF(PTR)`), and
+`OFFSETOF(name, field)` the offset of a field; both are constants. A field of a nested structure is
+named by the path of its fields, separated by dots: `OFFSETOF(name, outer.inner)`, `FIELD(P,
+name.outer.inner)`.
+
+`FIELD(P, name.field)` is a value or a place to store to, in an expression, on the left of `:=`, as
+an argument of `CCALL`. As a value it has the type of the field converted as the result of a
+declared function is: a signed type is sign-extended, an unsigned type and `PTR` are zero-extended,
+`DOUBLE` and `FLOAT` are a `REAL`. A store converts to the type of the field: an integer field takes
+the low bits of an integer and the integer part of a `REAL`, a `DOUBLE` or `FLOAT` field takes a
+`REAL` or an integer converted to real. A store changes the bytes of its field and no others.
+`FIELD(P, name.field, I)` is element `I` of a field that is an array; the index is not checked. An
+array of structures is reached by adding the offset of the element to the address:
+`FIELD(P+(I*SIZEOF(name)), name.field)`. The address `P` is any expression, a pointer from `malloc`,
+an address of a variable (`LOC(X)`) or a pointer that C returned. For example, an array of
+structures sorted by `qsort` with a comparison that reads their fields:
+
+```
+STRUCT REC (INT KEY, DOUBLE W);
+CALLBACK INT BYKEY(PTR, PTR);
+EXTERNAL PTR calloc(SIZE, SIZE);
+EXTERNAL VOID qsort(PTR, SIZE, SIZE, PTR);
+N:=4;
+A:=CCALL calloc(N,SIZEOF(REC));
+((FIELD(A+(I*SIZEOF(REC)),REC.KEY):=(N-I)*10) FOR I IN 0,1,N-1);
+CCALL qsort(A,N,SIZEOF(REC),CALLBACK(BYKEY));
+((PRINT IGR 3,FIELD(A+(I*SIZEOF(REC)),REC.KEY)) FOR I IN 0,1,N-1);
+PRINT /;
+FINI(0);
+SUBR BYKEY(X,Y) IS (
+  FIELD(X,REC.KEY)<FIELD(Y,REC.KEY) => RETURN 0-1;
+  FIELD(X,REC.KEY)=FIELD(Y,REC.KEY) => RETURN 0;
+  1)
+%%
+```
+
+prints `10 20 30 40`, each in a field of three. The compiler reports at compile time a structure or
+a field that is not declared, a name declared twice, a type that is not a type of C or a structure
+declared earlier, an array field named without an element or a field that is not an array named with
+one, and a field of a structure type used as a value. Bit fields and unions are not declared, a
+structure is not passed or returned by value, and the attributes that change a layout (`packed`,
+`aligned`) are not known; the layout is what the program declares.
 
 ## 3: How to Compile and Run IMP72 Programs.
 

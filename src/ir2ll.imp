@@ -218,23 +218,36 @@ SUBR IRLVARF(NM) IS (
 # ---- LLVM TYPES ---- #
 SUBR IRLLTYPE(T) IS (
  T=3 => RETURN LOC('i8');
+ T=2 => RETURN LOC('i8');
+ T=4 => RETURN LOC('i16');
+ T=5 => RETURN LOC('i16');
  T=6 => RETURN LOC('i32');
+ T=12 => RETURN LOC('float');
  T=13 => RETURN LOC('double');
  LOC('i64'));
 
 SUBR IRLBITS(T) IS (
  T=3 => RETURN 8;
+ T=2 => RETURN 8;
+ T=4 => RETURN 16;
+ T=5 => RETURN 16;
  T=6 => RETURN 32;
+ T=12 => RETURN 32;
  64);
 
 SUBR IRLISU(T) IS (
  T=9 => RETURN 1;
  T=3 => RETURN 1;
+ T=5 => RETURN 1;
  0);
 
 SUBR IRLLALIGN(T) IS (
  T=3 => RETURN LOC('1');
+ T=2 => RETURN LOC('1');
+ T=4 => RETURN LOC('2');
+ T=5 => RETURN LOC('2');
  T=6 => RETURN LOC('4');
+ T=12 => RETURN LOC('4');
  IRLP32 NE 0 => RETURN LOC('4');
  LOC('8'));
 
