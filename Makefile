@@ -38,9 +38,9 @@ llvm-ir: stage0 $(LIB)
 	@LDFLAGS="$(LDFLAGS)" sh tools/guard.sh sh tools/llvm-ir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 
 stage0:
-	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
+	sf=`sh tools/hasstrl.sh`; lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
 	bd=`sh tools/llvm.sh bindir`; bdd=; [ -n "$$bd" ] && bdd="-DIMP72_LLVM_BINDIR=$$bd"; \
-	$(MAKE) -C stage0 CC="$(CC)" CXX="$(CXX)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
+	$(MAKE) -C stage0 CC="$(CC)" CXX="$(CXX)" CFLAGS="-std=c99 -pedantic $(CFLAGS) $$sf" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
 
 # Installed layout (imp72stage0 finds its parts relative to its own place):
 #   PREFIX/bin/imp72stage0 (the seed; also as imp72 where stage 2 cannot be built)   PREFIX/bin/imp72 (stage 2)
@@ -72,9 +72,9 @@ check: all
 	@sh tools/guard.sh $(MAKE) check-run
 
 check-run:
-	lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
+	sf=`sh tools/hasstrl.sh`; lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
 	bd=`sh tools/llvm.sh bindir`; bdd=; [ -n "$$bd" ] && bdd="-DIMP72_LLVM_BINDIR=$$bd"; \
-	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS)" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
+	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS) $$sf" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
 	sh tests/native/run.sh
 	sh tests/oracle/run.sh
 	sh tests/ieee/run.sh

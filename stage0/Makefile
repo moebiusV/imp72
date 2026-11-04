@@ -9,7 +9,7 @@ LLVMCFLAGS =
 LLVMLIBS   =
 LLVMOBJS   =
 LLVMBINDIRDEF =
-OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o semtab.o ir.o gen_impsem.o gen_code.o gen_code2.o gen_code3.o gen_demit.o
+OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.o dosem.o entree.o cotree.o rsyn.o semtab.o strl.o ir.o gen_impsem.o gen_code.o gen_code2.o gen_code3.o gen_demit.o
 TESTDIR = ../tests/stage0
 TESTS   = test_free test_stack test_dir test_lex test_parse test_debug
 
@@ -29,6 +29,8 @@ llvmorc.o: llvmorc.c
 
 impld.o: impld.cpp
 	$(CXX) -std=c++17 -O1 -g -fno-rtti $(LLVMCFLAGS) -c impld.cpp
+
+strl.o: strl.c strlcpy.c strlcat.c
 
 ir2ll.o: ../tools/ir2ll.c
 	$(CC) -std=gnu99 -O1 -g -DIR2LL_LIB -c ../tools/ir2ll.c

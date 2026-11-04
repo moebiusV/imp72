@@ -9,6 +9,13 @@ Files: *
 Copyright: 2026, the imp72 contributors
 License: ISC
 
+Files: stage0/strlcat.c
+ stage0/strlcpy.c
+Copyright: 1998, 2015, Todd C. Miller <millert@openbsd.org>
+Comment: From the OpenBSD C library, used where the system's C library has no
+ strlcpy and strlcat.
+License: ISC
+
 Files: decus/*
 Copyright: 1973, Walter Bilofsky, Yale University
 Comment: DECUS program 10-198a, IMP72 compiler version 1.5, from the DECUS

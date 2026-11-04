@@ -11,7 +11,7 @@ SUBR HINTERP(INFO,SIZE,DATA) IS (
     Q:=PH+(I*PS);
     IMPPEEK(Q,4)=3 => (                                         # PT_INTERP #
         VA:=(SCPTR(0)=8 => IMPPEEK(Q+16,8) ELSE IMPPEEK(Q+8,4));
-        CCALL strcpy(LOC(DATA),BASE+VA);
+        CCALL snprintf(LOC(DATA),4096,LOC('%s'),BASE+VA);
         RETURN 1);
     I:=I+1; GO TO HI1);
  1);

@@ -485,8 +485,8 @@ driver_main(int argc, char **argv)
     }
     if (strlen(dir) + 4 >= sizeof root)
         return 1;
-    strcpy(root, dir);
-    strcat(root, "/..");
+    strlcpy(root, dir, sizeof root);
+    strlcat(root, "/..", sizeof root);
     snprintf(syntax, sizeof syntax, "%s/src/llvm-ir/syntax64.imc", root);
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
@@ -542,9 +542,9 @@ driver_main(int argc, char **argv)
             rc = llvmrun(ir) != 0;
             fflush(NULL);
         } else if (stop == 'S')
-            rc = llvmsave(ir, outname ? outname : strcat(base, ".ll")) != 0;
+            rc = llvmsave(ir, outname ? outname : (strlcat(base, ".ll", sizeof base), base)) != 0;
         else if (stop == 'o')
-            rc = llvmobj(ir, outname ? outname : strcat(base, ".o")) != 0;
+            rc = llvmobj(ir, outname ? outname : (strlcat(base, ".o", sizeof base), base)) != 0;
         else if (llvmobj(ir, ofile) != 0)
             rc = 1;
         else

@@ -143,7 +143,7 @@ g_irlabname(word l)
     char *s;
 
     s = malloc(24);
-    sprintf(s, ".L%ld", (long)l);
+    snprintf(s, 24, ".L%ld", (long)l);
     return s;
 }
 
@@ -230,7 +230,7 @@ g_irjbname(word d)
 
     n = g_irsymname(d);
     s = malloc(strlen(n) + 8);
-    sprintf(s, "imp_jb_%s", n);
+    snprintf(s, strlen(n) + 8, "imp_jb_%s", n);
     return s;
 }
 

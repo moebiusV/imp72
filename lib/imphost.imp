@@ -41,7 +41,7 @@ SUBR IMPFINDLIB(OUT,DIRP,PREFIX) IS (
  GO TO FL1;
  FL9: CCALL closedir(D);
  BMAJ<0 => RETURN 0;
- CCALL strcpy(OUT,DIRP); CCALL strcat(OUT,LOC('/')); CCALL strcat(OUT,LOC(BESTB));
+ CCALL snprintf(OUT,4096,LOC('%s/%s'),DIRP,LOC(BESTB));
  1);
 
 # (IMPHOSTINTERP, the dynamic linker of the program, is in IMPHOSTX-ELF.IMP or IMPHOSTX-MACHO.IMP: dl_iterate_phdr is the ELF systems') #
@@ -57,14 +57,14 @@ SUBR IMPHOSTLIBC(OUT) IS (
  F:=IMPPEEKPTR(LOC(DLI));                                       # DLI_FNAME #
  F=0 => RETURN 0;
  IMPPEEK(F,1) NE 47 => RETURN 0;
- CCALL strcpy(OUT,F);
+ CCALL snprintf(OUT,4096,LOC('%s'),F);
  1);
 
 # DOES THE DIRECTORY D HAVE CRT1.O (CRT0.O) #
 SUBR HASCRT(D) IS (
- CCALL strcpy(LOC(PATHC),D); CCALL strcat(LOC(PATHC),LOC('/crt1.o'));
+ CCALL snprintf(LOC(PATHC),4096,LOC('%s/crt1.o'),D);
  CCALL access(LOC(PATHC),4)=0 => RETURN 1;
- CCALL strcpy(LOC(PATHC),D); CCALL strcat(LOC(PATHC),LOC('/crt0.o'));
+ CCALL snprintf(LOC(PATHC),4096,LOC('%s/crt0.o'),D);
  CCALL access(LOC(PATHC),4)=0 => 1 ELSE 0);
 
 # THE DIRECTORY OF CRT1.O (CRT0.O) THAT GOES WITH THE C LIBRARY IN USE: WHERE THE LIBRARY IS, OR THE SAME UNDER /USR (/LIB/X86_64-LINUX-GNU HAS THE LIBRARY, AND /USR/LIB/X86_64-LINUX-GNU THE CRT FILES; /LIB64 AND
@@ -78,10 +78,10 @@ SUBR IMPHOSTCRTDIR(OUT) IS (
  QA:=LOC(PATHA); QB:=LOC(PATHB);                                 # (IN VARIABLES: THE SEED TAKES LOC(X)+N FOR N WORDS) #
  L:=SL-QA;
  CCALL memcpy(QB,QA,L); CCALL memset(QB+L,0,1);          # PATHB: THE DIRECTORY OF THE LIBRARY #
- CCALL strcpy(LOC(PATHA),LOC('/usr')); CCALL strcat(LOC(PATHA),LOC(PATHB));       # PATHA: THE SAME UNDER /USR #
- HASCRT(LOC(PATHB)) NE 0 => (CCALL strcpy(OUT,LOC(PATHB)); RETURN 1);
- HASCRT(LOC(PATHA)) NE 0 => (CCALL strcpy(OUT,LOC(PATHA)); RETURN 1);
- HASCRT(LOC('/usr/lib')) NE 0 => (CCALL strcpy(OUT,LOC('/usr/lib')); RETURN 1);
+ CCALL snprintf(LOC(PATHA),4096,LOC('/usr%s'),LOC(PATHB));       # PATHA: THE SAME UNDER /USR #
+ HASCRT(LOC(PATHB)) NE 0 => (CCALL snprintf(OUT,4096,LOC('%s'),LOC(PATHB)); RETURN 1);
+ HASCRT(LOC(PATHA)) NE 0 => (CCALL snprintf(OUT,4096,LOC('%s'),LOC(PATHA)); RETURN 1);
+ HASCRT(LOC('/usr/lib')) NE 0 => (CCALL snprintf(OUT,4096,LOC('%s'),LOC('/usr/lib')); RETURN 1);
  0);
 
 # RUN LLD AS A PROGRAM, FOUND BY THE PATH UNDER THE NAME IN ARGV[0] (LD.LLD, LD64.LLD), WITH THE ARGUMENT VECTOR ARGV (NULL ENDED); WAIT FOR IT; 0 IF IT LINKED.  FOR A COMPILER BUILT WITHOUT THE LLD LIBRARY, AS OPENBSD'S
@@ -93,7 +93,7 @@ SUBR IMPRUNLD(ARGC,ARGV) IS (
  PID<0 => RETURN 1;
  PID=0 => (A0:=IMPPEEKPTR(ARGV);
            CCALL execvp(A0,ARGV);
-           SCBINDIR(0) NE 0 => (CCALL strcpy(LOC(PATHA),SCBINDIR(0)); CCALL strcat(LOC(PATHA),LOC('/')); CCALL strcat(LOC(PATHA),A0);
+           SCBINDIR(0) NE 0 => (CCALL snprintf(LOC(PATHA),4096,LOC('%s/%s'),SCBINDIR(0),A0);
                                 CCALL execv(LOC(PATHA),ARGV));
            CCALL perror(A0);
            CCALL _exit(127));

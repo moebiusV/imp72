@@ -59,9 +59,10 @@ die(const char *msg, const char *line)
 static char *
 xstrdup(const char *s)
 {
-    char *r = malloc(strlen(s) + 1);
+    size_t k = strlen(s) + 1;
+    char *r = malloc(k);
 
-    strcpy(r, s);
+    memcpy(r, s, k);
     return r;
 }
 
@@ -818,10 +819,10 @@ llstring(const char *s, int *len)
                 break;
             }
         }
-        p += sprintf(p, "\\%02X", c & 255);
+        p += snprintf(p, 4, "\\%02X", c & 255);
         n++;
     }
-    p += sprintf(p, "\\00");
+    p += snprintf(p, 4, "\\00");
     n++;
     *len = n;
     return r;

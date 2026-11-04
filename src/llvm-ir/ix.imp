@@ -329,7 +329,7 @@ SUBR IRSTRVAL(V) IS (
 SUBR IRLABNAME(L) IS (
  S ARE LOCAL;
  S:=CCALL malloc(24);
- CCALL sprintf(S,LOC('.L%ld'),L);
+ CCALL snprintf(S,24,LOC('.L%ld'),L);
  S);
 
 # THE BODY OF A POOLED CONSTANT: THE TEXT, OR THE NUMBER #
@@ -373,6 +373,6 @@ SUBR IRJBNAME(D) IS (
  S,N ARE LOCAL;
  N:=IRSYMNAME(D);
  S:=CCALL malloc(CCALL strlen(N)+8);
- CCALL sprintf(S,LOC('imp_jb_%s'),N);
+ CCALL snprintf(S,CCALL strlen(N)+8,LOC('imp_jb_%s'),N);
  S)
 %%

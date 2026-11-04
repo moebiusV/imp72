@@ -5,6 +5,7 @@
  * with -rdynamic for the purpose.
  */
 #define _GNU_SOURCE 1
+#include "strl.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -77,14 +78,15 @@ hostcpu(const char *triple, char **cpu, char **feat)
         *feat = "+m,+a,+f,+d,+c";
     } else {
         char *f = *feat, *t, *o = malloc(strlen(f) + 1);
+        size_t osz = strlen(f) + 1;
 
         if (o != NULL) {
             *o = '\0';
             for (t = strtok(f, ","); t != NULL; t = strtok(NULL, ","))
                 if (*t != '-') {
                     if (*o != '\0')
-                        strcat(o, ",");
-                    strcat(o, t);
+                        strlcat(o, ",", osz);
+                    strlcat(o, t, osz);
                 }
             *feat = o;
         }

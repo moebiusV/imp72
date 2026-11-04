@@ -613,7 +613,7 @@ SUBR IR2LLRUN(INF,OUTF,PTR32) IS (
           GO TO RL1);
  C=33 => (CCALL fgets(LOC(IRLLINE),600,IRLIN)=0 => GO TO RL9;
           IRLPUTB(LOC(IRLHDR),0,33);
-          Q:=LOC(IRLHDR); Q:=Q+1; CCALL strcpy(Q,LOC(IRLLINE));
+          Q:=LOC(IRLHDR); Q:=Q+1; CCALL memcpy(Q,LOC(IRLLINE),CCALL strlen(LOC(IRLLINE))+1);
           IRLFLUSH(0); IRLFUNC(0);
           GO TO RL1);
  RL2: ((C NE 10) AND (C GE 0)) => (C:=IRLGETC(0); GO TO RL2);

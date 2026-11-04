@@ -164,7 +164,7 @@ synts(word n)
     char buf[16];
 
     fullname(-n, buf, sizeof buf - 1);
-    strcat(buf, "#");
+    strlcat(buf, "#", sizeof buf);
     fadd(&sn, &nsn, dir(buf));
     fadd(&na, &nna, -1);
     return 0;

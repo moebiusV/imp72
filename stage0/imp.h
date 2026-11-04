@@ -30,6 +30,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include "strl.h"
 
 typedef int64_t word;
 typedef uint64_t uword;
