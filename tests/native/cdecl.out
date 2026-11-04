@@ -1,0 +1,17 @@
+ldexp(1.5,4) = 24.000000
+ldexp(1,40) = 1099511627776.0
+ldexp(3,2) = 12.0, from an integer
+strtod = 3.25
+ldexpf(0.75,3) = 6.0000
+copysignf(2.5,-1) = -2.5
+v=2.50 i=42 s=ok (16 characters)
+a variadic call with a REAL: -2.000 and 7
+strlen = 11
+labs(-5) = 5, abs(-7) = 7
+an int result of -1 stays -1
+toupper = 65
+a uint result is zero extended
+copied
+scale(5) = 40.0
+frexp(40) = 0.6250 * 2^6
+getpid() is positive

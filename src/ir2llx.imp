@@ -3,8 +3,8 @@
 
 IRLIN,IRLOUTP,IRLP32,IRLSP,IRLCH,IRLTOP,IRLEND,IRLNVR,IRLNCM,IRLNDQ,IRLDLABEL,IRLDSTRING,IRLUSEJ,IRLNVAL,IRLTERM,IRLNDEAD,IRLNT,IRLMAXARG,IRLPOS,IRLV,IRLLEN ARE COMMON;
 IRLBB,IRLBL,IRLBC ARE COMMON,6 LONG;
-IRLSETV IS COMMON,24576 LONG;
-IRLSETN IS COMMON,6 LONG;
+IRLSETV IS COMMON,28672 LONG;
+IRLSETN IS COMMON,7 LONG;
 IRLTT IS COMMON,8192 LONG;
 IRLSTM IS COMMON,100000 LONG;
 IRLLAB IS COMMON,100000 LONG;
@@ -232,13 +232,164 @@ SUBR IRLFT(NN,DOTS) IS (
  DT NE 0 => IRLPS(0,LOC(', ...)')) ELSE IRLPC(0,41);
  0);
 
+# ---- THE CALLS OF DECLARED C FUNCTIONS (TYPEDCALL IN TOOLS/IR2LL.C).  THE CODE GENERATOR NAMES SUCH A FUNCTION NAME@SIG IN THE CALL: SIG IS THE LETTER OF THE TYPE OF THE RESULT (c C s S i I l L q Q z p d f v:
+  CHAR UCHAR SHORT USHORT INT UINT LONG ULONG LLONG ULLONG SIZE PTR DOUBLE FLOAT VOID), THEN THE LETTERS OF THE ARGUMENTS, WITH A DOT BEFORE THOSE OF A VARIADIC CALL THAT HAVE NO PARAMETER.  THE ARGUMENTS ARE
+  WORDS (POINTER SIZED); A DOUBLE, A FLOAT AND A LONG LONG ARE THE ADDRESS OF A WORD OF 64 BITS ---- #
+
+# THE LLVM TYPE OF THE C TYPE WITH THE LETTER C #
+SUBR IRLTYTEXT(CC) IS (
+ K ARE LOCAL;
+ K:=CC;
+ ((K=99) OR (K=67)) => RETURN LOC('i8');
+ ((K=115) OR (K=83)) => RETURN LOC('i16');
+ ((K=105) OR (K=73)) => RETURN LOC('i32');
+ ((K=108) OR (K=76) OR (K=122)) => RETURN IRLIPT(0);
+ ((K=113) OR (K=81)) => RETURN LOC('i64');
+ K=112 => RETURN LOC('ptr');
+ K=100 => RETURN LOC('double');
+ K=102 => RETURN LOC('float');
+ K=118 => RETURN LOC('void');
+ IRLDIE(LOC('unknown C type in a call'),LOC(IRLZERO));
+ LOC('i64'));
+
+# THE ATTRIBUTE OF A PARAMETER OF THE C TYPE WITH THE LETTER C #
+SUBR IRLTYATTR(CC) IS (
+ K ARE LOCAL;
+ K:=CC;
+ ((K=99) OR (K=115) OR (K=105)) => RETURN LOC(' signext');
+ ((K=67) OR (K=83) OR (K=73)) => RETURN LOC(' zeroext');
+ LOC(IRLZERO));
+
+# THE LINE OF THE DECLARATION OF THE TYPED FUNCTION NM (SET 6 HOLDS THE NAME, A NEW LINE AND THE LINE), OR 0 #
+SUBR IRLTFIND(NN) IS (
+ I,L,NM ARE LOCAL;
+ NM:=NN;
+ L:=CCALL strlen(NM);
+ I:=0;
+ TF1: I<IRLSETN[6] => (CCALL strncmp(IRLSETV[(6*4096)+I],NM,L)=0 => IRLGETB(IRLSETV[(6*4096)+I],L)=10 => RETURN IRLSETV[(6*4096)+I]+L+1;
+                       I:=I+1; GO TO TF1);
+ 0);
+
+# THE VALUE OF THE ARGUMENT WITH THE C TYPE OF THE LETTER C, FROM V: A POINTER SIZED INTEGER #
+SUBR IRLTARG(CC,VV) IS (
+ C,V,T,P,U ARE LOCAL;
+ C:=CC; V:=VV;
+ ((C=99) OR (C=67)) => (T:=IRLNEWVAL(0);
+                        IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = trunc ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,V); IRLPS(0,LOC(' to i8')); IRLE(0);
+                        RETURN T);
+ ((C=115) OR (C=83)) => (T:=IRLNEWVAL(0);
+                         IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = trunc ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,V); IRLPS(0,LOC(' to i16')); IRLE(0);
+                         RETURN T);
+ ((C=105) OR (C=73)) => (IRLP32 NE 0 => RETURN V;
+                         T:=IRLNEWVAL(0);
+                         IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = trunc i64 ')); IRLPS(0,V); IRLPS(0,LOC(' to i32')); IRLE(0);
+                         RETURN T);
+ C=112 => (T:=IRLNEWVAL(0);
+           IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = inttoptr ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,V); IRLPS(0,LOC(' to ptr')); IRLE(0);
+           RETURN T);
+ ((C=113) OR (C=81) OR (C=100) OR (C=102)) => (
+     P:=IRLNEWVAL(0);
+     IRLI(0); IRLPS(0,P); IRLPS(0,LOC(' = inttoptr ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,V); IRLPS(0,LOC(' to ptr')); IRLE(0);
+     T:=IRLNEWVAL(0);
+     IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = load '));
+     ((C=100) OR (C=102)) => IRLPS(0,LOC('double')) ELSE IRLPS(0,LOC('i64'));
+     IRLPS(0,LOC(', ptr ')); IRLPS(0,P); IRLPS(0,LOC(', align 8')); IRLE(0);
+     C=102 => (U:=IRLNEWVAL(0);
+               IRLI(0); IRLPS(0,U); IRLPS(0,LOC(' = fptrunc double ')); IRLPS(0,T); IRLPS(0,LOC(' to float')); IRLE(0);
+               RETURN U);
+     RETURN T);
+ V);
+
+# A TYPED CALL OF THE FUNCTION NM WITH THE SIGNATURE SG: THE ARGUMENTS ARE THE N VALUES AT IRLSTK[A+128]; THE VALUE IS AN I64 #
+SUBR IRLTCALL(NM0,SG0,A0,N0) IS (
+ NM,SG,A,N,RS,K,NF,J,C,T,R,U,Z,FT ARE LOCAL;
+ NM:=NM0; SG:=SG0; A:=A0; N:=N0;
+ RS:=IRLGETB(SG,0);
+ K:=0; NF:=0-1; J:=1;
+ TC1: C:=IRLGETB(SG,J);
+ C=0 => GO TO TC2;
+ C=46 => (NF:=K; J:=J+1; GO TO TC1);
+ K GE N => IRLDIE(LOC('call with fewer arguments than its signature'),NM);
+ K:=K+1; J:=J+1; GO TO TC1;
+ TC2: K NE N => IRLDIE(LOC('call with more arguments than its signature'),NM);
+ IRLTFIND(NM)=0 => IRLSETN[6]<4096 => (
+     IRLRST(3);
+     IRLPS(3,NM); IRLPC(3,10); IRLPS(3,LOC('declare ')); IRLPS(3,IRLTYTEXT(RS)); IRLPC(3,32); IRLGN(3,NM); IRLPC(3,40);
+     K:=0; J:=1;
+     TC3: C:=IRLGETB(SG,J);
+     C=0 => GO TO TC4;
+     C=46 => (J:=J+1; GO TO TC3);
+     (NF<0) OR (K<NF) => (K>0 => IRLPS(3,LOC(', ')); IRLPS(3,IRLTYTEXT(C)); IRLPS(3,IRLTYATTR(C)));
+     K:=K+1; J:=J+1; GO TO TC3;
+     TC4: NF GE 0 => (NF>0 => IRLPS(3,LOC(', ...')) ELSE IRLPS(3,LOC('...')));
+     IRLPC(3,41);
+     IRLADD(6,IRLBB[3]));
+ K:=0; J:=1;
+ TC5: C:=IRLGETB(SG,J);
+ C=0 => GO TO TC6;
+ C=46 => (J:=J+1; GO TO TC5);
+ IRLSTK[(A+128)+K]:=IRLTARG(C,IRLSTK[(A+128)+K]);
+ K:=K+1; J:=J+1; GO TO TC5;
+ TC6: RS=118 => GO TO TC6V;
+ R:=IRLNEWVAL(0); IRLI(0); IRLPS(0,R); IRLPS(0,LOC(' = call ')); IRLPS(0,IRLTYTEXT(RS)); IRLPC(0,32);
+ GO TO TC6W;
+ TC6V: IRLI(0); IRLPS(0,LOC('call void '));
+ TC6W: NF GE 0 => (IRLPC(0,40);
+ K:=0; J:=1;
+             TC7: K<NF => (C:=IRLGETB(SG,J); K>0 => IRLPS(0,LOC(', ')); IRLPS(0,IRLTYTEXT(C)); K:=K+1; J:=J+1; GO TO TC7);
+             NF>0 => IRLPS(0,LOC(', ...')) ELSE IRLPS(0,LOC('...'));
+             IRLPC(0,41); IRLPC(0,32));
+ IRLGN(0,NM); IRLPC(0,40);
+ K:=0; J:=1;
+ TC8: C:=IRLGETB(SG,J);
+ C=0 => GO TO TC9;
+ C=46 => (J:=J+1; GO TO TC8);
+ K>0 => IRLPS(0,LOC(', '));
+ IRLPS(0,IRLTYTEXT(C));
+ (NF<0) OR (K<NF) => IRLPS(0,IRLTYATTR(C));
+ IRLPC(0,32); IRLPS(0,IRLSTK[(A+128)+K]);
+ K:=K+1; J:=J+1; GO TO TC8;
+ TC9: IRLPC(0,41); IRLE(0);
+ RS=118 => RETURN LOC('0');
+ ((RS=99) OR (RS=115) OR (RS=105)) => (T:=IRLNEWVAL(0);
+     IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = sext ')); IRLPS(0,IRLTYTEXT(RS)); IRLPC(0,32); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
+     RETURN T);
+ ((RS=67) OR (RS=83) OR (RS=73)) => (T:=IRLNEWVAL(0);
+     IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = zext ')); IRLPS(0,IRLTYTEXT(RS)); IRLPC(0,32); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
+     RETURN T);
+ RS=108 => (IRLP32 NE 0 => (T:=IRLNEWVAL(0);
+                            IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = sext i32 ')); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
+                            RETURN T);
+            RETURN R);
+ ((RS=76) OR (RS=122)) => (IRLP32 NE 0 => (T:=IRLNEWVAL(0);
+                                            IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = zext i32 ')); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
+                                            RETURN T);
+                           RETURN R);
+ RS=112 => (U:=IRLNEWVAL(0);
+            IRLI(0); IRLPS(0,U); IRLPS(0,LOC(' = ptrtoint ptr ')); IRLPS(0,R); IRLPS(0,LOC(' to ')); IRLPS(0,IRLIPT(0)); IRLE(0);
+            IRLP32 NE 0 => (T:=IRLNEWVAL(0);
+                            IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = zext i32 ')); IRLPS(0,U); IRLPS(0,LOC(' to i64')); IRLE(0);
+                            RETURN T);
+            RETURN U);
+ RS=100 => (T:=IRLNEWVAL(0);
+            IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = bitcast double ')); IRLPS(0,R); IRLPS(0,LOC(' to i64')); IRLE(0);
+            RETURN T);
+ RS=102 => (U:=IRLNEWVAL(0);
+            IRLI(0); IRLPS(0,U); IRLPS(0,LOC(' = fpext float ')); IRLPS(0,R); IRLPS(0,LOC(' to double')); IRLE(0);
+            T:=IRLNEWVAL(0);
+            IRLI(0); IRLPS(0,T); IRLPS(0,LOC(' = bitcast double ')); IRLPS(0,U); IRLPS(0,LOC(' to i64')); IRLE(0);
+            RETURN T);
+ R);
+
 # A CALL: THE VALUE IS AN I64.  THE FRAME ON THE STACK HAS THE ARGUMENT NODES (0..63), THE LIST OF THEM (64..127) AND THEIR VALUES (128..191) #
 SUBR IRLCALLEXPR(NN) IS (
- N,FN,A,C,K,NL,TOP,SL,D,X,NARGS,V,NM,R,Z,NF,CF,P,Q,Y,IND,F ARE LOCAL;
+ N,FN,A,C,K,NL,TOP,SL,D,X,NARGS,V,NM,R,Z,NF,CF,P,Q,Y,IND,F,SG ARE LOCAL;
  N:=NN; FN:=[N+5];
  [FN]=4 => ([FN+4] NE 0 => GO TO CE1);
  IRLDIE(LOC('call of a computed function'),LOC(IRLZERO));
  CE1: NM:=[FN+4];
+ SG:=CCALL strchr(NM,64);                       # A DECLARED C FUNCTION: NAME@SIGNATURE #
+ SG NE 0 => (IRLPUTB(SG,0,0); SG:=SG+1);
  # A CALL THROUGH AN ADDRESS: CCALL impcallp(F,A,...) (THE RESULT A C LONG) OR IMPCALLW(F,A,...) (THE RESULT AN IMP WORD, 64 BITS) CALLS THE FUNCTION AT F WITH THE ARGUMENTS A,... BY VALUE #
  IND:=0;
  CCALL strcmp(NM,LOC('impcallp'))=0 => IND:=1;
@@ -275,14 +426,15 @@ SUBR IRLCALLEXPR(NN) IS (
  K:=0;
  CE7: K<NARGS => (X:=IRLSTK[A+K];
                   X=0 => IRLDIE(LOC('missing argument'),NM);
-                  IRLPUSH(A); IRLPUSH(K); IRLPUSH(NARGS); IRLPUSH(NM);
+                  IRLPUSH(A); IRLPUSH(K); IRLPUSH(NARGS); IRLPUSH(NM); IRLPUSH(SG);
                   V:=IRLEXC(X,8);
-                  NM:=IRLPOP(0); NARGS:=IRLPOP(0); K:=IRLPOP(0); A:=IRLPOP(0);
+                  SG:=IRLPOP(0); NM:=IRLPOP(0); NARGS:=IRLPOP(0); K:=IRLPOP(0); A:=IRLPOP(0);
                   IRLP32 NE 0 => (Z:=IRLNEWVAL(0);
                                   IRLI(0); IRLPS(0,Z); IRLPS(0,LOC(' = trunc i64 ')); IRLPS(0,V); IRLPS(0,LOC(' to i32')); IRLE(0);
                                   V:=Z);
                   IRLSTK[(A+128)+K]:=V;
                   K:=K+1; GO TO CE7);
+ SG NE 0 => (R:=IRLTCALL(NM,SG,A,NARGS); IRLSP:=A; RETURN R);
  IND NE 0 => (NARGS<1 => IRLDIE(LOC('call through an address without the address'),NM);
               F:=IRLNEWVAL(0);
               IRLI(0); IRLPS(0,F); IRLPS(0,LOC(' = inttoptr ')); IRLPS(0,IRLIPT(0)); IRLPC(0,32); IRLPS(0,IRLSTK[A+128]); IRLPS(0,LOC(' to ptr')); IRLE(0);

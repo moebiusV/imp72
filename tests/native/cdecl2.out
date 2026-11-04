@@ -1,0 +1,15 @@
+atoi(200) as CHAR = -56
+abs(-300) as UCHAR = 44
+labs(-40000) as SHORT = -25536
+strtol(70000) as USHORT = 4464
+toupper of a CHAR 353 = 65
+tolower of a UCHAR 321 = 97
+isalpha of a SHORT 65+65536 is true
+isdigit of a USHORT 48+65536 is true
+a ulong result is zero extended
+a long result is sign extended
+llabs of a LLONG
+a llong result
+a ullong result is the whole word
+rand() takes no argument
+srand and rand are repeatable

@@ -48,8 +48,9 @@ comes from the machine and from the runtime.
   a time. A file name is a
   string of up to 7 characters, and image mode moves 8 bytes per word. `FINI(0)`
   closes the files and exits.
-- **Calls to C.** `CCALL NAME(A,B)` calls a C function with values; `EXTERNAL`
-  declares a variable defined elsewhere; `impcallp` and `impcallw` call
+- **Calls to C.** `CCALL NAME(A,B)` calls a C function with values;
+  `EXTERNAL INT NAME(PTR);` declares the types of a C function, and
+  `X IS EXTERNAL` a variable defined elsewhere; `impcallp` and `impcallw` call
   through an address. A `SUBR` is a C function taking pointers (`docs/FFI.md`).
   These come from `lib/ffi.imc`, a language extension in the original's style.
 - **Objects** are the host's object format, `NAME.o`.
