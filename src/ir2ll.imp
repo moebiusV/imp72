@@ -18,7 +18,7 @@ IRLTT IS COMMON,8192 LONG;
 IRLSTM IS COMMON,100000 LONG;
 IRLLAB IS COMMON,100000 LONG;
 IRLSTK IS COMMON,200000 LONG;
-IRLDQ IS COMMON,4096 LONG;
+IRLDQ,IRLDS ARE COMMON,4096 LONG;
 IRLVRS,IRLVRN,IRLVRZ ARE COMMON,4096 LONG;
 IRLCMN,IRLCMZ,IRLCML ARE COMMON,4096 LONG;
 IRLLINE IS COMMON,80 LONG;
@@ -428,7 +428,12 @@ SUBR IRLFLUSH(Z) IS (
                      GO TO FL9);
  IRLNDQ>0 => (IRLGN(1,IRLDLABEL); IRLPS(1,LOC(' = ')); IRLPS(1,LK); IRLPS(1,LOC(' global [')); IRLPN(1,IRLNDQ); IRLPS(1,LOC(' x i64] ['));
               I:=0;
-              FL1: I<IRLNDQ => (I>0 => IRLPS(1,LOC(', ')); IRLPS(1,LOC('i64 ')); IRLPN(1,IRLDQ[I]); I:=I+1; GO TO FL1);
+              FL1: I<IRLNDQ => (I>0 => IRLPS(1,LOC(', '));
+                                IRLDS[I]=0 => (IRLPS(1,LOC('i64 ')); IRLPN(1,IRLDQ[I]))
+                                  ELSE (IRLDQ[I]=0 => (IRLPS(1,LOC('i64 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i64)')))
+                                          ELSE (IRLPS(1,LOC('i64 add (i64 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i64), i64 ')); IRLPN(1,IRLDQ[I]); IRLPC(1,41));
+                                        CCALL free(IRLDS[I]));
+                                I:=I+1; GO TO FL1);
               IRLPS(1,LOC('], align 8')); IRLPC(1,10);
               IRLADD(2,IRLDLABEL));
  FL9: IRLDLABEL NE 0 => CCALL free(IRLDLABEL);
@@ -476,7 +481,13 @@ SUBR IRLPASS(LL) IS (
  PA1: C:=IRLGB(L,0); ((C=32) OR (C=9)) => (L:=L+1; GO TO PA1);
  CCALL strncmp(L,LOC('.local '),7)=0 => (K:=L+7; IRLADD(5,K); RETURN 0);
  IRLCOMM(L) NE 0 => RETURN 0;
- CCALL strncmp(L,LOC('.quad '),6)=0 => (IRLNDQ<4096 => (K:=L+6; IRLDQ[IRLNDQ]:=IRLATOLL(K); IRLNDQ:=IRLNDQ+1);
+ CCALL strncmp(L,LOC('.quad '),6)=0 => (IRLNDQ<4096 => (K:=L+6; C:=IRLGB(K,0);
+                                                        (((C GE 48) AND (C LE 57)) OR (C=45)) => (IRLDS[IRLNDQ]:=0; IRLDQ[IRLNDQ]:=IRLATOLL(K))
+                                                          ELSE (IRLPOS:=K; IRLTOK(255,LOC(IRLSYMB));       # SYMBOL+OFFSET: THE ADDRESS OF A SYMBOL #
+                                                                Q:=CCALL strrchr(LOC(IRLSYMB),43);
+                                                                Q NE 0 => (IRLPUTB(Q,0,0); K:=Q+1; IRLDQ[IRLNDQ]:=IRLATOLL(K)) ELSE IRLDQ[IRLNDQ]:=0;
+                                                                IRLDS[IRLNDQ]:=CCALL strdup(LOC(IRLSYMB)); IRLADD(1,LOC(IRLSYMB)));
+                                                        IRLNDQ:=IRLNDQ+1);
                                         RETURN 0);
  CCALL strncmp(L,LOC('.string "'),9)=0 => (Q:=CCALL strrchr(L,34); IRLPUTB(Q,0,0);
                                            IRLDSTRING NE 0 => CCALL free(IRLDSTRING);

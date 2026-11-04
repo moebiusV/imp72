@@ -1,0 +1,10 @@
+X:=5; Y:=6;
+PRINT IGR 0,TB[0],IGR 4,TB[1]-LOC(X),IGR 4,TB[2]-LOC(Y),IGR 4,TB[3]-LOC(Z),IGR 4,TB[4],/;
+[TB[1]]:=7; [TB[2]]:=[TB[1]]+1;
+PRINT IGR 0,X,IGR 4,Y,/;
+PRINT IGR 0,SUMIT(),/;
+FINI(0);
+SUBR SUMIT() IS ([TB[1]]+[TB[2]]+[UB[0]]+[UB[1]]);
+TB: DATA(10,X,Y,Z,20);
+UB: DATA(Y,X)
+%%

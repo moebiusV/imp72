@@ -769,6 +769,7 @@ statement(struct node *n)
 
 static char *dlabel, *dstring;
 static long long dquads[4096];
+static char *dqsyms[4096];                      /* a data word that is the address of a symbol (plus dquads[i] bytes), or NULL */
 static int ndq;
 
 /* the bytes of an assembler string (escapes: \n \t \\ \" and octal) as an LLVM constant */
@@ -842,8 +843,15 @@ flushdata(void)
             add(&datadefs, dlabel);
         } else if (ndq > 0) {
             fprintf(datafile, "%s = %s global [%d x i64] [", gname(dlabel), link, ndq);
-            for (i = 0; i < ndq; i++)
-                fprintf(datafile, "%si64 %lld", i ? ", " : "", dquads[i]);
+            for (i = 0; i < ndq; i++) {
+                if (dqsyms[i] == NULL)
+                    fprintf(datafile, "%si64 %lld", i ? ", " : "", dquads[i]);
+                else if (dquads[i] == 0)
+                    fprintf(datafile, "%si64 ptrtoint (ptr %s to i64)", i ? ", " : "", gname(dqsyms[i]));
+                else
+                    fprintf(datafile, "%si64 add (i64 ptrtoint (ptr %s to i64), i64 %lld)", i ? ", " : "", gname(dqsyms[i]), dquads[i]);
+                dqsyms[i] = NULL;
+            }
             fprintf(datafile, "], align 8\n");
             add(&datadefs, dlabel);
         }
@@ -876,8 +884,24 @@ passthrough(char *line)
         return;
     }
     if (strncmp(line, ".quad ", 6) == 0) {
-        if (ndq < 4096)
-            dquads[ndq++] = atoll(line + 6);
+        if (ndq < 4096) {
+            const char *q = line + 6;
+
+            if ((*q >= '0' && *q <= '9') || *q == '-') {
+                dqsyms[ndq] = NULL;
+                dquads[ndq++] = atoll(q);
+            } else {                                    /* .quad SYMBOL+OFFSET: the address of a symbol */
+                const char *pl = strrchr(q, '+');
+                size_t nl = pl != NULL ? (size_t)(pl - q) : strlen(q);
+                char *nm = malloc(nl + 1);
+
+                memcpy(nm, q, nl);
+                nm[nl] = '\0';
+                add(&datarefs, nm);
+                dqsyms[ndq] = nm;
+                dquads[ndq++] = pl != NULL ? atoll(pl + 1) : 0;
+            }
+        }
         return;
     }
     if (strncmp(line, ".string \"", 9) == 0) {

@@ -1,0 +1,11 @@
+PRINT STG 0,'start',/;
+S1(0);
+PRINT STG 0,'not reached',/;
+MT: PRINT STG 0,'main tag',/;
+S2(1);
+PRINT STG 0,'not reached either',/;
+MT2: PRINT STG 0,'second main tag',/;
+FINI(0);
+SUBR S1(N) IS (PRINT STG 0,'in s1',/; S2(N); 0);
+SUBR S2(N) IS (PRINT STG 0,'in s2',/; N=0 => GO TO MT; GO TO MT2; 0)
+%%

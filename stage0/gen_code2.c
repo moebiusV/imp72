@@ -267,7 +267,7 @@ g_cjump(word op, word p, word r, word s)
         g_float(r);
     }
     g_fetch(p);
-    g_addrec(r, KOP, o, g_regof(p), FREE(r), FREE(r + 1), HL(FREE(s)));
+    g_addrec(r, KOP, o, g_regof(p), FREE(r), FREE(r + 1), HW(HR(FREE(s + 1)), HL(FREE(s))));   /* the tag, and in the high half the offset of S (GO TO CND[1]) */
     return g_hook(p, p, r);
 }
 
@@ -437,8 +437,9 @@ g_datast(word b)
             } while (k <= i);
             continue;
         }
-        /* a name: its address */
-        g_hook(a, a, g_dewop(OADDR, g_areg1(1, 015), b));
+        /* a name: its address, a word of the data that the assembler (and the IR writer) relocates: the record has the operand of the name */
+        g_unpck(b);
+        g_addrec(a, KWORD, 0, 0, g_se, g_se1, 0);
     }
     return a;
 }

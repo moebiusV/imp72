@@ -1005,19 +1005,16 @@ A condition may be several relations joined by
 .Ic AND
 or
 .Ic OR ,
-each relation in parentheses, and the whole in another pair of parentheses,
-in a conditional, after
+each relation in parentheses, in a conditional, after
 .Ic WHILE
 or after
 .Ic UNTIL .
 The relations are evaluated from left to right and no more of them than
 necessary are evaluated.
-Because the operators have no precedence the extra pair of parentheses
-is needed:
-.Li "WHILE (A=1) AND (B=1) DO S"
-is not the loop that
-.Li "WHILE ((A=1) AND (B=1)) DO S"
-is.
+A condition of one relation in parentheses alone, as in
+.Li "(A=1) => S" ,
+is a syntactic ambiguity: write
+.Li "A=1 => S" .
 .It Ic GO TO Ar E
 Transfer control to the tag
 .Ar E .
@@ -1034,12 +1031,8 @@ If
 .Li E<0
 or
 .Li E>N ,
-the effect is undefined.
-.Ar E
-is a variable or an expression that has a variable in it: with a constant
-for
-.Ar E
-the first label is taken.
+control continues with the statement after the
+.Ic GO TO .
 .It Li T:A
 The expression
 .Ar A

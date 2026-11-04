@@ -7,13 +7,11 @@ and `imp72`) agree on it.
 
 - **No precedence, right to left.** `3*N+1` is `3*(N+1)`; write `(3*N)+1`.
   `A-B-C` is `A-(B-C)`.
-- **A condition of two parenthesized tests needs one more pair of
-  parentheses.** `WHILE (A=1) AND (B=1) DO S` runs zero times (the `AND` is
-  taken as part of what follows the first parenthesis, there being no
-  precedence); `WHILE ((A=1) AND (B=1)) DO S` is the loop. The same holds for
-  `(A) AND (B) => S` and `A AND B => S`: parenthesize the whole condition. In
-  `X AND Y => S` and `X OR Y => S` the `=>` takes only `Y`, so write
-  `((X) AND (Y)) => S`.
+- **A single relation in parentheses at the start of a statement is a
+  syntactic ambiguity**: `(A=1) => S` is rejected; write `A=1 => S`. Several
+  relations joined by `AND` or `OR`, each in parentheses, are a condition:
+  `(A=1) AND (B=1) => S`, `WHILE (A=1) AND (B=1) DO S`. In `X AND Y => S` and
+  `X OR Y => S` without parentheses around `X` and `Y` the `=>` takes only `Y`.
 - **`>=` and `<=` are not operators**: write `GE` and `LE`. A relation used as
   a value is -1 for true.
 - **A constant added inside brackets counts words, a variable counts bytes.**

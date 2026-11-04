@@ -32,6 +32,7 @@ static word pools, npool;                       /* pairs: pooled constant (direc
 static word fnames, nfn;                        /* the functions of the unit */
 static word rlist, nrl, rlist2, nrl2;           /* the records of the unit, and of its remote code */
 static word xtags, nxt;                         /* the tags jumped to from outside their routine */
+static word tble, ntble;                        /* the labels (index of record, label) of the ends of the tables of computed GO TOs */
 static word ddl, nddl, ddw, nddw;               /* data: triples (tag, first word, count) and the words */
 static word callfn, nargs, callmode, retlab, rettmp, shused, cpflag;
 static struct irn *args[16];                    /* ARGS, PARGS */
@@ -665,14 +666,36 @@ epitem(word n, word v0, word v1)
     plast = tree;
 }
 
-/* GO TO GO[B] (a computed GO TO): the jumps after the tag GO are the table; the index is the register plus the offset.  A comparison for each jump */
-static void
-etabjump(word v0, word v1)
+/* A jump through a table: GO[B] with a register in the address (type 020), or with a constant B, which is the offset of the tag */
+static int
+istabj(word v0, word v1)
 {
-    word d, r, o, i, j, k, t, rr;
-    struct irn *e;
+    if ((v0 & 077) == 020)
+        return 1;
+    if (offset(v1) != 0)
+        return 1;
+    return 0;
+}
 
-    d = HL(v0); r = 03777 & HL(v1); o = offset(v1);
+/* The tag and the offset of the target of a conditional jump record (the X of the record) */
+static word
+jtag(word x)
+{
+    return x & 0xFFFFFFFFL;
+}
+
+static word
+joff(word x)
+{
+    return (HR((uword)x >> 32) ^ 020000000000L) - 020000000000L;
+}
+
+/* The index in RLIST of the tag D, or -1 */
+static word
+tabfind(word d)
+{
+    word j, i, rr;
+
     j = -1;
     i = 0;
     do {
@@ -682,32 +705,91 @@ etabjump(word v0, word v1)
                 j = i;
         i = i + 1;
     } while (i <= nrl - 1);
+    return j;
+}
+
+/* The label of the place tag+O, where the jumps after the tag D are a table (GO TO GO[B], and GO TO (L0,L1,...) B, which is GO TO GO[B]; GO: GO TO L0; GO TO L1; ...): the target of the
+ * O'th jump, or, for an O out of the table, the place after it, as when the jumps are instructions (GO TO COND[1] skips the instruction after the tag).  Tags between the jumps take no space */
+static word
+tablabel(word d, word o)
+{
+    word j, i, k, rr, l;
+
+    j = tabfind(d);
+    if (j < 0) {
+        imp_error(1, "COMPUTED GO TO WITHOUT ITS TABLE.");
+        return taglabel(d);
+    }
+    k = 0; i = j + 1;
+    while (i < nrl) {                                   /* TL1 */
+        rr = FREE(rlist + i);
+        if (G_RKIND(rr) == KTAG) {
+            i = i + 1;
+            continue;
+        }
+        if (G_RKIND(rr) == KOP && G_ROP(rr) == OJUMP && istabj(G_RV0(rr), G_RV1(rr)) == 0) {
+            if (k == o)
+                return taglabel(HL(G_RV0(rr)));
+            k = k + 1; i = i + 1;
+            continue;
+        }
+        break;
+    }
+    l = ir_newlabel();
+    fadd(&tble, &ntble, i); fadd(&tble, &ntble, l);
+    return l;
+}
+
+/* The label a conditional jump record jumps to (its X) */
+static word
+jlabel(word x)
+{
+    if (joff(x) != 0)
+        return tablabel(jtag(x), joff(x));
+    return taglabel(jtag(x));
+}
+
+/* GO TO GO[B] (a computed GO TO): the index is the register plus the offset.  A comparison for each jump of the table */
+static void
+etabjump(word v0, word v1)
+{
+    word d, r, o, i, j, k, t, rr, l;
+    struct irn *e;
+
+    d = HL(v0); r = 03777 & HL(v1); o = offset(v1);
+    j = tabfind(d);
     if (j < 0) {
         imp_error(1, "COMPUTED GO TO WITHOUT ITS TABLE.");
         return;
     }
-    if (r != 0) {
-        e = rv(r);
-        if (o != 0)
-            e = ir_bin(IR_PLUS, TLONG, e, icn(o));
-    } else
-        e = icn(o);
+    if (r == 0) {
+        ir_goto((int)tablabel(d, o));
+        return;
+    }
+    e = rv(r);
+    if (o != 0)
+        e = ir_bin(IR_PLUS, TLONG, e, icn(o));
     t = ir_newtemp();
     asg(ir_temp((int)t, TLONG), e);
     k = 0; i = j + 1;
     while (i < nrl) {                                   /* TJ1 */
         rr = FREE(rlist + i);
-        if (G_RKIND(rr) == KOP)
-            if (G_ROP(rr) == OJUMP) {
-                int lab = (int)taglabel(HL(G_RV0(rr)));
+        if (G_RKIND(rr) == KTAG) {
+            i = i + 1;
+            continue;
+        }
+        if (G_RKIND(rr) == KOP && G_ROP(rr) == OJUMP && istabj(G_RV0(rr), G_RV1(rr)) == 0) {
+            int lab = (int)taglabel(HL(G_RV0(rr)));
 
-                ir_cbranch(IR_EQ, ir_temp((int)t, TLONG), icn(k), lab);
-                k = k + 1; i = i + 1;
-                continue;
-            }
+            ir_cbranch(IR_EQ, ir_temp((int)t, TLONG), icn(k), lab);
+            k = k + 1; i = i + 1;
+            continue;
+        }
         break;
     }
-    ir_goto((int)taglabel(d));
+    l = ir_newlabel();                                  /* an index out of the table goes on after it */
+    fadd(&tble, &ntble, i); fadd(&tble, &ntble, l);
+    ir_goto((int)l);
 }
 
 /* BYTES: the descriptors (BYTEP) and the byte pointers.  A byte pointer kept in a variable or register is one word: bits 63-58 the size, 57-52 the position
@@ -1123,7 +1205,7 @@ erec(word r)
         return;
     }
     if (op == OJUMP) {
-        if ((v0 & 077) == 020) {
+        if (istabj(v0, v1)) {
             etabjump(v0, v1);
             return;
         }
@@ -1131,7 +1213,7 @@ erec(word r)
         return;
     }
     if (op >= OJEQ && op <= OJNE) {                     /* IXCBRANCH(CMPOF(OP),RV(RD),VEXPR(V0,V1),TAGLABEL(RX(R))): the arguments from the right */
-        int lab = (int)taglabel(G_RX(r));
+        int lab = (int)jlabel(G_RX(r));
 
         x2 = vexpr(v0, v1); x1 = rv(rd);
         ir_cbranch(cmpof(op), x1, x2, lab);
@@ -1142,7 +1224,7 @@ erec(word r)
 
         x1 = rv(rd); x2 = ir_todouble(x1, 0);
         x1 = vexpr(v0, v1); x3 = ir_todouble(x1, 1);
-        lab = (int)taglabel(G_RX(r));
+        lab = (int)jlabel(G_RX(r));
         ir_cbranch(cmpof(op), x2, x3, lab);
         return;
     }
@@ -1233,16 +1315,21 @@ jumptag(word r)
         return 0;
     op = G_ROP(r);
     if (op == OJUMP) {
-        if ((G_RV0(r) & 077) == 020)
+        if (istabj(G_RV0(r), G_RV1(r)))
             return 0;
         return HL(G_RV0(r));
     }
-    if (op >= OJEQ && op <= OJNE)
-        return G_RX(r);
-    if (op >= 51 && op <= 56)
-        return G_RX(r);
+    if ((op >= OJEQ && op <= OJNE) || (op >= 51 && op <= 56)) {
+        if (joff(G_RX(r)) != 0)
+            return 0;
+        return jtag(G_RX(r));
+    }
     return 0;
 }
+
+/* Only a tag of the main program (the records before the first entry, up to mainend), which is active whenever a routine runs, can be jumped to from other routines; a tag of another
+ * subroutine (which may have returned) or of no routine is the error of echktags */
+static word mainend;
 
 static void
 xscan(word i0, word i1)
@@ -1256,7 +1343,8 @@ xscan(word i0, word i1)
             if (tagdef(rlist, i0, i1, t) == 0)
                 if (tagdef(rlist2, 0, nrl2, t) == 0)
                     if (isxtag(t) == 0)
-                        fadd(&xtags, &nxt, t);
+                        if (tagdef(rlist, 0, mainend, t) != 0)
+                            fadd(&xtags, &nxt, t);
         i = i + 1;
     } while (i <= i1 - 1);
 }
@@ -1329,6 +1417,55 @@ echktags(word i0, word i1)
     }
 }
 
+/* A word of a data statement is two words of DDW: the symbol whose address it is (0 for a number) and the number, or the offset in bytes from the symbol */
+static void
+edatw(word r)
+{
+    word d;
+
+    if (G_RV0(r) == 0) {
+        fadd(&ddw, &nddw, 0); fadd(&ddw, &nddw, G_RV1(r));
+        return;
+    }
+    d = HL(G_RV0(r));
+    if (d == 0 || (03777 & HL(G_RV1(r))) != 0) {
+        imp_error(1, "NON-CONSTANT EXPRESSION IN DATA STATEMENT.");
+        return;
+    }
+    if (g_irkind(d) == 0)
+        usevar(d);
+    else
+        poolof(d);
+    fadd(&ddw, &nddw, d); fadd(&ddw, &nddw, 8 * offset(G_RV1(r)));
+}
+
+/* The assembler name of the symbol D of a data word */
+static const char *
+datsym(word d)
+{
+    if (g_irkind(d) == 0)
+        return g_irsymname(d);
+    return g_irlabname(poolof(d));
+}
+
+/* The labels of the jumps through tables that are defined before the record I of the unit (ebody) */
+static void
+tblemit(word i)
+{
+    word p;
+
+    if (ntble > 0) {
+        p = 0;
+        do {
+            if (FREE(tble + p) == i) {
+                ir_label((int)FREE((tble + p) + 1));
+                FREES(tble + p, -1);
+            }
+            p = p + 2;
+        } while (p <= ntble - 2);
+    }
+}
+
 /* The records B[I0] to B[I1-1] of a function (B is the address of the variable that holds the array: it can move when another array grows).  F=1: the
  * remote code (REMOT), of which only the segments marked with NN, the name of the routine (0: the main program) are its */
 static void
@@ -1339,7 +1476,11 @@ ebody(word *b, word i0, word i1, word f, word nn)
     i = i0; act = 1;
     if (f != 0)
         act = 0;
-    while (i < i1) {                                    /* EB1 */
+    for (;;) {                                          /* EB1 */
+        if (b == &rlist)
+            tblemit(i);
+        if (i >= i1)
+            break;
         r = FREE(*b + i);
         if (f != 0)
             if (G_RKIND(r) == KOP)
@@ -1362,7 +1503,7 @@ ebody(word *b, word i0, word i1, word f, word nn)
                     fadd(&ddl, &nddl, G_RX(r)); fadd(&ddl, &nddl, nddw);
                     cnt = 0; i = i + 1;
                     while (i < i1 && G_RKIND(FREE(*b + i)) == KWORD) {      /* EB2 */
-                        fadd(&ddw, &nddw, G_RV1(FREE(*b + i)));
+                        edatw(FREE(*b + i));
                         cnt = cnt + 1; i = i + 1;
                     }
                     fadd(&ddl, &nddl, cnt);
@@ -1371,6 +1512,47 @@ ebody(word *b, word i0, word i1, word f, word nn)
         erec(r);
         i = i + 1;
     }
+}
+
+/* An execute in the records B[I0] to B[I1-1]? */
+static word
+hasxct(word b, word i0, word i1)
+{
+    word i, r;
+
+    i = i0;
+    do {
+        r = FREE(b + i);
+        if (G_RKIND(r) == KOP)
+            if (G_ROP(r) == OXCT)
+                return 1;
+        i = i + 1;
+    } while (i <= i1 - 1);
+    return 0;
+}
+
+/* The registers (0R to 15R, the temporaries 33 to 48) that the records B[I0] to B[I1-1] mention get their temporaries: an execute stores and loads those that exist when it is made, and a register
+ * that the routine mentions only after the execute (in the order of the code) must be one of them */
+static void
+exregs(word b, word i0, word i1)
+{
+    word i, r, x;
+
+    i = i0;
+    do {
+        r = FREE(b + i);
+        if (G_RKIND(r) == KOP) {
+            x = G_RRD(r);
+            if (x >= 33 && x <= 48)
+                rv(x);
+            if ((G_RV0(r) & 077) != 4) {
+                x = 03777 & HL(G_RV1(r));
+                if (x >= 33 && x <= 48)
+                    rv(x);
+            }
+        }
+        i = i + 1;
+    } while (i <= i1 - 1);
 }
 
 /* A function: the records RLIST[I0] to RLIST[I1-1]; the main program (ISMAIN) or a subroutine, which begins with the entry record and its parameters */
@@ -1409,6 +1591,11 @@ efunc(word i0, word i1, word ismain)
                     }
             i = i + 1;
         } while (i <= i1 - 1);
+    }
+    if (hasxct(rlist, i0, i1) + (nrl2 > 0 && hasxct(rlist2, 0, nrl2)) != 0) {
+        exregs(rlist, i0, i1);
+        if (nrl2 > 0)
+            exregs(rlist2, 0, nrl2);
     }
     ir_label(ir_newlabel());            /* the first back end's optimizer wanted a label between the argument moves and the code (DELJUMPS: prolog, label, moves, label, code) */
     exporttags(i0, i1);
@@ -1492,7 +1679,12 @@ edata(void)
             ir_pass("%s:", g_irsymname(FREE(ddl + i)));
             j = 0;
             do {
-                ir_pass(" .quad %lld", (long long)FREE(ddw + (FREE((ddl + i) + 1) + j)));
+                word w = FREE((ddl + i) + 1) + 2 * j, q = FREE(ddw + w);
+
+                if (q != 0)
+                    ir_pass(" .quad %s+%ld", datsym(q), (long)FREE(ddw + (w + 1)));
+                else
+                    ir_pass(" .quad %lld", (long long)FREE(ddw + (w + 1)));
                 j = j + 1;
             } while (j <= FREE((ddl + i) + 2) - 1);
             i = i + 3;
@@ -1521,9 +1713,9 @@ g_demit(word a)
         frelot(&rtmp, "RTMP", 300, NULL); fincset(rtmp, 300);
         frelot(&tags, "TAGS", 20, NULL); frelot(&usedv, "USEDV", 20, NULL); frelot(&pools, "POOLS", 20, NULL);
         frelot(&fnames, "FNAMS", 20, NULL); frelot(&rlist, "RLIST", 100, NULL); frelot(&rlist2, "RLIS2", 20, NULL);
-        frelot(&xtags, "XTAGS", 20, NULL); frelot(&ddl, "DDL", 20, NULL); frelot(&ddw, "DDW", 20, NULL);
+        frelot(&xtags, "XTAGS", 20, NULL); frelot(&ddl, "DDL", 20, NULL); frelot(&ddw, "DDW", 20, NULL); frelot(&tble, "TBLE", 20, NULL);
     }
-    nrl = 0; nxt = 0; ntags = 0; nused = 0; npool = 0; nfn = 0; nddl = 0; nddw = 0;
+    nrl = 0; nxt = 0; ntags = 0; nused = 0; npool = 0; nfn = 0; nddl = 0; nddw = 0; ntble = 0;
     ir_usedfs = 0;
     r = HL(FREE(a + 2));
     while (r != 0) {                                    /* EM1 */
@@ -1539,6 +1731,16 @@ g_demit(word a)
         }
         FREES(g_remo + 2, 0);
     }
+    mainend = nrl;
+    i = 0;
+    do {
+        r = FREE(rlist + i);
+        if (G_RKIND(r) == KOP)
+            if (G_ROP(r) == OENTRY)
+                if (mainend == nrl)
+                    mainend = i;
+        i = i + 1;
+    } while (i <= nrl - 1);
     start = -1;
     i = 0;
     do {

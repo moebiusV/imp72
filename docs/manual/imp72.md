@@ -576,11 +576,10 @@ Even if B is initially true, A is always executed at least once.
 
 - ((A=B) OR (C=D)) => E ELSE F
 
-A condition may be several relations joined by AND or OR, each relation in parentheses, and the
-whole in another pair of parentheses, in a conditional, after WHILE or after UNTIL. The relations
-are evaluated from left to right and no more of them than necessary are evaluated. Because the
-operators have no precedence the extra pair of parentheses is needed: `WHILE (A=1) AND (B=1) DO S`
-is not the loop that `WHILE ((A=1) AND (B=1)) DO S` is.
+A condition may be several relations joined by AND or OR, each relation in parentheses, in a
+conditional, after WHILE or after UNTIL. The relations are evaluated from left to right and no more
+of them than necessary are evaluated. A condition of one relation in parentheses alone, as in `(A=1)
+=> S`, is a syntactic ambiguity: write `A=1 => S`.
 
 - GO TO E
 
@@ -590,8 +589,7 @@ passes there, and the subroutines called on the way are left.
 - GO TO (L0,L1,...,LN) E
 
 This expression transfers control to the label Li, where i is the value of expression E, and
-L0,...,LN are identifiers. If E<0 or E>N, the effect is undefined. E is a variable or an expression
-that has a variable in it: with a constant for E the first label is taken.
+L0,...,LN are identifiers. If E<0 or E>N, control continues with the statement after the GO TO.
 
 - T:A
 
