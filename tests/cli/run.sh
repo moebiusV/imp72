@@ -71,7 +71,7 @@ for t in garbage x86_64-nonsense-os x86_64-pc-foo-bar i686- 'x86_64-linux-gnu;rm
     [ -e tgt.o ] && bad "--target=$t left an object file"
     grep -q '^imp72: unrecognized target' tgt.out || bad "--target=$t: no message"
 done
-for t in x86_64-linux-gnu x86_64-pc-linux-gnu i686-linux-gnu aarch64-linux-gnu armv7-linux-gnueabihf riscv64-unknown-linux-gnu aarch64-apple-darwin x86_64-unknown-freebsd15.0 x86_64-unknown-openbsd8.0 x86_64-unknown-netbsd11.0 x86_64-linux-musl i586-alpine-linux-musl; do
+for t in x86_64-linux-gnu x86_64-pc-cygwin i686-pc-cygwin x86_64-pc-windows-cygnus x86_64-w64-mingw32 x86_64-pc-linux-gnu i686-linux-gnu aarch64-linux-gnu armv7-linux-gnueabihf riscv64-unknown-linux-gnu aarch64-apple-darwin x86_64-unknown-freebsd15.0 x86_64-unknown-openbsd8.0 x86_64-unknown-netbsd11.0 x86_64-linux-musl i586-alpine-linux-musl; do
     have $t && { rm -f tgt.o; "$w" --target="$t" -c -o tgt.o lib2.imp > tgt.out 2>&1 && [ -s tgt.o ] || bad "--target=$t was refused: $(head -c 100 tgt.out)"; }
 done
 # the other system for the link tests is not this one (an arm64 Linux host links aarch64-linux-gnu natively)

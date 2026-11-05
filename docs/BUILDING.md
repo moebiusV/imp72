@@ -201,6 +201,19 @@ triples against `tests/link/cross.out`.
 | macOS | Mach-O | `-arch arm64\|x86_64 -platform_version macos MIN MIN -syslibroot SDK -o OUT OBJECTS LIBIMP72 -lSystem`; `ld64.lld`, or Apple's `ld` |
 | Windows, mingw-w64 | MinGW | `-m i386pep\|i386pe\|arm64pe\|thumb2pe -o OUT crt2.o OBJECTS LIBIMP72 -L DIR -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), where `libgcc.a` must be as well |
 
+| Cygwin (`x86_64-pc-cygwin`, LLVM's `x86_64-pc-windows-cygnus`; `i686-pc-cygwin`) | MinGW | `-m i386pep\|i386pe -o OUT crt0.o [crtbegin.o] OBJECTS LIBIMP72 -L DIR [-L GCCDIR] -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 [crtend.o]`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), `GCCDIR` is `SYSROOT/usr/lib/gcc/TRIPLE/VERSION` |
+
+The Cygwin row is from the specs of Cygwin's gcc as remembered, and has not been run on Cygwin or checked against clang's Cygwin toolchain: the start file `crt0.o`, the libraries and the gcc directory are the likely ones; the entry point, the image base and `--dynamicbase`/`--nxcompat`/`--tsaware` (left to lld's defaults) are unverified. There is no Cygwin machine or wine for a test, only the argument lists (`tests/link/cross.sh`) and objects.
+
+`tools/mkrt.sh` builds the objects of the runtime library for Cygwin; its
+constants in `tools/sysconst.sh` are from memory of the headers and unverified
+(`MAP_ANONYMOUS` 0x20, `MAP_NORESERVE` 0x4000, `d_name` at 16 of a `struct
+dirent`, `RTLD_DEFAULT` 0, no `dl_iterate_phdr`, and `stdin` and `stdout` read
+as `_impure_ptr->_stdin` and `_stdout` of newlib). The library still needs a
+COFF variant of `lib/imphostx-elf.imp` and `lib/impvarsx-elf.imp` (they call
+`dl_iterate_phdr`, which Cygwin lacks; Cygwin has `dladdr`), and nothing of it
+has run.
+
 A Windows link needs the runtime library for Windows, which `tools/mkrt.sh` does
 not build: the host layer (`lib/imphost.imp`, `lib/imp72sys.imp`: `mmap` for the
 arena, `dl_iterate_phdr`, `fork`, `readlink`) and `tools/sysconst.sh` describe

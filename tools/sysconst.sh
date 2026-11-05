@@ -1,7 +1,7 @@
 #!/bin/sh
 # sysconst.sh [OS ARCH [BINDIR]]: the IMP module SYSGEN on the standard output: what the runtime library (lib/imp72sys.imp, lib/impvars.imp, lib/imphost.imp) has to know of the system that C
 # says with its headers: the flags of mmap, the layout of a directory entry, the names the C library gives its standard files, the size of a pointer, the system and the architecture.
-# OS is linux, freebsd, netbsd, openbsd or darwin, ARCH x86_64, i386, aarch64, arm, ppc64le, s390x, riscv64, loongarch64 or mips64el (SYSOS and SYSARCH say the same); without them they are
+# OS is linux, freebsd, netbsd, openbsd, darwin or cygwin, ARCH x86_64, i386, aarch64, arm, ppc64le, s390x, riscv64, loongarch64 or mips64el (SYSOS and SYSARCH say the same); without them they are
 # those of this machine.  BINDIR is where lld is as a program if it is not in the PATH (tools/llvm.sh bindir).  The values are those of the headers of each system; where this machine is the
 # system and has a C compiler, the one that is not the same on every machine (the size of a FILE, where the C library has its standard files in an array) is asked of the compiler.
 os=${1:-${SYSOS:-$(uname -s | tr 'A-Z' 'a-z')}}
@@ -41,6 +41,9 @@ freebsd) anon=4096; exact=16400; rtld=-2; dname=24 ;;        # MAP_ANON; MAP_FIX
 openbsd) anon=4096; rtld=-2; dname=24 ;;
 netbsd) anon=4096; prot0=24; rtld=-2; dname=13 ;;            # PROT_MPROTECT(PROT_READ | PROT_WRITE) = 3 << 3, which PaX wants of a mapping that is made usable later
 darwin) anon=4096; nores=64; rtld=-2; dname=21; dl=0 ;;
+# (Cygwin's values are from memory of its headers and are not checked on a Cygwin machine: MAP_ANONYMOUS 0x20, MAP_NORESERVE 0x4000, no MAP_FIXED_NOREPLACE; d_name at 16 of a struct dirent
+# (d_ino, __d_version, __d_reserved); no dl_iterate_phdr; RTLD_DEFAULT 0)
+cygwin) anon=32; nores=16384; rtld=0; dname=16; dl=0 ;;
 *) die "no system $os" ;;
 esac
 case $bits in 64) hint=17592186044416; resv=17179869184 ;; *) hint=536870912; resv=268435456 ;; esac
@@ -52,6 +55,7 @@ stdsym=stdout; stdin=stdin; filesz=; stdkind=var
 here=no; [ "$os" = "$(uname -s | tr 'A-Z' 'a-z')" ] && here=yes
 case $os in
 freebsd|darwin) stdsym=__stdoutp; stdin=__stdinp ;;
+cygwin) stdkind=reent ;;           # newlib: stdout is (_REENT->_stdout), _REENT being _impure_ptr; struct _reent is an int _errno and then the pointers _stdin, _stdout, _stderr (not checked on Cygwin)
 openbsd)
     stdkind=addr; stdsym=__stdout; stdin=__stdin
     if [ $here = yes ] && [ -f /usr/include/stdio.h ] && ! grep -q '__stdout' /usr/include/stdio.h; then stdkind=arr; stdsym=__sF; stdin=__sF; fi ;;
@@ -72,6 +76,8 @@ cat <<EOF
 EOF
 if [ $stdkind = arr ]; then
     echo "!__sF! IS EXTERNAL;"
+elif [ $stdkind = reent ]; then
+    echo "!_impure_ptr! IS EXTERNAL;"
 else
     echo "!$stdsym!,!$stdin! ARE EXTERNAL;"
 fi
@@ -102,6 +108,9 @@ case $stdkind in
 arr)
     echo "SUBR IMPSTDIN(Z) IS LOC(!__sF!);"
     echo "SUBR IMPSTDOUT(Z) IS (Q ARE LOCAL; Q:=LOC(!__sF!); Q+$filesz)        # (IN A VARIABLE: THE SEED TAKES LOC(X)+N FOR N WORDS) #" ;;
+reent)
+    echo "SUBR IMPSTDIN(Z) IS IMPPEEKPTR(IMPPEEKPTR(LOC(!_impure_ptr!))+SCPTR(0));          # (NEWLIB: _REENT->_STDIN; THE POINTERS FOLLOW THE INT _ERRNO, ALIGNED TO A POINTER) #"
+    echo "SUBR IMPSTDOUT(Z) IS IMPPEEKPTR(IMPPEEKPTR(LOC(!_impure_ptr!))+(2*SCPTR(0)))" ;;
 addr)
     echo "SUBR IMPSTDIN(Z) IS LOC(!$stdin!);                    # (THE SYMBOL IS THE FILE) #"
     echo "SUBR IMPSTDOUT(Z) IS LOC(!$stdsym!)" ;;

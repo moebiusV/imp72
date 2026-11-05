@@ -16,6 +16,7 @@ AV0,NA0,KA,KNN,OUTN,TRI,DLG,DLM,WH,DW,FC0,EMU ARE COMMON;
 DSTOP,DSW,DIMG,DJIT,DINTER,DTGT,DSIR,DNSRC,DSRCV,DNOBJI,DOBJI,DOBJL,DNOBJL,DEMP,DKV,DNK,DSYV,DNSY,DSYSROOT,DRUNTIME ARE COMMON;      # THE OPTIONS, THE SOURCES AND THE OBJECTS NAMED, THE OBJECTS TO LINK #
 DSELFB,DB1,DB3 ARE 520 LONG;
 IRBUF,IRLEN,LVOBJP,LVOBJN ARE COMMON;                                     # THE IR OF THE KERNEL, AND THE OBJECT, IN MEMORY (SRC/IMPM.IMP, SRC/LLVM.IMP) #
+CYG,WSTART,WLIBK ARE COMMON;                                                  # A CYGWIN TARGET (1); THE START FILE AND THE LIBRARY THAT MARK A WINDOWS SYSROOT #
 LGCA,LGCB ARE 520 LONG;                                                          # THE PATHS OF THE BUILTINS LIBRARY OF A TARGET #
 HAVELGC IS 1 LONG;
 EMPTYS IS 1 LONG;                                                             # AN EMPTY C STRING: THE ROOT OF THIS SYSTEM #
@@ -280,34 +281,46 @@ SUBR LNKCROSSBSD(OS) IS (
   IS REFUSED.  RETURNS 0 IF IT LINKED #
 SUBR LNKCROSSWIN(Z) IS (
  MT,PM,OK ARE LOCAL;
- STARTS(LOC(DTE),LOC('gnu'))=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for windows is supported with the mingw-w64 C library (the environment gnu: x86_64-w64-mingw32), not for '); OUTCS(LOC(DTE));
+ CYG:=STARTS(LOC(DTE),LOC('cygnus'));
+ ((STARTS(LOC(DTE),LOC('gnu'))=0) AND (CYG=0)) => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for windows is supported with the mingw-w64 C library (the environment gnu: x86_64-w64-mingw32) and with Cygwin (x86_64-pc-cygwin), not for '); OUTCS(LOC(DTE));
                                    OUTSTR('; use -c to make the object'); OUTCHR(12B); RETURN 1);
  MT:=0;
  CCALL strcmp(LOC(DTA),LOC('x86_64'))=0 => (MT:=LOC('x86_64-w64-mingw32'); PM:=LOC('i386pep'));
  ((IMPBYTE(LOC(DTA),0)=151B) AND (IMPBYTE(LOC(DTA),2)=70B) AND (IMPBYTE(LOC(DTA),3)=66B) AND (IMPBYTE(LOC(DTA),4)=0)) => (MT:=LOC('i686-w64-mingw32'); PM:=LOC('i386pe'));
  STARTS(LOC(DTA),LOC('aarch64'))=1 => (MT:=LOC('aarch64-w64-mingw32'); PM:=LOC('arm64pe'));
  STARTS(LOC(DTA),LOC('arm'))=1 => (MT:=LOC('armv7-w64-mingw32'); PM:=LOC('thumb2pe'));
+ CYG NE 0 => (MT NE 0 => (CCALL strcmp(MT,LOC('x86_64-w64-mingw32'))=0 => MT:=LOC('x86_64-pc-cygwin') ELSE (CCALL strcmp(MT,LOC('i686-w64-mingw32'))=0 => MT:=LOC('i686-pc-cygwin') ELSE MT:=0)));          # (CYGWIN HAS NO ARM OR AARCH64) #
+ CYG NE 0 => (WSTART:=LOC('crt0.o'); WLIBK:=LOC('libcygwin.a')) ELSE (WSTART:=LOC('crt2.o'); WLIBK:=LOC('libmingw32.a'));
  MT=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for windows on '); OUTCS(LOC(DTA)); OUTSTR(' is not supported (x86_64, i686, aarch64 and arm are); use -c to make the object'); OUTCHR(12B); RETURN 1);
  DSYSROOT=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no sysroot is given (--sysroot=DIR or IMP72SYSROOT): a mingw-w64 tree with crt2.o and libmingw32.a under DIR/usr/'); OUTCS(MT);
                 OUTSTR('/lib (the Debian package mingw-w64-x86-64-dev has it)'); OUTCHR(12B); RETURN 1);
- CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/%s/lib'),DSYSROOT,MT); OK:=WINDIR(LOC(MAD));
- OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/%s/lib'),DSYSROOT,MT); OK:=WINDIR(LOC(MAD)));
- OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/lib'),DSYSROOT); OK:=WINDIR(LOC(MAD)));
- OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib'),DSYSROOT); OK:=WINDIR(LOC(MAD)));
- OK=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no crt2.o and libmingw32.a under '); OUTCS(DSYSROOT); OUTSTR('/usr/'); OUTCS(MT); OUTSTR('/lib, '); OUTCS(DSYSROOT); OUTSTR('/'); OUTCS(MT);
+ CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/%s/lib'),DSYSROOT,MT); OK:=WINDIR(LOC(MAD),WSTART,WLIBK);
+ OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/%s/lib'),DSYSROOT,MT); OK:=WINDIR(LOC(MAD),WSTART,WLIBK));
+ OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/lib'),DSYSROOT); OK:=WINDIR(LOC(MAD),WSTART,WLIBK));
+ OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib'),DSYSROOT); OK:=WINDIR(LOC(MAD),WSTART,WLIBK));
+ OK=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no '); OUTCS(WSTART); OUTSTR(' and '); OUTCS(WLIBK); OUTSTR(' under '); OUTCS(DSYSROOT); OUTSTR('/usr/'); OUTCS(MT); OUTSTR('/lib, '); OUTCS(DSYSROOT); OUTSTR('/'); OUTCS(MT);
           OUTSTR('/lib, '); OUTCS(DSYSROOT); OUTSTR('/lib or '); OUTCS(DSYSROOT); OUTSTR('/usr/lib'); OUTCHR(12B); RETURN 1);
  DRUNTIME=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no libimp72.a built for it is given (--runtime=FILE or IMP72RUNTIME)'); OUTCHR(12B); RETURN 1);
  EXISTS(DRUNTIME)=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no '); OUTCS(DRUNTIME); OUTCHR(12B); RETURN 1);
  KA:=CCALL calloc(48+DNOBJL,8); KNN:=0;
- KADD(LOC('ld.lld')); KADD(LOC('-m')); KADD(PM); KADD(LOC('-o')); KADD(OUTNAME(0)); KADD(LOC(C1P)); ADDOBJS(0); KADD(DRUNTIME); KADD(LOC('-L')); KADD(LOC(LIBD));
+ HAVELGC:=0; EMPTYS:=0;                            # CYGWIN: THE FILES OF GCC (CRTBEGIN.O, CRTEND.O, LIBGCC.A) ARE IN USR/LIB/GCC/TRIPLE/VERSION #
+ CYG NE 0 => (CCALL snprintf(LOC(LGCA),4096,LOC('%s/usr/lib/gcc/%s'),DSYSROOT,MT);
+              IMPFINDLIB(LOC(LGCB),LOC(LGCA),LOC(EMPTYS)) NE 0 => HAVELGC:=1);
+ KADD(LOC('ld.lld')); KADD(LOC('-m')); KADD(PM); KADD(LOC('-o')); KADD(OUTNAME(0)); KADD(LOC(C1P));
+ HAVELGC NE 0 => (HAVEF(LOC(CBP),LOC(LGCB),LOC('crtbegin.o')) NE 0 => KADD(LOC(CBP)));
+ ADDOBJS(0); KADD(DRUNTIME); KADD(LOC('-L')); KADD(LOC(LIBD));
+ HAVELGC NE 0 => (KADD(LOC('-L')); KADD(LOC(LGCB)));
+ CYG NE 0 => (KADD(LOC('-lcygwin')); KADD(LOC('-lgcc')); KADD(LOC('-ladvapi32')); KADD(LOC('-lshell32')); KADD(LOC('-luser32')); KADD(LOC('-lkernel32'));
+              HAVELGC NE 0 => (HAVEF(LOC(CEP),LOC(LGCB),LOC('crtend.o')) NE 0 => KADD(LOC(CEP)));
+              RETURN RUNLD(0));
  KADD(LOC('-lmingw32')); KADD(LOC('-lmoldname')); KADD(LOC('-lmingwex')); KADD(LOC('-lgcc')); KADD(LOC('-lmsvcrt')); KADD(LOC('-ladvapi32')); KADD(LOC('-lshell32')); KADD(LOC('-luser32')); KADD(LOC('-lkernel32'));
  RUNLD(0));
 
 # THE DIRECTORY D HAS THE START FILE OF MINGW-W64 (CRT2.O) AND ITS LIBRARY (LIBMINGW32.A); SETS C1P AND LIBD #
-SUBR WINDIR(D) IS (
- CCALL snprintf(LOC(C1P),4096,LOC('%s/crt2.o'),D);
+SUBR WINDIR(D,ST,LK) IS (
+ CCALL snprintf(LOC(C1P),4096,LOC('%s/%s'),D,ST);
  EXISTS(LOC(C1P))=0 => RETURN 0;
- CCALL snprintf(LOC(C2P),4096,LOC('%s/libmingw32.a'),D);
+ CCALL snprintf(LOC(C2P),4096,LOC('%s/%s'),D,LK);
  EXISTS(LOC(C2P))=0 => RETURN 0;
  CCALL snprintf(LOC(LIBD),4096,LOC('%s'),D);
  1);
