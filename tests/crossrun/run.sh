@@ -19,7 +19,7 @@ progs="hello chars names bytes algo basic case callind gotoconst gotomain printo
 one() {
     triple=$1 darch=$2 emu=$3
     echo "== crossrun $triple"
-    sr=tmp/sysroot-$darch
+    sr=tmp/crossrun/sysroot-$darch
     sh tests/crossrun/sysroot.sh $darch $sr >$out/$darch.log 2>&1
     r=$?
     [ $r = 77 ] && { echo "skipped: no sysroot for $darch"; return 0; }
@@ -61,7 +61,7 @@ one() {
 one s390x-linux-gnu s390x s390x
 one powerpc-linux-gnu powerpc ppc
 one i386-linux-gnu i386 direct
-[ "${CROSSRUN_KEEP:-0}" = 1 ] || rm -rf tmp/sysroot-s390x tmp/sysroot-powerpc tmp/sysroot-i386
+[ "${CROSSRUN_KEEP:-0}" = 1 ] || { chmod -R u+w tmp/crossrun 2>/dev/null; rm -rf tmp/crossrun; }
 [ $ran = 0 ] && [ $fail = 0 ] && { echo "crossrun test skipped: nothing ran"; exit 77; }
 [ $fail = 0 ] && echo "ok ($ran programs)"
 exit $fail
