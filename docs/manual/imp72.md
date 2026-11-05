@@ -2039,9 +2039,9 @@ FINI(0)
 ```
 
 prints `ldexp scales by a power of two` and `24.0`. `CCALL puts('a','b')` is an error: `CCALL puts
-TAKES 1 ARGUMENTS, NOT 2.` The compiler links the C library and not the math library, so where the
-math functions are a library of their own (`sqrt` and `pow` in libm of glibc) they can be declared
-and called but not linked.
+TAKES 1 ARGUMENTS, NOT 2.` The compiler links the C library and, where the system keeps the math
+functions in a library of their own (`libm` of glibc), that library too, so that `sqrt`, `pow` and
+`sin` can be declared and called.
 
 A `C` function may call an IMP routine back: `LOC(ROUTINE)` is its address. An IMP routine receives
 its arguments as addresses, which is what `qsort` gives its comparison function:
@@ -2356,7 +2356,7 @@ the executable program. The options are
             there is one object for each, in the current directory.
 -S          Compile to the assembly of the target, file.s.
 -Sir        Compile to LLVM IR text, file.ll.
--o FILE     Name the output (a.out for a program).  With -c or -S, one source only.
+-o FILE     Name the output (a.out for a program).  With -c, -S or -Sir, one source only.
 -s LETTERS  Set the compiler switches (below).
 -I IMAGE    Start from the compiler saved by /U or /V (Section 3.4).
 -i          Read commands from the terminal (Section 3.1.2).
@@ -2369,11 +2369,13 @@ the executable program. The options are
 
 The compiler finds its syntax file `syntax64.imc`, the file of the C interface `ffi.imc` and
 `libimp72.a` next to itself (`share/imp72` and `lib/imp72` of its installation prefix); the
-environment variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others. It makes its temporary files
-under TMPDIR, or in the current directory. The messages go to the standard error. A compilation with
-errors writes no output and exits with the status 1; a wrong command line exits with the status 2.
-The compiler is made of LLVM and lld libraries and runs no other program, except `ld.lld` where its
-lld is not a library.
+environment variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others. It makes no temporary file for
+`-c`, `-S`, `-Sir` or `--run`; to link, it hands the linker the object in an unnamed memory file on
+LINUX, and elsewhere in a private directory (mode 0700) in TMPDIR if that is an absolute path, else
+in `/tmp`, removed at exit, on an error and on a signal. The messages go to the standard error. A
+compilation with errors writes no output and exits with the status 1; a wrong command line exits
+with the status 2. The compiler is made of LLVM and lld libraries and runs no other program, except
+`ld.lld` where its lld is not a library.
 
 If you want to compile the IMP program on file `sum.imp`, the simplest way is `imp72 sum.imp`, and
 `./a.out` runs it. `imp72 --run sum.imp` compiles and runs it in one step. `imp72 -c a.imp b.imp`
@@ -2439,18 +2441,22 @@ without the two % signs, the message PREMATURE END OF INPUT FILE is printed (Sec
 has; the word of the program remains 64 bits. The byte order of the target is the one that LLVM's
 data layout of the target machine gives, so a big endian target (`s390x-linux-gnu`,
 `powerpc-linux-gnu`) is compiled on a little endian compiler and the reverse: a text constant is the
-word of its characters in the order of the memory of the target. A triple whose operating system or
-environment is not one that LLVM knows by name (`imp72: unrecognized target`; the status is 1 and no
-file is written). The vendor is free text. To link for another system, the compiler must be told
-where the files of that system are: `--sysroot=DIR` (its root, with `crt1.o`, `crti.o`, `crtn.o` and
-the `C` library under `DIR/usr/lib`, or for macOS the SDK directory, or for WINDOWS a `mingw-w64`
-tree with `crt2.o` and `libmingw32.a`) and `--runtime=FILE` (the `libimp72.a` built for it), or the
-environment variables IMP72SYSROOT and IMP72RUNTIME. The dynamic linker and the `-m` emulation come
-from the triple, for every architecture LLVM has on LINUX (`glibc` and `musl`), FREEBSD, NETBSD and
-OPENBSD. A target the driver cannot link is refused with the system named. Without them the message
-says what is missing (`no crt1.o under DIR/usr/lib/TRIPLE...`) and how to give it, or compile with
-`-c` and link on the other system. The runtime library of a system is built by the compiler itself,
-with no `C` compiler. `--run` is for the system the compiler runs on.
+word of its characters in the order of the memory of the target. A triple must have an architecture,
+a vendor and an operating system, and may have an environment, and the operating system and the
+environment must be ones that LLVM knows by name; otherwise the message is `imp72: unrecognized
+target "TRIPLE"`, the status is 1 and no file is written. The vendor is free text. To link for
+another system, the compiler must be told where the files of that system are: `--sysroot=DIR` (its
+root, with `crt1.o`, `crti.o`, `crtn.o` and the `C` library under `DIR/usr/lib`, or for macOS the
+SDK directory, or for WINDOWS a `mingw-w64` tree with `crt2.o` and `libmingw32.a`) and
+`--runtime=FILE` (the `libimp72.a` built for it), or the environment variables IMP72SYSROOT and
+IMP72RUNTIME. The dynamic linker and the `-m` emulation come from the triple, for about 25
+architectures of LINUX (`glibc` and `musl`), and for FREEBSD, NETBSD, OPENBSD, macOS, `mingw-w64`
+and CYGWIN. There is no runtime library for WINDOWS or CYGWIN: objects can be made, and a program
+that has its own `main` and needs no runtime can be linked. A target the driver cannot link is
+refused with the system named. Without them the message says what is missing (`no crt1.o under
+DIR/usr/lib/TRIPLE...`) and how to give it, or compile with `-c` and link on the other system. The
+runtime library of a system is built by the compiler itself, with no `C` compiler. `--run` is for
+the system the compiler runs on.
 
 ### 3.2: Compilation Error Diagnostics.
 
@@ -2676,7 +2682,7 @@ statements (Section 2.3) in three ways.
 
 - 2. In a file named `file.imc` on the command line, which is read before each source file: `imp72
   inv.imc p1.imp`. It ends with two % signs, like a program. The file `ffi.imc` of the compiler, which
-  defines CCALL and EXTERNAL, is such a file.
+  defines CCALL, EXTERNAL, CALLBACK, FNPTR and STRUCT, is such a file.
 
 - 3. In an image of the compiler. With `imp72 -i`, the command `inv.imc/C` reads the file and
   continues, and the command `myc_/U` saves the compiler with the syntax read so far on `myc.img`. A
