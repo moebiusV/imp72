@@ -101,7 +101,7 @@ echo "SUBR SCDL(Z) IS $dl;                                 # DL_ITERATE_PHDR AND
 echo "SUBR IMPHOSTOS(Z) IS LOC('$os');"
 # (the directory and time calls of the C library: NetBSD's plain names are the compatibility entry points of the old struct dirent and the 32 bit time_t, <dirent.h> and <time.h> rename them there; the library calls these)
 case $os in
-netbsd) od=__opendir30 rd=__readdir30 tm=__time50 lt=__localtime50 ;;
+netbsd) od=__opendir30 rd=__readdir30 tm=__time50 lt=__locatime50 ;;
 *) od=opendir rd=readdir tm=time lt=localtime ;;
 esac
 echo "SUBR IMPOPENDIR(P) IS (CCALL $od(P));"
