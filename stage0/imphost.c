@@ -189,6 +189,144 @@ imphostcrtdir(long out)
     return *o != '\0';
 }
 
+/*
+ * A program with no loader of its own (a static one) cannot say where its C library is: the files are looked for by what they are.  The start file crt1.o (crt0.o) of the machine is
+ * the one whose ELF header (class, byte order, machine) is this program's own, read from /proc/self/exe, and the loader is the PT_INTERP of the C library beside it (libc.so.6 of
+ * glibc, libc.so of musl, which are programs too).  No table of architectures: the machine is what the files say.  Returns 1 and the directory of the start files into CRT and
+ * the loader into INTERP (buffers of 4096 bytes), else 0.  lib/imphost.imp (IMPHOSTPROBE) is the IMP twin.
+ */
+static int
+elfident(const char *path, unsigned char *id)
+{
+    unsigned char h[20];
+    FILE *f = fopen(path, "rb");
+    size_t n;
+
+    if (f == NULL)
+        return 0;
+    n = fread(h, 1, sizeof h, f);
+    fclose(f);
+    if (n != sizeof h || h[0] != 0x7f || h[1] != 'E' || h[2] != 'L' || h[3] != 'F')
+        return 0;
+    id[0] = h[4]; id[1] = h[5]; id[2] = h[18]; id[3] = h[19];
+    return 1;
+}
+
+static int
+elfinterp(const char *path, const unsigned char *id, char *out)
+{
+    unsigned char h[64], ph[56];
+    FILE *f = fopen(path, "rb");
+    unsigned long long off, ent, num, i, foff, fsz;
+    int be = id[1] == 2, c64 = id[0] == 2, k;
+
+#define RD(p, n, v) do { v = 0; for (k = 0; k < (n); k++) v = (v << 8) | (be ? (p)[k] : (p)[(n) - 1 - k]); } while (0)
+    if (f == NULL)
+        return 0;
+    if (fread(h, 1, sizeof h, f) < (c64 ? 64u : 52u)) {
+        fclose(f);
+        return 0;
+    }
+    if (c64) { RD(h + 32, 8, off); RD(h + 54, 2, ent); RD(h + 56, 2, num); }
+    else { RD(h + 28, 4, off); RD(h + 42, 2, ent); RD(h + 44, 2, num); }
+    for (i = 0; i < num && ent <= sizeof ph; i++) {
+        unsigned long long type;
+
+        if (fseek(f, (long)(off + i * ent), SEEK_SET) != 0 || fread(ph, 1, ent, f) != ent)
+            break;
+        RD(ph, 4, type);
+        if (type != 3)
+            continue;
+        if (c64) { RD(ph + 8, 8, foff); RD(ph + 32, 8, fsz); }
+        else { RD(ph + 4, 4, foff); RD(ph + 16, 4, fsz); }
+        if (fsz == 0 || fsz > 4000 || fseek(f, (long)foff, SEEK_SET) != 0 || fread(out, 1, fsz, f) != fsz) {
+            *out = '\0';
+            break;
+        }
+        out[fsz] = '\0';
+        fclose(f);
+        return out[0] == '/';
+    }
+#undef RD
+    fclose(f);
+    return 0;
+}
+
+static int
+probecrt(const char *d, const unsigned char *self)
+{
+    char p[4096];
+    unsigned char id[4];
+
+    snprintf(p, sizeof p, "%s/crt1.o", d);
+    return elfident(p, id) && memcmp(id, self, 4) == 0;
+}
+
+static int
+probelibc(const char *d, const unsigned char *self, char *interp)
+{
+    static const char *const names[] = { "libc.so.6", "libc.so" };
+    char p[4096];
+    unsigned char id[4];
+    int k;
+
+    for (k = 0; k < 2; k++) {
+        snprintf(p, sizeof p, "%s/%s", d, names[k]);
+        if (elfident(p, id) && memcmp(id, self, 4) == 0 && elfinterp(p, self, interp))
+            return 1;
+    }
+    return 0;
+}
+
+long
+imphostprobe(long crt, long interp)
+{
+    static const char *const top[] = { "/usr/lib", "/usr/lib64", "/usr/lib32", "/lib", "/lib64", "/lib32" };
+    char *co = (char *)(intptr_t)crt, *io = (char *)(intptr_t)interp, d[4096], u[4100];
+    unsigned char self[4];
+    size_t t;
+
+    *co = *io = '\0';
+    if (!elfident("/proc/self/exe", self))
+        return 0;
+    for (t = 0; t < sizeof top / sizeof top[0]; t++) {         /* the directory itself, then each directory in it (the multiarch ones: /usr/lib/s390x-linux-gnu) */
+        DIR *dp;
+        struct dirent *e;
+
+        if (probecrt(top[t], self)) {
+            snprintf(d, sizeof d, "%s", top[t]);
+            goto found;
+        }
+        if ((dp = opendir(top[t])) == NULL)
+            continue;
+        while ((e = readdir(dp)) != NULL) {
+            if (e->d_name[0] == '.')
+                continue;
+            snprintf(d, sizeof d, "%s/%s", top[t], e->d_name);
+            if (probecrt(d, self)) {
+                closedir(dp);
+                goto found;
+            }
+        }
+        closedir(dp);
+    }
+    return 0;
+found:
+    snprintf(co, 4096, "%s", d);
+    if (probelibc(d, self, io))
+        return 1;
+    if (strncmp(d, "/usr/", 5) == 0) {                          /* the library may be where the system keeps it, and the start files under /usr */
+        snprintf(u, sizeof u, "%s", d + 4);
+        if (probelibc(u, self, io))
+            return 1;
+    }
+    snprintf(u, sizeof u, "/lib");
+    if (probelibc(u, self, io) || probelibc("/usr/lib", self, io))
+        return 1;
+    *co = '\0';
+    return 0;
+}
+
 #ifdef IMP72_LLVM_BINDIR
 #define STR2(x) #x
 #define STR(x) STR2(x)
@@ -197,6 +335,30 @@ imphostcrtdir(long out)
 
 /* run lld as a program, found by the path under the name in argv[0] (ld.lld, ld64.lld), with the argument vector argv (NULL ended); wait for it; 0 if it linked.  For a compiler built
  * without the lld library, as OpenBSD's is (its own linker is lld, and it has no library of it) */
+/* is the program NAME in a directory of the PATH, or in the bin directory of the LLVM this was built with */
+static int
+findprog(const char *name)
+{
+    const char *p = getenv("PATH");
+    char cand[4096];
+
+    while (p != NULL && *p) {
+        const char *e = strchr(p, ':');
+        size_t len = e ? (size_t)(e - p) : strlen(p);
+
+        snprintf(cand, sizeof cand, "%.*s/%s", (int)(len ? len : 1), len ? p : ".", name);
+        if (access(cand, X_OK) == 0)
+            return 1;
+        p = e ? e + 1 : NULL;
+    }
+#ifdef IMP72_LLVM_BINDIR
+    snprintf(cand, sizeof cand, "%s/%s", LLVM_BINDIR, name);
+    if (access(cand, X_OK) == 0)
+        return 1;
+#endif
+    return 0;
+}
+
 long
 imprunld(long argc, long argv)
 {
@@ -205,6 +367,29 @@ imprunld(long argc, long argv)
     int st;
 
     (void)argc;
+    if (!findprog(av[0])) {            /* the linker the tables name is not here.  The order: the lld library of the process, ld.lld or ld64.lld (the PATH, the bin directory of LLVM), then the system's own ld, which takes
+                                * the same arguments (as gcc and clang run it): the ELF one for an ELF target, Apple's for Mach-O, the mingw one (TRIPLE-ld) for a -m i386pep link */
+        const char *alt = NULL;
+
+        if (strcmp(av[0], "ld64.lld") == 0)
+            alt = "ld";
+        else if (strcmp(av[0], "ld.lld") == 0 && av[1] != NULL && strcmp(av[1], "-m") == 0 && av[2] != NULL) {
+            alt = strcmp(av[2], "i386pep") == 0 ? "x86_64-w64-mingw32-ld" : strcmp(av[2], "i386pe") == 0 ? "i686-w64-mingw32-ld" :
+                  strcmp(av[2], "arm64pe") == 0 ? "aarch64-w64-mingw32-ld" : strcmp(av[2], "thumb2pe") == 0 ? "armv7-w64-mingw32-ld" : NULL;
+            if (alt == NULL)
+                alt = "ld";             /* an emulation of GNU ld (-m elf_x86_64) */
+        } else if (strcmp(av[0], "ld.lld") == 0)
+            alt = "ld";
+        if (alt != NULL && findprog(alt))
+            av[0] = (char *)alt;
+        else {
+            fprintf(stderr, "imp72: cannot link: no linker found: %s is not in the PATH or in LLVM's bin directory%s\n", av[0],
+                    strcmp(av[0], "ld.lld") == 0 ? ", and there is no plain ld in the PATH" : "");
+            return 1;
+        }
+    }
+    if (getenv("IMP72LDSHOW") != NULL)
+        fprintf(stderr, "linker: %s\n", av[0]);
     fflush(NULL);
     if ((pid = fork()) < 0)
         return 1;

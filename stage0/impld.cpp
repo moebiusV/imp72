@@ -15,6 +15,9 @@ LLD_HAS_DRIVER(elf)
 #ifdef HAVE_LLD_MACHO
 LLD_HAS_DRIVER(macho)
 #endif
+#if defined(HAVE_LLD_MINGW) && defined(HAVE_LLD_COFF)
+LLD_HAS_DRIVER(mingw)                   /* ld.lld -m i386pep (x86-64), i386pe, arm64pe, thumb2pe: the driver of Windows with mingw-w64 */
+#endif
 
 extern "C" long
 impldhave(long z)
@@ -27,13 +30,16 @@ extern "C" long
 impld(long argc, const char **argv)
 {
     std::vector<const char *> args(argv, argv + argc);
-    std::vector<lld::DriverDef> drivers;                /* the first argument names the flavour: ld.lld, ld64.lld */
+    std::vector<lld::DriverDef> drivers;                /* the first argument names the flavour: ld.lld, ld64.lld (ld.lld with -m i386pep is the MinGW one) */
 
 #ifdef HAVE_LLD_ELF
     drivers.push_back({lld::Gnu, &lld::elf::link});
 #endif
 #ifdef HAVE_LLD_MACHO
     drivers.push_back({lld::Darwin, &lld::macho::link});
+#endif
+#if defined(HAVE_LLD_MINGW) && defined(HAVE_LLD_COFF)
+    drivers.push_back({lld::MinGW, &lld::mingw::link});
 #endif
     lld::Result r = lld::lldMain(args, llvm::outs(), llvm::errs(), drivers);
 

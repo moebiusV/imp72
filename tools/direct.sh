@@ -10,7 +10,7 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 . tools/limits.sh                  # a runaway job dies of its own limits (file size, CPU), not of the disk
 modules=${MODULES:-impsem code code2 code3 demit ix}
-srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver llvm llvmgen}   # the modules of src/ (the rest of the compiler)
+srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver linktab llvm llvmgen}   # the modules of src/ (the rest of the compiler)
 out=${DIRECT_OUT:-build/direct}
 mkdir -p "$out"
 imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.imp, built below by the driver)

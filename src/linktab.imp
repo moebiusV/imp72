@@ -1,0 +1,113 @@
+#THIS IS FILE LINKTAB, THE TABLE OF THE LINK FOR ANOTHER SYSTEM (SRC/DRIVER.IMP: LNKCROSS): FROM THE FIELDS OF THE TARGET'S TRIPLE THE ARCHITECTURE AS THE TABLE NAMES IT (CROSSARCH), THE DIRECTORY OF ITS C LIBRARY, THE DYNAMIC LINKER OF
+ GLIBC AND OF MUSL (SETARCH), AND THE EMULATION OF GNU LD (SETEMU).  IT IS A FILE OF ITS OWN BECAUSE THE CODE GENERATOR CAN NAME ONLY 2047 REGISTERS IN A COMPILATION.  THE RESULTS ARE IN THE VARIABLES THE DRIVER READS.#
+
+TRI,DLG,DLM,EMU ARE COMMON;
+
+# THE ARCHITECTURE OF A TRIPLE (ITS FIRST FIELD, AS LLVM NORMALISES IT) AS THE TABLE OF LOADERS NAMES IT: X86_64, I386, ARM, ARMEB, AARCH64, AARCH64_BE, PPC, PPC64, PPC64LE, S390X, RISCV64, RISCV32,
+  LOONGARCH64, LOONGARCH32, MIPS, MIPSEL, MIPS64, MIPS64EL, SPARC, SPARC64, M68K, HEXAGON; 0 FOR ONE THAT HAS NO C LIBRARY OF LINUX WITH A KNOWN LOADER #
+SUBR CROSSARCH(A) IS (
+ (CCALL strcmp(A,LOC('x86_64')) AND 4294967295)=0 => RETURN LOC('x86_64');
+ (CCALL strcmp(A,LOC('x86_64h')) AND 4294967295)=0 => RETURN LOC('x86_64');
+ ((IMPBYTE(A,0)=151B) AND (IMPBYTE(A,2)=70B) AND (IMPBYTE(A,3)=66B) AND (IMPBYTE(A,4)=0)) => RETURN LOC('i386');          # I386 TO I686 #
+ STARTS(A,LOC('aarch64_be'))=1 => RETURN LOC('aarch64_be');
+ ((STARTS(A,LOC('aarch64'))=1) OR (STARTS(A,LOC('arm64'))=1)) => RETURN LOC('aarch64');
+ ((STARTS(A,LOC('armeb'))=1) OR (STARTS(A,LOC('thumbeb'))=1)) => RETURN LOC('armeb');
+ ((STARTS(A,LOC('arm'))=1) OR (STARTS(A,LOC('thumb'))=1)) => RETURN LOC('arm');
+ ((STARTS(A,LOC('powerpc64le'))=1) OR (STARTS(A,LOC('ppc64le'))=1)) => RETURN LOC('ppc64le');
+ ((STARTS(A,LOC('powerpc64'))=1) OR (STARTS(A,LOC('ppc64'))=1)) => RETURN LOC('ppc64');
+ ((STARTS(A,LOC('powerpc'))=1) OR (STARTS(A,LOC('ppc'))=1)) => RETURN LOC('ppc');
+ ((STARTS(A,LOC('s390x'))=1) OR (STARTS(A,LOC('systemz'))=1)) => RETURN LOC('s390x');
+ STARTS(A,LOC('riscv64'))=1 => RETURN LOC('riscv64');
+ STARTS(A,LOC('riscv32'))=1 => RETURN LOC('riscv32');
+ STARTS(A,LOC('loongarch64'))=1 => RETURN LOC('loongarch64');
+ STARTS(A,LOC('loongarch32'))=1 => RETURN LOC('loongarch32');
+ STARTS(A,LOC('mips64el'))=1 => RETURN LOC('mips64el');
+ STARTS(A,LOC('mips64'))=1 => RETURN LOC('mips64');
+ STARTS(A,LOC('mipsel'))=1 => RETURN LOC('mipsel');
+ STARTS(A,LOC('mips'))=1 => RETURN LOC('mips');
+ ((STARTS(A,LOC('sparc64'))=1) OR (STARTS(A,LOC('sparcv9'))=1)) => RETURN LOC('sparc64');
+ STARTS(A,LOC('sparc'))=1 => RETURN LOC('sparc');
+ STARTS(A,LOC('m68k'))=1 => RETURN LOC('m68k');
+ STARTS(A,LOC('hexagon'))=1 => RETURN LOC('hexagon');
+ 0);
+
+# THE LOADERS OF A LINUX TARGET: FOR THE ARCHITECTURE A (CROSSARCH'S NAME) AND THE ENVIRONMENT E OF THE TRIPLE (GNU..., MUSL...) SETS TRI (THE NAME OF THE DIRECTORY OF ITS C LIBRARY IN /USR/LIB ON DEBIAN), DLG (THE
+  LOADER OF GLIBC) AND ITS MUSL NAME IN DLM (THE LOADER OF MUSL IS /LIB/LD-MUSL-NAME.SO.1); 0 IF THE ARCHITECTURE IS NOT ONE OF THE TABLE.  THE FLOATING POINT ABI OF A 32 BIT ARM IS THE ENVIRONMENT'S: ENDING IN HF
+  IS THE HARD FLOAT ONE #
+SUBR SETARCH(A,E) IS (
+ HF ARE LOCAL;
+ HF:=((CCALL strlen(E) AND 4294967295) GE 2 => (CCALL strcmp(E+((CCALL strlen(E) AND 4294967295)-2),LOC('hf')) AND 4294967295) ELSE 1);
+ CCALL strcmp(A,LOC('x86_64'))=0 => (STARTS(E,LOC('gnux32'))=1 => (TRI:=LOC('x86_64-linux-gnux32'); DLG:=LOC('/libx32/ld-linux-x32.so.2'); DLM:=LOC('x32'); RETURN 1);
+                                     TRI:=LOC('x86_64-linux-gnu'); DLG:=LOC('/lib64/ld-linux-x86-64.so.2'); DLM:=LOC('x86_64'); RETURN 1);
+ CCALL strcmp(A,LOC('i386'))=0 => (TRI:=LOC('i386-linux-gnu'); DLG:=LOC('/lib/ld-linux.so.2'); DLM:=LOC('i386'); RETURN 1);
+ ((CCALL strcmp(A,LOC('arm'))=0) OR (CCALL strcmp(A,LOC('armeb'))=0)) => (
+     CCALL strcmp(A,LOC('arm'))=0 => TRI:=LOC('arm-linux-gnueabi') ELSE TRI:=LOC('armeb-linux-gnueabi');
+     HF=0 => (CCALL strcmp(A,LOC('arm'))=0 => TRI:=LOC('arm-linux-gnueabihf') ELSE TRI:=LOC('armeb-linux-gnueabihf');
+              DLG:=LOC('/lib/ld-linux-armhf.so.3'); DLM:=LOC('armhf'); RETURN 1);
+     DLG:=LOC('/lib/ld-linux.so.3'); DLM:=LOC('arm'); RETURN 1);
+ CCALL strcmp(A,LOC('aarch64'))=0 => (TRI:=LOC('aarch64-linux-gnu'); DLG:=LOC('/lib/ld-linux-aarch64.so.1'); DLM:=LOC('aarch64'); RETURN 1);
+ CCALL strcmp(A,LOC('aarch64_be'))=0 => (TRI:=LOC('aarch64_be-linux-gnu'); DLG:=LOC('/lib/ld-linux-aarch64_be.so.1'); DLM:=LOC('aarch64_be'); RETURN 1);
+ CCALL strcmp(A,LOC('ppc'))=0 => (TRI:=LOC('powerpc-linux-gnu'); DLG:=LOC('/lib/ld.so.1'); DLM:=LOC('powerpc'); RETURN 1);
+ CCALL strcmp(A,LOC('ppc64'))=0 => (TRI:=LOC('powerpc64-linux-gnu'); DLG:=LOC('/lib64/ld64.so.1'); DLM:=LOC('powerpc64'); RETURN 1);
+ CCALL strcmp(A,LOC('ppc64le'))=0 => (TRI:=LOC('powerpc64le-linux-gnu'); DLG:=LOC('/lib64/ld64.so.2'); DLM:=LOC('powerpc64le'); RETURN 1);
+ CCALL strcmp(A,LOC('s390x'))=0 => (TRI:=LOC('s390x-linux-gnu'); DLG:=LOC('/lib/ld64.so.1'); DLM:=LOC('s390x'); RETURN 1);
+ CCALL strcmp(A,LOC('riscv64'))=0 => (TRI:=LOC('riscv64-linux-gnu'); DLG:=LOC('/lib/ld-linux-riscv64-lp64d.so.1'); DLM:=LOC('riscv64'); RETURN 1);
+ CCALL strcmp(A,LOC('riscv32'))=0 => (TRI:=LOC('riscv32-linux-gnu'); DLG:=LOC('/lib/ld-linux-riscv32-ilp32d.so.1'); DLM:=LOC('riscv32'); RETURN 1);
+ CCALL strcmp(A,LOC('loongarch64'))=0 => (TRI:=LOC('loongarch64-linux-gnu'); DLG:=LOC('/lib64/ld-linux-loongarch-lp64d.so.1'); DLM:=LOC('loongarch64'); RETURN 1);
+ CCALL strcmp(A,LOC('loongarch32'))=0 => (TRI:=LOC('loongarch32-linux-gnu'); DLG:=LOC('/lib32/ld-linux-loongarch-ilp32d.so.1'); DLM:=LOC('loongarch32'); RETURN 1);
+ CCALL strcmp(A,LOC('mips'))=0 => (TRI:=LOC('mips-linux-gnu'); DLG:=LOC('/lib/ld.so.1'); DLM:=LOC('mips'); RETURN 1);
+ CCALL strcmp(A,LOC('mipsel'))=0 => (TRI:=LOC('mipsel-linux-gnu'); DLG:=LOC('/lib/ld.so.1'); DLM:=LOC('mipsel'); RETURN 1);
+ CCALL strcmp(A,LOC('mips64'))=0 => (STARTS(E,LOC('gnuabin32'))=1 => (TRI:=LOC('mips64-linux-gnuabin32'); DLG:=LOC('/lib32/ld.so.1'); DLM:=LOC('mipsn32'); RETURN 1);
+                                     TRI:=LOC('mips64-linux-gnuabi64'); DLG:=LOC('/lib64/ld.so.1'); DLM:=LOC('mips64'); RETURN 1);
+ CCALL strcmp(A,LOC('mips64el'))=0 => (STARTS(E,LOC('gnuabin32'))=1 => (TRI:=LOC('mips64el-linux-gnuabin32'); DLG:=LOC('/lib32/ld.so.1'); DLM:=LOC('mipsn32el'); RETURN 1);
+                                       TRI:=LOC('mips64el-linux-gnuabi64'); DLG:=LOC('/lib64/ld.so.1'); DLM:=LOC('mips64el'); RETURN 1);
+ CCALL strcmp(A,LOC('sparc'))=0 => (TRI:=LOC('sparc-linux-gnu'); DLG:=LOC('/lib/ld-linux.so.2'); DLM:=LOC('sparc'); RETURN 1);
+ CCALL strcmp(A,LOC('sparc64'))=0 => (TRI:=LOC('sparc64-linux-gnu'); DLG:=LOC('/lib64/ld-linux.so.2'); DLM:=LOC('sparc64'); RETURN 1);
+ CCALL strcmp(A,LOC('m68k'))=0 => (TRI:=LOC('m68k-linux-gnu'); DLG:=LOC('/lib/ld.so.1'); DLM:=LOC('m68k'); RETURN 1);
+ CCALL strcmp(A,LOC('hexagon'))=0 => (TRI:=LOC('hexagon-linux-musl'); DLG:=LOC('/lib/ld-musl-hexagon.so.1'); DLM:=LOC('hexagon'); RETURN 1);
+ 0);
+
+# THE EMULATION OF GNU LD (-M) OF A TARGET: LLD INFERS IT FROM THE OBJECTS AND TAKES -M TOO, BUT GNU LD DEFAULTS TO THE HOST'S, SO A LINK FOR ANOTHER ARCHITECTURE NAMES IT.  FOR THE ARCHITECTURE A (CROSSARCH'S
+  NAME) AND THE ENVIRONMENT E ON LINUX (K=0), OR THE BSD K (1 FREEBSD, 2 NETBSD, 3 OPENBSD): SETS EMU, 0 IF GNU LD HAS NONE TO NAME #
+SUBR SETEMU(A,E,K) IS (
+ EMU:=0;
+ K=1 => (CCALL strcmp(A,LOC('x86_64'))=0 => (EMU:=LOC('elf_x86_64_fbsd'); RETURN 1);
+         CCALL strcmp(A,LOC('i386'))=0 => (EMU:=LOC('elf_i386_fbsd'); RETURN 1);
+         CCALL strcmp(A,LOC('aarch64'))=0 => (EMU:=LOC('aarch64fbsd'); RETURN 1);
+         CCALL strcmp(A,LOC('arm'))=0 => (EMU:=LOC('armelf_fbsd'); RETURN 1);
+         CCALL strcmp(A,LOC('ppc'))=0 => (EMU:=LOC('elf32ppc_fbsd'); RETURN 1);
+         CCALL strcmp(A,LOC('ppc64'))=0 => (EMU:=LOC('elf64ppc_fbsd'); RETURN 1);
+         CCALL strcmp(A,LOC('riscv64'))=0 => (EMU:=LOC('elf64lriscv'); RETURN 1);
+         RETURN 0);
+ K=2 => (CCALL strcmp(A,LOC('x86_64'))=0 => (EMU:=LOC('elf_x86_64'); RETURN 1);
+         CCALL strcmp(A,LOC('i386'))=0 => (EMU:=LOC('elf_i386'); RETURN 1);
+         CCALL strcmp(A,LOC('aarch64'))=0 => (EMU:=LOC('aarch64nbsd'); RETURN 1);
+         RETURN 0);
+ K=3 => (CCALL strcmp(A,LOC('x86_64'))=0 => (EMU:=LOC('elf_x86_64'); RETURN 1);
+         CCALL strcmp(A,LOC('i386'))=0 => (EMU:=LOC('elf_i386'); RETURN 1);
+         RETURN 0);
+ CCALL strcmp(A,LOC('x86_64'))=0 => (STARTS(E,LOC('gnux32'))=1 => EMU:=LOC('elf32_x86_64') ELSE EMU:=LOC('elf_x86_64'); RETURN 1);
+ CCALL strcmp(A,LOC('i386'))=0 => (EMU:=LOC('elf_i386'); RETURN 1);
+ CCALL strcmp(A,LOC('arm'))=0 => (EMU:=LOC('armelf_linux_eabi'); RETURN 1);
+ CCALL strcmp(A,LOC('armeb'))=0 => (EMU:=LOC('armelfb_linux_eabi'); RETURN 1);
+ CCALL strcmp(A,LOC('aarch64'))=0 => (EMU:=LOC('aarch64linux'); RETURN 1);
+ CCALL strcmp(A,LOC('aarch64_be'))=0 => (EMU:=LOC('aarch64linuxb'); RETURN 1);
+ CCALL strcmp(A,LOC('ppc'))=0 => (EMU:=LOC('elf32ppclinux'); RETURN 1);
+ CCALL strcmp(A,LOC('ppc64'))=0 => (EMU:=LOC('elf64ppc'); RETURN 1);
+ CCALL strcmp(A,LOC('ppc64le'))=0 => (EMU:=LOC('elf64lppc'); RETURN 1);
+ CCALL strcmp(A,LOC('s390x'))=0 => (EMU:=LOC('elf64_s390'); RETURN 1);
+ CCALL strcmp(A,LOC('riscv64'))=0 => (EMU:=LOC('elf64lriscv'); RETURN 1);
+ CCALL strcmp(A,LOC('riscv32'))=0 => (EMU:=LOC('elf32lriscv'); RETURN 1);
+ CCALL strcmp(A,LOC('loongarch64'))=0 => (EMU:=LOC('elf64loongarch'); RETURN 1);
+ CCALL strcmp(A,LOC('loongarch32'))=0 => (EMU:=LOC('elf32loongarch'); RETURN 1);
+ CCALL strcmp(A,LOC('mips'))=0 => (EMU:=LOC('elf32btsmip'); RETURN 1);
+ CCALL strcmp(A,LOC('mipsel'))=0 => (EMU:=LOC('elf32ltsmip'); RETURN 1);
+ CCALL strcmp(A,LOC('mips64'))=0 => (STARTS(E,LOC('gnuabin32'))=1 => EMU:=LOC('elf32btsmipn32') ELSE EMU:=LOC('elf64btsmip'); RETURN 1);
+ CCALL strcmp(A,LOC('mips64el'))=0 => (STARTS(E,LOC('gnuabin32'))=1 => EMU:=LOC('elf32ltsmipn32') ELSE EMU:=LOC('elf64ltsmip'); RETURN 1);
+ CCALL strcmp(A,LOC('sparc'))=0 => (EMU:=LOC('elf32_sparc'); RETURN 1);
+ CCALL strcmp(A,LOC('sparc64'))=0 => (EMU:=LOC('elf64_sparc'); RETURN 1);
+ CCALL strcmp(A,LOC('m68k'))=0 => (EMU:=LOC('m68kelf'); RETURN 1);
+ 0);
+
+SUBR LTEND(Z) IS 0
+%%

@@ -216,6 +216,7 @@ extern long impfindlib(long out, long dir, long prefix);
 extern long imphostinterp(long out);
 extern long imphostlibc(long out);
 extern long imphostcrtdir(long out);
+extern long imphostprobe(long crt, long interp);
 
 static const char *ldv[40];
 static int ldn;
@@ -252,26 +253,19 @@ runld(void)
         for (i = 0; i < ldn; i++)
             fprintf(stderr, "%s ", ldv[i]);
         fputc('\n', stderr);
+        if (impldhave(0))
+            fputs("linker: lld in this process\n", stderr);
     }
     if (!impldhave(0))                          /* no lld library: lld as a program, by the name given (OpenBSD's own linker is lld, and it has no library of it) */
         return imprunld(ldn, (long)(intptr_t)ldv) != 0;
     return impld(ldn, ldv) != 0;
 }
 
-/* the Debian multiarch directory, the dynamic linker of glibc and that of musl, by architecture */
-static const struct {
-    const char *arch, *tri, *dlg, *dlm;
-} archtab[] = {
-    { "x86_64", "x86_64-linux-gnu", "/lib64/ld-linux-x86-64.so.2", "/lib/ld-musl-x86_64.so.1" },
-    { "i386", "i386-linux-gnu", "/lib/ld-linux.so.2", "/lib/ld-musl-i386.so.1" },
-    { "arm", "arm-linux-gnueabihf", "/lib/ld-linux-armhf.so.3", "/lib/ld-musl-armhf.so.1" },
-    { "aarch64", "aarch64-linux-gnu", "/lib/ld-linux-aarch64.so.1", "/lib/ld-musl-aarch64.so.1" },
-    { "ppc64le", "powerpc64le-linux-gnu", "/lib64/ld64.so.2", "/lib/ld-musl-powerpc64le.so.1" },
-    { "s390x", "s390x-linux-gnu", "/lib/ld64.so.1", "/lib/ld-musl-s390x.so.1" },
-    { "riscv64", "riscv64-linux-gnu", "/lib/ld-linux-riscv64-lp64d.so.1", "/lib/ld-musl-riscv64.so.1" },
-    { "loongarch64", "loongarch64-linux-gnu", "/lib64/ld-linux-loongarch-lp64d.so.1", "/lib/ld-musl-loongarch64.so.1" },
-};
-
+/*
+ * The start files and the loader of this machine are not looked up in a table of architectures: the program learns them from itself (imphostinterp, imphostlibc, imphostcrtdir:
+ * the loader and the C library this very program runs with), and a program with no loader of its own finds the files whose ELF headers are its own (imphostprobe).  The BSDs
+ * keep theirs in /usr/lib, whatever the architecture.
+ */
 static int
 trydir(const char *d)
 {
@@ -284,46 +278,19 @@ trydir(const char *d)
     return 1;
 }
 
+/* Linux, with the C library of glibc or musl, on any architecture */
 static int
-trydl(const char *p)
+lnklin(const char *out, const char *ofile, const char *lib)
 {
-    if (!exists(p))
-        return 0;
-    snprintf(dlp, sizeof dlp, "%s", p);
-    return 1;
-}
-
-/* 9: not a system and an architecture whose files are known */
-static int
-lnklin(const char *ha, const char *out, const char *ofile, const char *lib)
-{
-    size_t k;
-    int ok = 0, wh;
+    int ok = 0;
 
     if (imphostcrtdir((long)(intptr_t)mad) && imphostinterp((long)(intptr_t)dlp))       /* what this program's own loader found */
         ok = trydir(mad);
-    if (!ok) {                                  /* else the table of the architectures (a program with no loader of its own) */
-        for (k = 0; k < sizeof archtab / sizeof archtab[0] && strcmp(ha, archtab[k].arch) != 0; k++)
-            ;
-        if (k == sizeof archtab / sizeof archtab[0])
-            return 9;
-        snprintf(mad, sizeof mad, "/usr/lib/%s", archtab[k].tri);
-        wh = 1;
+    if (!ok && imphostprobe((long)(intptr_t)mad, (long)(intptr_t)dlp))                  /* a program with no loader of its own: the files of its machine */
         ok = trydir(mad);
-        if (!ok)
-            ok = trydir("/usr/lib64");
-        if (!ok) {
-            wh = 2;
-            ok = trydir("/usr/lib");
-        }
-        if (!ok)
-            return 9;
-        if (wh == 1)
-            ok = trydl(archtab[k].dlg) || trydl(archtab[k].dlm);
-        else
-            ok = trydl(archtab[k].dlm) || trydl(archtab[k].dlg);
-        if (!ok)
-            return 9;
+    if (!ok) {
+        fprintf(stderr, "imp72stage0: cannot link: this program has no dynamic loader of its own, and no crt1.o of this machine is under /usr/lib, /usr/lib64 or /lib; use -c to make the object\n");
+        return 1;
     }
     ladd("ld.lld"); ladd("-o"); ladd(out); ladd("-dynamic-linker"); ladd(dlp);
     ladd(c1p); ladd(c2p); ladd(ofile); ladd(lib); ladd("-L"); ladd(libd); ladd("-lc"); laddlm(libd); ladd(c3p);
@@ -331,7 +298,15 @@ lnklin(const char *ha, const char *out, const char *ofile, const char *lib)
 }
 
 static int
-lnkbsd(const char *os, const char *ha, const char *out, const char *ofile, const char *lib)
+missing(const char *what)
+{
+    fprintf(stderr, "imp72stage0: cannot link: no %s in /usr/lib\n", what);
+    return 1;
+}
+
+/* FreeBSD, NetBSD and OpenBSD, on any architecture */
+static int
+lnkbsd(const char *os, const char *out, const char *ofile, const char *lib)
 {
     const char *dl = NULL, *fc0 = NULL;
     int wh = 0, obsd = 0;
@@ -343,14 +318,22 @@ lnkbsd(const char *os, const char *ha, const char *out, const char *ofile, const
     } else if (strcmp(os, "openbsd") == 0) {
         dl = "/usr/libexec/ld.so"; fc0 = "crt0.o"; wh = 0; obsd = 1;
     }
-    if (dl == NULL || (strcmp(ha, "x86_64") != 0 && strcmp(ha, "aarch64") != 0 && strcmp(ha, "i386") != 0))
-        return 9;
-    if (!havef(c1p, "/usr/lib", fc0) || !havef(cbp, "/usr/lib", "crtbegin.o") || !havef(cep, "/usr/lib", "crtend.o"))
-        return 9;
-    if (wh && (!havef(c2p, "/usr/lib", "crti.o") || !havef(c3p, "/usr/lib", "crtn.o")))
-        return 9;
+    if (dl == NULL) {
+        fprintf(stderr, "imp72stage0: cannot link: linking is not supported on %s; use -c to make the object\n", *os ? os : "this system");
+        return 1;
+    }
+    if (!havef(c1p, "/usr/lib", fc0))
+        return missing(fc0);
+    if (!havef(cbp, "/usr/lib", "crtbegin.o"))
+        return missing("crtbegin.o");
+    if (!havef(cep, "/usr/lib", "crtend.o"))
+        return missing("crtend.o");
+    if (wh && !havef(c2p, "/usr/lib", "crti.o"))
+        return missing("crti.o");
+    if (wh && !havef(c3p, "/usr/lib", "crtn.o"))
+        return missing("crtn.o");
     if (obsd && !imphostlibc((long)(intptr_t)lcp) && !impfindlib((long)(intptr_t)lcp, (long)(intptr_t)"/usr/lib", (long)(intptr_t)"libc.so."))
-        return 9;
+        return missing("libc.so.MAJOR.MINOR");
     if (!imphostinterp((long)(intptr_t)dlp))    /* the loader this program has, else the system's */
         snprintf(dlp, sizeof dlp, "%s", dl);
     havef(rtp, "/usr/lib", "libcompiler_rt.a");
@@ -374,6 +357,7 @@ lnkbsd(const char *os, const char *ha, const char *out, const char *ofile, const
     return runld();
 }
 
+/* macOS: the SDK and -lSystem, for the two architectures it has (arm64, x86_64) */
 static int
 lnkmac(const char *ha, const char *out, const char *ofile, const char *lib)
 {
@@ -384,8 +368,10 @@ lnkmac(const char *ha, const char *out, const char *ofile, const char *lib)
     } else if (strcmp(ha, "x86_64") == 0) {
         ar = "x86_64"; mv = "10.13";
     }
-    if (ar == NULL)
-        return 9;
+    if (ar == NULL) {
+        fprintf(stderr, "imp72stage0: cannot link: macOS on %s: only arm64 and x86_64 are supported; use -c to make the object\n", *ha ? ha : "this architecture");
+        return 1;
+    }
     sdk = getenv("SDKROOT");
     if (sdk == NULL || *sdk == '\0') {
         sdk = NULL;
@@ -398,8 +384,10 @@ lnkmac(const char *ha, const char *out, const char *ofile, const char *lib)
         if (exists(libd))
             sdk = libd;
     }
-    if (sdk == NULL)
-        return 9;
+    if (sdk == NULL) {
+        fprintf(stderr, "imp72stage0: cannot link: no macOS SDK (set SDKROOT, or install the Command Line Tools or Xcode)\n");
+        return 1;
+    }
     ladd("ld64.lld"); ladd("-arch"); ladd(ar); ladd("-platform_version"); ladd("macos"); ladd(mv); ladd(mv);
     ladd("-syslibroot"); ladd(sdk); ladd("-o"); ladd(out); ladd(ofile); ladd(lib); ladd("-lSystem");
     return runld();
@@ -409,20 +397,13 @@ static int
 link_exe(const char *out, const char *ofile, const char *lib)
 {
     const char *os = imphostos(0), *ha = imphostarch(0);
-    int rc;
 
     ldn = 0;
     if (strcmp(os, "linux") == 0)
-        rc = lnklin(ha, out, ofile, lib);
-    else if (strcmp(os, "darwin") == 0)
-        rc = lnkmac(ha, out, ofile, lib);
-    else
-        rc = lnkbsd(os, ha, out, ofile, lib);
-    if (rc == 9) {
-        fprintf(stderr, "imp72stage0: no way to link on this system and architecture: %s %s\n", os, ha);
-        return 1;
-    }
-    return rc;
+        return lnklin(out, ofile, lib);
+    if (strcmp(os, "darwin") == 0)
+        return lnkmac(ha, out, ofile, lib);
+    return lnkbsd(os, out, ofile, lib);
 }
 
 static int
