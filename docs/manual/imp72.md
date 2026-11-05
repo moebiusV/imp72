@@ -2372,7 +2372,7 @@ The compiler finds its syntax file `syntax64.imc`, the file of the C interface `
 environment variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others. It makes no temporary file for
 `-c`, `-S`, `-Sir` or `--run`; to link, it hands the linker the object in an unnamed memory file on
 LINUX, and elsewhere in a private directory (mode 0700) in TMPDIR if that is an absolute path, else
-in `/tmp`, removed at exit, on an error and on a signal. The messages go to the standard error. A
+in `/tmp`, deleted at exit, on an error and on a signal. The messages go to the standard error. A
 compilation with errors writes no output and exits with the status 1; a wrong command line exits
 with the status 2. The compiler is made of LLVM and lld libraries and runs no other program, except
 `ld.lld` where its lld is not a library.
