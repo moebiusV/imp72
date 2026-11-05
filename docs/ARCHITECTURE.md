@@ -54,9 +54,10 @@ the 64-bit IMP translation of the original modules in `decus/`.
   it. The module `llvmgen`, written by `tools/llvm.sh imp` for the LLVM at hand, holds what the LLVM headers decide.
 - **`driver`** links an executable from the object, the objects named on the
   command line, the C library's start files and `libimp72.a`, with lld
-  (`impld`, `stage0/impld.cpp`) or `ld.lld`. The loader and C library are
-  those the compiler itself runs with (`lib/imphost*.imp`), with a table of
-  architectures as fallback.
+  (`impld`, `stage0/impld.cpp`), `ld.lld` or the system's `ld`. The loader and
+  C library of this machine are those the compiler itself runs with
+  (`lib/imphost*.imp`), for any architecture; a target's come from the tables
+  of `linktab` (docs/BUILDING.md, The linker and its flags).
 
 ## The runtime library
 

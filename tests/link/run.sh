@@ -1,7 +1,7 @@
 #!/bin/sh
 # The link in the process (src/driver.imp: LNK, stage0/impld.cpp): a program is compiled to an executable with -o while no cc and no rm is on the PATH (it holds at most ld.lld), so
 # lld in the process must have made the executable, and it must run and print what the native test prints.  Skipped where the
-# compiler has no lld, or the architecture is not one of those whose C library is looked for.  Run from the top of the tree.
+# compiler has no lld.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 w=${LINK_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
@@ -9,10 +9,6 @@ w=${LINK_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
 lld=1
 sh tools/llvm.sh cflags | grep -q HAVE_LLD || lld=0                 # without the lld library the compiler runs ld.lld, which has to be found by the PATH
 [ $lld = 0 ] && ! command -v ld.lld >/dev/null 2>&1 && [ ! -x "$(sh tools/llvm.sh bindir)/ld.lld" ] && { echo "link test skipped: no lld library and no ld.lld"; exit 0; }
-case $(uname -m) in
-x86_64|amd64|i386|i686|aarch64|arm64|armv7l|armv8l|ppc64le|s390x|riscv64|loongarch64) ;;
-*) echo "link test skipped: $(uname -m) links with cc"; exit 0 ;;
-esac
 out=build/link
 rm -rf $out; mkdir -p $out/bin
 [ $lld = 0 ] && command -v ld.lld >/dev/null 2>&1 && ln -s "$(command -v ld.lld)" $out/bin/ld.lld         # else the compiler finds it in LLVM's bin directory

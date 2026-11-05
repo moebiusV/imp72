@@ -113,7 +113,7 @@ Make output for another system (LLVM's names, the vendor may be left out:
 .Ql riscv64-linux-musl ,
 .Ql x86_64-apple-darwin ) .
 Objects, assembly and IR are written for it.
-A target of the other byte order from the host's is refused.
+The byte order of the target is taken from LLVM's data layout of it.
 .It Fl -sysroot Ns = Ns Ar dir
 With
 .Fl -target

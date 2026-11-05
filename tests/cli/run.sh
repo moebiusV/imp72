@@ -41,14 +41,22 @@ ver=$(cat "$root/VERSION"); verre=$(printf %s "$ver" | sed 's/\./\\./g')
 [ "$("$w" --version 2>&1)" = "imp72 $ver" ] || bad "--version"
 "$w" --help 2>&1 | grep -q '^usage: imp72' || bad "--help"
 case $(sh "$root/tools/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac
-t64=--target=x86_64-linux-gnu; [ $be = 1 ] && t64=            # (the checks of the amd64 IR: a 32-bit host names its target; a big endian host is 64 bits and cannot be asked for a little endian one)       # a big endian host refuses a target of the other byte order (aarch64, riscv64, i686, Mach-O are little endian): those checks are for the others
+t64=--target=x86_64-linux-gnu                      # (the target's byte order is taken from LLVM's data layout of it, so a big endian host asks for the little endian targets too)
 mach() { od -An -tu1 -v -N20 "$1" | tr -s ' \n' '  ' | awk '{print $19 + 256 * $20}'; }       # (bytes 18 and 19 of the header; no -j, which the BSDs' od takes otherwise)
 have() { "$w" -c --target=$1 lib2.imp -o probe.o > probe.log 2>&1; ! grep -q 'No available targets' probe.log; }       # does the LLVM of this compiler have the target (a system's own LLVM may be built with its architecture alone: OpenBSD's has X86 and AMDGPU)
-if [ "$be" = 0 ]; then
+if :; then
 # another system: the object is in its format (ELF, e_machine at byte 18: x86-64 62, aarch64 183, riscv 243) and 32 bit pointers for a 32 bit one
 if have aarch64-linux-gnu; then
 "$w" -c --target=aarch64-linux-gnu lib2.imp -o a64.o >/dev/null 2>&1 && [ "$(mach a64.o)" = 183 ] || bad "--target=aarch64-linux-gnu"
 "$w" -S --target=aarch64-linux-gnu lib2.imp -o a64.s >/dev/null 2>&1 && grep -q 'ret' a64.s && ! grep -q 'rdi' a64.s || bad "--target=aarch64: assembly for it"
+fi
+# a target of the other byte order is taken (the order is LLVM's, from the data layout): ELF class (byte 4) and data (byte 5) of s390x are 2 and 2, of powerpc 1 and 2
+bo() { od -An -tu1 -v -N6 "$1" | awk '{print $5 * 10 + $6}'; }
+if have s390x-linux-gnu; then
+"$w" -c --target=s390x-linux-gnu lib2.imp -o s390.o >/dev/null 2>&1 && [ "$(bo s390.o)" = 22 ] || bad "--target=s390x-linux-gnu (big endian, 64 bits)"
+fi
+if have powerpc-linux-gnu; then
+"$w" -c --target=powerpc-linux-gnu lib2.imp -o ppc.o >/dev/null 2>&1 && [ "$(bo ppc.o)" = 12 ] || bad "--target=powerpc-linux-gnu (big endian, 32 bits)"
 fi
 if have riscv64-linux-gnu; then
 "$w" -c --target=riscv64-linux-gnu lib2.imp -o rv.o >/dev/null 2>&1 && [ "$(mach rv.o)" = 243 ] || bad "--target=riscv64-linux-gnu"
@@ -77,7 +85,7 @@ if [ -n "$oth" ]; then
 "$w" --target=$oth main.imp lib2.imp > xl.log 2>&1 && bad "linking for another system with no sysroot succeeded"
 grep -q -e '--sysroot=DIR' xl.log && grep -q -e '--runtime=FILE' xl.log && grep -q 'crt1.o' xl.log || bad "the message for a link for another system does not say what is needed and how to say where"
 "$w" --target=$oth --sysroot=$root/build/cli/nosuchroot main.imp lib2.imp > xl2.log 2>&1 && bad "a sysroot with nothing in it linked"
-grep -q 'Looked for crt1.o in' xl2.log || bad "the message does not say where crt1.o was looked for"
+grep -q 'no crt1.o under' xl2.log || bad "the message does not say where crt1.o was looked for"
 fi
 if have arm64-apple-darwin; then
 # Mach-O from any system: the object (magic cf fa ed fe), the message for the SDK, and the Mach-O driver of lld in this compiler (a fake SDK and an empty runtime: it must get as far as lld's complaint)

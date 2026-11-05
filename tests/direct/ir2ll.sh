@@ -1,6 +1,6 @@
 #!/bin/sh
 # The LLVM IR writer in IMP (src/ir2ll.imp, src/ir2llx.imp) against the C it was translated from (tools/ir2ll.c, which the seed links): the IR of the native tests, the oracle
-# programs, the modules of the compiler and a fuzzer (tools/ir2ll-fuzz.py: every operator, type and directive) goes through both, for pointers of 64 and of 32 bits, and what they write
+# programs, the modules of the compiler and a fuzzer (tools/ir2ll-fuzz.py: every operator, type and directive) goes through both, for pointers of 64 and of 32 bits, in the byte order of the host and in the other, and what they write
 # must be the same, byte for byte.  The IMP one is taken as stage 1 (the seed) and stage 2 (stage 1) compiled it, which are the objects tools/direct.sh left in build/llvm-ir1 and build/llvm-ir2.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
@@ -32,7 +32,7 @@ fail=0
 n=0
 for f in $out/ir/*.ir; do
     [ -s $f ] || { echo "FAILED: ir2ll: no IR in $f" >&2; fail=1; continue; }
-    for p in 0 1; do
+    for p in 0 1 2 3; do
         n=$((n + 1))
         $out/ref $f $out/ref.ll $p 2>$out/ref.err; r=$?
         for s in llvm-ir1 llvm-ir2; do

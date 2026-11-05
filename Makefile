@@ -94,6 +94,7 @@ check-run:
 	sh tests/orc/run.sh
 	sh tests/llvm/gen.sh
 	sh tests/link/run.sh
+	sh tests/link/cross.sh
 	sh tests/runtime/run.sh
 	sh tests/version/run.sh
 	sh tests/variadic/run.sh
@@ -103,6 +104,7 @@ check-run:
 	sh tests/cimport/run.sh
 	sh tests/fuzz64/run.sh
 	sh tests/manual/run.sh
+	sh tests/crossrun/run.sh || [ $$? = 77 ]
 
 clean:
 	$(MAKE) -C stage0 clean

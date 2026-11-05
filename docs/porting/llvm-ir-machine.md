@@ -96,7 +96,7 @@ the pointer types are 4 byte `INT` accesses. The entry of the descriptor has the
 load is real.
 
 A data word that holds an address is, where the pointers are 32 bits, two 32 bit halves in the global of the words (a packed structure of `i64`
-and `{ i32, i32 }` members): the address in the low half (the targets are little-endian) and 0 in the other, because a `ptrtoint` to `i64` is not
+and `{ i32, i32 }` members): the address in the low half of the word (the first member on a little endian target, the second on a big endian one) and 0 in the other, because a `ptrtoint` to `i64` is not
 a relocatable constant on those targets.
 
 ## Instruction words

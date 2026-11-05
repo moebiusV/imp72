@@ -1,0 +1,24 @@
+V IS 4 LONG;
+AB IS 4 LONG;
+# a text constant where an integer is expected is the word of its characters, the first at the lowest address: the same bytes in memory on every target #
+X:='ABCDEFG';
+CCALL puts(LOC(X));
+V[0]:='HELLO';
+CCALL puts(LOC(V));
+V[0]:='TEXT, 8';
+V[1]:=0;
+CCALL puts(LOC(V));
+CCALL puts(LOC('A LONGER TEXT CONSTANT'));
+Y:='WXYZ';
+PRINT IGR 0,CCALL strlen(LOC(Y)),STG 0,' ',IGR 0,CCALL memcmp(LOC(Y),LOC('WXYZ'),4),/;
+K:=BYTEP Y<7,36>;
+C:=<+K>; PRINT IGR 0,C,/;
+C:=<+K>; PRINT IGR 0,C,/;
+Z:=(1234567 LS 8) OR 129;
+PRINT IGR 0,Z,STG 0,' ',IGR 0,Z AND 255,STG 0,' ',IGR 0,Z RS 8,/;
+AB[0]:='ABCDEFGH'; AB[1]:='IJKLMNOP'; AB[2]:=0;
+CCALL puts(LOC(AB));
+Q:=0; CCALL memcpy(LOC(Q),LOC(AB),3);
+CCALL puts(LOC(Q));
+FINI(0)
+%%

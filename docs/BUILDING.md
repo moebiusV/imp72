@@ -116,9 +116,15 @@ The link is lld in the process (`stage0/impld.cpp`, built where `tools/llvm.sh`
 finds `liblldELF` or `liblldMachO` and their headers), or lld as a program where
 there is no library (`WITH_LLD=no` builds so on any system, to test it). The
 loader and the C library are those the compiler itself runs with
-(`lib/imphost*.imp`: `PT_INTERP`, `dl_iterate_phdr`), with a table of
-architectures as the fallback. The only program the driver starts is `ld.lld`
-(`ld64.lld`); `-c`, `-S` and `--run` start none.
+(`lib/imphost*.imp`: `PT_INTERP`, `dl_iterate_phdr`), so the native link of
+Linux works on every architecture and consults no table of them. A compiler
+with no loader of its own (a static one) takes the `crt1.o` whose ELF header
+(class, byte order, machine) is its own, and the `PT_INTERP` of the C library
+beside it (`imphostprobe`). The BSDs keep the start files in `/usr/lib` whatever
+the architecture; macOS needs the SDK and has arm64 and x86_64. When a file is
+missing the message names it (`cannot link: no crt0.o in /usr/lib`). The only
+program the driver starts is `ld.lld` (`ld64.lld`); `-c`, `-S` and `--run` start
+none.
 
 ## Cross-compiling
 
@@ -126,31 +132,80 @@ architectures as the fallback. The only program the driver starts is `ld.lld`
 `aarch64-linux-gnu`, `riscv64-linux-musl`, `i686-linux-gnu`,
 `armv7-linux-gnueabihf`, `x86_64-apple-darwin`) with `-c`, `-S` or `-Sir`
 writes the output for that system, in its object format and with its pointer
-size. A target of the other byte order from the host's is refused, and so is a
-triple whose operating system or environment LLVM does not know by name
+size. The byte order of the target is the one LLVM's data layout of the
+target machine gives, so a big endian target (`s390x-linux-gnu`,
+`powerpc-linux-gnu`, `powerpc64-linux-gnu`) is compiled on a little endian host
+and the reverse: the words of text constants, the data of pointers and the
+runtime library are made for the target's order. A triple whose operating system or environment LLVM does not know by name
 (`x86_64-nonsense-os`): the message is `imp72: unrecognized target "TRIPLE"`,
 the status is 1 and no file is written. The vendor is free text (`alpine`,
 `pc`, `apple`), and a version may follow the system (`freebsd15.0`).
 
-Linking for another system (Linux and macOS targets; the ELF and Mach-O drivers
-of lld are both in the compiler, so a Linux build links macOS programs and the
-reverse) needs that system's files:
+Linking for another system (Linux with glibc or musl, FreeBSD, NetBSD, OpenBSD
+and macOS; the ELF and Mach-O drivers of lld are both in the compiler, so a
+Linux build links macOS programs and the reverse) takes the dynamic loader from
+the triple and needs that system's files. The loader of a Linux target is the
+standard one of its architecture and C library (`/lib64/ld-linux-x86-64.so.2`,
+`/lib/ld-linux.so.2`, `/lib/ld-linux-armhf.so.3`, `/lib/ld-linux-aarch64.so.1`,
+`/lib/ld-linux-riscv64-lp64d.so.1`, `/lib64/ld64.so.2` and `/lib64/ld64.so.1`
+for powerpc64le and powerpc64, `/lib/ld.so.1` for powerpc, `/lib/ld64.so.1` for
+s390x, `/lib64/ld-linux-loongarch-lp64d.so.1`, the MIPS, SPARC and m68k ones,
+and `/lib/ld-musl-ARCH.so.1` for musl); the BSDs' are `/libexec/ld-elf.so.1`,
+`/usr/libexec/ld.elf_so` and `/usr/libexec/ld.so`. A 32-bit target also gets
+`libgcc.a` from `DIR/usr/lib/gcc/TRIPLE/VERSION` when the sysroot has it, for
+the division of 64 bits. A target the driver cannot link (WebAssembly, Android,
+iOS, Windows with the MSVC environment) is refused with the system named:
+`linking for wasi is not supported; use -c to make the object`. The files:
 
 - `--sysroot=DIR` (or `IMP72SYSROOT`): the root of that system, with `crt1.o`,
-  `crti.o`, `crtn.o` and the C library under `DIR/usr/lib/...`, or for macOS the
-  `MacOSX.sdk` directory;
+  `crti.o`, `crtn.o` and the C library under `DIR/usr/lib/...` (`crt0.o` and
+  `crtbegin.o` for a BSD), or for macOS the `MacOSX.sdk` directory;
 - `--runtime=FILE` (or `IMP72RUNTIME`): the `libimp72.a` built for it.
 
-Without them the error message lists what is missing. Objects can be linked for ELF and Mach-O targets; for other formats (COFF, WebAssembly) the compiler writes objects only.
+Without them the error message says what is missing (`cannot link for
+s390x-linux-gnu: no crt1.o under DIR/usr/lib/s390x-linux-gnu, ...`). Objects can be linked for ELF and Mach-O targets; for other formats (COFF, WebAssembly) the compiler writes objects only.
 
 `sh tools/mkrt.sh TRIPLE` builds the runtime library for a target with `imp72`
 and no C compiler, into `build/rt-TRIPLE/libimp72.a`; with no triple it builds
-this machine's, `build/rt-host`. It takes the constants of the target's C
+this machine's, `build/rt-host`. It takes the byte order and the word size of the target from the object file
+the compiler makes for it, and the constants of the target's C
 library from `tools/sysconst.sh`. A system that script cannot describe from the
 build machine (the size of a `FILE` on NetBSD) is refused: build the library
 on that system. For a 32-bit target it adds the target's compiler-rt members
 from the LLVM at hand (`tools/llvm.sh builtins TRIPLE`) and says so when they are
 missing.
+
+### The linker and its flags
+
+The linker is the first of these that exists: lld in the compiler's own process
+(`liblldELF`, `liblldMachO`, `liblldMinGW`; `stage0/impld.cpp`), `ld.lld` or
+`ld64.lld` as a program (the `PATH`, then LLVM's bin directory), the system's own
+`ld` (GNU ld, gold, a BSD base ld, Apple's ld64; for a mingw target
+`x86_64-w64-mingw32-ld` and its kin), which takes the same arguments, as it does
+when gcc and clang run it. `IMP72LDSHOW=1` prints the arguments and a line
+`linker: NAME` for the one chosen. When none is found the message names what was
+looked for (`no linker found: ld.lld is not in the PATH ..., and there is no
+plain ld in the PATH`).
+
+The arguments come from tables, in `src/linktab.imp` (architecture, loader,
+directory of the C library, `-m` emulation of the target) and `src/driver.imp`
+(the system families); the seed's driver `stage0/imp72s0.c` links this machine
+only, with the same arguments for it. `tests/link/cross.sh` checks them for many
+triples against `tests/link/cross.out`.
+
+| target | linker flavour | arguments |
+|---|---|---|
+| this machine, Linux | ELF | `-o OUT -dynamic-linker LOADER CRT1 CRTI OBJECTS LIBIMP72 -L DIR -lc [-lm] CRTN`; the loader and `DIR` are the running program's own |
+| another Linux (glibc, musl) | ELF | the same, with `-m EMULATION` (`elf_x86_64`, `elf_i386`, `armelf_linux_eabi`, `aarch64linux`, `elf64lppc`, `elf64ppc`, `elf32ppclinux`, `elf64_s390`, `elf64lriscv`, `elf64loongarch`, `elf32btsmip`, ...) first and `--sysroot=DIR`, the loader of the architecture, `libgcc.a` of the sysroot after `-lc` when it has one |
+| FreeBSD, NetBSD, OpenBSD | ELF | `--eh-frame-hdr -dynamic-linker LOADER -o OUT CRT0/CRT1 [CRTI] CRTBEGIN OBJECTS LIBIMP72 -lc [-lm] [libcompiler_rt.a] CRTEND [CRTN]` (OpenBSD: `libc.so.N.M` and `libm.so.N.M` by name, no `crti.o`); `-m` for a target (`elf_x86_64_fbsd`, `elf_i386_fbsd`, `aarch64fbsd`, `elf_x86_64`, ...) |
+| macOS | Mach-O | `-arch arm64\|x86_64 -platform_version macos MIN MIN -syslibroot SDK -o OUT OBJECTS LIBIMP72 -lSystem`; `ld64.lld`, or Apple's `ld` |
+| Windows, mingw-w64 | MinGW | `-m i386pep\|i386pe\|arm64pe\|thumb2pe -o OUT crt2.o OBJECTS LIBIMP72 -L DIR -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), where `libgcc.a` must be as well |
+
+A Windows link needs the runtime library for Windows, which `tools/mkrt.sh` does
+not build: the host layer (`lib/imphost.imp`, `lib/imp72sys.imp`: `mmap` for the
+arena, `dl_iterate_phdr`, `fork`, `readlink`) and `tools/sysconst.sh` describe
+POSIX systems. A program with its own `main` and no runtime (`--runtime=` an
+empty archive) compiles and links.
 
 ## Tests
 
@@ -170,6 +225,8 @@ missing.
 | `tests/orc/run.sh` | `--run`, and objects made in the process |
 | `tests/llvm/gen.sh` | `tools/llvm.sh imp` in each of its shapes |
 | `tests/link/run.sh` | the link with lld in the process, with no `cc` on the `PATH` |
+| `tests/link/cross.sh` | the arguments of ld for each architecture and C library of the table of loaders, the BSDs, and the refusals, with a sysroot of empty files |
+| `tests/crossrun/run.sh` | programs compiled and linked for s390x, powerpc (both big endian) and i386, and run under qemu's user mode emulation with sysroots made from the prep inputs; skipped (exit 77) where those are absent |
 | `tests/runtime/run.sh` | the runtime library built by `imp72`, for the host and other targets |
 | `tests/tmpfiles/run.sh` | temporary files: none for `-S`, `-c`, `-Sir` and `--run`; a link leaves `TMPDIR` empty, also on a signal; a bad `TMPDIR` is not used |
 | `tests/seed/run.sh` | the seed and stage 2 write the same LLVM IR |

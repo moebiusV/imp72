@@ -12,7 +12,7 @@ export DRIVER=build/direct/imp72stage-llvm-ir
 fail=0
 # the compiler whose own IMP modules (src/*.imp) the IR path compiled, too: tests of it
 DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/imp72stage-llvm-ir DIRECT_LIB=build/lib/libimp72.a \
-    SRC_MODULES="free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver llvm llvmgen" tools/direct.sh >build/direct3.log 2>&1 \
+    SRC_MODULES="free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver linktab llvm llvmgen" tools/direct.sh >build/direct3.log 2>&1 \
     || { dd bs=100000 count=1 if=build/direct3.log 2>/dev/null >&2; echo "FAILED: direct build of the compiler's own modules" >&2; fail=1; }
 NATIVE_OUT=build/native-ir NATIVE_LIB=build/lib/libimp72.a sh tests/native/run.sh || fail=1
 ORACLE_LLVMIR=1 ORACLE_OUT=build/oracle-ir sh tests/oracle/run.sh || fail=1

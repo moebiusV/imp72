@@ -99,7 +99,10 @@ with macros (`CHR0`, `CHR`, `REST`, `PREP`, `LASTC`, `FRONTLAST`, `PFX4`, `CHAT`
 `CHBEYOND`, `CHPAST`) that `src/impend-le.imc` and `src/impend-be.imc` define, and `tools/endian.sh` names the file for
 the host the compiler is built on (`tools/direct.sh` puts it in front of every module). `CODE('(')` is the character code
 of a text constant of one character. `IRSTRVAL` (`ix.imp`, `g_irstrval` in the seed) and `CONVC` make a text constant's
-word in memory order. A byte pointer needs no macro. An image is for the byte order and the build that made it.
+word in memory order of the target. The macros describe the machine the compiler runs on; the
+byte order of the program being compiled is separate: `LLVMTARGET` (`src/llvm.imp`) sets `TGTSWAP` to 1 from the data layout of
+the target machine when it is not the host's, and `CONVC` (`dir.c`: `memorder`), `IRSTRVAL` and the data writer of `ir2ll`
+(the pair `{ i32, i32 }` of a 32-bit address) read it; the seed compiles for its host, so its flag is 0. A byte pointer needs no macro. An image is for the byte order and the build that made it.
 
 ## The back end
 
