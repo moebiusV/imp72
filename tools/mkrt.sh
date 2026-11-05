@@ -38,10 +38,10 @@ hd=$(od -An -tx1 -N8 "$out/probe.o" | tr -d ' \n')
 case $hd in
 7f454c46*) case $(echo $hd | cut -c9-10) in 01) bits=32 ;; *) bits=64 ;; esac
            case $(echo $hd | cut -c11-12) in 02) endf=src/impend-be.imc ;; *) endf=src/impend-le.imc ;; esac ;;
-cffaedfe) bits=64; endf=src/impend-le.imc ;;
-cefaedfe) bits=32; endf=src/impend-le.imc ;;
-feedfacf) bits=64; endf=src/impend-be.imc ;;
-feedface) bits=32; endf=src/impend-be.imc ;;
+cffaedfe*) bits=64; endf=src/impend-le.imc ;;
+cefaedfe*) bits=32; endf=src/impend-le.imc ;;
+feedfacf*) bits=64; endf=src/impend-be.imc ;;
+feedface*) bits=32; endf=src/impend-be.imc ;;
 *) echo "mkrt: the object for ${triple:-this machine} is neither ELF nor Mach-O" >&2; exit 1 ;;
 esac
 export SYSBITS=$bits
