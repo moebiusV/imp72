@@ -74,6 +74,8 @@ extern "C" int imp_triple_check(const char *raw, const char *norm, char *why, in
             bool seen = false;
             for (size_t i = 1; i < r.size(); i++) if (r[i] == n[2]) seen = true;
             typed = typed && seen;
+            /* a bare-metal triple (arm-none-eabi, thumbv7em-none-eabi, riscv32-unknown-elf) has no system: normalisation writes unknown, and the environment or the object format says what it is */
+            if (!typed && n.size() >= 4 && (knownenv(n[3]) || knownformat(n[3]))) typed = true;
         }
         if (!typed) { reason(why, whylen, "unknown operating system \"%s\"", n[2]); return 1; }
     }

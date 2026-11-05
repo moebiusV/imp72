@@ -51,12 +51,12 @@ if have aarch64-linux-gnu; then
 "$w" -S --target=aarch64-linux-gnu lib2.imp -o a64.s >/dev/null 2>&1 && grep -q 'ret' a64.s && ! grep -q 'rdi' a64.s || bad "--target=aarch64: assembly for it"
 fi
 # a target of the other byte order is taken (the order is LLVM's, from the data layout): ELF class (byte 4) and data (byte 5) of s390x are 2 and 2, of powerpc 1 and 2
-bo() { od -An -tu1 -v -N6 "$1" | awk '{print $5 * 10 + $6}'; }
+bo() { c=$(od -An -tu1 -v -j4 -N1 "$1" | tr -d ' \t\n'); d=$(od -An -tu1 -v -j5 -N1 "$1" | tr -d ' \t\n'); echo $((c * 10 + d)); }
 if have s390x-linux-gnu; then
-"$w" -c --target=s390x-linux-gnu lib2.imp -o s390.o >s390.log 2>&1; rc=$?; [ $rc = 0 ] && [ "$(bo s390.o)" = 22 ] || bad "--target=s390x-linux-gnu (big endian, 64 bits): status $rc, header bytes '$(od -An -tu1 -v -N8 s390.o 2>&1 | tr -s ' ' ' ')', output '$(head -c 200 s390.log)'"
+"$w" -c --target=s390x-linux-gnu lib2.imp -o s390.o >s390.log 2>&1; rc=$?; [ $rc = 0 ] && [ "$(bo s390.o)" = 22 ] || bad "--target=s390x-linux-gnu (big endian, 64 bits): status $rc, bo '$(bo s390.o)', header bytes '$(od -An -tu1 -v -N8 s390.o 2>&1 | tr -s ' ' ' ')', output '$(head -c 200 s390.log)'"
 fi
 if have powerpc-linux-gnu; then
-"$w" -c --target=powerpc-linux-gnu lib2.imp -o ppc.o >ppc.log 2>&1; rc=$?; [ $rc = 0 ] && [ "$(bo ppc.o)" = 12 ] || bad "--target=powerpc-linux-gnu (big endian, 32 bits): status $rc, header bytes '$(od -An -tu1 -v -N8 ppc.o 2>&1 | tr -s ' ' ' ')', output '$(head -c 200 ppc.log)'"
+"$w" -c --target=powerpc-linux-gnu lib2.imp -o ppc.o >ppc.log 2>&1; rc=$?; [ $rc = 0 ] && [ "$(bo ppc.o)" = 12 ] || bad "--target=powerpc-linux-gnu (big endian, 32 bits): status $rc, bo '$(bo ppc.o)', header bytes '$(od -An -tu1 -v -N8 ppc.o 2>&1 | tr -s ' ' ' ')', output '$(head -c 200 ppc.log)'"
 fi
 if have riscv64-linux-gnu; then
 "$w" -c --target=riscv64-linux-gnu lib2.imp -o rv.o >/dev/null 2>&1 && [ "$(mach rv.o)" = 243 ] || bad "--target=riscv64-linux-gnu"
