@@ -99,6 +99,15 @@ echo "SUBR SCRTLD(Z) IS $rtld;                              # RTLD_DEFAULT #"
 echo "SUBR SCDNAME(Z) IS $dname;                            # OFFSET OF D_NAME IN A STRUCT DIRENT #"
 echo "SUBR SCDL(Z) IS $dl;                                 # DL_ITERATE_PHDR AND DLADDR (NOT ON MACOS) #"
 echo "SUBR IMPHOSTOS(Z) IS LOC('$os');"
+# (the directory and time calls of the C library: NetBSD's plain names are the compatibility entry points of the old struct dirent and the 32 bit time_t, <dirent.h> and <time.h> rename them there; the library calls these)
+case $os in
+netbsd) od=__opendir30 rd=__readdir30 tm=__time50 lt=__localtime50 ;;
+*) od=opendir rd=readdir tm=time lt=localtime ;;
+esac
+echo "SUBR IMPOPENDIR(P) IS (CCALL $od(P));"
+echo "SUBR IMPREADDIR(D) IS (CCALL $rd(D));"
+echo "SUBR IMPTIME(P) IS (CCALL $tm(P));"
+echo "SUBR IMPLOCALTIME(P) IS (CCALL $lt(P));"
 # (the system call by its number: only on Linux, where memfd_create is made; elsewhere the library does not name syscall, which OpenBSD's C library lacks)
 # (syscall is declared as the C function it is, with ... : a call of a function with a variable argument list that has no prototype is made as a call of one with a fixed list, and on the 64 bit PowerPC the callee then writes its register arguments into the caller's frame, where this routine's saved return address is)
 if [ $os = linux ]; then echo "EXTERNAL LONG syscall(LONG, ...);"; echo "SUBR TDSYSCALL(N,A,B) IS (CCALL syscall(N,A,B));"; else echo "SUBR TDSYSCALL(N,A,B) IS 0-1;"; fi

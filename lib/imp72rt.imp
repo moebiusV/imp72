@@ -16,8 +16,8 @@ SUBR impcaclear(Z) IS (impca[0]:=impca[1]:=impca[2]:=impca[3]:=0);
 # THE FIELDS OF THE LOCAL TIME BY STRFTIME: 'Y M D H M S' IN TMB #
 SUBR RTLNOW(Z) IS (
  T ARE LOCAL;
- TT[0]:=CCALL time(0);
- T:=CCALL localtime(LOC(TT));
+ TT[0]:=IMPTIME(0);
+ T:=IMPLOCALTIME(LOC(TT));
  T=0 => RETURN 0;
  CCALL strftime(LOC(TMB),60,LOC('%Y %m %d %H %M %S'),T);
  1);

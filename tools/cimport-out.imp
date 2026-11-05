@@ -105,7 +105,7 @@ SUBR TMPBASE(Z) IS (
  S:=CCALL getenv('TMPDIR');
  S=0 => RETURN S_DUP(LOC('/tmp'));
  GETB(S,0) NE 47 => RETURN S_DUP(LOC('/tmp'));
- D:=CCALL opendir(S);
+ D:=IMPOPENDIR(S);
  D=0 => RETURN S_DUP(LOC('/tmp'));
  CCALL closedir(D);
  S);
