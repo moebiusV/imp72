@@ -20,6 +20,14 @@ compilers.
 It compiles programs in IMP72, the extensible systems language of Ned Irons as
 implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a), to native code
 for the machine it runs on.
+It has no
+.Fl -target ,
+.Fl Sir ,
+.Fl I ,
+.Fl i ,
+.Fl -version
+or
+.Fl -help .
 It reads the syntax of the language from
 .Pa syntax64.imc
 and the C interface from
@@ -64,6 +72,16 @@ Stop after generating the object file,
 .Pa NAME.o .
 .It Fl -run
 Compile with ORC and run the program in this process.
+The runtime library is not part of the seed's program, so a program that calls
+.Sy PRINT ,
+.Sy READ
+or
+.Sy FINI
+fails with
+.Ql Symbols not found ;
+a program that calls only C functions runs.
+.Xr imp72 1
+runs any program.
 .It Fl o Ar output
 Name of the output file.
 The default is the first source's name without
@@ -102,7 +120,7 @@ No temporary file is made for
 or
 .Fl -run ,
 and none for a link on Linux while an unnamed memory file can be used.
-The directory and its files are removed on exit and on
+The directory and its files are deleted on exit and on
 .Dv SIGHUP ,
 .Dv SIGINT ,
 .Dv SIGQUIT
@@ -122,10 +140,13 @@ On macOS, the SDK to link with.
 .It Pa /usr/share/imp72/syntax64.imc
 The syntax of IMP72.
 .It Pa /usr/share/imp72/ffi.imc
-The extension that adds
-.Sy CCALL
+The extension that defines
+.Sy CCALL ,
+.Sy EXTERNAL ,
+.Sy CALLBACK ,
+.Sy FNPTR
 and
-.Sy EXTERNAL .
+.Sy STRUCT .
 .It Pa /usr/lib/imp72/libimp72.a
 The runtime library.
 .El

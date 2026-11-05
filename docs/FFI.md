@@ -373,7 +373,7 @@ other program runs. The output is a fragment of IMP72 source. A declaration hold
 to the end of the file, and the compiler reads no header, so the fragment goes in
 front of the program's source:
 
-    imp72-cimport -n qsort -n strlen -n puts -o decls.imp stdlib.h
+    imp72-cimport -n qsort -n malloc -o decls.imp stdlib.h
     cat decls.imp prog.imp > all.imp
     imp72 all.imp
 
@@ -429,7 +429,7 @@ macro of the header, evaluated by the C compiler; repeatable) writes
 `LET MACRO=value;` for an integer macro (`EOF`, `BUFSIZ`, `SEEK_END`,
 `O_RDONLY`): the tool compiles and runs a small C program that includes the
 header, in a private directory (`mkdtemp` in `TMPDIR` if that is an absolute
-path to a directory, else `/tmp`; mode 0700; removed on exit and on `SIGHUP`,
+path to a directory, else `/tmp`; mode 0700; deleted on exit and on `SIGHUP`,
 `SIGINT` and `SIGTERM`), as `tools/sysconst.sh` asks the C compiler for the
 constants of the library. `-D` needs a header, not `-i`. A macro that is not
 defined or is a float, a string or a pointer is listed as not expressed.
@@ -478,10 +478,9 @@ uses a declared name right; the compiler does, as for any declaration.
 - A callback has at most 16 parameters and is not variadic. A function pointer
   declaration (`FNPTR`) has at most 15 types besides the function.
 - A callback returns a word; a structure result or parameter is not a type.
-- The compiler links the C library and not the math library: where the math
-  functions are a library of their own (glibc's libm), `sqrt`, `pow` and `sin`
-  can be declared and called but not linked, while the functions of the C
-  library that take and return `double` (`ldexp`, `frexp`, `strtod`, `atof`) link
-  everywhere.
-- The routines of `lib/*.imp` that call C by hand, with masks for the `int`
-  results, are written as before.
+- The link adds `-lm` when the C library's directory holds `libm.so` or
+  `libm.a` (glibc; on OpenBSD `libm.so.N.M`), so `sqrt`, `pow` and `sin` can be declared, called and
+  linked. Where the math functions are in the C library (musl, the BSDs, macOS)
+  no second library is needed. `--run` finds them in the compiler's own
+  process.
+- The routines of `lib/*.imp` that call C by hand mask the `int` results.

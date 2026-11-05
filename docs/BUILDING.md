@@ -95,7 +95,7 @@ file for the linker:
   effective user; `imp72` makes it private with `chmod`, which only the owner
   can do. The file in it is created with `O_EXCL`, mode 0600.
 
-The directory and its files are removed with `unlink` and `rmdir` (no shell) at
+The directory and its files are deleted with `unlink` and `rmdir` (no shell) at
 exit, on an error, and on `SIGHUP`, `SIGINT`, `SIGQUIT` and `SIGTERM`; the
 signal is then raised again with its default action, so the exit status is the
 signal's. A signal that was ignored when the compiler started stays ignored.
@@ -136,15 +136,31 @@ size. The byte order of the target is the one LLVM's data layout of the
 target machine gives, so a big endian target (`s390x-linux-gnu`,
 `powerpc-linux-gnu`, `powerpc64-linux-gnu`) is compiled on a little endian host
 and the reverse: the words of text constants, the data of pointers and the
-runtime library are made for the target's order. A triple whose operating system or environment LLVM does not know by name
-(`x86_64-nonsense-os`): the message is `imp72: unrecognized target "TRIPLE"`,
-the status is 1 and no file is written. The vendor is free text (`alpine`,
-`pc`, `apple`), and a version may follow the system (`freebsd15.0`).
+runtime library are made for the target's order. 
+The triple is checked before LLVM is asked for the target. After LLVM
+normalises it, it must have an architecture, a vendor and an operating system
+(`ARCH-VENDOR-OS[-ENVIRONMENT[-FORMAT]]`), made of letters, digits, `.`, `_`
+and `-`. The operating system, the environment and the format must be names
+that LLVM knows (`linux`, `freebsd`, `darwin`, `windows`, `gnu`, `musl`,
+`msvc`, `elf`, `macho`, ...). The vendor is free text (`alpine`, `pc`,
+`apple`), and a version may follow the system (`freebsd15.0`). Otherwise the
+message is
+
+    imp72: unrecognized target "TRIPLE" (expected ARCH-VENDOR-OS[-ENVIRONMENT], for example x86_64-linux-gnu)
+
+the status is 1 and no file is written (`x86_64`, `x86_64-nonsense-os` and
+`x86_64-linux-nonsense` are refused). An architecture that the installed LLVM
+was built without gets LLVM's own message. The host's own triple is not
+checked.
 
 Linking for another system (Linux with glibc or musl, FreeBSD, NetBSD, OpenBSD
 and macOS; the ELF and Mach-O drivers of lld are both in the compiler, so a
 Linux build links macOS programs and the reverse) takes the dynamic loader from
-the triple and needs that system's files. The loader of a Linux target is the
+the triple and needs that system's files. The Linux architectures of the table are `x86_64` (and the x32 ABI), `i386`
+to `i686`, `arm` and `armeb` (soft and hard float), `aarch64` and `aarch64_be`,
+`ppc`, `ppc64`, `ppc64le`, `s390x`, `riscv32`, `riscv64`, `loongarch32`,
+`loongarch64`, `mips`, `mipsel`, `mips64` and `mips64el` (also the n32 ABI),
+`sparc`, `sparc64`, `m68k` and `hexagon`. The loader of a Linux target is the
 standard one of its architecture and C library (`/lib64/ld-linux-x86-64.so.2`,
 `/lib/ld-linux.so.2`, `/lib/ld-linux-armhf.so.3`, `/lib/ld-linux-aarch64.so.1`,
 `/lib/ld-linux-riscv64-lp64d.so.1`, `/lib64/ld64.so.2` and `/lib64/ld64.so.1`
@@ -163,7 +179,7 @@ iOS, Windows with the MSVC environment) is refused with the system named:
 - `--runtime=FILE` (or `IMP72RUNTIME`): the `libimp72.a` built for it.
 
 Without them the error message says what is missing (`cannot link for
-s390x-linux-gnu: no crt1.o under DIR/usr/lib/s390x-linux-gnu, ...`). Objects can be linked for ELF and Mach-O targets; for other formats (COFF, WebAssembly) the compiler writes objects only.
+s390x-linux-gnu: no crt1.o under DIR/usr/lib/s390x-linux-gnu, ...`). The link covers ELF (Linux, the BSDs), Mach-O (macOS) and COFF through the MinGW driver (mingw-w64 and Cygwin). For WebAssembly and the MSVC environment the compiler writes objects only.
 
 `sh tools/mkrt.sh TRIPLE` builds the runtime library for a target with `imp72`
 and no C compiler, into `build/rt-TRIPLE/libimp72.a`; with no triple it builds
@@ -200,25 +216,24 @@ triples against `tests/link/cross.out`.
 | FreeBSD, NetBSD, OpenBSD | ELF | `--eh-frame-hdr -dynamic-linker LOADER -o OUT CRT0/CRT1 [CRTI] CRTBEGIN OBJECTS LIBIMP72 -lc [-lm] [libcompiler_rt.a] CRTEND [CRTN]` (OpenBSD: `libc.so.N.M` and `libm.so.N.M` by name, no `crti.o`); `-m` for a target (`elf_x86_64_fbsd`, `elf_i386_fbsd`, `aarch64fbsd`, `elf_x86_64`, ...) |
 | macOS | Mach-O | `-arch arm64\|x86_64 -platform_version macos MIN MIN -syslibroot SDK -o OUT OBJECTS LIBIMP72 -lSystem`; `ld64.lld`, or Apple's `ld` |
 | Windows, mingw-w64 | MinGW | `-m i386pep\|i386pe\|arm64pe\|thumb2pe -o OUT crt2.o OBJECTS LIBIMP72 -L DIR -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), where `libgcc.a` must be as well |
-
 | Cygwin (`x86_64-pc-cygwin`, LLVM's `x86_64-pc-windows-cygnus`; `i686-pc-cygwin`) | MinGW | `-m i386pep\|i386pe -o OUT crt0.o [crtbegin.o] OBJECTS LIBIMP72 -L DIR [-L GCCDIR] -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 [crtend.o]`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), `GCCDIR` is `SYSROOT/usr/lib/gcc/TRIPLE/VERSION` |
 
-The Cygwin row is from the specs of Cygwin's gcc as remembered, and has not been run on Cygwin or checked against clang's Cygwin toolchain: the start file `crt0.o`, the libraries and the gcc directory are the likely ones; the entry point, the image base and `--dynamicbase`/`--nxcompat`/`--tsaware` (left to lld's defaults) are unverified. There is no Cygwin machine or wine for a test, only the argument lists (`tests/link/cross.sh`) and objects.
+The Cygwin row is unverified. It follows the specs of Cygwin's gcc and has not been run on Cygwin or checked against clang's Cygwin toolchain. The start file `crt0.o`, the libraries and the gcc directory are the likely ones. The entry point, the image base and `--dynamicbase`, `--nxcompat` and `--tsaware` (lld's defaults are used) are unverified. The tests cover the argument lists (`tests/link/cross.sh`) and objects, not a run.
 
-`tools/mkrt.sh` builds the objects of the runtime library for Cygwin; its
-constants in `tools/sysconst.sh` are from memory of the headers and unverified
-(`MAP_ANONYMOUS` 0x20, `MAP_NORESERVE` 0x4000, `d_name` at 16 of a `struct
-dirent`, `RTLD_DEFAULT` 0, no `dl_iterate_phdr`, and `stdin` and `stdout` read
-as `_impure_ptr->_stdin` and `_stdout` of newlib). The library still needs a
-COFF variant of `lib/imphostx-elf.imp` and `lib/impvarsx-elf.imp` (they call
-`dl_iterate_phdr`, which Cygwin lacks; Cygwin has `dladdr`), and nothing of it
-has run.
+There is no runtime library for Windows or Cygwin. `tools/mkrt.sh` builds the
+objects of the library for Cygwin with constants in `tools/sysconst.sh` that
+are unverified (`MAP_ANONYMOUS` 0x20, `MAP_NORESERVE` 0x4000, `d_name` at 16 of
+a `struct dirent`, `RTLD_DEFAULT` 0, no `dl_iterate_phdr`, and `stdin` and
+`stdout` read as `_impure_ptr->_stdin` and `_stdout` of newlib). The library
+needs a COFF variant of `lib/imphostx-elf.imp` and `lib/impvarsx-elf.imp`,
+which call `dl_iterate_phdr` (Cygwin has `dladdr` instead), and nothing of it
+has run. For Windows proper, the host layer (`lib/imphost.imp`,
+`lib/imp72sys.imp`: `mmap` for the arena, `dl_iterate_phdr`, `fork`,
+`readlink`) and `tools/sysconst.sh` describe POSIX systems only.
 
-A Windows link needs the runtime library for Windows, which `tools/mkrt.sh` does
-not build: the host layer (`lib/imphost.imp`, `lib/imp72sys.imp`: `mmap` for the
-arena, `dl_iterate_phdr`, `fork`, `readlink`) and `tools/sysconst.sh` describe
-POSIX systems. A program with its own `main` and no runtime (`--runtime=` an
-empty archive) compiles and links.
+What works for Windows targets: objects (`-c`, `-S`, `-Sir`), and the link of a
+program that has its own `main` and needs no runtime (`--runtime=` an empty
+archive).
 
 ## Tests
 
@@ -239,20 +254,50 @@ empty archive) compiles and links.
 | `tests/llvm/gen.sh` | `tools/llvm.sh imp` in each of its shapes |
 | `tests/link/run.sh` | the link with lld in the process, with no `cc` on the `PATH` |
 | `tests/link/cross.sh` | the arguments of ld for each architecture and C library of the table of loaders, the BSDs, and the refusals, with a sysroot of empty files |
-| `tests/crossrun/run.sh` | programs compiled and linked for s390x, powerpc (both big endian) and i386, and run under qemu's user mode emulation with sysroots made from the prep inputs; skipped (exit 77) where those are absent |
+| `tests/crossrun/run.sh` | programs compiled and linked for `s390x-linux-gnu` and `powerpc-linux-gnu` (both big endian) and `i386-linux-gnu`, and run (the first two under qemu's user mode emulation, no system emulation) with sysroots that `tests/crossrun/sysroot.sh` unpacks from Debian `.deb` files in the directory `PREP_INPUTS`; skipped (exit 77) where `dpkg`, those files or the emulator are absent |
+| `tests/version/run.sh` | every place that names the version (`VERSION`, the compiler's `--version` and banner, the packages, the port, the manual) agrees |
+| `tests/variadic/run.sh` | every `CCALL` in the tree's IMP sources of a C function that takes a variable number of arguments (`printf`, `open`, `fcntl`, ...) has a declaration with `...` before it in the same compilation unit |
 | `tests/runtime/run.sh` | the runtime library built by `imp72`, for the host and other targets |
-| `tests/tmpfiles/run.sh` | temporary files: none for `-S`, `-c`, `-Sir` and `--run`; a link leaves `TMPDIR` empty, also on a signal; a bad `TMPDIR` is not used |
+| `tests/tmpfiles/run.sh` | temporary files of the seed and of `imp72`: none for `-S`, `-c`, `-Sir` and `--run`; a link leaves `TMPDIR` empty, with and without the memory file, after an error and on `SIGHUP`, `SIGINT`, `SIGQUIT` and `SIGTERM`; a `TMPDIR` that is relative, a file or missing is not used |
 | `tests/seed/run.sh` | the seed and stage 2 write the same LLVM IR |
 | `tests/cli/run.sh` | the command line of `imp72` |
-| `tests/cimport/run.sh` | `imp72-cimport`: golden outputs for preprocessed text; with `cc`, the declarations of `string.h`, `stdlib.h`, `stdio.h` used by a program, the layouts of `struct tm`, `timespec`, `stat` against `offsetof`, the values of macros against the C compiler's, and no file left in `TMPDIR` |
+| `tests/cimport/run.sh` | `imp72-cimport`: golden outputs for preprocessed text, compiled by the seed and by `imp72`; with `cc`, the declarations of `string.h`, `stdlib.h`, `stdio.h` used by a program, the layouts of `struct tm`, `timespec` (and `stat`, `dirent` on Linux) against `offsetof`, the values of macros against the C compiler's, and no file left in `TMPDIR` |
 | `tests/fuzz64/run.sh` | random integer, byte-pointer and real programs against 64-bit rules worked out in Python |
 | `tests/manual/run.sh` | `docs/manual/imp72.md` and `imp72.7` are what the RUNOFF converters make of `decus/imp.rno` |
+
+### Scripts the tests share
+
+- `tools/longbits.sh` prints 32 or 64, the width of a C `long` on this machine
+  (`getconf LONG_BIT`, else from the machine type, because OpenBSD and NetBSD
+  have no `LONG_BIT`).
+- `tools/nativesrc.sh SOURCE DIR` prints the file to compile for a native test:
+  the source itself, or on OpenBSD a copy in `DIR` that calls
+  `srand_deterministic` for `srand`, because OpenBSD's `srand` ignores its seed.
+- `tools/mktmpdir.sh` is sourced; `mktmpdir NAME` sets `$t` to a new private
+  directory (`mktemp -d`, mode 0700, in an absolute `TMPDIR`, else `/tmp`),
+  deleted when the script ends or gets `SIGHUP`, `SIGINT` or `SIGTERM`.
+
+## The seed and `imp72`
+
+The seed (`stage0/imp72stage0`) and `imp72` read the same language and write
+the same LLVM IR for the same program. Their command lines differ:
+
+| | `imp72stage0` | `imp72` |
+|---|---|---|
+| `-S` | writes LLVM IR text, `NAME.ll` | writes the target's assembly, `NAME.s` |
+| `-Sir` | not an option | writes LLVM IR text, `NAME.ll` |
+| `--target`, `--sysroot`, `--runtime` | not options: the seed makes code for this machine only | cross-compiling (below) |
+| `-I`, `-i`, `--version`, `--help` | not options (`--help` is an unknown option, status 2) | images, the original's commands, version, usage |
+| several sources | compiled together as one program, output named after the first | each compiled by itself |
+| `--run` | compiles with ORC and runs, but the seed's own program does not contain the runtime library, so a program that calls `PRINT`, `READ` or `FINI` fails with `Symbols not found`; a program that calls only C functions runs | runs any program: the runtime library is in the compiler's program |
+
+`tests/seed` compares the seed's `-S` text with `imp72 -Sir`.
 
 ## Diagnostics of the free storage and the images
 
 The free storage of the compiler is an arena of address space reserved once
 (`lib/imp72sys.imp`), asked for at the address `SCHINT` of `tools/sysconst.sh`. An
-image (`/U`, `-I`) is restored with the arena at any address: if the system
+image (`/U`, `-I`; format version 6) is restored with the arena at any address: if the system
 gives the one the image was saved at, nothing is moved; otherwise the
 addresses of the arena that the modules' variables hold are moved with it
 (`src/image.imp`). These variables of the environment are for tests and
@@ -305,16 +350,21 @@ To say which a push runs:
 - a push that changes only documents (`docs/`, `*.md`, `decus/`, `oracle/`,
   `LICENSE`, `.gitignore`) runs none;
 - "Run workflow" in the Actions tab starts one workflow by hand;
-- a later push cancels the runs of the same workflow that are still going; one job
+- a push cancels the runs of the same workflow that are still going; one job
   can be run again from the page of its run.
 
 `tools/ci-run.sh NAME` (build and `make check`, failures as GitHub annotations,
-log in `tmp/ci-NAME.log`) is what the BSD and Linux jobs run. The Debian job
+log in `tmp/ci-NAME.log`) is what the BSD and Linux jobs run. `tools/ci-host.sh
+NAME` records the machine, the CPU and the triple, CPU and features that LLVM
+reports (`IMP72LLVMINFO=1`) as an annotation of the run. The Debian job
 builds the package with `dpkg-buildpackage`, installs it and compiles a program
 with it.
 
 `tools/ci-arch.sh ARCH STAGE` runs the same in an Alpine container on one's own
-machine, one stage at a time: `build`, `check`, `link` (Docker's architecture
+machine (Docker and, for another architecture, QEMU user mode registered with
+`binfmt`), one stage at a time (`tools/ci-container.sh` runs inside the
+container, and writes `STAGE.log`, `STAGE.status` and `STAGE.heartbeat` to the
+work directory): `build`, `check`, `link` (Docker's architecture
 names: `arm64`, `riscv64`, `ppc64le`, `s390x`, `amd64`, `386`, `arm/v7`,
 `loong64`). The copy of the tree, the build and the log of every stage are kept in a
 work directory (`tmp/ci-ARCH` locally, `work` in CI) that is mounted into the
@@ -335,12 +385,12 @@ The scratch directory is `tmp/` of the tree (not in git).
 
 ## The BSDs on one's own machine
 
-`tools/bsd-vm/bsd-vm.sh` runs the machines the BSD jobs use, OpenBSD 8.0 and
-NetBSD 11.0 (amd64), under QEMU with KVM in a container (docker and `/dev/kvm`
+`tools/bsd-vm/bsd-vm.sh` runs OpenBSD 8.0 and NetBSD 11.0 (the machines of the
+BSD jobs) and FreeBSD 15.0, all amd64, under QEMU with KVM in a container (docker and `/dev/kvm`
 are all it needs), so that a failure of those jobs can be examined with a shell
 and a debugger.
 
-    sh tools/bsd-vm/bsd-vm.sh fetch openbsd     # the image of the cross-platform-actions project, once
+    sh tools/bsd-vm/bsd-vm.sh fetch openbsd     # (or netbsd, freebsd) the image of the cross-platform-actions project, once
     sh tools/bsd-vm/bsd-vm.sh start openbsd     # a fresh machine on a copy-on-write overlay: the image is never written to
     sh tools/bsd-vm/bsd-vm.sh ci openbsd        # copy the tree (committed and not) and run tools/ci-run.sh there; `ci openbsd check` runs only gmake check
     sh tools/bsd-vm/bsd-vm.sh ssh openbsd [CMD] # a shell as runner
