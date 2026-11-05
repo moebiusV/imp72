@@ -52,8 +52,11 @@ chk aarch64-pc-cygwin --sysroot=$sr "linking for windows on aarch64 is not suppo
 chk wasm32-unknown-wasi "" "linking for wasi is not supported"
 chk wasm32-unknown-unknown --sysroot=$sr "no operating system"
 chk mipsel-linux-android --sysroot=$sr "android"
+# (the triple of this machine itself is a native link: no table, no sysroot, no refusal)
+if [ "$(uname -m)" != s390x ]; then
 chk s390x-linux-gnu "" "no sysroot is given"
 chk s390x-linux-gnu --sysroot=$out "no crt1.o under"
+fi
 chk x86_64-unknown-freebsd --sysroot=$out "no crt1.o under"
 chk x86_64-apple-darwin --sysroot=$out "no usr/lib/libSystem.tbd"
 chk riscv64-apple-darwin "" "macOS on riscv64 is not supported"
