@@ -43,7 +43,7 @@ else bsave=0x30123000; bload="0x50246000 0x68135000"; fi
 ( cd $out && printf 'ext/C\nrel_/U\n' | IMP72COREBASE=$bsave IMP72IMGCENSUS=1 $root/$d -i $syn >relsave.log 2>&1 )
 [ -s $out/rel.img ] || { echo "FAILED: image: rel.img not written" >&2; cat $out/relsave.log >&2; fail=1; }
 grep -q '^census: 0 words of the arena hold an address of the arena' $out/relsave.log || { echo "FAILED: image: a word of the arena holds an address of the arena" >&2; grep '^census: IN-ARENA' $out/relsave.log >&2; fail=1; }
-grep '^census: ARENA ' $out/relsave.log | grep -v '(moved)\|(not saved)\|:_25' >$out/relunk.log
+grep '^census: ARENA ' $out/relsave.log | grep -v -e '(moved)' -e '(not saved)' -e ':_25' >$out/relunk.log
 [ -s $out/relunk.log ] && { echo "FAILED: image: a variable that is saved holds an address of the arena and is not moved" >&2; cat $out/relunk.log >&2; fail=1; }
 grep -q '(moved)' $out/relsave.log || { echo "FAILED: image: the census found no variable to move" >&2; fail=1; }
 for b in $bload; do
