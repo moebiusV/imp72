@@ -65,10 +65,11 @@ done
 llvmflags=$(sh tools/llvm.sh cflags); llvmlibs=; llvmobjs=
 [ -n "$llvmflags" ] || { echo "direct: imp72 needs the LLVM libraries (llvm-config, tools/llvm.sh)" >&2; exit 1; }
 llvmlibs=$(sh tools/llvm.sh libs)
+${CXX:-c++} -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/lvtriple.cpp -o $out/lvtriple.o; llvmobjs="$llvmobjs $out/lvtriple.o"
 case $llvmflags in *HAVE_LLD*) ${CXX:-c++} -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/impld.cpp -o $out/impld.o; llvmobjs="$llvmobjs $out/impld.o" ;; esac
 keep=
 for o in stage0/*.o; do
-    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/impld.o|stage0/imphost.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/gen_impsem.o|stage0/gen_code.o|stage0/gen_code2.o|stage0/gen_code3.o|stage0/gen_demit.o) continue ;; esac
+    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/impld.o|stage0/lvtriple.o|stage0/imphost.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/gen_impsem.o|stage0/gen_code.o|stage0/gen_code2.o|stage0/gen_code3.o|stage0/gen_demit.o) continue ;; esac
     skip=0
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"

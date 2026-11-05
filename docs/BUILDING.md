@@ -138,15 +138,19 @@ target machine gives, so a big endian target (`s390x-linux-gnu`,
 and the reverse: the words of text constants, the data of pointers and the
 runtime library are made for the target's order. 
 The triple is checked before LLVM is asked for the target. After LLVM
-normalises it, it must have an architecture, a vendor and an operating system
-(`ARCH-VENDOR-OS[-ENVIRONMENT[-FORMAT]]`), made of letters, digits, `.`, `_`
-and `-`. The operating system, the environment and the format must be names
-that LLVM knows (`linux`, `freebsd`, `darwin`, `windows`, `gnu`, `musl`,
-`msvc`, `elf`, `macho`, ...). The vendor is free text (`alpine`, `pc`,
-`apple`), and a version may follow the system (`freebsd15.0`). Otherwise the
-message is
+normalises it, it must be made of letters, digits, `.`, `_` and `-`, and
+`stage0/lvtriple.cpp` asks LLVM's own triple parser (`llvm::Triple`) about it:
+the architecture, the operating system, the environment and the object format
+(`ARCH-VENDOR-OS[-ENVIRONMENT[-FORMAT]]`) must be names that parser knows
+(`linux`, `freebsd`, `hurd`, `emscripten`, `windows`, `gnu`, `musl`, `android`,
+`msvc`, `elf`, `macho`, ...), so the set follows the installed LLVM; `unknown`
+and `none` are accepted where the triple says them. The vendor is free text
+(`alpine`, `pc`, `apple`), and a version may follow the system (`freebsd15.0`).
+Where the LLVM C++ headers are not installed, the check is lenient: it only
+looks at the characters, and LLVM's answer for the target decides. Otherwise the
+message, with the part that is wrong, is
 
-    imp72: unrecognized target "TRIPLE" (expected ARCH-VENDOR-OS[-ENVIRONMENT], for example x86_64-linux-gnu)
+    imp72: unrecognized target "TRIPLE": unknown operating system "nonsense" (expected ARCH-VENDOR-OS[-ENVIRONMENT], for example x86_64-linux-gnu)
 
 the status is 1 and no file is written (`x86_64`, `x86_64-nonsense-os` and
 `x86_64-linux-nonsense` are refused). An architecture that the installed LLVM

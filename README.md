@@ -59,7 +59,7 @@ declared with `...`: `EXTERNAL INT printf(PTR, ...);`.
 
 ## How the compiler is built
 
-The compiler is IMP, apart from the seed and a short C++ file.
+The compiler is IMP, apart from the seed and two short C++ files.
 
 - **The seed** (`stage0/`, C99) is a port of the kernel and of the code
   generator to C. It builds stage 1 and is installed as `imp72stage0`.
@@ -69,6 +69,8 @@ The compiler is IMP, apart from the seed and a short C++ file.
   `imp72`.
 - **`stage0/impld.cpp`** (47 lines of C++) gives lld's driver a C name, because
   lld has no C interface.
+- **`stage0/lvtriple.cpp`** asks LLVM's own triple parser whether a `--target`
+  triple is one it knows, because the C API cannot be asked.
 
 The seed and stage 2 write byte-identical LLVM IR for the same program;
 `tests/seed` checks it over the native tests, the oracle programs, the runtime

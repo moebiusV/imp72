@@ -1,6 +1,6 @@
 /*
- * impld.cpp -- lld in the process, for the IMP driver (src/driver.imp calls IMPLD with CCALL).  lld has no C interface, so this is the one C++ file of
- * the tree: it only gives lld's drivers a plain C name.  impld(argc, argv) links as the program named by argv[0] would (ld.lld for ELF, ld64.lld for Mach-O)
+ * impld.cpp -- lld in the process, for the IMP driver (src/driver.imp calls IMPLD with CCALL).  lld has no C interface, so this is one of the two C++ files of
+ * the tree (stage0/lvtriple.cpp is the other): it only gives lld's drivers a plain C name.  impld(argc, argv) links as the program named by argv[0] would (ld.lld for ELF, ld64.lld for Mach-O)
  * with that command line and returns its status; impldhave says this compiler has lld (src/llvm.imp has the same two names for a build without it).
  * The drivers of both formats are in, wherever the compiler runs, so that it can link for a system of the other format when it is given that system's files
  * (--sysroot, --runtime): lld links for any target, and each driver for several architectures.

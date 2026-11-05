@@ -119,6 +119,8 @@ libs)
         [ "$(uname -s)" != OpenBSD ] && l="$l $cxxlib"
         [ -n "$lldstatic" ] && l="$l -lz -lzstd"
         [ -z "$lldstatic" ] && [ "$lldlib" != /usr/lib ] && [ -z "$LLVM_NO_RPATH" ] && l="$l -Wl,-rpath,$lldlib"
+    else
+        [ "$(uname -s)" != OpenBSD ] && l="$l $cxxlib"          # (stage0/lvtriple.cpp is C++ whether lld is there or not)
     fi
     [ "$(uname -s)" = Linux ] && l="$l -ldl"                                  # dladdr, for older glibc (src/driver.imp finds the C library with it)
     echo "$l $($lc --link-shared --libs 2>/dev/null || $lc --libs) $rp -L$($lc --libdir) -rdynamic" ;;

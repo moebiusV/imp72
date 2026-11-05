@@ -2441,22 +2441,23 @@ without the two % signs, the message PREMATURE END OF INPUT FILE is printed (Sec
 has; the word of the program remains 64 bits. The byte order of the target is the one that LLVM's
 data layout of the target machine gives, so a big endian target (`s390x-linux-gnu`,
 `powerpc-linux-gnu`) is compiled on a little endian compiler and the reverse: a text constant is the
-word of its characters in the order of the memory of the target. A triple must have an architecture,
-a vendor and an operating system, and may have an environment, and the operating system and the
-environment must be ones that LLVM knows by name; otherwise the message is `imp72: unrecognized
-target "TRIPLE"`, the status is 1 and no file is written. The vendor is free text. To link for
-another system, the compiler must be told where the files of that system are: `--sysroot=DIR` (its
-root, with `crt1.o`, `crti.o`, `crtn.o` and the `C` library under `DIR/usr/lib`, or for macOS the
-SDK directory, or for WINDOWS a `mingw-w64` tree with `crt2.o` and `libmingw32.a`) and
-`--runtime=FILE` (the `libimp72.a` built for it), or the environment variables IMP72SYSROOT and
-IMP72RUNTIME. The dynamic linker and the `-m` emulation come from the triple, for about 25
-architectures of LINUX (`glibc` and `musl`), and for FREEBSD, NETBSD, OPENBSD, macOS, `mingw-w64`
-and CYGWIN. There is no runtime library for WINDOWS or CYGWIN: objects can be made, and a program
-that has its own `main` and needs no runtime can be linked. A target the driver cannot link is
-refused with the system named. Without them the message says what is missing (`no crt1.o under
-DIR/usr/lib/TRIPLE...`) and how to give it, or compile with `-c` and link on the other system. The
-runtime library of a system is built by the compiler itself, with no `C` compiler. `--run` is for
-the system the compiler runs on.
+word of its characters in the order of the memory of the target. The architecture, the operating
+system, the environment and the object format of a triple are checked by LLVM's own triple parser,
+so the set follows the installed LLVM; the vendor is free text. Where the LLVM C++ headers are not
+installed the check is lenient: it looks at the characters only, and LLVM's answer for the target
+decides. A triple that fails the check gives the message `imp72: unrecognized target "TRIPLE"` with
+the part that is wrong, the status is 1 and no file is written. To link for another system, the
+compiler must be told where the files of that system are: `--sysroot=DIR` (its root, with `crt1.o`,
+`crti.o`, `crtn.o` and the `C` library under `DIR/usr/lib`, or for macOS the SDK directory, or for
+WINDOWS a `mingw-w64` tree with `crt2.o` and `libmingw32.a`) and `--runtime=FILE` (the `libimp72.a`
+built for it), or the environment variables IMP72SYSROOT and IMP72RUNTIME. The dynamic linker and
+the `-m` emulation come from the triple, for about 25 architectures of LINUX (`glibc` and `musl`),
+and for FREEBSD, NETBSD, OPENBSD, macOS, `mingw-w64` and CYGWIN. There is no runtime library for
+WINDOWS or CYGWIN: objects can be made, and a program that has its own `main` and needs no runtime
+can be linked. A target the driver cannot link is refused with the system named. Without them the
+message says what is missing (`no crt1.o under DIR/usr/lib/TRIPLE...`) and how to give it, or
+compile with `-c` and link on the other system. The runtime library of a system is built by the
+compiler itself, with no `C` compiler. `--run` is for the system the compiler runs on.
 
 ### 3.2: Compilation Error Diagnostics.
 

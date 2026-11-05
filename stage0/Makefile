@@ -27,6 +27,9 @@ imp72s0.o: imp72s0.c imp.h ir.h gen.h
 llvmorc.o: llvmorc.c
 	$(CC) -std=gnu99 -O1 -g $(LLVMCFLAGS) -c llvmorc.c
 
+lvtriple.o: lvtriple.cpp
+	$(CXX) -std=c++17 -O1 -g -fno-rtti $(LLVMCFLAGS) -c lvtriple.cpp
+
 impld.o: impld.cpp
 	$(CXX) -std=c++17 -O1 -g -fno-rtti $(LLVMCFLAGS) -c impld.cpp
 

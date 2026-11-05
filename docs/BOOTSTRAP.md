@@ -51,7 +51,8 @@ reads and rewrites ELF and Mach-O objects), and links the objects with `cc`.
 
 - the seed (`stage0/*.c`, and its unit tests in `tests/stage0`), which stays C
   so that a compiler exists before any IMP compiler does;
-- `stage0/impld.cpp`, 47 lines of C++ that give lld's drivers C names;
+- `stage0/impld.cpp`, 47 lines of C++ that give lld's drivers C names, and
+  `stage0/lvtriple.cpp`, which asks `llvm::Triple` about a `--target` triple;
 - the C programs of `tests/native/*_main.c`, which are C calling IMP.
 
 Everything else, the runtime library included, is IMP.

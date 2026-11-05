@@ -65,13 +65,13 @@ if have i686-linux-gnu; then
 "$w" -Sir --target=i686-linux-gnu lib2.imp -o i.ll >/dev/null 2>&1 && grep -q 'i32 %a0' i.ll || bad "--target=i686: 32 bit pointers in the IR"
 fi
 # a target that is not one is refused with a message and writes nothing; the usual ones are taken (the vendor is free text)
-for t in garbage x86_64-nonsense-os x86_64-pc-foo-bar i686- 'x86_64-linux-gnu;rm' x86_64-linux-bogus; do
+for t in garbage x86_64-nonsense-os x86_64-pc-foo-bar i686- 'x86_64-linux-gnu;rm' x86_64-linux-bogus x86_64-linux-bogusenv riscv64-unknown-nonsense aarch64--none-nonsense x86_64-linux-gnu-bogus; do
     rm -f tgt.o
     "$w" --target="$t" -c -o tgt.o lib2.imp > tgt.out 2>&1 && bad "--target=$t was accepted"
     [ -e tgt.o ] && bad "--target=$t left an object file"
     grep -q '^imp72: unrecognized target' tgt.out || bad "--target=$t: no message"
 done
-for t in x86_64-linux-gnu x86_64-pc-cygwin i686-pc-cygwin x86_64-pc-windows-cygnus x86_64-w64-mingw32 x86_64-pc-linux-gnu i686-linux-gnu aarch64-linux-gnu armv7-linux-gnueabihf riscv64-unknown-linux-gnu aarch64-apple-darwin x86_64-unknown-freebsd15.0 x86_64-unknown-openbsd8.0 x86_64-unknown-netbsd11.0 x86_64-linux-musl i586-alpine-linux-musl; do
+for t in x86_64-linux-gnu x86_64-pc-cygwin i686-pc-cygwin x86_64-pc-windows-cygnus x86_64-w64-mingw32 x86_64-pc-linux-gnu i686-linux-gnu aarch64-linux-gnu armv7-linux-gnueabihf riscv64-unknown-linux-gnu aarch64-apple-darwin x86_64-unknown-freebsd15.0 x86_64-unknown-openbsd8.0 x86_64-unknown-netbsd11.0 x86_64-linux-musl i586-alpine-linux-musl x86_64-unknown-hurd-gnu x86_64-pc-linux-gnux32 x86_64-unknown-linux-android wasm32-unknown-emscripten thumbv7em-none-eabi x86_64-apple-ios17.0-simulator x86_64-unknown-none-elf; do      # (the last seven are no fixed list's: LLVM's own triple parser decides)
     have $t && { rm -f tgt.o; "$w" --target="$t" -c -o tgt.o lib2.imp > tgt.out 2>&1 && [ -s tgt.o ] || bad "--target=$t was refused: $(head -c 100 tgt.out)"; }
 done
 # the other system for the link tests is not this one (an arm64 Linux host links aarch64-linux-gnu natively)

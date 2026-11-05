@@ -115,8 +115,10 @@ Make output for another system (LLVM's names, the vendor may be left out:
 .Ql x86_64-apple-darwin ) .
 Objects, assembly and IR are written for it.
 The byte order of the target is taken from LLVM's data layout of it.
-A triple without an architecture, a vendor and an operating system, or whose
-operating system or environment LLVM does not know by name, is refused
+The architecture, operating system, environment and object format are checked
+by LLVM's own triple parser, so the set follows the installed LLVM; the vendor
+is free text.
+A triple that fails the check is refused
 .Pq Ql imp72: unrecognized target ,
 with status 1 and no output.
 Linking for another system needs

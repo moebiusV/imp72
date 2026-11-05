@@ -4451,12 +4451,16 @@ target machine gives, so a big endian target
 .Li "(s390x\-linux\-gnu, powerpc\-linux\-gnu\&)"
 is compiled on a little endian compiler and the reverse: a text constant
 is the word of its characters in the order of the memory of the target.
-A triple must have an architecture, a vendor and an operating system,
-and may have an environment, and the operating system and the environment
-must be ones that LLVM knows by name; otherwise the message is
-.Li "imp72: unrecognized target \(dqTRIPLE\(dq" ,
-the status is 1 and no file is written.
-The vendor is free text.
+The architecture, the operating system, the environment and the object
+format of a triple are checked by LLVM’s own triple parser, so the set
+follows the installed LLVM; the vendor is free text.
+Where the LLVM
+.Li C++
+headers are not installed the check is lenient: it looks at the characters
+only, and LLVM’s answer for the target decides.
+A triple that fails the check gives the message
+.Li "imp72: unrecognized target \(dqTRIPLE\(dq"
+with the part that is wrong, the status is 1 and no file is written.
 To link for another system, the compiler must be told where the files
 of that system are:
 .Li \-\-sysroot=DIR
