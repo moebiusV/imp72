@@ -136,6 +136,14 @@ g_irstrval(word v)
         i = i + 1;
     }
     memcpy(&r, wb, 8);
+    if (tgtswap) {                              /* the memory order of the target */
+        uword u = (uword)r, s = 0;
+        int k;
+
+        for (k = 0; k < 8; k++, u >>= 8)
+            s = (s << 8) | (u & 0377);
+        r = (word)s;
+    }
     return r;
 }
 

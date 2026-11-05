@@ -374,16 +374,14 @@ static int cinit, jnit;
 /* The words of a text constant are in memory order, as in src/dir.imp (its CHR0, REST and FRONTLAST are those of src/impend-le.imc or impend-be.imc): the first character is
  * the first byte of the word in memory, the low byte on a little endian machine and the high byte on a big endian one.  The names of the directory stay first-character-low
  * inside this program, so the words of a constant are swapped on the way out where the machine is big endian. */
+int tgtswap;                        /* 1 when the byte order of the target is not the host's (TGTSWAP of src/dir.imp); the seed compiles for its host, so it stays 0 */
+
 static uword
 memorder(uword w)
 {
-    static int be = -1;
+    unsigned x = 1;
+    int be = (*(unsigned char *)&x == 0) ^ (tgtswap != 0);      /* the byte order of the target: the host's, or the other */
 
-    if (be < 0) {
-        unsigned x = 1;
-
-        be = *(unsigned char *)&x == 0;
-    }
     if (be) {
         uword r = 0;
         int i;

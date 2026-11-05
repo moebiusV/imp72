@@ -29,13 +29,23 @@ else
     tgt=
     out=${2:-build/rt-host}
 fi
-# the byte order of the target: the file of byte-order macros (src/impend-be.imc) for the big endian ones, else the little
-case ${arch:-$(${CC:-cc} -dumpmachine 2>/dev/null | sed 's/-.*//')} in
-s390x|powerpc|ppc|ppc64|sparc*|mips|mips64|armeb|aarch64_be) endf=src/impend-be.imc ;;
-*) if [ -z "$arch" ]; then endf=$(sh tools/endian.sh); else endf=src/impend-le.imc; fi ;;
-esac
+# the byte order and the word size of the target, from the object file the compiler makes for it (ELF: class and data; Mach-O: the magic), not from a list of architectures
 mkdir -p "$out"
 export IMP72SYNTAX=$root/src/llvm-ir/syntax64.imc IMP72FFI=$root/lib/ffi.imc
+printf 'FINI(0)\n%%%%\n' > "$out/probe.imp"
+$w -c $tgt -o "$out/probe.o" "$out/probe.imp" > "$out/probe.log" 2>&1 || { echo "mkrt: the compiler cannot make an object for ${triple:-this machine}:" >&2; head -c 600 "$out/probe.log" >&2; exit 1; }
+hd=$(od -An -tx1 -N8 "$out/probe.o" | tr -d ' \n')
+case $hd in
+7f454c46*) case $(echo $hd | cut -c9-10) in 01) bits=32 ;; *) bits=64 ;; esac
+           case $(echo $hd | cut -c11-12) in 02) endf=src/impend-be.imc ;; *) endf=src/impend-le.imc ;; esac ;;
+cffaedfe) bits=64; endf=src/impend-le.imc ;;
+cefaedfe) bits=32; endf=src/impend-le.imc ;;
+feedfacf) bits=64; endf=src/impend-be.imc ;;
+feedface) bits=32; endf=src/impend-be.imc ;;
+*) echo "mkrt: the object for ${triple:-this machine} is neither ELF nor Mach-O" >&2; exit 1 ;;
+esac
+export SYSBITS=$bits
+case $endf in *-be.imc) export SYSBE=1 ;; *) export SYSBE=0 ;; esac
 export IMP72CHARPTR=1                       # the library is compiled as it always was: a byte pointer in a variable points at characters, a shift is in line (see src/llvm-ir/demit.imp CHARPTR)
 unset IMP72LIB
 bd=$(sh tools/llvm.sh bindir)
@@ -49,9 +59,9 @@ for m in "imp72rt_imp:$out/imp72rt_all.imp" "imp72sys:lib/imp72sys.imp" "sysgen:
 done
 # the 32 bit machines call __divdi3 and its kin for the division of 64 bits: compiler-rt's members go in the library, as in tools/mklib.sh (the target's, from this machine's LLVM)
 rt=$(sh tools/llvm.sh builtins $triple)
-case ${arch:-$(${CC:-cc} -dumpmachine 2>/dev/null | sed 's/-.*//')} in
-i?86|i386|arm*) [ -n "$rt" ] || echo "mkrt: no compiler-rt builtins for ${triple:-this machine} in the LLVM here: the library has no __divdi3 and its kin, and a program linked with it needs them from elsewhere" >&2 ;;
-esac
+if [ "$bits" = 32 ] && [ -z "$rt" ]; then       # (a link for the target takes libgcc.a from its sysroot where that has it: tools/llvm.sh builtins knows the builtins of i386 and arm)
+    echo "mkrt: no compiler-rt builtins for ${triple:-this machine} in the LLVM here: the library has no __divdi3 and its kin, and a program linked with it needs them from elsewhere (the libgcc.a of the sysroot, when the link has one)" >&2
+fi
 if [ -n "$rt" ]; then
     rm -rf "$out/rt"; mkdir -p "$out/rt"
     case $rt in /*) rtabs=$rt ;; *) rtabs=$root/$rt ;; esac

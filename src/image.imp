@@ -39,6 +39,8 @@ SUBR IMGSKIP(NP) IS (
  CCALL strncmp(NP,LOC('llvmgen:'),8)=0 => RETURN 1;
  CCALL strncmp(NP,LOC('ir2ll'),5)=0 => RETURN 1;                  # THE LLVM IR WRITER (IR2LL AND IR2LLX): ITS STATE IS A RUN'S, AND ITS COMMON VARIABLES ARE MEGABYTES #
  CCALL strcmp(NP,LOC('demit:USEDFS'))=0 => RETURN 1;
+ CCALL strcmp(NP,LOC('dir:TGTSWAP'))=0 => RETURN 1;                  # THE BYTE ORDER OF THE TARGET IS A RUN'S #
+ CCALL strcmp(NP,LOC('ix:TGTSWAP'))=0 => RETURN 1;
  CCALL strcmp(NP,LOC('dir:RTN'))=0 => RETURN 1;
  CCALL strcmp(NP,LOC('dir:NRTN'))=0 => RETURN 1;
  CCALL strcmp(NP,LOC('dir:CRTN'))=0 => RETURN 1;

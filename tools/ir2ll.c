@@ -47,6 +47,7 @@ static FILE *out;                       /* the function being written */
 static FILE *datafile;                  /* the global variables */
 static FILE *bodyfile;                  /* the functions */
 static int ptr32;                       /* the host's pointers are 32 bits */
+static int tbe;                         /* the target is big endian: the address in a data word of a 32 bit pointer is its second half */
 static FILE *inp, *outp;                /* the IR in, the module out */
 
 static void
@@ -1187,9 +1188,9 @@ flushdata(void)
                 if (dqsyms[i] == NULL)
                     fprintf(datafile, "%si64 %lld", i ? ", " : "", dquads[i]);
                 else if (mixed && dquads[i] == 0)
-                    fprintf(datafile, "%s{ i32, i32 } { i32 ptrtoint (ptr %s to i32), i32 0 }", i ? ", " : "", gname(dqsyms[i]));
+                    fprintf(datafile, tbe ? "%s{ i32, i32 } { i32 0, i32 ptrtoint (ptr %s to i32) }" : "%s{ i32, i32 } { i32 ptrtoint (ptr %s to i32), i32 0 }", i ? ", " : "", gname(dqsyms[i]));
                 else if (mixed)
-                    fprintf(datafile, "%s{ i32, i32 } { i32 add (i32 ptrtoint (ptr %s to i32), i32 %lld), i32 0 }", i ? ", " : "", gname(dqsyms[i]), dquads[i]);
+                    fprintf(datafile, tbe ? "%s{ i32, i32 } { i32 0, i32 add (i32 ptrtoint (ptr %s to i32), i32 %lld) }" : "%s{ i32, i32 } { i32 add (i32 ptrtoint (ptr %s to i32), i32 %lld), i32 0 }", i ? ", " : "", gname(dqsyms[i]), dquads[i]);
                 else if (dquads[i] == 0)
                     fprintf(datafile, "%si64 ptrtoint (ptr %s to i64)", i ? ", " : "", gname(dqsyms[i]));
                 else
@@ -1387,7 +1388,7 @@ function(const char *header)
     free(buf);
 }
 
-/* The IR on in, the module on out; p32: the host's pointers are 32 bits. */
+/* The IR on in, the module on out; flags: bit 0, the pointers are 32 bits; bit 1, the byte order of the target is not the host's. */
 int
 ir2ll_run(FILE *in, FILE *out, int p32)
 {
@@ -1398,7 +1399,12 @@ ir2ll_run(FILE *in, FILE *out, int p32)
 
     inp = in;
     outp = out;
-    ptr32 = p32;
+    {
+        unsigned one = 1;
+
+        tbe = (*(unsigned char *)&one == 0) ^ ((p32 >> 1) & 1);
+    }
+    ptr32 = p32 & 1;
     ntprotos = 0;
     thunks.n = 0;
     bodyf = open_memstream(&body, &blen);

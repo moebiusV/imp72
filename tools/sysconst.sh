@@ -24,6 +24,7 @@ ppc64le|powerpc64le) arch=ppc64le ;;
 mips64*) arch=mips64el ;;
 esac
 case $arch in i386|arm) bits=32 ;; *) bits=64 ;; esac
+[ -n "$SYSBITS" ] && bits=$SYSBITS                      # (the word size the compiler found in the object it makes for the target: tools/mkrt.sh)
 die() { echo "sysconst: $*" >&2; exit 1; }
 
 # mmap: the anonymous mapping, no reservation of swap, and an exact address (a mapping that fails where the address is taken); PROT0 is the protection the arena is made with
@@ -76,8 +77,9 @@ else
 fi
 echo "SCZ IS 1 LONG;                                          # AN EMPTY C STRING #"
 echo
-# the byte order of this machine (tools/endian.sh says which file of names the compiler reads): the numbers of the files the library reads are in it
+# the byte order of this machine or of the target (tools/endian.sh says which file of names the compiler reads): the numbers of the files the library reads are in it
 case $(sh "$(dirname "$0")/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac
+[ -n "$SYSBE" ] && be=$SYSBE                               # (the target's, when tools/mkrt.sh found it in the object it makes for the target)
 echo "SUBR SCBE(Z) IS $be;                                   # 1 ON A BIG ENDIAN MACHINE #"
 echo "SUBR SCPTR(Z) IS $((bits / 8));                         # SIZEOF A POINTER #"
 if [ $bits = 32 ]; then echo "SUBR SCMASK(Z) IS 4294967295;                 # THE BITS OF A POINTER #"; else echo "SUBR SCMASK(Z) IS 0-1;"; fi
@@ -104,7 +106,7 @@ addr)
     echo "SUBR IMPSTDIN(Z) IS LOC(!$stdin!);                    # (THE SYMBOL IS THE FILE) #"
     echo "SUBR IMPSTDOUT(Z) IS LOC(!$stdsym!)" ;;
 *)
-    echo "SUBR IMPSTDIN(Z) IS (!$stdin! AND SCMASK(0));          # (THE VARIABLE HOLDS A POINTER) #"
-    echo "SUBR IMPSTDOUT(Z) IS (!$stdsym! AND SCMASK(0))" ;;
+    echo "SUBR IMPSTDIN(Z) IS IMPPEEKPTR(LOC(!$stdin!));          # (THE VARIABLE HOLDS A POINTER, WHICH IS THE LOW HALF OF A WORD ON A LITTLE ENDIAN MACHINE ONLY: IT IS READ AS THE POINTER IT IS) #"
+    echo "SUBR IMPSTDOUT(Z) IS IMPPEEKPTR(LOC(!$stdsym!))" ;;
 esac
 echo "%%"
