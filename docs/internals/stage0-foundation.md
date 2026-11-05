@@ -33,7 +33,7 @@ arrays down over gaps and fills a gap left by a fixed array with the largest rel
 (`fgap`); grow core (`ftop`); pack and try again; otherwise "FREE STORAGE EXHAUSTED".
 
 - `fmem` is a block grown with `realloc`, in multiples of 1024 words.
-- A new array is `fallot_new(name,n)`; `fallot(a,n)` resizes or, for `n <= 0`, frees.
+- A named array is allocated with `fallot_new(name,n)`; `fallot(a,n)` resizes or, for `n <= 0`, frees.
 - The first dummy header is at index 8 because `fgap` returns 0 for "none".
 - `fgap` has no ceiling on the size of a gap.
 - `FREE` and `FREES` are functions (`static inline`), not macros: free storage moves during a call that allocates, and

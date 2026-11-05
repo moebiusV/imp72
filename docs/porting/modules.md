@@ -4,12 +4,12 @@
 The routines keep their names and their text where the machine does not force a change. What differs everywhere: words are
 64 bits and halves are 32 (a shift by the constant 18 on the tape is a half word move to its translator, so it is written
 as 32); the layout of the tables is `layouts.md`; a name is eight characters to a word; `FREE`, `FREES` and the rest are
-macros of `src/impsyn64.imc` over an arena; reals are IEEE 754; `CALLI` is the library's `impcalli`. The routines added
+macros of `src/impsyn64.imc` over an arena; reals are IEEE 754; `CALLI` is the library's `impcalli`. The routines that the tape lacks
 are in `tape-names.md`.
 
 | module | what differs from the tape |
 |---|---|
-| `free` | the arena is reserved address space made usable with `CORE` (`lib/imp72sys.imp`), and it never moves; `BLT` is `memmove`; arrays are named by index, so the tape's `S` of `FRELOT` (a routine to call after a move) is not used; a new named array is `FNEW`, because `FALLOT` of a name cannot be told from `FALLOT` of an array by size; `FMAP` and `FSTATS` print with `PRINT` |
+| `free` | the arena is reserved address space made usable with `CORE` (`lib/imp72sys.imp`), and it does not move while the compiler runs; `BLT` is `memmove`; arrays are named by index, so the tape's `S` of `FRELOT` (a routine to call after a move) is not used; a named array is allocated with `FNEW`, because `FALLOT` of a name cannot be told from `FALLOT` of an array by size; `FMAP` and `FSTATS` print with `PRINT` |
 | `dir` | `DIR` takes a name or string constant as it is; `STCON` names a constant by the octal digits of its 64 bits; `RADI50`, `CONVC` and `NEWNAME` work on bytes with the macros of `impend-*.imc`; the table of semantic routines is here: `DSEM` enters a routine by name and `SEMCALL` calls it |
 | `stack` | bit matrices have 64 columns to a word |
 | `lex` | the line and the token are packed eight characters to a word and stepped with byte pointers, as on the tape; `LEXIN` opens the file with `fopen`; `PLINE` prints with `PRINT` |
@@ -50,8 +50,8 @@ passed to `DIR` as it is. What differs from the tape:
 ## The arena
 
 The tape's low segment grows in place, so a byte pointer into an array stays good until the array itself moves. The arena
-is the same: `IMPCOREBASE` (`lib/imp72sys.imp`) reserves the address space once, without access, at the same address
-every time if the system allows it, and `CORE` makes more of it usable with `mprotect`. The seed's block is a `realloc`ed
+is the same: `IMPCOREBASE` (`lib/imp72sys.imp`) reserves the address space once, without access, at the address `SCHINT`
+(or `IMP72COREBASE`) if the system gives it and elsewhere if not, and `CORE` makes more of it usable with `mprotect`. The seed's block is a `realloc`ed
 heap block instead (`docs/internals/stage0-foundation.md`).
 
 ## The interactive mode
@@ -84,7 +84,8 @@ semantic routines in the order of their ids, and the registry of relocatable arr
 `IMP72MODULE` set (`tools/direct.sh`), and each variable leaves a record (address, size, `module:name`) in the section
 `impvars` (`IRVARREC`); `src/image.imp` writes and reads them, and `lib/impvars.imp` finds the section
 (`lib/impvarsx-elf.imp`, `lib/impvarsx-macho.imp`). An image is for the build that made it and says so if it is not (a
-hash of the list). The arena is at the same address, so the pointers into it that the lexer keeps stay good. `IMGSKIP` in `src/image.imp` lists what the image
+hash of the list). The arena is restored at any address (format version 6): everything in it is an index from `FB`, and the load adds the
+difference of the bases to the five byte pointers of the lexer that point into it (`docs/internals/modules.md`). `IMGSKIP` in `src/image.imp` lists what the image
 leaves out: the variables of `impm`, `ix`, `image`, `driver`, `llvm` and `llvmgen`, of the IR writer (`ir2ll`, `ir2llx`),
 the table of semantic routines (written by name), the file the lexer has open, and the registry itself. A run from an image
 does what the head of `RSYN` and the first `COTREE` do (`RSYNI`), so that the routines they enter are in the table; the

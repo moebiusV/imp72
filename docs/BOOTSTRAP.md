@@ -8,8 +8,10 @@ three steps.
    LLVM IR with `stage0/gen_*.c`, a C port of the code generator in
    `src/llvm-ir/*.imp`. It is the one part of the compiler that is not IMP,
    apart from `stage0/impld.cpp`, and it is installed as `imp72stage0`. It
-   makes a program with its own driver (`stage0/imp72s0.c`): `-S` writes LLVM IR,
-   `-c` an object, `-o` names the output, `-s` gives the switches, `--run` runs.
+   makes a program with its own driver (`stage0/imp72s0.c`): `-S` writes LLVM IR
+   text, `-c` an object, `-o` names the output, `-s` gives the switches, `--run`
+   runs a program that needs no runtime library. It has no `--target`, `-Sir`,
+   `-I` or `-i` (`docs/BUILDING.md`, The seed and `imp72`).
 2. **Stage 1** is `src/*.imp` and `src/llvm-ir/*.imp` compiled by the seed
    (`tools/direct.sh`, called by `tools/llvm-ir.sh` with `DIRECT_OUT=build/llvm-ir1`),
    linked with the runtime library that the seed makes (`tools/mklib.sh`) and
@@ -49,7 +51,7 @@ reads and rewrites ELF and Mach-O objects), and links the objects with `cc`.
 
 - the seed (`stage0/*.c`, and its unit tests in `tests/stage0`), which stays C
   so that a compiler exists before any IMP compiler does;
-- `stage0/impld.cpp`, 41 lines of C++ that give lld's drivers C names;
+- `stage0/impld.cpp`, 47 lines of C++ that give lld's drivers C names;
 - the C programs of `tests/native/*_main.c`, which are C calling IMP.
 
 Everything else, the runtime library included, is IMP.

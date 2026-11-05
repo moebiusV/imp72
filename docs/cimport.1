@@ -101,7 +101,7 @@ The output is a fragment of a source file, not a file of its own: a declaration
 holds to the end of the compilation unit that has it.
 Put it in front of the program:
 .Bd -literal -offset indent
-imp72-cimport -n qsort -n strlen -o decls.imp stdlib.h
+imp72-cimport -n qsort -n malloc -o decls.imp stdlib.h
 cat decls.imp prog.imp > all.imp
 imp72 all.imp
 .Ed
@@ -132,7 +132,7 @@ Write
 .Ql LET macro=value;
 for the integer value of a macro.
 The C compiler evaluates it: a program that prints the value is compiled and
-run in a private directory, and the directory is removed afterwards.
+run in a private directory, and the directory is deleted afterwards.
 A negative value is written as its 64-bit pattern, with the signed value in a
 comment.
 A macro that is not defined or not an integer is listed as not expressed.
@@ -200,7 +200,7 @@ when it is an absolute path naming a directory; otherwise
 .Pa /tmp .
 The directory is made by
 .Xr mkdtemp 3
-with mode 0700 and removed on exit and on
+with mode 0700 and deleted on exit and on
 .Dv SIGHUP ,
 .Dv SIGINT
 and

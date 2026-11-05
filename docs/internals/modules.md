@@ -36,7 +36,7 @@ relocatable array (`FRELOT`) has a registered variable that is updated after eac
 `FLEN`, `FNAME`, `FADD`, `FALLOT`, `FRELOT`, `FINCSET`, `FADDEX`, `FCLOSE`, `FMAP`, `FSTATS`, `FTRACE`.
 
 Differences from `free.imc`: a relocatable array's pointer location is a registry slot, because a C address does not fit
-in a half word; there is no 64000 word ceiling on a gap; a new named array is `FNEW(name,n)` in IMP (`fallot_new` in C),
+in a half word; there is no 64000 word ceiling on a gap; a named array is allocated with `FNEW(name,n)` in IMP (`fallot_new` in C),
 because a name of eight characters in a 64 bit word cannot be told from an index.
 
 The seed's block is a `realloc`ed C heap. In the IMP module the block is an arena of reserved address space at `FB`
