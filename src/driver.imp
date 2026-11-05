@@ -179,7 +179,7 @@ SUBR LNKBSD(OS,HA) IS (
  CCALL strcmp(OS,LOC('netbsd'))=0 => (DLG:=LOC('/usr/libexec/ld.elf_so'); FC0:=LOC('crt0.o'); WH:=1);
  CCALL strcmp(OS,LOC('openbsd'))=0 => (DLG:=LOC('/usr/libexec/ld.so'); FC0:=LOC('crt0.o'); WH:=0; OBSD:=1);
  DLG=0 => RETURN 9;
- CCALL strcmp(HA,LOC('x86_64')) NE 0 => CCALL strcmp(HA,LOC('aarch64')) NE 0 => RETURN 9;
+ CCALL strcmp(HA,LOC('x86_64')) NE 0 => CCALL strcmp(HA,LOC('aarch64')) NE 0 => CCALL strcmp(HA,LOC('i386')) NE 0 => RETURN 9;
  HAVEF(LOC(C1P),LOC('/usr/lib'),FC0)=0 => RETURN 9;
  HAVEF(LOC(CBP),LOC('/usr/lib'),LOC('crtbegin.o'))=0 => RETURN 9;
  HAVEF(LOC(CEP),LOC('/usr/lib'),LOC('crtend.o'))=0 => RETURN 9;

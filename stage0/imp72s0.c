@@ -343,7 +343,7 @@ lnkbsd(const char *os, const char *ha, const char *out, const char *ofile, const
     } else if (strcmp(os, "openbsd") == 0) {
         dl = "/usr/libexec/ld.so"; fc0 = "crt0.o"; wh = 0; obsd = 1;
     }
-    if (dl == NULL || (strcmp(ha, "x86_64") != 0 && strcmp(ha, "aarch64") != 0))
+    if (dl == NULL || (strcmp(ha, "x86_64") != 0 && strcmp(ha, "aarch64") != 0 && strcmp(ha, "i386") != 0))
         return 9;
     if (!havef(c1p, "/usr/lib", fc0) || !havef(cbp, "/usr/lib", "crtbegin.o") || !havef(cep, "/usr/lib", "crtend.o"))
         return 9;
