@@ -38,7 +38,7 @@ writes statements).
 semantics call `DEWOP`, `ADDOP`, `FETCH`, `STORE`, `HOOK`, `SUBCALL` and the rest with operation numbers. Each stack
 entry carries its code as a chain of five word records in free array `CO`: `DEWOP(op,r,s)` adds an operation with
 accumulator `r` and the operand `s`, `ADDREC` adds any record, `HOOK(d,a,b)` joins the chain of `a` to that of `b` and
-puts it in `d`. A register is an index into the array `RG`; `AREG1` makes a new one, and `DEMIT` gives each its own IR
+puts it in `d`. A register is an index into the array `RG`; `AREG1` makes one, and `DEMIT` gives each its own IR
 temporary. `FETCH` loads an operand into a register; `SUBARG` gives an argument an address. The routines are entered
 with `DSEM` by `IMPSEM`, `CODEI`, `CODE2I` and `CODE3I` (`gen_init` in the seed).
 

@@ -29,6 +29,7 @@ file of such statements; `lib/ffi.imc` is one (`CCALL`, `EXTERNAL`).
     imp72 -S hello.imp                    # assembly, hello.s
     imp72 -Sir hello.imp                  # LLVM IR text, hello.ll
     imp72 -c --target=aarch64-linux-gnu hello.imp    # an object for another system
+    imp72-cimport -n qsort -o decls.imp stdlib.h   # IMP72 declarations from a C header
 
 The build needs a C99 compiler, a C++ compiler, GNU make, the LLVM C API
 (`llvm-dev`) and, to link in the process, lld as a library (`liblld-dev`).
@@ -47,6 +48,15 @@ IMP expressions have no operator precedence and group right to left:
 `A+B*C` is `A+(B*C)`. `FOR K TO N` runs K from 0 through N.
 `docs/LANGUAGE-NOTES.md` lists the other points where programs go wrong.
 
+A C function is called with `CCALL`. A typed declaration gives its types once:
+
+    EXTERNAL INT puts(PTR);
+    CCALL puts('hello from C');
+
+An undeclared C function is called with a fixed number of word arguments. A C
+function that takes a variable number of arguments (`printf`, `open`) must be
+declared with `...`: `EXTERNAL INT printf(PTR, ...);`.
+
 ## How the compiler is built
 
 The compiler is IMP, apart from the seed and a short C++ file.
@@ -57,7 +67,7 @@ The compiler is IMP, apart from the seed and a short C++ file.
   and `src/llvm-ir/` (the code generator), compiled by the seed.
 - **Stage 2** is the same sources compiled by stage 1. It is installed as
   `imp72`.
-- **`stage0/impld.cpp`** (41 lines of C++) gives lld's driver a C name, because
+- **`stage0/impld.cpp`** (47 lines of C++) gives lld's driver a C name, because
   lld has no C interface.
 
 The seed and stage 2 write byte-identical LLVM IR for the same program;
@@ -82,9 +92,18 @@ that one.
 macOS arm64, FreeBSD, OpenBSD, NetBSD, and Alpine containers (musl) for amd64,
 386, arm64, armv7, riscv64, ppc64le, s390x and loong64. Hosts are little- and
 big-endian, 32 and 64 bit; a 32-bit host holds the 64-bit word in a
-`long long`. `--target` writes objects for every target the installed LLVM
-has; linking for another system needs that system's C library files
-(`--sysroot`, `--runtime`).
+`long long`.
+
+**Cross-compiling.** `--target=TRIPLE` writes objects, assembly or IR for every
+target the installed LLVM has, with the byte order and pointer size of the
+target. A triple LLVM does not know by name is refused. The driver links for
+Linux (glibc and musl, about 25 architectures), FreeBSD, NetBSD, OpenBSD, macOS,
+and mingw-w64 and Cygwin on Windows, given that system's C library files
+(`--sysroot`) and a runtime library built for it (`--runtime`, made by
+`sh tools/mkrt.sh TRIPLE`). Native linking needs no table of architectures. There
+is no runtime library for Windows or Cygwin: objects, and programs that need no
+runtime, work there. `docs/BUILDING.md` has the linker order and the flags per
+target.
 
 ## Repository layout
 
@@ -93,8 +112,8 @@ has; linking for another system needs that system's C library files
     src/llvm-ir/    the code generator, and syntax64.imc, the language's syntax
     stage0/         the seed (C99), the glue to the LLVM C API, impld.cpp
     lib/            the runtime library (IMP), ffi.imc, imp72.h
-    tools/          build scripts, tools written in IMP (run by imptool.sh), fuzzers (Python), CI scripts
-    tests/          native programs, goldens, the bootstrap and seed tests
+    tools/          build scripts, tools written in IMP (run by imptool.sh, among them imp72-cimport), fuzzers (Python), CI scripts, tools/bsd-vm
+    tests/          native programs, goldens, the bootstrap, seed, cross-compiling and cimport tests
     oracle/         the setup for the original compiler on simulated TOPS-10
     docs/           guides, the language manual, internals, porting notes
     debian/ packaging/   Debian and Alpine packages
@@ -109,11 +128,14 @@ a word.
 **Reals** are IEEE 754 doubles; a `REAL` variable holds the double's bits.
 
 **Calls.** A `SUBR` is a C function that takes pointers to its arguments and
-returns a word. `CCALL F(A,B)` calls a C function with arguments by value, and
-`CALLBACK(F)` is the address of a C entry of a `SUBR`, for `qsort`, `signal` and
-the like. `STRUCT` declares the layout of a C structure and `FIELD(P, S.F)` reads
-and writes a field of the structure at an address. `imp72-cimport` writes the
-`EXTERNAL`, `STRUCT` and `LET` declarations of the functions, structures and
+returns a word. `CCALL F(A,B)` calls a C function with arguments by value;
+`EXTERNAL INT puts(PTR);` declares its types, and `...` marks a variadic one.
+`CALLBACK INT CMP(PTR, PTR);` gives a `SUBR` a C signature, `CALLBACK(CMP)` is
+the address of its C entry (for `qsort`, `signal` and the like), and `FNPTR`
+declares a call through a function pointer. `STRUCT` declares the layout of a C
+structure, `SIZEOF` and `OFFSETOF` give its size and offsets, and `FIELD(P, S.F)`
+reads and writes a field of the structure at an address. `imp72-cimport` writes
+the `EXTERNAL`, `STRUCT` and `LET` declarations of the functions, structures and
 constants of a C header. `docs/FFI.md` has all of it.
 
 **Code generation.** The code generator builds chains of records whose
@@ -130,12 +152,12 @@ output with it.
 ## Documentation
 
 - [docs/manual/imp72.md](docs/manual/imp72.md), [docs/manual/imp72.7](docs/manual/imp72.7): the language manual (the 1973 RUNOFF source rendered as Markdown and as an mdoc page)
-- [docs/imp72.1](docs/imp72.1), [docs/imp72stage0.1](docs/imp72stage0.1): the manual pages of the compiler and of the seed
+- [docs/imp72.1](docs/imp72.1), [docs/imp72stage0.1](docs/imp72stage0.1), [docs/cimport.1](docs/cimport.1): the manual pages of the compiler, of the seed and of `imp72-cimport`
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the build route
 - [docs/BUILDING.md](docs/BUILDING.md): building, cross-compiling, tests, CI
 - [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md): pitfalls
-- [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72
-- [docs/ROADMAP.md](docs/ROADMAP.md): planned language work
+- [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72, declarations, callbacks, structures, `imp72-cimport`
+- [docs/ROADMAP.md](docs/ROADMAP.md): what is not done
 - [docs/ORACLE.md](docs/ORACLE.md): the original compiler as a reference
 - [docs/internals/](docs/internals/): the kernel module by module; [docs/porting/](docs/porting/): the code generator's machine, layouts, modules, routine names compared with the tape
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages
@@ -157,4 +179,7 @@ The language is described in Bilofsky's *IMP72 Reference Manual* (DECUS 10-198,
 IMP72 Programming Language" (SIGPLAN Notices, 1974).
 
 The code in this repository outside `decus/` is under the ISC licence, in
-`LICENSE`. `decus/` is the original DECUS program (public domain, as above).
+`LICENSE`. `stage0/strlcpy.c` and `stage0/strlcat.c` are OpenBSD's `strlcpy`
+and `strlcat` (ISC, Todd C. Miller; each file has its notice), compiled by
+`stage0/strl.c` only where the C library has neither. `decus/` is the original
+DECUS program (public domain, as above).

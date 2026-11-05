@@ -29,7 +29,7 @@ that the 64 bit layout or the Unix driver needs.
 | `amod`, `omod`, `rmod` | all (12, 9 and 20 routines) | the PDP-10 assembler, the writer of the `.REL` file and the register allocator | no counterpart: `demit.imp` writes IR and LLVM does this work |
 
 `CORE` and `RLEAS` are the two tape routines whose absence depends on the file I/O of the implementation. If channel
-I/O is added, `RLEAS` (the `fclose` of a channel) and the monitor `CORE` are reconsidered.
+I/O is implemented, `RLEAS` (the `fclose` of a channel) and the monitor `CORE` are reconsidered.
 
 Shared variables of the tape that do not appear in `src/` or `lib/`: `DORG`, `DORG1`, `DORG2`, `GORG`, `GORG1`, `TORG` (the
 origins above); `DPBYPA`, `DPBYPC`, `DPBYPI`, `DPBYPL`, `DPBYPU`, `GBYPNB`, `GBYPTY`, `TALTBP`, `TNONBP`, `TSCRBP` (the

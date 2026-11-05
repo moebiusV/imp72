@@ -23,10 +23,12 @@ installs and exercises the Debian package on amd64 only.
 
 ## Debian: `debian/`
 
-A native source package (3.0 native) using debhelper (compat 13) with `dh` and
+A native source package (3.0 native) using debhelper (`debhelper-compat (= 14)`) with `dh` and
 a few overrides in `debian/rules`. Build dependencies are `llvm-dev`,
-`liblld-dev`, `binutils`, and `libclang-rt-dev` on i386 and armhf (the division
-of 64 bits that the 32-bit targets take from compiler-rt). The package depends
+`liblld-dev`, `binutils`, `python3` (for the tests, not with `nocheck`), and
+`libclang-rt-dev` on i386 and armhf (the division of 64 bits that the 32-bit
+targets take from compiler-rt). `debian/tests` is the autopkgtest, which compiles
+a program with the installed package. The package depends
 on `libc6-dev | libc-dev`.
 
     dpkg-buildpackage -us -uc          # source and binary, with the tests
@@ -44,8 +46,8 @@ tarball for `pkgver` are filled in with `abuild checksum` once the tag
 
 ## OpenBSD: `packaging/openbsd/lang/imp72`
 
-A port for `lang/imp72`: `Makefile`, `distinfo`, `pkg/DESCR` and `pkg/PLIST`. It builds with the base system's compiler, links the base `libLLVM`, runs the base `ld.lld` to link
+A port for `lang/imp72`: `Makefile`, `pkg/DESCR` and `pkg/PLIST`. It builds with the base system's compiler, links the base `libLLVM`, runs the base `ld.lld` to link
 programs, and needs `gmake`. `ONLY_FOR_ARCHS` is `amd64`, the architecture the test suite has been run on. The manual pages go in `${PREFIX}/man`
-(`MANDIR` of the `Makefile`). `distinfo` holds the checksum of the tarball of the tag in `GH_TAGNAME`: `make makesum` makes it once that tag exists.
+(`MANDIR` of the `Makefile`). The port has no `distinfo`: `make makesum` makes it, with the checksum of the tarball of the tag in `GH_TAGNAME`, once that tag exists.
 
 To try it, put the directory in a ports tree as `lang/imp72` and run `make package`; `make test` runs the whole suite.

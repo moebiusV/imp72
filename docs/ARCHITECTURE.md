@@ -107,7 +107,7 @@ them. To add or change code generation, change both:
    line in that file's `gen_*_dsems`. `gen.h` lists the IMP name to C name
    mapping.
 3. Reference it from a rule of `src/llvm-ir/syntax64.imc` (or `lib/ffi.imc`).
-4. An added IR operator or type goes into `src/llvm-ir/irsyn.imc`, `stage0/ir.h`,
+4. An IR operator or type that the generator needs goes into `src/llvm-ir/irsyn.imc`, `stage0/ir.h`,
    `src/ir2ll.imp` or `src/ir2llx.imp`, and `tools/ir2ll.c`.
 5. Run `sh tests/seed/run.sh`, `sh tests/direct/stage2.sh` and
    `sh tests/direct/ir2ll.sh`.
@@ -129,7 +129,11 @@ language it has learned to `NAME.img`; `-I NAME.img` starts from it.
 `src/image.imp` writes the free storage (directory, syntax graph, code tree,
 semantics array), the variables of the compiler's modules, listed in the
 section `impvars` of the program, and the table of semantic routines by name.
-An image is valid for the compiler build that made it.
+An image is valid for the compiler build that made it. Its format is version 6.
+The free storage is restored at any address: the arena is asked for at the
+address it was saved at, and when the system gives another, the loader adds the
+difference of the bases to the five byte pointers of the lexer that point into it
+(`docs/BUILDING.md`, Diagnostics of the free storage and the images).
 
 ## Tools and tests
 
