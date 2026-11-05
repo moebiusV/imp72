@@ -62,3 +62,7 @@ i686-w64-mingw32:
 ld.lld -m i386pe -o a.out SYSROOT/usr/lib/crt2.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 
 aarch64-w64-mingw32:
 ld.lld -m arm64pe -o a.out SYSROOT/usr/lib/crt2.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 
+x86_64-pc-cygwin:
+ld.lld -m i386pep -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -L SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15 -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15/crtend.o 
+i686-pc-cygwin:
+ld.lld -m i386pe -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/gcc/i686-pc-cygwin/15/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -L SYSROOT/usr/lib/gcc/i686-pc-cygwin/15 -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 SYSROOT/usr/lib/gcc/i686-pc-cygwin/15/crtend.o 

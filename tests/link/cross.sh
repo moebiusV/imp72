@@ -12,7 +12,9 @@ echo "== link cross"
 sr=$out/sr
 mkdir -p $sr/usr/lib
 for f in crt1.o crt0.o crti.o crtn.o crtbegin.o crtend.o libc.so libm.so libc.so.97.1 libm.so.10.1 libimp72.a; do : > $sr/usr/lib/$f; done
-for f in crt2.o libmingw32.a; do : > $sr/usr/lib/$f; done
+for f in crt2.o libmingw32.a crt0.o libcygwin.a; do : > $sr/usr/lib/$f; done
+mkdir -p $sr/usr/lib/gcc/x86_64-pc-cygwin/15 $sr/usr/lib/gcc/i686-pc-cygwin/15
+for d in x86_64-pc-cygwin i686-pc-cygwin; do for f in crtbegin.o crtend.o libgcc.a; do : > $sr/usr/lib/gcc/$d/15/$f; done; done
 : > $out/empty.o
 got=$out/cross.got
 : > $got
@@ -20,7 +22,7 @@ for t in i386-linux-gnu armv7-linux-gnueabihf armv7-linux-gnueabi aarch64-linux-
          powerpc-linux-gnu powerpc64-linux-gnu powerpc64le-linux-gnu s390x-linux-gnu loongarch64-linux-gnu mips-linux-gnu mipsel-linux-gnu mips64-linux-gnuabi64 \
          sparc64-linux-gnu i386-linux-musl aarch64-linux-musl armv7-linux-musleabihf powerpc64le-linux-musl s390x-linux-musl \
          x86_64-unknown-freebsd aarch64-unknown-freebsd riscv64-unknown-freebsd x86_64-unknown-netbsd i386-unknown-netbsd aarch64-unknown-openbsd i386-unknown-openbsd \
-         powerpc64-unknown-openbsd x86_64-w64-mingw32 i686-w64-mingw32 aarch64-w64-mingw32; do
+         powerpc64-unknown-openbsd x86_64-w64-mingw32 i686-w64-mingw32 aarch64-w64-mingw32 x86_64-pc-cygwin i686-pc-cygwin; do
     # (a triple of this machine's own architecture and system is a native link, which takes its files from the running program: not in this table)
     case $t in
     *-linux-*) [ "$(uname -s)" = Linux ] && case "${t%%-*}:$(uname -m)" in x86_64:x86_64|i386:i?86|aarch64:aarch64|s390x:s390x|riscv64:riscv64|loongarch64:loongarch64|powerpc64le:ppc64le|powerpc64:ppc64|armv7:armv*) continue ;; esac ;;
@@ -41,6 +43,8 @@ chk() {    # TRIPLE, SYSROOT-OPTION, expected text
 chk x86_64-pc-windows-msvc --sysroot=$sr "linking for windows is supported with the mingw-w64 C library"
 chk x86_64-pc-windows-gnu "" "no sysroot is given"
 chk x86_64-pc-windows-gnu --sysroot=$out "no crt2.o and libmingw32.a under"
+chk x86_64-pc-cygwin --sysroot=$out "no crt0.o and libcygwin.a under"
+chk aarch64-pc-cygwin --sysroot=$sr "linking for windows on aarch64 is not supported"
 chk wasm32-unknown-wasi "" "linking for wasi is not supported"
 chk wasm32-unknown-unknown --sysroot=$sr "no operating system"
 chk mipsel-linux-android --sysroot=$sr "android"

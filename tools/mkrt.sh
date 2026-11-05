@@ -15,11 +15,12 @@ if [ -n "$triple" ]; then
     arch=${triple%%-*}
     case $triple in
     *darwin*|*apple*) os=darwin ;;
+    *cygwin*|*windows-cygnus*) os=cygwin ;;
     *freebsd*) os=freebsd ;;
     *netbsd*) os=netbsd ;;
     *openbsd*) os=openbsd ;;
     *linux*) os=linux ;;
-    *) echo "mkrt: no system in the triple $triple (linux, freebsd, netbsd, openbsd, darwin)" >&2; exit 1 ;;
+    *) echo "mkrt: no system in the triple $triple (linux, freebsd, netbsd, openbsd, darwin, cygwin)" >&2; exit 1 ;;
     esac
     tgt="--target=$triple"
     out=${2:-build/rt-$triple}
@@ -38,11 +39,14 @@ hd=$(od -An -tx1 -N8 "$out/probe.o" | tr -d ' \n')
 case $hd in
 7f454c46*) case $(echo $hd | cut -c9-10) in 01) bits=32 ;; *) bits=64 ;; esac
            case $(echo $hd | cut -c11-12) in 02) endf=src/impend-be.imc ;; *) endf=src/impend-le.imc ;; esac ;;
+6486*) bits=64; endf=src/impend-le.imc ;;          # COFF (Windows, Cygwin): the machine in the first two bytes, x86-64 0x8664, i386 0x14c, aarch64 0xaa64, arm 0x1c4
+64aa*) bits=64; endf=src/impend-le.imc ;;
+4c01*|c401*) bits=32; endf=src/impend-le.imc ;;
 cffaedfe*) bits=64; endf=src/impend-le.imc ;;
 cefaedfe*) bits=32; endf=src/impend-le.imc ;;
 feedfacf*) bits=64; endf=src/impend-be.imc ;;
 feedface*) bits=32; endf=src/impend-be.imc ;;
-*) echo "mkrt: the object for ${triple:-this machine} is neither ELF nor Mach-O" >&2; exit 1 ;;
+*) echo "mkrt: the object for ${triple:-this machine} is neither ELF, Mach-O nor COFF" >&2; exit 1 ;;
 esac
 export SYSBITS=$bits
 case $endf in *-be.imc) export SYSBE=1 ;; *) export SYSBE=0 ;; esac
