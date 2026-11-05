@@ -38,7 +38,7 @@ cmp -s $out/base.ir $out/twice.ir || { echo "FAILED: image: the IR from that ima
 # an image restores with the arena at any address: saved at one (IMP72COREBASE), loaded at others, the IR is the unrelocated run's.  The arena of the load has to be
 # at another address than the image's (the compiler says so with IMP72COREDEBUG); the census (IMP72IMGCENSUS) of the saving says which variables of the
 # image hold an address of the arena: the ones the image moves, and no word of the arena itself
-if [ "$(getconf LONG_BIT)" = 64 ]; then bsave=0x2a1234560000; bload="0x100000000000 0x3b2468ac0000 0x5c13579b0000"
+if [ "$(sh "$root/tools/longbits.sh")" = 64 ]; then bsave=0x2a1234560000; bload="0x100000000000 0x3b2468ac0000 0x5c13579b0000"
 else bsave=0x30123000; bload="0x50246000 0x68135000"; fi
 ( cd $out && printf 'ext/C\nrel_/U\n' | IMP72COREBASE=$bsave IMP72IMGCENSUS=1 $root/$d -i $syn >relsave.log 2>&1 )
 [ -s $out/rel.img ] || { echo "FAILED: image: rel.img not written" >&2; cat $out/relsave.log >&2; fail=1; }
