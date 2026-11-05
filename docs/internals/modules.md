@@ -43,6 +43,12 @@ The seed's block is a `realloc`ed C heap. In the IMP module the block is an aren
 that `CORE` makes usable with `mprotect` (`lib/imp72sys.imp`), so the arena never moves and a byte pointer into an array
 stays good until the array itself moves.
 
+Everything the modules keep of the arena is an index from `FB`, except five byte pointers of the lexer (`lex:PC`, `QC`,
+`K0`, `K`, `PC0`), which step through the line and token arrays. The arena lies at the address of `SCHINT`, or at the
+one in `IMP72COREBASE` (a test), and an image saved by `src/image.imp` is restored with it at any address: the loader
+adds the difference of the bases to those five variables and sets `FB`. The census of the absolute addresses is in the
+header of `src/image.imp`; `IMP72IMGCENSUS=1` prints it at the saving. The seed has no images.
+
 ## dir: the directory of names
 
 A hash coded directory: free array `PRP` is 512 buckets of three word nodes with overflow nodes after them; `ALF` holds

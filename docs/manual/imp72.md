@@ -2680,7 +2680,12 @@ statements (Section 2.3) in three ways.
 
 - 3. In an image of the compiler. With `imp72 -i`, the command `inv.imc/C` reads the file and
   continues, and the command `myc_/U` saves the compiler with the syntax read so far on `myc.img`. A
-  program is then compiled by the extended compiler with `imp72 -I myc.img p1.imp`.
+  program is then compiled by the extended compiler with `imp72 -I myc.img p1.imp`. The image holds
+  the tables of the compiler (the directory, the syntax, the declarations) and the variables of its
+  modules, and is for the compiler that made it; another build refuses it. It does not depend on the
+  address at which the free storage of the compiler lies: the compiler asks for the address the image
+  was saved at, and when the system gives another one (as a system that randomises the addresses of a
+  process does) the addresses of the tables that the modules hold are moved with them.
 
 The file `syntax64.imc` is the definition of IMP72, and the compiler reads it first. To make a
 compiler with a different language, change the file (or point IMP72SYNTAX at another) and the

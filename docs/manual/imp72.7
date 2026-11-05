@@ -4841,6 +4841,14 @@ saves the compiler with the syntax read so far on
 .Li myc.img .
 A program is then compiled by the extended compiler with
 .Li "imp72 \-I myc.img p1.imp" .
+The image holds the tables of the compiler (the directory, the syntax,
+the declarations) and the variables of its modules, and is for the compiler
+that made it; another build refuses it.
+It does not depend on the address at which the free storage of the compiler
+lies: the compiler asks for the address the image was saved at, and
+when the system gives another one (as a system that randomises the addresses
+of a process does) the addresses of the tables that the modules hold
+are moved with them.
 .El
 .Pp
 The file

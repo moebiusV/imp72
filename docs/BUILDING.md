@@ -221,7 +221,7 @@ empty archive) compiles and links.
 | `tests/direct/stage2.sh` | a compiler built by the seed and one built by that compiler write the same IR for every program |
 | `tests/direct/ir2ll.sh` | the IMP LLVM IR writer and `tools/ir2ll.c` write the same text |
 | `tests/interactive/run.sh` | `imp72d -i`, the original's commands |
-| `tests/image/run.sh` | saving the compiler with `/U` and starting from it with `-I` |
+| `tests/image/run.sh` | saving the compiler with `/U` and starting from it with `-I`, including an image restored with the free storage at another address |
 | `tests/orc/run.sh` | `--run`, and objects made in the process |
 | `tests/llvm/gen.sh` | `tools/llvm.sh imp` in each of its shapes |
 | `tests/link/run.sh` | the link with lld in the process, with no `cc` on the `PATH` |
@@ -234,6 +234,26 @@ empty archive) compiles and links.
 | `tests/cimport/run.sh` | `imp72-cimport`: golden outputs for preprocessed text; with `cc`, the declarations of `string.h`, `stdlib.h`, `stdio.h` used by a program, the layouts of `struct tm`, `timespec`, `stat` against `offsetof`, the values of macros against the C compiler's, and no file left in `TMPDIR` |
 | `tests/fuzz64/run.sh` | random integer, byte-pointer and real programs against 64-bit rules worked out in Python |
 | `tests/manual/run.sh` | `docs/manual/imp72.md` and `imp72.7` are what the RUNOFF converters make of `decus/imp.rno` |
+
+## Diagnostics of the free storage and the images
+
+The free storage of the compiler is an arena of address space reserved once
+(`lib/imp72sys.imp`), asked for at the address `SCHINT` of `tools/sysconst.sh`. An
+image (`/U`, `-I`) is restored with the arena at any address: if the system
+gives the one the image was saved at, nothing is moved; otherwise the
+addresses of the arena that the modules' variables hold are moved with it
+(`src/image.imp`). These variables of the environment are for tests and
+diagnostics:
+
+- `IMP72COREBASE=ADDR` (decimal, or `0x` hexadecimal) asks for the arena at
+  ADDR instead of `SCHINT`. `tests/image/run.sh` saves an image at one address and
+  restores it at others with it. The address must be aligned to a page.
+- `IMP72COREDEBUG=1` reports on the standard error where the arena was asked for
+  and where it was put, and, when an image is restored, the address it was
+  saved at.
+- `IMP72IMGCENSUS=1` at the saving of an image lists the words of the
+  variables and of the arena that hold an address of the arena, and the
+  variables that hold an address near the program's own data.
 
 ## Fuzzers
 
