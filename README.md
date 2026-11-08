@@ -1,6 +1,6 @@
 # imp72
 
-[project index](https://moebiusv.github.io/) | [github.com/moebiusV/imp72](https://github.com/moebiusV/imp72) | `git clone https://github.com/moebiusV/imp72`
+[Index: All Projects](https://moebiusv.github.io/) | [github.com/moebiusV/imp72](https://github.com/moebiusV/imp72) | `git clone https://github.com/moebiusV/imp72`
 
 IMP72 on modern Unix machines: the extensible systems language of Ned Irons, as
 implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a, 1973). The
