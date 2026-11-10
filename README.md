@@ -162,6 +162,7 @@ output with it.
 - [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md): pitfalls
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72, declarations, callbacks, structures, `imp72-cimport`
 - [docs/ROADMAP.md](docs/ROADMAP.md): what is not done
+- [docs/decisions-and-status.md](docs/decisions-and-status.md): each design and implementation choice with its rationale and precedents, and whether it is done, left to do, rejected or left in the air
 - [docs/ORACLE.md](docs/ORACLE.md): the original compiler as a reference
 - [docs/internals/](docs/internals/): the kernel module by module; [docs/porting/](docs/porting/): the code generator's machine, layouts, modules, routine names compared with the tape
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages
