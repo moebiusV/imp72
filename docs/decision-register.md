@@ -1,0 +1,190 @@
+# Decision register of imp72
+
+- The rule: this register is append-only. Row numbers are never reused or renumbered. A row replaced by a later decision stays, and points forward ("superseded by R-m"); the later row points back ("supersedes R-n"). Later events (an item done, a decision superseded) are added as new rows with the next number, at the end.
+- What a row is: one message of the author that the status document of the project cites (as a decision, a rationale, a context or a question), in his own words trimmed to the relevant sentences; the status document refers to it as [R<n>]. Rows are ordered by the time of the message, so the numbers increase with time.
+- Row: R-number | date | kind (decision, rationale, context, question) | the author's words | the subjects it bears on | "supersedes R-n" when it replaces an earlier decision on the same subject | "superseded by R-m" or "current".
+
+
+- R1 | 2026-10-17 | decision | "download the imp72 manual and compare it to meta2 snobol4 and to hbnf ... i have a feeling our %scan/%action directives have some analogqs there ... hbnf seeks to be a meta compiler, not a ... for config files" | subjects: imp72 compared with meta2, Ada and hbnf | current
+- R2 | 2026-10-17 | context | "what name is there for jets? is there a standard name for jets, perhaps taken from meta2 or imp72 as precedent? or even from yacc? how is the benchmark script going?" | subjects: hbnf scope and parser options | current
+- R3 | 2026-10-17 | rationale | "imp72 built itself from a minimal bnf compiler... what would it take to make hbnf fulfill the role of such a minimal parser/compiler that could bootstrap itself into a full fledged imp72 based on the available decus tapes and manuals\\/" | subjects: imp72 compared with meta2, Ada and hbnf | current
+- R4 | 2026-10-17 | rationale | "~ planned but not built? maybe we should halt the posix/imp72 ports until hbnf is feature complete including bit fields" | subjects: imp72 compared with meta2, Ada and hbnf | current
+- R5 | 2026-10-17 | rationale | "compare imp72 to ada since both are based on algol" | subjects: imp72 compared with meta2, Ada and hbnf | current
+- R6 | 2026-10-17 | rationale | "bitfield syntax let's revisit. i didn't know about imp72 at the time. what are the top 5 historical options, and top two synthesis of what a modern coder would come up with, based on principle of least astonishment" | subjects: hbnf scope and parser options | current
+- R7 | 2026-10-17 | context | "did imp72 and algol60 use 0 based offsets?" | subjects: Index base | current
+- R8 | 2026-10-17 | decision | "commit it and push; so our index are 0 based because C and IMP72 agree, right or left follows the RFC" | subjects: Index base | current
+- R9 | 2026-10-17 | context | "we should structure it as corpus/{algol60,imp72,bip39,ipv4,arp,ipv6,icmp,obconf} etc" | subjects: hbnf scope and parser options | current
+- R10 | 2026-10-17 | rationale | "I never agreed to "context free" grammars. ever. the question is, what is the right way to introduce and access context, that isn't jarring or surprising to bnf users, and that is pleasant and easy to use." | subjects: hbnf scope and parser options | current
+- R11 | 2026-10-18 | decision | "The fork points can be logged to stout when generating the parser" | subjects: hbnf scope and parser options | current
+- R12 | 2026-10-18 | context | "How hard to update the operator set and precedence of imp to match facet language, which is very similar to Ada?" | subjects: Operator set and precedence | current
+- R13 | 2026-10-18 | context | "How hard to emit pcc ir or ast instead of llvm ir" | subjects: Backend: pcc IR to LLVM ORC JIT | current
+- R14 | 2026-10-18 | context | "as part of the bootstrap, after implementing rsyn, we will switch from pdp10 code to pcc IR, the version of pcc found at github moebiusv/pcc and it is your choice whether IR or AST makes most sense, either way we use pcc as the backend (at least initially, and possibly for quite a long time)" | subjects: Project goal, native port and fidelity; Backend: pcc IR to LLVM ORC JIT; README and documentation | superseded by R23
+- R15 | 2026-10-18 | decision | "so... first 2 imp72 precedence rules, but for 3, instead of arbitrary, stick with first match" | subjects: Operator set and precedence | current
+- R16 | 2026-10-18 | rationale | ""="64-bit word, byte addrs (Recommended)", "pcc has no aarch64 backend, and its Darwin support covers only i386/PowerPC. ... "="Yes, SIMH + TOPS-10", "What language should stage 0 be written in?" | subjects: Machine word and 36-bit target | superseded by R17, R36
+- R17 | 2026-10-18 | context | ""="C fallback for now (Recommended)"." | subjects: Stage-0 seed; Target platforms and coverage | supersedes R16 | superseded by R54
+- R18 | 2026-10-18 | rationale | "write bootstrap in c99; i've repented i was going to say c23 but now c99 is the best choice so pcc can compile it" | subjects: Stage-0 seed | current
+- R19 | 2026-10-18 | context | "gnu extensions are fine as long as pcc can compile it" | subjects: Stage-0 seed | current
+- R20 | 2026-10-18 | rationale | "yes, port debug.imc first, then part 3" | subjects: Reference comparison with the original | current
+- R21 | 2026-10-18 | rationale | "push it once something is actually working and runnable" | subjects: Origin, license and push policy | current
+- R22 | 2026-10-18 | rationale | "update the readme make it comprehensive with our design decisions" | subjects: README and documentation | current
+- R23 | 2026-10-18 | decision | "switch to pcc IR so programs compile" | subjects: pcc as the back end | supersedes R14 | superseded by R29
+- R24 | 2026-10-18 | context | "obviously 2 clause isc license" | subjects: Origin, license and push policy | current
+- R25 | 2026-10-18 | rationale | "no, did i not document in hbnf that it does context sensitive grammars? since w-bnf exists, what can we learn from it; best to stick with historical and precedented syntax where possible" | subjects: W-grammar and Algol 68 in hbnf | current
+- R26 | 2026-10-18 | rationale | "also, when i looked at your example, i thought, doesn't hbnf already do this? it doesn't look ant different, which is exactly what I was hoping for. smooth sipping, clear, minimal sntax chnge" | subjects: W-grammar and Algol 68 in hbnf | current
+- R27 | 2026-10-18 | context | "hm. we have precedent of ::= := = and :, which of those is best to mark a hyper-rule and a meta-rule." | subjects: W-grammar and Algol 68 in hbnf | current
+- R28 | 2026-10-18 | decision | "hbnf when not in an explicit historical mode, can redefine whatever it wants. so go ahead, what is the best way to divvy up ::= := = : between hyper and meta rules" | subjects: W-grammar and Algol 68 in hbnf | current
+- R29 | 2026-10-19 | decision | "the readme talks about amd64 but shouldn't we work on all of the pcc backends (the ones that work) ?" | subjects: pcc as the back end | supersedes R23 | superseded by R30
+- R30 | 2026-10-19 | decision | "go fix pcc aarch64" | subjects: pcc as the back end | supersedes R29 | superseded by R31
+- R31 | 2026-10-19 | decision | "try i386 with the 64-bit word mapping" | subjects: pcc as the back end | supersedes R30 | superseded by R32
+- R32 | 2026-10-19 | decision | "i just want the ir to work with all the pcc backends that currently work" | subjects: pcc as the back end | supersedes R31 | superseded by R33
+- R33 | 2026-10-19 | decision | "aarch64 on open/net bsd is fine" | subjects: pcc as the back end | supersedes R32 | superseded by R34
+- R34 | 2026-10-19 | decision | "try arm, mips and m68k with the long long word" | subjects: pcc as the back end | supersedes R33 | superseded by R38
+- R35 | 2026-10-19 | decision | "leave the f77 style integration for last. first we just get imp72 working on all possible arches and matching the oracle" | subjects: Work priorities | superseded by R36
+- R36 | 2026-10-19 | decision | "How should I test those?"="Skip them", "The oracle (SIMH running the original imp.shr under TOPS-10) hasn't been started and needs downloads: open-simh source and a TOPS-10 system image. Which setup?"="KS10 + TOPS-10 7.04 (Recommended)", "What order: arches first, or oracle first?"="Oracle first"." | subjects: Work priorities | supersedes R16, R35 | current
+- R37 | 2026-10-19 | context | "and what happened with the musl changes that the imp72 project added?" | subjects: musl changes | current
+- R38 | 2026-10-19 | decision | "do the rest of the arches" | subjects: pcc as the back end | supersedes R34 | superseded by R53
+- R39 | 2026-10-19 | rationale | "prebsd also needs to keep local copies ... the local backups are just in case the online stuff goes offline" | subjects: prebsd repository | current
+- R40 | 2026-10-21 | context | "I'm almost wishing we'd stuck with 36 bits... pcc ir can handle it. oh well. too late now" | subjects: Machine word and 36-bit target | current
+- R41 | 2026-10-21 | decision | "how about rename them to sem-pdp10 impsem-pdp10 codegen-pdp10 then we have a pdp10 compiler available" | subjects: PDP-10 back end | superseded by R42
+- R42 | 2026-10-21 | context | "yes, start with rmod, amod and omod" | subjects: PDP-10 back end | supersedes R41 | superseded by R43
+- R43 | 2026-10-21 | decision | "having hte pdp-10 backend is a future nice thing to have; right now just get this thing working according to the original plan" | subjects: PDP-10 back end | supersedes R42 | current
+- R44 | 2026-10-21 | context | "keep going; do an aport too" | subjects: Debian, OpenBSD and Alpine packages | current
+- R45 | 2026-10-22 | rationale | "not sure we need a pdp-10 port so much as it would be nice for imp72 to be able to compile itself for pdp-10, but the original 36 bit version." | subjects: PDP-10 back end | current
+- R46 | 2026-10-22 | decision | "fully ported to 8bit arches ... just let them have their proper names, no need to put -pdp10 at the end ... for now we just focus on modern platforms, the 36bit version will always be a separate thing" | subjects: Naming of sem, impsem and codegen files; Machine word and 36-bit target | superseded by R136
+- R47 | 2026-10-22 | context | "if openbsd, possibly w^x protection, looking into the memory page protections" | subjects: OpenBSD self-hosting failure | current
+- R48 | 2026-10-22 | rationale | "find out why (on openbsd) i want answers and a lesson learned in your memories" | subjects: OpenBSD self-hosting failure | current
+- R49 | 2026-10-22 | decision | "defer c++ and algol68 to "far in the future" and cancel imp72 altogether. imp72 is its own thing and will get its own compiler" | subjects: imp72 status and scope | current
+- R50 | 2026-10-22 | decision | "retguard? told you so! openbsd has all kinds of stack smashing mitigations; you should researach all of them nad make sure none of them are the source of the bug and find out the proper openbsd way to work with them" | subjects: OpenBSD self-hosting failure | current
+- R51 | 2026-10-22 | rationale | "keep going; comparisons should take care of things that the compiler varies, like timestamps and retguards to comparisons are apples to apples" | subjects: Reference comparison with the original | current
+- R52 | 2026-10-22 | context | "go ahead with binary64" | subjects: IEEE 754 floating point | current
+- R53 | 2026-10-23 | rationale | "since c backend is working, leave pcc alone for now, do the other stuff. what do you have running right now?" | subjects: Backend: pcc IR to LLVM ORC JIT | supersedes R38 | superseded by R54, R57
+- R54 | 2026-10-23 | decision | "well... wait. we're just trying to minimize the C backend, not implement PDP-10 code." | subjects: C backend and direct IR emission | supersedes R17, R53 | superseded by R55
+- R55 | 2026-10-23 | decision | "yes, emit IR directly, keep the old path until it's verified" | subjects: C backend and direct IR emission | supersedes R54 | superseded by R58
+- R56 | 2026-10-23 | rationale | "why are you implementing this in C instead of in IMP? Didn't we do that very minimal IMP in C so that it could extend itself a bit at a time?" | subjects: Porting C and Python tools to IMP | current
+- R57 | 2026-10-23 | decision | "the only reason for the pcc backend was to output assembler for multiple platforms and proper elf binary format." | subjects: pcc as the back end | supersedes R53 | superseded by R58, R61
+- R58 | 2026-10-23 | decision | "don't even bother with the C backend. just emit pcc IR" | subjects: C backend and direct IR emission | supersedes R55, R57 | current
+- R59 | 2026-10-23 | decision | "pcc IR is the machine we are compiling too." | subjects: C backend and direct IR emission | superseded by R60
+- R60 | 2026-10-23 | decision | "since we may later port to llvm it should be pccir not just ir" | subjects: Names pccir and llvm-ir | supersedes R59 | superseded by R130
+- R61 | 2026-10-23 | decision | "and then the pcc library should transform the ir to assembler then binary which we can directly link back in." | subjects: pcc as the back end | supersedes R57 | superseded by R63
+- R62 | 2026-10-23 | decision | "x86\_64/amd64 is our primary backend, then i386, make sure both those work, and we can leave the others for later." | subjects: Cross-compiling and target coverage | superseded by R120
+- R63 | 2026-10-23 | decision | "what you doing now?" | subjects: pcc as the back end | supersedes R61 | current
+- R64 | 2026-10-23 | decision | "and deffault to all optimizations enabled" | subjects: Optimization default | current
+- R65 | 2026-10-23 | rationale | "and all the other things too. I said, except for the 36-\>64 shift, and ieee754 floats, and pccir output instead of pdp10 asm, it should all be the same, and even the replacements should be semantically equivalent." | subjects: Tape translation to 64 bit | current
+- R66 | 2026-10-23 | decision | "same names, everything" | subjects: Translating the tape to 64-bit IMP | superseded by R67
+- R67 | 2026-10-23 | context | "wel, no, for instance, dewop can be redone so it emits pccir instead of pdp10 output, and all dewop calls updated." | subjects: Tape translation to 64 bit | supersedes R66 | current
+- R68 | 2026-10-23 | rationale | "did you check against the oracle? maybe rewriting names is proper behavior. check it." | subjects: Reference comparison with the original | current
+- R69 | 2026-10-23 | decision | "better to trnaslate the constants to 64bit form in the tape than to translate the constants into and out of 36bit at runtime" | subjects: Tape translation to 64 bit | current
+- R70 | 2026-10-24 | rationale | "wait. doesn't stage 1 build stage 2? no, its a port, so its ok to mention we're porting the old pdp10 36 bit code. people love stories like that. the roadmap from pdp10 to amd64 is a great one, just do it as simple narrative, not as slop." | subjects: README and documentation | current
+- R71 | 2026-10-24 | rationale | "how long to fix the hang? then merge and push so we can pause for a few days" | subjects: Origin, license and push policy | current
+- R72 | 2026-10-24 | decision | "its ok, just fix the hang on amd64 and then fix the docs, leave the rest of the work for next week" | subjects: Origin, license and push policy | current
+- R73 | 2026-10-24 | rationale | "also read tops10-abi.txt and commit it and see that the code that imp used to interface with that abi is as similar as is reasonable in our own compiler, we are interacting with modern c libraries and abi but it just needs a little translation, not new grammar or words, no?" | subjects: TOPS-10 ABI and CALLI | current
+- R74 | 2026-10-24 | decision | "no, ccall can replace calli where it makes sense, but translating calli() calls ... if calli(11b) maps to core then we can define core to call realloc and it is fine. why was 11b chosen in the first place." | subjects: TOPS-10 ABI and CALLI | current
+- R75 | 2026-10-24 | rationale | "yeah don't rename functions without a very good reason and without telling me." | subjects: Fidelity to the original tape and rename policy | current
+- R76 | 2026-10-27 | rationale | "yes, update the list and commit push. don't deviate from the tape without a good reason" | subjects: Fidelity to the original tape and rename policy | current
+- R77 | 2026-10-27 | rationale | "so another change we're making is, 7 bit ascii to utf8 everywhere. so, ieee 754 float, 64 bit int, utf8 chars, unix instead of tops-10, pcc ir instead of pdp-10 asm." | subjects: Project goal, native port and fidelity | current
+- R78 | 2026-10-27 | rationale | "using utf8 allows us to use nice mathematical operators and symbols in our code, minimally, tastefully, where appropriate...." | subjects: Studies deferred to later releases | superseded by R81
+- R79 | 2026-10-27 | decision | "for now, no syntax changes to imp72, we stay as close to the original semantics and syntax as our ieee754/64bit/utf8/pcc-ir/unix/c-abi mandate allows (without doing any simulation)" | subjects: Syntax freeze | current
+- R80 | 2026-10-27 | rationale | "since this is a native port" | subjects: Project goal, native port and fidelity | current
+- R81 | 2026-10-27 | rationale | "no, the utf8 symbols and c strings/chars study is done after v0.9 and before v1.0, not after v1.0" | subjects: Studies deferred to later releases | supersedes R78 | current
+- R82 | 2026-10-27 | rationale | "even things like fopen and putc.... you could use them "Underneath" to implement the channel stuff that was in use before. that is another matter for study along with utf8 symbols and cstrings, so add it to the list of things to study before v1.0.0" | subjects: Channel I/O | current
+- R83 | 2026-10-27 | rationale | "make u and v work, those are important features. as imp72 compiles itself, it must be saving the compiled code somewhere; that means it can be checkpointed. if you can compile it, you can save it." | subjects: Interactive mode, switches and TOPS-10 compatibility | current
+- R84 | 2026-10-27 | context | "anyway, linux has /proc and I know that allows you to checkpoint running binaries... but I don't think that is what u and v mean for imp72" | subjects: Interactive mode, switches and TOPS-10 compatibility | current
+- R85 | 2026-10-28 | context | "make the compiler self-host on big-endian, both 32bit and 64bit. perhaps we should switch to llvm ir." | subjects: Endianness and big-endian self-hosting | current
+- R86 | 2026-10-28 | context | ")"="Native words, endian-aware text (Recommended)", "For the 32-bit big-endian hosts (ppc, mips o32, sparc, m68k) there is no emulator registered here; only s390x (64-bit BE) and mips64 (64-bit BE) are." | subjects: Endianness and big-endian self-hosting | current
+- R87 | 2026-10-28 | context | "also, you mentioned the 27 bit real layout. what is that? why? how does that fit with ieee 754?" | subjects: IEEE 754 floating point | current
+- R88 | 2026-10-28 | rationale | "what does it mean eals IEEE 754 binary64 (with the original's signed-magnitude word layout for reals so compares work); weren't compared updated to work with ieee 754, just as we changed those constants that represented -1?" | subjects: IEEE 754 floating point | current
+- R89 | 2026-10-28 | context | "how about make imp subr return long also instead of int64\_t?" | subjects: Return type and imp\_word typedef | current
+- R90 | 2026-10-28 | decision | "add the imp\_word typedef and use it" | subjects: imp\_word typedef and return type | superseded by R92
+- R91 | 2026-10-28 | rationale | "this issue of long return type, add it to the list of things to study before v1.0.0 and also the issue of nul terminated c strings in imp; i'm more partial to strings that carry their length with them. to be studied in depth." | subjects: Studies deferred to later releases; String representation | current
+- R92 | 2026-10-28 | decision | "leave out; return to your assigned work" | subjects: Return type and imp\_word typedef | supersedes R90 | current
+- R93 | 2026-10-28 | rationale | "other than the seed, and the linkage to llvm orc, why leave anything in C? what need loading, use ffi" | subjects: Porting C and Python tools to IMP | current
+- R94 | 2026-10-28 | decision | "we're trying to be as close as possible to the decus tapes, given the changes we've agreed to; 64 bit words, binary64, unix, llvm." | subjects: Project goal, native port and fidelity | current
+- R95 | 2026-10-28 | context | "also add to the "to study" making filenames match unix filename limitations." | subjects: Studies deferred to later releases | current
+- R96 | 2026-10-28 | rationale | "i said to use the jit; why are you still keeping code to spawn clang?" | subjects: Backend: pcc IR to LLVM ORC JIT | current
+- R97 | 2026-10-28 | rationale | "no, it would be without \_ for backward compatibility, \_ would join the chars allowed in names, making imp elf compatible" | subjects: Assignment token and the \_ to := conversion | current
+- R98 | 2026-10-29 | rationale | "how many times do I have to tell you, never use /tmp ? how much work did you lose?" | subjects: No /tmp | current
+- R99 | 2026-10-29 | rationale | "if you really want a tmp/ dir, do it as a gitignored dir inside this repo" | subjects: No /tmp | current
+- R100 | 2026-10-29 | rationale | "why would it invoke any out of process stuff doesn't libllvmorc include linking ability?" | subjects: Linking | current
+- R101 | 2026-10-29 | decision | "delete ir2c.imp and remove pcc and the c backend" | subjects: Backend: pcc IR to LLVM ORC JIT | current
+- R102 | 2026-10-29 | rationale | "we implemented ffi for a reason, use it" | subjects: C interop | current
+- R103 | 2026-10-29 | rationale | "yes make it default to repo local, in fact, make this a settign for all git repos" | subjects: No /tmp | current
+- R104 | 2026-10-29 | decision | "both the gitignore and the default" | subjects: No /tmp | current
+- R105 | 2026-10-29 | context | "the only mangling I'm ok with is classic Unix prepend \_ to the symbol" | subjects: Linking | current
+- R106 | 2026-10-29 | context | "and our C parser..... if we use action and emit to go to llvm jit orc lib and the liblld the way imp72 project is doing... later on we'll do a project to translate the c79 code to facetlang." | subjects: imp72 compared with meta2, Ada and hbnf | current
+- R107 | 2026-10-29 | rationale | "do 2, 3 4 and 5" | subjects: CI configuration | current
+- R108 | 2026-10-29 | rationale | "how large of a slice? vendoring objcopy and lld makes most sense because i want all the work kept in-process." | subjects: Linking | current
+- R109 | 2026-10-29 | decision | "add that to the list of things to study before v1.0 if empty strings should be allowed" | subjects: Studies deferred to later releases | current
+- R110 | 2026-10-29 | rationale | "not just the IR, fix the IMP src too, we are 64bit ieee now" | subjects: IEEE 754 floating point | current
+- R111 | 2026-10-29 | rationale | "if loong64 has no emulator, don't ci it. shouldn't you set up all builds in step so the ci can restart where they leave off and every crash leaves a trail?" | subjects: CI configuration | superseded by R113
+- R112 | 2026-10-29 | rationale | "shouldn't you record what ci cpu reports +d etc for all the ci runs on all arches/oses?" | subjects: CI configuration | current
+- R113 | 2026-10-29 | decision | "add loong64 back in then." | subjects: CI for loong64 and the rerun rule | supersedes R111 | current
+- R114 | 2026-10-29 | decision | "since all other ci are green, don't run them again until loong64 is green too." | subjects: CI for loong64 and the rerun rule | superseded by R115, R116
+- R115 | 2026-10-29 | decision | "and make sure it does things so all logs are saved and instrumentation is useful, no matter what crashes" | subjects: CI instrumentation and logs | supersedes R114 | current
+- R116 | 2026-10-29 | decision | "push it and run every workflow" | subjects: CI configuration | supersedes R114 | current
+- R117 | 2026-10-29 | decision | "start with item 5" | subjects: IEEE 754 floating point | current
+- R118 | 2026-10-29 | decision | "finish classifying the 15 listing differences" | subjects: Reference comparison with the original | current
+- R119 | 2026-10-31 | rationale | "translate lib/imp72sys.c and imphost.c too; and do the -o -c -S flags to the imp72 exe work as sa unix compiler user would expect? and do /U and /V work as a tops-10 user would expect in -i mode?" | subjects: Command-line flags and object files | current
+- R120 | 2026-10-31 | decision | "this is part of the work of making imp72 match the original imp on tops-10 where possible. our workflow should be almost identical ... a rel file on tops-10 is a .o file on unix ... since we are using llvm, we should make this cross compilating stupidly dead easy" | subjects: Interactive mode, switches and TOPS-10 compatibility | supersedes R62 | current
+- R121 | 2026-10-31 | rationale | "and i've decided imp barenames or names in general must all be valid names in C a nd we will emit .o files instead of .rel files" | subjects: Case folding and valid names; Command-line flags and object files | current
+- R122 | 2026-10-31 | rationale | "\-S should emit assembler for the target arch, not llvm-ir" | subjects: Command-line flags and object files | current
+- R123 | 2026-10-31 | decision | "\-Sir would mean emit llvm IR" | subjects: Command-line flags and object files | current
+- R124 | 2026-10-31 | rationale | "imp has all the facilities for text transformations; why not do the \_ conversion for the oracle in imp itself?" | subjects: Assignment token and the \_ to := conversion | current
+- R125 | 2026-10-31 | rationale | "ok, something blew up the disk, make sure it doesn't happen again isn't there some tripwire so if a dir has more than 10 gigs it will choke just the program, not everything else?" | subjects: Disk guard, VM limits and housekeeping | current
+- R126 | 2026-10-31 | rationale | "C interop doesn't require case folding." | subjects: Case folding and valid names | current
+- R127 | 2026-10-31 | rationale | "don't defer; remove the case folding stuff, who knows what that is interfering with" | subjects: Case folding and valid names | superseded by R128
+- R128 | 2026-10-31 | decision | "wait... is imp72 in tops-10 case insensitive? if so, then we should have case folding" | subjects: Case folding and valid names | supersedes R127 | current
+- R129 | 2026-10-31 | rationale | "why is there still any reference to pcc in the source code or filenames now that we are exclusively llvm jit orc?" | subjects: Removing pcc names | current
+- R130 | 2026-10-31 | decision | "do the rename now; fix ever source file, ever comment, every file name, etc. in case we want a pcc backend in the future, rename pccir to llvm-ir so we leave that door open a little bit." | subjects: Removing pcc names | supersedes R60 | current
+- R131 | 2026-11-03 | decision | "can cpp and copy/replace be in the same grammar? ie, apply the preprocessor as we go? and would that allow stacks to map errors back to the original text, kind of like what we have planned in imp72? no need to wait on xml and json." | subjects: COBOL preprocessing in hbnf | current
+- R132 | 2026-11-03 | context | "why don't you have a local netbsd qemu?" | subjects: Local VMs and local-before-CI | current
+- R133 | 2026-11-03 | rationale | "why does the seed in C have pdp-10 semantics? it should parse and compile the updated tape" | subjects: Stage-0 seed | current
+- R134 | 2026-11-03 | decision | "yes, do it. remove the 36 bit emulation" | subjects: Stage-0 seed | current
+- R135 | 2026-11-03 | decision | "yes, do 1 then 2" | subjects: Port plan and work order | current
+- R136 | 2026-11-03 | rationale | "forget about a 36 bit target that isn't even a consideration" | subjects: Machine word and 36-bit target | supersedes R46 | current
+- R137 | 2026-11-03 | decision | "no more need for the := converter." | subjects: Assignment token and the \_ to := conversion | current
+- R138 | 2026-11-03 | decision | "Your questions have been answered: "Besides the oracle tools, which Python tools that run in make check or CI should also become IMP?"="Doc generators, Small helpers"." | subjects: Porting C and Python tools to IMP | current
+- R139 | 2026-11-03 | rationale | "is there any reason CCALL shouldn't be CALL?" | subjects: CCALL | current
+- R140 | 2026-11-03 | decision | "ccall stays. tape-name audit: I go with your recommendations, but they should be exmained again once channel io is back. what are the result of the pre-1.0 studies" | subjects: CCALL; Fidelity to the original tape and rename policy | current
+- R141 | 2026-11-03 | rationale | "i agree with all your recommendations, but am willing to pay the cost for strings that carry their own length and they must ALSO be nul terminated." | subjects: String representation | superseded by R142
+- R142 | 2026-11-03 | decision | "'' keeps original meaning, and since imp72 used asciz then we stick with that. strings with lengths attached would be a separate object type and their own set of handler functions etc." | subjects: String representation | supersedes R141 | current
+- R143 | 2026-11-03 | rationale | "I want c interop to be as safe, seamless easy and "natural" as possible." | subjects: C interop | current
+- R144 | 2026-11-03 | rationale | "fix the debian package. make it totally compliant and no evidence of ai slop" | subjects: Debian, OpenBSD and Alpine packages | current
+- R145 | 2026-11-03 | decision | "fix those quirks you found." | subjects: Quirks | current
+- R146 | 2026-11-03 | rationale | "does imp72 meet openbsd packaging standards and guidelines? I'd like to submit an openbsd port of imp72" | subjects: Debian, OpenBSD and Alpine packages | current
+- R147 | 2026-11-03 | decision | "push; start obsd port. what c-interop part 1?" | subjects: Debian, OpenBSD and Alpine packages | current
+- R148 | 2026-11-03 | rationale | "yes, c funcs need proper return types, putting them all as "long" sounded wrong from the beginning. why did you do that?" | subjects: C interop | current
+- R149 | 2026-11-04 | rationale | "since we are porting to openbsd, bring in strlcpy and friends" | subjects: Bounded strings and temporary files | current
+- R150 | 2026-11-04 | decision | "and make sure any and all tmpfile usage follows the best djb practices, or even better, if possible" | subjects: Bounded strings and temporary files | current
+- R151 | 2026-11-04 | rationale | "what is left to cut v1.0.0 ? anyway, following the release versioning standards, bump the version in whichever way is most appropriate" | subjects: Versioning and releases | superseded by R152
+- R152 | 2026-11-04 | decision | "c types aren't done yet? we'll go straight to v0.10 before cutting a new release then." | subjects: Versioning and releases | supersedes R151 | current
+- R153 | 2026-11-04 | decision | "stay away from core 5 and 11, pin on everything but them" | subjects: CPU pinning | current
+- R154 | 2026-11-04 | rationale | "why aren't you doing it all in docker or qemu before doing the ci? why is it so hard for you to monitor output in a ci?" | subjects: Local VMs and local-before-CI | current
+- R155 | 2026-11-04 | rationale | "don't start ci for an arch/os until it passes here first" | subjects: Local VMs and local-before-CI | current
+- R156 | 2026-11-04 | context | "why not fix srand on openbsd?" | subjects: OpenBSD srand | current
+- R157 | 2026-11-04 | decision | "then do the openbsd branch so it uses srand\_deterministic on openbsd" | subjects: OpenBSD srand | current
+- R158 | 2026-11-04 | decision | "do freebsd before openbsd (when you resume, not yet)" | subjects: Local VMs and local-before-CI | current
+- R159 | 2026-11-04 | decision | "yes remove finished worktrees" | subjects: Disk guard, VM limits and housekeeping | current
+- R160 | 2026-11-04 | decision | "for 32be let's do netbsd-sparc what do you mean "ports architecture"?" | subjects: Architecture test matrix | superseded by R161
+- R161 | 2026-11-04 | rationale | "for 32le let's do i386 that should run very fast on our native amd64" | subjects: Architecture test matrix | supersedes R160 | superseded by R162
+- R162 | 2026-11-04 | decision | "ok, debian powerpc it is for 32be" | subjects: Architecture test matrix | supersedes R161 | current
+- R163 | 2026-11-04 | rationale | "for speed maybe do the s390x on debian instead of alpine; only if the alpine s390x fails would we do a local run." | subjects: Architecture test matrix | current
+- R164 | 2026-11-04 | context | "so: debian amd64 i386 powerpc s390x, freebsd amd64 open/net bsd amd64 i386" | subjects: Architecture test matrix | current
+- R165 | 2026-11-04 | rationale | "i want images that have dev env prepared so it can be used for any of my projects" | subjects: prebsd repository | current
+- R166 | 2026-11-04 | decision | "1" | subjects: CI test runs | current
+- R167 | 2026-11-04 | rationale | "an unrecognized triple should politely exit rather than output junk" | subjects: Target platforms and coverage | current
+- R168 | 2026-11-04 | decision | "leave typed export alone for now" | subjects: C interop | current
+- R169 | 2026-11-04 | decision | "the prep agent should set up openbsd first, then the agent should proceed as soon as openbsd is ready to be installed, not wait any longer on the other agent" | subjects: prebsd repository | current
+- R170 | 2026-11-04 | decision | "might as well add alpine-s390x too" | subjects: Architecture test matrix | current
+- R171 | 2026-11-05 | decision | "shouldn't endian support be automatic? big little, whatever the platform has, that is what we compile for." | subjects: Endianness and big-endian self-hosting | current
+- R172 | 2026-11-05 | rationale | "we aren't refusing windows without good reason; if llvm and mingw can do the job, we'll use them. ... if they both link using whatever ld is on the box, then we can too." | subjects: Target platforms and coverage; Linking | current
+- R173 | 2026-11-05 | decision | "ok, the standalone lld fork, defer that indefinitely; let's thoroughly support native ld/lld where the lld lib isn't available, and make sure each arch/os gets its appropriate flags, you mentioned macos and mingw lld flags differ" | subjects: Linking | current
+- R174 | 2026-11-05 | context | "aren't we doing PIE? wouldn't that allow relocatable images? i thought you were already doing that." | subjects: PIE and relocatable images | current
+- R175 | 2026-11-05 | rationale | "is cygwin still a thing? if so, support it. pie means position independent executable so shouldn't all our pointers and function addresses etc be base-relative if compiled as PIE?" | subjects: PIE and relocatable images | current
+- R176 | 2026-11-05 | rationale | "so the original imp72 did everything base relative? damn why did you give that up? that is a semantic property you threw away, so get it back!" | subjects: PIE and relocatable images | current
+- R177 | 2026-11-05 | decision | "ok" | subjects: PIE and relocatable images | current
+- R178 | 2026-11-05 | rationale | "ie, we can have a second qemu when the occasional qemu like s390x is running for my ada toolchain work." | subjects: Other projects | current
+- R179 | 2026-11-05 | decision | "yeah that's a tagline for the "defensive coding" section, which would include ada, the crypto stuff, and imp72 in one category. also mention imp72 was developed for and used by the nsa" | subjects: README and documentation | current
+- R180 | 2026-11-09 | decision | "pull and eval now; especially arch/os coverage" | subjects: Target platforms and coverage | current
+- R181 | 2026-11-10 | context | "but the llvmorc lib we are using does allow the optimization levels?" | subjects: Backend: pcc IR to LLVM ORC JIT | current
+- R182 | 2026-11-10 | decision | "then afterward do the exact same thing for imp72, there are a bunch of suggestions and decisions that need to be turned into a proper plan" | subjects: Decision log | current
+- R183 | 2026-11-10 | decision | "well, import my prompts anyways" | subjects: Other projects | current
