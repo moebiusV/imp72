@@ -1,7 +1,7 @@
 #!/bin/sh
-# bsd-vm.sh COMMAND OS [ARGS]: a BSD virtual machine of our own, the one CI runs (OpenBSD 8.0 or NetBSD 11.0, amd64), so that a failure of the BSD jobs can be looked into here: the prebuilt
+# bsd-vm.sh COMMAND OS [ARGS]: a BSD virtual machine of our own, the one CI runs (FreeBSD 15.0, OpenBSD 8.0 or NetBSD 11.0, amd64), so that a failure of the BSD jobs can be looked into here: the prebuilt
 # images of the cross-platform-actions project (the ones the CI action boots) under QEMU with KVM, in a container that has the QEMU, so that nothing but docker and /dev/kvm is needed on the host.
-# The files are in tmp/vm/OS (the tree's own scratch directory, never in git); the images are downloaded once and stay (OpenBSD 0.8 GB, NetBSD 0.3 GB, 2.7 GB with the disk extracted).
+# The files are in tmp/vm/OS (the tree's own scratch directory, never in git); the images are downloaded once and stay (OpenBSD 0.8 GB, FreeBSD 0.4 GB, NetBSD 0.3 GB, 2.7 GB with the disk extracted).
 #
 #   bsd-vm.sh fetch OS        download the image (resumes; checks the size)
 #   bsd-vm.sh start OS        boot a fresh machine on a copy-on-write overlay of the image (the image stays as it was), install what CI installs (gmake, and the LLVM on NetBSD)

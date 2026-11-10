@@ -184,6 +184,20 @@ a Windows or Cygwin machine; none is available for the tests.
 *Effect on the code.* New files in `lib/`, a case in `tools/mkrt.sh`, and the
 link tables in `src/driver.imp` when a run shows them wrong.
 
+### 12. The result type of an IMP routine, seen from C
+
+A `SUBR` returns a word, and C declares it `int64_t` (`docs/FFI.md`): the word
+is 64 bits on every host, so a C `long` would be wrong on a 32-bit one. No
+typedef for it exists (`lib/imp72.h` has none); a C caller writes `int64_t`.
+
+Proposed: a study, before 1.0, of whether C callers need a name for the word
+(a `typedef` in `lib/imp72.h`) or a way for a routine to declare the C type of its
+result, which would belong with item 8, the generated header. Until the study
+is made the word stays `int64_t`.
+
+*Effect on the code.* None until the study decides; a typedef is one line of
+`lib/imp72.h`, a declared result type for exports is part of item 8.
+
 ## Open question: tape routines
 
 `docs/porting/tape-names.md` compares the routine names of the tape with the
