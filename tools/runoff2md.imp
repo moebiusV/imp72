@@ -134,6 +134,16 @@ SUBR S_RSTRIP(S) IS (
 
 SUBR IS_ALPHA(C) IS (((C>64) AND (C<91)) OR ((C>96) AND (C<123)));
 
+# THE STRING S WITH A BACKSLASH BEFORE EACH < THAT STARTS A TAG-LIKE WORD (A LETTER OR A SLASH FOLLOWS IT): A BROWSER READS <B> AS THE START OF BOLD AND <A> AS A LINK, AND NEITHER ENDS #
+SUBR ESCLT(S) IS (
+ B,I,N,C,D ARE LOCAL;
+ B:=B_NEW(0); N:=S_LEN(S); I:=0;
+ WHILE I<N DO (
+    C:=GETB(S,I);
+    C=60 => (D:=GETB(S,I+1); (IS_ALPHA(D) OR (D=47)) => B_CH(B,92));
+    B_CH(B,C); I:=I+1);
+ B_GET(B));
+
 SUBR TO_UPPER(C) IS (((C>96) AND (C<123)) => C-32 ELSE C);
 
 SUBR TO_LOWER(C) IS (((C>64) AND (C<91)) => C+32 ELSE C);
@@ -196,7 +206,7 @@ SUBR FLUSH(Z) IS (
     B:=B_NEW(0); N:=L_LEN(PARA); I:=0; K:=0;
     WHILE I<N DO (
        T:=S_STRIP(L_GET(PARA,I));
-       S_LEN(T)>0 => (K NE 0 => B_CH(B,32); B_STR(B,T); K:=1);
+       S_LEN(T)>0 => (K NE 0 => B_CH(B,32); B_STR(B,ESCLT(T)); K:=1);
        I:=I+1);
     # RUNS OF TWO OR MORE SPACES BECOME ONE #
     S:=B_GET(B); R:=B_NEW(0); N:=S_LEN(S); I:=0;
@@ -264,7 +274,7 @@ SUBR CONVERT(Z) IS (
        # A LINE THAT IS NOT EMPTY, NOT A NUMBERED HEADING AND NOT STARTING WITH AN UNDERSCORE IS A BOLD LINE #
        ((S_LEN(T)>0) AND (GETB(T,0) NE 95) AND (NUMCHK(T)=0)) => (
           FLUSH(0);
-          H:=S_CAT(T,LOC('**')); H:=S_CAT(LOC('**'),H); MD_ADD(H); MD_ADD(S_E(0)));
+          H:=S_CAT(ESCLT(T),LOC('**')); H:=S_CAT(LOC('**'),H); MD_ADD(H); MD_ADD(S_E(0)));
        GO TO CV);
     L_ADD(PARA,CASE(RAW));
     GO TO CV);
