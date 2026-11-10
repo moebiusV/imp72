@@ -8,7 +8,7 @@ cd "$root" || exit 1
 w=${CROSSRUN_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
 [ -x "$w" ] || { echo "crossrun test skipped: no $w"; exit 77; }
 command -v dpkg >/dev/null 2>&1 || { echo "crossrun test skipped: no dpkg"; exit 77; }
-[ -d "${PREP_INPUTS:-/home/matthew/claude/prebsd/mirror/dev/inputs}" ] || { echo "crossrun test skipped: no prep inputs"; exit 77; }
+[ -d "${PREP_INPUTS:-$root/../prebsd/mirror/dev/inputs}" ] || { echo "crossrun test skipped: no prep inputs"; exit 77; }
 out=tmp/crossrun
 mkdir -p $out
 export IMP72SYNTAX=$root/src/llvm-ir/syntax64.imc IMP72FFI=$root/lib/ffi.imc

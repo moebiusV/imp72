@@ -1,10 +1,10 @@
 #!/bin/sh
 # sysroot.sh ARCH DIR: make the sysroot of a Debian architecture (s390x, powerpc, i386, amd64) in DIR from the .deb files of the prep inputs (PREP_INPUTS, by default
-# /home/matthew/claude/prebsd/mirror/dev/inputs): the C library and its start files, the shared library of the compiler's runtime support, and the static one with the
+# ../prebsd/mirror/dev/inputs beside the repository root; point PREP_INPUTS at the tree of Debian pool directories debian-ARCH/pool): the C library and its start files, the shared library of the compiler's runtime support, and the static one with the
 # builtins.  Exit 77 where the inputs are not here.  Nothing is downloaded.
 arch=$1
 dir=$2
-in=${PREP_INPUTS:-/home/matthew/claude/prebsd/mirror/dev/inputs}
+in=${PREP_INPUTS:-$(cd "$(dirname "$0")/../.." && pwd)/../prebsd/mirror/dev/inputs}
 [ -n "$arch" ] && [ -n "$dir" ] || { echo "usage: sysroot.sh ARCH DIR" >&2; exit 2; }
 pool=$in/debian-$arch/pool
 [ -d "$pool" ] || pool=$in/debian-$arch/pool-$arch

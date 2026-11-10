@@ -258,7 +258,7 @@ archive).
 | `tests/llvm/gen.sh` | `tools/llvm.sh imp` in each of its shapes |
 | `tests/link/run.sh` | the link with lld in the process, with no `cc` on the `PATH` |
 | `tests/link/cross.sh` | the arguments of ld for each architecture and C library of the table of loaders, the BSDs, and the refusals, with a sysroot of empty files |
-| `tests/crossrun/run.sh` | programs compiled and linked for `s390x-linux-gnu` and `powerpc-linux-gnu` (both big endian) and `i386-linux-gnu`, and run (the first two under qemu's user mode emulation, no system emulation) with sysroots that `tests/crossrun/sysroot.sh` unpacks from Debian `.deb` files in the directory `PREP_INPUTS`; skipped (exit 77) where `dpkg`, those files or the emulator are absent |
+| `tests/crossrun/run.sh` | programs compiled and linked for `s390x-linux-gnu` and `powerpc-linux-gnu` (both big endian) and `i386-linux-gnu`, and run (the first two under qemu's user mode emulation, no system emulation) with sysroots that `tests/crossrun/sysroot.sh` unpacks from Debian `.deb` files in the directory `PREP_INPUTS` (default `../prebsd/mirror/dev/inputs` beside the repository root; it holds `debian-ARCH/pool`); skipped (exit 77) where `dpkg`, those files or the emulator are absent |
 | `tests/version/run.sh` | every place that names the version (`VERSION`, the compiler's `--version` and banner, the packages, the port, the manual) agrees |
 | `tests/variadic/run.sh` | every `CCALL` in the tree's IMP sources of a C function that takes a variable number of arguments (`printf`, `open`, `fcntl`, ...) has a declaration with `...` before it in the same compilation unit |
 | `tests/runtime/run.sh` | the runtime library built by `imp72`, for the host and other targets |
