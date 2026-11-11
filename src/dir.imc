@@ -179,7 +179,7 @@ SUBR CONVC(C) IS (
  CC:=0;
  W:=DNAME(C,CC);
  # CHECK FOR STRING, WHICH IS ONLY MULTI-WORD CASE.#
- CHR0(W)=47B=>(JNIT=0=>(JNIT:=1; CFR:=FNEW('CONST',10)#FIXED#);
+ CHR0(W)=47B=>(JNIT=0=>(JNIT:=1; CFR:=FALLOT('CONST',10)#FIXED#);
                  NCFR:=1;
                   T1: WW:=REST(W);
                       LASTC(W)=>(

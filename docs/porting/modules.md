@@ -9,7 +9,7 @@ are in `tape-names.md`.
 
 | module | what differs from the tape |
 |---|---|
-| `free` | the arena is reserved address space made usable with `CORE` (`lib/impsys.iml`), and it does not move while the compiler runs; `BLT` is `memmove`; arrays are named by index, so the tape's `S` of `FRELOT` (a routine to call after a move) is not used; a named array is allocated with `FNEW`, because `FALLOT` of a name cannot be told from `FALLOT` of an array by size; `FMAP` and `FSTATS` print with `PRINT` |
+| `free` | the arena is reserved address space made usable with `CORE` (`lib/impsys.iml`), and it does not move while the compiler runs; `BLT` is `memmove`; arrays are named by index, so the tape's `S` of `FRELOT` (a routine to call after a move) is not used; `FALLOT` takes a name or an index as on the tape, and tells them because the indices start at `FIORG` (2**31) and a name is below 2**31 or above 2**32; `FMAP` and `FSTATS` print with `PRINT` |
 | `dir` | `DIR` takes a name or string constant as it is; `STCON` names a constant by the octal digits of its 64 bits; `RADI50`, `CONVC` and `NEWNAME` work on bytes with the macros of `impend-*.imc`; the table of semantic routines is here: `DSEM` enters a routine by name and `SEMCALL` calls it |
 | `stack` | bit matrices have 64 columns to a word |
 | `lex` | the line and the token are packed eight characters to a word and stepped with byte pointers, as on the tape; `LEXIN` opens the file with `fopen`; `PLINE` prints with `PRINT` |

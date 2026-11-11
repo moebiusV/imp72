@@ -168,7 +168,7 @@ SUBR IMPIMGSAVE(P) IS (
  NOTAB: OUTSTR('imp: this compiler has no table of its variables to save (the modules were not compiled for it)'); OUTCHR(12B);
  RETURN 0;
  HAVE: USABLE:=IMPCOREUSED(0);
- USED:=FSIZE*8;
+ USED:=(FSIZE-FIORG)*8;
  USED>USABLE => USED:=USABLE;
  CCALL getenv(LOC('IMPIMGCENSUS')) NE 0 => IMGCENSUS(BASE,USED);
  NK:=0;
@@ -235,7 +235,7 @@ SUBR IMPIMGLOAD(P) IS (
                I:=I+1; GO TO LD2);
  CCALL fread(NEWB,1,USED,F) NE USED => GO TO BAD;                      # THE ARENA #
  DELTA:=NEWB-BASE;                                                     # THE ARENA IS ELSEWHERE: THE ADDRESSES OF IT THAT THE VARIABLES HOLD MOVE WITH IT #
- FB:=NEWB;
+ FB:=NEWB-(8*FIORG);
  DELTA NE 0 => (K:=0;
                 LD5: IMGPTRNAME(K) NE 0 => (V:=IMGFIND(IMGPTRNAME(K));
                                             V GE 0 => IMGSIZE(V) GE 8 => (W:=[IMGADDR(V)];
