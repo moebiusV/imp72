@@ -48,7 +48,7 @@ constant in `syntax.imc`. The code generators see a constant either way.
 same as 0: the empty ASCIZ string is its terminating zero, which as a value is
 the number 0. A quote inside a string stays written doubled.
 
-Proposed: `''` is the constant 0.
+Decided (2026-11-03, "`''` keeps its original meaning"): `''` is the constant 0. Details pending: the lexer case and a test.
 
 *Effect on the code.* One case in `lex.imc` and `stage0/lex.c` (two apostrophes
 with no third following: the constant 0) and a test. As a `STG` argument, `''`
@@ -61,7 +61,7 @@ operations of the TOPS-10 library (`INIT`, `LOOKUP`, `ENTER`, `INPUT`,
 `OUTPUT`, the buffer header) are not in `decus/syntax.imc` or `decus/impsyn.imc`;
 the original reaches them through its libraries, which the port does not have.
 
-Proposed: statements with the original's meaning over `fopen`, `getc` and
+Decided (2026-10-27 and 2026-11-03: channel I/O comes back, over the C library; `CORE` and `RLEAS` are examined with it): statements with the original's meaning over `fopen`, `getc` and
 `putc`. A channel is an index into a table of `FILE *`; the buffer header is a
 small record that the program may read (count, pointer), kept in step by the
 library. Programs of the original that call them then compile. `RLEAS` is the
@@ -77,7 +77,7 @@ emulation is cheap; it has not been counted.
 String constants are ASCIZ, as in the original: the bytes, then a zero. They
 pass to C unchanged, and `STG` and the library scan to the zero. This stays.
 
-Proposed: a counted string as a separate object type beside it, with its own
+Decided (2026-11-03: a separate object type with its own handler functions, carrying its length and also NUL terminated): a counted string beside it, with its own
 handler functions. It is a record: a length word (bytes, the NUL not counted),
 the bytes, and a zero byte after them, so that the address of its bytes can be
 given to C. It is made and handled only by routines of its own: create from a
@@ -97,10 +97,12 @@ of the compilation unit, one file ending at `%%`. A function that several
 files call is declared in each. `imp-cimport` writes a fragment, and the
 fragment goes in front of every source with `cat`.
 
-Proposed: a way to name a file of declarations that every unit reads, so that
+Decided (2026-11-11: shared declarations and modules are in scope; the mechanism is pending): a way to name a file of declarations that every unit reads, so that
 a declaration is written once. Two forms are possible: a statement in the source
 that reads a file (`INCLUDE 'decls.imp'`), or a file on the command line that
-the driver reads before each source, as it reads a file named with `-C`.
+the driver puts in front of each source. A file named with `-C` does not do it: it is a
+unit of its own (it ends at `%%`, and a declaration ends with its unit), where the
+declarations are to reach the unit that follows.
 
 *Effect on the code.* The lexer (a stack of input files) or the driver. The
 declaration statements of `lib/ffi.imc` stay as they are. A test with two units
@@ -112,7 +114,7 @@ A `SUBR` is a C function whose parameters are pointers to 64-bit words
 (`docs/FFI.md`). C, Zig and Rust code that calls one writes the prototype by
 hand.
 
-Proposed: a tool, in the manner of `imp-cimport` and written in IMP, that reads
+Decided (2026-11-11: in scope; details pending): a tool, in the manner of `imp-cimport` and written in IMP, that reads
 the routines of a source (or of the object's symbols) and writes a header: a C
 header (`int64_t NAME(int64_t *A, int64_t *B);`, `extern int64_t X;` for a
 `COMMON` variable), a Zig declaration file and a Rust `extern "C"` block. The
@@ -130,7 +132,7 @@ its own does not link it. The command line is then not kept for the IMP
 routines, and the only way to start the main program of an IMP source is to
 call `impmain`.
 
-Proposed: split that `main` into `imp_init(argc, argv)` and `imp_run()`,
+Decided (2026-11-11: in scope; details pending): split that `main` into `imp_init(argc, argv)` and `imp_run()`,
 declared in `lib/imp.h`. A C program calls `imp_init` first, so that the
 IMP routines find the runtime initialised, and `imp_run` where it wants the
 main program of an IMP source. The library's `main` becomes the two calls.
@@ -144,7 +146,7 @@ main program of an IMP source. The library's `main` becomes the two calls.
 seed's `-S` writes LLVM IR text and it has no `-Sir` and no `--target`
 (`docs/BUILDING.md`, The seed and `imp`).
 
-Proposed: the seed's `-S` writes assembly and `-Sir` the IR, with the same file
+Decided (2026-11-11: part of the plan): the seed's `-S` writes assembly and `-Sir` the IR, with the same file
 names as `imp`. `--target` stays in `imp`: the seed makes code for the
 machine it runs on, because it is the compiler that exists before the
 other.
@@ -160,7 +162,7 @@ link a program that needs no runtime (`docs/BUILDING.md`). There is no
 uses `mmap` for the arena, `dl_iterate_phdr`, `fork` and `readlink`, and
 `tools/sysconst.sh` describes POSIX systems.
 
-Proposed: a COFF variant of the host layer (`lib/imphostx-*.iml`,
+Decided (2026-11-05: Windows is supported where LLVM and mingw can do it, and Cygwin; the code is pending): a COFF variant of the host layer (`lib/imphostx-*.iml`,
 `lib/impvarsx-*.iml`) and of the arena (`VirtualAlloc` for Windows, `mmap` for
 Cygwin), the constants of both systems in `tools/sysconst.sh`, and a test run on
 a Windows or Cygwin machine; none is available for the tests.
