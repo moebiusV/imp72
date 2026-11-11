@@ -39,10 +39,10 @@ RTN,NRTN,CRTN ARE COMMON;                   # THE TABLE OF SEMANTIC ROUTINES: TW
  NULL CHARACTERS ARE REQUIRED. #
 
 SUBR HASH(NM) IS (#9-BIT HASH CODE#
-                  HV:=NM XOR NM RS 32;
-                  HV:=HV XOR HV RS 16;
-                  HV:=HV XOR HV RS 9;
-                  HV AND 777B);
+                  HSH:=NM XOR NM RS 32;
+                  HSH:=HSH XOR HSH RS 16;
+                  HSH:=HSH XOR HSH RS 9;
+                  HSH AND 777B);
 
 SUBR DIR(NM) IS (
  DINIT=0 => (DINIT:=1;
@@ -220,23 +220,23 @@ SUBR CONVC(C) IS (
  CONVX: VAL);
 
 # STCON(V): THE DIRECTORY ENTRY OF THE CONSTANT V, NAMED BY ITS OCTAL DIGITS (22 FOR A 64 BIT NUMBER, WITHOUT THE LEADING ZEROS) AND A B #
-SUBR STCON(V) IS (SCW IS 4 LONG;
-                  SCW[0]:=SCW[1]:=SCW[2]:=SCW[3]:=0;
-                  K:=BYTEP SCW<7,36>; F:=0;
+SUBR STCON(V) IS (FOO IS 4 LONG;
+                  FOO[0]:=FOO[1]:=FOO[2]:=FOO[3]:=0;
+                  K:=BYTEP FOO<7,36>; F:=0;
                   ((J:=(V RS (3*I)) AND 7) NE 0 => F:=1;
                    F => <+K>:=60B+J) FOR I IN 21,-1,0;
                   F=0 => <+K>:=60B;
                   <+K>:=102B;
-                  DIR(SCW));
+                  DIR(FOO));
 
 SUBR NEWNAME(I) IS (
- NMF IS 3 LONG;
- NMF:=PREP(PFX4(I),45B); NMF[1]:=NMF[2]:=0;
- K:=BYTEP NMF<7,36>; WHILE <+K> DO 0; K:=K-1;
+ FOO IS 3 LONG;
+ FOO:=PREP(PFX4(I),45B); FOO[1]:=FOO[2]:=0;
+ K:=BYTEP FOO<7,36>; WHILE <+K> DO 0; K:=K-1;
  J:=NEWNUM:=NEWNUM+1; TP:=100000;
  T10: (J/TP)=0=>(TP:=TP/10; GO TO T10);
  T8: JJ:=J/TP;
      <+K>:=60B+JJ;
      J:=J-TP*JJ; TP:=TP/10;
      TP => GO TO T8;
- DIR(NMF))%%
+ DIR(FOO))%%
