@@ -52,10 +52,10 @@ SUBR DIR(NM) IS (
 L0: LASTC(NM[N]) => (N:=N+1; GO TO L0);
 L1: (I:=H*3)=0 => I:=3;
 L2: Q:=FREE(PRP+I);
- J:=HR(Q);
+ J:=HRIGHT(Q);
  J=0 => (FREES(PRP+I,NALF); DM:=DM+1; GO TO L4);
  (NM[K] NE FREE(ALF+J+K) => (HN => (H:=H XOR HN; HN:=HN RS 1; GO TO L1);
-                        I1:=I; (I:=HL(Q)) => GO TO L2;
+                        I1:=I; (I:=HLEFT(Q)) => GO TO L2;
                         GO TO L3))  FOR K TO N;
  GO TO L5;
 L3: I:=NPRP; DN:=DN+1;
@@ -101,7 +101,7 @@ SUBR SEMREMAP(NAMES,N) IS (
 
 SUBR DSEQ(N) IS (
  N<0 => (N:=-3; NMK:=-1);
- NMK GE 0 => (N:=HL(FREE(PRP+N));
+ NMK GE 0 => (N:=HLEFT(FREE(PRP+N));
                 N=0 => (N:=NMK; NMK:=-1));
  NMK<0 => (L6: N:=N+3;
               N GE 1536 => N:=-1
@@ -109,9 +109,9 @@ SUBR DSEQ(N) IS (
                             NMK:=N));
 N);
 
-SUBR PNAME(DJ) IS (DJ GE 0=>PRINT STG 0,FREE(ALF+HR(FREE(PRP+DJ))));
+SUBR PNAME(DJ) IS (DJ GE 0=>PRINT STG 0,FREE(ALF+HRIGHT(FREE(PRP+DJ))));
 
-SUBR DNAME(DI,J) IS FREE(ALF+J+HR(FREE(PRP+DI)));
+SUBR DNAME(DI,J) IS FREE(ALF+J+HRIGHT(FREE(PRP+DI)));
 
 SUBR GNAME(DJ) IS (
  LCL IS 516 LONG;                  # THE TAPE'S IS 4 WORDS AND GIVES THE FIRST THREE OF THE NAME; HERE IT IS THE WHOLE NAME, UP TO 4095 BYTES (A UNIX PATH), WITH THE FOUR FIRST WORDS ZERO BEYOND ITS END #

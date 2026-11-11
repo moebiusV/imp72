@@ -1,7 +1,7 @@
 # The layout of the compiler's words
 
-A word is 64 bits and a half is 32 (`HL(w)`, `HR(w)`, `HW(l,r)`, `HMASK`, `HSH`: `src/impsyn.imc`; `HL` is unsigned,
-`HLS` signed). The tables of the compiler are laid out for that. Bit numbers are of the 64 bit word. The comment at the
+A word is 64 bits and a half is 32 (`HLEFT(w)`, `HRIGHT(w)`, `HW(l,r)`, `HMASK`, `HSHIFT`: `src/impsyn.imc`; `HLEFT` is unsigned,
+`HLEFTS` signed; the names are not the short `HL`, `HR` and `HSH` because the tape's own modules use those as variables and the tape's names stay). The tables of the compiler are laid out for that. Bit numbers are of the 64 bit word. The comment at the
 head of each module (`src/*.imc`) and of each C file in `stage0/` gives the layout of its own tables; this page collects
 them.
 

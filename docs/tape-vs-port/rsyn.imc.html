@@ -144,22 +144,22 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">115</td><td class="c q"> DIR(FOO));</td><td class="n q">102</td><td class="c q"> DIR(FOO));</td></tr>
 <tr><td class="n q">116</td><td class="c q">SUBR SYTRM(A) IS SYNT(SYTERM(A),-1);</td><td class="n q">103</td><td class="c q">SUBR SYTRM(A) IS SYNT(SYTERM(A),-1);</td></tr>
 <tr><td class="n q">117</td><td class="c q">SUBR SYTERM(S) IS ( #IF S IS A SINGLE QUOTED CHARACTER, REMOVES QUOTE. #</td><td class="n q">104</td><td class="c q">SUBR SYTERM(S) IS ( #IF S IS A SINGLE QUOTED CHARACTER, REMOVES QUOTE. #</td></tr>
-<tr><td class="n d">118</td><td class="c d"> R<del>_</del>FREE(S); Q<del>_</del>R <del>RS 18</del>;</td><td class="n a">105</td><td class="c a"> R<ins>:=</ins>FREE(S); Q<ins>:=HL(</ins>R<ins>)</ins>;</td></tr>
+<tr><td class="n d">118</td><td class="c d"> R<del>_</del>FREE(S); Q<del>_</del>R <del>RS 18</del>;</td><td class="n a">105</td><td class="c a"> R<ins>:=</ins>FREE(S); Q<ins>:=HLEFT(</ins>R<ins>)</ins>;</td></tr>
 <tr><td class="n d">119</td><td class="c d"> Q<del>_</del>DNAME(Q<del>&lt;R&gt;</del>,0);</td><td class="n a">106</td><td class="c a"> Q<ins>:=</ins>DNAME(Q,0);</td></tr>
 <tr><td class="n d">120</td><td class="c d"> (Q <del>AND 774017777777B</del>)=<del>234000000000B</del>=&gt;(Q<del>_</del>DIR(Q LS <del>7</del>);</td><td class="n a">107</td><td class="c a"> <ins>CHR0</ins>(Q)=<ins>47B</ins>=&gt;(<ins>REST(REST(</ins>Q<ins>))=0=&gt;(CHR(Q,1)=&gt;(</ins></td></tr>
 <tr><td class="n d">121</td><td class="c d">                                       FREES(S,(R <del>AND 777777B</del>) OR Q LS <del>18</del>));</td><td class="n a">108</td><td class="c a">                       <ins>Q:=</ins>DIR(<ins>REST(</ins>Q<ins>));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">109</td><td class="c a">                       <ins>FREES(S,(HR(R) OR (Q</ins> LS <ins>32</ins>)<ins>))))</ins>;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">109</td><td class="c a">                       <ins>FREES(S,(HRIGHT(R) OR (Q</ins> LS <ins>32</ins>)<ins>))))</ins>;</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a">               <ins>REST(REST(REST(Q)))=0=&gt;(CHR(Q,1)=072B=&gt;(CHR(Q,2)=075B=&gt;(      # ':=' IS ONE TOKEN #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a">                       <ins>Q:=DIR(REST(Q));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">112</td><td class="c a">                       FREES(S,(<ins>HR(</ins>R) OR <ins>(</ins>Q LS <ins>32)))))</ins>));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">112</td><td class="c a">                       FREES(S,(<ins>HRIGHT(</ins>R) OR <ins>(</ins>Q LS <ins>32)))))</ins>));</td></tr>
 <tr><td class="n q">122</td><td class="c q"> S);</td><td class="n q">113</td><td class="c q"> S);</td></tr>
 <tr><td class="n q">123</td><td class="c q">SUBR SYNT(A,B) IS (</td><td class="n q">114</td><td class="c q">SUBR SYNT(A,B) IS (</td></tr>
 <tr><td class="n q">124</td><td class="c q"> # SEMANTIC ROUTINE TO ADD A SYNTAX ELEMENT TO DEFINITION BEING BUILT. #</td><td class="n q">115</td><td class="c q"> # SEMANTIC ROUTINE TO ADD A SYNTAX ELEMENT TO DEFINITION BEING BUILT. #</td></tr>
 <tr><td class="n q">125</td><td class="c q"> SNIT=0=&gt;(FRELOT(SN,'SYNTX',25,0);</td><td class="n q">116</td><td class="c q"> SNIT=0=&gt;(FRELOT(SN,'SYNTX',25,0);</td></tr>
 <tr><td class="n d">126</td><td class="c d">          SNIT<del>_</del>1;</td><td class="n a">117</td><td class="c a">          SNIT<ins>:=</ins>1;</td></tr>
 <tr><td class="n d">127</td><td class="c d">          SNITT<del>_</del>0);</td><td class="n a">118</td><td class="c a">          SNITT<ins>:=</ins>0);</td></tr>
-<tr><td class="n d">128</td><td class="c d"> (Q<del>_</del>B)&gt;0=&gt;(Q<del>_</del>FREE(SYTERM(B)); Q<del>_</del>Q <del>RS 18</del>);</td><td class="n a">119</td><td class="c a"> (Q<ins>:=</ins>B)&gt;0=&gt;(Q<ins>:=</ins>FREE(SYTERM(B)); Q<ins>:=HL(</ins>Q)<ins>)</ins>;</td></tr>
-<tr><td class="n d">129</td><td class="c d"> R<del>_</del>FREE(A); R<del>_</del>R <del>RS 18</del>;</td><td class="n a">120</td><td class="c a"> R<ins>:=</ins>FREE(A); R<ins>:=HL(</ins>R<ins>)</ins>;</td></tr>
+<tr><td class="n d">128</td><td class="c d"> (Q<del>_</del>B)&gt;0=&gt;(Q<del>_</del>FREE(SYTERM(B)); Q<del>_</del>Q <del>RS 18</del>);</td><td class="n a">119</td><td class="c a"> (Q<ins>:=</ins>B)&gt;0=&gt;(Q<ins>:=</ins>FREE(SYTERM(B)); Q<ins>:=HLEFT(</ins>Q)<ins>)</ins>;</td></tr>
+<tr><td class="n d">129</td><td class="c d"> R<del>_</del>FREE(A); R<del>_</del>R <del>RS 18</del>;</td><td class="n a">120</td><td class="c a"> R<ins>:=</ins>FREE(A); R<ins>:=HLEFT(</ins>R<ins>)</ins>;</td></tr>
 <tr><td class="n q">130</td><td class="c q"> B&lt;0=&gt;GO TO L17;  # SKIP ALL THIS IF TERMINAL SYMBOL #</td><td class="n q">121</td><td class="c q"> B&lt;0=&gt;GO TO L17;  # SKIP ALL THIS IF TERMINAL SYMBOL #</td></tr>
 <tr><td class="n q">131</td><td class="c q"> SNITT=0=&gt;(#INITIALIZE FOR ONE PRODUCTION#</td><td class="n q">122</td><td class="c q"> SNITT=0=&gt;(#INITIALIZE FOR ONE PRODUCTION#</td></tr>
 <tr><td class="n d">132</td><td class="c d">           NSN<del>_</del>SEMN<del>_</del>SMIT<del>_</del>0; NNA<del>_</del>-1;</td><td class="n a">123</td><td class="c a">           NSN<ins>:=</ins>SEMN<ins>:=</ins>SMIT<ins>:=</ins>0; NNA<ins>:=</ins>-1;</td></tr>
@@ -193,7 +193,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">157</td><td class="c q">SUBR SYNARG(I) IS # RETURNS NAME OF I-TH FORMAL ARG. OF SYNTAX # FREE(NA+I);</td><td class="n q">150</td><td class="c q">SUBR SYNARG(I) IS # RETURNS NAME OF I-TH FORMAL ARG. OF SYNTAX # FREE(NA+I);</td></tr>
 <tr><td class="n q">158</td><td class="c q">SUBR DEFCASE(N) IS (</td><td class="n q">151</td><td class="c q">SUBR DEFCASE(N) IS (</td></tr>
 <tr><td class="n q">159</td><td class="c q"> CAS=&gt;ERROR(1,'NESTED CASE DEFINITIONS ILLEGAL **');</td><td class="n q">152</td><td class="c q"> CAS=&gt;ERROR(1,'NESTED CASE DEFINITIONS ILLEGAL **');</td></tr>
-<tr><td class="n d">160</td><td class="c d"> CAS<del>_</del>FREE(N); <del>CAS_CAS RS 18;</del></td><td class="n a">153</td><td class="c a"> CAS<ins>:=HL(</ins>FREE(N)<ins>)</ins>;</td></tr>
+<tr><td class="n d">160</td><td class="c d"> CAS<del>_</del>FREE(N); <del>CAS_CAS RS 18;</del></td><td class="n a">153</td><td class="c a"> CAS<ins>:=HLEFT(</ins>FREE(N)<ins>)</ins>;</td></tr>
 <tr><td class="n d">161</td><td class="c d"> SEMK=SEMN=&gt;SEMK<del>_</del>SETSEM(0,NNA LS <del>18</del>);</td><td class="n a">154</td><td class="c a"> SEMK=SEMN=&gt;SEMK<ins>:=</ins>SETSEM(0,NNA LS <ins>32</ins>);</td></tr>
 <tr><td class="n d">162</td><td class="c d"> PRODN<del>_</del>SEMK;</td><td class="n a">155</td><td class="c a"> PRODN<ins>:=</ins>SEMK;</td></tr>
 <tr><td class="n q">163</td><td class="c q"> DPROP('SEM',CAS)=&gt;</td><td class="n q">156</td><td class="c q"> DPROP('SEM',CAS)=&gt;</td></tr>
@@ -208,7 +208,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">172</td><td class="c q">                   SETSEM(10B,K);</td><td class="n q">165</td><td class="c q">                   SETSEM(10B,K);</td></tr>
 <tr><td class="n q">173</td><td class="c q">                   GO TO L27);</td><td class="n q">166</td><td class="c q">                   GO TO L27);</td></tr>
 <tr><td class="n d">174</td><td class="c d"><del># SETSEM(1,0);#</del></td><td class="n a">167</td><td class="c a"> J<ins>:=</ins>FREE(A);</td></tr>
-<tr><td class="n d">175</td><td class="c d"> J<del>_</del>FREE(A);</td><td class="n a">168</td><td class="c a"> DOCASE(<ins>HL(</ins>J<ins>)</ins>,SEMK,SEMN);</td></tr>
+<tr><td class="n d">175</td><td class="c d"> J<del>_</del>FREE(A);</td><td class="n a">168</td><td class="c a"> DOCASE(<ins>HLEFT(</ins>J<ins>)</ins>,SEMK,SEMN);</td></tr>
 <tr><td class="n d">176</td><td class="c d"> DOCASE(J <del>RS 18</del>,SEMK,SEMN);</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">177</td><td class="c q"> ENTRCA(SEMN);</td><td class="n q">169</td><td class="c q"> ENTRCA(SEMN);</td></tr>
 <tr><td class="n d">178</td><td class="c d"> SEMK<del>_</del>SETSEM(0,NNA LS <del>18</del>);</td><td class="n a">170</td><td class="c a"> SEMK<ins>:=</ins>SETSEM(0,NNA LS <ins>32</ins>);</td></tr>
@@ -227,7 +227,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">191</td><td class="c q">      -(VAR. NR. LS 18 OR DIR INDEX) FIRST TIME; AFTER, LEAVE OFF DIR. INDEX #</td><td class="n q">183</td><td class="c q">      -(VAR. NR. LS 18 OR DIR INDEX) FIRST TIME; AFTER, LEAVE OFF DIR. INDEX #</td></tr>
 <tr><td class="n d">192</td><td class="c d"> T<del>_</del>ENSTACK(0); I<del>_</del>0;</td><td class="n a">184</td><td class="c a"> T<ins>:=</ins>ENSTACK(0); I<ins>:=</ins>0;</td></tr>
 <tr><td class="n d">193</td><td class="c d"> L19: GETLIST(T)=&gt;(I<del>_</del>I+1;</td><td class="n a">185</td><td class="c a"> L19: GETLIST(T)=&gt;(I<ins>:=</ins>I+1;</td></tr>
-<tr><td class="n d">194</td><td class="c d">   N<del>_</del>FREE(T); N<del>_</del>-(N <del>RS 18</del>);</td><td class="n a">186</td><td class="c a">   N<ins>:=</ins>FREE(T); N<ins>:=</ins>-<ins>HL</ins>(N);</td></tr>
+<tr><td class="n d">194</td><td class="c d">   N<del>_</del>FREE(T); N<del>_</del>-(N <del>RS 18</del>);</td><td class="n a">186</td><td class="c a">   N<ins>:=</ins>FREE(T); N<ins>:=</ins>-<ins>HLEFT</ins>(N);</td></tr>
 <tr><td class="n d">195</td><td class="c d">   J<del>_</del>FREE(A+1); NN<del>_</del>0;</td><td class="n a">187</td><td class="c a">   J<ins>:=</ins>FREE(A+1); NN<ins>:=</ins>0;</td></tr>
 <tr><td class="n d">196</td><td class="c d">   L20: K<del>_</del>FREE(J); K=&gt;(K=N=&gt;(NN=0=&gt;(NN<del>_</del>1; FREES(J,-(-N OR I LS <del>18</del>)))</td><td class="n a">188</td><td class="c a">   L20: K<ins>:=</ins>FREE(J); K=&gt;(K=N=&gt;(NN=0=&gt;(NN<ins>:=</ins>1; FREES(J,-(<ins>(</ins>-N<ins>)</ins> OR <ins>(</ins>I LS <ins>32</ins>)))<ins>)</ins></td></tr>
 <tr><td class="n d">197</td><td class="c d">                              ELSE FREES(J,-(I LS <del>18</del>)));</td><td class="n a">189</td><td class="c a">                              ELSE FREES(J,-(I LS <ins>32</ins>)));</td></tr>
@@ -248,15 +248,15 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">212</td><td class="c q">SUBR SEMP(A,B) IS (</td><td class="n q">204</td><td class="c q">SUBR SEMP(A,B) IS (</td></tr>
 <tr><td class="n d">213</td><td class="c d"> B=&gt;(NRST<del>_</del>NRST-1;</td><td class="n a">205</td><td class="c a"> B=&gt;(NRST<ins>:=</ins>NRST-1;</td></tr>
 <tr><td class="n d">214</td><td class="c d">     J<del>_</del>FREE(RST+NRST);</td><td class="n a">206</td><td class="c a">     J<ins>:=</ins>FREE(RST+NRST);</td></tr>
-<tr><td class="n d">215</td><td class="c d">     SETSEM(3,(J <del>AND 777777B</del>) OR NSARGS LS <del>18</del>);</td><td class="n a">207</td><td class="c a">     SETSEM(3,<ins>HR</ins>(J) OR <ins>(</ins>NSARGS LS <ins>32</ins>)<ins>)</ins>;</td></tr>
-<tr><td class="n d">216</td><td class="c d">     NSARGS<del>_</del>1+J <del>RS 18</del>;</td><td class="n a">208</td><td class="c a">     NSARGS<ins>:=</ins>1+<ins>HL(</ins>J<ins>)</ins>;</td></tr>
+<tr><td class="n d">215</td><td class="c d">     SETSEM(3,(J <del>AND 777777B</del>) OR NSARGS LS <del>18</del>);</td><td class="n a">207</td><td class="c a">     SETSEM(3,<ins>HRIGHT</ins>(J) OR <ins>(</ins>NSARGS LS <ins>32</ins>)<ins>)</ins>;</td></tr>
+<tr><td class="n d">216</td><td class="c d">     NSARGS<del>_</del>1+J <del>RS 18</del>;</td><td class="n a">208</td><td class="c a">     NSARGS<ins>:=</ins>1+<ins>HLEFT(</ins>J<ins>)</ins>;</td></tr>
 <tr><td class="n q">217</td><td class="c q">     GO TO SEMPX);</td><td class="n q">209</td><td class="c q">     GO TO SEMPX);</td></tr>
 <tr><td class="n d">218</td><td class="c d"> NSARGS<del>_</del>NSARGS+1;</td><td class="n a">210</td><td class="c a"> NSARGS<ins>:=</ins>NSARGS+1;</td></tr>
 <tr><td class="n d">219</td><td class="c d"> Q<del>_</del>GETARG(SYTERM(A));</td><td class="n a">211</td><td class="c a"> Q<ins>:=</ins>GETARG(SYTERM(A));</td></tr>
 <tr><td class="n q">220</td><td class="c q"> SETSEM(TY,Q);</td><td class="n q">212</td><td class="c q"> SETSEM(TY,Q);</td></tr>
 <tr><td class="n q">221</td><td class="c q"> SEMPX: 0);</td><td class="n q">213</td><td class="c q"> SEMPX: 0);</td></tr>
 <tr><td class="n q">222</td><td class="c q">SUBR GETARG(A) IS ( # MAKE SEMS ENTRY FOR IDENTIFIER, CONSTANT OR ARGUMENT. #</td><td class="n q">214</td><td class="c q">SUBR GETARG(A) IS ( # MAKE SEMS ENTRY FOR IDENTIFIER, CONSTANT OR ARGUMENT. #</td></tr>
-<tr><td class="n d">223</td><td class="c d"> Q<del>_</del>FREE(A); <del>Q_Q RS 18;</del></td><td class="n a">215</td><td class="c a"> Q<ins>:=HL(</ins>FREE(A)<ins>)</ins>;</td></tr>
+<tr><td class="n d">223</td><td class="c d"> Q<del>_</del>FREE(A); <del>Q_Q RS 18;</del></td><td class="n a">215</td><td class="c a"> Q<ins>:=HLEFT(</ins>FREE(A)<ins>)</ins>;</td></tr>
 <tr><td class="n d">224</td><td class="c d"> TY<del>_</del>4;</td><td class="n a">216</td><td class="c a"> TY<ins>:=</ins>4;</td></tr>
 <tr><td class="n d">225</td><td class="c d"> J<del>_</del>CONVC(Q);</td><td class="n a">217</td><td class="c a"> J<ins>:=</ins>CONVC(Q);</td></tr>
 <tr><td class="n d">226</td><td class="c d"> J=&gt;(Q<del>_007777777777B</del> AND -CONST; <del>CONST IS COMMON;</del> GO TO L13);</td><td class="n a">218</td><td class="c a"> J=&gt;(Q<ins>:=SVMASK</ins> AND -CONST; GO TO L13);</td></tr>
@@ -265,8 +265,8 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">229</td><td class="c q"> L13: Q);</td><td class="n q">221</td><td class="c q"> L13: Q);</td></tr>
 <tr><td class="n q">230</td><td class="c q">SUBR SEMR(A,B) IS (</td><td class="n q">222</td><td class="c q">SUBR SEMR(A,B) IS (</td></tr>
 <tr><td class="n d">231</td><td class="c d"> A=0=&gt;(SETSEM(B,0); NSARGS<del>_</del>NSARGS-1; GO TO SEMRX);</td><td class="n a">223</td><td class="c a"> A=0=&gt;(SETSEM(B,0); NSARGS<ins>:=</ins>NSARGS-1; GO TO SEMRX);</td></tr>
-<tr><td class="n d">232</td><td class="c d"> Q<del>_FREE(A);</del></td><td class="n a">224</td><td class="c a"> Q<ins>:=</ins>DPROP('SEM',<ins>HL(FREE(A</ins>)<ins>))</ins>;</td></tr>
-<tr><td class="n d">233</td><td class="c d"> <del>Q_</del>DPROP('SEM',<del>Q RS 18</del>);</td><td class="n a">225</td><td class="c a"> Q=0=&gt;(J<ins>:=</ins>FREE(A); PNAME(<ins>HL(</ins>J<ins>)</ins>); PRINT STG 0,' ';</td></tr>
+<tr><td class="n d">232</td><td class="c d"> Q<del>_FREE(A);</del></td><td class="n a">224</td><td class="c a"> Q<ins>:=</ins>DPROP('SEM',<ins>HLEFT(FREE(A</ins>)<ins>))</ins>;</td></tr>
+<tr><td class="n d">233</td><td class="c d"> <del>Q_</del>DPROP('SEM',<del>Q RS 18</del>);</td><td class="n a">225</td><td class="c a"> Q=0=&gt;(J<ins>:=</ins>FREE(A); PNAME(<ins>HLEFT(</ins>J<ins>)</ins>); PRINT STG 0,' ';</td></tr>
 <tr><td class="n d">234</td><td class="c d"> Q=0=&gt;(J<del>_</del>FREE(A); PNAME(J <del>RS 18</del>); PRINT STG 0,' ';</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">235</td><td class="c q">       ERROR(1,'UNDEFINED SEMANTIC ROUTINE'));</td><td class="n q">226</td><td class="c q">       ERROR(1,'UNDEFINED SEMANTIC ROUTINE'));</td></tr>
 <tr><td class="n d">236</td><td class="c d"> B=&gt;(FADD(RST,NRST,Q OR NSARGS LS <del>18</del>); NSARGS<del>_</del>0) ELSE(SETSEM(3,Q);</td><td class="n a">227</td><td class="c a"> B=&gt;(FADD(RST,NRST,Q OR <ins>(</ins>NSARGS LS <ins>32</ins>)<ins>)</ins>; NSARGS<ins>:=</ins>0) ELSE(SETSEM(3,Q);</td></tr>
@@ -284,22 +284,22 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">248</td><td class="c q">                   SYNXX: 0);</td><td class="n q">239</td><td class="c q">                   SYNXX: 0);</td></tr>
 <tr><td class="n q">249</td><td class="c q">SUBR SEMBIT(A) IS (</td><td class="n q">240</td><td class="c q">SUBR SEMBIT(A) IS (</td></tr>
 <tr><td class="n q">250</td><td class="c q"> # SETS PRIORITY BITS FOR A PRODUCTION #</td><td class="n q">241</td><td class="c q"> # SETS PRIORITY BITS FOR A PRODUCTION #</td></tr>
-<tr><td class="n d">251</td><td class="c d"> J<del>_</del>FREE(A); CONVC(J <del>RS 18</del>);</td><td class="n a">242</td><td class="c a"> J<ins>:=</ins>FREE(A); CONVC(<ins>HL(</ins>J)<ins>)</ins>;</td></tr>
+<tr><td class="n d">251</td><td class="c d"> J<del>_</del>FREE(A); CONVC(J <del>RS 18</del>);</td><td class="n a">242</td><td class="c a"> J<ins>:=</ins>FREE(A); CONVC(<ins>HLEFT(</ins>J)<ins>)</ins>;</td></tr>
 <tr><td class="n d">252</td><td class="c d"> SEMOR(CONST LS <del>27</del>,SEMN);</td><td class="n a">243</td><td class="c a"> SEMOR(CONST LS <ins>41</ins>,SEMN);</td></tr>
 <tr><td class="n q">253</td><td class="c q"> 0);</td><td class="n q">244</td><td class="c q"> 0);</td></tr>
 <tr><td class="n q">255</td><td class="c q">SUBR REPVAL(S,A) IS (</td><td class="n q">246</td><td class="c q">SUBR REPVAL(S,A) IS (</td></tr>
-<tr><td class="n d">256</td><td class="c d"> J<del>_</del>FREE(S); J<del>_</del>DPROP('SEM',J <del>RS 18</del>);</td><td class="n a">247</td><td class="c a"> J<ins>:=</ins>FREE(S); J<ins>:=</ins>DPROP('SEM',<ins>HL(</ins>J)<ins>)</ins>;</td></tr>
+<tr><td class="n d">256</td><td class="c d"> J<del>_</del>FREE(S); J<del>_</del>DPROP('SEM',J <del>RS 18</del>);</td><td class="n a">247</td><td class="c a"> J<ins>:=</ins>FREE(S); J<ins>:=</ins>DPROP('SEM',<ins>HLEFT(</ins>J)<ins>)</ins>;</td></tr>
 <tr><td class="n d">257</td><td class="c d"> K<del>_</del>FREE(A+1);</td><td class="n a">248</td><td class="c a"> K<ins>:=</ins>FREE(A+1);</td></tr>
 <tr><td class="n d">258</td><td class="c d"> L44: I<del>_</del>FREE(K);</td><td class="n a">249</td><td class="c a"> L44: I<ins>:=</ins>FREE(K);</td></tr>
-<tr><td class="n d">259</td><td class="c d">      I&gt;0=&gt;CKSVAL(I <del>AND 777777B</del>,J)=&gt;FREES(K,J OR I LS <del>18</del>);</td><td class="n a">250</td><td class="c a">      I&gt;0=&gt;CKSVAL(<ins>HR(</ins>I<ins>)</ins>,J)=&gt;FREES(K,<ins>(</ins>J OR <ins>(</ins>I LS <ins>32</ins>)<ins>))</ins>;</td></tr>
+<tr><td class="n d">259</td><td class="c d">      I&gt;0=&gt;CKSVAL(I <del>AND 777777B</del>,J)=&gt;FREES(K,J OR I LS <del>18</del>);</td><td class="n a">250</td><td class="c a">      I&gt;0=&gt;CKSVAL(<ins>HRIGHT(</ins>I<ins>)</ins>,J)=&gt;FREES(K,<ins>(</ins>J OR <ins>(</ins>I LS <ins>32</ins>)<ins>))</ins>;</td></tr>
 <tr><td class="n d">260</td><td class="c d">      K<del>_</del>K+1;</td><td class="n a">251</td><td class="c a">      K<ins>:=</ins>K+1;</td></tr>
 <tr><td class="n q">261</td><td class="c q">      I=&gt;GO TO L44;</td><td class="n q">252</td><td class="c q">      I=&gt;GO TO L44;</td></tr>
 <tr><td class="n q">262</td><td class="c q"> A);</td><td class="n q">253</td><td class="c q"> A);</td></tr>
 <tr><td class="n q">263</td><td class="c q">SUBR VALU(N,S) IS (</td><td class="n q">254</td><td class="c q">SUBR VALU(N,S) IS (</td></tr>
-<tr><td class="n d">264</td><td class="c d"> K<del>_</del>FREE(S); <del>K_K RS 18;</del></td><td class="n a">255</td><td class="c a"> K<ins>:=HL(</ins>FREE(S)<ins>)</ins>;</td></tr>
+<tr><td class="n d">264</td><td class="c d"> K<del>_</del>FREE(S); <del>K_K RS 18;</del></td><td class="n a">255</td><td class="c a"> K<ins>:=HLEFT(</ins>FREE(S)<ins>)</ins>;</td></tr>
 <tr><td class="n d">265</td><td class="c d"> JJ<del>_</del>J<del>_</del>DPROP('SEM',K);</td><td class="n a">256</td><td class="c a"> JJ<ins>:=</ins>J<ins>:=</ins>DPROP('SEM',K);</td></tr>
 <tr><td class="n d">266</td><td class="c d"> JJ=0=&gt;(J<del>_</del>SEMK+2; DPROPS('SEM',K,J));</td><td class="n a">257</td><td class="c a"> JJ=0=&gt;(J<ins>:=</ins>SEMK+2; DPROPS('SEM',K,J));</td></tr>
-<tr><td class="n d">267</td><td class="c d"> K<del>_</del>FREE(N)<del>; K_K RS 18</del>;</td><td class="n a">258</td><td class="c a"> K<ins>:=HL(</ins>FREE(N)<ins>)</ins>;</td></tr>
+<tr><td class="n d">267</td><td class="c d"> K<del>_</del>FREE(N)<del>; K_K RS 18</del>;</td><td class="n a">258</td><td class="c a"> K<ins>:=HLEFT(</ins>FREE(N)<ins>)</ins>;</td></tr>
 <tr><td class="n q">268</td><td class="c q"> CONVC(K)=0=&gt;ERROR(1,'VALUE NOT A CONSTANT **');</td><td class="n q">259</td><td class="c q"> CONVC(K)=0=&gt;ERROR(1,'VALUE NOT A CONSTANT **');</td></tr>
 <tr><td class="n d">269</td><td class="c d"> SETSEM(12B,<del>7777777777B</del> AND J OR CONST LS <del>18</del>); <del>CONST IS COMMON;</del></td><td class="n a">260</td><td class="c a"> SETSEM(12B,<ins>SVMASK</ins> AND <ins>(</ins>J OR <ins>(</ins>CONST LS <ins>32</ins>)<ins>))</ins>;</td></tr>
 <tr><td class="n d">270</td><td class="c d"> JJ=0=&gt;SETSEM(0,NNA LS <del>18</del>);</td><td class="n a">261</td><td class="c a"> JJ=0=&gt;SETSEM(0,NNA LS <ins>32</ins>)<ins>;</ins></td></tr>

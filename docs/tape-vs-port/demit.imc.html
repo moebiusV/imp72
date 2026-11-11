@@ -48,7 +48,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"><ins>SUBR ICN(V) IS IXICON(V,TLONG);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a"><ins>SUBR ASG(L,R) IS IXSTMT(IXASSIGN(L,R));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a"><ins># THE OFFSET FIELD OF AN ENTRY'S WORD 1: 18 BITS, SIGNED #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"><ins>SUBR OFFSET(W) IS ((HR(W) XOR 20000000000B) - 20000000000B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"><ins>SUBR OFFSET(W) IS ((HRIGHT(W) XOR 20000000000B) - 20000000000B);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"><ins>SUBR TAGLABEL(D) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"> <ins>I,L ARE LOCAL;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a"> <ins>NTAGS&gt;0 =&gt; ((FREE(TAGS+I)=D =&gt; RETURN FREE((TAGS+I)+1)) FOR I IN 0,2,NTAGS-2);</ins></td></tr>
@@ -78,10 +78,10 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a">  <ins>VARIABLE (V[I] IS AT &amp;V+8*I); A WORD WITH NO VARIABLE IS A POINTER IN THE REGISTER, PLUS THE OFFSET IN WORDS, OR AN ABSOLUTE ADDRESS #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">65</td><td class="c a"><ins>SUBR EADDR(V0,V1) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"> <ins>D,R,O,E,X1,X2,X3 ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"> <ins>D:=HL(V0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"> <ins>D:=HLEFT(V0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>(V0 AND 77B)=4 =&gt; (D=0 =&gt; ERROR(1,'THE ADDRESS OF A COMPUTED CONSTANT.');       # A NAMED CONSTANT: THE ADDRESS OF ITS WORD #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">69</td><td class="c a">                    <ins>RETURN SYMADDR(D,0));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">70</td><td class="c a"> <ins>R:=3777B AND HL(V1); O:=OFFSET(V1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">70</td><td class="c a"> <ins>R:=3777B AND HLEFT(V1); O:=OFFSET(V1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a"> <ins>D NE 0 =&gt; (E:=SYMADDR(D,O);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a">            <ins>R NE 0 =&gt; (X1:=RV(R); X2:=IXICON(3,TINT); X3:=IXBIN(IRLS,TLONG,X1,X2);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a">                       <ins>E:=IXBIN(IRPLUS,TPLONG,E,X3)))</ins></td></tr>
@@ -92,12 +92,12 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a"><ins># THE VALUE OF THE OPERAND (V0,V1) #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"><ins>SUBR VEXPR(V0,V1) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"> <ins>K,D,R,O,X1,X2 ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>K:=V0 AND 77B; D:=HL(V0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a"> <ins>K=2 =&gt; RETURN RV(3777B AND HL(V1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>K:=V0 AND 77B; D:=HLEFT(V0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a"> <ins>K=2 =&gt; RETURN RV(3777B AND HLEFT(V1));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a"> <ins>K=4 =&gt; (D NE 0 =&gt; (IRKIND(D)=1 =&gt; RETURN IXICON(IRSTRVAL(D),TLONG));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a">         <ins>RETURN ICN(V1));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"> <ins>D NE 0 =&gt; K=10B =&gt; (BDFIND(D)) GE 0 =&gt; RETURN BPVALUE(BDFIND(D));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a"> <ins>R:=3777B AND HL(V1); O:=OFFSET(V1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a"> <ins>R:=3777B AND HLEFT(V1); O:=OFFSET(V1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a"> <ins>D NE 0 =&gt; R=0 =&gt; V1 GE 0 =&gt; IRKIND(D)=0 =&gt; (USEVAR(D);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">89</td><td class="c a">                                                  <ins>RETURN IXNAME(IRSYMNAME(D),8*O,TLONG));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"> <ins>IXDEREF(EADDR(V0,V1),TLONG));</ins></td></tr>
@@ -228,7 +228,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">222</td><td class="c a">  <ins>LLVM IR DEFINE THE FUNCTION AT THE FIRST USE OF THE SYMBOL (IT IS INTERNAL TO THE MODULE) AND DECLARE THE SUBR NAME IF THE MODULE DOES NOT DEFINE IT #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">223</td><td class="c a"><ins>SUBR ECBADDR(RD,V0) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">224</td><td class="c a"> <ins>D,H,K,NP,Q,X1 ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">225</td><td class="c a"> <ins>D:=HL(V0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">225</td><td class="c a"> <ins>D:=HLEFT(V0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">226</td><td class="c a"> <ins>H:=CPHEAD(D);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">227</td><td class="c a"> <ins>NP:=(H RS 4) AND 31;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">228</td><td class="c a"> <ins>Q:=BYTEP CSIG&lt;7,36&gt;;</ins></td></tr>
@@ -292,7 +292,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">292</td><td class="c a"> <ins>TL1: I&lt;NRL =&gt; (RR:=FREE(RLIST+I);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">293</td><td class="c a">                <ins>RKIND(RR)=KTAG =&gt; (I:=I+1; GO TO TL1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">294</td><td class="c a">                <ins>RKIND(RR)=KOP =&gt; ROP(RR)=OJUMP =&gt; ISTABJ(RV0(RR),RV1(RR))=0 =&gt; (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">295</td><td class="c a">                    <ins>K=O =&gt; RETURN TAGLABEL(HL(RV0(RR)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">295</td><td class="c a">                    <ins>K=O =&gt; RETURN TAGLABEL(HLEFT(RV0(RR)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">296</td><td class="c a">                    <ins>K:=K+1; I:=I+1; GO TO TL1));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">297</td><td class="c a"> <ins>L:=IXNEWLABEL(0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">298</td><td class="c a"> <ins>FADD(TBLE,NTBLE,I); FADD(TBLE,NTBLE,L);</ins></td></tr>
@@ -300,7 +300,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">301</td><td class="c a"><ins># GO TO GO[B] (A COMPUTED GO TO): THE INDEX IS THE REGISTER PLUS THE OFFSET.  A COMPARISON FOR EACH JUMP OF THE TABLE #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">302</td><td class="c a"><ins>SUBR ETABJUMP(V0,V1) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">303</td><td class="c a"> <ins>D,R,O,I,J,K,T,E,RR,L ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">304</td><td class="c a"> <ins>D:=HL(V0); R:=3777B AND HL(V1); O:=OFFSET(V1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">304</td><td class="c a"> <ins>D:=HLEFT(V0); R:=3777B AND HLEFT(V1); O:=OFFSET(V1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">305</td><td class="c a"> <ins>J:=TABFIND(D);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">306</td><td class="c a"> <ins>J&lt;0 =&gt; RETURN ERROR(1,'COMPUTED GO TO WITHOUT ITS TABLE.');</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">307</td><td class="c a"> <ins>R=0 =&gt; RETURN IXGOTO(TABLABEL(D,O));</ins></td></tr>
@@ -311,7 +311,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">312</td><td class="c a"> <ins>TJ1: I&lt;NRL =&gt; (RR:=FREE(RLIST+I);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">313</td><td class="c a">                <ins>RKIND(RR)=KTAG =&gt; (I:=I+1; GO TO TJ1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">314</td><td class="c a">                <ins>RKIND(RR)=KOP =&gt; ROP(RR)=OJUMP =&gt; ISTABJ(RV0(RR),RV1(RR))=0 =&gt; (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">315</td><td class="c a">                    <ins>IXCBRANCH(IREQ,IXTEMP(T,TLONG),ICN(K),TAGLABEL(HL(RV0(RR))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">315</td><td class="c a">                    <ins>IXCBRANCH(IREQ,IXTEMP(T,TLONG),ICN(K),TAGLABEL(HLEFT(RV0(RR))));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">316</td><td class="c a">                    <ins>K:=K+1; I:=I+1; GO TO TJ1));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">317</td><td class="c a"> <ins>L:=IXNEWLABEL(0);                       # AN INDEX OUT OF THE TABLE GOES ON AFTER IT #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">318</td><td class="c a"> <ins>FADD(TBLE,NTBLE,I); FADD(TBLE,NTBLE,L);</ins></td></tr>
@@ -423,7 +423,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">444</td><td class="c a"><ins>SUBR ELDB(RD,V0,V1,STEP) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">445</td><td class="c a"> <ins>J,W,P,M,PT,X1,A0,A1 ARE LOCAL;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">446</td><td class="c a"> <ins>J:=-1;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">447</td><td class="c a"> <ins>(V0 AND 77B)=10B =&gt; STEP=0 =&gt; (J:=FDFIND(HL(V0)); J GE 0 =&gt; RETURN ELDF(RD,J); J:=BDFIND(HL(V0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">447</td><td class="c a"> <ins>(V0 AND 77B)=10B =&gt; STEP=0 =&gt; (J:=FDFIND(HLEFT(V0)); J GE 0 =&gt; RETURN ELDF(RD,J); J:=BDFIND(HLEFT(V0)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">448</td><td class="c a"> <ins>J GE 0 =&gt; (A0:=FREE((BDESC+J)+1); A1:=FREE((BDESC+J)+2);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">449</td><td class="c a">            <ins>X1:=VEXPR(A0,A1); W:=TMPV(X1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">450</td><td class="c a">            <ins>A0:=FREE((BDESC+J)+5); A1:=FREE((BDESC+J)+6);</ins></td></tr>
@@ -443,7 +443,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">465</td><td class="c a"><ins>SUBR EDPB(RD,V0,V1,STEP) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">466</td><td class="c a"> <ins>J,P,K,M,V,PT,X1,X2,X3,A0,A1,B0,B1 ARE LOCAL;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">467</td><td class="c a"> <ins>J:=-1;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">468</td><td class="c a"> <ins>(V0 AND 77B)=10B =&gt; STEP=0 =&gt; (J:=FDFIND(HL(V0)); J GE 0 =&gt; RETURN EDPF(RD,J); J:=BDFIND(HL(V0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">468</td><td class="c a"> <ins>(V0 AND 77B)=10B =&gt; STEP=0 =&gt; (J:=FDFIND(HLEFT(V0)); J GE 0 =&gt; RETURN EDPF(RD,J); J:=BDFIND(HLEFT(V0)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">469</td><td class="c a"> <ins>J GE 0 =&gt; (A0:=FREE((BDESC+J)+5); A1:=FREE((BDESC+J)+6);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">470</td><td class="c a">            <ins>X1:=VEXPR(A0,A1); P:=TMPV(X1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">471</td><td class="c a">            <ins>A0:=FREE((BDESC+J)+3); A1:=FREE((BDESC+J)+4);</ins></td></tr>
@@ -534,12 +534,12 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">560</td><td class="c a"> <ins>OP=OIDPB =&gt; RETURN EDPB(RD,V0,V1,1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">561</td><td class="c a"> <ins>OP=OFLOAT =&gt; (X1:=VEXPR(V0,V1); X2:=IXUN(IRSCONV,TDOUBLE,X1); X1:=IXFROMDOUBLE(X2); RETURN ASG(RV(RD),X1));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">562</td><td class="c a"> <ins>OP=OFIX =&gt; (X1:=VEXPR(V0,V1); X2:=IXTODOUBLE(X1,0); X1:=IXUN(IRSCONV,TLONG,X2); RETURN ASG(RV(RD),X1));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">563</td><td class="c a"> <ins>OP=OJUMP =&gt; (ISTABJ(V0,V1) NE 0 =&gt; RETURN ETABJUMP(V0,V1); RETURN IXGOTO(TAGLABEL(HL(V0))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">563</td><td class="c a"> <ins>OP=OJUMP =&gt; (ISTABJ(V0,V1) NE 0 =&gt; RETURN ETABJUMP(V0,V1); RETURN IXGOTO(TAGLABEL(HLEFT(V0))));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">564</td><td class="c a"> <ins>OP GE OJEQ =&gt; OP LE OJNE =&gt; RETURN IXCBRANCH(CMPOF(OP),RV(RD),VEXPR(V0,V1),JLABEL(RX(R)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">565</td><td class="c a"> <ins>OP GE 51 =&gt; OP LE 56 =&gt; (X1:=RV(RD); X2:=IXTODOUBLE(X1,0);              # THE JUMPS ON REALS #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">566</td><td class="c a">                           <ins>X1:=VEXPR(V0,V1); X3:=IXTODOUBLE(X1,1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">567</td><td class="c a">                           <ins>RETURN IXCBRANCH(CMPOF(OP),X2,X3,JLABEL(RX(R))));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">568</td><td class="c a"> <ins>OP=OCALLB =&gt; (CALLFN:=HL(V0); NARGS:=0; PLAST:=0; CALLMODE:=IRFNKIND(CALLFN); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">568</td><td class="c a"> <ins>OP=OCALLB =&gt; (CALLFN:=HLEFT(V0); NARGS:=0; PLAST:=0; CALLMODE:=IRFNKIND(CALLFN); RETURN 0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">569</td><td class="c a"> <ins>OP=OARG =&gt; (NARGS&lt;16 =&gt; (ARGS[NARGS]:=EADDR(V0,V1); ATYS[NARGS]:=RX(R); NARGS:=NARGS+1); RETURN 0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">570</td><td class="c a"> <ins>OP=OCALLE =&gt; RETURN ECALL(RD);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">571</td><td class="c a"> <ins>OP=OCALLI =&gt; RETURN ECALLI(RD,V0,V1);</ins></td></tr>
@@ -565,7 +565,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">594</td><td class="c a"> <ins>OP ARE LOCAL;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">595</td><td class="c a"> <ins>RKIND(R) NE KOP =&gt; RETURN 0;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">596</td><td class="c a"> <ins>OP:=ROP(R);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">597</td><td class="c a"> <ins>OP=OJUMP =&gt; (ISTABJ(RV0(R),RV1(R)) NE 0 =&gt; RETURN 0; RETURN HL(RV0(R)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">597</td><td class="c a"> <ins>OP=OJUMP =&gt; (ISTABJ(RV0(R),RV1(R)) NE 0 =&gt; RETURN 0; RETURN HLEFT(RV0(R)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">598</td><td class="c a"> <ins>OP GE OJEQ =&gt; OP LE OJNE =&gt; (JOFF(RX(R)) NE 0 =&gt; RETURN 0; RETURN JTAG(RX(R)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">599</td><td class="c a"> <ins>OP GE 51 =&gt; OP LE 56 =&gt; (JOFF(RX(R)) NE 0 =&gt; RETURN 0; RETURN JTAG(RX(R)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">600</td><td class="c a"> <ins>0);</ins></td></tr>
@@ -602,9 +602,9 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">635</td><td class="c a"><ins>SUBR EDATW(R) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">636</td><td class="c a"> <ins>D ARE LOCAL;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">637</td><td class="c a"> <ins>RV0(R)=0 =&gt; (FADD(DDW,NDDW,0); FADD(DDW,NDDW,RV1(R)); RETURN 0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">638</td><td class="c a"> <ins>D:=HL(RV0(R));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">638</td><td class="c a"> <ins>D:=HLEFT(RV0(R));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">639</td><td class="c a"> <ins>D=0 =&gt; (ERROR(1,'NON-CONSTANT EXPRESSION IN DATA STATEMENT.'); RETURN 0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">640</td><td class="c a"> <ins>(3777B AND HL(RV1(R))) NE 0 =&gt; (ERROR(1,'NON-CONSTANT EXPRESSION IN DATA STATEMENT.'); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">640</td><td class="c a"> <ins>(3777B AND HLEFT(RV1(R))) NE 0 =&gt; (ERROR(1,'NON-CONSTANT EXPRESSION IN DATA STATEMENT.'); RETURN 0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">641</td><td class="c a"> <ins>IRKIND(D)=0 =&gt; USEVAR(D) ELSE POOLOF(D);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">642</td><td class="c a"> <ins>FADD(DDW,NDDW,D); FADD(DDW,NDDW,8*OFFSET(RV1(R)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">643</td><td class="c a"> <ins>0);</ins></td></tr>
@@ -641,13 +641,13 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">678</td><td class="c a"> <ins>I,R,X ARE LOCAL;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">679</td><td class="c a"> <ins>(R:=FREE(B+I);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">680</td><td class="c a">  <ins>RKIND(R)=KOP =&gt; (X:=RRD(R); X GE 33 =&gt; X LE 48 =&gt; RV(X);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">681</td><td class="c a">                   <ins>(RV0(R) AND 77B) NE 4 =&gt; (X:=3777B AND HL(RV1(R)); X GE 33 =&gt; X LE 48 =&gt; RV(X)))) FOR I IN I0,1,I1-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">681</td><td class="c a">                   <ins>(RV0(R) AND 77B) NE 4 =&gt; (X:=3777B AND HLEFT(RV1(R)); X GE 33 =&gt; X LE 48 =&gt; RV(X)))) FOR I IN I0,1,I1-1;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">682</td><td class="c a"> <ins>0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">684</td><td class="c a"><ins># A FUNCTION: THE RECORDS RLIST[I0] TO RLIST[I1-1]; THE MAIN PROGRAM (ISMAIN) OR A SUBROUTINE, WHICH BEGINS WITH THE ENTRY RECORD AND ITS PARAMETERS #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">685</td><td class="c a"><ins>SUBR EFUNC(I0,I1,ISMAIN) IS (</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">686</td><td class="c a"> <ins>I,R,K,J,NM,NN ARE LOCAL;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">687</td><td class="c a"> <ins>ISMAIN NE 0 =&gt; NM:=LOC('impmain')</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">688</td><td class="c a">  <ins>ELSE (NM:=IRSYMNAME(HL(RV0(FREE(RLIST+I0)))); FADD(FNAMES,NFN,HL(RV0(FREE(RLIST+I0)))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">688</td><td class="c a">  <ins>ELSE (NM:=IRSYMNAME(HLEFT(RV0(FREE(RLIST+I0)))); FADD(FNAMES,NFN,HLEFT(RV0(FREE(RLIST+I0)))));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">689</td><td class="c a"> <ins>IXFUNCBEGIN(NM,1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">690</td><td class="c a"> <ins>(FREES(RTMP+J,0)) FOR J IN 0,1,FLEN(RTMP)-1;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">691</td><td class="c a"> <ins>NTAGS:=0;</ins></td></tr>
@@ -661,7 +661,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">699</td><td class="c a"> <ins>IXLABEL(IXNEWLABEL(0));            # THE FIRST BACK END'S OPTIMIZER WANTED A LABEL BETWEEN THE ARGUMENT MOVES AND THE CODE (DELJUMPS: PROLOG, LABEL, MOVES, LABEL, CODE) #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">700</td><td class="c a"> <ins>EXPORTTAGS(I0,I1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">701</td><td class="c a"> <ins>EBODY(RLIST,I0,I1,0,0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">702</td><td class="c a"> <ins>ISMAIN NE 0 =&gt; NN:=0 ELSE NN:=HL(RV0(FREE(RLIST+I0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">702</td><td class="c a"> <ins>ISMAIN NE 0 =&gt; NN:=0 ELSE NN:=HLEFT(RV0(FREE(RLIST+I0)));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">703</td><td class="c a"> <ins>EBODY(RLIST2,0,NRL2,1,NN);                    # THE REMOTE CODE OF THIS ROUTINE (REMOT) #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">704</td><td class="c a"> <ins>ECHKTAGS(I0,I1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">705</td><td class="c a"> <ins>IXFUNCEND(RETLAB,RETTMP);</ins></td></tr>
@@ -679,7 +679,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">718</td><td class="c a">  <ins>NFN&gt;0 =&gt; ((FREE(FNAMES+J)=D =&gt; Q:=1) FOR J IN 0,1,NFN-1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">719</td><td class="c a">  <ins>DPROP('COM',D)=3 =&gt; Q:=1;                       # EXTERNAL: DEFINED ELSEWHERE #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">720</td><td class="c a">  <ins>Q=0 =&gt; (SZ:=8;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">721</td><td class="c a">          <ins>NARR&gt;0 =&gt; ((W:=FREE(ARR+J); HR(W)=D =&gt; SZ:=8*HL(W)) FOR J IN 0,1,NARR-1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">721</td><td class="c a">          <ins>NARR&gt;0 =&gt; ((W:=FREE(ARR+J); HRIGHT(W)=D =&gt; SZ:=8*HLEFT(W)) FOR J IN 0,1,NARR-1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">722</td><td class="c a">          <ins>DPROP('COM',D)=0 =&gt; IXPASS(LOC(' .local %s'),IRSYMNAME(D),0,0,0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">723</td><td class="c a">          <ins>IXPASS(LOC(' .comm %s,%ld,8'),IRSYMNAME(D),SZ,0,0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">724</td><td class="c a">          <ins>IRVARREC(IRSYMNAME(D),SZ))) FOR I IN 0,1,NUSED-1;</ins></td></tr>
@@ -705,10 +705,10 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">745</td><td class="c a">             <ins>FRELOT(FNAMES,'FNAMS',20,0); FRELOT(RLIST,'RLIST',100,0); FRELOT(RLIST2,'RLIS2',20,0); FRELOT(XTAGS,'XTAGS',20,0); FRELOT(DDL,'DDL',20,0); FRELOT(DDW,'DDW',20,0); FRELOT(TBLE,'TBLE',20,0));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">746</td><td class="c a"> <ins>NRL:=0; NXT:=0; NTAGS:=0; NUSED:=0; NPOOL:=0; NFN:=0; NDDL:=0; NDDW:=0; NTBLE:=0;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">747</td><td class="c a"> <ins>USEDFS:=0; CWUSED:=0;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">748</td><td class="c a"> <ins>R:=HL(FREE(A+2));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">748</td><td class="c a"> <ins>R:=HLEFT(FREE(A+2));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">749</td><td class="c a"> <ins>EM1: R NE 0 =&gt; (FADD(RLIST,NRL,R); R:=RNEXT(R); GO TO EM1);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">750</td><td class="c a"> <ins>NRL2:=0;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">751</td><td class="c a"> <ins>REMO NE 0 =&gt; (R:=HL(FREE(REMO+2));                    # THE REMOTE CODE: THE ORIGINAL PUTS IT IN THE HIGH SEGMENT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">751</td><td class="c a"> <ins>REMO NE 0 =&gt; (R:=HLEFT(FREE(REMO+2));                    # THE REMOTE CODE: THE ORIGINAL PUTS IT IN THE HIGH SEGMENT #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">752</td><td class="c a">               <ins>EM3: R NE 0 =&gt; (FADD(RLIST2,NRL2,R); R:=RNEXT(R); GO TO EM3);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">753</td><td class="c a">               <ins>FREES(REMO+2,0));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">754</td><td class="c a"> <ins>MAINEND:=NRL;</ins></td></tr>

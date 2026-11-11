@@ -2,7 +2,7 @@
   CODES OF THE IR OPERATORS AND TYPES THAT STAGE0/IR.H HAS, AS MACROS FOR THE MODULES OF SRC/IR. #
 
  <ATOM> ::= RECW ::= "5";                                   # WORDS IN A RECORD #
- <ATOM> ::= RNEXT(<A>) ::= "HL(FREE(CO+(A)))";              # THE NEXT RECORD OF THE CHAIN #
+ <ATOM> ::= RNEXT(<A>) ::= "HLEFT(FREE(CO+(A)))";              # THE NEXT RECORD OF THE CHAIN #
  <ATOM> ::= RKIND(<A>) ::= "(FREE(CO+(A)) AND 377B)";
  <ATOM> ::= ROP(<A>)   ::= "((FREE(CO+(A)) RS 8) AND 377B)";
  <ATOM> ::= RRD(<A>)   ::= "FREE(CO+(A)+1)";                # THE ACCUMULATOR (A REGISTER INDEX) #

@@ -167,8 +167,8 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">146</td><td class="c q"> NPRODS);</td><td class="n q">104</td><td class="c q"> NPRODS);</td></tr>
 <tr><td class="n d">148</td><td class="c d"><del>SUBR GORGFIX()</del> IS <del>(GORG,GORG1,GBYPTY,GBYPNB</del> ARE <del>COMMON,1 LONG;</del></td><td class="n a">106</td><td class="c a"><ins># GPRINT: THE DUMP OF THE GRAPH.  THE ORIGINAL TESTS WHETHER GPRIN1</ins> IS <ins>LOADED AND PASSES THE TABLES; THEY</ins> ARE <ins>SHARED HERE (SRC/SHARED.TXT). #</ins></td></tr>
 <tr><td class="n d">149</td><td class="c d">                   <del>GORG_GA; GORG1_GORG+1;</del></td><td class="n a">107</td><td class="c a">SUBR GPRINT() IS GPRIN1(0);</td></tr>
-<tr><td class="n d">150</td><td class="c d">                   <del>GBYPTY_BYTEP [GORG1]&lt;3,33&gt;;</del></td><td class="n a">109</td><td class="c a">SUBR SETSCR(SV,VV) IS (SQ<ins>:=</ins>ALT(SV); FREES(GA+SV,VV OR SQ LS <ins>HSH</ins>));</td></tr>
-<tr><td class="n d">151</td><td class="c d">                   <del>GBYPNB_BYTEP [GORG1]&lt;15,18&gt;);</del></td><td class="n a">110</td><td class="c a">SUBR SETALT(SV,VV) IS (SQ<ins>:=</ins>SCR(SV); FREES(GA+SV,SQ OR VV LS <ins>HSH</ins>));</td></tr>
+<tr><td class="n d">150</td><td class="c d">                   <del>GBYPTY_BYTEP [GORG1]&lt;3,33&gt;;</del></td><td class="n a">109</td><td class="c a">SUBR SETSCR(SV,VV) IS (SQ<ins>:=</ins>ALT(SV); FREES(GA+SV,VV OR SQ LS <ins>HSHIFT</ins>));</td></tr>
+<tr><td class="n d">151</td><td class="c d">                   <del>GBYPNB_BYTEP [GORG1]&lt;15,18&gt;);</del></td><td class="n a">110</td><td class="c a">SUBR SETALT(SV,VV) IS (SQ<ins>:=</ins>SCR(SV); FREES(GA+SV,SQ OR VV LS <ins>HSHIFT</ins>));</td></tr>
 <tr><td class="n d">153</td><td class="c d">SUBR GPRINT() IS <del>(</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">154</td><td class="c d"> <del>LOC(</del>GPRIN1<del>) =&gt; J_GPRIN1</del>(<del>NPRODS,GA,NS,NG,NODES,BITM,NTGENT,NBITM,NBITN)</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">155</td><td class="c d">          <del>ELSE  (GPR0CNT=</del>0<del>=&gt;(GPR0CNT_1; J_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
@@ -190,7 +190,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">177</td><td class="c q">SUBR GNT2T(NT,NI,GL,NO) IS (</td><td class="n q">126</td><td class="c q">SUBR GNT2T(NT,NI,GL,NO) IS (</td></tr>
 <tr><td class="n d">178</td><td class="c d"> L7: NI=0=&gt;(NO<del>_</del>0; GO TO G2X);</td><td class="n a">127</td><td class="c a"> L7: NI=0=&gt;(NO<ins>:=</ins>0; GO TO G2X);</td></tr>
 <tr><td class="n d">179</td><td class="c d"> J<del>_</del>FREE(<del>NODES</del>+NI); NO<del>_</del>J AND <del>777777B</del>;</td><td class="n a">128</td><td class="c a"> J<ins>:=</ins>FREE(<ins>GRNODES</ins>+NI); NO<ins>:=</ins>J AND <ins>HMASK</ins>;</td></tr>
-<tr><td class="n d">180</td><td class="c d"> NI<del>_</del>J RS <del>18</del>;</td><td class="n a">129</td><td class="c a"> NI<ins>:=</ins>J RS <ins>HSH</ins>;</td></tr>
+<tr><td class="n d">180</td><td class="c d"> NI<del>_</del>J RS <del>18</del>;</td><td class="n a">129</td><td class="c a"> NI<ins>:=</ins>J RS <ins>HSHIFT</ins>;</td></tr>
 <tr><td class="n d">181</td><td class="c d"> BIT(<del>BITM</del>,1+NO/NS,GL)=0=&gt;GO TO L7;</td><td class="n a">130</td><td class="c a"> BIT(<ins>GRBITM</ins>,1+NO/NS,GL)=0=&gt;GO TO L7;</td></tr>
 <tr><td class="n q">182</td><td class="c q"> GLEAP(NT,NO)=0=&gt;GO TO L7;</td><td class="n q">131</td><td class="c q"> GLEAP(NT,NO)=0=&gt;GO TO L7;</td></tr>
 <tr><td class="n q">183</td><td class="c q"> G2X: NO);</td><td class="n q">132</td><td class="c q"> G2X: NO);</td></tr>
@@ -200,7 +200,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">187</td><td class="c q"> GNT2T(NT,NI,GL,NO); GO TO GNTX;</td><td class="n q">137</td><td class="c q"> GNT2T(NT,NI,GL,NO); GO TO GNTX;</td></tr>
 <tr><td class="n d">188</td><td class="c d">                  GNT1: NI=0 =&gt; (NO<del>_</del>0; GO TO GNTX);</td><td class="n a">138</td><td class="c a">                  GNT1: NI=0 =&gt; (NO<ins>:=</ins>0; GO TO GNTX);</td></tr>
 <tr><td class="n d">189</td><td class="c d">                  J<del>_</del>FREE(<del>NODES</del>+NI);</td><td class="n a">139</td><td class="c a">                  J<ins>:=</ins>FREE(<ins>GRNODES</ins>+NI);</td></tr>
-<tr><td class="n d">190</td><td class="c d">                  NO<del>_</del>J AND <del>777777B</del>; NI<del>_</del>J RS <del>18</del>;</td><td class="n a">140</td><td class="c a">                  NO<ins>:=</ins>J AND <ins>HMASK</ins>; NI<ins>:=</ins>J RS <ins>HSH</ins>;</td></tr>
+<tr><td class="n d">190</td><td class="c d">                  NO<del>_</del>J AND <del>777777B</del>; NI<del>_</del>J RS <del>18</del>;</td><td class="n a">140</td><td class="c a">                  NO<ins>:=</ins>J AND <ins>HMASK</ins>; NI<ins>:=</ins>J RS <ins>HSHIFT</ins>;</td></tr>
 <tr><td class="n d">191</td><td class="c d">                  (MSK1 AND FREE(<del>(BITM</del>+NO RS 1)+1))=0 =&gt; GO TO GNT1;</td><td class="n a">141</td><td class="c a">                  (MSK1 AND FREE(<ins>GRBITM</ins>+<ins>(</ins>NO RS 1)+1))=0 =&gt; GO TO GNT1;</td></tr>
 <tr><td class="n d">192</td><td class="c d">                  (MSK2 AND FREE(<del>NBITM</del>+GNB(NO)))=0 =&gt; GO TO GNT1;</td><td class="n a">142</td><td class="c a">                  (MSK2 AND FREE(<ins>GRNBITM</ins>+GNB(NO)))=0 =&gt; GO TO GNT1;</td></tr>
 <tr><td class="n q">193</td><td class="c q"> GNTX: NO);</td><td class="n q">143</td><td class="c q"> GNTX: NO);</td></tr>
@@ -220,7 +220,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">210</td><td class="c d"> TY<del>_</del>TYP;</td><td class="n a">160</td><td class="c a"> TY<ins>:=</ins>TYP;</td></tr>
 <tr><td class="n d">211</td><td class="c d"> (TY AND 5)=4=&gt;(NR<del>_</del>DNAME(ID,0); TY<del>_</del>TY AND 3;</td><td class="n a">161</td><td class="c a"> (TY AND 5)=4=&gt;(NR<ins>:=</ins>DNAME(ID,0); TY<ins>:=</ins>TY AND 3;</td></tr>
 <tr><td class="n d">212</td><td class="c d">                (NR <del>AND 774000000000B</del>) NE <del>'#'</del> =&gt; TY<del>_</del>1);</td><td class="n a">162</td><td class="c a">                <ins>CHR0</ins>(NR) NE <ins>43B</ins> =&gt; TY<ins>:=</ins>1);</td></tr>
-<tr><td class="n d">213</td><td class="c d"> PTRS<del>_</del>RTS OR DS LS <del>18</del>;</td><td class="n a">163</td><td class="c a"> PTRS<ins>:=</ins>RTS OR DS LS <ins>HSH</ins>;</td></tr>
+<tr><td class="n d">213</td><td class="c d"> PTRS<del>_</del>RTS OR DS LS <del>18</del>;</td><td class="n a">163</td><td class="c a"> PTRS<ins>:=</ins>RTS OR DS LS <ins>HSHIFT</ins>;</td></tr>
 <tr><td class="n q">214</td><td class="c q"> (TY AND 1)=0=&gt;(#WE HAVE NONTERMINAL - CHECK IT HAS CIRCLED NODE #</td><td class="n q">164</td><td class="c q"> (TY AND 1)=0=&gt;(#WE HAVE NONTERMINAL - CHECK IT HAS CIRCLED NODE #</td></tr>
 <tr><td class="n d">215</td><td class="c d">                N1<del>_</del>DPROP('ENTRY',ID);</td><td class="n a">165</td><td class="c a">                N1<ins>:=</ins>DPROP('ENTRY',ID);</td></tr>
 <tr><td class="n d">216</td><td class="c d">                N1=0=&gt;(DPROPS('NODE',ID,<del>NTGENT</del>);</td><td class="n a">166</td><td class="c a">                N1=0=&gt;(DPROPS('NODE',ID,<ins>GRNTGENT</ins>);</td></tr>
@@ -234,7 +234,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">224</td><td class="c d"> N1<del>_</del>MAKENO(PTRS,TY,0,ID);</td><td class="n a">174</td><td class="c a"> N1<ins>:=</ins>MAKENO(PTRS,TY,0,ID);</td></tr>
 <tr><td class="n q">225</td><td class="c q"> NEWEX: N1);</td><td class="n q">175</td><td class="c q"> NEWEX: N1);</td></tr>
 <tr><td class="n q">227</td><td class="c q">SUBR MAKENO(MW1,MTY,MNO,MID) IS (</td><td class="n q">177</td><td class="c q">SUBR MAKENO(MW1,MTY,MNO,MID) IS (</td></tr>
-<tr><td class="n d">228</td><td class="c d"> MW2<del>_</del>MID OR (MTY LS <del>33</del>) OR (MNO LS <del>18</del>);</td><td class="n a">178</td><td class="c a"> MW2<ins>:=</ins>MID OR (MTY LS <ins>GTSH</ins>) OR (MNO LS <ins>HSH</ins>);</td></tr>
+<tr><td class="n d">228</td><td class="c d"> MW2<del>_</del>MID OR (MTY LS <del>33</del>) OR (MNO LS <del>18</del>);</td><td class="n a">178</td><td class="c a"> MW2<ins>:=</ins>MID OR (MTY LS <ins>GTSH</ins>) OR (MNO LS <ins>HSHIFT</ins>);</td></tr>
 <tr><td class="n d">229</td><td class="c d"> MG<del>_</del>NG; FADD(GA,NG,MW1); FADD(GA,NG,MW2);</td><td class="n a">179</td><td class="c a"> MG<ins>:=</ins>NG; FADD(GA,NG,MW1); FADD(GA,NG,MW2);</td></tr>
 <tr><td class="n d">230</td><td class="c d"> MTY NE 2=&gt;GMARK(MG) ELSE BITS(<del>BITM</del>,1+MG/NS,DPROP('NODE',MID));</td><td class="n a">180</td><td class="c a"> MTY NE 2=&gt;GMARK(MG) ELSE BITS(<ins>GRBITM</ins>,1+MG/NS,DPROP('NODE',MID));</td></tr>
 <tr><td class="n q">231</td><td class="c q"> MG);</td><td class="n q">181</td><td class="c q"> MG);</td></tr>
@@ -253,7 +253,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">246</td><td class="c d">  J<del>_</del>FREE(GA+NN+1); (J RS <del>33</del>) NE 2 =&gt;GO TO M2;</td><td class="n a">196</td><td class="c a">  J<ins>:=</ins>FREE(GA+NN+1); (<ins>(</ins>J RS <ins>GTSH) AND 7</ins>) NE 2 =&gt;GO TO M2;</td></tr>
 <tr><td class="n q">247</td><td class="c q">  PUSHMI(-1);</td><td class="n q">197</td><td class="c q">  PUSHMI(-1);</td></tr>
 <tr><td class="n d">248</td><td class="c d">  COL<del>_</del>DPROP('NODE',J AND <del>777777B</del>);</td><td class="n a">198</td><td class="c a">  COL<ins>:=</ins>DPROP('NODE',J AND <ins>HMASK</ins>);</td></tr>
-<tr><td class="n d">249</td><td class="c d">  ROW<del>_77777B AND</del> J RS <del>18</del>;</td><td class="n a">199</td><td class="c a">  ROW<ins>:=(</ins>J RS <ins>HSH) AND NBMASK</ins>;</td></tr>
+<tr><td class="n d">249</td><td class="c d">  ROW<del>_77777B AND</del> J RS <del>18</del>;</td><td class="n a">199</td><td class="c a">  ROW<ins>:=(</ins>J RS <ins>HSHIFT) AND NBMASK</ins>;</td></tr>
 <tr><td class="n d">250</td><td class="c d">  BITS(<del>NBITM</del>,ROW,COL);</td><td class="n a">200</td><td class="c a">  BITS(<ins>GRNBITM</ins>,ROW,COL);</td></tr>
 <tr><td class="n d">251</td><td class="c d">  BITS(<del>BITM</del>,1+NN/NS,COL);</td><td class="n a">201</td><td class="c a">  BITS(<ins>GRBITM</ins>,1+NN/NS,COL);</td></tr>
 <tr><td class="n d">252</td><td class="c d">  NO<del>_</del>SCR(NN);</td><td class="n a">202</td><td class="c a">  NO<ins>:=</ins>SCR(NN);</td></tr>
@@ -286,14 +286,14 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">281</td><td class="c d"> S<del>_</del>SS<del>_</del>DPROP('NODE',TN);</td><td class="n a">231</td><td class="c a"> S<ins>:=</ins>SS<ins>:=</ins>DPROP('NODE',TN);</td></tr>
 <tr><td class="n d">282</td><td class="c d"> L9: S=&gt;(S<del>_</del>FREE(<del>NODES</del>+S);</td><td class="n a">232</td><td class="c a"> L9: S=&gt;(S<ins>:=</ins>FREE(<ins>GRNODES</ins>+S);</td></tr>
 <tr><td class="n d">283</td><td class="c d">         (S AND <del>777777B</del>)=NNR=&gt;GO TO GRREX;</td><td class="n a">233</td><td class="c a">         (S AND <ins>HMASK</ins>)=NNR=&gt;GO TO GRREX;</td></tr>
-<tr><td class="n d">284</td><td class="c d">         S<del>_</del>S RS <del>18</del>; GO TO L9);</td><td class="n a">234</td><td class="c a">         S<ins>:=</ins>S RS <ins>HSH</ins>; GO TO L9);</td></tr>
+<tr><td class="n d">284</td><td class="c d">         S<del>_</del>S RS <del>18</del>; GO TO L9);</td><td class="n a">234</td><td class="c a">         S<ins>:=</ins>S RS <ins>HSHIFT</ins>; GO TO L9);</td></tr>
 <tr><td class="n q">285</td><td class="c q"> DPROPS('NODE',TN,NNODES);</td><td class="n q">235</td><td class="c q"> DPROPS('NODE',TN,NNODES);</td></tr>
-<tr><td class="n d">286</td><td class="c d"> FADD(<del>NODES</del>,NNODES,NNR OR SS LS <del>18</del>);</td><td class="n a">236</td><td class="c a"> FADD(<ins>GRNODES</ins>,NNODES,NNR OR SS LS <ins>HSH</ins>);</td></tr>
+<tr><td class="n d">286</td><td class="c d"> FADD(<del>NODES</del>,NNODES,NNR OR SS LS <del>18</del>);</td><td class="n a">236</td><td class="c a"> FADD(<ins>GRNODES</ins>,NNODES,NNR OR SS LS <ins>HSHIFT</ins>);</td></tr>
 <tr><td class="n q">287</td><td class="c q"> GRREX: 0);</td><td class="n q">237</td><td class="c q"> GRREX: 0);</td></tr>
 <tr><td class="n q">288</td><td class="c q">SUBR GNT2B(ND) IS (</td><td class="n q">238</td><td class="c q">SUBR GNT2B(ND) IS (</td></tr>
-<tr><td class="n d">289</td><td class="c d"> NDA<del>_</del>FREE(GA+ND+1); NON<del>_77777B AND</del> NDA RS <del>18</del>;</td><td class="n a">239</td><td class="c a"> NDA<ins>:=</ins>FREE(GA+ND+1); NON<ins>:=(</ins>NDA RS <ins>HSH) AND NBMASK</ins>;</td></tr>
+<tr><td class="n d">289</td><td class="c d"> NDA<del>_</del>FREE(GA+ND+1); NON<del>_77777B AND</del> NDA RS <del>18</del>;</td><td class="n a">239</td><td class="c a"> NDA<ins>:=</ins>FREE(GA+ND+1); NON<ins>:=(</ins>NDA RS <ins>HSHIFT) AND NBMASK</ins>;</td></tr>
 <tr><td class="n d">290</td><td class="c d"> NON=0=&gt;(NON<del>_NBITN</del>; <del>NBITN_NBITN</del>+1;</td><td class="n a">240</td><td class="c a"> NON=0=&gt;(NON<ins>:=GRNBITN</ins>; <ins>GRNBITN:=GRNBITN</ins>+1;</td></tr>
-<tr><td class="n d">291</td><td class="c d">         FREES(GA+ND+1,NDA OR NON LS <del>18</del>));</td><td class="n a">241</td><td class="c a">         FREES(GA+ND+1,NDA OR NON LS <ins>HSH</ins>));</td></tr>
+<tr><td class="n d">291</td><td class="c d">         FREES(GA+ND+1,NDA OR NON LS <del>18</del>));</td><td class="n a">241</td><td class="c a">         FREES(GA+ND+1,NDA OR NON LS <ins>HSHIFT</ins>));</td></tr>
 <tr><td class="n d">292</td><td class="c d"> BITS(<del>NBITM</del>,NON,COL));</td><td class="n a">242</td><td class="c a"> BITS(<ins>GRNBITM</ins>,NON,COL));</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">244</td><td class="c a"><ins># GPOUT1 AND GPOUT2: WHERE THE ORIGINAL TESTS A BIT OF A NONTERMINAL NUMBER IN A WORD,</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">245</td><td class="c a">  <ins>THIS DOES NOT FOR A NUMBER OF 64 OR MORE (STAGE0/GRAPH.C DOES THE SAME) #</ins></td></tr>

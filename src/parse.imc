@@ -43,7 +43,7 @@ FINAM IS COMMON; TR:=FINAM[5] AND 100B;
           FRELOT(O,'P/OUT',100,0));
  NO:=1; PN:=OPN:=1; GOTIT:=0;
  GOL:=DIR(GOAL); GOLE:=DPROP('NODE',GOL); J:=GGOAL(GOL);
- FREES(P,2); FREES(P+1,J); FREES(P+2,GOLE OR J LS HSH); NP:=3;
+ FREES(P,2); FREES(P+1,J); FREES(P+2,GOLE OR J LS HSHIFT); NP:=3;
  S IS 3 LONG; S[1]:=DIR('SYM#'); S[2]:=DIR('NAM#');
 
  NEXTS: SYMBOL(S);  PSTS:=PSTS+1;
@@ -93,7 +93,7 @@ FINAM IS COMMON; TR:=FINAM[5] AND 100B;
                 FREES(K,FREE(K)+1);
                 FREES(K+1,J);
                 I=>POUT(K,-S);
-                FADD(PP,NPP,NGOAL OR CNODE LS HSH))) FOR I FROM NAME;
+                FADD(PP,NPP,NGOAL OR CNODE LS HSHIFT))) FOR I FROM NAME;
            GO TO TAKEALT;
 
  NTMADE: NTN:=DPROP('NODE',CVAL);
@@ -115,7 +115,7 @@ FINAM IS COMMON; TR:=FINAM[5] AND 100B;
                               L:=K;
                               FREES(L,FREE(L)-1);
                               NP:=NP-1; LL:=P+NP;
-                              J:=FREE(LL) RS HSH;
+                              J:=FREE(LL) RS HSHIFT;
                               NGOAL:=FREE(LL-1) AND HMASK;
                               J:=GNEXT(SCR(J),NGOAL);
                               FREES(L+1,J);
@@ -149,8 +149,8 @@ FINAM IS COMMON; TR:=FINAM[5] AND 100B;
                NP:=NOP; PN:=OPN; GO TO NEXTS);
 
  #THERE IS JUST 1 PARSE; FEED OUT OUTPUT.#
- (J:=FREE(PP) RS HSH) => (PUSHMI(0);
-                        L5: J => (J:=FREE(O+J); K:=J ARS HSH;
+ (J:=FREE(PP) RS HSHIFT) => (PUSHMI(0);
+                        L5: J => (J:=FREE(O+J); K:=J ARS HSHIFT;
                                   PUSHMI(K);
                                   J:=J AND HMASK; GO TO L5);
                         FINAM[5] AND 243130160B=>(
@@ -190,8 +190,8 @@ SUBR COPY(QQ,NQQ,QQN) IS (
 SUBR POUT(QQ,VV) IS (#PUTS OUTPUT VV ON PARSE CHAIN AT QQ#
  TR=>(PRINT STG 0,'      '; VV<0=>PNAME(-VV) ELSE (PRINT '[',OCT 0,VV,
          STG 0,']'); PRINT STG 0,' ADDED TO OUTPUT.',/);
- Q:=FREE(QQ) RS HSH; FREES(QQ,(FREE(QQ) AND HMASK) OR (NO LS HSH));
- FADD(O,NO,Q OR (VV LS HSH)));
+ Q:=FREE(QQ) RS HSHIFT; FREES(QQ,(FREE(QQ) AND HMASK) OR (NO LS HSHIFT));
+ FADD(O,NO,Q OR (VV LS HSHIFT)));
 
 SUBR PARSEF() IS (
  FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0); PINIT:=0);

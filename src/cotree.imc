@@ -57,7 +57,7 @@ SUBR COTREE(SS) IS (S:=SS;
  NXST: (NC:=NC+3) GE NCS => (MARK:=3; GO TO COTREX);
        IP:=NC;  L13: IP=NCS => (MARK:=3; GO TO COTREX);
        J:=FREE(CS+IP); (J AND 77B) => (IP:=IP+3; GO TO L13);
-       S:=HL(J); GO TO CK;
+       S:=HLEFT(J); GO TO CK;
 
  M3: IP:=NCS-3;
  CK: TRM=>(PRINT STG 0,'PLIES[',OCT 0,S,STG 0,']=',OCT 0,PLIES(S),STG 0,
@@ -74,7 +74,7 @@ SUBR COTREE(SS) IS (S:=SS;
                   J:=0;
                   L20: (IP:=IP+3)<NCS => ((J:=FREE(CS+IP)) AND 77B) => GO TO L20;
                   IP=NCS => (IP:=IP-3; SNONR:=-1) ELSE (
-                        S:=HL(J);
+                        S:=HLEFT(J);
                         (SEMED(S) AND PRIO)=>(IC:=IP; MARK:=2;
                                                     GO TO XNOW);
                         (K:=PLIES(S))>0=>
@@ -88,9 +88,9 @@ SUBR COTREE(SS) IS (S:=SS;
         J=0 => (TRYALT: NODE=>(NODE:=TALT(NODE)) => GO TO M2;
                 POPPIT: NST=>(NST:=NST-1;
                               (77B AND (J:=FREE(CS+IM)))=0=>
-                                (S:=HL(J); SNONR:=SNODEN(S); IP:=IM);
+                                (S:=HLEFT(J); SNONR:=SNODEN(S); IP:=IM);
                               IM:=IM-3;
-                              NODE:=HR(FREE(CST+NST));
+                              NODE:=HRIGHT(FREE(CST+NST));
                               GO TO TRYALT);
                         GO TO NXST);
         J<0 => ((T:=TSCR(NODE)) => (#MARK VAL/ NODE READ AS ORIG PRODN#
