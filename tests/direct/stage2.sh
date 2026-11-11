@@ -24,7 +24,7 @@ run() {         # name files...
 }
 for f in tests/native/*.imp tests/oracle/*.imp; do run $(basename $(dirname $f))_$(basename $f .imp) $f; done
 gen="code code2 code3 demit impsem ix"       # the code generator; the other modules of src are the kernel's and the compiler's own (impsyn, impend-*, irsyn and syntax are syntax)
-for f in $(ls src/*.imc | grep -v 'impsyn\|impend-\|irsyn\|syntax'); do
+for f in $(ls src/*.imc | grep -v -E 'impsyn|impend-|irsyn|syntax'); do
     case " $gen " in *" $(basename $f .imc) "*) continue ;; esac
     run src_$(basename $f .imc) $(sh tools/endian.sh) src/impsyn.imc $f
 done

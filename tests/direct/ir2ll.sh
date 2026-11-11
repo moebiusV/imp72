@@ -22,7 +22,7 @@ for f in tests/native/*.imp tests/oracle/*.imp tests/direct/progs/*.imp; do
     $k -c $out/ir/$(basename $(dirname $f))_$(basename $f .imp).ir $IMPSYNTAX $IMPFFI $f >/dev/null 2>&1
 done
 gen="code code2 code3 demit impsem ix"       # the code generator; the other modules of src are the kernel's and the compiler's own (impsyn, impend-*, irsyn and syntax are syntax)
-for f in $(ls src/*.imc | grep -v 'impsyn\|impend-\|irsyn\|syntax'); do
+for f in $(ls src/*.imc | grep -v -E 'impsyn|impend-|irsyn|syntax'); do
     case " $gen " in *" $(basename $f .imc) "*) continue ;; esac
     IMPMODULE=$(basename $f .imc) $k -c $out/ir/src_$(basename $f .imc).ir $IMPSYNTAX $IMPFFI $endf src/impsyn.imc $f >/dev/null 2>&1
 done
