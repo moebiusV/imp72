@@ -48,6 +48,10 @@ comes from the machine and from the runtime.
   a time. A file name is a
   string, up to what a Unix path is (4095 bytes) with an extension of up to 255, and image mode moves 8 bytes per word. `FINI(0)`
   closes the files and exits.
+- **Time and date.** `CALLI(14B,0)` is Unix time, the seconds since 1970-01-01 00:00:00 UTC, in a 64 bit word (the monitor's
+  was the date as `((YEAR-1964)*12+MONTH-1)*31+DAY-1`, a number that ran out in 2027); `CALLI(23B,0)` is the same in milliseconds
+  (to the second), where the monitor's was the milliseconds of the day; `CALLI(30B,0)` is the process number. Dates are written as
+  `YYYY-MM-DD` and times as `HH:MM:SS` (ISO 8601, local time), with four digits for the year, where the tape wrote `DD-MON-YY`.
 - **Calls to C.** `CCALL NAME(A,B)` calls a C function with values;
   `EXTERNAL INT NAME(PTR);` declares the types of a C function, and
   `X IS EXTERNAL` a variable defined elsewhere; `impcallp` and `impcallw` call

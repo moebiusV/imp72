@@ -993,9 +993,10 @@ operations cannot be executed this way.
 
 Calls the library routine IMPCALLI with the code C and the argument V. The code C is a number or an
 expression. The value of the construct is the value of the routine. The calls are (octal) 12, exit
-(the output is flushed); 14, the date, as the number ((year-1964)*12+month-1)*31+day-1; 23, the time
-of day in milliseconds; 27, the run time of the program in milliseconds; and 30, the job number,
-which is 1.
+(the output is flushed); 14, the time as Unix time, the seconds since 1970-01-01 00:00:00 UTC (the
+monitor's was the date as ((year-1964)*12+month-1)*31+day-1); 23, the same in milliseconds (to the
+second); 27, the run time of the program in milliseconds; and 30, the job number, which is the
+process number.
 
 - XWD A,B
 
@@ -2408,8 +2409,8 @@ is written.
 
 #### 3.1.2: Interactive Commands.
 
-`imp -i` reads commands from the standard input. It prints its version and the date as a banner and
-an asterisk as the prompt. A command line has the format
+`imp -i` reads commands from the standard input. It prints its version and the date (`YYYY-MM-DD`)
+as a banner and an asterisk as the prompt. A command line has the format
 
 ```
 obj,list_file.ext/a/b

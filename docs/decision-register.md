@@ -191,3 +191,8 @@
 - R184 | 2026-11-11 | decision | "decided, details pending. not in the air" | subjects: Channel I/O | current
 - R185 | 2026-11-11 | decision | "yes, do the file name limits; if i say to do something it isn't proposed it is decided" | subjects: Studies deferred to later releases | supersedes R95 | current
 - R186 | 2026-11-11 | decision | "remove --run" | subjects: Backend: pcc IR to LLVM ORC JIT | current
+- R187 | 2026-11-11 | decision | "the whole point of the port is that you do alter the tape routines so they work with 64 bit, modern unix, etc." and "do not multiply entities without cause. no new routines when you can correct the original one to match the current requirements, 64 bit unix instead of 36 bit tops-10." and "utf8 instead of 7 bit ascii" | subjects: Fidelity to the original tape and rename policy | current
+- R188 | 2026-11-11 | decision | "helpers like setnext and regfield are ok as long as they are defined next to their use so we can see it easily in the token diff." and "helpers just help, they aren't changing the code shape" | subjects: Fidelity to the original tape and rename policy | current
+- R189 | 2026-11-11 | decision | "was getmp on the original tapes? then use it" | subjects: Fidelity to the original tape and rename policy | current
+- R190 | 2026-11-11 | decision | "yeah, date and date time handling must also all be modernized for unix, timestamps, etc" | subjects: Tape translation to 64 bit | current
+- R191 | 2026-11-11 | rationale | "the reason I'm on about this matching functions etc, later on I want a parser to parse the original tapes and the current tapes and do a semantic diff.... or at least a token diff, the way wdiff does for prose." | subjects: Fidelity to the original tape and rename policy | current

@@ -527,6 +527,7 @@
 ### Fidelity to the original tape and rename policy
 - Status: DONE — tape names restored, deviations documented, tape/ deleted, audit points at decus/ (latest decision 2026-11-03 \[R140\])
 - Decided: 2026-11-03 decided: goes with the assistant's recommendations for the tape-name audit, "but they should be exmained again once channel io is back" \[R140\]
+- Rationale: the port corrects the tape's routines for 64 bit, Unix and UTF-8 and adds no routine where correcting the original does it; a helper defined next to its use is fine; a later parser-based token diff of `decus/` and `src/` is the reason \[R187, R188, R191\]; `GETMP` was on the tape, so it is used \[R189\]; docs/porting/tape-diff.md compares them by routine
 - Rationale: "don't deviate from the tape without a good reason" \[R76\]
 - Rationale: "don't rename functions without a very good reason and without telling me." \[R75\]
 - Precedent: the original tape's routine names (chosen; named by author): restore and keep tape names \[R76\]
@@ -577,6 +578,7 @@
 - Precedent: PDP-10 (rejected; named by author): constants translated once, not at runtime \[R69\]
 - Precedent: pdp10 asm output (rejected; named by author): dewop emits pccir instead \[R67\]
 - Precedent: Lisp apply (considered; named by author): "isn't it like apply in lisp?" about EXECUTE \[R65\]
+- Rationale: date and time handling is modernized for Unix: Unix time, ISO 8601 \[R190\]
 - Evidence: docs/porting/modules.md:3 "\`src/\` is the tape's source (\`decus/\`, which is kept as it is) translated to IMP for a 64 bit machine, a module at a time"; docs/LANGUAGE-DIFFERENCES.md "\`777777777777B\` is 2\*\*36-1, and -1 is \`1777777777777777777777B\`"; docs/porting/tape-names.md compares names; ad368cf EXECUTE does one instruction of the IR machine
 
 ## 04 Code generation and targets

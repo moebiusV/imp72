@@ -128,7 +128,7 @@ cp okp.imp $ln.imp
 rm -f $ln.o $ln.imp
 printf 'okp\n' | "$w" -i > i1.log 2>&1
 [ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "-i: okp makes okp.o and no IR"
-head -1 i1.log | grep -q " $(date +%e-%b-%y | tr a-z A-Z | sed 's/^ *//')" || bad "-i: the banner has the date of today ($(head -1 i1.log))"
+head -1 i1.log | grep -q " $(date +%Y-%m-%d)" || bad "-i: the banner has the date of today ($(head -1 i1.log))"
 rm -f okp.o
 printf 'ext/C\nzprog\n' | "$w" -i > i2.log 2>&1
 [ -s zprog.o ] && [ ! -e ext.o ] || bad "-i: ext/C then zprog makes zprog.o and no ext.o"

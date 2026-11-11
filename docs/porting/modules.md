@@ -71,7 +71,7 @@ tape one compilation ends the session unless the switch `C` is given, and a fata
 - The line editing of the terminal is the system's, so `GETTY` ends a line at a newline and has no echo of its own. A line
   is at most 4127 characters (the tape's `BF` is 17 words of 5 characters, 85; here `BF` holds a Unix path of 4095 bytes, the
   switches, the `%` and the end).
-- The banner has the date, from `DATE` over byte pointers (`CALLI(14B)` gives the date as the monitor does).
+- The banner has the date as `YYYY-MM-DD` (ISO 8601, local time), where the tape's has `DD-MON-YY`: `CALLI(14B)` gives Unix time (seconds since the epoch; the monitor's was a date in a word), `DATE(A,JJ)` writes the date of a Unix time with `strftime`, and `TIME(A)` the time of day as `HH:MM:SS`; the date of a saved compiler is its Unix time.
 - `U` and `V` save the compiler with the syntax and declarations it has compiled (below). `INCHWL` and `RUNPGM` are
   written over `getchar` and `system`.
 

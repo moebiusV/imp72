@@ -1823,11 +1823,14 @@ The code
 .Ar C
 is a number or an expression.
 The value of the construct is the value of the routine.
-The calls are (octal) 12, exit (the output is flushed); 14, the date,
-as the number
-.Pf \&(( Li year\-1964)*12+month\-1)*31+day\-1 ;
-23, the time of day in milliseconds; 27, the run time of the program
-in milliseconds; and 30, the job number, which is 1.
+The calls are (octal) 12, exit (the output is flushed); 14, the time
+as Unix time, the seconds since 1970-01-01 00:00:00
+.Ic UTC
+(the monitor’s was the date as
+.Pf \&(( Li year\-1964)*12+month\-1)*31+day\-1 ) ;
+23, the same in milliseconds (to the second); 27, the run time of the
+program in milliseconds; and 30, the job number, which is the process
+number.
 .It Ic XWD Li A,B
 Useful occasionally in system calls.
 Has the value of the low 32 bits of
@@ -4384,8 +4387,9 @@ source file on is written.
 .Ss "3.1.2 Interactive Commands"
 .Li "imp \-i"
 reads commands from the standard input.
-It prints its version and the date as a banner and an asterisk as the
-prompt.
+It prints its version and the date
+.Pf \&( Li YYYY\-MM\-DD )
+as a banner and an asterisk as the prompt.
 A command line has the format
 .Bd -literal -offset indent
 obj,list_file.ext/a/b
