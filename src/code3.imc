@@ -56,7 +56,7 @@ SUBR CBADDR(A) IS (
  (H AND 1024)=0 => (CCALL snprintf(LOC(CMSG),300,LOC('%s IS NOT DECLARED A CALLBACK.'),IRSYMNAME(D)); ERROR(1,CMSG));
  S:=NAME(A);
  R:=AREG1(1,15B);
- ADDREC(S,KOP,OADDR,R,FREE(S),FREE(S+1),1);
+ ADDCODE(S,KOP,OADDR,R,FREE(S),FREE(S+1),1);
  FREES(S,((2 OR (FREE(S) AND 777700B))));
  FREES(S+1,(R LS 32));
  S);
@@ -87,7 +87,7 @@ SUBR CPAR(S,PP,D,K) IS (
  T=12 => (SF AND 77B)=4 => HL(SF) NE 0 => IRKIND(HL(SF))=1 => (X:=T+16; GO TO CP1);
  (SF AND 300B)=200B => FIX(PP);
  CP1: P:=SUBARG(S,PP);
- ADDREC(S,KOP,OARG,0,FREE(P),FREE(P+1),X);
+ ADDCODE(S,KOP,OARG,0,FREE(P),FREE(P+1),X);
  HOOK(S,P,S));
 
 # SUBSCRIPT(S,T): THE SUBSCRIPTED VARIABLE S[T] (S=0: [T], THE WORD AT ADDRESS T) #
@@ -120,10 +120,10 @@ SUBR SUBSCRIPT(S,T) IS (
                  R0=0 => FREES(S+1,(FREE(S+1) OR (REGOF(T) LS 32)))
                   ELSE (# ADD THE INDEX TO A COPY OF THE REGISTER: IT MAY BE A PARAMETER'S OR A USER'S #
                         K:=AREG1(1,15B);
-                        ADDREC(S,KOP,OLOAD,K,2,(R0 LS 32),0);
+                        ADDCODE(S,KOP,OLOAD,K,2,(R0 LS 32),0);
                         FREES(S+1,REGFIELD(FREE(S+1),R0,K));
-                        HL(FREE(S))=0 => ADDREC(S,KOP,OADDX,K,FREE(T),FREE(T+1),0)       # A POINTER IN A REGISTER: THE INDEX IS IN WORDS #
-                         ELSE ADDREC(S,KOP,OADD,K,FREE(T),FREE(T+1),0))));
+                        HL(FREE(S))=0 => ADDCODE(S,KOP,OADDX,K,FREE(T),FREE(T+1),0)       # A POINTER IN A REGISTER: THE INDEX IS IN WORDS #
+                         ELSE ADDCODE(S,KOP,OADD,K,FREE(T),FREE(T+1),0))));
  TTY=4 => (SC:=HR(HR(FREE(S+1))+FREE(T+1));
            FREES(S+1,(SC OR (FREE(S+1) AND NOT HMASK))));      # THE REGISTER AND THE INDIRECT BIT KEPT #
  HOOK(S,T,S));
@@ -377,7 +377,7 @@ SUBR FLDFIX(S) IS (
                         RETURN S);
      FETCH(S);
      J:=REGOF(S);
-     ADDREC(S,KOP,OFIX,J,FREE(S),FREE(S+1),0);
+     ADDCODE(S,KOP,OFIX,J,FREE(S),FREE(S+1),0);
      FREES(S,((102B OR (SF AND (NOT 377B))))));
  S);
 

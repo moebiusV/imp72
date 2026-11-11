@@ -95,7 +95,7 @@ g_cbaddr(word a)
     s = g_name(a);
     r = g_areg1(1, 015);
     g_unpck(s);
-    g_addrec(s, KOP, OADDR, r, g_se, g_se1, 1);
+    g_addcode(s, KOP, OADDR, r, g_se, g_se1, 1);
     FREES(s, (2 | (g_se & 0777700)));
     FREES(s + 1, G_L32(r));
     return s;
@@ -154,7 +154,7 @@ g_cpar(word s, word pp, word d, word k)
     else if ((sf & 0300) == 0200)
         g_fix(pp);
     p = g_subarg(s, pp);
-    g_addrec(s, KOP, OARG, 0, FREE(p), FREE(p + 1), x);
+    g_addcode(s, KOP, OARG, 0, FREE(p), FREE(p + 1), x);
     return g_hook(s, p, s);
 }
 
@@ -230,12 +230,12 @@ g_subscript(word s, word t)
             else {
                 /* add the index to a copy of the register: it may be a parameter's or a user's */
                 k = g_areg1(1, 015);
-                g_addrec(s, KOP, OLOAD, k, 2, G_L32(r0), 0);
+                g_addcode(s, KOP, OLOAD, k, 2, G_L32(r0), 0);
                 FREES(s + 1, g_regfield(FREE(s + 1), r0, k));
                 if (HL(FREE(s)) == 0)                   /* a pointer in a register: the index is in words */
-                    g_addrec(s, KOP, OADDX, k, FREE(t), FREE(t + 1), 0);
+                    g_addcode(s, KOP, OADDX, k, FREE(t), FREE(t + 1), 0);
                 else
-                    g_addrec(s, KOP, OADD, k, FREE(t), FREE(t + 1), 0);
+                    g_addcode(s, KOP, OADD, k, FREE(t), FREE(t + 1), 0);
             }
         }
     }

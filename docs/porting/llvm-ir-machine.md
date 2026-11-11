@@ -9,8 +9,8 @@ numbers themselves, because a semantics cannot name a macro.
 The assembler, the register allocator and the object writer of the tape (`amod`, `rmod`, `omod`) have no counterpart:
 `src/demit.imc` walks the chains and writes IR (`docs/internals/code-generator.md`), and LLVM makes the object file.
 
-The structure of the original is kept: the code of a stack entry is a chain in `CO`, `HOOK` joins chains, `ADDREC` extends
-one (where the tape has `ADDCODE`), and `DEWOP(OP,R,S)` adds an operation with accumulator `R` and the operand `S`. The
+The structure of the original is kept: the code of a stack entry is a chain in `CO`, `HOOK` joins chains, `ADDCODE` extends
+one (by an IR record, where the tape's adds a PDP-10 instruction word), and `DEWOP(OP,R,S)` adds an operation with accumulator `R` and the operand `S`. The
 rules of the language call `STORE`, `FETCH`, `ADDOP`, `CONOP` and the rest. The instruction is the machine's.
 
 ## The stack entry

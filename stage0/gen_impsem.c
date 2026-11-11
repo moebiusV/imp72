@@ -381,9 +381,9 @@ g_subbeg(word a)
     subnam = j;
     dprops(DP_COM, j, 2);
     {
-        word v1 = FREE(a + 1), v0 = FREE(a);            /* ADDREC(A,KOP,OENTRY,0,FREE(A),FREE(A+1),0) */
+        word v1 = FREE(a + 1), v0 = FREE(a);            /* ADDCODE(A,KOP,OENTRY,0,FREE(A),FREE(A+1),0) */
 
-        g_addrec(a, KOP, OENTRY, 0, v0, v1, 0);
+        g_addcode(a, KOP, OENTRY, 0, v0, v1, 0);
     }
     k = enstack(0);
     while (g_getlist(k) != 0) {                         /* SB1 */
@@ -393,7 +393,7 @@ g_subbeg(word a)
         fadd(&subpar, &nsubpar, j);
         t = g_areg1(0101, 0);
         fadd(&partmp, &npartmp, t);
-        g_addrec(a, KOP, OPARAM, t, 0, 0, 0);
+        g_addcode(a, KOP, OPARAM, t, 0, 0, 0);
     }
     g_subtmpf();
     j = g_cphead(subnam);                               /* (a callback declared before the subr has its number of parameters) */
@@ -425,7 +425,7 @@ g_remot(word a)
         FREES(g_remo + 2, 0);                           /* not a scratch entry of the stack: it lives until the unit is assembled */
     }
     m = enstack(0);                                     /* a marker in front of the code: the remote code of a routine is emitted with the routine */
-    g_addrec(m, KOP, OREMOTE, 0, 0, 0, subnam);
+    g_addcode(m, KOP, OREMOTE, 0, 0, 0, subnam);
     g_hook(m, m, a);
     g_hook(g_remo, g_remo, m);
     FREES(a + 2, 0);

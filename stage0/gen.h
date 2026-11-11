@@ -3,7 +3,7 @@
  *
  * gen_impsem.c   ports src/impsem.imc   (registers, subroutines, declarations, lists, names)
  * gen_code.c     ports src/code.imc     (UNPCK, FETCH, DEWOP, STORE, COPYCO, SUBARG, ...)
- * gen_code2.c    ports src/code2.imc    (ADDREC, HOOK, CONOP, SUBRCALL, FLOAT, PRINPAR, ...)
+ * gen_code2.c    ports src/code2.imc    (ADDCODE, HOOK, CONOP, SUBRCALL, FLOAT, PRINPAR, ...)
  * gen_code3.c    ports src/code3.imc    (SUBCALL, SUBSCRIPT, BYTEP, PCODE)
  * gen_demit.c    ports src/demit.imc    (the chain of records into IR trees) and the IRxxx
  *                                               helpers of src/ix.imc (names, kinds, pools).
@@ -48,7 +48,7 @@ void gen_init(void);
  * code.imc: UNPCK g_unpck, REGOF g_regof, FETCH g_fetch, ADDOP g_addop, DEWOP g_dewop, TAG g_tag, STORE g_store,
  *   COPYC1 g_copyc1, REGFIELD g_regfield, COPYCO g_copyco, NEXCO g_nexco, MCODE1 g_mcode1, MCODE g_mcode,
  *   SUBARG g_subarg, CODEI gen_init.
- * code2.imc: SETNEXT g_setnext, ADDREC g_addrec, HOOK g_hook, ANYCODE g_anycode, DEWFUN g_dewfun, CONOP g_conop,
+ * code2.imc: SETNEXT g_setnext, ADDCODE g_addcode, HOOK g_hook, ANYCODE g_anycode, DEWFUN g_dewfun, CONOP g_conop,
  *   JOP g_jop, CJUMP g_cjump, MOVEBLK g_moveblk, FREEZE g_freeze, ONEWORD g_oneword, COPPY g_coppy (the semantic
  *   name COPY), SUBRCALL g_subrcall, RETURN g_return, FLOAT g_float, FIX g_fix, DATAST g_datast, SUBRPAR g_subrpar,
  *   PRINPAR g_prinpar, PRINCAL g_princal, OJUMPOP g_ojumpop, ADDR g_addr, CODE2I gen_init.
@@ -189,7 +189,7 @@ void gen_code_dsems(void);
 /* ---- code2.imc --------------------------------------------------------------------------------------------------------- */
 
 word g_setnext(word r, word n);
-word g_addrec(word s, word kind, word op, word rd, word v0, word v1, word x);
+word g_addcode(word s, word kind, word op, word rd, word v0, word v1, word x);
 word g_hook(word d, word a, word b);
 word g_anycode(void);
 word g_dewfun(word s, word i, word j);

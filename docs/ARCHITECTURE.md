@@ -91,7 +91,7 @@ generator twice:
 |---|---|---|
 | `src/impsem.imc` | `stage0/gen_impsem.c` | registers, subroutines, declarations, lists, names |
 | `src/code.imc` | `stage0/gen_code.c` | `UNPCK`, `FETCH`, `DEWOP`, `STORE`, `COPYCO`, `SUBARG`, ... |
-| `src/code2.imc` | `stage0/gen_code2.c` | `ADDREC`, `HOOK`, `CONOP`, `SUBRCALL`, `FLOAT`, `PRINPAR`, ... |
+| `src/code2.imc` | `stage0/gen_code2.c` | `ADDCODE`, `HOOK`, `CONOP`, `SUBRCALL`, `FLOAT`, `PRINPAR`, ... |
 | `src/code3.imc` | `stage0/gen_code3.c` | `SUBCALL`, `SUBSCRIPT`, `BYTEP`, `PCODE` |
 | `src/demit.imc`, `ix.imc` | `stage0/gen_demit.c`, `stage0/ir.c` | chains to IR trees, and the tree builders |
 | `src/ir2ll.imc`, `src/ir2llx.imc` | `tools/ir2ll.c` | IR file to LLVM IR |

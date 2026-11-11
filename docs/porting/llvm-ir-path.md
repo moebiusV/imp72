@@ -34,14 +34,14 @@ three words (`layouts.md`). The routines keep the tape's names and structure; th
 
 The routines of `code*.imc` and `impsem.imc` differ from the tape's in:
 
-- they add records (`ADDREC`, where the tape has `ADDCODE`);
+- `ADDCODE` adds an IR record where the tape's adds a PDP-10 instruction word;
 - `RCOCHK`, `OCHK` and `OPCODE` do not exist; they read PDP-10 instruction words;
 - `DEWOP` has no immediate, self or both modes and no protection of user registers;
 - `SUBARG` and `SUBSCRIPT` copy a register before adding to it, because a temporary of the IR is not a register that may
   be changed;
 - `BYTEP`, `PRINPAR` (`FLT`) and `MOVE ... THROUGH` build their operations from the machine's;
 - `FLOAT`, `FIX` and the negation of a constant use the double's bits;
-- `CONOP` does not divide by zero, and `ADDREC` copies its arguments before the array `CO` can move (an argument such as
+- `CONOP` does not divide by zero, and `ADDCODE` copies its arguments before the array `CO` can move (an argument such as
   `FREE(R)` is passed by reference).
 
 `demit.imc` has no counterpart on the tape.

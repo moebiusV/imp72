@@ -61,7 +61,7 @@ g_dewop(word opp, word rr, word s)
     if (op >= 256)
         imp_error(1, "AN OPERATION OF THE PDP-10 THAT THE IR MACHINE DOES NOT HAVE.");
     g_unpck(s);
-    g_addrec(s, KOP, op, r, g_se, g_se1, 0);
+    g_addcode(s, KOP, op, r, g_se, g_se1, 0);
     if (r != 0) {
         FREES(s, ((2 | (g_se & 0777700))));
         FREES(s + 1, G_L32(r));
@@ -72,7 +72,7 @@ g_dewop(word opp, word rr, word s)
 word
 g_tag(word s)
 {
-    g_addrec(s, KTAG, 0, 0, 0, 0, HL(FREE(s)));
+    g_addcode(s, KTAG, 0, 0, 0, 0, HL(FREE(s)));
     return s;
 }
 
@@ -142,7 +142,7 @@ g_copyco(word s)
             if (r != 0)
                 w1 = g_regfield(w1, r, g_copyc1(r));
         }
-        g_addrec(s, G_RKIND(cj), G_ROP(cj), rd, w0, w1, G_RX(cj));
+        g_addcode(s, G_RKIND(cj), G_ROP(cj), rd, w0, w1, G_RX(cj));
         cj = G_RNEXT(cj);
     }
     w1 = FREE(s + 1);

@@ -24,7 +24,7 @@ that the 64 bit layout or the Unix driver needs.
 | `impm` | `PEEKAT` | tell a "bulldog" watcher program of the monitor which file is compiled | not needed |
 | `debug` | `PCODE1` | list the code as PDP-10 instructions | `PCODE1` of `code3.imc` lists the records of the IR chain |
 | `code` | `RCOCHK` | walk the chain of PDP-10 code words checking the use of registers | no counterpart: there is no such chain |
-| `code2` | `ADDCODE`, `OPCODE` | add a PDP-10 instruction word; the assembler's table of mnemonics | `ADDREC` adds a record; `OPCODE` has no counterpart |
+| `code2` | `OPCODE` | the assembler's table of mnemonics | no counterpart (`ADDCODE` is kept, and adds an IR record where the tape's adds a PDP-10 word) |
 | `impsem` | `SUBTAG` | make a tag's name from a number, with a byte pointer into a PDP-10 word | not needed: `demit.imc` numbers labels (`IXNEWLABEL`, `TAGLABEL`) |
 | `amod`, `omod`, `rmod` | all (12, 9 and 20 routines) | the PDP-10 assembler, the writer of the `.REL` file and the register allocator | no counterpart: `demit.imc` writes IR and LLVM does this work |
 
@@ -52,7 +52,6 @@ of the `FINAM` switches) is not defined in `decus/impsyn.imc`, and the modules t
 | `impm` | `IMPOBJ`, `IMPOPENIR` | the object file of the system (or of `--target`) made from the IR just written, where the tape writes a `.REL`; the file of IR (`-` is standard output) |
 | `impm` | `LISTOUT`, `OUTCS`, `IMPNOISY` | where `PRINT` goes (the listing, else standard output); print a C string; whether `ERROR` says anything |
 | `code` | `REGFIELD` | the register field of an operand (the register is in bits 32-42 of the second word) |
-| `code2` | `ADDREC` | add a record to the code of the IR generator, as `ADDCODE` adds a word |
 | `code2` | `CJUMP` | a conditional jump; a real operand makes it the floating jump (`OP+OFJ`) |
 | `code2` | `JOP` | the jump operation of a comparison code |
 | `code2` | `MOVEBLK` | a block move, through the runtime routine `impblk` |

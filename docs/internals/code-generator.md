@@ -21,7 +21,7 @@ code generator itself.
 |---|---|---|
 | `src/impsem.imc` | `stage0/gen_impsem.c` | registers (`RG`), subroutines, declarations, lists, `NAME`, `FCON`, `ASSEMC` |
 | `src/code.imc` | `stage0/gen_code.c` | `UNPCK`, `FETCH`, `DEWOP`, `ADDOP`, `STORE`, `COPYCO`, `MCODE`, `SUBARG` |
-| `src/code2.imc` | `stage0/gen_code2.c` | `ADDREC`, `HOOK`, `CONOP`, `SUBRCALL`, `FLOAT`, `FIX`, `DATAST`, `PRINPAR`, jumps |
+| `src/code2.imc` | `stage0/gen_code2.c` | `ADDCODE`, `HOOK`, `CONOP`, `SUBRCALL`, `FLOAT`, `FIX`, `DATAST`, `PRINPAR`, jumps |
 | `src/code3.imc` | `stage0/gen_code3.c` | `SUBCALL`, `SUBSCRIPT`, `BYTEP`, `PCODE` |
 | `src/demit.imc` | `stage0/gen_demit.c` | `DEMIT`: records to IR trees |
 | `src/ix.imc` | `stage0/ir.c` and the `IR...` helpers of `gen_demit.c` | tree builders, IR text, names of directory entries |
@@ -37,7 +37,7 @@ writes statements).
 `src/syntax.imc` is the tape's `decus/syntax.imc` with the operations of the machine of `docs/porting/llvm-ir-machine.md`. Its
 semantics call `DEWOP`, `ADDOP`, `FETCH`, `STORE`, `HOOK`, `SUBCALL` and the rest with operation numbers. Each stack
 entry carries its code as a chain of five word records in free array `CO`: `DEWOP(op,r,s)` adds an operation with
-accumulator `r` and the operand `s`, `ADDREC` adds any record, `HOOK(d,a,b)` joins the chain of `a` to that of `b` and
+accumulator `r` and the operand `s`, `ADDCODE` adds any record, `HOOK(d,a,b)` joins the chain of `a` to that of `b` and
 puts it in `d`. A register is an index into the array `RG`; `AREG1` makes one, and `DEMIT` gives each its own IR
 temporary. `FETCH` loads an operand into a register; `SUBARG` gives an argument an address. The routines are entered
 with `DSEM` by `IMPSEM`, `CODEI`, `CODE2I` and `CODE3I` (`gen_init` in the seed).

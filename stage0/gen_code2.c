@@ -1,5 +1,5 @@
 /*
- * gen_code2.c -- ports src/code2.imc: ADDREC (ADDCODE of the original), SETNEXT, HOOK, ANYCODE, DEWFUN, CONOP, JOP, CJUMP,
+ * gen_code2.c -- ports src/code2.imc: ADDCODE, SETNEXT, HOOK, ANYCODE, DEWFUN, CONOP, JOP, CJUMP,
  * MOVEBLK, FREEZE, ONEWORD, COPPY, SUBRCALL, RETURN, FLOAT, FIX, DATAST, SUBRPAR, PRINPAR, PRINCAL, OJUMPOP, ADDR and CODE2I (the
  * DSEMs of this file).  The code is a chain of records in the free array CO; the code of a stack entry is the pair (first,last) in
  * its third word (left and right 32 bit halves; 0: no code).
@@ -20,10 +20,10 @@ g_setnext(word r, word n)
     return 0;
 }
 
-/* ADDREC(S,KIND,OP,RD,V0,V1,X): add a record to the code of stack entry S.  (The IMP copies its arguments first because an argument like FREE(R)
+/* ADDCODE(S,KIND,OP,RD,V0,V1,X): add a record to the code of stack entry S.  (The IMP copies its arguments first because an argument like FREE(R)
  * is passed by reference and the arena moves when FADDEX grows an array; the C ones are values.) */
 word
-g_addrec(word s, word kind, word op, word rd, word v0, word v1, word x)
+g_addcode(word s, word kind, word op, word rd, word v0, word v1, word x)
 {
     word z, r;
 
@@ -92,7 +92,7 @@ g_dewfun(word s, word i, word j)
     if (g_anco == 0)
         g_anco = -1;
     if (i == 2)
-        return g_addrec(s, KOP, OCALLE, j, 0, 0, 0);
+        return g_addcode(s, KOP, OCALLE, j, 0, 0, 0);
     if (g_anco == -1)
         g_anco = 0;
     else
@@ -267,7 +267,7 @@ g_cjump(word op, word p, word r, word s)
         g_float(r);
     }
     g_fetch(p);
-    g_addrec(r, KOP, o, g_regof(p), FREE(r), FREE(r + 1), HW(HR(FREE(s + 1)), HL(FREE(s))));   /* the tag, and in the high half the offset of S (GO TO CND[1]) */
+    g_addcode(r, KOP, o, g_regof(p), FREE(r), FREE(r + 1), HW(HR(FREE(s + 1)), HL(FREE(s))));   /* the tag, and in the high half the offset of S (GO TO CND[1]) */
     return g_hook(p, p, r);
 }
 
@@ -332,7 +332,7 @@ g_subrcall(word t)
     tt = FREE(t); dd = HL(tt);
     if (dprop(DP_COM, dd) < 2)
         dprops(DP_COM, dd, 1);
-    g_addrec(t, KOP, OCALLB, 0, FREE(t), FREE(t + 1), 0);
+    g_addcode(t, KOP, OCALLB, 0, FREE(t), FREE(t + 1), 0);
     j = g_areg1(0140, 0);
     FREES(t, (2 | (tt & ~(word)077)));
     FREES(t + 1, G_L32(j));
@@ -344,7 +344,7 @@ word
 g_return(word s)
 {
     g_dewop(OLOAD, 0 - g_areg1(0100, 0), s);
-    g_addrec(s, KOP, ORET, g_regof(s), 0, 0, 0);
+    g_addcode(s, KOP, ORET, g_regof(s), 0, 0, 0);
     return s;
 }
 
@@ -366,7 +366,7 @@ g_float(word s)
         }
         g_fetch(s);
         j = g_regof(s);
-        g_addrec(s, KOP, OFLOAT, j, FREE(s), FREE(s + 1), 0);
+        g_addcode(s, KOP, OFLOAT, j, FREE(s), FREE(s + 1), 0);
         FREES(s, ((0202 | (sf & ~(word)0377))));
     }
     return s;
@@ -398,7 +398,7 @@ g_fix(word s)
         }
         g_fetch(s);
         j = g_regof(s);
-        g_addrec(s, KOP, OFIX, j, FREE(s), FREE(s + 1), 0);
+        g_addcode(s, KOP, OFIX, j, FREE(s), FREE(s + 1), 0);
         FREES(s, ((0102 | (sf & ~(word)0377))));
     }
     return s;
@@ -420,26 +420,26 @@ g_datast(word b)
         i = FREE(b);
         if ((i & 077) == 4)
             if (HL(i) == 0) {
-                g_addrec(a, KWORD, 0, 0, 0, FREE(b + 1), 0);
+                g_addcode(a, KWORD, 0, 0, 0, FREE(b + 1), 0);
                 continue;
             }
         i = HL(i);
         if ((j = convc(i)) != 0) {
             if (j < 0) {
-                g_addrec(a, KWORD, 0, 0, 0, convc_const, 0);
+                g_addcode(a, KWORD, 0, 0, 0, convc_const, 0);
                 continue;
             }
             i = FREE(j);
             k = 1;
             do {
-                g_addrec(a, KWORD, 0, 0, 0, FREE(j + k), 0);
+                g_addcode(a, KWORD, 0, 0, 0, FREE(j + k), 0);
                 k = k + 1;
             } while (k <= i);
             continue;
         }
         /* a name: its address, a word of the data that the assembler (and the IR writer) relocates: the record has the operand of the name */
         g_unpck(b);
-        g_addrec(a, KWORD, 0, 0, g_se, g_se1, 0);
+        g_addcode(a, KWORD, 0, 0, g_se, g_se1, 0);
     }
     return a;
 }
@@ -451,7 +451,7 @@ g_subrpar(word s, word pp)
     word p;
 
     p = g_subarg(s, pp);
-    g_addrec(s, KOP, OARG, 0, FREE(p), FREE(p + 1), 0);
+    g_addcode(s, KOP, OARG, 0, FREE(p), FREE(p + 1), 0);
     return g_hook(s, p, s);
 }
 
@@ -466,7 +466,7 @@ g_prinpar(word n, word aa, word b, word c, word d)
     a = aa;
     t = enstack(0);
     if (n == 5) {
-        g_addrec(t, KOP, OPITEM, 0, 0, 0, n);
+        g_addcode(t, KOP, OPITEM, 0, 0, 0, n);
         goto pp9;
     }
     if (n == 11) {
@@ -485,14 +485,14 @@ g_prinpar(word n, word aa, word b, word c, word d)
         ;
     }
     a = g_subarg(t, a);
-    g_addrec(t, KOP, OPITEM, 0, FREE(a), FREE(a + 1), n);
+    g_addcode(t, KOP, OPITEM, 0, FREE(a), FREE(a + 1), n);
     if (n != 6)
         goto pp9;
     pps[0] = b; pps[1] = c; pps[2] = d;
     k = 0;
     do {
         if (pps[k] == 0) {
-            g_addrec(t, KOP, OPITEM, 0, 0, 0, n);
+            g_addcode(t, KOP, OPITEM, 0, 0, 0, n);
             goto pp10;
         }
         sa = g_subarg(t, pps[k]);
@@ -512,7 +512,7 @@ g_prinpar(word n, word aa, word b, word c, word d)
                 FREES(sa + 1, 0);
             }
         }
-        g_addrec(t, KOP, OPITEM, 0, FREE(sa), FREE(sa + 1), n);
+        g_addcode(t, KOP, OPITEM, 0, FREE(sa), FREE(sa + 1), n);
     pp10:
         if (pps[k] != 0)
             g_hook(a, sa, a);
