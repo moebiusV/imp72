@@ -16,7 +16,7 @@ for ctx in yes no; do
     for lld in yes no; do
         f=$out/gen-$ctx-$lld.imp
         LLVM_ORC_FROM_CONTEXT=$ctx WITH_LLD=$lld sh tools/llvm.sh imp > $f
-        IMPMODULE=llvmgen env -u IMPSYNTAX -u IMPFFI -u IMPLIB $seed -c -o $out/gen-$ctx-$lld.o $endf src/impsyn.imc $f > $out/gen-$ctx-$lld.log 2>&1 \
+        IMPMODULE=llvmgen env -u IMPSYNTAX -u IMPFFI -u IMPLIB $seed -c -o $out/gen-$ctx-$lld.o -C $endf -C src/impsyn.imc $f > $out/gen-$ctx-$lld.log 2>&1 \
             || { echo "FAILED: llvm gen: context $ctx, lld $lld" >&2; cat $out/gen-$ctx-$lld.log >&2; fail=1; }
     done
 done

@@ -416,9 +416,12 @@ driver_main(int argc, char **argv)
     const char *outname = NULL, *sw = NULL;
     int jit = 0;
     int stop = 'x', i = 1, rc = 0, nfiles, k;
-    char **kargv;
+    char **kargv, **csyn = calloc((size_t)argc + 1, sizeof *csyn);
+    int ncsyn = 0;
     size_t blen;
 
+    if (csyn == NULL)
+        return 1;
     while (i < argc && argv[i][0] == '-' && argv[i][1] != '\0') {
         if (strcmp(argv[i], "-S") == 0)
             stop = 'S';
@@ -428,6 +431,8 @@ driver_main(int argc, char **argv)
             outname = argv[++i];
         else if (strcmp(argv[i], "-s") == 0 && i + 1 < argc)
             sw = argv[++i];
+        else if (strcmp(argv[i], "-C") == 0 && i + 1 < argc)
+            csyn[ncsyn++] = argv[++i];                 /* a file of syntax or declarations, as the tape's /C: read in the order given, before the sources */
         else if (strcmp(argv[i], "--run") == 0)
             jit = 1;
         else {
@@ -441,7 +446,7 @@ driver_main(int argc, char **argv)
         return 2;
     }
     if (i >= argc) {
-        fputs("usage: impstage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...\n", stderr);
+        fputs("usage: impstage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] [-C SYNTAX] FILE.imp ...\n", stderr);
         return 2;
     }
     nfiles = argc - i;
@@ -471,13 +476,13 @@ driver_main(int argc, char **argv)
     override(lib, sizeof lib, "IMPLIB");
     snprintf(base, sizeof base, "%s", argv[i]);
     blen = strlen(base);
-    if (blen > 4 && strcmp(base + blen - 4, ".imp") == 0)
+    if (blen > 4 && (strcmp(base + blen - 4, ".imp") == 0 || strcmp(base + blen - 4, ".imc") == 0))
         base[blen - 4] = '\0';
 
     imptmpbase(tmpbase);                        /* TMPDIR, else tmp/ of the source tree, else /tmp: used only if a file is needed */
 
     /* the kernel, in this process */
-    kargv = calloc((size_t)nfiles + 10, sizeof *kargv);
+    kargv = calloc((size_t)nfiles + (size_t)ncsyn + 10, sizeof *kargv);
     k = 0;
     kargv[k++] = "imps0";
     if (sw != NULL) {
@@ -488,6 +493,8 @@ driver_main(int argc, char **argv)
         imp_quiet = 1;
     kargv[k++] = syntax;
     kargv[k++] = ffi;
+    for (int c = 0; c < ncsyn; c++)
+        kargv[k++] = csyn[c];
     for (; nfiles > 0; nfiles--, i++)
         kargv[k++] = argv[i];
     if ((kernel_ir = open_memstream(&irbuf, &irlen)) == NULL) {

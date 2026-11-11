@@ -14,6 +14,7 @@
 .Op Fl -runtime Ns = Ns Ar file
 .Op Fl s Ar letters
 .Op Fl I Ar image
+.Op Fl C Ar syntax
 .Ar file ...
 .Nm
 .Fl -run
@@ -64,13 +65,12 @@ An argument ending in
 or
 .Pa .so
 is linked.
-An argument ending in
-.Pa .imc
-is a file of syntax and declarations, read before the sources, as the
-original compiler reads a file given with the
+A file of syntax and declarations is named with
+.Fl C ,
+as the original compiler reads a file given with the
 .Ql /C
-switch.
-Any other argument is a source file.
+switch; it is read before the sources.
+Any other argument is a source file, whatever its name.
 Each source is compiled separately, as a C compiler compiles its files; the
 output for
 .Pa NAME.imp
@@ -141,6 +141,10 @@ With
 and no
 .Fl c :
 the runtime library built for the target.
+.It Fl C Ar file
+A file of syntax and declarations, read before the sources.
+More than one may be named; they are read in the order given, and a source
+compiled by itself (with several sources) reads them each time.
 .It Fl s Ar letters
 The switches of the original compiler, one letter each.
 The listings and dumps go to the standard error.

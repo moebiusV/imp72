@@ -2346,11 +2346,11 @@ imp [options] file.imp ...
 imp -i [-s LETTERS] [file.imp ...]
 ```
 
-A file named on the command line is a source file (any name; `.imp` by custom), a file of syntax and
-declarations (`.imc`, Section 3.4) or an object file or library (`.o`, `.a`, `.so`) to link. A
-`.imc` file is read before each source file. Each source file is compiled by itself, to an object
-file; the objects are linked with the others named, and with the runtime library `libimp.a`, to the
-executable program. The options are
+A file named on the command line is a source file (any name; `.imp` by custom) or an object file or
+library (`.o`, `.a`, `.so`) to link. A file of syntax and declarations (Section 3.4) is named
+with -C, as the original's `/C` switch, and is read before each source file. Each source file is
+compiled by itself, to an object file; the objects are linked with the others named, and with the
+runtime library `libimp.a`, to the executable program. The options are
 
 ```
 -c          Compile to an object file, file.o, and do not link.  With several sources
@@ -2358,6 +2358,7 @@ executable program. The options are
 -S          Compile to the assembly of the target, file.s.
 -Sir        Compile to LLVM IR text, file.ll.
 -o FILE     Name the output (a.out for a program).  With -c, -S or -Sir, one source only.
+-C FILE     A file of syntax and declarations, read before the sources (in the order given).
 -s LETTERS  Set the compiler switches (below).
 -I IMAGE    Start from the compiler saved by /U or /V (Section 3.4).
 -i          Read commands from the terminal (Section 3.1.2).
@@ -2682,7 +2683,7 @@ statements (Section 2.3) in three ways.
 - 1. In the source program itself: a syntax statement is a statement and takes effect from where it
   is.
 
-- 2. In a file named `file.imc` on the command line, which is read before each source file: `imp
+- 2. In a file named with -C on the command line, which is read before each source file: `imp -C
   inv.imc p1.imp`. It ends with two % signs, like a program. The file `ffi.imc` of the compiler, which
   defines CCALL, EXTERNAL, CALLBACK, FNPTR and STRUCT, is such a file.
 

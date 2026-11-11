@@ -4263,14 +4263,13 @@ imp -i [-s LETTERS] [file.imp ...]
 .Pp
 A file named on the command line is a source file (any name;
 .Li \&.imp
-by custom), a file of syntax and declarations
-.Li "(.imc, Section 3.4\&)"
-or an object file or library
+by custom) or an object file or library
 .Li "(.o, .a, .so\&)"
 to link.
-.Ar A
-.Li \&.imc
-file is read before each source file.
+A file of syntax and declarations (Section 3.4) is named with -C, as
+the original’s
+.Li /C
+switch, and is read before each source file.
 Each source file is compiled by itself, to an object file; the objects
 are linked with the others named, and with the runtime library
 .Li libimp.a ,
@@ -4282,6 +4281,7 @@ The options are
 -S          Compile to the assembly of the target, file.s.
 -Sir        Compile to LLVM IR text, file.ll.
 -o FILE     Name the output (a.out for a program).  With -c, -S or -Sir, one source only.
+-C FILE     A file of syntax and declarations, read before the sources (in the order given).
 -s LETTERS  Set the compiler switches (below).
 -I IMAGE    Start from the compiler saved by /U or /V (Section 3.4).
 -i          Read commands from the terminal (Section 3.1.2).
@@ -4843,10 +4843,9 @@ is added by syntax statements (Section 2.3) in three ways.
 In the source program itself: a syntax statement is a statement and
 takes effect from where it is.
 .It 2.
-In a file named
-.Li file.imc
-on the command line, which is read before each source file:
-.Li "imp inv.imc p1.imp" .
+In a file named with -C on the command line, which is read before each
+source file:
+.Li "imp \-C inv.imc p1.imp" .
 It ends with two
 .Li %
 signs, like a program.

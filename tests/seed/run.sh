@@ -25,9 +25,9 @@ for f in tests/native/*.imp tests/oracle/*.imp; do
     one $(echo "$f" | tr / _) "X=1" "$f"
 done
 { sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > $out/imprt_all.imp
-one rt "IMPCHARPTR=1" $endf $out/imprt_all.imp
+one rt "IMPCHARPTR=1" -C $endf $out/imprt_all.imp
 for m in impsem code code2 code3 demit ix; do
-    one gen_$m "IMPMODULE=$m" $endf src/impsyn.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp
+    one gen_$m "IMPMODULE=$m" -C $endf -C src/impsyn.imc -C src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp
 done
 [ $fail = 0 ] && echo "ok ($n programs)"
 exit $fail

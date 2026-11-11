@@ -58,7 +58,7 @@ sh tools/sysconst.sh "$os" "$arch" "$bd" > "$out/sysgen.imp"
 case $os in darwin) vfmt=macho ;; *) vfmt=elf ;; esac
 objs=
 for m in "imprt_imp:$out/imprt_all.imp" "impsys:lib/impsys.imp" "sysgen:$out/sysgen.imp" "impvars:lib/impvars.imp" "impvarsx:lib/impvarsx-$vfmt.imp" "imphost:lib/imphost.imp" "imphostx:lib/imphostx-$vfmt.imp" "impmain:lib/impmain.imp"; do
-    $w -c $tgt -o "$out/${m%%:*}.o" $endf "${m#*:}" > "$out/${m%%:*}.log" 2>&1 || { echo "mkrt: ${m#*:} did not compile:" >&2; head -c 600 "$out/${m%%:*}.log" >&2; exit 1; }
+    $w -c $tgt -o "$out/${m%%:*}.o" -C $endf "${m#*:}" > "$out/${m%%:*}.log" 2>&1 || { echo "mkrt: ${m#*:} did not compile:" >&2; head -c 600 "$out/${m%%:*}.log" >&2; exit 1; }
     objs="$objs $out/${m%%:*}.o"
 done
 # the 32 bit machines call __divdi3 and its kin for the division of 64 bits: compiler-rt's members go in the library, as in tools/mklib.sh (the target's, from this machine's LLVM)

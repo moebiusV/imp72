@@ -11,15 +11,15 @@ export IMPCHARPTR=1                       # a byte pointer in a variable points 
 endf=$(sh tools/endian.sh)
 # one source: the files are two modules of one program (a program ends at its first %%)
 { sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > "$out/imprt_all.imp"
-env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0 -c -o "$out/imprt_imp.o" "$endf" "$out/imprt_all.imp"
+env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0 -c -o "$out/imprt_imp.o" -C "$endf" "$out/imprt_all.imp"
 # the system's own constants (tools/sysconst.sh), and what only a system call can say, in IMP too: no C compiler is needed for any of the library
 bd=$(sh tools/llvm.sh bindir)                          # where lld is as a program, if it is not in the PATH
 sysos=${SYSOS:-$(uname -s | tr 'A-Z' 'a-z')}
 sh tools/sysconst.sh "$sysos" "$SYSARCH" "$bd" > "$out/sysgen.imp"
 case $sysos in darwin) vfmt=macho ;; *) vfmt=elf ;; esac
 for m in "impsys:lib/impsys.imp" "sysgen:$out/sysgen.imp" "impvars:lib/impvars.imp" "impvarsx:lib/impvarsx-$vfmt.imp" "imphost:lib/imphost.imp" "imphostx:lib/imphostx-$vfmt.imp" "impmain:lib/impmain.imp"; do
-    x=; case ${m%%:*} in sysgen) x=lib/ffi.imc ;; esac                 # (sysgen declares syscall: tools/sysconst.sh)
-    env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0 -c -o "$out/${m%%:*}.o" $x "$endf" "${m#*:}"
+    x=; case ${m%%:*} in sysgen) x='-C lib/ffi.imc' ;; esac                 # (sysgen declares syscall: tools/sysconst.sh)
+    env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0 -c -o "$out/${m%%:*}.o" $x -C "$endf" "${m#*:}"
 done
 rm -f "$out/libimp.a"
 rtobjs=

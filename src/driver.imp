@@ -2,8 +2,8 @@ QUIET,ARGVP,IMPHOOK ARE COMMON;
 #THIS IS FILE DRIVER, THE FRONT OF THE COMPILER: THE MAIN PROGRAM OF IMP72, WHICH THE LIBRARY'S MAIN CALLS.  NOT IN THE TAPE, WHICH HAS ONE PROGRAM THAT READS ITS COMMANDS FROM THE TERMINAL (SRC/IMPM.IMP IS THAT,
  IMPK); THIS TURNS A COMMAND LINE LIKE THE C COMPILER'S INTO A COMPILATION AND AN EXECUTABLE:
 
-    IMP [-c | -S | -Sir] [-o OUT] [--target=TRIPLE] [-s LETTERS] [-I IMAGE] [--run] FILE.imp ...
-    IMP72 -i [-s LETTERS] [FILE.imp ...]        THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL
+    IMP [-c | -S | -Sir] [-o OUT] [--target=TRIPLE] [-s LETTERS] [-I IMAGE] [-C SYNTAX] [--run] FILE.imp ...
+    IMP -i [-s LETTERS] [FILE.imp ...]        THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL
 
  (-c STOP AT THE OBJECT, NAME.O, WHICH IS WHAT A REL FILE IS ON TOPS-10; -S AT THE ASSEMBLY OF THE TARGET, NAME.S; -SIR AT LLVM IR, NAME.LL; NOTHING: A PROGRAM, A.OUT; -o THE OUTPUT; --TARGET=TRIPLE FOR ANOTHER SYSTEM; -s THE SWITCHES; -I AN IMAGE SAVED BY U OR V.)  IT FINDS ITS PARTS RELATIVE TO ITSELF (THE SOURCE TREE, OR PREFIX/BIN, PREFIX/LIB/IMP72 AND PREFIX/SHARE/IMP72),
  RUNS THE KERNEL (IMPK) IN THIS PROCESS TO WRITE THE IR OF THE PROGRAM, AND THEN THE BACK END, LLVM IN THE PROCESS (SRC/LLVM.IMP); THE LINK IS THE SYSTEM'S CC.  CALLED
@@ -95,7 +95,7 @@ SUBR BASEOF(P,B) IS (
  S:=CCALL strrchr(P,57B); S=0 => S:=P ELSE S:=S+1;
  CCALL snprintf(B,4096,LOC('%s'),S);
  L:=CCALL strlen(B);
- L>4 => (CCALL strcmp(B+(L-4),LOC('.imp'))=0 => CCALL memset(B+(L-4),0,1));
+ L>4 => ((((CCALL strcmp(B+(L-4),LOC('.imp')) AND 4294967295)=0) OR ((CCALL strcmp(B+(L-4),LOC('.imc')) AND 4294967295)=0)) => CCALL memset(B+(L-4),0,1));
  0);
 
 # THE OBJECTS TO LINK, AFTER THE ARGUMENTS KADD HAS COLLECTED SO FAR #
@@ -384,6 +384,7 @@ SUBR DRVHELP(Z) IS (
  CCALL puts(LOC('  --target=TRIPLE    for another system (with -c, -S, -Sir), say aarch64-linux-gnu or riscv64-unknown-linux-musl'));
 CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that system, for its C library (DIR/usr/lib/crt1.o ...); or IMPSYSROOT'));
  CCALL puts(LOC('  --runtime=FILE     with --target and no -c: the libimp.a built for that system; or IMPRUNTIME'));
+ CCALL puts(LOC('  -C FILE            a file of syntax or declarations, read before the sources (as /C on the tape)'));
  CCALL puts(LOC('  -s LETTERS         the switches of the original compiler (A listing, T tree, ...)'));
  CCALL puts(LOC('  -I IMAGE           start from the compiler saved by /U or /V'));
  CCALL puts(LOC('  -i                 the commands of the original compiler, from the terminal: OBJ,LIST_FILE/switches'));
@@ -391,7 +392,7 @@ CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that s
  CCALL puts(LOC('  --version, --help'));
  0);
 
-# THE OPTIONS AND THE FILES OF THE COMMAND LINE, IN ANY ORDER AS THE C COMPILER'S: A NAME THAT ENDS IN .O, .A OR .SO IS TO BE LINKED, ANY OTHER IS A SOURCE.  A MISTAKE ENDS THE PROGRAM (2) #
+# THE OPTIONS AND THE FILES OF THE COMMAND LINE, IN ANY ORDER AS THE C COMPILER'S: A NAME THAT ENDS IN .O, .A OR .SO IS TO BE LINKED, ANY OTHER IS A SOURCE (A FILE OF SYNTAX OR DECLARATIONS IS NAMED BY -C, AS THE TAPE'S /C).  A MISTAKE ENDS THE PROGRAM (2) #
 SUBR OPTS(Z) IS (
  I,A,V ARE LOCAL;
  DSRCV:=CCALL calloc(NA0+1,8); DOBJI:=CCALL calloc(NA0+1,8); DKV:=CCALL calloc(NA0+1,8); DSYV:=CCALL calloc(NA0+1,8); DNSRC:=0; DNOBJI:=0; DNK:=0; DNSY:=0;
@@ -420,6 +421,10 @@ SUBR OPTS(Z) IS (
       STARTS(A,LOC('-o'))=1 => (IMPBYTE(A,2) NE 0 => (OUTN:=A+2; GO TO OP1);              # -OFILE #
                                 I GE NA0 => GO TO OPM;
                                 OUTN:=DARG(I); I:=I+1; GO TO OP1);                       # -O FILE #
+      CCALL strcmp(A,LOC('-C'))=0 => (
+          I GE NA0 => GO TO OPM;
+          IMPARGSET(DKV,DNK,DARG(I)); DNK:=DNK+1; IMPARGSET(DSYV,DNSY,DARG(I)); DNSY:=DNSY+1;      # IN THE ORDER GIVEN, WITH THE SOURCES #
+          I:=I+1; GO TO OP1);
       ((CCALL strcmp(A,LOC('-s'))=0) OR (CCALL strcmp(A,LOC('-I'))=0)) => (
           I GE NA0 => GO TO OPM;
           CCALL strcmp(A,LOC('-s'))=0 => DSW:=DARG(I) ELSE DIMG:=DARG(I);
@@ -428,7 +433,6 @@ SUBR OPTS(Z) IS (
  OPM: OUTSTR('imp: missing argument to '); OUTCS(A); OUTCHR(12B); CCALL exit(2);
  OPF: ((ENDS(A,LOC('.o'))=1) OR (ENDS(A,LOC('.a'))=1) OR (ENDS(A,LOC('.so'))=1)) => (IMPARGSET(DOBJI,DNOBJI,A); DNOBJI:=DNOBJI+1; GO TO OP1);
       IMPARGSET(DKV,DNK,A); DNK:=DNK+1;                                                  # SYNTAX AND SOURCES, IN THE ORDER GIVEN: THE KERNEL READS THEM SO #
-      ENDS(A,LOC('.imc'))=1 => (IMPARGSET(DSYV,DNSY,A); DNSY:=DNSY+1; GO TO OP1);         # A FILE OF SYNTAX AND DECLARATIONS (THE TAPE'S /C) #
       IMPARGSET(DSRCV,DNSRC,A); DNSRC:=DNSRC+1;
       GO TO OP1);
 
@@ -506,7 +510,7 @@ SUBR MULTI(Z) IS (
      DSW NE 0 => (KADD(LOC('-s')); KADD(DSW));
      DIMG NE 0 => (KADD(LOC('-I')); KADD(DIMG));
      DTGT NE 0 => (CCALL snprintf(LOC(DB1),4096,LOC('--target=%s'),DTGT); KADD(CCALL strdup(LOC(DB1))));
-     C:=0; MS1: C<DNSY => (IMPARGET(LOC(DW),DSYV,C); KADD(DW); C:=C+1; GO TO MS1);
+     C:=0; MS1: C<DNSY => (IMPARGET(LOC(DW),DSYV,C); KADD(LOC('-C')); KADD(DW); C:=C+1; GO TO MS1);
      KADD(S);
      IMPARGSET(KA,KNN,0);
      IMPRUNKID(KNN,KA) NE 0 => BAD:=1;

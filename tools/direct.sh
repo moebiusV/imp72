@@ -22,17 +22,17 @@ endf=$(sh tools/endian.sh)
 export IMPENDIAN=$endf
 sh tools/capped.sh $out/imprename.log $driver -o "$imprename" tools/imprename.imp || { dd bs=100000 count=1 if=$out/imprename.log 2>/dev/null >&2; echo "direct: imprename failed" >&2; exit 1; }
 for m in $modules; do
-    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp \
+    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $driver -c -o $out/$m.imp.o -C $endf -C src/impsyn.imc -C src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp \
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
 sh tools/llvm.sh imp > $out/llvmgen.imp                          # what the LLVM and the lld of this build decide, as a module (src/llvm.imp)
 for m in $srcmodules; do
-    x=; case $m in free) x=lib/ffi.imc ;; esac
+    x=; case $m in free) x='-C lib/ffi.imc' ;; esac
     f=src/$m.imp; case $m in llvmgen) f=$out/llvmgen.imp ;; esac
     d=$driver
     case " $oldmodules " in *" $m "*) d="env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0" ;; esac
-    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn.imc $f \
+    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $d -c -o $out/$m.imp.o $x -C $endf -C src/impsyn.imc $f \
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"

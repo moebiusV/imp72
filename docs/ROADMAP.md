@@ -116,7 +116,7 @@ fragment goes in front of every source with `cat`.
 Proposed: a way to name a file of declarations that every unit reads, so that
 a declaration is written once. Two forms are possible: a statement in the source
 that reads a file (`INCLUDE 'decls.imp'`), or a file on the command line that
-the driver reads before each source, as it reads a `.imc` file.
+the driver reads before each source, as it reads a file named with `-C`.
 
 *Effect on the code.* The lexer (a stack of input files) or the driver. The
 declaration statements of `lib/ffi.imc` stay as they are. A test with two units

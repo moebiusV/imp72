@@ -107,6 +107,16 @@ fi
 printf 'SUBR F(A) IS A+1\n%%%%\n' > okp.imp
 printf '<ATOM> ::= ZED ::= "7"%%%%\n' > ext.imc
 printf 'SUBR ADD2(A) IS A+ZED\n%%%%\n' > zprog.imp
+# -C names a file of syntax or declarations (the original's /C), read before the sources, each of them when there are several; a file given without it is a source
+printf 'SUBR G(A) IS A+ZED\n%%%%\n' > cz1.imp
+printf 'SUBR H(A) IS A+ZED\n%%%%\n' > cz2.imp
+"$w" -c -C ext.imc cz1.imp >/dev/null 2>&1 && [ -s cz1.o ] || bad "-C: the syntax of ext.imc is read before cz1.imp"
+rm -f cz1.o
+"$w" -c -C ext.imc cz1.imp cz2.imp >/dev/null 2>&1 && [ -s cz1.o ] && [ -s cz2.o ] || bad "-C: the syntax is read before each of two sources"
+rm -f cz1.o cz2.o
+"$w" -Sir -o cz-with.ll -C ext.imc cz1.imp >/dev/null 2>&1; "$w" -Sir -o cz-without.ll cz1.imp >/dev/null 2>&1
+[ -s cz-with.ll ] && [ -s cz-without.ll ] && ! cmp -s cz-with.ll cz-without.ll || bad "-C: the extension changes the program (ZED is 7 with it, a variable without)"
+"$w" -C >/dev/null 2>&1; [ $? = 2 ] || bad "-C: a missing argument is refused with 2"
 printf 'okp\n' | "$w" -i > i1.log 2>&1
 [ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "-i: okp makes okp.o and no IR"
 head -1 i1.log | grep -q " $(date +%e-%b-%y | tr a-z A-Z | sed 's/^ *//')" || bad "-i: the banner has the date of today ($(head -1 i1.log))"
