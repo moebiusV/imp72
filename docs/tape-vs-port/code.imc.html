@@ -19,7 +19,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>code.imc</h1>
 <p class="mut">left, old (the tape): decus/code.imc<br>right, new (the port): src/code.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 15 changed places, 3730 tokens deleted, 871 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 15 changed places, 3718 tokens deleted, 857 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
 <tr><td class="n d">2</td><td class="c d"># <del>THIS IS FILE CODE, CONTAINING</del> THE <del>SEMANTIC ROUTINES WHICH GENERATE</del></td><td class="n a">2</td><td class="c a"><ins>CO,NCO,ANCO ARE COMMON;</ins></td></tr>
@@ -313,31 +313,31 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"><ins>SUBR REGFIELD(W,R,RN) IS ((W XOR (R LS 32)) OR (RN LS 32));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">58</td><td class="c a"><ins># COPYCO(S): A FRESH COPY (WITH NEW REGISTERS) OF THE CODE OF STACK ENTRY S #</ins></td></tr>
 <tr><td class="n q">310</td><td class="c q">SUBR COPYCO(S) IS (</td><td class="n q">59</td><td class="c q">SUBR COPYCO(S) IS (</td></tr>
-<tr><td class="n d">311</td><td class="c d">  NCOP<del>_</del>0; COPYS=0=&gt;COPYS<del>_</del>FALLOT('CPYCO',20);</td><td class="n a">60</td><td class="c a"> <ins>CJ,J,W0,W1,RD,R,CT,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">311</td><td class="c d">  NCOP<del>_</del>0; COPYS=0=&gt;COPYS<del>_</del>FALLOT('CPYCO',20);</td><td class="n a">60</td><td class="c a"> <ins>CJ,J,W0,CD,RD,CT,K ARE LOCAL;</ins></td></tr>
 <tr><td class="n d">312</td><td class="c d">  CJ<del>_</del>FREE(S+2); <del>CJ_CJ RS 18;</del> FREES(S+2,0);</td><td class="n a">61</td><td class="c a"> NCOP<ins>:=</ins>0; COPYS=0 =&gt; COPYS<ins>:=</ins>FALLOT('CPYCO',20);</td></tr>
 <tr><td class="n d">313</td><td class="c d">  L1: CJ=&gt;(<del>CC_FREE</del>(<del>CO+</del>CJ);</td><td class="n a">62</td><td class="c a"> CJ<ins>:=HLEFT(</ins>FREE(S+2)<ins>)</ins>; FREES(S+2,0);</td></tr>
 <tr><td class="n d">314</td><td class="c d">           <del>GO TO</del> (<del>L10,L11,L12,L13</del>) <del>CC RS 34</del>;</td><td class="n a">63</td><td class="c a"> L1: CJ <ins>NE 0</ins> =&gt; (</td></tr>
-<tr><td class="n d">315</td><td class="c d">      <del>L13: ADDCODE</del>(<del>S,CC,FREE(CO+</del>CJ<del>+1</del>)<del>)</del>; <del>CJ_CJ+2; GO TO L1;</del></td><td class="n a">64</td><td class="c a">     <ins>RD:=RRD</ins>(CJ); <ins>W0:=RV0</ins>(<ins>CJ</ins>); <ins>W1:=RV1</ins>(CJ);</td></tr>
+<tr><td class="n d">315</td><td class="c d">      <del>L13: ADDCODE</del>(<del>S,CC,FREE(CO+</del>CJ<del>+1</del>)<del>)</del>; <del>CJ_CJ+2; GO TO L1;</del></td><td class="n a">64</td><td class="c a">     <ins>RD:=RRD</ins>(CJ); <ins>W0:=RV0</ins>(<ins>CJ</ins>); <ins>CD:=RV1</ins>(CJ);</td></tr>
 <tr><td class="n d">316</td><td class="c d">      <del>L11: J_CC AND 777777B; CD_177B AND CD RS 27;</del></td><td class="n a">65</td><td class="c a">     <ins>RD NE 0</ins> =&gt; <ins>RD:=</ins>COPYC1(<ins>RD</ins>);</td></tr>
-<tr><td class="n d">317</td><td class="c d">           <del>CD=2</del> =&gt; <del>J_</del>COPYC1(<del>J</del>);</td><td class="n a">66</td><td class="c a">     (<ins>W0 AND 77B</ins>) <ins>NE 4</ins> =&gt; (<ins>R:=3777B</ins> AND <ins>HLEFT</ins>(<ins>W1</ins>); <ins>R NE 0</ins> =&gt; <ins>W1:=REGFIELD</ins>(<ins>W1,R,</ins>COPYC1(<ins>R</ins>)));</td></tr>
-<tr><td class="n d">318</td><td class="c d">           <del>CD GE 5 =&gt; CD LE 6 =&gt; J_COPYC1</del>(<del>J</del>)<del>;</del></td><td class="n a">67</td><td class="c a">     <ins>ADDCODE</ins>(<ins>S,RKIND</ins>(<ins>CJ</ins>)<ins>,ROP</ins>(<ins>CJ</ins>)<ins>,RD,W0,W1,RX</ins>(<ins>CJ</ins>));</td></tr>
-<tr><td class="n d">319</td><td class="c d">           <del>CD GE 8</del> =&gt; <del>CD LE 10 =&gt; J_COPYC1</del>(<del>J);</del></td><td class="n a">68</td><td class="c a">     <ins>CJ:=RNEXT</ins>(<ins>CJ</ins>);</td></tr>
+<tr><td class="n d">317</td><td class="c d">           <del>CD=2</del> =&gt; <del>J_</del>COPYC1(<del>J</del>);</td><td class="n a">66</td><td class="c a">     (<ins>W0 AND 77B</ins>) <ins>NE 4</ins> =&gt; (J<ins>:=3777B</ins> AND <ins>HLEFT</ins>(CD); J <ins>NE 0</ins> =&gt; <ins>CD:=REGFIELD</ins>(<ins>CD,</ins>J<ins>,</ins>COPYC1(J)));</td></tr>
+<tr><td class="n d">318</td><td class="c d">           <del>CD GE 5 =&gt; CD LE 6 =&gt; J_COPYC1</del>(<del>J</del>)<del>;</del></td><td class="n a">67</td><td class="c a">     <ins>ADDCODE</ins>(<ins>S,RKIND</ins>(<ins>CJ</ins>)<ins>,ROP</ins>(<ins>CJ</ins>),<ins>RD</ins>,<ins>W0,</ins>CD<ins>,RX(CJ</ins>)<ins>)</ins>;</td></tr>
+<tr><td class="n d">319</td><td class="c d">           <del>CD GE 8</del> =&gt; <del>CD LE 10 =&gt; J_COPYC1</del>(J<del>);</del></td><td class="n a">68</td><td class="c a">     CJ<ins>:=RNEXT(</ins>CJ<ins>)</ins>;</td></tr>
 <tr><td class="n d">320</td><td class="c d">           <del>CC_J OR CC</del> AND <del>NOT 777777B;</del></td><td class="n a">69</td><td class="c a">     GO TO L1);</td></tr>
-<tr><td class="n d">321</td><td class="c d">           <del>ADDCODE</del>(<del>S,CC,0</del>);</td><td class="n a">70</td><td class="c a"> <ins>W1:=</ins>FREE(S+1); CT<ins>:=</ins>FREE(S) AND 77B;</td></tr>
-<tr><td class="n d">322</td><td class="c d">           <del>CJ_CJ+1; GO TO L1;</del></td><td class="n a">71</td><td class="c a"> CT<ins>=</ins>2 =&gt; (<ins>R:=</ins>3777B AND <ins>HLEFT(W1</ins>)<ins>; R NE 0</ins> =&gt; <ins>FREES(S+1</ins>,<ins>REGFIELD(W1,R,</ins>COPYC1(<ins>R</ins>)<ins>)))</ins>;</td></tr>
-<tr><td class="n d">323</td><td class="c d">      <del>L12: CJ_CC AND 777777B; GO TO L1;</del></td><td class="n a">72</td><td class="c a"> <ins>CT=20B =&gt; (R:=3777B AND HLEFT(W1); R NE 0 =&gt;</ins> FREES(S+1,<ins>REGFIELD(W1,R,COPYC1(R</ins>))<ins>))</ins>;</td></tr>
-<tr><td class="n d">324</td><td class="c d">      <del>L10: CD_FREE(CO+CJ+1);</del></td><td class="n a">73</td><td class="c a"> <ins>0);</ins></td></tr>
-<tr><td class="n d">325</td><td class="c d">           <del>(J_3777B AND CC RS 12)</del> =&gt;</td><td class="n a">75</td><td class="c a"><ins># THE REGISTERS OF A CODE THAT IS COPIED OR COMPARED: COPYS HAS PAIRS (OLD REGISTER LEFT, NEW REGISTER RIGHT) #</ins></td></tr>
-<tr><td class="n d">326</td><td class="c d">                       (<del>J_</del>COPYC1(<del>J</del>)<del>; CC_(J LS 12</del>) <del>OR CC AND NOT 37770000B</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">321</td><td class="c d">           <del>ADDCODE</del>(<del>S,CC,0);</del></td><td class="n a">70</td><td class="c a"> CD<ins>:=</ins>FREE(S+1); CT<ins>:=</ins>FREE(S) AND 77B;</td></tr>
+<tr><td class="n d">322</td><td class="c d">           <del>CJ_CJ+1; GO TO L1;</del></td><td class="n a">71</td><td class="c a"> CT<ins>=</ins>2 =&gt; (J<ins>:=</ins>3777B AND <ins>HLEFT(</ins>CD)<ins>; J NE 0</ins> =&gt; <ins>FREES(S+1,REGFIELD(</ins>CD,<ins>J,</ins>COPYC1(J)<ins>)))</ins>;</td></tr>
+<tr><td class="n d">323</td><td class="c d">      <del>L12: CJ_CC AND 777777B; GO TO L1;</del></td><td class="n a">72</td><td class="c a"> <ins>CT=20B =&gt; (J:=3777B AND HLEFT(CD); J NE 0 =&gt;</ins> FREES(S+1,<ins>REGFIELD(</ins>CD<ins>,J,COPYC1(J</ins>))<ins>))</ins>;</td></tr>
+<tr><td class="n d">324</td><td class="c d">      <del>L10:</del> CD<del>_FREE(CO+CJ+1</del>);</td><td class="n a">73</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n d">325</td><td class="c d">           <del>(</del>J<del>_3777B AND CC RS 12)</del> =&gt;</td><td class="n a">75</td><td class="c a"><ins># THE REGISTERS OF A CODE THAT IS COPIED OR COMPARED: COPYS HAS PAIRS (OLD REGISTER LEFT, NEW REGISTER RIGHT) #</ins></td></tr>
+<tr><td class="n d">326</td><td class="c d">                       (J<del>_</del>COPYC1(J)<del>; CC_(J LS 12</del>) <del>OR CC AND NOT 37770000B</del>);</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">327</td><td class="c d">           (<del>CC AND 4000B) =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">328</td><td class="c d">                       (<del>J_COPYC1(CD AND 777777B</del>)<del>; CD_J OR CD AND NOT 777777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">329</td><td class="c d">           (<del>J_3777B AND CC</del>) <del>=&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
-<tr><td class="n d">330</td><td class="c d">                       (<del>J_COPYC1(J</del>)<del>; CC_J OR CC AND NOT 3777B</del>);</td><td class="n e"></td><td class="c e"></td></tr>
-<tr><td class="n d">331</td><td class="c d">           <del>ADDCODE</del>(<del>S,CC,CD</del>); <del>CJ_CJ+2;</del> GO TO L1);</td><td class="n e"></td><td class="c e"></td></tr>
-<tr><td class="n d">332</td><td class="c d">  <del>CD_</del>FREE(S+1); CT<del>_</del>FREE(S) AND 77B;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">330</td><td class="c d">                       <del>(J_COPYC1(J); CC_J OR CC AND NOT 3777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">331</td><td class="c d">           <del>ADDCODE(S</del>,<del>CC</del>,CD); CJ<del>_</del>CJ<del>+2</del>; GO TO L1);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">332</td><td class="c d">  CD<del>_</del>FREE(S+1); CT<del>_</del>FREE(S) AND 77B;</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">333</td><td class="c d">  CT <del>NE</del> 2 =&gt; <del>CT NE 20B =&gt; GO TO L16;</del></td><td class="n e"></td><td class="c e"></td></tr>
-<tr><td class="n d">334</td><td class="c d">  (<del>J_</del>3777B AND <del>CD RS 18</del>) =&gt; <del>CD&lt;11</del>,<del>18&gt;_</del>COPYC1(<del>J</del>);</td><td class="n e"></td><td class="c e"></td></tr>
-<tr><td class="n d">335</td><td class="c d">  <del>L16:</del> FREES(S+1,<del>CD</del>));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">334</td><td class="c d">  (J<del>_</del>3777B AND CD <del>RS 18</del>) =&gt; CD<del>&lt;11</del>,<del>18&gt;_</del>COPYC1(J);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">335</td><td class="c d">  <del>L16:</del> FREES(S+1,CD));</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">337</td><td class="c q">SUBR COPYC1(J) IS (</td><td class="n q">76</td><td class="c q">SUBR COPYC1(J) IS (</td></tr>
 <tr><td class="n d">338</td><td class="c d">  NCOP=&gt;((K<del>_</del>FREE(COPYS+I);</td><td class="n a">77</td><td class="c a"> <ins>K,I ARE LOCAL;</ins></td></tr>
 <tr><td class="n d">339</td><td class="c d">          (K <del>RS 18</del>)=J=&gt;(<del>I_</del>K <del>AND 777777B; GO TO L18</del>)) FOR I <del>TO</del> NCOP-1);</td><td class="n a">78</td><td class="c a"> NCOP <ins>NE 0</ins> =&gt; ((K<ins>:=</ins>FREE(COPYS+I);</td></tr>

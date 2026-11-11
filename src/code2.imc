@@ -240,11 +240,11 @@ SUBR SUBRPAR(S,PP) IS (
 # PRINPAR(N,A,B,C,D): A PRINT LIST ITEM; THE ENTRY IT MAKES HAS THE CODE THAT COMPUTES THE ITEM IN WORD 2 AND, IN WORD 1, THE RECORDS THAT
   ENTER IT IN THE PRINT LIST.  N IS 0 AN EXPRESSION, 1 OCT, 2 IGR, 3 STG, 5 / (NEW LINE), 6 FILE, 7 IMAGE MODE, 8 DEVICE, 9 TAB, 10 FILL, 11 FLT #
 SUBR PRINPAR(N,AA,B,C,D) IS (
- A,T,I,J,KK,SH,S,SV,K ARE LOCAL;
+ A,T,I,J,KK,SH,S,AE ARE LOCAL;
  S IS 3 LONG;
  A:=AA;
  T:=ENSTACK(0);
- N=5 => (ADDCODE(T,KOP,OPITEM,0,0,0,N); GO TO PP9);
+ N=5 => (ADDCODE(T,KOP,OPITEM,0,0,0,N); GO TO L9);
  N=11 => (
     (FREE(A) AND 77B)=4 => (FREE(B) AND 77B)=4 => (
         FREES(A+1,((FREE(A+1) AND HMASK) OR (FREE(B+1) LS HSHIFT)));
@@ -258,23 +258,23 @@ SUBR PRINPAR(N,AA,B,C,D) IS (
     PPR1: 0);
  A:=SUBARG(T,A);
  ADDCODE(T,KOP,OPITEM,0,FREE(A),FREE(A+1),N);
- N NE 6 => GO TO PP9;
+ N NE 6 => GO TO L9;
  S[0]:=B; S[1]:=C; S[2]:=D;
- (S[K]=0 => (ADDCODE(T,KOP,OPITEM,0,0,0,N); GO TO PP10);
-  S:=SUBARG(T,S[K]);
+ (S[I]=0 => (ADDCODE(T,KOP,OPITEM,0,0,0,N); GO TO L10);
+  S:=SUBARG(T,S[I]);
   (FREE(S) AND 77B)=4 => (
-     K>0 => (                                # PROJECT AND PROGRAMMER: A DECIMAL CONSTANT READ AS OCTAL #
+     I>0 => (                                # PROJECT AND PROGRAMMER: A DECIMAL CONSTANT READ AS OCTAL #
         CONVC(HLEFT(FREE(S))); J:=CONST;
-        SH:=0; SV:=0;
-        PP11: J NE 0 => (KK:=J/10;
+        SH:=0; AE:=0;
+        L11: J NE 0 => (KK:=J/10;
                          (KK:=J-(10*KK))>7 => ERROR(1,'NON-OCTAL PJ OR PN **');
-                         SV:=SV OR KK LS SH; SH:=SH+3;
-                         J:=J/10; GO TO PP11);
-        FREES(S,(4 OR (STCON(SV) LS 32)));
+                         AE:=AE OR KK LS SH; SH:=SH+3;
+                         J:=J/10; GO TO L11);
+        FREES(S,(4 OR (STCON(AE) LS 32)));
         FREES(S+1,0)));
   ADDCODE(T,KOP,OPITEM,0,FREE(S),FREE(S+1),N);
-  PP10: S[K]=0 => 0 ELSE HOOK(A,S,A)) FOR K IN 0,1,2;
- PP9: FREES(A+1,FREE(T+2));
+  L10: S[I]=0 => 0 ELSE HOOK(A,S,A)) FOR I IN 0,1,2;
+ L9: FREES(A+1,FREE(T+2));
  FREES(A,4);                                 # SO THE MATCHER DOES NOT READ WORD 2 #
  A);
 
