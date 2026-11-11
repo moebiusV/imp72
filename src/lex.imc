@@ -91,11 +91,12 @@ SUBR PLINE(BF,PCT) IS (
  FINAM[5] AND 4000B => PRINT IGR 3,PCT,STG 0,' ',BF,/;
  FINAM[5] AND 100000000B => MSG(BF));
 
+# GETTY(BF): A LINE FROM THE TERMINAL, WITH THE PROMPT (ON THE STANDARD ERROR, AS A SHELL'S IS), IN BF; -1 AT THE END OF THE INPUT (^D).  THE TAPE TURNED A TYPED ! INTO \ (A TOPS-10 TERMINAL HAD NO BACKSLASH); A UNIX KEYBOARD HAS BOTH, AND ! QUOTES A NAME (!DIR/FILE.IMP!).  A TAB IS A BLANK #
 SUBR GETTY(BF) IS (OUTSTR('*');
                    Q:=BYTEP BF<7,36>; N:=0;
                    PL: C:=INCHWL(0);
                        C<0 => RETURN -1;
-                       C=041B => C:=134B;
+                       C=011B => C:=040B;
                        C GE 040B => (N<4128 => (<+Q>:=C; N:=N+1));
                        C NE 12B => GO TO PL;
                    <+Q>:=045B; <+Q>:=0);

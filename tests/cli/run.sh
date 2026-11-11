@@ -130,6 +130,9 @@ printf 'okp\n' | "$w" -i > i1.log 2>&1
 [ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "-i: okp makes okp.o and no IR"
 head -1 i1.log | grep -q " $(date +%Y-%m-%d)" || bad "-i: the banner has the date of today ($(head -1 i1.log))"
 rm -f okp.o
+mkdir -p sub; cp okp.imp sub/okq.imp
+printf '!sub/okq.imp!\n' | "$w" -i > iq.log 2>&1
+[ -s sub/okq.imp.o ] || bad "-i: a path between ! marks is one name ($(head -c 200 iq.log))"
 printf 'ext/C\nzprog\n' | "$w" -i > i2.log 2>&1
 [ -s zprog.o ] && [ ! -e ext.o ] || bad "-i: ext/C then zprog makes zprog.o and no ext.o"
 printf 'mine,mine_okp/L\n' | "$w" -i > i3.log 2>&1

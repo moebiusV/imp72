@@ -4428,6 +4428,14 @@ a source listing. /u exit to save the compiler: name/u writes the compiler,
 with the syntax compiled so far, on name.img. /v the same as /u. /y
 list the source program on the terminal as it is compiled.
 .Pp
+A name with the characters of the command language in it (a path has
+.Li "/, ., \-" )
+is written between
+.Li \&!
+marks:
+.Li !dir/file.imp\&! .
+The prompt and the messages go on the standard error, as a shell’s do,
+and Control-D (the end of the input) ends the session.
 A command with no file name goes on with the current file.
 A file that cannot be found is answered by
 .Li "? FILE NOT FOUND" .

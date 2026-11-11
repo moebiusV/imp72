@@ -2432,9 +2432,12 @@ not a letter in a command. The switches /A, /C, /H, /L, /U, /V and /Y are given 
 /Y  List the source program on the terminal as it is compiled.
 ```
 
-A command with no file name goes on with the current file. A file that cannot be found is answered
-by `? FILE NOT FOUND`. `/D` lists the debugging switches. If the end of the input file is reached
-without the two % signs, the message PREMATURE END OF INPUT FILE is printed (Section 3.2).
+A name with the characters of the command language in it (a path has `/`, `.`, `-`) is written
+between `!` marks: `!dir/file.imp!`. The prompt and the messages go on the standard error, as a
+shell's do, and Control-D (the end of the input) ends the session. A command with no file name goes
+on with the current file. A file that cannot be found is answered by `? FILE NOT FOUND`. `/D` lists
+the debugging switches. If the end of the input file is reached without the two % signs, the message
+PREMATURE END OF INPUT FILE is printed (Section 3.2).
 
 #### 3.1.3: Cross Compiling.
 

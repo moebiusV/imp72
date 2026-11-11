@@ -24,7 +24,7 @@ that the 64 bit layout or the Unix driver needs.
 | `debug` | `PCODE1` | list the code as PDP-10 instructions | `PCODE1` of `code3.imc` lists the records of the IR chain |
 | `code` | `RCOCHK` | walk the chain of PDP-10 code words checking the use of registers | no counterpart: there is no such chain |
 | `code2` | `OPCODE` | the assembler's table of mnemonics | no counterpart (`ADDCODE` is kept, and adds an IR record where the tape's adds a PDP-10 word) |
-| `impsem` | `SUBTAG` | make a tag's name from a number, with a byte pointer into a PDP-10 word | not needed: `demit.imc` numbers labels (`IXNEWLABEL`, `TAGLABEL`) |
+| `impsem` | `SUBTAG` | make the name of the tag of a subroutine's entry, `%` and the name, for the re-entrant code of `SUBBEG` (switch `R`: a jump in the low segment to the routine in the high one) | no counterpart, and `SUBBEG` has no `RNTRNT` branch: there is one segment, and the text of a Unix process is shared and read-only whatever the switch (the help says `R` is always so); labels of the IR are numbered by `demit.imc` (`IXNEWLABEL`, `TAGLABEL`) |
 | `amod`, `omod`, `rmod` | all (12, 9 and 20 routines) | the PDP-10 assembler, the writer of the `.REL` file and the register allocator | no counterpart: `demit.imc` writes IR and LLVM does this work |
 
 `CORE` and `RLEAS` are the two tape routines whose absence depends on the file I/O of the implementation. If channel
