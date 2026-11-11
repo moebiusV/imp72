@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMP: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<h1>IMP: the tape and the port, token by token</h1>
+<p><del>Red</del> is what the original (the DECUS tape) has and the port has not, <ins>green</ins> what the port has added.
+Where the original has the assignment as an underscore the port has :=, and that shows as one replacing the other.</p>
+<p class="mut">Generated from decus/ and src/ at commit 911b0ed (2026-11-11).</p>
+<table class="idx"><tr><th>module</th><th>tokens, old</th><th>tokens, new</th><th>changed places</th><th>deleted</th><th>inserted</th></tr>
+<tr><td><a href="amod.imc.html">amod.imc</a> <span class="mut">(old only)</span></td><td>3548</td><td>0</td><td>1</td><td><del>3548</del></td><td><ins>0</ins></td></tr>
+<tr><td><a href="code.imc.html">code.imc</a></td><td>4686</td><td>1827</td><td>15</td><td><del>3732</del></td><td><ins>873</ins></td></tr>
+<tr><td><a href="code2.imc.html">code2.imc</a></td><td>3095</td><td>3851</td><td>35</td><td><del>1311</del></td><td><ins>2067</ins></td></tr>
+<tr><td><a href="code3.imc.html">code3.imc</a> <span class="mut">(not minimal in part)</span></td><td>1254</td><td>5920</td><td>10</td><td><del>546</del></td><td><ins>5212</ins></td></tr>
+<tr><td><a href="cotree.imc.html">cotree.imc</a></td><td>2626</td><td>2157</td><td>29</td><td><del>818</del></td><td><ins>349</ins></td></tr>
+<tr><td><a href="debug.imc.html">debug.imc</a></td><td>2359</td><td>2993</td><td>14</td><td><del>602</del></td><td><ins>1236</ins></td></tr>
+<tr><td><a href="dir.imc.html">dir.imc</a></td><td>2183</td><td>2882</td><td>27</td><td><del>475</del></td><td><ins>1174</ins></td></tr>
+<tr><td><a href="dosem.imc.html">dosem.imc</a></td><td>3804</td><td>3305</td><td>45</td><td><del>1365</del></td><td><ins>866</ins></td></tr>
+<tr><td><a href="entree.imc.html">entree.imc</a></td><td>4571</td><td>3787</td><td>54</td><td><del>1726</del></td><td><ins>942</ins></td></tr>
+<tr><td><a href="ercor.imc.html">ercor.imc</a></td><td>2444</td><td>2378</td><td>40</td><td><del>343</del></td><td><ins>277</ins></td></tr>
+<tr><td><a href="free.imc.html">free.imc</a></td><td>2574</td><td>3533</td><td>7</td><td><del>1378</del></td><td><ins>2337</ins></td></tr>
+<tr><td><a href="graph.imc.html">graph.imc</a></td><td>3693</td><td>3265</td><td>53</td><td><del>851</del></td><td><ins>423</ins></td></tr>
+<tr><td><a href="impm.imc.html">impm.imc</a></td><td>2928</td><td>4074</td><td>12</td><td><del>1864</del></td><td><ins>3010</ins></td></tr>
+<tr><td><a href="impsem.imc.html">impsem.imc</a></td><td>4294</td><td>6365</td><td>35</td><td><del>1941</del></td><td><ins>4012</ins></td></tr>
+<tr><td><a href="impsyn.imc.html">impsyn.imc</a></td><td>1123</td><td>1928</td><td>2</td><td><del>372</del></td><td><ins>1177</ins></td></tr>
+<tr><td><a href="lex.imc.html">lex.imc</a></td><td>1543</td><td>2074</td><td>19</td><td><del>214</del></td><td><ins>745</ins></td></tr>
+<tr><td><a href="omod.imc.html">omod.imc</a> <span class="mut">(old only)</span></td><td>775</td><td>0</td><td>1</td><td><del>775</del></td><td><ins>0</ins></td></tr>
+<tr><td><a href="parse.imc.html">parse.imc</a></td><td>2261</td><td>2291</td><td>38</td><td><del>299</del></td><td><ins>329</ins></td></tr>
+<tr><td><a href="rmod.imc.html">rmod.imc</a> <span class="mut">(old only)</span></td><td>3253</td><td>0</td><td>1</td><td><del>3253</del></td><td><ins>0</ins></td></tr>
+<tr><td><a href="rsyn.imc.html">rsyn.imc</a></td><td>3032</td><td>3126</td><td>48</td><td><del>516</del></td><td><ins>610</ins></td></tr>
+<tr><td><a href="stack.imc.html">stack.imc</a></td><td>1202</td><td>1216</td><td>18</td><td><del>53</del></td><td><ins>67</ins></td></tr>
+<tr><td><a href="syntax.imc.html">syntax.imc</a></td><td>6669</td><td>5691</td><td>30</td><td><del>1301</del></td><td><ins>323</ins></td></tr>
+<tr><td><a href="tbin.iml.html">tbin.iml</a> <span class="mut">(old only)</span></td><td>1648</td><td>0</td><td>1</td><td><del>1648</del></td><td><ins>0</ins></td></tr>
+<tr><td><a href="tprin.iml.html">tprin.iml</a> <span class="mut">(old only)</span></td><td>1516</td><td>0</td><td>1</td><td><del>1516</del></td><td><ins>0</ins></td></tr>
+<tr><td><a href="traed.iml.html">traed.iml</a> <span class="mut">(old only)</span></td><td>798</td><td>0</td><td>1</td><td><del>798</del></td><td><ins>0</ins></td></tr>
+<tr><td><a href="demit.imc.html">demit.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>12127</td><td>1</td><td><del>0</del></td><td><ins>12127</ins></td></tr>
+<tr><td><a href="driver.imc.html">driver.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>10377</td><td>1</td><td><del>0</del></td><td><ins>10377</ins></td></tr>
+<tr><td><a href="image.imc.html">image.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>4267</td><td>1</td><td><del>0</del></td><td><ins>4267</ins></td></tr>
+<tr><td><a href="impend-be.imc.html">impend-be.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>364</td><td>1</td><td><del>0</del></td><td><ins>364</ins></td></tr>
+<tr><td><a href="impend-le.imc.html">impend-le.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>482</td><td>1</td><td><del>0</del></td><td><ins>482</ins></td></tr>
+<tr><td><a href="ir2ll.imc.html">ir2ll.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>10119</td><td>1</td><td><del>0</del></td><td><ins>10119</ins></td></tr>
+<tr><td><a href="ir2llx.imc.html">ir2llx.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>11697</td><td>1</td><td><del>0</del></td><td><ins>11697</ins></td></tr>
+<tr><td><a href="irsyn.imc.html">irsyn.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>1311</td><td>1</td><td><del>0</del></td><td><ins>1311</ins></td></tr>
+<tr><td><a href="ix.imc.html">ix.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>6557</td><td>1</td><td><del>0</del></td><td><ins>6557</ins></td></tr>
+<tr><td><a href="linktab.imc.html">linktab.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>2940</td><td>1</td><td><del>0</del></td><td><ins>2940</ins></td></tr>
+<tr><td><a href="llvm.imc.html">llvm.imc</a> <span class="mut">(new only)</span></td><td>0</td><td>3098</td><td>1</td><td><del>0</del></td><td><ins>3098</ins></td></tr>
+<tr><td><a href="impchan.iml.html">impchan.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>2173</td><td>1</td><td><del>0</del></td><td><ins>2173</ins></td></tr>
+<tr><td><a href="imphost.iml.html">imphost.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>5567</td><td>1</td><td><del>0</del></td><td><ins>5567</ins></td></tr>
+<tr><td><a href="imphostx-elf.iml.html">imphostx-elf.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>343</td><td>1</td><td><del>0</del></td><td><ins>343</ins></td></tr>
+<tr><td><a href="imphostx-macho.iml.html">imphostx-macho.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>43</td><td>1</td><td><del>0</del></td><td><ins>43</ins></td></tr>
+<tr><td><a href="impio.iml.html">impio.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>7095</td><td>1</td><td><del>0</del></td><td><ins>7095</ins></td></tr>
+<tr><td><a href="impmain.iml.html">impmain.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>208</td><td>1</td><td><del>0</del></td><td><ins>208</ins></td></tr>
+<tr><td><a href="imprt.iml.html">imprt.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>2620</td><td>1</td><td><del>0</del></td><td><ins>2620</ins></td></tr>
+<tr><td><a href="impsys.iml.html">impsys.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>1496</td><td>1</td><td><del>0</del></td><td><ins>1496</ins></td></tr>
+<tr><td><a href="impvars.iml.html">impvars.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>550</td><td>1</td><td><del>0</del></td><td><ins>550</ins></td></tr>
+<tr><td><a href="impvarsx-elf.iml.html">impvarsx-elf.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>502</td><td>1</td><td><del>0</del></td><td><ins>502</ins></td></tr>
+<tr><td><a href="impvarsx-macho.iml.html">impvarsx-macho.iml</a> <span class="mut">(new only)</span></td><td>0</td><td>188</td><td>1</td><td><del>0</del></td><td><ins>188</ins></td></tr>
+<tr><td><b>all</b></td><td></td><td></td><td>559</td><td><del>31245</del></td><td><ins>110153</ins></td></tr></table>
+</body></html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>irsyn.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>irsyn.imc</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): src/irsyn.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 1311 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins># THE MACHINE THE CODE GENERATOR COMPILES TO IS IR (DOCS/PORTING/LLVM-IR-MACHINE.MD).  THE RECORDS OF A CHAIN, THEIR OPERATIONS, AND THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a">  <ins>CODES OF THE IR OPERATORS AND TYPES THAT STAGE0/IR.H HAS, AS MACROS FOR THE MODULES OF SRC/IR. #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"> <ins>&lt;ATOM&gt; ::= RECW ::= "5";                                   # WORDS IN A RECORD #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"> <ins>&lt;ATOM&gt; ::= RNEXT(&lt;A&gt;) ::= "HL(FREE(CO+(A)))";              # THE NEXT RECORD OF THE CHAIN #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>&lt;ATOM&gt; ::= RKIND(&lt;A&gt;) ::= "(FREE(CO+(A)) AND 377B)";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>&lt;ATOM&gt; ::= ROP(&lt;A&gt;)   ::= "((FREE(CO+(A)) RS 8) AND 377B)";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>&lt;ATOM&gt; ::= RRD(&lt;A&gt;)   ::= "FREE(CO+(A)+1)";                # THE ACCUMULATOR (A REGISTER INDEX) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>&lt;ATOM&gt; ::= RV0(&lt;A&gt;)   ::= "FREE(CO+(A)+2)";                # THE OPERAND, WORDS 0 AND 1 OF A STACK ENTRY #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>&lt;ATOM&gt; ::= RV1(&lt;A&gt;)   ::= "FREE(CO+(A)+3)";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"> <ins>&lt;ATOM&gt; ::= RX(&lt;A&gt;)    ::= "FREE(CO+(A)+4)";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a"> <ins>&lt;ATOM&gt; ::= KOP ::= "1";                                    # KIND OF A RECORD: AN OPERATION, #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"> <ins>&lt;ATOM&gt; ::= KTAG ::= "2";                                   # A TAG (X IS ITS DIRECTORY INDEX), #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"> <ins>&lt;ATOM&gt; ::= KWORD ::= "3";                                  # A WORD OF A DATA STATEMENT (V1 IS ITS VALUE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OLOAD ::= "1";    &lt;ATOM&gt; ::= ONEG ::= "2";      &lt;ATOM&gt; ::= OCOMPL ::= "3";    &lt;ATOM&gt; ::= OADDR ::= "4";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OSTORE ::= "5";   &lt;ATOM&gt; ::= OADD ::= "6";      &lt;ATOM&gt; ::= OSUB ::= "7";      &lt;ATOM&gt; ::= OMUL ::= "8";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>&lt;ATOM&gt; ::= ODIV ::= "9";     &lt;ATOM&gt; ::= OMOD ::= "10";     &lt;ATOM&gt; ::= OAND ::= "11";     &lt;ATOM&gt; ::= OANDCA ::= "12";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OANDCM ::= "13";  &lt;ATOM&gt; ::= OANDCB ::= "14";   &lt;ATOM&gt; ::= OIOR ::= "15";     &lt;ATOM&gt; ::= OORCA ::= "16";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OORCM ::= "17";   &lt;ATOM&gt; ::= OORCB ::= "18";    &lt;ATOM&gt; ::= OXOR ::= "19";     &lt;ATOM&gt; ::= OEQV ::= "20";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OLSH ::= "21";    &lt;ATOM&gt; ::= OASH ::= "22";     &lt;ATOM&gt; ::= OROT ::= "23";   &lt;ATOM&gt; ::= OADDX ::= "28";   &lt;ATOM&gt; ::= OLDB ::= "24";    &lt;ATOM&gt; ::= ODPB ::= "25";     &lt;ATOM&gt; ::= OILDB ::= "26";    &lt;ATOM&gt; ::= OIDPB ::= "27";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OFADD ::= "30";   &lt;ATOM&gt; ::= OFSUB ::= "31";    &lt;ATOM&gt; ::= OFMUL ::= "32";    &lt;ATOM&gt; ::= OFDIV ::= "33";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OFLOAT ::= "34";  &lt;ATOM&gt; ::= OFIX ::= "35";  &lt;ATOM&gt; ::= ONEGF ::= "36";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OJUMP ::= "40";   &lt;ATOM&gt; ::= OJEQ ::= "41";     &lt;ATOM&gt; ::= OJLT ::= "42";     &lt;ATOM&gt; ::= OJLE ::= "43";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OJGE ::= "44";    &lt;ATOM&gt; ::= OJGT ::= "45";     &lt;ATOM&gt; ::= OJNE ::= "46";     &lt;ATOM&gt; ::= OFJ ::= "10";   # FJEQ = OJEQ+OFJ #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OCALLB ::= "60";  &lt;ATOM&gt; ::= OCALLI ::= "64";  &lt;ATOM&gt; ::= OXCT ::= "65";  &lt;ATOM&gt; ::= OHRLM ::= "66";  &lt;ATOM&gt; ::= OREMOTE ::= "68";  &lt;ATOM&gt; ::= OHRRM ::= "67";  &lt;ATOM&gt; ::= OARG ::= "61";     &lt;ATOM&gt; ::= OCALLE ::= "62";   &lt;ATOM&gt; ::= OPITEM ::= "63";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"> <ins>&lt;ATOM&gt; ::= OENTRY ::= "70";  &lt;ATOM&gt; ::= ORET ::= "71";     &lt;ATOM&gt; ::= OPARAM ::= "72";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a"> <ins># THE OPERATORS AND TYPES OF IR.H #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a"> <ins>&lt;ATOM&gt; ::= IRNAME ::= "2";   &lt;ATOM&gt; ::= IRICON ::= "4";    &lt;ATOM&gt; ::= IRPLUS ::= "10";   &lt;ATOM&gt; ::= IRMINUS ::= "11";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"> <ins>&lt;ATOM&gt; ::= IRDIV ::= "12";   &lt;ATOM&gt; ::= IRMOD ::= "13";    &lt;ATOM&gt; ::= IRMUL ::= "14";    &lt;ATOM&gt; ::= IRAND ::= "15";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">33</td><td class="c a"> <ins>&lt;ATOM&gt; ::= IROR ::= "16";    &lt;ATOM&gt; ::= IRER ::= "17";     &lt;ATOM&gt; ::= IRLS ::= "18";     &lt;ATOM&gt; ::= IRRS ::= "19";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"> <ins>&lt;ATOM&gt; ::= IRCOMPL ::= "20"; &lt;ATOM&gt; ::= IRUMUL ::= "23";   &lt;ATOM&gt; ::= IRUMINUS ::= "24"; &lt;ATOM&gt; ::= IREQ ::= "25";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"> <ins>&lt;ATOM&gt; ::= IRNE ::= "26";    &lt;ATOM&gt; ::= IRLE ::= "27";     &lt;ATOM&gt; ::= IRLT ::= "28";     &lt;ATOM&gt; ::= IRGE ::= "29";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a"> <ins>&lt;ATOM&gt; ::= IRGT ::= "30";    &lt;ATOM&gt; ::= IRSCONV ::= "37";  &lt;ATOM&gt; ::= IRPCONV ::= "38";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"> <ins>&lt;ATOM&gt; ::= TUCHAR ::= "3";   &lt;ATOM&gt; ::= TINT ::= "6";      &lt;ATOM&gt; ::= TLONG ::= "8";     &lt;ATOM&gt; ::= TULONG ::= "9";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">38</td><td class="c a"> <ins>&lt;ATOM&gt; ::= TCHAR ::= "2";    &lt;ATOM&gt; ::= TSHORT ::= "4";    &lt;ATOM&gt; ::= TUSHORT ::= "5";   &lt;ATOM&gt; ::= TFLOAT ::= "12";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"> <ins>&lt;ATOM&gt; ::= TDOUBLE ::= "13"; &lt;ATOM&gt; ::= TPLONG ::= "40"; &lt;ATOM&gt; ::= TPUCHAR ::= "35";   &lt;ATOM&gt; ::= TPFTN ::= "296";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a"> <ins># THE HALFWORD STORES OF IMPSYN.IMC: HRL AND HRR (THE TAPE'S ADDOP(506B,..) AND ADDOP(542B,..) ARE HRLM AND HRRM, THE OPERATIONS OF THIS MACHINE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">43</td><td class="c a"> <ins>&lt;EXP&gt;  ::= HRL(&lt;VBL,A&gt;,&lt;EXP,B&gt;) ::= ADDOP(66,A,B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a"> <ins>&lt;EXP&gt;  ::= HRR(&lt;VBL,A&gt;,&lt;EXP,B&gt;) ::= ADDOP(67,A,B)%%</ins></td></tr>
+</table>
+</body></html>

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>imprt.iml: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>imprt.iml</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): lib/imprt.iml</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 2620 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>TWOSEG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>#THIS IS FILE IMPRT, THE REST OF THE RUNTIME OF THE PROGRAMS IMP72 COMPILES, IN IMP (IT WAS C, LIB/IMPRT.C): THE MONITOR CALLS THE COMPILER'S OWN SOURCES MAKE (CALLI), BLT, IFIX, THE SHIFTS AND ROTATION OF A WORD BY A</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"> <ins>VARIABLE COUNT, THE BYTE POINTERS, AND EXECUTE.  THE ROUTINES HAVE THE NAMES THE COMPILERS GIVE THEIR CALLS (IMP_CALLI AND THE REST: AN IMP NAME HAS NO UNDERSCORE, SO THEY ARE impcalli ... HERE, AND TOOLS/MKLIB.SH GIVES</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"> <ins>THEM THEIR NAMES).  A CALL IS BY REFERENCE, AS FOR ANY IMP ROUTINE: THE COMPILERS STORE THE ARGUMENTS IN THE CELLS IMP_CA AND PASS THEIR ADDRESSES.  THE DATA THE CALLS SHARE WITH THE COMPILED CODE (IMP_AC, IMP_XW, IMP_BPP</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"> <ins>AND IMP_BPV) ARE HERE AS WELL.  THIS FILE IS COMPILED BY THE SEED (STAGE0/IMPSTAGE0), WHICH TRANSLATES THE SHIFTS BY A COUNT OF THE VARIABLES INLINE, SO THE ROUTINES MAY USE THEM.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"><ins>impac IS COMMON,16 LONG;                           # IMP_AC: THE ACCUMULATORS OF EXECUTE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"><ins>impxw,impbpp,impbpv ARE COMMON;                    # IMP_XW: THE WORD EXECUTE RUNS; IMP_BPP AND IMP_BPV: THE BYTE POINTER AND THE BYTE OF IBP, LDB AND DPB #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"><ins>impca IS COMMON,4 LONG;                            # IMP_CA: THE ARGUMENTS OF A CALL #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"><ins># THE CELLS impca ARE THE COMPILED CODE'S: IT STORES THE ARGUMENTS OF A CALL OF THE RUNTIME IN THEM.  A VARIABLE THAT NO ROUTINE OF A MODULE USES IS NOT MADE, SO THIS ONE (NOTHING CALLS IT) CLEARS THEM #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"><ins>SUBR impcaclear(Z) IS (impca[0]:=impca[1]:=impca[2]:=impca[3]:=0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"><ins># CALLI(CODE,AC): THE TOPS-10 MONITOR CALLS THE COMPILER'S SOURCES MAKE.  0 RESET, 012 EXIT, 014 THE TIME AS UNIX TIME (SECONDS SINCE 1970-01-01 00:00:00 UTC; THE MONITOR'S WAS THE DATE AS ((YEAR-1964)*12+MONTH-1)*31+DAY-1), 023 THE SAME IN MILLISECONDS (TO THE SECOND;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a">  <ins>THE MONITOR'S WAS THE TIME OF DAY IN MS), 024 AND 030 THE JOB IDENTIFICATION (030: THE PROCESS NUMBER), 027 RUN TIME IN MS; THE OTHERS DO NOTHING #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"><ins>SUBR impcalli(CODE,AC) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"> <ins>CODE=10 =&gt; (CCALL fflush(IMPSTDOUT(0)); CCALL exit(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>CODE=12 =&gt; RETURN IMPTIME(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>CODE=19 =&gt; RETURN IMPTIME(0)*1000;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>CODE=23 =&gt; RETURN CCALL clock(0)/1000;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"> <ins>CODE=24 =&gt; RETURN CCALL getpid(0) AND 4294967295;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"><ins># BLT: COPY BYTES BYTES FROM SRC TO DST, A WORD AT A TIME UPWARD AS THE PDP-10 DOES: WHEN THE RANGES OVERLAP WITH DST ABOVE SRC THE WORDS COPIED ARE THE WORDS ALREADY COPIED (A WORD STORED AND BLT'D THROUGH AN</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a">  <ins>ARRAY FILLS IT; MEMMOVE WOULD NOT) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"><ins>SUBR impblt(DST,SRC,BYTES) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"> <ins>I ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a"> <ins>BL1: I GE BYTES =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a">      <ins>[DST+I]:=[SRC+I]; I:=I+8; GO TO BL1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"><ins># IFIX(X): A REAL TO AN INTEGER, TRUNCATING (THE LIBRARY ROUTINE THE ORIGINAL REACHES AS MALAMUD).  THE ARGUMENT IS THE ADDRESS OF THE REAL, WHICH IS THE BITS OF AN IEEE DOUBLE.  A VALUE TOO BIG IS THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">33</td><td class="c a">  <ins>LEAST INTEGER, AS THE MACHINE GIVES IT; THE ROUTINE CANNOT USE FIX #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"><ins>SUBR IFIX(X) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"> <ins>B,E,M,NG,U,V ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a"> <ins>B:=X; NG:=(B&lt;0 =&gt; 1 ELSE 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"> <ins>E:=(B RS 52) AND 2047;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">38</td><td class="c a"> <ins>E&lt;1023 =&gt; RETURN 0;                                           # LESS THAN 1 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"> <ins>U:=E-1023;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"> <ins>U&gt;62 =&gt; RETURN 0-9223372036854775807-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a"> <ins>M:=(B AND 4503599627370495) OR 4503599627370496;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a"> <ins>U&lt;52 =&gt; V:=M RS (52-U) ELSE V:=M LS (U-52);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">43</td><td class="c a"> <ins>NG NE 0 =&gt; 0-V ELSE V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a"><ins># THE SHIFTS AND THE ROTATION OF A WORD BY A VARIABLE COUNT (THE CODE GENERATOR IN SRC CALLS THEM): A POSITIVE COUNT IS TO THE LEFT, A NEGATIVE ONE TO THE RIGHT; A LOGICAL SHIFT OF 64 PLACES OR MORE GIVES 0.  THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a">  <ins>ARGUMENTS AND THE RESULT ARE THE ADDRESSES OF 64 BIT WORDS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">47</td><td class="c a"><ins>SUBR implsh(PX,PN,PR) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">48</td><td class="c a"> <ins>X,N,NEG64 ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a"> <ins>X:=PX; N:=PN; NEG64:=0-64;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a"> <ins>N GE 64 =&gt; (PR:=0; RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a"> <ins>N LE NEG64 =&gt; (PR:=0; RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">52</td><td class="c a"> <ins>N GE 0 =&gt; PR:=X LS N ELSE PR:=X RS (0-N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"><ins>SUBR impash(PX,PN,PR) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"> <ins>X,N,NEG64 ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a"> <ins>X:=PX; N:=PN; NEG64:=0-64;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">58</td><td class="c a"> <ins>N GE 64 =&gt; (PR:=0; RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">59</td><td class="c a"> <ins>N GE 0 =&gt; (PR:=X LS N; RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">60</td><td class="c a"> <ins>N LE NEG64 =&gt; N:=0-63;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">61</td><td class="c a"> <ins>PR:=X ARS (0-N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">62</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a"><ins>SUBR improt(PX,PN,PR) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">65</td><td class="c a"> <ins>X,N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"> <ins>X:=PX; N:=PN AND 63;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"> <ins>N=0 =&gt; (PR:=X; RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>PR:=(X LS N) OR (X RS (64-N));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">69</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a"><ins># BYTE POINTERS.  A POINTER TO CHARACTERS (THE TAPE'S BYTEP A&lt;7,36&gt;) IS A BYTE ADDRESS: IBP ADDS 1, LDB READS THE BYTE THERE, DPB WRITES THE LOW 8 BITS OF THE VALUE TO IT (A CHARACTER IS A BYTE, UTF-8).  ANY OTHER POINTER</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a">  <ins>NAMES A BIT FIELD AND KEEPS THE LAYOUT OF THE PDP-10'S, IN ONE WORD: BITS 63-58 THE SIZE, 57-52 THE POSITION (THE LOW BIT OF THE FIELD, COUNTED FROM THE RIGHT), THE REST THE BYTE ADDRESS OF THE WORD; IBP MOVES TO THE NEXT</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a">  <ins>LOWER FIELD OF THE SAME SIZE, OR TO THE NEXT WORD.  A BYTE ADDRESS IS BELOW 2**47, SO THE SIZE BITS TELL THE TWO APART.  THE POINTER IS IN IMP_BPP AND THE BYTE IN IMP_BPV #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"><ins>SUBR impibp(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"> <ins>P,SZ,POS,NP ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"> <ins>P:=impbpp; (P RS 32)=4294967295 =&gt; P:=P AND 4294967295;       # A 32 BIT ADDRESS THAT A CCALL sign EXTENDED IS THE ADDRESS, NOT A FIELD #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a"> <ins>SZ:=P RS 58; POS:=(P RS 52) AND 63;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a"> <ins>SZ=0 =&gt; (impbpp:=P+1; RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a"> <ins>NP:=POS-SZ;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"> <ins>NP&lt;0 =&gt; (NP:=64-SZ; P:=P+8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"> <ins>impbpp:=(P AND (NOT (63 LS 52))) OR (NP LS 52);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a"><ins>SUBR impldb(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a"> <ins>P,SZ,POS,MK ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"> <ins>P:=impbpp; (P RS 32)=4294967295 =&gt; P:=P AND 4294967295;       # A 32 BIT ADDRESS THAT A CCALL sign EXTENDED IS THE ADDRESS, NOT A FIELD #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a"> <ins>SZ:=P RS 58; POS:=(P RS 52) AND 63;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a"> <ins>SZ=0 =&gt; (impbpv:=RTLRB(P,0); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">89</td><td class="c a"> <ins>SZ GE 64 =&gt; MK:=0-1 ELSE MK:=(1 LS SZ)-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"> <ins>impbpv:=([P AND 4503599627370495] RS POS) AND MK;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">91</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">93</td><td class="c a"><ins>SUBR impdpb(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"> <ins>P,SZ,POS,MK,AD,V ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">95</td><td class="c a"> <ins>P:=impbpp; (P RS 32)=4294967295 =&gt; P:=P AND 4294967295;       # A 32 BIT ADDRESS THAT A CCALL sign EXTENDED IS THE ADDRESS, NOT A FIELD #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">96</td><td class="c a"> <ins>SZ:=P RS 58; POS:=(P RS 52) AND 63;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">97</td><td class="c a"> <ins>SZ=0 =&gt; (RTLWB(P,0,impbpv AND 255); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">98</td><td class="c a"> <ins>SZ GE 64 =&gt; MK:=0-1 ELSE MK:=(1 LS SZ)-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"> <ins>MK:=MK LS POS;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"> <ins>AD:=P AND 4503599627370495;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">101</td><td class="c a"> <ins>V:=[AD];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">102</td><td class="c a"> <ins>[AD]:=(V AND (NOT MK)) OR ((impbpv LS POS) AND MK);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">103</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">105</td><td class="c a"><ins># MOVE B THROUGH N TO A: N+1 WORDS FROM B TO A, ASCENDING, AS BLT DOES (THE ARGUMENTS ARE POINTERS) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">106</td><td class="c a"><ins>SUBR impblk(A,B,N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">107</td><td class="c a"> <ins>I,AD,BD ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">108</td><td class="c a"> <ins>AD:=LOC(A); BD:=LOC(B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">109</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a"> <ins>BK1: I GE (N+1) =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a">      <ins>[AD+(8*I)]:=[BD+(8*I)]; I:=I+1; GO TO BK1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"><ins># EXECUTE: IMP_XCT() DOES THE ONE INSTRUCTION OF THE IR MACHINE (DOCS/PORTING/LLVM-IR-MACHINE.MD) THAT THE WORD IMP_XW HOLDS, THE WAY THE COMPILED PROGRAM WOULD HAVE DONE IT WHERE IT STANDS.  AN INSTRUCTION WORD HAS THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">114</td><td class="c a">  <ins>OPERATION IN BITS 56-63 (THE NUMBERS OF THE MACHINE: 1 LOAD, 2 NEG, 3 COMPL, 4 ADDR, 5 STORE, 6 ADD ... 20 EQV, 21 LSH, 22 ASH, 23 ROT, 28 ADDX, 64 CALLI), THE ACCUMULATOR IN BITS 52-55, THE INDEX REGISTER IN BITS 48-51, BIT</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">115</td><td class="c a">  <ins>47 SET FOR AN IMMEDIATE OPERAND, AND IN BITS 0-46 THE ADDRESS OR THE NUMBER (SIGNED).  THE ACCUMULATORS ARE THE WORDS OF IMP_AC, WHICH THE COMPILED CODE FILLS FROM ITS REGISTERS 0R TO 15R BEFORE THE CALL AND READS BACK</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">116</td><td class="c a">  <ins>AFTER.  AS IN COMPILED CODE AN ADDRESS IS A BYTE ADDRESS: WITH AN INDEX REGISTER IT IS THAT REGISTER PLUS 8 TIMES THE ADDRESS FIELD (A WORD INDEX), WITHOUT ONE IT IS THE FIELD ITSELF; AN IMMEDIATE OPERAND IS THE FIELD PLUS</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">117</td><td class="c a">  <ins>THE INDEX REGISTER.  THE FLOATING POINT OPERATIONS AND THE JUMPS ARE NOT DONE: THEY NEED THE PROGRAM'S OWN REGISTERS AND TAGS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">118</td><td class="c a"><ins>SUBR impxct(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">119</td><td class="c a"> <ins>W,OP,A,X,F,V,R,M,IM,AA,NEG64 ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">120</td><td class="c a"> <ins>W:=impxw;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">121</td><td class="c a"> <ins>OP:=(W RS 56) AND 255; A:=(W RS 52) AND 15; X:=(W RS 48) AND 15;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">122</td><td class="c a"> <ins>F:=W AND 140737488355327;                         # BITS 0-46 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">123</td><td class="c a"> <ins>IM:=(W RS 47) AND 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a"> <ins>F GE 70368744177664 =&gt; F:=F-140737488355328;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">125</td><td class="c a"> <ins>X NE 0 =&gt; M:=impac[X]+(8*F) ELSE M:=F;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">126</td><td class="c a"> <ins>IM NE 0 =&gt; (X NE 0 =&gt; V:=F+impac[X] ELSE V:=F) ELSE (OP=4 =&gt; V:=0 ELSE (OP=5 =&gt; V:=0 ELSE V:=[M]));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">127</td><td class="c a"> <ins>AA:=impac[A];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">128</td><td class="c a"> <ins>GO TO (XC0,XC1,XC2,XC3,XC4,XC5,XC6,XC7,XC8,XC9,XC10,XC11,XC12,XC13,XC14,XC15,XC16,XC17,XC18,XC19,XC20,XC21,XC22,XC23,XC0,XC0,XC0,XC0,XC28) OP;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">129</td><td class="c a"> <ins>OP=64 =&gt; (impac[A]:=impcalli(V,AA); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">130</td><td class="c a"> <ins>XC0: RTLERRS(LOC('EXECUTE: THE OPERATION OF THE MACHINE CANNOT BE DONE FROM A WORD')); RTLERRNL(0); CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">131</td><td class="c a"> <ins>XC1: impac[A]:=V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">132</td><td class="c a"> <ins>XC2: impac[A]:=0-V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">133</td><td class="c a"> <ins>XC3: impac[A]:=NOT V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">134</td><td class="c a"> <ins>XC4: impac[A]:=M; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">135</td><td class="c a"> <ins>XC5: [M]:=AA; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">136</td><td class="c a"> <ins>XC6: impac[A]:=AA+V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">137</td><td class="c a"> <ins>XC7: impac[A]:=AA-V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">138</td><td class="c a"> <ins>XC8: impac[A]:=AA*V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">139</td><td class="c a"> <ins>XC9: V NE 0 =&gt; impac[A]:=AA/V ELSE impac[A]:=0; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">140</td><td class="c a"> <ins>XC10: V NE 0 =&gt; impac[A]:=AA-((AA/V)*V) ELSE impac[A]:=0; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">141</td><td class="c a"> <ins>XC11: impac[A]:=AA AND V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">142</td><td class="c a"> <ins>XC12: impac[A]:=(NOT AA) AND V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">143</td><td class="c a"> <ins>XC13: impac[A]:=AA AND (NOT V); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a"> <ins>XC14: impac[A]:=(NOT AA) AND (NOT V); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">145</td><td class="c a"> <ins>XC15: impac[A]:=AA OR V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">146</td><td class="c a"> <ins>XC16: impac[A]:=(NOT AA) OR V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">147</td><td class="c a"> <ins>XC17: impac[A]:=AA OR (NOT V); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">148</td><td class="c a"> <ins>XC18: impac[A]:=(NOT AA) OR (NOT V); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">149</td><td class="c a"> <ins>XC19: impac[A]:=AA XOR V; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">150</td><td class="c a"> <ins>XC20: impac[A]:=NOT (AA XOR V); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">151</td><td class="c a"> <ins>XC21: R:=V; GO TO XSH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">152</td><td class="c a"> <ins>XC22: R:=V; GO TO XSH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">153</td><td class="c a"> <ins>XSH: NEG64:=0-64;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">154</td><td class="c a">      <ins>R GE 64 =&gt; GO TO XSH0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">155</td><td class="c a">      <ins>R LE NEG64 =&gt; GO TO XSH0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">156</td><td class="c a">      <ins>R GE 0 =&gt; (impac[A]:=AA LS R; RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">157</td><td class="c a">      <ins>OP=22 =&gt; (impac[A]:=AA ARS (0-R); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">158</td><td class="c a">      <ins>impac[A]:=AA RS (0-R); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">159</td><td class="c a"> <ins>XSH0: impac[A]:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">160</td><td class="c a">       <ins>OP=22 =&gt; R&lt;0 =&gt; AA&lt;0 =&gt; impac[A]:=0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">161</td><td class="c a">       <ins>RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">162</td><td class="c a"> <ins>XC23: R:=V-((V/64)*64); R&lt;0 =&gt; R:=R+64;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">163</td><td class="c a">       <ins>R=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">164</td><td class="c a">       <ins>impac[A]:=(AA LS R) OR (AA RS (64-R)); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">165</td><td class="c a"> <ins>XC28: impac[A]:=AA+(8*V); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">167</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

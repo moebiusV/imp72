@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ercor.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>ercor.imc</h1>
+<p class="mut">left, old (the tape): decus/ercor.imc<br>right, new (the port): src/ercor.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 40 changed places, 343 tokens deleted, 277 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n d">2</td><td class="c d">#THIS IS THE IMP PARSER ERROR CORRECTOR, <del>ERCOR.</del></td><td class="n a">2</td><td class="c a">#THIS IS THE IMP PARSER ERROR CORRECTOR, <ins>ERCOR, FOR THE 64 BIT PORT.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"> <ins>SEE DECUS/ERCOR.IMC FOR THE ORIGINAL AND ITS COMMENTS, DOCS/PORTING/MODULES.MD FOR THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"> <ins>DIFFERENCES.</ins></td></tr>
+<tr><td class="n q">3</td><td class="c q"> CALL ERCOR(OP,NP,S) WHERE OP IS THE FREE STORAGE POINTER TO THE NP</td><td class="n q">5</td><td class="c q"> CALL ERCOR(OP,NP,S) WHERE OP IS THE FREE STORAGE POINTER TO THE NP</td></tr>
+<tr><td class="n q">4</td><td class="c q">   PREVIOUS PARSES, AND S IS THE LAST SYMBOL READ.  RETURNS THE FREE</td><td class="n q">6</td><td class="c q">   PREVIOUS PARSES, AND S IS THE LAST SYMBOL READ.  RETURNS THE FREE</td></tr>
+<tr><td class="n q">5</td><td class="c q">   STORAGE POINTER OF AN ARRAY CONTAINING SYMBOLS TO BE INSERTED IN THE</td><td class="n q">7</td><td class="c q">   STORAGE POINTER OF AN ARRAY CONTAINING SYMBOLS TO BE INSERTED IN THE</td></tr>
+<tr><td class="n q">6</td><td class="c q">   INPUT STREAM, TERMINATED WITH A 0.</td><td class="n q">8</td><td class="c q">   INPUT STREAM, TERMINATED WITH A 0.</td></tr>
+<tr><td class="n d">7</td><td class="c d"> <del>METHOD IS SIMPLY TO SEARCH FOR A PATH THROUGH SYNTAX GRAPH TO AN S NODE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">8</td><td class="c d">   <del>WHICH IS ALSO A PLAUSIBLE PATH GIVEN THE CURRENT GOALS.  ALL SUCH PATHS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">9</td><td class="c d">   <del>CONTAINING LE TPATH TERMINAL SYMBOLS ARE FOUND, AND THE ONE WITH</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">10</td><td class="c d">   <del>THE FEWEST TERMINAL SYMBOLS IS CHOSEN.  IN THE EVENT OF A TIE, THE PATH</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">11</td><td class="c d">   <del>WHICH HAS AT SOME POINT THE SHORTEST LIST OF CURRENT GOALS IS THE WINNER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">12</td><td class="c q"> THE CURRENT GOAL LIST IS KEPT IN CGL IN 2-WORD PACKETS (NODE,GOAL).  THE</td><td class="n q">9</td><td class="c q"> THE CURRENT GOAL LIST IS KEPT IN CGL IN 2-WORD PACKETS (NODE,GOAL).  THE</td></tr>
+<tr><td class="n d">13</td><td class="c d">   STACK <del>ST</del> HOLDS ONE-WORD ENTRIES (NODE OR TYPE LS <del>33),</del> WHERE THE TYPE IS</td><td class="n a">10</td><td class="c a">   STACK <ins>ERST</ins> HOLDS ONE-WORD ENTRIES (NODE OR TYPE LS <ins>GTSH),</ins> WHERE THE TYPE IS</td></tr>
+<tr><td class="n q">14</td><td class="c q">   AS FOLLOWS:</td><td class="n q">11</td><td class="c q">   AS FOLLOWS:</td></tr>
+<tr><td class="n q">15</td><td class="c q">              0-3  TYPE OF GRAPH NODE.</td><td class="n q">12</td><td class="c q">              0-3  TYPE OF GRAPH NODE.</td></tr>
+<tr><td class="n q">16</td><td class="c q">              4    INFORMATION FROM GOAL WHICH WAS REACHED.  HOLDS NODE NR.</td><td class="n q">13</td><td class="c q">              4    INFORMATION FROM GOAL WHICH WAS REACHED.  HOLDS NODE NR.</td></tr>
+<tr><td class="n q">17</td><td class="c q">                     WHICH CALLED FOR THE GOAL.  WORD ABOVE ON STACK HOLDS</td><td class="n q">14</td><td class="c q">                     WHICH CALLED FOR THE GOAL.  WORD ABOVE ON STACK HOLDS</td></tr>
+<tr><td class="n d">18</td><td class="c d">                     NT NR OF GOAL OR BEST WIDTH LS <del>18.</del>  WORD ABOVE THAT</td><td class="n a">15</td><td class="c a">                     NT NR OF GOAL OR BEST WIDTH LS <ins>32.</ins>  WORD ABOVE THAT</td></tr>
+<tr><td class="n q">19</td><td class="c q">                     MUST BE TYPE 2 NODE.</td><td class="n q">16</td><td class="c q">                     MUST BE TYPE 2 NODE.</td></tr>
+<tr><td class="n q">20</td><td class="c q">              5    NODE ON CHAIN OF TERMINAL ENTRY POINTS TO GRAPH.</td><td class="n q">17</td><td class="c q">              5    NODE ON CHAIN OF TERMINAL ENTRY POINTS TO GRAPH.</td></tr>
+<tr><td class="n d">21</td><td class="c d"> <del>TPATH IS THE LENGTH OF BEST PATH (NR. TERM. SYMBOLS) SO FAR.</del></td><td class="n a">18</td><td class="c a"> <ins>(HALVES ARE 32 BITS.)</ins></td></tr>
+<tr><td class="n d">22</td><td class="c d"> <del>TCUR IS THE LENGTH OF THE CURRENT PATH.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">23</td><td class="c d"> <del>TERMS IS THE ARRAY CONTAINING THE TERMINAL SYMBOLS.  A NEW ONE IS MADE FOR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">24</td><td class="c d">   <del>EACH ERROR (SINCE PARSER MAY STILL BE EATING OUT OF THE LAST ONE).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">25</td><td class="c d"> <del>BWIDTH IS THE MINIMUM GOAL LIST LENGTH ON THE BEST PARSE SO FAR.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">26</td><td class="c d"> <del>WIDTH IS THE MIMINUM GOAL LIST LENGTH FOR THE CURRENT PATH.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">28</td><td class="c q">ISNAME(S) - RETURNS 1 IF SYMBOL WITH DIRECTORY INDEX S MAY BE USED AS A SYMBOL</td><td class="n q">20</td><td class="c q">ISNAME(S) - RETURNS 1 IF SYMBOL WITH DIRECTORY INDEX S MAY BE USED AS A SYMBOL</td></tr>
+<tr><td class="n q">29</td><td class="c q"> IN SYNTAX EXTENSIONS, RETURNS 2 IF IT MAY BE USED AS AN IDENTIFIER, RETURNS 0</td><td class="n q">21</td><td class="c q"> IN SYNTAX EXTENSIONS, RETURNS 2 IF IT MAY BE USED AS AN IDENTIFIER, RETURNS 0</td></tr>
+<tr><td class="n q">30</td><td class="c q"> OTHERWISE.  (THE MARKS ;:%&lt; ARE NOT SYMBOLS; IDENTIFIERS ARE ALPHANUMERIC.)</td><td class="n q">22</td><td class="c q"> OTHERWISE.  (THE MARKS ;:%&lt; ARE NOT SYMBOLS; IDENTIFIERS ARE ALPHANUMERIC.)</td></tr>
+<tr><td class="n q">32</td><td class="c q">AMBIG(P,NP,PN,O,TR) - CHECKS THE ARRAY OF PARSES TO DETERMINE IF THERE ARE ANY</td><td class="n q">24</td><td class="c q">AMBIG(P,NP,PN,O,TR) - CHECKS THE ARRAY OF PARSES TO DETERMINE IF THERE ARE ANY</td></tr>
+<tr><td class="n q">33</td><td class="c q">   AMBIGUITIES, AND DECIDES BETWEEN THEM IF THERE ARE.  #</td><td class="n q">25</td><td class="c q">   AMBIGUITIES, AND DECIDES BETWEEN THEM IF THERE ARE.  #</td></tr>
+<tr><td class="n q">35</td><td class="c q">SUBR ERCOR(OP,NP,SS) IS (</td><td class="n q">27</td><td class="c q">SUBR ERCOR(OP,NP,SS) IS (</td></tr>
+<tr><td class="n d">36</td><td class="c d"> <del>ST</del>=0=&gt;<del>ST_</del>FALLOT('ER/ST',20);</td><td class="n a">28</td><td class="c a"> <ins>ERST</ins>=0=&gt;<ins>ERST:=</ins>FALLOT('ER/ST',20);</td></tr>
+<tr><td class="n d">37</td><td class="c d"> <del>INIT</del>=0=&gt;(FRELOT(CGL,'ER/CG',20,0); MAXPATH<del>_</del>3;</td><td class="n a">29</td><td class="c a"> <ins>EINIT</ins>=0=&gt;(FRELOT(CGL,'ER/CG',20,0); MAXPATH<ins>:=</ins>3;</td></tr>
+<tr><td class="n d">38</td><td class="c d">          PCT<del>_</del>DIR('%'); NAM<del>_</del>DIR('NAM#'); ZER<del>_</del>DIR('0'));</td><td class="n a">30</td><td class="c a">          PCT<ins>:=</ins>DIR('%'); NAM<ins>:=</ins>DIR('NAM#'); ZER<ins>:=</ins>DIR('0'));</td></tr>
+<tr><td class="n d">39</td><td class="c d"> (<del>INIT_INIT</del>+1)&gt;50=&gt;ERROR(0,'** TOO MANY SYNTAX ERRORS **');</td><td class="n a">31</td><td class="c a"> (<ins>EINIT:=EINIT</ins>+1)&gt;50=&gt;ERROR(0,'** TOO MANY SYNTAX ERRORS **');</td></tr>
+<tr><td class="n d">40</td><td class="c d"> FINAM IS COMMON; TR<del>_</del>FINAM[5] AND 100B;</td><td class="n a">32</td><td class="c a"> FINAM IS COMMON; TR<ins>:=</ins>FINAM[5] AND 100B;</td></tr>
+<tr><td class="n q">41</td><td class="c q"> TR=&gt;PRINT /,STG 0,'** ERROR CORRECTOR ENTERED.',/;</td><td class="n q">33</td><td class="c q"> TR=&gt;PRINT /,STG 0,'** ERROR CORRECTOR ENTERED.',/;</td></tr>
+<tr><td class="n d">42</td><td class="c d"> TERMS<del>_</del>-1;</td><td class="n a">34</td><td class="c a"> TERMS<ins>:=</ins>-1;</td></tr>
+<tr><td class="n d">43</td><td class="c d"> S<del>_</del>SS;</td><td class="n a">35</td><td class="c a"> S<ins>:=</ins>SS;</td></tr>
+<tr><td class="n d">44</td><td class="c d"> NCHARS<del>_</del>0;</td><td class="n a">36</td><td class="c a"> NCHARS<ins>:=</ins>0;</td></tr>
+<tr><td class="n q">45</td><td class="c q">NEXTERM:</td><td class="n q">37</td><td class="c q">NEXTERM:</td></tr>
+<tr><td class="n q">46</td><td class="c q"> PNAME(S); PRINT STG 1,' ';</td><td class="n q">38</td><td class="c q"> PNAME(S); PRINT STG 1,' ';</td></tr>
+<tr><td class="n d">47</td><td class="c d"> MP<del>_</del>1;</td><td class="n a">39</td><td class="c a"> MP<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">48</td><td class="c d"> NMP:  BWIDTH<del>_</del>TCUR<del>_</del>PN<del>_</del>IP<del>_</del>0;</td><td class="n a">40</td><td class="c a"> NMP:  BWIDTH<ins>:=</ins>TCUR<ins>:=</ins>PN<ins>:=</ins>IP<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">49</td><td class="c d"> TPATH<del>_</del>MP+1;</td><td class="n a">41</td><td class="c a"> TPATH<ins>:=</ins>MP+1;</td></tr>
+<tr><td class="n q">50</td><td class="c q"> TR=&gt;(PNAME(S); PRINT STG 0,' IS NEW TERMINAL.',/);</td><td class="n q">42</td><td class="c q"> TR=&gt;(PNAME(S); PRINT STG 0,' IS NEW TERMINAL.',/);</td></tr>
+<tr><td class="n q">51</td><td class="c q">NEXTPARSE:</td><td class="n q">43</td><td class="c q">NEXTPARSE:</td></tr>
+<tr><td class="n d">52</td><td class="c d"> (PN<del>_</del>PN+1)&gt;NP=&gt;(TERMS&gt;0=&gt;GO TO X;</td><td class="n a">44</td><td class="c a"> (PN<ins>:=</ins>PN+1)&gt;NP=&gt;(TERMS&gt;0=&gt;GO TO X;</td></tr>
+<tr><td class="n d">53</td><td class="c d">                (NCHARS<del>_</del>NCHARS+1)&gt;5=&gt;(TIPIT:</td><td class="n a">45</td><td class="c a">                (NCHARS<ins>:=</ins>NCHARS+1)&gt;5=&gt;(TIPIT:</td></tr>
+<tr><td class="n q">54</td><td class="c q">                     PRINT /;</td><td class="n q">46</td><td class="c q">                     PRINT /;</td></tr>
+<tr><td class="n q">55</td><td class="c q">                     ERROR(0,'** ERROR CORRECTOR GIVES UP. **'));</td><td class="n q">47</td><td class="c q">                     ERROR(0,'** ERROR CORRECTOR GIVES UP. **'));</td></tr>
+<tr><td class="n d">56</td><td class="c d">                (MP<del>_</del>MP+1) LE MAXPATH=&gt;GO TO NMP;</td><td class="n a">48</td><td class="c a">                (MP<ins>:=</ins>MP+1) LE MAXPATH=&gt;GO TO NMP;</td></tr>
+<tr><td class="n q">57</td><td class="c q">                S=PCT=&gt;ERROR(0,'** ERROR CORRECTOR GIVES UP AT % **');</td><td class="n q">49</td><td class="c q">                S=PCT=&gt;ERROR(0,'** ERROR CORRECTOR GIVES UP AT % **');</td></tr>
+<tr><td class="n q">58</td><td class="c q">                LEX(S); GO TO NEXTERM);</td><td class="n q">50</td><td class="c q">                LEX(S); GO TO NEXTERM);</td></tr>
+<tr><td class="n q">59</td><td class="c q"> TR=&gt;PRINT STG 0,'PARSE #',IGR 0,PN,/;</td><td class="n q">51</td><td class="c q"> TR=&gt;PRINT STG 0,'PARSE #',IGR 0,PN,/;</td></tr>
+<tr><td class="n d">60</td><td class="c d"> NST<del>_</del>NCGL<del>_</del>0;</td><td class="n a">52</td><td class="c a"> NST<ins>:=</ins>NCGL<ins>:=</ins>0;</td></tr>
+<tr><td class="n q">61</td><td class="c q"> #MAKE GOAL/NODE LIST FROM PARSE#</td><td class="n q">53</td><td class="c q"> #MAKE GOAL/NODE LIST FROM PARSE#</td></tr>
+<tr><td class="n d">62</td><td class="c d"> NODE<del>_</del>FREE(OP+IP+1);</td><td class="n a">54</td><td class="c a"> NODE<ins>:=</ins>FREE(OP+IP+1);</td></tr>
+<tr><td class="n d">63</td><td class="c d"> J<del>_</del>FREE(OP+IP) AND <del>777777B</del>;</td><td class="n a">55</td><td class="c a"> J<ins>:=</ins>FREE(OP+IP) AND <ins>HMASK</ins>;</td></tr>
+<tr><td class="n d">64</td><td class="c d"> (FADD(CGL,NCGL,FREE(OP+K) RS <del>18</del>);</td><td class="n a">56</td><td class="c a"> (FADD(CGL,NCGL,FREE(OP+K) RS <ins>HSH</ins>);</td></tr>
+<tr><td class="n d">65</td><td class="c d">  I<del>_</del>FREE(OP+K) AND <del>777777B</del>; FADD(CGL,NCGL,I);</td><td class="n a">57</td><td class="c a">  I<ins>:=</ins>FREE(OP+K) AND <ins>HMASK</ins>; FADD(CGL,NCGL,I);</td></tr>
+<tr><td class="n d">66</td><td class="c d">  TR=&gt;(PRINT STG 0,'  GOAL '; PNAME(GVAL(FREE(OP+K) RS <del>18</del>));</td><td class="n a">58</td><td class="c a">  TR=&gt;(PRINT STG 0,'  GOAL '; PNAME(GVAL(FREE(OP+K) RS <ins>HSH</ins>));</td></tr>
+<tr><td class="n d">67</td><td class="c d">       PRINT STG 0,' AT NODE #',IGR 0,FREE(OP+K) RS <del>18</del>,/)) FOR K IN IP+2,1,IP+J;</td><td class="n a">59</td><td class="c a">       PRINT STG 0,' AT NODE #',IGR 0,FREE(OP+K) RS <ins>HSH</ins>,/)) FOR K IN IP+2,1,IP+J;</td></tr>
+<tr><td class="n d">68</td><td class="c d"> CGOAL<del>_</del>I;</td><td class="n a">60</td><td class="c a"> CGOAL<ins>:=</ins>I;</td></tr>
+<tr><td class="n d">69</td><td class="c d"> IP<del>_</del>IP+J+1; WIDTH<del>_</del>NCGL;</td><td class="n a">61</td><td class="c a"> IP<ins>:=</ins>IP+J+1; WIDTH<ins>:=</ins>NCGL;</td></tr>
+<tr><td class="n q">70</td><td class="c q">NEXTNODE: NODE=0=&gt;(TR=&gt;PRINT /; GO TO BACKUP);</td><td class="n q">62</td><td class="c q">NEXTNODE: NODE=0=&gt;(TR=&gt;PRINT /; GO TO BACKUP);</td></tr>
+<tr><td class="n q">71</td><td class="c q"> #WALK THE NEXT NODE#</td><td class="n q">63</td><td class="c q"> #WALK THE NEXT NODE#</td></tr>
+<tr><td class="n d">72</td><td class="c d"> TY<del>_</del>GTYPE(NODE); VAL<del>_</del>GVAL(NODE);</td><td class="n a">64</td><td class="c a"> TY<ins>:=</ins>GTYPE(NODE); VAL<ins>:=</ins>GVAL(NODE);</td></tr>
+<tr><td class="n q">73</td><td class="c q"> TR=&gt;(PRINT STG 0,'NODE #',IGR 0, NODE,STG 0,', TYPE ',IGR 0,TY,STG 0,', ';</td><td class="n q">65</td><td class="c q"> TR=&gt;(PRINT STG 0,'NODE #',IGR 0, NODE,STG 0,', TYPE ',IGR 0,TY,STG 0,', ';</td></tr>
+<tr><td class="n q">74</td><td class="c q">      TY =3=&gt;(PRINT '[',IGR 0, VAL,STG 1,']')</td><td class="n q">66</td><td class="c q">      TY =3=&gt;(PRINT '[',IGR 0, VAL,STG 1,']')</td></tr>
+<tr><td class="n q">75</td><td class="c q">               ELSE (PNAME( VAL));</td><td class="n q">67</td><td class="c q">               ELSE (PNAME( VAL));</td></tr>
+<tr><td class="n q">76</td><td class="c q">      PRINT STG 0,', ',IGR 0,TCUR,STG 0,' TERMS. SO FAR, STACK ',IGR 0,NST,/);</td><td class="n q">68</td><td class="c q">      PRINT STG 0,', ',IGR 0,TCUR,STG 0,' TERMS. SO FAR, STACK ',IGR 0,NST,/);</td></tr>
+<tr><td class="n q">77</td><td class="c q"> GO TO (TYPE0,TYPE1,TYPE2,TYPE3,NEXTNODE,TYPE5) TY;</td><td class="n q">69</td><td class="c q"> GO TO (TYPE0,TYPE1,TYPE2,TYPE3,NEXTNODE,TYPE5) TY;</td></tr>
+<tr><td class="n d">78</td><td class="c d"> TYPE5: TY<del>_</del>3;</td><td class="n a">70</td><td class="c a"> TYPE5: TY<ins>:=</ins>3;</td></tr>
+<tr><td class="n d">79</td><td class="c d"> PUSHIT: TYPE3: FADD(<del>ST</del>,NST,NODE OR TY LS <del>33</del>);</td><td class="n a">71</td><td class="c a"> PUSHIT: TYPE3: FADD(<ins>ERST</ins>,NST,NODE OR TY LS <ins>GTSH</ins>);</td></tr>
+<tr><td class="n d">80</td><td class="c d"> SCRFWD: NODE<del>_</del>SCR(NODE);</td><td class="n a">72</td><td class="c a"> SCRFWD: NODE<ins>:=</ins>SCR(NODE);</td></tr>
+<tr><td class="n q">81</td><td class="c q">         TR=&gt;PRINT STG 0,'ON TO SCR, ';</td><td class="n q">73</td><td class="c q">         TR=&gt;PRINT STG 0,'ON TO SCR, ';</td></tr>
+<tr><td class="n q">82</td><td class="c q">         GO TO NEXTNODE;</td><td class="n q">74</td><td class="c q">         GO TO NEXTNODE;</td></tr>
+<tr><td class="n q">83</td><td class="c q"> TYPE1: VAL=S=&gt;(#FOUND THE TERMINAL SYMBOL#</td><td class="n q">75</td><td class="c q"> TYPE1: VAL=S=&gt;(#FOUND THE TERMINAL SYMBOL#</td></tr>
+<tr><td class="n q">84</td><td class="c q">                FTS: TPATH=TCUR=&gt;WIDTH GE BWIDTH=&gt;GO TO TOOMANY;</td><td class="n q">76</td><td class="c q">                FTS: TPATH=TCUR=&gt;WIDTH GE BWIDTH=&gt;GO TO TOOMANY;</td></tr>
+<tr><td class="n d">85</td><td class="c d">                NTERMS<del>_</del>0;</td><td class="n a">77</td><td class="c a">                NTERMS<ins>:=</ins>0;</td></tr>
+<tr><td class="n q">86</td><td class="c q">                TERMS&lt;0=&gt;FRELOT(TERMS,'TSYMS',20,0);</td><td class="n q">78</td><td class="c q">                TERMS&lt;0=&gt;FRELOT(TERMS,'TSYMS',20,0);</td></tr>
+<tr><td class="n q">87</td><td class="c q">                TR=&gt;PRINT STG 0,'** VALID PATH FOUND WITH ',IGR 0,TCUR,</td><td class="n q">79</td><td class="c q">                TR=&gt;PRINT STG 0,'** VALID PATH FOUND WITH ',IGR 0,TCUR,</td></tr>
+<tr><td class="n q">88</td><td class="c q">                  STG 0,' TERMINALS, BRANCHING MIN.',IGR 0, WIDTH/2,/;</td><td class="n q">80</td><td class="c q">                  STG 0,' TERMINALS, BRANCHING MIN.',IGR 0, WIDTH/2,/;</td></tr>
+<tr><td class="n q">89</td><td class="c q">                NST=&gt;(</td><td class="n q">81</td><td class="c q">                NST=&gt;(</td></tr>
+<tr><td class="n d">90</td><td class="c d">                  (J<del>_</del>FREE(<del>ST</del>+I);</td><td class="n a">82</td><td class="c a">                  (J<ins>:=</ins>FREE(<ins>ERST</ins>+I);</td></tr>
+<tr><td class="n d">91</td><td class="c d">                   TR=&gt;PRINT STG 8,' ',OCT 12,J,IGR 6,J AND <del>777777B</del>,/;</td><td class="n a">83</td><td class="c a">                   TR=&gt;PRINT STG 8,' ',OCT 12,J,IGR 6,J AND <ins>HMASK</ins>,/;</td></tr>
+<tr><td class="n d">92</td><td class="c d">                   (J RS <del>33</del>)=1=&gt;((J<del>_</del>GVAL(J AND <del>777777B</del>))=NAM=&gt;J<del>_</del>ZER;</td><td class="n a">84</td><td class="c a">                   (J RS <ins>GTSH</ins>)=1=&gt;((J<ins>:=</ins>GVAL(J AND <ins>HMASK</ins>))=NAM=&gt;J<ins>:=</ins>ZER;</td></tr>
+<tr><td class="n q">93</td><td class="c q">                                 FADD(TERMS,NTERMS,J)))  FOR I TO NST-1);</td><td class="n q">85</td><td class="c q">                                 FADD(TERMS,NTERMS,J)))  FOR I TO NST-1);</td></tr>
+<tr><td class="n q">94</td><td class="c q">                FADD(TERMS,NTERMS,S);</td><td class="n q">86</td><td class="c q">                FADD(TERMS,NTERMS,S);</td></tr>
+<tr><td class="n q">95</td><td class="c q">                FADD(TERMS,NTERMS,0);</td><td class="n q">87</td><td class="c q">                FADD(TERMS,NTERMS,0);</td></tr>
+<tr><td class="n d">96</td><td class="c d">                BWIDTH<del>_</del>WIDTH; TPATH<del>_</del>TCUR;</td><td class="n a">88</td><td class="c a">                BWIDTH<ins>:=</ins>WIDTH; TPATH<ins>:=</ins>TCUR;</td></tr>
+<tr><td class="n q">97</td><td class="c q">                GO TO ALTFWD);</td><td class="n q">89</td><td class="c q">                GO TO ALTFWD);</td></tr>
+<tr><td class="n q">98</td><td class="c q">        ISNAME(S)=2 =&gt; VAL=NAM =&gt; GO TO FTS;</td><td class="n q">90</td><td class="c q">        ISNAME(S)=2 =&gt; VAL=NAM =&gt; GO TO FTS;</td></tr>
+<tr><td class="n d">99</td><td class="c d">        (TCUR<del>_</del>TCUR+1)&lt;TPATH=&gt;GO TO PUSHIT;</td><td class="n a">91</td><td class="c a">        (TCUR<ins>:=</ins>TCUR+1)&lt;TPATH=&gt;GO TO PUSHIT;</td></tr>
+<tr><td class="n q">100</td><td class="c q">        TCUR=TPATH=&gt;WIDTH&lt;BWIDTH=&gt;GO TO PUSHIT;</td><td class="n q">92</td><td class="c q">        TCUR=TPATH=&gt;WIDTH&lt;BWIDTH=&gt;GO TO PUSHIT;</td></tr>
+<tr><td class="n d">101</td><td class="c d">        TCUR<del>_</del>TCUR-1;</td><td class="n a">93</td><td class="c a">        TCUR<ins>:=</ins>TCUR-1;</td></tr>
+<tr><td class="n q">102</td><td class="c q">        TOOMANY: TR=&gt;PRINT STG 0,'TOO MANY TERMINALS;';</td><td class="n q">94</td><td class="c q">        TOOMANY: TR=&gt;PRINT STG 0,'TOO MANY TERMINALS;';</td></tr>
+<tr><td class="n d">103</td><td class="c d"> ALTFWD: NODE<del>_</del>GNEXT(ALT(NODE),CGOAL);</td><td class="n a">95</td><td class="c a"> ALTFWD: NODE<ins>:=</ins>GNEXT(ALT(NODE),CGOAL);</td></tr>
+<tr><td class="n q">104</td><td class="c q">         TR=&gt;PRINT STG 0,'TRY ALTERNATE ';</td><td class="n q">96</td><td class="c q">         TR=&gt;PRINT STG 0,'TRY ALTERNATE ';</td></tr>
+<tr><td class="n q">105</td><td class="c q">         GO TO NEXTNODE;</td><td class="n q">97</td><td class="c q">         GO TO NEXTNODE;</td></tr>
+<tr><td class="n q">106</td><td class="c q"> TYPE2: GMADE(NODE,CGOAL)=&gt;(NCGL LE 4=&gt;GO TO PUSHIT;</td><td class="n q">98</td><td class="c q"> TYPE2: GMADE(NODE,CGOAL)=&gt;(NCGL LE 4=&gt;GO TO PUSHIT;</td></tr>
+<tr><td class="n d">107</td><td class="c d">                            FADD(<del>ST</del>,NST,NODE OR 2 LS <del>33</del>);</td><td class="n a">99</td><td class="c a">                            FADD(<ins>ERST</ins>,NST,NODE OR 2 LS <ins>GTSH</ins>);</td></tr>
+<tr><td class="n d">108</td><td class="c d">                            FADD(<del>ST</del>,NST,CGOAL OR WIDTH LS <del>18</del>);</td><td class="n a">100</td><td class="c a">                            FADD(<ins>ERST</ins>,NST,CGOAL OR WIDTH LS <ins>HSH</ins>);</td></tr>
+<tr><td class="n d">109</td><td class="c d">                            J<del>_</del>FREE(CGL+NCGL-2);</td><td class="n a">101</td><td class="c a">                            J<ins>:=</ins>FREE(CGL+NCGL-2);</td></tr>
+<tr><td class="n d">110</td><td class="c d">                            FADD(<del>ST</del>,NST,J OR 4 LS <del>33</del>);</td><td class="n a">102</td><td class="c a">                            FADD(<ins>ERST</ins>,NST,J OR 4 LS <ins>GTSH</ins>);</td></tr>
+<tr><td class="n d">111</td><td class="c d">                            (NCGL<del>_</del>NCGL-2)&lt;WIDTH=&gt;WIDTH<del>_</del>NCGL;</td><td class="n a">103</td><td class="c a">                            (NCGL<ins>:=</ins>NCGL-2)&lt;WIDTH=&gt;WIDTH<ins>:=</ins>NCGL;</td></tr>
+<tr><td class="n d">112</td><td class="c d">                            CGOAL<del>_</del>FREE(CGL+NCGL-1);</td><td class="n a">104</td><td class="c a">                            CGOAL<ins>:=</ins>FREE(CGL+NCGL-1);</td></tr>
+<tr><td class="n d">113</td><td class="c d">                            NODE<del>_</del>SCR(FREE(CGL+NCGL));</td><td class="n a">105</td><td class="c a">                            NODE<ins>:=</ins>SCR(FREE(CGL+NCGL));</td></tr>
+<tr><td class="n q">114</td><td class="c q">                            TR=&gt;PRINT STG 0,'MADE GOAL, POP TO ';</td><td class="n q">106</td><td class="c q">                            TR=&gt;PRINT STG 0,'MADE GOAL, POP TO ';</td></tr>
+<tr><td class="n q">115</td><td class="c q">                            GO TO NEXTNODE);</td><td class="n q">107</td><td class="c q">                            GO TO NEXTNODE);</td></tr>
+<tr><td class="n q">116</td><td class="c q">        GO TO PUSHIT;</td><td class="n q">108</td><td class="c q">        GO TO PUSHIT;</td></tr>
+<tr><td class="n q">117</td><td class="c q"> TYPE0: FADD(CGL,NCGL,NODE);</td><td class="n q">109</td><td class="c q"> TYPE0: FADD(CGL,NCGL,NODE);</td></tr>
+<tr><td class="n d">118</td><td class="c d">        FADD(CGL,NCGL,(CGOAL<del>_</del>DPROP('NODE',VAL)));</td><td class="n a">110</td><td class="c a">        FADD(CGL,NCGL,(CGOAL<ins>:=</ins>DPROP('NODE',VAL)));</td></tr>
+<tr><td class="n d">119</td><td class="c d">        FADD(<del>ST</del>,NST,NODE);</td><td class="n a">111</td><td class="c a">        FADD(<ins>ERST</ins>,NST,NODE);</td></tr>
+<tr><td class="n q">120</td><td class="c q">        TR=&gt;(PRINT STG 0,'NEW GOAL ';PNAME(VAL); PRINT STG 0,'=',IGR 0,</td><td class="n q">112</td><td class="c q">        TR=&gt;(PRINT STG 0,'NEW GOAL ';PNAME(VAL); PRINT STG 0,'=',IGR 0,</td></tr>
+<tr><td class="n q">121</td><td class="c q">               CGOAL,STG 0,' AT LVL ',IGR 0,NCGL,/);</td><td class="n q">113</td><td class="c q">               CGOAL,STG 0,' AT LVL ',IGR 0,NCGL,/);</td></tr>
+<tr><td class="n d">122</td><td class="c d">        NODE<del>_</del>GENTRY(0); GCONN(NODE,CGOAL)=&gt;GO TO NEXTNODE;</td><td class="n a">114</td><td class="c a">        NODE<ins>:=</ins>GENTRY(0); GCONN(NODE,CGOAL)=&gt;GO TO NEXTNODE;</td></tr>
+<tr><td class="n q">123</td><td class="c q">        GO TO ALTFWD;</td><td class="n q">115</td><td class="c q">        GO TO ALTFWD;</td></tr>
+<tr><td class="n q">125</td><td class="c q"> BACKUP: NST=0=&gt;GO TO NEXTPARSE;</td><td class="n q">117</td><td class="c q"> BACKUP: NST=0=&gt;GO TO NEXTPARSE;</td></tr>
+<tr><td class="n d">126</td><td class="c d">         J<del>_</del>FSUB(<del>ST</del>,NST);</td><td class="n a">118</td><td class="c a">         J<ins>:=</ins>FSUB(<ins>ERST</ins>,NST);</td></tr>
+<tr><td class="n d">127</td><td class="c d">         TY<del>_</del>J RS <del>33</del>; NODE<del>_</del>J AND <del>777777B</del>;</td><td class="n a">119</td><td class="c a">         TY<ins>:=</ins>J RS <ins>GTSH</ins>; NODE<ins>:=</ins>J AND <ins>HMASK</ins>;</td></tr>
+<tr><td class="n q">128</td><td class="c q">         TR=&gt;PRINT 'BACKING UP PAST NODE #',IGR 0,NODE,STG 0,</td><td class="n q">120</td><td class="c q">         TR=&gt;PRINT 'BACKING UP PAST NODE #',IGR 0,NODE,STG 0,</td></tr>
+<tr><td class="n q">129</td><td class="c q">                ', TYPE ',IGR 0,TY,STG 0,', GOAL #',IGR 0,CGOAL,STG 0,</td><td class="n q">121</td><td class="c q">                ', TYPE ',IGR 0,TY,STG 0,', GOAL #',IGR 0,CGOAL,STG 0,</td></tr>
+<tr><td class="n q">130</td><td class="c q">                ' LVL ',IGR 0,NCGL,/;</td><td class="n q">122</td><td class="c q">                ' LVL ',IGR 0,NCGL,/;</td></tr>
+<tr><td class="n q">131</td><td class="c q">         GO TO (BK0,BK1,BK2,BK3,BK4) TY;</td><td class="n q">123</td><td class="c q">         GO TO (BK0,BK1,BK2,BK3,BK4) TY;</td></tr>
+<tr><td class="n d">132</td><td class="c d"> BK0: NCGL<del>_</del>NCGL-2;</td><td class="n a">124</td><td class="c a"> BK0: NCGL<ins>:=</ins>NCGL-2;</td></tr>
+<tr><td class="n d">133</td><td class="c d">      CGOAL<del>_</del>FREE(CGL+NCGL-1);</td><td class="n a">125</td><td class="c a">      CGOAL<ins>:=</ins>FREE(CGL+NCGL-1);</td></tr>
+<tr><td class="n q">134</td><td class="c q">      GO TO ALTFWD;</td><td class="n q">126</td><td class="c q">      GO TO ALTFWD;</td></tr>
+<tr><td class="n d">135</td><td class="c d"> BK1: TCUR<del>_</del>TCUR-1;</td><td class="n a">127</td><td class="c a"> BK1: TCUR<ins>:=</ins>TCUR-1;</td></tr>
+<tr><td class="n q">136</td><td class="c q"> BK3: BK2: GO TO ALTFWD;</td><td class="n q">128</td><td class="c q"> BK3: BK2: GO TO ALTFWD;</td></tr>
+<tr><td class="n q">137</td><td class="c q"> #HERE IS THE MEATY BACKUP - THROUGH A GOAL-REACHED TYPE 2 NODE#</td><td class="n q">129</td><td class="c q"> #HERE IS THE MEATY BACKUP - THROUGH A GOAL-REACHED TYPE 2 NODE#</td></tr>
+<tr><td class="n q">138</td><td class="c q"> BK4: FADD(CGL,NCGL,NODE);</td><td class="n q">130</td><td class="c q"> BK4: FADD(CGL,NCGL,NODE);</td></tr>
+<tr><td class="n d">139</td><td class="c d">      J<del>_</del>FSUB(<del>ST</del>,NST);</td><td class="n a">131</td><td class="c a">      J<ins>:=</ins>FSUB(<ins>ERST</ins>,NST);</td></tr>
+<tr><td class="n d">140</td><td class="c d">      FADD(CGL,NCGL,(CGOAL<del>_</del>J AND <del>777777B</del>));</td><td class="n a">132</td><td class="c a">      FADD(CGL,NCGL,(CGOAL<ins>:=</ins>J AND <ins>HMASK</ins>));</td></tr>
+<tr><td class="n d">141</td><td class="c d">      WIDTH<del>_</del>J RS <del>18</del>;</td><td class="n a">133</td><td class="c a">      WIDTH<ins>:=</ins>J RS <ins>HSH</ins>;</td></tr>
+<tr><td class="n d">142</td><td class="c d">      J<del>_</del>FREE(<del>ST</del>+NST-1);</td><td class="n a">134</td><td class="c a">      J<ins>:=</ins>FREE(<ins>ERST</ins>+NST-1);</td></tr>
+<tr><td class="n d">143</td><td class="c d">      NODE<del>_</del>J AND <del>777777B</del>; GO TO SCRFWD;</td><td class="n a">135</td><td class="c a">      NODE<ins>:=</ins>J AND <ins>HMASK</ins>; GO TO SCRFWD;</td></tr>
+<tr><td class="n q">144</td><td class="c q"> X: TERMS);</td><td class="n q">136</td><td class="c q"> X: TERMS);</td></tr>
+<tr><td class="n q">146</td><td class="c q">SUBR FSUB (Q,QQ) IS (</td><td class="n q">138</td><td class="c q">SUBR FSUB (Q,QQ) IS (</td></tr>
+<tr><td class="n d">147</td><td class="c d"> (QQ<del>_</del>QQ-1)&lt;0=&gt;ERROR(0,'** STACK UNDERFLOW IN FSUB **');</td><td class="n a">139</td><td class="c a"> (QQ<ins>:=</ins>QQ-1)&lt;0=&gt;ERROR(0,'** STACK UNDERFLOW IN FSUB **');</td></tr>
+<tr><td class="n q">148</td><td class="c q"> FREE(Q+QQ));</td><td class="n q">140</td><td class="c q"> FREE(Q+QQ));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">142</td><td class="c a"><ins># THE ORIGINAL STARTS WITH NM=R'''' =&gt; RETURN 2, COMPARING NM LEFT OVER FROM THE PREVIOUS</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">143</td><td class="c a">  <ins>CALL WITH THE APOSTROPHE (47B); IT IS KEPT.  A STRING CONSTANT IS BYTES HERE AND THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a">  <ins>NAME IS PACKED, SO THE TESTS FOR MORE THAN ONE CHARACTER AND FOR THE FIRST ARE WRITTEN</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">145</td><td class="c a">  <ins>OUT. #</ins></td></tr>
+<tr><td class="n q">150</td><td class="c q">SUBR ISNAME(S) IS (</td><td class="n q">146</td><td class="c q">SUBR ISNAME(S) IS (</td></tr>
+<tr><td class="n d">151</td><td class="c d"> ISNIT=0 =&gt; (SEM<del>_</del>DIR(';'); COL<del>_</del>DIR(':');</td><td class="n a">147</td><td class="c a"> ISNIT=0 =&gt; (SEM<ins>:=</ins>DIR(';'); COL<ins>:=</ins>DIR(':');</td></tr>
+<tr><td class="n d">152</td><td class="c d">             PCT<del>_</del>DIR('%'); LBR<del>_</del>DIR('&lt;'); ISNIT<del>_</del>1);</td><td class="n a">148</td><td class="c a">             PCT<ins>:=</ins>DIR('%'); LBR<ins>:=</ins>DIR('&lt;'); ISNIT<ins>:=</ins>1);</td></tr>
+<tr><td class="n d">153</td><td class="c d"> NM=<del>R''''</del>=&gt;RETURN 2;</td><td class="n a">149</td><td class="c a"> NM=<ins>47B</ins>=&gt;RETURN 2;</td></tr>
+<tr><td class="n d">154</td><td class="c d"> NM<del>_</del>DNAME(S,0); NM <del>LS 7</del> =&gt; RETURN 2;</td><td class="n a">150</td><td class="c a"> NM<ins>:=</ins>DNAME(S,0); <ins>REST(</ins>NM<ins>)</ins> =&gt; RETURN 2;</td></tr>
+<tr><td class="n d">155</td><td class="c d"> (NM<del>_</del>NM <del>RS 29</del>) GE 060B =&gt; NM LE 071B =&gt; RETURN 2;</td><td class="n a">151</td><td class="c a"> (NM<ins>:=CHR0(</ins>NM)<ins>)</ins> GE 060B =&gt; NM LE 071B =&gt; RETURN 2;</td></tr>
+<tr><td class="n d">156</td><td class="c d"> (NM<del>_</del>NM AND 137B) GE 101B =&gt; NM LE 132B =&gt; RETURN 2;</td><td class="n a">152</td><td class="c a"> (NM<ins>:=</ins>NM AND 137B) GE 101B =&gt; NM LE 132B =&gt; RETURN 2;</td></tr>
+<tr><td class="n d">157</td><td class="c d"> NZ<del>_</del>1; S=SEM=&gt;NZ<del>_</del>0; S=COL=&gt;NZ<del>_</del>0; S=PCT=&gt;NZ<del>_</del>0; S=LBR=&gt;NZ<del>_</del>0; NZ);</td><td class="n a">153</td><td class="c a"> NZ<ins>:=</ins>1; S=SEM=&gt;NZ<ins>:=</ins>0; S=COL=&gt;NZ<ins>:=</ins>0; S=PCT=&gt;NZ<ins>:=</ins>0; S=LBR=&gt;NZ<ins>:=</ins>0; NZ);</td></tr>
+<tr><td class="n q">159</td><td class="c q">SUBR AMBIG(P,NP,PN,O,TR) IS (</td><td class="n q">155</td><td class="c q">SUBR AMBIG(P,NP,PN,O,TR) IS (</td></tr>
+<tr><td class="n q">160</td><td class="c q"> # COMPARES ALL PAIRS I,J OF PARSES, I&lt;J.  I, J ARE INDICES, NI, NJ ARE NUMBER.#</td><td class="n q">156</td><td class="c q"> # COMPARES ALL PAIRS I,J OF PARSES, I&lt;J.  I, J ARE INDICES, NI, NJ ARE NUMBER.#</td></tr>
+<tr><td class="n d">161</td><td class="c d"> A1: I<del>_FORG+</del>P; NI<del>_</del>0; IL<del>_</del>-1;</td><td class="n a">157</td><td class="c a"> A1: I<ins>:=</ins>P; NI<ins>:=</ins>0; IL<ins>:=</ins>-1;</td></tr>
+<tr><td class="n d">162</td><td class="c d"> A4: NI<del>_</del>NI+1;</td><td class="n a">158</td><td class="c a"> A4: NI<ins>:=</ins>NI+1;</td></tr>
+<tr><td class="n d">163</td><td class="c d">     I<del>_</del>I+IL+1;</td><td class="n a">159</td><td class="c a">     I<ins>:=</ins>I+IL+1;</td></tr>
+<tr><td class="n q">164</td><td class="c q"> A2: NI=PN=&gt;GO TO AX;</td><td class="n q">160</td><td class="c q"> A2: NI=PN=&gt;GO TO AX;</td></tr>
+<tr><td class="n d">165</td><td class="c d">     IL<del>_[</del>I<del>]</del> AND <del>777777B</del>;</td><td class="n a">161</td><td class="c a">     IL<ins>:=FREE(</ins>I<ins>)</ins> AND <ins>HMASK</ins>;</td></tr>
+<tr><td class="n d">166</td><td class="c d">     J<del>_</del>I; NJ<del>_</del>NI; JL<del>_</del>IL;</td><td class="n a">162</td><td class="c a">     J<ins>:=</ins>I; NJ<ins>:=</ins>NI; JL<ins>:=</ins>IL;</td></tr>
+<tr><td class="n d">167</td><td class="c d"> A3: (NJ<del>_</del>NJ+1)&gt;PN=&gt;GO TO A4;</td><td class="n a">163</td><td class="c a"> A3: (NJ<ins>:=</ins>NJ+1)&gt;PN=&gt;GO TO A4;</td></tr>
+<tr><td class="n d">168</td><td class="c d">     J<del>_</del>J+JL+1;</td><td class="n a">164</td><td class="c a">     J<ins>:=</ins>J+JL+1;</td></tr>
+<tr><td class="n d">169</td><td class="c d">     JL<del>_[</del>J<del>]</del> AND <del>777777B</del>;</td><td class="n a">165</td><td class="c a">     JL<ins>:=FREE(</ins>J<ins>)</ins> AND <ins>HMASK</ins>;</td></tr>
+<tr><td class="n q">170</td><td class="c q">     IL NE JL=&gt;GO TO A3;</td><td class="n q">166</td><td class="c q">     IL NE JL=&gt;GO TO A3;</td></tr>
+<tr><td class="n d">171</td><td class="c d">     (<del>[</del>I+K<del>]</del> NE <del>[</del>J+K<del>]</del> =&gt; GO TO A3) FOR K IN 1,1,IL;</td><td class="n a">167</td><td class="c a">     (<ins>FREE(</ins>I+K<ins>)</ins> NE <ins>FREE(</ins>J+K<ins>)</ins> =&gt; GO TO A3) FOR K IN 1,1,IL;</td></tr>
+<tr><td class="n q">172</td><td class="c q"> TR=&gt;PRINT STG 0,'AMBIGUITY FOUND - IDENTICAL PARSES # ',</td><td class="n q">168</td><td class="c q"> TR=&gt;PRINT STG 0,'AMBIGUITY FOUND - IDENTICAL PARSES # ',</td></tr>
+<tr><td class="n q">173</td><td class="c q">           IGR 3,NI,STG 0,',',IGR 0,NJ,STG 0,/;</td><td class="n q">169</td><td class="c q">           IGR 3,NI,STG 0,',',IGR 0,NJ,STG 0,/;</td></tr>
+<tr><td class="n d">174</td><td class="c d"> IO<del>_[</del>I<del>]</del> RS <del>18</del>; JO<del>_[</del>J<del>]</del> RS <del>18</del>;</td><td class="n a">170</td><td class="c a"> IO<ins>:=FREE(</ins>I<ins>)</ins> RS <ins>HSH</ins>; JO<ins>:=FREE(</ins>J<ins>)</ins> RS <ins>HSH</ins>;</td></tr>
+<tr><td class="n d">175</td><td class="c d"> IT<del>_</del>JT<del>_</del>SAME<del>_</del>0;</td><td class="n a">171</td><td class="c a"> IT<ins>:=</ins>JT<ins>:=</ins>SAME<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">176</td><td class="c d"> A5: IO=&gt;JO=&gt;(IO<del>_</del>FREE(O+IO); JO<del>_</del>FREE(O+JO);</td><td class="n a">172</td><td class="c a"> A5: IO=&gt;JO=&gt;(IO<ins>:=</ins>FREE(O+IO); JO<ins>:=</ins>FREE(O+JO);</td></tr>
+<tr><td class="n d">177</td><td class="c d">              (IO RS <del>18</del>) NE (JO RS <del>18</del>)=&gt;SAME<del>_</del>1;</td><td class="n a">173</td><td class="c a">              (IO RS <ins>HSH</ins>) NE (JO RS <ins>HSH</ins>)=&gt;SAME<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">178</td><td class="c d">              IO&lt;0=&gt;IT<del>_</del>IT+1; JO&lt;0=&gt;JT<del>_</del>JT+1;</td><td class="n a">174</td><td class="c a">              IO&lt;0=&gt;IT<ins>:=</ins>IT+1; JO&lt;0=&gt;JT<ins>:=</ins>JT+1;</td></tr>
+<tr><td class="n d">179</td><td class="c d">              IO<del>_</del>IO AND <del>777777B</del>; JO<del>_</del>JO AND <del>777777B</del>;</td><td class="n a">175</td><td class="c a">              IO<ins>:=</ins>IO AND <ins>HMASK</ins>; JO<ins>:=</ins>JO AND <ins>HMASK</ins>;</td></tr>
+<tr><td class="n q">180</td><td class="c q">              GO TO A5);</td><td class="n q">176</td><td class="c q">              GO TO A5);</td></tr>
+<tr><td class="n q">181</td><td class="c q"> (IO OR JO OR SAME)=0=&gt;(TR=&gt;PRINT 'OUTPUTS IDENTICAL'; GO TO OFFJ);</td><td class="n q">177</td><td class="c q"> (IO OR JO OR SAME)=0=&gt;(TR=&gt;PRINT 'OUTPUTS IDENTICAL'; GO TO OFFJ);</td></tr>
+<tr><td class="n d">182</td><td class="c d"> LONGER<del>_</del>IO-JO;</td><td class="n a">178</td><td class="c a"> LONGER<ins>:=</ins>IO-JO;</td></tr>
+<tr><td class="n d">183</td><td class="c d"> A6: IO=&gt;(IO<del>_</del>FREE(O+IO); IO&lt;0=&gt;IT<del>_</del>IT+1; IO<del>_</del>IO AND <del>777777B</del>; GO TO A6);</td><td class="n a">179</td><td class="c a"> A6: IO=&gt;(IO<ins>:=</ins>FREE(O+IO); IO&lt;0=&gt;IT<ins>:=</ins>IT+1; IO<ins>:=</ins>IO AND <ins>HMASK</ins>; GO TO A6);</td></tr>
+<tr><td class="n d">184</td><td class="c d"> A7: JO=&gt;(JO<del>_</del>FREE(O+JO); JO&lt;0=&gt;JT<del>_</del>JT+1; JO<del>_</del>JO AND <del>777777B</del>; GO TO A7);</td><td class="n a">180</td><td class="c a"> A7: JO=&gt;(JO<ins>:=</ins>FREE(O+JO); JO&lt;0=&gt;JT<ins>:=</ins>JT+1; JO<ins>:=</ins>JO AND <ins>HMASK</ins>; GO TO A7);</td></tr>
+<tr><td class="n q">185</td><td class="c q"> IT NE JT=&gt;(TR=&gt;PRINT 'MORE TERMINALS'; IT&gt;JT=&gt;GO TO OFFI; GO TO OFFJ);</td><td class="n q">181</td><td class="c q"> IT NE JT=&gt;(TR=&gt;PRINT 'MORE TERMINALS'; IT&gt;JT=&gt;GO TO OFFI; GO TO OFFJ);</td></tr>
+<tr><td class="n q">186</td><td class="c q"> LONGER=0=&gt;(ERROR(1,'SYNTACTIC AMBIGUITY.');</td><td class="n q">182</td><td class="c q"> LONGER=0=&gt;(ERROR(1,'SYNTACTIC AMBIGUITY.');</td></tr>
+<tr><td class="n d">187</td><td class="c d">	FINAM IS COMMON; FINAM[5]<del>_</del>FINAM[5] OR 40000B; # TURN ON LIST #</td><td class="n a">183</td><td class="c a">	FINAM IS COMMON; FINAM[5]<ins>:=</ins>FINAM[5] OR 40000B; # TURN ON LIST #</td></tr>
+<tr><td class="n d">188</td><td class="c d">	(IO<del>_[</del>I<del>]</del> RS <del>18</del>)=&gt;(</td><td class="n a">184</td><td class="c a">	(IO<ins>:=FREE(</ins>I<ins>)</ins> RS <ins>HSH</ins>)=&gt;(</td></tr>
+<tr><td class="n q">189</td><td class="c q">		PRINT STG 0,' * IDENTIFIERS IN AMBIGUOUS SEGMENT (IN REVERSE ORDER): ',/,' ';</td><td class="n q">185</td><td class="c q">		PRINT STG 0,' * IDENTIFIERS IN AMBIGUOUS SEGMENT (IN REVERSE ORDER): ',/,' ';</td></tr>
+<tr><td class="n d">190</td><td class="c d">		WHILE IO DO ((IO<del>_</del>FREE(O+IO))&lt;0=&gt;(PNAME(-(IO ARS <del>18</del>));</td><td class="n a">186</td><td class="c a">		WHILE IO DO ((IO<ins>:=</ins>FREE(O+IO))&lt;0=&gt;(PNAME(-(IO ARS <ins>HSH</ins>));</td></tr>
+<tr><td class="n q">191</td><td class="c q">					PRINT STG 0,' ');</td><td class="n q">187</td><td class="c q">					PRINT STG 0,' ');</td></tr>
+<tr><td class="n d">192</td><td class="c d">			IO<del>_</del>IO<del>&lt;R&gt;</del>);</td><td class="n a">188</td><td class="c a">			IO<ins>:=</ins>IO <ins>AND HMASK</ins>);</td></tr>
+<tr><td class="n q">193</td><td class="c q">		PRINT /);</td><td class="n q">189</td><td class="c q">		PRINT /);</td></tr>
+<tr><td class="n q">194</td><td class="c q">	GO TO OFFJ);</td><td class="n q">190</td><td class="c q">	GO TO OFFJ);</td></tr>
+<tr><td class="n q">195</td><td class="c q"> TR=&gt;PRINT 'LONGER'; LONGER&gt;0=&gt;GO TO OFFI;</td><td class="n q">191</td><td class="c q"> TR=&gt;PRINT 'LONGER'; LONGER&gt;0=&gt;GO TO OFFI;</td></tr>
+<tr><td class="n d">196</td><td class="c d"> OFFJ: I<del>_</del>J; NI<del>_</del>NJ; IL<del>_</del>JL;</td><td class="n a">192</td><td class="c a"> OFFJ: I<ins>:=</ins>J; NI<ins>:=</ins>NJ; IL<ins>:=</ins>JL;</td></tr>
+<tr><td class="n q">197</td><td class="c q"> OFFI: TR=&gt;PRINT ', #',IGR 0,NI,STG 0,' DISCARDED.',/;</td><td class="n q">193</td><td class="c q"> OFFI: TR=&gt;PRINT ', #',IGR 0,NI,STG 0,' DISCARDED.',/;</td></tr>
+<tr><td class="n q">198</td><td class="c q"> # MOVE UP FROM I+IL+1 TO I #</td><td class="n q">194</td><td class="c q"> # MOVE UP FROM I+IL+1 TO I #</td></tr>
+<tr><td class="n d">199</td><td class="c d"> J<del>_</del>I+(IL<del>_</del>IL+1); JL<del>_FORG+</del>P+NP-1;</td><td class="n a">195</td><td class="c a"> J<ins>:=</ins>I+(IL<ins>:=</ins>IL+1); JL<ins>:=</ins>P+NP-1;</td></tr>
+<tr><td class="n d">200</td><td class="c d"> J LE JL =&gt;(<del>8R_</del>I+<del>J LS 18;</del></td><td class="n a">196</td><td class="c a"> J LE JL =&gt;(<ins>FREES(</ins>I+<ins>K,FREE</ins>(<ins>J</ins>+<ins>K)) FOR K TO</ins> JL-<ins>J</ins>);</td></tr>
+<tr><td class="n d">201</td><td class="c d">            <del>BLT_</del>(<del>2514B LS 24)</del>+JL-<del>IL;</del></td><td class="n a">197</td><td class="c a"> NP<ins>:=</ins>NP-IL;</td></tr>
+<tr><td class="n d">202</td><td class="c d">            <del>EXECUTE BLT</del>);</td><td class="n a">198</td><td class="c a"> (PN<ins>:=</ins>PN-1)&gt;1=&gt;GO TO A1;</td></tr>
+<tr><td class="n d">203</td><td class="c d"> NP<del>_</del>NP-IL;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">204</td><td class="c d"> (PN<del>_</del>PN-1)&gt;1=&gt;GO TO A1;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">205</td><td class="c q"> AX: 0)%%</td><td class="n q">199</td><td class="c q"> AX: 0)%%</td></tr>
+</table>
+</body></html>

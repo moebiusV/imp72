@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tprin.iml: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>tprin.iml</h1>
+<p class="mut">left, old (the tape): decus/tprin.iml<br>right, new (the port): -</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 1516 tokens deleted, 0 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n d">1</td><td class="c d"><del>CALL ME !PRN.!;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">2</td><td class="c d"><del>#FILE: TPRIN.I10#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">4</td><td class="c d"><del>SUBR !PRN.!(Z) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">5</td><td class="c d">  <del>!OL.!               IS COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">6</td><td class="c d">  <del>!OC.!, !PSW.!      ARE COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">7</td><td class="c d">  <del>!LC.!,!FM.!,!FL.!  ARE COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">8</td><td class="c d">  <del>!.JBREN!            IS COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">9</td><td class="c d">  <del>B IS 128 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">10</td><td class="c d"> <del>Q_14R AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">11</td><td class="c d"> <del>!PSW.!=0=&gt;(!PSW.!_1; !OL.![1]_0; BN_127; !.JBREN!_LOC(REENT);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">12</td><td class="c d">            <del>(520B AND 1 LS [Q] RS 24)=0=&gt;!OBIN.!(0,0,!OC.!,!OL.!));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">13</td><td class="c d"> <del>TD: T_[Q] RS 24; N_!PADR.!(Q);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">14</td><td class="c d"> <del>T NE 0 =&gt; (T=5=&gt;(!POUT.!(15B); !POUT.!(12B); !LC.![!OC.!]_0; GO TO TZ);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">15</td><td class="c d">            <del>T=4=&gt;(!OBIN.! (Q,0,!OC.!,!OL.!); GO TO TZ);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">16</td><td class="c d">            <del>T=6=&gt;(!OBIN.! (!FBLK.!(Q),0,!OC.!,!OL.!); GO TO TZ);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">17</td><td class="c d">            <del>T=7=&gt;(!PTR.![!OC.!]_4400000000B OR 777777B</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">18</td><td class="c d">                        <del>AND !PTR.![!OC.!];</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">19</td><td class="c d">                  <del>!PTE.![!OC.!]_4400000000B OR 777777B</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">20</td><td class="c d">                        <del>AND !PTE.![!OC.!]);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">21</td><td class="c d">              <del>T=8=&gt;(!DEV.!([N],0); GO TO TZ);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">22</td><td class="c d">              <del>T=9=&gt;(TAB: !LC.![!OC.!]+1&lt;[N]=&gt;(</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">23</td><td class="c d">				<del>!LC.![!OC.!]_!LC.![!OC.!]+1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">24</td><td class="c d">				<del>!POUT.!(40B); GO TO TAB);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">25</td><td class="c d">                    <del>GO TO TZ);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">26</td><td class="c d">	    <del>T=10=&gt;(FILLER_[N] RS 29; GO TO TZ); REMOTE FILLER: DATA(40B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">27</td><td class="c d">            <del>T&gt;11=&gt;GO TO TV;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">28</td><td class="c d">            <del>!FM.![!OC.!]_T; !FL.![!OC.!]_[N]; GO TO TZ);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">29</td><td class="c d"> <del>F_!FM.![!OC.!]; G_!FL.![!OC.!]&lt;R&gt;-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">30</td><td class="c d"> <del>F=3=&gt;(I_-1;S_P_010677777777B+N;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">31</td><td class="c d">       <del>TC: I&lt;BN=&gt;(ILDB(P)=&gt;((I_I+1) NE G=&gt;GO TO TC));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">32</td><td class="c d">       <del>I GE 0=&gt;((B[J]_ILDB(S)) FOR J FROM I);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">33</td><td class="c d">       <del>GO TO TX);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">34</td><td class="c d"> <del>F=11=&gt;(#FLOATING POINT OUTPUT - GET NR DECIMAL PLACES #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">35</td><td class="c d">	<del>D_!FL.![!OC.!] ARS 18;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">36</td><td class="c d">	<del># SCALE TO RANGE [0.1,1) #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">37</td><td class="c d">	<del>ZZ_[N]; ZZ IS REAL;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">38</td><td class="c d">	<del>ZZ&lt;0=&gt;ZZ_-ZZ; EXP_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">39</td><td class="c d">	<del>ZZ=0=&gt;(B_R'0'; I_0; GO TO TX);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">40</td><td class="c d">	<del>WHILE ZZ&lt;0.1 DO (EXP_EXP-10; ZZ_ZZ*1.0"10);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">41</td><td class="c d">	<del>WHILE ZZ GE 1.0"10 DO (EXP_EXP+10; ZZ_ZZ*1.0"-10);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d">	<del>WHILE ZZ GE 1.0 DO (EXP_EXP+1; ZZ_ZZ*0.1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d">	<del># CHECK FOR FIT IN FIELD #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">44</td><td class="c d">	<del>SCI_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">45</td><td class="c d">	<del># G NEG MEANS FORCE SCI NOT. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d">	<del>G&gt;0=&gt;G AND 400000B=&gt;(G_-1-((G+1) LS 18) ARS 18;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">47</td><td class="c d">			<del>D_D+1; SCI_0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">48</td><td class="c d">	<del>J_(EXP&gt;0=&gt;SCI*EXP ELSE 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d">	<del>I_J+(D=&gt;D+1 ELSE 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">50</td><td class="c d">	<del>G GE 0=&gt;I GE G=&gt;(SCI_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">51</td><td class="c d">		<del>(D_G-6) LE 1=&gt;(D_2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">52</td><td class="c d">			<del>G_-1); I_D+1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">53</td><td class="c d">	<del>D=0=&gt;I_I+1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d">	<del>FLT3: # ROUND #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">55</td><td class="c d">	<del>RND IS REAL; RND_0.5;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d">	<del>I&gt;1=&gt;(RND_RND*0.1) FOR II FROM I-2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d">	<del>WHILE (ZZ+RND) GE 1.0 DO (RND_RND*0.1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d">	<del>ZZ_ZZ+RND;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d">	<del>XP_SCI*EXP;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d">	<del>I_-1; [N]&lt;0=&gt;B[127-I_I+1]_R'-';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d">	<del>WHILE XP&gt;0 DO(II_ZZ_10.0*ZZ; B[127-I_I+1]_R'0'+II//10; XP_XP-1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">	<del>D&gt;0=&gt;(B[127-I_I+1]_R'.';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">63</td><td class="c d">		<del>((I_I+1) GE G=&gt;G GE 0=&gt;GO TO FLT1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d">		 <del>XP&lt;0=&gt;(B[127-I]_R'0'; XP_XP+1; GO TO LL7);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d">		 <del>II_ZZ_10.0*ZZ; B[127-I]_R'0'+II//10;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d">		 <del>LL7: 0) FOR J FROM D-1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">67</td><td class="c d">	<del>FLT1: J_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">68</td><td class="c d">	<del>SCI=0=&gt;(J_-1; XP_(EXP GE 0=&gt;EXP ELSE -EXP);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d">		<del>FLT2: B[J_J+1]_R'0'+XP//10;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d">		<del>(XP_XP/10)=&gt;GO TO FLT2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">71</td><td class="c d">		<del>EXP&lt;0=&gt;B[J_J+1]_R'-';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d">		<del>B[J_J+1]_R'"';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d">		<del>J_J+1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d">	<del>(B[J+K]_B[127+K-I]) FOR K TO I;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d">	<del>I_I+J;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">76</td><td class="c d">	<del>GO TO TX);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">78</td><td class="c d"> <del>F=7=&gt;(!POUT.!([N]); GO TO TZ);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">79</td><td class="c d"> <del>I_0; X_[N];</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">80</td><td class="c d"> <del>F=2=&gt;(	X&lt;0=&gt;9R_-X ELSE 9R_X;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">81</td><td class="c d">	<del>TA: 9R_9R/10; B[I]_10R+60B; 9R=&gt;(I_I+1; GO TO TA);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">82</td><td class="c d">       <del>X&lt;0=&gt;(I_I+1; B[I]_55B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">83</td><td class="c d">       <del>GO TO TX);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">84</td><td class="c d"> <del>F=1=&gt;(TB: B[I]_(X AND 7)+60B; (X_X RS 3)=&gt;(I_I+1; GO TO TB);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">85</td><td class="c d">       <del>TL: I&lt;G=&gt;(I&lt;11=&gt;(I_I+1; B[I]_60B; GO TO TL)));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">87</td><td class="c d"> <del>TX: (J_G)&gt;I=&gt;T_J  ELSE  T_I;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">88</td><td class="c d"> <del>!LC.![!OC.!] _ !LC.![!OC.!] + T + 1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">89</td><td class="c d"> <del>TE: J&gt;I=&gt;(J_J-1; !POUT.!(FILLER); GO TO TE);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">90</td><td class="c d"> <del>(!POUT.!(B[J])) FOR J FROM I;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">91</td><td class="c d"> <del>TZ: Q_Q+1; GO TO TD;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">92</td><td class="c d"> <del>TV: 14R&lt;R&gt;_(Q-1) AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">93</td><td class="c d"> <del>RETURN !LC.![!OC.!];</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">94</td><td class="c d"> <del>REENT: FINI(0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">95</td><td class="c d"><del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">98</td><td class="c d"><del>SUBR !POUT.!(V) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">99</td><td class="c d"> <del>!OC.!&lt;0=&gt;(EXECUTE 051040000000B+LOC(V); RETURN 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">100</td><td class="c d"> <del>!PTR.!, !PTE.! ARE COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">101</td><td class="c d"> <del>IDPB(V,!PTR.![!OC.!]);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">102</td><td class="c d"> <del>V=12B=&gt;!OL.!&gt;0=&gt;(IDPB(0,!PTR.![!OC.!]);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">103</td><td class="c d">                  <del>!PTR.![!OC.!]_!PTE.![!OC.!]; GO TO TYPIT);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">104</td><td class="c d"> <del>!PTR.![!OC.!]=!PTE.![!OC.!]=&gt;(</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">105</td><td class="c d">      <del>TYPIT: !OL.!&gt;0=&gt;(!TYP.!(!PTR.![!OC.!],!OL.!); X_16)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">106</td><td class="c d">               <del>ELSE (OUTPUT(!OC.!+14B,!OL.!); X_128);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">107</td><td class="c d">                <del>!PTR.![!OC.!]_!PTR.![!OC.!]-X);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">108</td><td class="c d"><del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">111</td><td class="c d"><del>SUBR !TYP.!(P,A) IS ( X_P; IDPB(0,X); OUTSTR([A]))%%</del></td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

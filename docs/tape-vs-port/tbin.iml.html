@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tbin.iml: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>tbin.iml</h1>
+<p class="mut">left, old (the tape): decus/tbin.iml<br>right, new (the port): -</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 1648 tokens deleted, 0 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n d">1</td><td class="c d"><del>CALL ME !OBIN.!;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">2</td><td class="c d"><del>#FILE: TBIN.I10#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">4</td><td class="c d"><del>SUBR !OBIN.!(Q,IO,CH,LST) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">5</td><td class="c d">  <del>!OL.!, !IL.! ARE COMMON, 2 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">6</td><td class="c d">  <del>!OC.!, !IC.!, !PSW.!, !RSW.! ARE COMMON, 1 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">7</td><td class="c d">  <del>BBF IS  512 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">8</td><td class="c d">  <del>FI  IS   20 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">9</td><td class="c d">  <del>FN  IS    5 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">10</td><td class="c d">  <del>UC  IS    4 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">11</td><td class="c d"> <del>Q=0 =&gt; (IO=&gt; FN_'PI' ELSE FN_'PO';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">12</td><td class="c d">        <del>(FN[I+1]_0) FOR I TO 3)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">13</td><td class="c d">   <del>ELSE (W_[Q]; (FN[I]_[W+I]) FOR I TO 4);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">14</td><td class="c d"> <del>(FN AND 377B)=0=&gt;FN[1]_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">15</td><td class="c d"> <del>(CH_!FCH.!(FN,I)) GE 0=&gt;(E_LOC(BBF)+(CH LS 7); GO TO SLS);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">16</td><td class="c d"> <del>I&lt;0=&gt;(IER('ATTEMPT TO OPEN MORE THAN 4 FILES.'); FINI(0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">17</td><td class="c d"> <del>CH_I; I_CH*5; HCH_CH+14B; UC[CH]_1+IO; CH&gt;NC=&gt;NC_CH;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">18</td><td class="c d"> <del>(FI[I+J]_FN[J]) FOR J TO 4;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">19</td><td class="c d"> <del>INIT(HCH,14,DEV);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">20</td><td class="c d"> <del>DEV_'DSK'; DEV[1]_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">21</td><td class="c d"> <del>E_LOC(BBF)+(CH LS 7); !PTE.![CH]_010700000177B+E;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">22</td><td class="c d"> <del>!LC.![CH]_!FL.![CH]_0; !FM.![CH]_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">23</td><td class="c d"> <del>IO  =&gt; (W_LOOKUP(HCH,FN,FN[2],FN[3],FN[4]);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">24</td><td class="c d">         <del>W=&gt;(IER('FILE NOT FOUND: '); GO TO ERF);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">25</td><td class="c d">         <del>!PTR.![CH]_!PTE.![CH])</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">26</td><td class="c d">   <del>ELSE (W_ENTER(HCH,FN,FN[2],FN[3],FN[4]);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">27</td><td class="c d">         <del>W=&gt;(IER('CANNOT CREATE FILE: ');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">28</td><td class="c d">             <del>ERF: OUTSTR(FN); FN[2]=&gt;(OUTSTR('.'); OUTSTR(FN[2]));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">29</td><td class="c d">             <del>FN[3]=&gt;(OUTSTR('['); OUTSTR(!OAS.!(FN[3])); OUTSTR(',');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">30</td><td class="c d">                     <del>OUTSTR(!OAS.!(FN[4])); OUTSTR(']'));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">31</td><td class="c d">             <del>FINI(0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">32</td><td class="c d">         <del>!PTR.![CH]_010677777777B+E);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">33</td><td class="c d"> <del>SLS: UC[CH]=3 =&gt; LST_E   ELSE   LST_777577777777B+E;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">34</td><td class="c d"><del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">37</td><td class="c d"><del>SUBR !DEV.!(D,IO) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">38</td><td class="c d"> <del>D='TTY:'=&gt;(IO=&gt;!IC.!_-2 ELSE !OC.!_-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">39</td><td class="c d">		<del>I_-(IO+1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">40</td><td class="c d">		<del>!LC.![I]_!FL.![I]_0; !FM.![I]_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">41</td><td class="c d">		<del>RETURN 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d"> <del>DEV[1]_((376B AND DEV_D)=&gt;D[1] ELSE 0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d"><del>DEV: DATA('DSK',0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">45</td><td class="c d"><del>REMOTE (DATA(0,0); !PTR.!: DATA(0,0,0,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d">	<del>DATA(0,0); !PTE.!: DATA(0,0,0,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">47</td><td class="c d">	<del>DATA(0,0); !LC.!:  DATA(0,0,0,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">48</td><td class="c d">	<del>DATA(0,0); !FL.!:  DATA(0,0,0,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d">	<del>DATA(0,0); !FM.!:  DATA(0,0,0,0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">50</td><td class="c d"><del>!PTR.!, !PTE.!, !LC.!,!FL.!, !FM.! ARE COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">53</td><td class="c d"><del>SUBR FINI(Z) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d"> <del>Z=0=&gt;GO TO ALL; Z=-1=&gt;GO TO ALL;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">55</td><td class="c d"> <del>FN_Z; (FN[I]_[[14R+I-1]]) FOR I IN 2,1,4;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d"> <del>FN[1]_[[14R]+1];</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d"> <del>(FN AND 377B)=0=&gt;FN[1]_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d"> <del>FN[2]='UFD'=&gt;(FN AND 600000000000B)=0=&gt;FN[1]_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d"> <del>!CLS.!(FN);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d"> <del>0R_0; DATA(267716000004B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d"> <del>ALL: (UC[I]=1 =&gt; !PDO.!(I);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">       <del>UC[I]=3 =&gt; !TYP.!(!PTR.![I],LOC(BBF)+(I LS 7));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">63</td><td class="c d">       <del>UC[I]=&gt;(UC[I]_0; CLOSE(I+14B))) FOR I TO NC;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d"> <del>NC_-1; Z=0=&gt;(RELEA(I+14B) FOR I TO NC; CALLI(12B,1));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d"> <del>!PSW.!_!RSW.!_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d"><del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d"><del>SUBR !CLS.!(NM) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d"> <del>(I_!FCH.!(NM,M)) GE 0 =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">71</td><td class="c d">     <del>J_I*5; (FI[J+K]_0) FOR K TO 4; NC=I=&gt;NC_NC-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d">     <del>UC[I]=1 =&gt; (SC_!OC.!; SL_!OL.!; !PDO.!(I); !OC.!_SC; !OL.!_SL);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d">     <del>UC[I]=3 =&gt; !TYP.!(!PTR.![I],LOC(BBF)+(I LS 7));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d">     <del>UC[I]_0; CLOSE(I+14B));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d"><del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">78</td><td class="c d"><del>SUBR !FCH.!(NM,FC) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">79</td><td class="c d"> <del>C_-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">80</td><td class="c d"> <del>LB: C_C+1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">81</td><td class="c d"> <del>C LE NC =&gt; (I_C*5; (FI[I+J] NE NM[J]=&gt;GO TO LB) FOR J TO 4)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">82</td><td class="c d">       <del>ELSE (C_-1; (UC[J]=0=&gt;(FC_J; GO TO RTFC)) FOR J TO 3;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">83</td><td class="c d">             <del>FC_-1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">84</td><td class="c d"><del>RTFC: C);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">85</td><td class="c d"><del>NC: DATA(777777777777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">88</td><td class="c d"><del>SUBR !PDO.!(I) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">89</td><td class="c d"> <del>E_!PTE.![I]-128;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">90</td><td class="c d"> <del>!OL.!_E-011100000000B; !OC.!_I;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">91</td><td class="c d"> <del>PAD: !PTR.![!OC.!] NE E=&gt;(!POUT.!(0); GO TO PAD);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">92</td><td class="c d"><del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">95</td><td class="c d"><del>#PGM TO DUMMY UP FILE REFERENCES IN NEW IMP#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">96</td><td class="c d"><del>SUBR !FBLK.!(Q) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">97</td><td class="c d"> <del>BLK IS 5 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">98</td><td class="c d"> <del>BLK_[!PADR.!(Q)]; BLK[1]_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">99</td><td class="c d"> <del>BLK AND 377B=&gt;BLK AND 774000000000B=&gt;BLK[1]_[1+!PADR.!(Q)];</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">100</td><td class="c d"> <del>BLK[I+1]_[!PADR.!(Q+I)] FOR I IN 1,1,3;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">101</td><td class="c d"> <del>Q_Q+3; I_LOC(BLK);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">102</td><td class="c d"><del>LOC(I));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">105</td><td class="c d"><del>SUBR !OAS.!(N) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">106</td><td class="c d"> <del>RTV_I_0; P_BYTEP RTV&lt;7,36&gt;; M_N;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">107</td><td class="c d"> <del>TA1:FI[I]_(M AND 7)+60B; (I_I+1)&lt;4=&gt;((M_M RS 3)=&gt;GO TO TA1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">108</td><td class="c d"> <del>&lt;+P&gt;_FI[L] FOR L FROM I-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">109</td><td class="c d"> <del>RTV);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">112</td><td class="c d"><del>SUBR ITYPE(NM) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">113</td><td class="c d"> <del>FN_NM; FN[2]_FN[3]_FN[4]_0; FN AND 377B=&gt;FN[1]_NM[1]  ELSE  FN[1]_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">114</td><td class="c d"> <del>(I_!FCH.!(FN,J)) GE 0=&gt;(UC[I] NE 3=&gt;(IER('ITYPE FILENAME ALREADY IN USE: ');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">115</td><td class="c d">                                    <del>OUTSTR(FN));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">116</td><td class="c d">                       <del>GO TO RTNI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">117</td><td class="c d"> <del>J&lt;0 =&gt; (IER('CHANNEL NOT AVAILABLE FOR TYPING FILE: ');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">118</td><td class="c d">         <del>OUTSTR(FN); GO TO RTNI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">119</td><td class="c d"> <del>K_J*5; (FI[K+I]_FN[I]) FOR I TO 4; J&gt;NC=&gt;NC_J;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">120</td><td class="c d"> <del>UC[J]_3; !LC.![J]_!FL.![J]_0; !FM.![J]_1; E_LOC(BBF)+(J LS 7);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">121</td><td class="c d"> <del>!PTE.![J]_010700000017B+E; !PTR.![J]_440700000000B+E;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">122</td><td class="c d"><del>RTNI: 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">125</td><td class="c d"><del>SUBR !PADR.!(Q) IS (8R_Q; DATA(201430000000B); 8R);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">127</td><td class="c d"><del>SUBR IER(MES) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">128</td><td class="c d"> <del>OUTCHR(15B); OUTCHR(12B); OUTSTR('?? ERROR IN IMP RUN-TIME I/O:');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">129</td><td class="c d"> <del>OUTCHR(15B); OUTCHR(12B); OUTSTR('?? '); OUTSTR(MES);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">130</td><td class="c d"><del>0) %%%</del></td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

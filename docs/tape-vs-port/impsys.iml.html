@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>impsys.iml: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>impsys.iml</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): lib/impsys.iml</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 1496 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>#IMPSYS: WHAT THE RUNTIME LIBRARY OF IMP72 PROGRAMS AND THE IMP COMPILER ASK OF THE SYSTEM: THE STANDARD FILES (IN SYSGEN, WHICH KNOWS THE NAMES THE C LIBRARY GIVES THEM), THE ARENA'S ADDRESS SPACE,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>THE ELEMENTS OF AN ARGUMENT VECTOR, AND A MEMORY PEEK.  THE TRANSLATION OF LIB/IMPSYS.C, WHICH WAS C ALONE FOR THE FLAGS OF MMAP: THEY ARE THE CONSTANTS OF SYSGEN (TOOLS/SYSCONST.SH).  THE RUNTIME ITSELF</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"><ins>(PRINT, READ, FINI, CALLI, BLT, IFIX, THE SHIFTS, THE BYTE POINTERS) IS LIB/IMPIO.IML AND LIB/IMPRT.IML.  A ROUTINE HERE TAKES ITS PARAMETERS BY REFERENCE, AS ALL OF THEM DO: THE CALLERS DO NOT USE CCALL.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"><ins>THE ARENA OF THE IMP COMPILER'S FREE STORAGE (SRC/FREE.IMC, CORE): THE LOW SEGMENT OF THE TAPE'S FREE STORAGE GROWS IN PLACE (CORE SETS ITS SIZE AND NOTHING MOVES), SO THAT THE ADDRESSES OF THE ARRAYS, AND THE BYTE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"><ins>POINTERS INTO THEM, STAY.  HERE THE ADDRESS SPACE FOR THE ARENA IS RESERVED ONCE, WITHOUT ACCESS, AND CORE MAKES MORE OF IT USABLE.  IT IS ASKED FOR AT THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"><ins>SAME ADDRESS EVERY TIME (SCHINT), EXACTLY WHERE THE SYSTEM HAS A FLAG FOR THAT (SCEXACT), SO THAT AN IMAGE (U AND V) FINDS THE ARENA WHERE IT WAS SAVED; WHEN THE SYSTEM GIVES ANOTHER ADDRESS (A RANDOMISING KERNEL,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"><ins>A FULL ADDRESS SPACE) THE IMAGE IS MOVED (SRC/IMAGE.IMC).  IMPCOREBASE=ADDR IN THE ENVIRONMENT (DECIMAL OR 0X HEX) REPLACES THE HINT, FOR THE TESTS OF THAT.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"><ins>DBUF IS 4 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"><ins># THE N BYTES AT P AS A NUMBER IN THE ORDER OF THE MACHINE (SCBE), ZERO EXTENDED; N AT MOST 8.  A BYTE AT A TIME: ON A BIG ENDIAN MACHINE THE FIRST BYTE OF A SHORT NUMBER IS ITS HIGH ONE, AND</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a">  <ins>A COPY OF N BYTES TO THE START OF A WORD IS NOT THE NUMBER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"><ins>SUBR IMPPEEK(P,N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"> <ins>V,K,B ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"> <ins>V:=0; K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"> <ins>PK1: K&lt;N =&gt; (B:=0; CCALL memcpy(LOC(B)+(SCBE(0)*7),P+K,1);                 # (THE BYTE IS THE LOW ONE OF B: THE LAST ADDRESS OF IT ON A BIG ENDIAN MACHINE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a">              <ins>SCBE(0)=0 =&gt; V:=V OR (B LS (8*K)) ELSE V:=(V LS 8) OR B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a">              <ins>K:=K+1; GO TO PK1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"><ins># THE POINTER (SCPTR BYTES) AT P #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"><ins>SUBR IMPPEEKPTR(P) IS IMPPEEK(P,SCPTR(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a"><ins># A MESSAGE FOR THE ARENA'S TROUBLES, WHEN IMPCOREDEBUG IS IN THE ENVIRONMENT: A STRING, AND A NUMBER IN DECIMAL #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"><ins>SUBR DBGON(Z) IS (CCALL getenv(LOC('IMPCOREDEBUG')) NE 0 =&gt; 1 ELSE 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"><ins>SUBR DBGS(S) IS (CCALL write(2,S,CCALL strlen(S)); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a"><ins>SUBR DBGN(N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a"> <ins>V,I,D,DP ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"> <ins>DP:=LOC(DBUF);                                                  # (IN A VARIABLE: THE SEED TAKES LOC(X)+N FOR N WORDS) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">33</td><td class="c a"> <ins>V:=N; I:=31;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"> <ins>V&lt;0 =&gt; (DBGS(LOC('-')); V:=0-V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"> <ins>D:=48+(V-((V/10)*10)); CCALL memcpy(DP+I,LOC(D)+(SCBE(0)*7),1); V:=V/10;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a"> <ins>DN1: V NE 0 =&gt; (I:=I-1; D:=48+(V-((V/10)*10)); CCALL memcpy(DP+I,LOC(D)+(SCBE(0)*7),1); V:=V/10; GO TO DN1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"> <ins>CCALL write(2,DP+I,32-I); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"><ins># THE ARENA: ITS BASE (RESERVED ON THE FIRST CALL), OR 0 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"><ins>SUBR IMPCOREBASE(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a"> <ins>R,P,EX,F,H ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a"> <ins>CBASE NE 0 =&gt; RETURN CBASE;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">43</td><td class="c a"> <ins>R:=SCRESV(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a"> <ins>CB1: R GE 16777216 =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a">    <ins>EX:=(SCEXACT(0) NE 0 =&gt; 1 ELSE 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a">    <ins>H:=SCHINT(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">47</td><td class="c a">    <ins>CCALL getenv(LOC('IMPCOREBASE')) NE 0 =&gt; H:=CCALL strtoul(CCALL getenv(LOC('IMPCOREBASE')),0,0) AND SCMASK(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">48</td><td class="c a">    <ins>CB2: EX GE 0 =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a">        <ins>F:=2 OR SCANON(0) OR SCNORES(0);                                                  # MAP_PRIVATE | MAP_ANON | MAP_NORESERVE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a">        <ins>EX NE 0 =&gt; F:=F OR SCEXACT(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a">        <ins>P:=CCALL mmap(H,R,SCPROT0(0),F,0-1,0,0,0);       # (THE OFFSET IS 0: A 64 BIT OFF_T IS TWO WORDS OF ARGUMENTS ON A 32 BIT SYSTEM, ALIGNED ON ARM, AND THE EXTRA ONES ARE IGNORED ELSEWHERE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">52</td><td class="c a">        <ins>P NE (0-1) =&gt; (CBASE:=P AND SCMASK(0); CRESV:=R;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a">                       <ins>DBGON(0) NE 0 =&gt; (DBGS(LOC('core: asked for ')); DBGN(R); DBGS(LOC(' bytes at ')); DBGN(H);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">54</td><td class="c a">                                         <ins>EX NE 0 =&gt; DBGS(LOC(' (exactly)'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a">                                         <ins>DBGS(LOC(', got them at ')); DBGN(CBASE); DBGS(LOC('
+'</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"><ins>)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a">                       <ins>RETURN CBASE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">58</td><td class="c a">        <ins>EX:=EX-1; GO TO CB2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">59</td><td class="c a">    <ins>R:=R RS 1; GO TO CB1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">60</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">62</td><td class="c a"><ins># MAKE THE FIRST NBYTES OF THE ARENA USABLE (ZERO TO BEGIN WITH); 1 FOR SUCCESS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">63</td><td class="c a"><ins>SUBR IMPCORESET(NBYTES) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a"> <ins>WANT ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">65</td><td class="c a"> <ins>WANT:=(NBYTES+65535) AND (0-65536);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"> <ins>CBASE=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"> <ins>WANT&gt;CRESV =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>WANT&gt;CUSED =&gt; (CCALL mprotect(CBASE+CUSED,WANT-CUSED,3)=0 =&gt; CUSED:=WANT ELSE RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">69</td><td class="c a"> <ins>1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a"><ins># THE ARENA, FOR THE IMAGE (SRC/IMAGE.IMC): HOW MUCH OF IT IS USABLE; AND, TO LOAD AN IMAGE, THE ARENA AT ITS OLD PLACE WITH AT LEAST NBYTES USABLE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a"><ins>SUBR IMPCOREUSED(Z) IS CUSED;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"><ins># THE ARENA'S BASE, WITH AT LEAST NBYTES USABLE (0 IF THERE IS NO ARENA OR NOT SO MUCH OF IT).  BASE IS WHERE THE IMAGE HAD IT: THE CALLER MOVES WHAT POINTS INTO IT IF THIS IS ANOTHER ADDRESS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"><ins>SUBR IMPCOREAT(BASE,NBYTES) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"> <ins>IMPCOREBASE(0)=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a"> <ins>CBASE NE BASE =&gt; (DBGON(0) NE 0 =&gt; (DBGS(LOC('core: the image has the arena at ')); DBGN(BASE); DBGS(LOC(', it is at ')); DBGN(CBASE); DBGS(LOC('
+'</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a"><ins>))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a"> <ins>IMPCORESET(NBYTES)=0 =&gt; (DBGON(0) NE 0 =&gt; (DBGN(NBYTES); DBGS(LOC(' bytes of the arena could not be made usable (reserved ')); DBGN(CRESV); DBGS(LOC(')
+'</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"><ins>)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a">                          <ins>RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>CBASE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a"><ins>SUBR IMPPTRSIZE(Z) IS SCPTR(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"><ins># AN ELEMENT OF AN ARGUMENT VECTOR, A CHAR *[], AND THE STORING OF ONE, WHATEVER THE SIZE OF A POINTER (SRC/DRIVER.IMC AND SRC/IMPM.IMC READ AND BUILD THE VECTORS WITH THESE).  THE ELEMENT IS STORED IN THE 64 BIT</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a">  <ins>WORD AT OUT, ZERO EXTENDED: A POINTER ABOVE 2 GB, AS THE STRINGS OF THE ARGUMENTS ARE ON A 32 BIT MACHINE, MUST NOT BE A NEGATIVE WORD #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a"><ins>SUBR IMPARGET(OUT,V,I) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">89</td><td class="c a"> <ins>W ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"> <ins>W:=IMPPEEKPTR(V+(SCPTR(0)*I)); CCALL memcpy(OUT,LOC(W),8); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">92</td><td class="c a"><ins>SUBR IMPARGSET(V,I,P) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">93</td><td class="c a"> <ins>W ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"> <ins>W:=P; CCALL memcpy(V+(SCPTR(0)*I),LOC(W),SCPTR(0)); 0)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">95</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

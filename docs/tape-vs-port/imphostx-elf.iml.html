@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>imphostx-elf.iml: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>imphostx-elf.iml</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): lib/imphostx-elf.iml</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 343 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>#IMPHOSTX-ELF: THE DYNAMIC LINKER THIS PROGRAM WAS STARTED WITH (ITS PT_INTERP), FOR AN ELF SYSTEM; IMPHOSTX-MACHO.IML IS THE ONE FOR A SYSTEM WITHOUT DL_ITERATE_PHDR.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"><ins>EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"><ins># THE CALLBACK OF DL_ITERATE_PHDR(INFO,SIZE,DATA) THAT FINDS THE PT_INTERP OF THE PROGRAM: COPIES ITS STRING TO DATA.  ITS PARAMETERS ARE THE C LIBRARY'S POINTERS (SEE VPHDR IN IMPVARSX-ELF) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"><ins>SUBR HINTERP(INFO,SIZE,DATA) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>P,I,N,PH,BASE,PS,Q,VA ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>P:=LOC(INFO);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>BASE:=IMPPEEKPTR(P); PH:=IMPPEEKPTR(P+(2*SCPTR(0))); N:=IMPPEEK(P+(3*SCPTR(0)),2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>PS:=(SCPTR(0)=8 =&gt; 56 ELSE 32);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"> <ins>HI1: I&lt;N =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a">    <ins>Q:=PH+(I*PS);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a">    <ins>IMPPEEK(Q,4)=3 =&gt; (                                         # PT_INTERP #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a">        <ins>VA:=(SCPTR(0)=8 =&gt; IMPPEEK(Q+16,8) ELSE IMPPEEK(Q+8,4));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a">        <ins>CCALL snprintf(LOC(DATA),4096,LOC('%s'),BASE+VA);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a">        <ins>RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a">    <ins>I:=I+1; GO TO HI1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"><ins># THE DYNAMIC LINKER THIS PROGRAM WAS STARTED WITH (ITS PT_INTERP) INTO THE BUFFER OUT, 4096 BYTES; 1 IF IT HAS ONE (A STATIC PROGRAM, AND MACOS, HAVE NONE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"><ins>SUBR IMPHOSTINTERP(OUT) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"> <ins>CCALL memset(OUT,0,1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"> <ins>SCDL(0) NE 0 =&gt; CCALL dl_iterate_phdr(LOC(HINTERP),OUT);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"> <ins>IMPPEEK(OUT,1) NE 0 =&gt; 1 ELSE 0)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

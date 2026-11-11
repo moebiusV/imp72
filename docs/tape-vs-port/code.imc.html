@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>code.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>code.imc</h1>
+<p class="mut">left, old (the tape): decus/code.imc<br>right, new (the port): src/code.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 15 changed places, 3732 tokens deleted, 873 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n d">2</td><td class="c d"># <del>THIS IS FILE CODE, CONTAINING</del> THE <del>SEMANTIC ROUTINES WHICH GENERATE</del></td><td class="n a">2</td><td class="c a"><ins>CO,NCO,ANCO ARE COMMON;</ins></td></tr>
+<tr><td class="n d">3</td><td class="c d">  <del>AND TWIDDLE CODE FOR THE IMP COMPILER.</del></td><td class="n a">3</td><td class="c a"><ins>SE,TSE,DSE,SE1,RSE,CSE ARE COMMON;</ins>          # THE <ins>UNPACKED STACK ENTRY, AS</ins> IN THE <ins>ORIGINAL #</ins></td></tr>
+<tr><td class="n d">4</td><td class="c d"><del>SOME OF THE PROGRAMS CONTAINED ON THIS FILE ARE OBJECT-MACHINE-DEPENDANT.</del></td><td class="n a">4</td><td class="c a"><ins>#</ins>THIS IS <ins>FILE CODE,</ins> THE <ins>TRANSLATION</ins> OF <ins>DECUS/CODE.IMC</ins> FOR THE <ins>64 BIT PORT,</ins> WHICH <ins>COMPILES TO IR (DOCS/PORTING/LLVM-IR-MACHINE.MD)</ins> WHERE THE</td></tr>
+<tr><td class="n d">5</td><td class="c d"><del>THE CODE IS STORED</del> IN <del>FREE ARRAY CO, IN</del> THE <del>FOLLOWING FORMAT:</del></td><td class="n a">5</td><td class="c a"> <ins>ORIGINAL COMPILED</ins> TO THE <ins>PDP-10.  CODE2 HAS</ins> THE <ins>REST.</ins>  THE <ins>ROUTINES ARE</ins> THE <ins>ORIGINAL'S WITH</ins> THE <ins>INSTRUCTIONS THEY MAKE CHANGED: NO IMMEDIATE,</ins></td></tr>
+<tr><td class="n d">7</td><td class="c d">  <del>BITS 35-34 CONTAIN THE TYPE OF THE ENTRY.  THE REST OF THE WORD</del></td><td class="n a">6</td><td class="c a"> <ins>SELF</ins> OR <ins>BOTH MODES, NO HALFWORD OPERATIONS, NO</ins> REGISTER <ins>PAIRS, NO CHECKING WHETHER</ins> A REGISTER IS THE <ins>USER'S</ins> WHEN AN OPERATION <ins>CLOBBERS</ins> IT <ins>(A</ins></td></tr>
+<tr><td class="n d">8</td><td class="c d">   <del>DEPENDS ON THE TYPE.</del></td><td class="n a">7</td><td class="c a"> REGISTER IS A <ins>TEMPORARY</ins> OF THE <ins>IR;</ins> THE <ins>BACK END ALLOCATES THEM),</ins> AND <ins>NO LOOKING</ins> IN THE CODE FOR <ins>WHERE</ins> A <ins>REGISTER</ins> IS <ins>USED (RCOCHK).</ins>#</td></tr>
+<tr><td class="n d">10</td><td class="c d">  <del>TYPE=2: LINK WORD.  BITS 17-0 CONTAIN INDEX OF NEXT WORD (0 TERMINATES).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">12</td><td class="c d">  <del>TYPE=1: SPECIAL FUNCTION.  THE EXACT FUNCTION IS INDICATED BY BITS 33-27.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">13</td><td class="c d">         <del>FUNCTION 0: DEFINE A TAG AT</del> THIS <del>POINT - INDEX OF NAME IN BITS 17-0.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">14</td><td class="c d">                  <del>1: SAVE ALL REGISTERS IN USE AT THE MOMENT IN THE RANGE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">15</td><td class="c d">                       <del>I-J, WHERE I=BITS 11-6, J=BITS 5-0.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">16</td><td class="c d">                  <del>2: RESTORE SAVED REGISTERS, AND FORCE DUMMY REFERENCE TO</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">17</td><td class="c d">                       <del>REGISTER WHOSE INDEX</del> IS <del>IN BITS 17-0.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">18</td><td class="c d">                  <del>3: ENTER "DELETE NO INSTRUCTIONS" MODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">19</td><td class="c d">                  <del>4: LEAVE "DELETE NO INSTRUCTIONS" MODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">20</td><td class="c d">                  <del>5: REGISTER REFERENCE (INDEX IN BITS 17-0) TO SET ASIDE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">21</td><td class="c d">                       <del>USER REGISTER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">22</td><td class="c d">                  <del>6: RESERVE REGISTER UNTIL END OF PROGRAM.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">23</td><td class="c d">                  <del>7: FOLLOWING INSTRUCTION IS A MOVE FROM A USER-DEFINED REG.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">24</td><td class="c d">                       <del>TO A TEMPORARY ONE, AND CAN BE OPTIMIZED OUT IF</del> THE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">25</td><td class="c d">                       <del>RESULT</del> OF <del>THE FOLLOWING INSTRUCTION IS MOVED BACK TO THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">26</td><td class="c d">                       <del>USER-DEFINED REG. IN THE SECOND INSTRUCTION FOLLOWING.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">27</td><td class="c d">                  <del>8: MAKE REGISTER AVAILABLE TO COMPILER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">28</td><td class="c d">                  <del>9: DECLARE REGISTER SCRATCH.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">29</td><td class="c d">                 <del>10: DECLARE REGISTER PROTECTED (DEFAULT CASE).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">30</td><td class="c d">		 <del>11: SUPPRESS REFERENCE COUNT</del> FOR <del>REGISTER IN NEXT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">31</td><td class="c d">			<del>INSTRUCTION WORD (USED TO AVOID RESERVING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">32</td><td class="c d">			<del>INDEX REGISTERS IN BYTE POINTERS UP TO PTR.)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">34</td><td class="c d">  <del>TYPE=3: CONSTANT WORD OF CODE. VAL=NEXT WORD + DIRECTORY INDEX IN BITS 17-0.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">36</td><td class="c d">  <del>TYPE=0: WORD OF CODE.  THIS IS A TWO WORD ENTRY.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">37</td><td class="c d">      <del>WORD 1: BITS 35-34: 0</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">38</td><td class="c d">              <del>BIT  33   : INDIRECT BIT IN INSTRUCTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">39</td><td class="c d">              <del>BITS 32-24: OPCODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">40</td><td class="c d">              <del>BITS 22-12: INDEX OF AC FOR INSTRUCTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">41</td><td class="c d">              <del>BIT  11   : IF 1, ADDRESS FIELD IS INDEX OF REGISTER, NOT VARIABLE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d">              <del>BITS 10-0 : INDEX OF INDEX REGISTER FOR INSTRUCTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d">      <del>WORD 2: BITS 35-18: CONSTANT TO BE ADDED TO ADDRESS FIELD.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">44</td><td class="c d">              <del>BITS 17-0 : INDEX OF VARIABLE NAME FOR ADDRESS FIELD.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d">THE <del>ROUTINES</del> WHICH <del>PERFORM OPERATIONS ON CODE ARE ALL SEMANTIC ROUTINES AND MAY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">47</td><td class="c d">  <del>BE CALLED FROM SEMANTICS OR FROM OTHER ROUTINES (EXCEPT</del> WHERE <del>NOTED).  MOST</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">48</td><td class="c d">  <del>OF THEM TAKE AS FIRST ARGUMENT</del> THE <del>STACK POINTER</del> TO <del>A NODE WHICH SERVES AS</del> THE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d">  <del>SOURCE AND DESTINATION OF</del> THE <del>CODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">51</td><td class="c d"><del>* DESIGNATES OBJECT-MACHINE-DEPENDANT ROUTINES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">52</td><td class="c d">  <del>IF A ROUTINE LISTED BELOW IS NOT ON THIS FILE, LOOK ON CODE2.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d"> <del>CODEI(0) INITIALIZES</del> THE <del>ROUTINES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">55</td><td class="c d"><del>*FETCH(S) GETS A FRESH REGISTER AND LOADS</del> THE <del>ITEM S INTO IT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d"><del>*STORE(S,T) STORES STACK ITEM T IN ITEM S, HOOKING</del> THE <del>CODE FOR T ON BEFORE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d">    <del>THAT OF S.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d"> <del>HOOK(D,A,B) - HOOKS CODE FOR A TO CODE FOR B, PUTS CODE IN D.  VALUE OF D</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d">    <del>IS SET TO VALUE OF B.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d"> <del>ADDCODE(S,W1,W2) ADDS THE WORDS W1 AND (IF TYPE IN W1 IS 0</del> OR <del>3) W2 TO THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d">    <del>CODE FOR THE STACK ENTRY S.  (NOT A SEMANTIC ROUTINE).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d"> <del>MCODE(S,T) RETURNS 1 IF THE CODE FOR S AND FOR T IS IDENTICAL (UP TO SOME</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">63</td><td class="c d">    <del>CORRESPONDENCE BETWEEN</del> REGISTER <del>ASSIGNMENTS).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d"><del>*DEWOP(OP,A,S) ADDS TO THE CODE FOR S AN INSTRUCTION TO PERFORM OPCODE OP</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d">    <del>WITH THE ACCUMULATOR DESIGNATED BY</del> A <del>AND THE OPERAND DESIGNATED BY THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d">    <del>ENTRY AT S.  AS A RESULT, S BECOMES TYPE 2 (REGISTER A) UNLESS A=0.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">67</td><td class="c d">    <del>IF A IS A USER-ASSIGNED REGISTER, THEN THE VALUE IN A IS MOVED TO ANOTHER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">68</td><td class="c d">    REGISTER <del>FIRST IF OP WOULD CLOBBER IT, UNLESS A</del> IS <del>NEGATIVE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d"><del>*ADDOP(OP,S,T) IS HOOK(S,T,DEWOP(OP,REGOF(FETCH(T)),S)), WHICH IS</del> THE <del>USUAL</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d">    <del>WAY ONE WANTS TO USE DEWOP TO PERFORM A BINARY OPERATION  S OP T.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">71</td><td class="c d"> <del>REGOF(S) RETURNS THE INDEX OF THE REGISTER OF STACK ENTRY S.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d"><del>*FIX(S) INSURES THAT THE STACK ENTRY S IS OF TYPE INTEGER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d"><del>*FLOAT(S) INSURES THAT S IS OF TYPE REAL.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d"><del>*SUBRCALL(S) GENERATES A SUBROUTINE CALL TO S.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d"><del>*SUBRPAR(S,P) ADDS THE ARGUMENT P TO THE SUBROUTINE CALL S.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">76</td><td class="c d"><del>*SUBARG(S,P) (NOT A SEMANTIC ROUTINE) FORCES P INTO AN ADDRESS, STORING IT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">77</td><td class="c d">    <del>IF NECESSARY, FOR SUBR CALL, PERHAPS ADDING A TAG TO S FOR THE PURPOSE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">78</td><td class="c d">    <del>OF STORING AN ADDRESS IN THE NEXT WORD OF CODE TO BE ADDED TO S.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">79</td><td class="c d"><del>*PRINPAR(N,A,B,C,D) PROCESSES A PRINT LIST IT M, GENERATING A FUNNY STACK NODE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">80</td><td class="c d">    <del>WITH CODE FOR COMPUTING THE ITEM IN WORD 2, AND FOR ENTERING THE ITEM IN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">81</td><td class="c d">    <del>THE PRINT LIST, IN WORD 1.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">82</td><td class="c d"><del>*PRINCAL(A,B) ADDS PRINT LIST ITEM B TO THE PRINT LIST BEING BUILT IN A.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">83</td><td class="c d"> <del>DATAST(A) GENERATES CONSTANTS FOR A DATA STATEMENT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">84</td><td class="c d"> <del>COPYCO(S) MAKES A FRESH COPY (INCLUDING NEW REGISTERS) OF THE CODE FOR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">85</td><td class="c d">    <del>STACK ENTRY S.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">86</td><td class="c d"> <del>TAG(S) ADDS CODE TO S TO DEFINE IT AS A TAG.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">87</td><td class="c d"><del>*ADDR(S) MAKES S OF TYPE 20B, SO THAT WHAT WAS PREVIOUSLY THE VALUE WILL WIND</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">88</td><td class="c d">    <del>UP IN THE ADDRESS FIELD</del> WHEN <del>S IS THE ARGUMENT OF DEWOP.  THE RESULT WILL</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">89</td><td class="c d">    <del>NOT HAVE</del> AN <del>INDIRECT BIT SET.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">90</td><td class="c d"> <del>CONOP(S,T,I) PERFORMS AN</del> OPERATION <del>ON ONE OR TWO CONSTANTS S AND T, INDICATED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">91</td><td class="c d">    <del>BY THE INDEX I.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">92</td><td class="c d"><del>*RETURN(A) ENTERS CODE FOR "RETURN A" - RETURNS A AS THE VALUE OF THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">93</td><td class="c d">    <del>CURRENT SUBROUTINE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">94</td><td class="c d"><del>*SUBSCRIPT(S,T) MAKES THE SUBSCRIPTED VARIABLE S[T].</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">95</td><td class="c d"> <del>ONEWORD(S) - RETURNS 1 IF STACK ENTRY S HAS EXACTLY ONE WORD OF CODE ASSICIATED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">96</td><td class="c d">    <del>WITH IT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">97</td><td class="c d"> <del>FREEZE(S) FLAGS THE CODE ON S SO THAT THE ASSEMBLY PASS WILL NOT DELETE ANY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">98</td><td class="c d">    <del>WORDS FROM IT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">99</td><td class="c d"><del>*RELVAL(S,T,I) COMPUTES THE RELATIONAL VALUE S &lt;I&gt; T WHERE &lt;I&gt; IS THE OPERATOR.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">100</td><td class="c d"><del>*OJUMPOP(I) - RETURNS THE OPCODE FOR THE COMPLEMENTARY JUMP TO THE OPCODE I.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">101</td><td class="c d"> <del>JUMPAROUND(S,OP,REG) - PUTS A UNIQUE TAG AT THE END OF S, AND A JUMP TO</del> IT</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">102</td><td class="c d">    <del>AT THE BEGINNING, USING OPCODE OP AND</del> REGISTER <del>REG.  VALUE OF S UNCHANGED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">104</td><td class="c d"><del>THERE FOLLOWS SOME VALUABLE INFORMATION FOR ANYONE HOPING TO GENERATE CODE USING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">105</td><td class="c d">  <del>THESE ROUTINES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">107</td><td class="c d"><del>THE MAJOR PROCESS INVOLVED IN CRAFTING SEMANTICS TO GENERATE GOOD CODE</del> IS <del>THAT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">108</td><td class="c d">  <del>OF CONSIDERING THE MANY CASES OF DIFFERENT OPERAND TYPES FOR THE OPERATOR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">109</td><td class="c d">  <del>BEING IMPLEMENTED.  THE OPERAND TYPES WHICH MAY CROP UP IN THIS COMPILER ARE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">110</td><td class="c d">  <del>SUMMARIZED HERE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">111</td><td class="c d"><del>AS IS KNOWN TO EVERY SCHOOLCHILD, STACK ENTRIES COME IN ABOUT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">112</td><td class="c d">  <del>FIVE TYPES: NAME, REGISTER, CONSTANT, VARIABLE, AND MEMORY (I.E., SUBSCRIPTED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">113</td><td class="c d">  <del>VARIABLE).  FOR CODE GENERATION PURPOSES, IT IS POSSIBLE TO IGNORE NAMES,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">114</td><td class="c d">  <del>SINCE THEY WILL ALWAYS BE PASSED THROUGH NAME(S) BEFORE COMING HERE, AND THUS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">115</td><td class="c d">  <del>WILL BE TRANSFORMED INTO ONE OF THE OTHER CLASSES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">116</td><td class="c d"><del>AS IS DOCUMENTED ON FILE COTREE, STACK ENTRIES HAVE THE FOLLOWING FIELDS:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">117</td><td class="c d">      <del>TYPE:    REGISTER=2, CONSTANT=4, VARIABLE=10B, MEMORY=20B.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">118</td><td class="c d">      <del>DI:      DIRECTORY INDEX, USUALLY</del> A <del>VARIABLE NAME.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">119</td><td class="c d">      <del>AR:      ARITHMETIC TYPE (1=INTEGER, 2=REAL.)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">120</td><td class="c d">   <del>AND EITHER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">121</td><td class="c d">     <del>(I:       INDIRECT BIT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">122</td><td class="c d">     <del>(REG:     INDEX</del> OF <del>REGISTER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">123</td><td class="c d">     <del>(CON:     CONSTANT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">124</td><td class="c d">   <del>OR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">125</td><td class="c d">      <del>VAL:     VALUE OF FIRST WORD, FOR CONSTANTS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">126</td><td class="c d">   <del>PLUS MAYBE SOME ASSOCIATED CODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">128</td><td class="c d"><del>WE NOW DESCRIBE EACH TYPE OF STACK ENTRY INDIVIDUALLY.</del>  THE <del>ARITHMETIC TYPE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">129</td><td class="c d">  <del>FIELD APPLIES TO EACH TYPE OF NODE, AND WILL NOT BE MENTIONED FURTHER HERE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">130</td><td class="c d">  <del>EVERY ONE OF THESE TYPES MAY HAVE CODE ASSOCIATED WITH IT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">132</td><td class="c d"><del>TYPE 2 (REGISTER): ALL FIELDS EXCEPT REG ARE IGNORED.  THIS ENTRY IS TALKING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">133</td><td class="c d">  <del>ABOUT</del> THE <del>NUMBER IN A REGISTER</del> AND <del>NOTHING BUT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">134</td><td class="c d"><del>TYPE 4 (CONSTANT): ALL FIELDS BUT VAL AND DIR ARE IGNORED.  FURTHERMORE, IF</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">135</td><td class="c d">  <del>DIR IS NONZERO, IT IS ALWAYS THE DIRECTORY INDEX OF SOME IDENTIFIER WHICH</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">136</td><td class="c d">  <del>IS A CONSTANT WITH VALUE EQUAL TO THE VAL FIELD.  (IF THE CONSTANT IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">137</td><td class="c d">  <del>MULTIWORD, THE VAL FIELD IS THE VALUE OF THE FIRST WORD.)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">138</td><td class="c d"><del>TYPE 10 (NAME): ALL FIELDS BUT DIR AND CONST ARE IGNORED.  DIR (IF NONZERO)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">139</td><td class="c d">  <del>IS THE DIR INDEX OF SOME IDENTIFIER WHICH WILL WIND UP AS A TAG OR SOMETHING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">140</td><td class="c d">  <del>ELSE WITH AN ADDRESS.  THIS NODE IS TALKING ABOUT THE VALUE OF THE MEMORY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">141</td><td class="c d">  <del>LOCATION AT DIR+CON.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">142</td><td class="c d"><del>TYPE 20 (MEMORY): THIS ONE IS THE HAIRY BRUTE.  ALL FIELDS (EXCEPT VAL, WHICH</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">143</td><td class="c d">  <del>IS ONLY FOR CONSTANTS) SWING INTO ACTION.  THIS NODE IS TALKING ABOUT ANY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">144</td><td class="c d">  <del>WORD WHOSE ADDRESS CANNOT BE COMPILED INTO AN ADDRESS FIELD AT COMPILE TIME.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">145</td><td class="c d">  <del>EXAMPLES: VARIABLES WITH NON-CONSTANT SUBSCRIPTS, AND SUBROUTINE PARAMETERS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">146</td><td class="c d">  <del>THE DI+CON, REG, AND INDIRECT BIT ARE STUFFED INTO THE ADDRESS PORTION OF A</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">147</td><td class="c d">  <del>PDP-10 INSTRUCTION WORD, AND VOILA.  THIS IS THE ONLY TYPE OF STACK ENTRY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">148</td><td class="c d">  <del>WHICH MAY HAVE THE INDIRECT BIT SET.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">150</td><td class="c d"><del>THE ROUTINES DEWOP(OP,REG,S), ADDOP(OP,S,T), AND STORE(S,T)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">151</td><td class="c d">  <del>HAVE A BIT MORE MACHINE-DEPENDANT "SMARTS" THAN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">152</td><td class="c d">  <del>ONE MIGHT EXPECT, AND THE READER WHO PLANS TO WRITE SEMANTICS ON THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">153</td><td class="c d">  <del>INSTRUCTION-GENERATING LEVEL WILL SAVE HIMSELF A LOT OF WORK BY TAKING NOTE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">154</td><td class="c d">  <del>OF THEM.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">155</td><td class="c d"><del>DEWOP TAKES A 9-BIT OPCODE OP, A REGISTER INDEX REG (REG=0=&gt;NO ACCUMULATOR),</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">156</td><td class="c d">  <del>AND A STACK ENTRY S.  IT ADDS TO S THE INSTRUCTION CONSTRUCTED BY INSERTING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">157</td><td class="c d">  <del>OP AND REG AS THE OPCODE AND ACCUMULATOR, AND GETTING THE INDEX REGISTER,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">158</td><td class="c d">  <del>INDIRECT BIT, AND ADDRESS FROM S.  IT ASSUMES THAT THE RESULT OF THE INSTRUC-</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">159</td><td class="c d">  <del>TION WINDS UP</del> IN <del>REG, SO IF REG IS NONZERO IT CHANGES</del> THE <del>TYPE OF S TO 2.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">160</td><td class="c d">  <del>OTHER THAN THAT, THE FIELDS OF S ARE NOT CHANGED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">161</td><td class="c d"><del>IF S IS OF TYPE 2 TO BEGIN WITH, THE ADDRESS FIELD OF THE INSTRUCTION GETS THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">162</td><td class="c d">  <del>REGISTER NUMBER - THE REGISTER IS TREATED AS A MEMORY LOCATION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">163</td><td class="c d"><del>IF S IS OF TYPE 4, DEWOP CHECKS TO SEE IF THE CONSTANT IS IN THE RIGHT 18 BITS,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">164</td><td class="c d">  <del>AND IF THE OPCODE HAS AN IMMEDIATE MODE.  IF SO, AN IMMEDIATE INSTRUCTION IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">165</td><td class="c d">  <del>GENERATED.  IF NOT, A CHECK IS MADE TO SEE IF THE CONSTANT HAS A DIR INDEX.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">166</td><td class="c d">  <del>IF NOT, AN IDENTIFIER IS CREATED FOR IT SO THAT ITS ADDRESS CAN BE REFERRED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">167</td><td class="c d">  <del>TO BY THE INSTRUCTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">169</td><td class="c d"><del>FETCH(S) GETS S INTO A REGISTER.  IT CALLS DEWOP(200B,REG,S) TO DO SO UNLESS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">170</td><td class="c d">  <del>S IS A CONSTANT, IN WHICH CASE IT MAY USE ANY OF A NUMBER OF HALF-WORD</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">171</td><td class="c d">  <del>INSTRUCTIONS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">172</td><td class="c d"><del>STORE(S,T) GETS T INTO S, WHICH OUGHT NOT TO BE OF TYPE 4.  IT HOOKS ON THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">173</td><td class="c d">  CODE FOR <del>T BEFORE THAT OF S.  IT DOES THE JOB BY CALLING DEWOP(202B,REG,S)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">174</td><td class="c d">  <del>IN MOST CASES.  HOWEVER, IF S IS OF TYPE 10 OR 20 WITH NO ASSOCIATED CODE,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">175</td><td class="c d">  <del>AND THE LAST INSTRUCTION IN T'S CODE REFERENCES S, STORE ALTERS THE INSTRUC-</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">176</td><td class="c d">  <del>TION TO DO</del> A <del>SELF OR BOTH OPERATION IF POSSIBLE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">177</td><td class="c d"><del>ADDOP(OP,S,T)</del> IS <del>HOOK(S,T,DEWOP(OP,REGOF(FETCH(T)),S)), WHICH PERFORMS THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">178</td><td class="c d">  <del>BINARY OPERATION OP ON S AND T.  THIS COULD BE WRITTEN EXPLICITLY IN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">179</td><td class="c d">  <del>SEMANTICS, BUT WAS DEFINED AS A ROUTINE TO SAVE WRITING THE SAME THING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">180</td><td class="c d">  <del>MANY TIMES. ADDOP, NATURALLY, HAS ALL THE SMARTS OF DEWOP.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">181</td><td class="c d">#</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">182</td><td class="c q">SUBR CODEI(NIL) IS (</td><td class="n q">11</td><td class="c q">SUBR CODEI(NIL) IS (</td></tr>
+<tr><td class="n q">183</td><td class="c q">  DSEM('STORE',STORE);</td><td class="n q">12</td><td class="c q">  DSEM('STORE',STORE);</td></tr>
+<tr><td class="n q">184</td><td class="c q">  DSEM('FETCH',FETCH);</td><td class="n q">13</td><td class="c q">  DSEM('FETCH',FETCH);</td></tr>
+<tr><td class="n q">185</td><td class="c q">  DSEM('REGOF',REGOF);</td><td class="n q">14</td><td class="c q">  DSEM('REGOF',REGOF);</td></tr>
+<tr><td class="n q">186</td><td class="c q">  DSEM('DEWOP',DEWOP);</td><td class="n q">15</td><td class="c q">  DSEM('DEWOP',DEWOP);</td></tr>
+<tr><td class="n q">187</td><td class="c q">  DSEM('ADDOP',ADDOP);</td><td class="n q">16</td><td class="c q">  DSEM('ADDOP',ADDOP);</td></tr>
+<tr><td class="n q">188</td><td class="c q">  DSEM('TAG',TAG);</td><td class="n q">17</td><td class="c q">  DSEM('TAG',TAG);</td></tr>
+<tr><td class="n q">189</td><td class="c q">  CODE2I(0);</td><td class="n q">18</td><td class="c q">  CODE2I(0);</td></tr>
+<tr><td class="n d">190</td><td class="c d">  <del>CO,NCO ARE COMMON, 1 LONG;</del></td><td class="n a">19</td><td class="c a">  0);</td></tr>
+<tr><td class="n d">191</td><td class="c d"> <del>NCO_1; FRELOT(CO,'CODE',200,</del>0); <del>FINCSET(CO,200));</del></td><td class="n a">21</td><td class="c a"># <ins>STORE(S,T): GET T INTO S (WHICH</ins> IS <ins>NOT OF TYPE 4), HOOKING THE CODE FOR T BEFORE THAT OF S.  THE ORIGINAL TURNS</ins> AN <ins>ADD, SUBTRACT, ETC. OF</ins> A</td></tr>
+<tr><td class="n d">193</td><td class="c d">#<del>THESE ARE BIT VECTORS INDEXED BY FIRST 6 BITS OF OPCODE. IMM TELLS IF THERE</del></td><td class="n a">22</td><td class="c a">  <ins>REGISTER JUST STORED INTO THE INSTRUCTION'S "TO MEMORY" FORM, AND STORES 0 AND -1 WITH ONE INSTRUCTION; THE BACK END DOES THAT</ins> #</td></tr>
+<tr><td class="n d">194</td><td class="c d"> IS AN <del>IMMEDIATE MODE, SELF IF THERE IS</del> A <del>BOTH OR SELF MODE, BOTH IF THERE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">195</td><td class="c d"> <del>IS A BOTH MODE.</del> #</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">196</td><td class="c d"><del>IMM: DATA (43600000B,177777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">197</td><td class="c d"><del>SELF:DATA (43770000B,177777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">198</td><td class="c d"><del>BOTH:DATA (43170000B,000377B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">200</td><td class="c q">SUBR STORE(S,T) IS (</td><td class="n q">23</td><td class="c q">SUBR STORE(S,T) IS (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"> <ins>S1 ARE LOCAL;</ins></td></tr>
+<tr><td class="n q">201</td><td class="c q">  UNPCK(S);</td><td class="n q">25</td><td class="c q"> UNPCK(S);</td></tr>
+<tr><td class="n d">202</td><td class="c d">  <del># CHECK FOR POSSIBLE SELF/BOTH INSTRUCTION #</del></td><td class="n a">26</td><td class="c a"> TSE=2 =&gt; (<ins>S1:=</ins>RSE; HOOK(S,DEWOP(<ins>OLOAD</ins>,<ins>0</ins>-S1,T),S); RETURN S);</td></tr>
+<tr><td class="n d">203</td><td class="c d">  <del>(</del>TSE <del>AND 30B)=&gt;(</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">204</td><td class="c d">      <del>J_FREE(S+2); J=&gt;GO TO L26;                # S HAS NO CODE #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">205</td><td class="c d">      <del>CT_FREE(T+2); CT</del>=<del>0=&gt;GO TO L26;            # T HAS CODE #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">206</td><td class="c d">      <del>J_FREE(T); (</del>2 <del>AND J)=0</del>=&gt;<del>GO TO L26;        # T IS IN A REGISTER #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">207</td><td class="c d">      <del>TI_FREE</del>(<del>CO+(C_777777B AND CT)-2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">208</td><td class="c d">      <del>(TI RS 34)=&gt;GO TO L26;                    # LAST CODE IN T IS INSTR. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">209</td><td class="c d">      <del>T2_FREE(CO+C-1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">210</td><td class="c d">      <del>(T2 RS 18) NE CSE=&gt;GO TO L26;             # CONST. PARTS MATCH #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">211</td><td class="c d">      <del>(T2 AND 777777B) NE DSE=&gt;GO TO L26;       # VARIABLE NAMES MATCH #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">212</td><td class="c d">      <del>((SE1 RS 35)+1 AND TI RS 33)=1=&gt;GO TO L26;# INDIRECT BITS MATCH #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">213</td><td class="c d">      <del>(TI AND 4000B)=&gt;GO TO L26;                # T REFERENCES NON-REGISTER LOC#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">214</td><td class="c d">      <del>REGEQ(TI AND 3777B,</del>RSE<del>)=0=&gt;GO TO L26</del>;     <del># IF BOTH SAME INDEX REG #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">215</td><td class="c d">      <del>J_37B AND TI RS 27; K_1 AND TI RS 32;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">216</td><td class="c d">      <del>(3 AND TI RS 24)=&gt;GO TO L26;              # INSTRUCTION IS NORMAL MODE #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">217</td><td class="c d">      <del>(1 AND SELF[K] RS J)=0=&gt;GO TO L26;        # INSTRUCTION HAS BOTH MODE #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">218</td><td class="c d">      <del>REG0(RSE)=&gt;(1 AND BOTH[K] RS J)=0=&gt;       #  .. NOT FOR REGISTER 0 #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">219</td><td class="c d">                                    <del>GO TO L26;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">220</td><td class="c d">      <del>FREES(CO+C-2,TI OR 300000000B);           # OK - MAKE IT A BOTH INST. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">221</td><td class="c d">      HOOK(S,<del>T,S);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">222</td><td class="c d">      <del>GO TO STORED);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">223</td><td class="c d">  <del>L26: TSE=2=&gt;((FREE(T) AND 77B) NE 2 =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">224</td><td class="c d">                       <del>(L27: HOOK(S,</del>DEWOP(<del>200B</del>,-<del>(</del>S1<del>_RSE)</del>,T),S); <del>GO TO STORED);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">225</td><td class="c d">               <del>#IF REG TO REG, TRY TO OPTIMIZE OUT DESTINATION#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">226</td><td class="c d">               <del>TCO_FREE(T+2) RS 18;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">227</td><td class="c d">               <del>RT_3777B AND FREE(T+1) RS 18;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">228</td><td class="c d">               <del>TMPREG(RT)=0 =&gt; GO TO L27;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">229</td><td class="c d">               <del>RCOCHK(1,TCO,RSE,0) =&gt; GO TO L27;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">230</td><td class="c d">               <del>RCOCHK(2,TCO,RT,0) =&gt; GO TO L27;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">231</td><td class="c d">               <del>FREES(T+1,(RSE LS 18) OR FREE(T+1) AND 774000777777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">232</td><td class="c d">               <del>RCOCHK(3,TCO,RT,RSE);</del> RETURN <del>T);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">233</td><td class="c d">  <del># CHECK 0 OR 1 #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">234</td><td class="c d">  <del>(FREE(T) AND 77B)=4=&gt;(S1_FREE(T+1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">235</td><td class="c d">                        <del>S1=0=&gt;(OP_402B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">236</td><td class="c d">                               <del>LL1: HOOK(</del>S<del>,T,DEWOP(OP,0,S));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">237</td><td class="c d">                               <del>FREES(S,FREE(T)); FREES(S+1,FREE(T+1));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">238</td><td class="c d">                               <del>GO TO STORED);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">239</td><td class="c d">                        <del>S1=-1=&gt;(OP_476B; GO TO LL1)</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">240</td><td class="c q">  FETCH(T); HOOK(S,T,S);</td><td class="n q">27</td><td class="c q"> FETCH(T); HOOK(S,T,S);</td></tr>
+<tr><td class="n d">241</td><td class="c d">  DEWOP(<del>202B</del>,REGOF(T),S);</td><td class="n a">28</td><td class="c a"> DEWOP(<ins>OSTORE</ins>,REGOF(T),S);</td></tr>
+<tr><td class="n d">242</td><td class="c d">  <del>STORED:</del> S);</td><td class="n a">29</td><td class="c a"> S);</td></tr>
+<tr><td class="n d">244</td><td class="c d">SUBR FETCH(S) IS ((FREE(S) AND 77B) NE 2=&gt;DEWOP(<del>200B</del>,AREG1(1,15B),S); S);</td><td class="n a">31</td><td class="c a">SUBR FETCH(S) IS ((FREE(S) AND 77B) NE 2 =&gt; DEWOP(<ins>OLOAD</ins>,AREG1(1,15B),S); S);</td></tr>
+<tr><td class="n d">246</td><td class="c d">SUBR REGOF(S) IS (3777B AND FREE(S+1) <del>RS 18</del>);</td><td class="n a">33</td><td class="c a">SUBR REGOF(S) IS (3777B AND <ins>HL(</ins>FREE(S+1))<ins>)</ins>;SUBR UNPCK(S) IS (</td></tr>
+<tr><td class="n d">248</td><td class="c d">SUBR UNPCK(S) IS (</td><td class="n a">34</td><td class="c a"> SE<ins>:=</ins>FREE(S); TSE<ins>:=</ins>SE AND 77B; DSE<ins>:=HL(</ins>SE<ins>)</ins>;</td></tr>
+<tr><td class="n d">249</td><td class="c d">  SE<del>_</del>FREE(S); TSE<del>_</del>SE AND 77B; DSE<del>_</del>SE <del>RS 18</del>;</td><td class="n a">35</td><td class="c a"> SE1<ins>:=</ins>FREE(S+1); RSE<ins>:=</ins>3777B AND <ins>HL(</ins>SE1<ins>)</ins>; CSE<ins>:=HR(</ins>SE1);</td></tr>
+<tr><td class="n d">250</td><td class="c d">  SE1<del>_</del>FREE(S+1); RSE<del>_</del>3777B AND SE1 <del>RS 18</del>; CSE<del>_777777B AND</del> SE1);</td><td class="n a">36</td><td class="c a"> 0);</td></tr>
+<tr><td class="n d">252</td><td class="c d"><del>SUBR RCOCHK(N,C,R,R1) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">253</td><td class="c d">  <del>CJ_C; V_</del>0<del>;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">254</td><td class="c d">  <del>L34: CJ =&gt; (CC_FREE(CO+CJ); GO TO (L30,L31,L32,L33) CC RS 34;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">255</td><td class="c d">              <del>L31: CJ_CJ+1; GO TO L34;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">256</td><td class="c d">              <del>L32: CJ_CC AND 777777B; GO TO L34;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">257</td><td class="c d">              <del>L33: CJ_CJ+2; GO TO L34;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">258</td><td class="c d">              <del>L30: RA_3777B AND CC RS 12; RI_3777B AND CC;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">259</td><td class="c d">                   <del>RR_0; 4000B AND CC =&gt; RR_FREE(CO+CJ+1) AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">260</td><td class="c d">                   <del>N=1 =&gt; (RA=R =&gt; V_V+1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">261</td><td class="c d">                           <del>RI=R =&gt; V_V+1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">262</td><td class="c d">                           <del>RR=R =&gt; V_V+1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">263</td><td class="c d">                   <del>N=2 =&gt; (RI=R =&gt; V_V+1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">264</td><td class="c d">                           <del>RR=R =&gt; V_V+1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">265</td><td class="c d">                   <del>N=3 =&gt; RA=R =&gt; (CC_CC AND NOT 37770000B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">266</td><td class="c d">                                   <del>FREES(CO+CJ,CC OR R1 LS 12));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">267</td><td class="c d">                   <del>CJ_CJ+2; GO TO L34);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">268</td><td class="c d">  <del>V</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">270</td><td class="c q">SUBR ADDOP(OP,S,T) IS HOOK(S,T,DEWOP(OP,REGOF(FETCH(T)),S));</td><td class="n q">38</td><td class="c q">SUBR ADDOP(OP,S,T) IS HOOK(S,T,DEWOP(OP,REGOF(FETCH(T)),S));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"><ins># DEWOP(OPP,RR,S): ADD TO THE CODE OF S AN OPERATION OP WITH ACCUMULATOR RR (0: NONE) AND THE OPERAND S.  S BECOMES TYPE 2 (REGISTER RR) UNLESS RR=0.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a">  <ins>A NEGATIVE RR IS ITS ABSOLUTE VALUE: THE ORIGINAL USES IT TO MEAN "DO NOT PROTECT A USER REGISTER" #</ins></td></tr>
+<tr><td class="n q">272</td><td class="c q">SUBR DEWOP(OPP,RR,S) IS (</td><td class="n q">42</td><td class="c q">SUBR DEWOP(OPP,RR,S) IS (</td></tr>
+<tr><td class="n d">273</td><td class="c d">  OP<del>_OPP</del>;  <del>(</del>R<del>_</del>RR<del>) LE</del> 0=&gt;<del>(</del>R<del>_</del>-RR; <del>GO TO L72);</del></td><td class="n a">43</td><td class="c a"> <ins>R,</ins>OP <ins>ARE LOCAL</ins>;</td></tr>
+<tr><td class="n d">274</td><td class="c d">  <del>#</del> OP <del>AND 1000B=&gt; THIS HITS A PROGRAMMER-SPEC REG ON PURPOSE. #</del></td><td class="n a">44</td><td class="c a"> R<ins>:=</ins>RR<ins>; R LT</ins> 0 =&gt; R<ins>:=0</ins>-RR;</td></tr>
+<tr><td class="n d">275</td><td class="c d">  <del>(OP AND 1000B)=&gt;(OP_OP AND NOT 1000B</del>; <del>GO TO L72);</del></td><td class="n a">45</td><td class="c a"> OP<ins>:=OPP</ins>;</td></tr>
+<tr><td class="n d">276</td><td class="c d">  <del># CHECK IF</del> OP <del>CLOBBERS A PROGRAMMER-SPECIFIED REGISTER #</del></td><td class="n a">46</td><td class="c a"> OP <ins>GE 256</ins> =&gt; <ins>ERROR</ins>(1,<ins>'AN OPERATION OF THE PDP-10 THAT THE IR MACHINE DOES NOT HAVE.'</ins>);</td></tr>
+<tr><td class="n d">277</td><td class="c d">  <del># SUBR OCHK IS PART OF THE ASSEMBLER.  AOJ,AOS,SOJ,SOS ARE OK#</del></td><td class="n a">47</td><td class="c a"> <ins>UNPCK</ins>(S);</td></tr>
+<tr><td class="n d">278</td><td class="c d">  <del>(OP AND 740B) NE 340B</del>=&gt;(<del>OCHK(OP) AND</del> 1<del>)=&gt;HISREG(R)=&gt;(J_AREG1(1</del>,<del>15B</del>);</td><td class="n a">48</td><td class="c a"> ADDCODE(S,<ins>KOP</ins>,OP,R,<ins>SE,SE1,0</ins>);</td></tr>
+<tr><td class="n d">279</td><td class="c d">                                   <del>ADDCODE</del>(S<del>,207000000000B,0</del>);</td><td class="n a">49</td><td class="c a"> R <ins>NE</ins> 0 =&gt; (FREES(S,<ins>((</ins>2 OR <ins>(</ins>SE AND 777700B)<ins>)))</ins>;</td></tr>
+<tr><td class="n d">280</td><td class="c d">                                   ADDCODE(S,<del>020000004000B OR J LS 12</del>,<del>R);</del></td><td class="n a">50</td><td class="c a">            FREES(S+1,<ins>(</ins>R LS <ins>32)</ins>));</td></tr>
+<tr><td class="n d">281</td><td class="c d">                                   <del>R_J);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">282</td><td class="c d">  <del>L72: UNPCK(S);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">283</td><td class="c d">  <del>ISE_100000000000B AND SE1 RS 2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">284</td><td class="c d">  <del>TSE=4=&gt;(# CONST - CHECK FOR POSSIBLE IMMEDIATE INSTR. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">285</td><td class="c d">          <del>RSE_ISE_CSE_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">286</td><td class="c d">          <del>(</del>OP <del>AND 770B)=310B =&gt; (SE1 RS 18)=0 =&gt; (OP_300B OR OP AND 7;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">287</td><td class="c d">                                <del>#CAMX TO CAIX#    CSE_SE1; DSE_0; GO TO L6);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">288</td><td class="c d">          <del>(OP AND 1003B)=0=&gt;(</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">289</td><td class="c d">            <del>(J_SE1 RS 18)=0=&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">290</td><td class="c d">               <del>(J_OP RS 8; K_37B AND OP RS 3;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">291</td><td class="c d">                <del>(1 AND IMM[J] RS K)=&gt;(L53: OP_OP OR 1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">292</td><td class="c d">                                      <del>CSE_SE1; DSE_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">293</td><td class="c d">                                      <del>GO TO L6));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">294</td><td class="c d">            <del>OP=200B=&gt;(SE1=-1 =&gt; (OP_474B; CSE_0; DSE_0; GO TO L6);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">295</td><td class="c d">                        <del>J=777777B=&gt;(OP_561B; SE1_SE1 AND 777777B; GO TO L53);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">296</td><td class="c d">                        <del>(J_SE1 AND 777777B)=0=&gt;(OP_515B; GO TO L54);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">297</td><td class="c d">                        <del>J=777777B=&gt;(OP_525B; GO TO L54));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">298</td><td class="c d">            <del># SPECIAL FLOATING POINT IMMEDIATES #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">299</td><td class="c d">            <del>(OP AND 747B)=144B=&gt;(SE1 AND 777777B)=0=&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">300</td><td class="c d">                                   <del>(L54: SE1_SE1 RS 18; GO TO L53));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">301</td><td class="c d">          <del>DSE=0=&gt;DSE_STCON(SE1));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">302</td><td class="c d">  <del>TSE=2=&gt;(ISE_ISE OR 4000B; DSE_RSE; RSE_0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">303</td><td class="c d">  <del>L6: ADDCODE(S</del>,<del>ISE OR RSE OR (</del>R <del>LS 12) OR OP LS 24</del>,<del>DSE OR CSE LS 18</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">304</td><td class="c d">  R<del>=&gt;SUBREG(R)=</del>0=&gt;(FREES(S,2 OR SE AND 777700B);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">305</td><td class="c d">      FREES(S+1,R LS <del>18</del>));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">306</td><td class="c q">  S);</td><td class="n q">51</td><td class="c q"> S);</td></tr>
+<tr><td class="n d">308</td><td class="c d">SUBR TAG(S) IS (<del>QQ_FREE(S);</del> ADDCODE(S,<del>200000000000B OR QQ RS 18</del>,0); S);</td><td class="n a">53</td><td class="c a">SUBR TAG(S) IS (ADDCODE(S,<ins>KTAG</ins>,0<ins>,0,0,0,HL(FREE(S</ins>)<ins>))</ins>; S);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"><ins># THE ENTRY WORD 1 WITH THE REGISTER FIELD (BITS 28-18, 0 FOR NONE) CHANGED FROM R TO RN #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"><ins>SUBR REGFIELD(W,R,RN) IS ((W XOR (R LS 32)) OR (RN LS 32));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">58</td><td class="c a"><ins># COPYCO(S): A FRESH COPY (WITH NEW REGISTERS) OF THE CODE OF STACK ENTRY S #</ins></td></tr>
+<tr><td class="n q">310</td><td class="c q">SUBR COPYCO(S) IS (</td><td class="n q">59</td><td class="c q">SUBR COPYCO(S) IS (</td></tr>
+<tr><td class="n d">311</td><td class="c d">  NCOP<del>_</del>0; COPYS=0=&gt;COPYS<del>_</del>FALLOT('CPYCO',20);</td><td class="n a">60</td><td class="c a"> <ins>CJ,J,W0,W1,RD,R,CT,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">312</td><td class="c d">  CJ<del>_</del>FREE(S+2); <del>CJ_CJ RS 18;</del> FREES(S+2,0);</td><td class="n a">61</td><td class="c a"> NCOP<ins>:=</ins>0; COPYS=0 =&gt; COPYS<ins>:=</ins>FALLOT('CPYCO',20);</td></tr>
+<tr><td class="n d">313</td><td class="c d">  <del>L1</del>: CJ=&gt;(<del>CC_FREE</del>(<del>CO+</del>CJ);</td><td class="n a">62</td><td class="c a"> CJ<ins>:=HL(</ins>FREE(S+2)<ins>)</ins>; FREES(S+2,0);</td></tr>
+<tr><td class="n d">314</td><td class="c d">           <del>GO TO</del> (<del>L10,L11,L12,L13</del>) <del>CC RS 34</del>;</td><td class="n a">63</td><td class="c a"> <ins>CP1</ins>: CJ <ins>NE 0</ins> =&gt; (</td></tr>
+<tr><td class="n d">315</td><td class="c d">      <del>L13: ADDCODE</del>(<del>S,CC,FREE(CO+</del>CJ<del>+1</del>)<del>)</del>; <del>CJ_CJ+2; GO TO L1;</del></td><td class="n a">64</td><td class="c a">     <ins>RD:=RRD</ins>(CJ); <ins>W0:=RV0</ins>(<ins>CJ</ins>); <ins>W1:=RV1</ins>(CJ);</td></tr>
+<tr><td class="n d">316</td><td class="c d">      <del>L11: J_CC AND 777777B; CD_177B AND CD RS 27;</del></td><td class="n a">65</td><td class="c a">     <ins>RD NE 0</ins> =&gt; <ins>RD:=</ins>COPYC1(<ins>RD</ins>);</td></tr>
+<tr><td class="n d">317</td><td class="c d">           <del>CD=2</del> =&gt; <del>J_</del>COPYC1(<del>J</del>);</td><td class="n a">66</td><td class="c a">     (<ins>W0 AND 77B</ins>) <ins>NE 4</ins> =&gt; (<ins>R:=3777B</ins> AND <ins>HL</ins>(<ins>W1</ins>); <ins>R NE 0</ins> =&gt; <ins>W1:=REGFIELD</ins>(<ins>W1,R,</ins>COPYC1(<ins>R</ins>)));</td></tr>
+<tr><td class="n d">318</td><td class="c d">           <del>CD GE 5 =&gt; CD LE 6 =&gt; J_COPYC1</del>(<del>J</del>)<del>;</del></td><td class="n a">67</td><td class="c a">     <ins>ADDCODE</ins>(<ins>S,RKIND</ins>(<ins>CJ</ins>)<ins>,ROP</ins>(<ins>CJ</ins>)<ins>,RD,W0,W1,RX</ins>(<ins>CJ</ins>));</td></tr>
+<tr><td class="n d">319</td><td class="c d">           <del>CD GE 8</del> =&gt; <del>CD LE 10 =&gt; J_COPYC1</del>(<del>J);</del></td><td class="n a">68</td><td class="c a">     <ins>CJ:=RNEXT</ins>(<ins>CJ</ins>);</td></tr>
+<tr><td class="n d">320</td><td class="c d">           <del>CC_J OR CC</del> AND <del>NOT 777777B;</del></td><td class="n a">69</td><td class="c a">     GO TO <ins>CP1</ins>);</td></tr>
+<tr><td class="n d">321</td><td class="c d">           <del>ADDCODE</del>(<del>S,CC,0</del>);</td><td class="n a">70</td><td class="c a"> <ins>W1:=</ins>FREE(S+1); CT<ins>:=</ins>FREE(S) AND 77B;</td></tr>
+<tr><td class="n d">322</td><td class="c d">           <del>CJ_CJ+1; GO TO L1;</del></td><td class="n a">71</td><td class="c a"> CT<ins>=</ins>2 =&gt; (<ins>R:=</ins>3777B AND <ins>HL(W1</ins>)<ins>; R NE 0</ins> =&gt; <ins>FREES(S+1</ins>,<ins>REGFIELD(W1,R,</ins>COPYC1(<ins>R</ins>)<ins>)))</ins>;</td></tr>
+<tr><td class="n d">323</td><td class="c d">      <del>L12: CJ_CC AND 777777B; GO TO L1;</del></td><td class="n a">72</td><td class="c a"> <ins>CT=20B =&gt; (R:=3777B AND HL(W1); R NE 0 =&gt;</ins> FREES(S+1,<ins>REGFIELD(W1,R,COPYC1(R</ins>))<ins>))</ins>;</td></tr>
+<tr><td class="n d">324</td><td class="c d">      <del>L10: CD_FREE(CO+CJ+1);</del></td><td class="n a">73</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n d">325</td><td class="c d">           <del>(J_3777B AND CC RS 12)</del> =&gt;</td><td class="n a">75</td><td class="c a"><ins># THE REGISTERS OF A CODE THAT IS COPIED OR COMPARED: COPYS HAS PAIRS (OLD REGISTER LEFT, NEW REGISTER RIGHT) #</ins></td></tr>
+<tr><td class="n d">326</td><td class="c d">                       (<del>J_</del>COPYC1(<del>J</del>)<del>; CC_(J LS 12</del>) <del>OR CC AND NOT 37770000B</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">327</td><td class="c d">           (<del>CC AND 4000B) =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">328</td><td class="c d">                       (<del>J_COPYC1(CD AND 777777B</del>)<del>; CD_J OR CD AND NOT 777777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">329</td><td class="c d">           (<del>J_3777B AND CC</del>) <del>=&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">330</td><td class="c d">                       (<del>J_COPYC1(J</del>)<del>; CC_J OR CC AND NOT 3777B</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">331</td><td class="c d">           <del>ADDCODE</del>(<del>S,CC,CD</del>); <del>CJ_CJ+2;</del> GO TO <del>L1</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">332</td><td class="c d">  <del>CD_</del>FREE(S+1); CT<del>_</del>FREE(S) AND 77B;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">333</td><td class="c d">  CT <del>NE</del> 2 =&gt; <del>CT NE 20B =&gt; GO TO L16;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">334</td><td class="c d">  (<del>J_</del>3777B AND <del>CD RS 18</del>) =&gt; <del>CD&lt;11</del>,<del>18&gt;_</del>COPYC1(<del>J</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">335</td><td class="c d">  <del>L16:</del> FREES(S+1,<del>CD</del>));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">337</td><td class="c q">SUBR COPYC1(J) IS (</td><td class="n q">76</td><td class="c q">SUBR COPYC1(J) IS (</td></tr>
+<tr><td class="n d">338</td><td class="c d">  NCOP=&gt;((K<del>_</del>FREE(COPYS+I);</td><td class="n a">77</td><td class="c a"> <ins>K,I ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">339</td><td class="c d">          (K <del>RS 18</del>)=J=&gt;(<del>I_</del>K <del>AND 777777B; GO TO L18</del>)) FOR I <del>TO</del> NCOP-1);</td><td class="n a">78</td><td class="c a"> NCOP <ins>NE 0</ins> =&gt; ((K<ins>:=</ins>FREE(COPYS+I);</td></tr>
+<tr><td class="n d">340</td><td class="c d">  I<del>_</del>SAMEREG(J);</td><td class="n a">79</td><td class="c a">                <ins>HL</ins>(K)=J =&gt; <ins>RETURN HR</ins>(K)) FOR I <ins>FROM</ins> NCOP-1);</td></tr>
+<tr><td class="n d">341</td><td class="c d">  FADD(COPYS,NCOP,<del>I OR</del> J <del>LS 18</del>);</td><td class="n a">80</td><td class="c a"> I<ins>:=</ins>SAMEREG(J);</td></tr>
+<tr><td class="n d">342</td><td class="c d">  <del>L18:</del> I);</td><td class="n a">81</td><td class="c a"> FADD(COPYS,NCOP,<ins>HW(</ins>J<ins>,I</ins>)<ins>)</ins>;</td></tr>
+<tr><td class="n d">344</td><td class="c d">SUBR NEXCO(I) IS (</td><td class="n a">82</td><td class="c a"> I);</td></tr>
+<tr><td class="n d">345</td><td class="c d">  <del>L20: I=&gt;(A_FREE(CO+I</del>);</td><td class="n a">84</td><td class="c a">SUBR NEXCO(I) IS (<ins>0</ins>);</td></tr>
+<tr><td class="n d">346</td><td class="c d">           <del>(A RS 34)=2=&gt;(I_A</del> AND <del>777777B; GO</del> TO <del>L20);</del></td><td class="n a">86</td><td class="c a"><ins># MCODE(S,T): 1 IF THE CODE FOR S</ins> AND <ins>FOR T IS THE SAME, UP</ins> TO A <ins>CORRESPONDENCE BETWEEN THE REGISTERS #</ins></td></tr>
+<tr><td class="n d">347</td><td class="c d">           <del>I_I+1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">348</td><td class="c d">  A<del>);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">350</td><td class="c q">SUBR MCODE(S,T) IS (</td><td class="n q">87</td><td class="c q">SUBR MCODE(S,T) IS (</td></tr>
+<tr><td class="n d">351</td><td class="c d">  COPYS=0=&gt;COPYS<del>_</del>FALLOT('CPYCO',20);</td><td class="n a">88</td><td class="c a"> <ins>JS,JT,RS,RT,W0S,W0T,W1S,W1T ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">352</td><td class="c d">  NCOP<del>_</del>0;</td><td class="n a">89</td><td class="c a"> COPYS=0 =&gt; COPYS<ins>:=</ins>FALLOT('CPYCO',20);</td></tr>
+<tr><td class="n d">353</td><td class="c d">  <del>VAL_0;</del></td><td class="n a">90</td><td class="c a"> NCOP<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">354</td><td class="c d">  <del># FIRST COMPARE REGISTERS IN STACK ENTRY #</del></td><td class="n a">91</td><td class="c a"> <ins>MCODE1(3777B AND HL(</ins>FREE(S+1)<ins>),3777B AND HL(</ins>FREE(T+1))<ins>)</ins>=0 =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">355</td><td class="c d">  <del>JS_</del>FREE(S+1)<del>; JT_</del>FREE(T+1)<del>;</del></td><td class="n a">92</td><td class="c a"> JS<ins>:=HL(</ins>FREE(S+2)<ins>)</ins>; JT<ins>:=HL(</ins>FREE(T+2)<ins>)</ins>;</td></tr>
+<tr><td class="n d">356</td><td class="c d">  <del>MCODE1(3777B AND JS RS 18,3777B AND JT RS 18</del>)=0=&gt;<del>GO TO MCOX</del>;</td><td class="n a">93</td><td class="c a"> <ins>MC1</ins>: (JS OR JT)=0 =&gt; <ins>RETURN</ins> 1;</td></tr>
+<tr><td class="n d">357</td><td class="c d">  JS<del>_</del>FREE(S+2); JT<del>_</del>FREE(T+2);</td><td class="n a">94</td><td class="c a"> JS=0 =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">358</td><td class="c d">  <del>JS_JS RS 18; JT_JT RS 18;</del></td><td class="n a">95</td><td class="c a"> JT=0 =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">359</td><td class="c d">  <del>L21</del>: <del>SE_NEXCO</del>(JS<del>); TE_NEXCO(JT);</del></td><td class="n a">96</td><td class="c a"> <ins>RKIND</ins>(<ins>JS</ins>) NE <ins>RKIND</ins>(<ins>JT</ins>) =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">360</td><td class="c d">  <del>(JS</del> OR JT)=0=&gt;<del>(VAL_</del>1; <del>GO TO MCOX);</del></td><td class="n a">97</td><td class="c a"> <ins>ROP</ins>(<ins>JS)</ins> NE <ins>ROP(JT)</ins> =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">361</td><td class="c d">  JS=0=&gt;<del>GO TO MCOX</del>; JT=0=&gt;<del>GO TO MCOX</del>;</td><td class="n a">98</td><td class="c a"> <ins>RX</ins>(JS) <ins>NE RX</ins>(JT) <ins>=&gt; RETURN 0</ins>;</td></tr>
+<tr><td class="n d">362</td><td class="c d">  (<del>STY_SE RS 34</del>) NE (<del>TE RS 34</del>)=&gt;<del>GO TO MCOX</del>;</td><td class="n a">99</td><td class="c a"> <ins>RV0(JS)</ins> NE <ins>RV0(JT)</ins> =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">363</td><td class="c d">  <del>STY=&gt;</del>(<del>SE</del> NE <del>TE</del>=&gt;<del>GO TO MCOX</del>;</td><td class="n a">100</td><td class="c a"> <ins>RS:=RRD(JS</ins>); <ins>RT:=RRD</ins>(<ins>JT</ins>)<ins>;</ins></td></tr>
+<tr><td class="n d">364</td><td class="c d">        <del>STY=1=&gt;GO TO L21;</del></td><td class="n a">101</td><td class="c a"> <ins>(RS=0)</ins> NE (<ins>RT=0</ins>) =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">365</td><td class="c d">        <del>SE_FREE</del>(<del>CO+</del>JS)<del>; TE_FREE</del>(<del>CO+</del>JT);</td><td class="n a">102</td><td class="c a"> <ins>RS NE 0 =&gt;</ins> MCODE1(<ins>RS</ins>,<ins>RT</ins>)=0 =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">366</td><td class="c d">        <del>SE</del> NE <del>TE</del>=&gt;<del>GO TO MCOX</del>;</td><td class="n a">103</td><td class="c a"> <ins>W0S:=RV0</ins>(<ins>JS);</ins></td></tr>
+<tr><td class="n d">367</td><td class="c d">        <del>GO TO L22</del>);</td><td class="n a">104</td><td class="c a"> <ins>(W0S</ins> AND <ins>77B</ins>)=<ins>4</ins> =&gt; <ins>(RV1(JS) NE RV1(JT) =&gt; RETURN 0)</ins></td></tr>
+<tr><td class="n d">368</td><td class="c d">  <del># COMPARE INSTRUCTION WORDS #</del></td><td class="n a">105</td><td class="c a">  <ins>ELSE (RS:=3777B</ins> AND <ins>HL</ins>(<ins>RV1(</ins>JS)<ins>)</ins>; <ins>RT:=3777B AND HL</ins>(<ins>RV1(</ins>JT)<ins>)</ins>;</td></tr>
+<tr><td class="n d">369</td><td class="c d">  (<del>SE AND 777700004000B</del>) NE (<del>TE AND 777700004000B</del>)=&gt;<del>GO TO MCOX</del>;</td><td class="n a">106</td><td class="c a">        <ins>(RS=0)</ins> NE (<ins>RT</ins>=0<ins>)</ins> =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">370</td><td class="c d">  MCODE1(<del>SE AND 3777B</del>,<del>TE AND 3777B</del>)=0=&gt;<del>GO TO MCOX</del>;</td><td class="n a">107</td><td class="c a">        <ins>RS NE 0 =&gt; MCODE1</ins>(RS<ins>,RT</ins>)<ins>=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n d">371</td><td class="c d">  <del>MCODE1</del>(<del>3777B</del> AND <del>SE RS 12,3777B AND TE RS 12</del>)=<del>0</del>=&gt;<del>GO TO MCOX;</del></td><td class="n a">108</td><td class="c a">        <ins>HR(RV1(JS))</ins> NE <ins>HR</ins>(<ins>RV1(JT</ins>)<ins>)</ins> =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">372</td><td class="c d">  <del>J_SE</del> AND <del>4000B; SE_FREE</del>(<del>CO+</del>JS); <del>TE_FREE</del>(<del>CO+</del>JT);</td><td class="n a">109</td><td class="c a">        (<ins>RV1(JS</ins>) <ins>LT</ins> 0<ins>) NE (RV1(JT) LT 0)</ins> =&gt; <ins>RETURN 0</ins>);</td></tr>
+<tr><td class="n d">373</td><td class="c d">  <del>SE</del> NE <del>TE=&gt;</del>(<del>J</del>=0=&gt;<del>GO TO MCOX</del>;</td><td class="n a">110</td><td class="c a"> JS<ins>:=RNEXT(</ins>JS<ins>)</ins>; JT<ins>:=RNEXT(</ins>JT<ins>)</ins>; GO TO <ins>MC1</ins>);</td></tr>
+<tr><td class="n d">374</td><td class="c d">             (<del>SE</del> RS <del>18</del>) NE (<del>TE RS 18</del>)=&gt;<del>GO TO MCOX</del>;</td><td class="n a">112</td><td class="c a"><ins># MCODE1(I,J): IS REGISTER I OF ONE CODE THE REGISTER J OF THE OTHER?  (A CORRESPONDENCE IS KEPT IN COPYS) #</ins></td></tr>
+<tr><td class="n d">375</td><td class="c d">             <del>MCODE1</del>(<del>3777B AND SE,3777B AND TE</del>)<del>=</del>0=&gt;<del>GO TO MCOX</del>);</td><td class="n a">113</td><td class="c a">SUBR MCODE1(I,J) IS (</td></tr>
+<tr><td class="n d">376</td><td class="c d">  <del>L22:</del> JS<del>_</del>JS<del>+1</del>; JT<del>_</del>JT<del>+1</del>; GO TO <del>L21;</del></td><td class="n a">114</td><td class="c a"> <ins>B,A,T,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">377</td><td class="c d">  <del>MCOX: VAL</del>);</td><td class="n a">115</td><td class="c a"> I=J =&gt; <ins>RETURN 1</ins>;</td></tr>
+<tr><td class="n d">379</td><td class="c d">SUBR MCODE1(I,J) IS ( <del># REGISTER CORRESPONDENCE CHECKER #</del></td><td class="n a">116</td><td class="c a"> B<ins>:=HW(</ins>I<ins>,J)</ins>;</td></tr>
+<tr><td class="n d">380</td><td class="c d">  I=J=&gt;<del>GO TO MCX1</del>;</td><td class="n a">117</td><td class="c a"> NCOP <ins>NE 0</ins> =&gt; ((A<ins>:=</ins>FREE(COPYS+K); A=B =&gt; <ins>RETURN 1</ins>;</td></tr>
+<tr><td class="n d">381</td><td class="c d">  <del>D_0;</del> B<del>_J OR</del> I <del>LS 18</del>;</td><td class="n a">118</td><td class="c a">                T<ins>:=HL(</ins>A<ins>)</ins>; <ins>(</ins>T=I<ins>) OR (</ins>T=J<ins>)</ins> =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">382</td><td class="c d">  NCOP=&gt;((A<del>_</del>FREE(COPYS+K); A=B=&gt;<del>GO TO MCX1</del>;</td><td class="n a">119</td><td class="c a">                T<ins>:=HR(</ins>A<ins>)</ins>; <ins>(</ins>T=I<ins>) OR (</ins>T=J<ins>)</ins> =&gt; <ins>RETURN 0</ins>) FOR K FROM NCOP-1);</td></tr>
+<tr><td class="n d">383</td><td class="c d">          T<del>_</del>A <del>RS 18</del>; T=I<del>=&gt;GO TO MCX0;</del> T=J=&gt;<del>GO TO MCX0</del>;</td><td class="n a">120</td><td class="c a"> REGSIM(I,J)=0 =&gt; <ins>RETURN 0</ins>;</td></tr>
+<tr><td class="n d">384</td><td class="c d">          T<del>_</del>A <del>AND 777777B</del>; T=I<del>=&gt;GO TO MCX0;</del> T=J=&gt;<del>GO TO MCX0</del>) FOR K FROM NCOP-1);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">385</td><td class="c d">  REGSIM(I,J)=0=&gt;<del>GO TO MCX0</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">386</td><td class="c q">  FADD(COPYS,NCOP,B);</td><td class="n q">121</td><td class="c q"> FADD(COPYS,NCOP,B);</td></tr>
+<tr><td class="n d">387</td><td class="c d">  <del>MCX1: D_</del>1<del>;</del></td><td class="n a">122</td><td class="c a"> 1);</td></tr>
+<tr><td class="n d">388</td><td class="c d">  <del>MCX0: D</del>);</td><td class="n a">124</td><td class="c a"><ins># SUBARG(S,PP): FORCE THE ARGUMENT PP INTO SOMETHING WITH AN ADDRESS FOR A SUBROUTINE CALL, STORING IT IF NECESSARY.  A VARIABLE AND A SUBSCRIPTED</ins></td></tr>
+<tr><td class="n d">390</td><td class="c d">SUBR SUBARG(S,PP) IS (P<del>_</del>PP;</td><td class="n a">125</td><td class="c a">  <ins>VARIABLE HAVE ONE; A REGISTER IS STORED IN A TEMPORARY WORD; A CONSTANT IS GIVEN A NAME #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">126</td><td class="c a">SUBR SUBARG(S,PP) IS (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">127</td><td class="c a"> P<ins>,TM,S1,S2,J ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">128</td><td class="c a"> <ins>P:=</ins>PP;</td></tr>
+<tr><td class="n q">391</td><td class="c q"> UNPCK(P);</td><td class="n q">129</td><td class="c q"> UNPCK(P);</td></tr>
+<tr><td class="n d">392</td><td class="c d"> TSE=10B=&gt;<del>GO TO L14</del>;</td><td class="n a">130</td><td class="c a"> TSE=10B =&gt; <ins>RETURN P</ins>;</td></tr>
+<tr><td class="n d">393</td><td class="c d"> TSE=2=&gt;(TM<del>_</del>SUBPRM(0);</td><td class="n a">131</td><td class="c a"> TSE=2 =&gt; (TM<ins>:=</ins>SUBPRM(0);</td></tr>
+<tr><td class="n d">394</td><td class="c d">         S1<del>_</del>FREE(TM);S2<del>_</del>FREE(TM+1);</td><td class="n a">132</td><td class="c a">           S1<ins>:=</ins>FREE(TM); S2<ins>:=</ins>FREE(TM+1);</td></tr>
+<tr><td class="n q">395</td><td class="c q">         STORE(TM,P);</td><td class="n q">133</td><td class="c q">           STORE(TM,P);</td></tr>
+<tr><td class="n q">396</td><td class="c q">         FREES(TM,S1); FREES(TM+1,S2);</td><td class="n q">134</td><td class="c q">           FREES(TM,S1); FREES(TM+1,S2);</td></tr>
+<tr><td class="n d">397</td><td class="c d">         <del>P_</del>TM<del>;</del></td><td class="n a">135</td><td class="c a">           <ins>RETURN</ins> TM);</td></tr>
+<tr><td class="n d">398</td><td class="c d">         <del>GO TO L14</del>);</td><td class="n a">136</td><td class="c a"> TSE=4 =&gt; (<ins>DSE</ins>=0 =&gt; (J<ins>:=</ins>STCON(FREE(P+1));</td></tr>
+<tr><td class="n d">399</td><td class="c d"> TSE=4=&gt;(<del>(SE RS 18)</del>=0=&gt;(J<del>_</del>STCON(FREE(P+1));</td><td class="n a">137</td><td class="c a">                     FREES(P,(<ins>(HR(</ins>SE) OR <ins>(</ins>J LS <ins>32)))</ins>));</td></tr>
+<tr><td class="n d">400</td><td class="c d">                        FREES(P,(SE <del>AND 777777B</del>)OR J LS <del>18</del>));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">401</td><td class="c q">         FREES(P+1,0);</td><td class="n q">138</td><td class="c q">           FREES(P+1,0);</td></tr>
+<tr><td class="n d">402</td><td class="c d">         <del>GO TO L14);</del></td><td class="n a">139</td><td class="c a">           <ins>RETURN</ins> P);</td></tr>
+<tr><td class="n d">403</td><td class="c d"> <del># TYPE 20 - SUBSCRIPTED VARIABLE #</del></td><td class="n a">140</td><td class="c a"> P)%%</td></tr>
+<tr><td class="n d">404</td><td class="c d"> <del>DSE=0 =&gt; CSE=0 =&gt; (1 AND SE1 RS 35)=0 =&gt; (FREES(</del>P<del>,2 OR FREE(P</del>) <del>AND NOT 77B)</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">405</td><td class="c d">                                           <del>GO TO L15);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">406</td><td class="c d"> <del>DEWOP(201B,AREG1(1,15B),</del>P)<del>;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">407</td><td class="c d"> <del>L15: TM_NEWNAME('CAL');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">408</td><td class="c d"> <del>FINAM IS COMMON; RNTRNT_FINAM[5] AND 400000B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">409</td><td class="c d"> <del>QM_NAME(ENSTACK(TM));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">410</td><td class="c d"> <del>DEWOP(542B,REGOF(P),QM);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">411</td><td class="c d"> <del>HOOK(P,P,QM);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">412</td><td class="c d"> <del>RNTRNT =&gt; P_P OR TM LS 18</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">413</td><td class="c d">      <del>ELSE ADDCODE(S,200000000000B OR TM,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">414</td><td class="c d"> <del>L14: P) %</del>%%</td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

@@ -106,10 +106,14 @@ check-run:
 	sh tests/tokdiff/run.sh
 	sh tests/crossrun/run.sh || [ $$? = 77 ]
 
+# the published pages of the tape against the port (docs/tape-vs-port, <https://moebiusv.github.io/imp72/docs/tape-vs-port/index.html>)
+tape-vs-port:
+	sh tools/token-diff.sh docs/tape-vs-port
+
 clean:
 	$(MAKE) -C stage0 clean
 	rm -rf build IOTEST.TMP
 
 distclean: clean
 
-.PHONY: all stage0 llvm-ir runtime cimport check clean distclean install
+.PHONY: all stage0 llvm-ir runtime cimport check clean distclean install tape-vs-port

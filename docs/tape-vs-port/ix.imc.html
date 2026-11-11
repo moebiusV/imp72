@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ix.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>ix.imc</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): src/ix.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 6557 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>TWOSEG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>IRF,USEDFS,CONST,TGTSWAP ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"><ins>FDESC,NFD ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"><ins>#THIS IS FILE IX, THE BUILDERS AND THE WRITER OF THE IR TREES THAT SRC/DEMIT.IMC MAKES: THE TRANSLATION OF STAGE0/IR.C (AND THE IX WRAPPERS OF STAGE0/IRSEM.C) INTO IMP, SO THAT NO C IS</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"> <ins>LEFT IN IT.  NOT IN THE TAPE: THE ORIGINAL'S OMOD WRITES PDP-10 OBJECT CODE.  A NODE IS EIGHT WORDS OF C MEMORY (THE FIELDS ARE [N]..[N+7]: A BRACKET WITH A LITERAL INDEX COUNTS WORDS) (OP, TYPE, VALUE, REGISTER OR TEMP NUMBER, QUALIFIER, NAME, LEFT, RIGHT), TAKEN FROM CALLOC AND KEPT ON</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>A LIST WHEN FREED; THE TEXT IS WRITTEN TO THE FILE IRF WITH FPUTS AND FPUTC (A NUMBER IS WRITTEN BY IRPUTN, WHICH DOES NOT NEED A CALL THAT TAKES A 64 BIT VALUE).  THE OPERATORS AND TYPES ARE THOSE OF PCC'S PASS 2 (MIP/NODE.H AND MIP/MANIFEST.H: WHERE THE FORMAT COMES FROM):</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>NAME 2, ICON 4, REG 6, TEMP 8, PLUS 10, MINUS 11, UMUL 23, CBRANCH 35, SCONV 37, PCONV 38, CALL 41, UCALL 42, CM 48, ASSIGN 49, GOTO 54, FUNARG 57; UCHAR 3, INT 6, UINT 7, LONG 8, ULONG 9, DOUBLE 13, PTR 32.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"><ins>NFREE,NL,TMPBASE,NTEMP,LBLBASE,PROLAB,FNM,VN,TIDX,TGSET ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"><ins>TNARG,TRET,TFP,TSP,TFTYPE,TSTK0,TAUT0,TSLOT,TFNA,TPUSH,TIPP,TWLL ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"><ins>TARG IS 8 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"><ins>DG IS 24 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"><ins>EXTERNAL INT fprintf(PTR, PTR, ...);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"><ins>EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"><ins># IXSETTARGET(NM): THE MACHINE THE IR IS FOR, BY NAME; 0 IF THERE IS NONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"><ins>SUBR IXSETTARGET(NM) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('amd64'))=0 =&gt; K:=0 ELSE (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('aarch64'))=0 =&gt; K:=1 ELSE (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('i386'))=0 =&gt; K:=2 ELSE (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('arm'))=0 =&gt; K:=3 ELSE RETURN 0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"> <ins>TGINIT(K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"> <ins>1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"><ins># THE MACHINES (STAGE0/IR.C): THE NUMBER OF ARGUMENTS IN REGISTERS, THEIR REGISTERS, THE ONE OF THE RESULT, THE FRAME POINTER, THE STACK POINTER, WHERE STACK ARGUMENTS BEGIN, THE BYTES OF THE FRAME BEFORE THE FIRST AUTOMATIC,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a">  <ins>THE BYTES OF A STACK ARGUMENT, THEN THE FLAGS: FNARGS (PASS 2 PUSHES THE ARGUMENTS: I386), PUSHARGS (IT PUSHES THE ONES BEYOND THE REGISTERS: ARM), IPPMEM (EXTRA LINES AFTER THE PROLOG AND EPILOG), WORDLL (THE WORD IS LONG LONG).</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a">  <ins>TWENTY WORDS A MACHINE: AMD64, AARCH64, I386, ARM #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a"><ins>TGT: DATA(6,5,4,1,2,8,9,0,0,0,6,7,16,0,8,0,0,0,0,0,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a">          <ins>8,0,1,2,3,4,5,6,7,0,26,27,16777216,16,8,0,0,0,0,0,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a">          <ins>0,0,0,0,0,0,0,0,0,16,6,7,8,0,4,1,0,1,1,0,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a">          <ins>4,0,1,2,3,0,0,0,0,16,11,13,20,12,4,0,1,0,1,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"><ins>SUBR TGINIT(K) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"> <ins>B,J ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a"> <ins>TIDX:=K; TGSET:=1; B:=20*K;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"> <ins>TNARG:=TGT[B]; (TARG[J]:=TGT[(B+1)+J]) FOR J FROM 7;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">38</td><td class="c a"> <ins>TRET:=TGT[B+9]; TFP:=TGT[B+10]; TSP:=TGT[B+11]; TSTK0:=TGT[B+12]; TAUT0:=TGT[B+13]; TSLOT:=TGT[B+14];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"> <ins>TFNA:=TGT[B+15]; TPUSH:=TGT[B+16]; TIPP:=TGT[B+17]; TWLL:=TGT[B+18];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"> <ins>K=0 =&gt; TFTYPE:=LOC('@function');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a"> <ins>K=1 =&gt; TFTYPE:=LOC('%function');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a"> <ins>K=2 =&gt; TFTYPE:=LOC('@function');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">43</td><td class="c a"> <ins>K=3 =&gt; TFTYPE:=LOC('%function');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a"><ins># A NODE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">47</td><td class="c a"><ins>SUBR IRNEW(OP,TY,L,R) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">48</td><td class="c a"> <ins>N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a"> <ins>NFREE NE 0 =&gt; (N:=NFREE; NFREE:=[N]; CCALL memset(N,0,64)) ELSE N:=CCALL calloc(1,64);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a"> <ins>[N]:=OP; [N+1]:=TY; [N+6]:=L; [N+7]:=R;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a"> <ins>N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"><ins>SUBR IRFREE(N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">54</td><td class="c a"> <ins>N=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"> <ins>IRFREE([N+6]); IRFREE([N+7]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"> <ins>[N]:=NFREE; NFREE:=N;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">59</td><td class="c a"><ins>SUBR IXICON(V,TY) IS (N ARE LOCAL; N:=IRNEW(4,TY,0,0); [N+2]:=V; N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">61</td><td class="c a"><ins>SUBR IXSYM(NM,OFF,TY) IS (N ARE LOCAL; N:=IXICON(OFF,TY); [N+5]:=NM; N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">63</td><td class="c a"><ins>SUBR IXNAME(NM,OFF,TY) IS (N ARE LOCAL; N:=IRNEW(2,TY,0,0); [N+2]:=OFF; [N+5]:=NM; N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">65</td><td class="c a"><ins>SUBR IXTEMP(NUM,TY) IS (N ARE LOCAL; N:=IRNEW(8,TY,0,0); [N+3]:=NUM; N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"><ins>SUBR IXREG(NUM,TY) IS (N ARE LOCAL; N:=IRNEW(6,TY,0,0); [N+3]:=NUM; N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">69</td><td class="c a"><ins>SUBR ISWORD(T) IS (T=8 =&gt; RETURN 1; T=9 =&gt; RETURN 1; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a"><ins># A WORD USED WHERE THE MACHINE WANTS A POINTER SIZED INTEGER (I386) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a"><ins>SUBR IRNARROW(X) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a"> <ins>[X]=4 =&gt; [X+5]=0 =&gt; ([X+1]:=6; RETURN X);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"> <ins>IRNEW(37,6,X,0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"><ins>SUBR IXUN(OP,TY,L) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a"> <ins>P ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a"> <ins>TWLL=0 =&gt; GO TO UN9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a"> <ins>OP NE 38 =&gt; GO TO UN9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"> <ins>(TY AND 40B) NE 0 =&gt; (ISWORD([L+1]) NE 0 =&gt; (L:=IRNARROW(L); GO TO UN9));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"> <ins>ISWORD(TY) NE 0 =&gt; (([L+1] AND 40B) NE 0 =&gt; (P:=IRNEW(38,7,L,0); RETURN IRNEW(37,TY,P,0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>UN9: IRNEW(OP,TY,L,0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a"><ins>SUBR IXBIN(OP,TY,L,R) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a"> <ins>TWLL NE 0 =&gt; (OP=10 =&gt; GO TO BN1; OP=11 =&gt; GO TO BN1; GO TO BN9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a">               <ins>BN1: (TY AND 40B) NE 0 =&gt; (ISWORD([L+1]) NE 0 =&gt; L:=IRNARROW(L);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a">                                          <ins>ISWORD([R+1]) NE 0 =&gt; R:=IRNARROW(R)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a"> <ins>BN9: IRNEW(OP,TY,L,R));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"><ins>SUBR IXASSIGN(L,R) IS IRNEW(49,[L+1],L,R);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">92</td><td class="c a"><ins>SUBR IXDEREF(ADDR,TY) IS IXUN(23,TY,ADDR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"><ins>SUBR IXNEWTEMP(Z) IS (K ARE LOCAL; K:=TMPBASE+NTEMP; NTEMP:=NTEMP+1; K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">96</td><td class="c a"><ins>SUBR IXNEWLABEL(Z) IS (K ARE LOCAL; K:=NL+100; NL:=NL+1; K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">98</td><td class="c a"><ins># THE TYPE AS PASS 2 IS TO SEE IT: WITH THE WORD AS LONG LONG ON I386 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"><ins>SUBR IRTYMAP(T) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"> <ins>B ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">101</td><td class="c a"> <ins>B:=T AND 37B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">102</td><td class="c a"> <ins>TWLL NE 0 =&gt; (B=8 =&gt; B:=10; B=9 =&gt; B:=11);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">103</td><td class="c a"> <ins>((T AND (NOT 37B)) OR B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">105</td><td class="c a"><ins># THE FILE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">106</td><td class="c a"><ins>SUBR IRPUTS(P) IS CCALL fputs(P,IRF);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">108</td><td class="c a"><ins>SUBR IRPUTC(C) IS CCALL fputc(C,IRF);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a"><ins># A NUMBER IN DECIMAL, WITHOUT A CALL THAT TAKES A 64 BIT VALUE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a"><ins>SUBR IRPUTN(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">112</td><td class="c a"> <ins>W,K,R,NG,J ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"> <ins>W:=V; NG:=0; W&lt;0 =&gt; NG:=1; K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">114</td><td class="c a"> <ins>PN1: R:=W-((W/10)*10); R&lt;0 =&gt; R:=0-R;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">115</td><td class="c a"> <ins>DG[K]:=R; K:=K+1; W:=W/10; W NE 0 =&gt; GO TO PN1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">116</td><td class="c a"> <ins>NG NE 0 =&gt; IRPUTC(55B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">117</td><td class="c a"> <ins>IRPUTC(60B+DG[J]) FOR J IN K-1,-1,0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">118</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">120</td><td class="c a"><ins># WRITE A TREE, PREORDER, A NODE TO A LINE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">121</td><td class="c a"><ins>SUBR IRPUT(N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">122</td><td class="c a"> <ins>OP ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">123</td><td class="c a"> <ins>OP:=[N];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a"> <ins>IRPUTS(LOC('" ')); IRPUTN(OP); IRPUTC(32); IRPUTN(IRTYMAP([N+1])); IRPUTC(32); IRPUTN([N+4]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">125</td><td class="c a"> <ins>OP=2 =&gt; GO TO PUTNC;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">126</td><td class="c a"> <ins>OP=4 =&gt; GO TO PUTNC;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">127</td><td class="c a"> <ins>OP=6 =&gt; GO TO PUTRT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">128</td><td class="c a"> <ins>OP=8 =&gt; GO TO PUTRT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">129</td><td class="c a"> <ins>[N+7]=0 =&gt; (IRPUTC(32); IRPUTN([N+3]));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">130</td><td class="c a"> <ins>IRPUTC(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">131</td><td class="c a"> <ins>IRPUT([N+6]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">132</td><td class="c a"> <ins>[N+7] NE 0 =&gt; IRPUT([N+7]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">133</td><td class="c a"> <ins>RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">134</td><td class="c a"> <ins>PUTNC: IRPUTC(32); IRPUTN([N+2]); IRPUTC(32); [N+5] NE 0 =&gt; IRPUTS([N+5]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">135</td><td class="c a">        <ins>IRPUTC(12B); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">136</td><td class="c a"> <ins>PUTRT: IRPUTS(LOC(' 0 ')); IRPUTN([N+3]); IRPUTC(12B); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">138</td><td class="c a"><ins>SUBR IXSTMT(N) IS (IRPUT(N); IRFREE(N); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">140</td><td class="c a"><ins>SUBR IXLABEL(N) IS (IRPUTS(LOC('^ ')); IRPUTN(N); IRPUTC(12B); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">142</td><td class="c a"><ins>SUBR IXGOTO(L) IS IXSTMT(IXUN(54,6,IXICON(L,6)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a"><ins># IF (L OP R) GOTO LAB #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">145</td><td class="c a"><ins>SUBR IXCBRANCH(OP,L,R,LAB) IS IXSTMT(IXBIN(35,6,IXBIN(OP,6,L,R),IXICON(LAB,6)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">147</td><td class="c a"><ins># A LINE FOR THE ASSEMBLER: FMT IS A C FORMAT STRING, FOR UP TO FOUR VALUES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">148</td><td class="c a"><ins>SUBR IXPASS(FMT,A,B,C,D) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">149</td><td class="c a"> <ins>IRPUTS(LOC('* '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">150</td><td class="c a"> <ins>CCALL fprintf(IRF,FMT,A,B,C,D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">151</td><td class="c a"> <ins>IRPUTC(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">152</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">154</td><td class="c a"><ins>SUBR IXQUAD(V) IS (IRPUTS(LOC('*  .quad ')); IRPUTN(V); IRPUTC(12B); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">156</td><td class="c a"><ins># BEGIN A FUNCTION: ITS DIRECTIVES, THE PROLOG, AND THE LABEL AFTER IT.  PASS 2 MAKES LABELS OF ITS OWN FROM THE LABEL BASE OF THE PROLOG UP; OURS BEGIN A GAP ABOVE IT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">157</td><td class="c a"><ins>SUBR IXFUNCBEGIN(NM,VIS) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">158</td><td class="c a"> <ins>TGSET=0 =&gt; TGINIT(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">159</td><td class="c a"> <ins>FNM:=NM; TMPBASE:=100; NTEMP:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">160</td><td class="c a"> <ins>LBLBASE:=NL+100;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">161</td><td class="c a"> <ins>NL:=NL+65536;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">162</td><td class="c a"> <ins>PROLAB:=NL+100; NL:=NL+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">163</td><td class="c a"> <ins>IXPASS(LOC('	.text'),0,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">164</td><td class="c a"> <ins>IXPASS(LOC('	.align 4'),0,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">165</td><td class="c a"> <ins>VIS NE 0 =&gt; IXPASS(LOC('	.globl %s'),NM,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">166</td><td class="c a"> <ins>IXPASS(LOC('	.type %s,%s'),NM,TFTYPE,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">167</td><td class="c a"> <ins>IXPASS(LOC('%s:'),NM,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">168</td><td class="c a"> <ins>IRPUTS(LOC('! ')); IRPUTN(IRTYMAP(8)); IRPUTC(32); IRPUTN((VIS NE 0 =&gt; 1 ELSE 0)); IRPUTC(32); IRPUTN(PROLAB); IRPUTC(32);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">169</td><td class="c a"> <ins>IRPUTN(TMPBASE); IRPUTC(32); IRPUTN(LBLBASE); IRPUTC(32); IRPUTS(NM); IRPUTC(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">170</td><td class="c a"> <ins>TIPP NE 0 =&gt; (IRPUTS(LOC('( 0')); IRPUTC(12B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">171</td><td class="c a"> <ins>IXLABEL(PROLAB);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">172</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">174</td><td class="c a"><ins># END IT.  EVERY RETURN HAS STORED ITS VALUE IN THE TEMP RETTMP AND JUMPED TO RETLAB (RETTMP&lt;0: THE FUNCTION RETURNS NO VALUE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">175</td><td class="c a"><ins>SUBR IXFUNCEND(RETLAB,RETTMP) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">176</td><td class="c a"> <ins>TGSET=0 =&gt; TGINIT(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">177</td><td class="c a"> <ins>IXLABEL(RETLAB);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">178</td><td class="c a"> <ins>RETTMP GE 0 =&gt; IXSTMT(IXASSIGN(IXREG(TRET,8),IXTEMP(RETTMP,8)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">179</td><td class="c a"> <ins>IRPUTS(LOC('% ')); IRPUTN(TAUT0); IRPUTC(32); IRPUTN(RETLAB); IRPUTC(32); IRPUTN((TMPBASE+NTEMP)+1); IRPUTC(32);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">180</td><td class="c a"> <ins>IRPUTN((NL+100)+1); IRPUTC(32); IRPUTS(FNM); IRPUTC(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">181</td><td class="c a"> <ins>TIPP NE 0 =&gt; (IRPUTS(LOC(') 0')); IRPUTC(12B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">182</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">184</td><td class="c a"><ins># A SHIFT (RIGHT: 0 LEFT, 1 LOGICAL RIGHT, 2 ARITHMETIC RIGHT): THE IR TAKES A SHIFT OF A TEMP BY AN INT COUNT ASSIGNED BACK TO THE SAME TEMP, SO EVERY SHIFT GOES THROUGH ONE: THE RESULT IS A FRESH TEMP NODE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">185</td><td class="c a"><ins>SUBR IXSHIFT(RIGHT,L,R) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">186</td><td class="c a"> <ins>C,CNT,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">187</td><td class="c a"> <ins>C:=IXNEWTEMP(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">188</td><td class="c a"> <ins>[R]=4 =&gt; CNT:=IXICON([R+2],6) ELSE (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">189</td><td class="c a">     <ins>K:=IXNEWTEMP(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">190</td><td class="c a">     <ins>IXSTMT(IXASSIGN(IXTEMP(K,8),R));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">191</td><td class="c a">     <ins>CNT:=IXUN(37,3,IXTEMP(K,8)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">192</td><td class="c a"> <ins>IXSTMT(IXASSIGN(IXTEMP(C,8),L));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">193</td><td class="c a"> <ins>RIGHT=2 =&gt; IXSTMT(IXASSIGN(IXTEMP(C,8),IXBIN(19,8,IXTEMP(C,8),CNT)))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">194</td><td class="c a">   <ins>ELSE (RIGHT NE 0 =&gt; IXSTMT(IXASSIGN(IXTEMP(C,8),IXUN(37,8,IXBIN(19,9,IXUN(37,9,IXTEMP(C,8)),CNT))))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">195</td><td class="c a">          <ins>ELSE IXSTMT(IXASSIGN(IXTEMP(C,8),IXBIN(18,8,IXTEMP(C,8),CNT))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">196</td><td class="c a"> <ins>IXTEMP(C,8));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">198</td><td class="c a"><ins># A CALL OF FN WITH THE N ARGUMENTS IN THE ARRAY AT A (WORDS HOLDING NODES): IN REGISTERS AND IN THE OUTGOING STACK AREA AS THE MACHINE'S PROCEDURE CALL STANDARD WANTS, OR AS FUNARG NODES THAT PASS 2 PUSHES (I386).  A FUNCTION</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">199</td><td class="c a">  <ins>OF THE RUNTIME OR OF C RETURNS A C LONG: ON I386 AN INT, WHICH IS WIDENED TO THE WORD (CRET) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">200</td><td class="c a"><ins>SUBR IXCALL(FN,A,N,CRET) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">201</td><td class="c a"> <ins>CM,TREE,K,RT,QUAL,V,F,M,AS ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">202</td><td class="c a"> <ins>TGSET=0 =&gt; TGINIT(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">203</td><td class="c a"> <ins>CM:=0; RT:=8; QUAL:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">204</td><td class="c a"> <ins>TWLL NE 0 =&gt; (K:=0; WHILE K&lt;N DO (V:=[A+8*K];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">205</td><td class="c a">                                    <ins>(([V+1] AND 40B)=0 =&gt; [V+1] NE 6 =&gt; [A+8*K]:=IXUN(37,6,V));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">206</td><td class="c a">                                    <ins>K:=K+1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">207</td><td class="c a"> <ins>TFNA NE 0 =&gt; GO TO XFN;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">208</td><td class="c a"> <ins>K:=TNARG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">209</td><td class="c a"> <ins>XP1: K&lt;N =&gt; TPUSH NE 0 =&gt; (V:=[A+8*K]; F:=IXUN(57,[V+1],V); CM=0 =&gt; CM:=F ELSE CM:=IXBIN(48,6,CM,F);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">210</td><td class="c a">                            <ins>QUAL:=QUAL+TSLOT; K:=K+1; GO TO XP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">211</td><td class="c a"> <ins>K:=TNARG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">212</td><td class="c a"> <ins>XP2: K&lt;N =&gt; TPUSH=0 =&gt; (V:=[A+8*K];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">213</td><td class="c a">                         <ins>M:=IXUN(23,[V+1],IXBIN(10,40,IXREG(TSP,40),IXICON(TSLOT*(K-TNARG),8)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">214</td><td class="c a">                         <ins>AS:=IXASSIGN(M,V); CM=0 =&gt; CM:=AS ELSE CM:=IXBIN(48,6,CM,AS);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">215</td><td class="c a">                         <ins>K:=K+1; GO TO XP2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">216</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">217</td><td class="c a"> <ins>XP3: K&lt;N =&gt; K&lt;TNARG =&gt; (V:=[A+8*K]; AS:=IXASSIGN(IXREG(TARG[K],[V+1]),V); CM=0 =&gt; CM:=AS ELSE CM:=IXBIN(48,6,CM,AS);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">218</td><td class="c a">                         <ins>K:=K+1; GO TO XP3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">219</td><td class="c a"> <ins>CRET=1 =&gt; TWLL NE 0 =&gt; RT:=6;                                   # (CRET 2: A TYPED CALL, WHOSE VALUE IS A WORD ON EVERY MACHINE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">220</td><td class="c a"> <ins>CRET NE 0 =&gt; N&gt;0 =&gt; TIDX=0 =&gt; CM:=IXBIN(48,6,CM,IXASSIGN(IXREG(TRET,8),IXICON(0,8)));         # VARARGS: %AL = VECTOR REGISTERS USED #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">221</td><td class="c a"> <ins>GO TO XDONE;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">222</td><td class="c a"> <ins>XFN: K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">223</td><td class="c a"> <ins>XF1: K&lt;N =&gt; (V:=[A+8*K]; F:=IXUN(57,[V+1],V); CM=0 =&gt; CM:=F ELSE CM:=IXBIN(48,6,CM,F); K:=K+1; GO TO XF1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">224</td><td class="c a"> <ins>CRET=1 =&gt; RT:=6;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">225</td><td class="c a"> <ins>XDONE: N&gt;0 =&gt; TREE:=IXBIN(41,RT,FN,CM) ELSE TREE:=IXUN(42,RT,FN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">226</td><td class="c a"> <ins>[TREE+4]:=QUAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">227</td><td class="c a"> <ins>RT NE 8 =&gt; TREE:=IXUN(37,8,TREE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">228</td><td class="c a"> <ins>TREE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">230</td><td class="c a"><ins># THE POINTER PASSED AS PARAMETER K OF THE FUNCTION BEING MADE (THE ARGUMENTS ARE POINTERS TO THE VALUES) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">231</td><td class="c a"><ins>SUBR IXPARAM(K) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">232</td><td class="c a"> <ins>TGSET=0 =&gt; TGINIT(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">233</td><td class="c a"> <ins>K&lt;TNARG =&gt; RETURN IXREG(TARG[K],40);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">234</td><td class="c a"> <ins>IXUN(23,40,IXBIN(10,40,IXREG(TFP,40),IXICON(TSTK0+(TSLOT*(K-TNARG)),8))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">236</td><td class="c a"><ins># THE DOUBLE FOR THE WORD W, KEPT IN THE SCRATCH WORD IMP_FSK (K 0 OR 1) AND READ FROM MEMORY WHERE IT IS USED, NEVER HELD IN A TEMP: THE FIRST BACK END MISHANDLED DOUBLE TEMPS ON THE I386, WHERE THEY LIVE IN THE X87 STACK.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">237</td><td class="c a">  <ins>THE EXPRESSION THAT COMBINES TWO OF THEM IS THE VALUE; IXFROMDOUBLE STORES THE DOUBLE IT IS GIVEN IN IMP_FSR AND THE WORD IS READ BACK FROM THERE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">238</td><td class="c a"><ins>SUBR IXTODOUBLE(W,K) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">239</td><td class="c a"> <ins>NM ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">240</td><td class="c a"> <ins>USEDFS:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">241</td><td class="c a"> <ins>K NE 0 =&gt; NM:=LOC('imp_fs1') ELSE NM:=LOC('imp_fs0');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">242</td><td class="c a"> <ins>IXSTMT(IXASSIGN(IXNAME(NM,0,8),W));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">243</td><td class="c a"> <ins>IXNAME(NM,0,13));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">245</td><td class="c a"><ins>SUBR IXFROMDOUBLE(D) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">246</td><td class="c a"> <ins>USEDFS:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">247</td><td class="c a"> <ins>IXSTMT(IXASSIGN(IXNAME(LOC('imp_fsr'),0,13),D));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">248</td><td class="c a"> <ins>IXNAME(LOC('imp_fsr'),0,8));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">250</td><td class="c a"><ins># THE COMPILER'S OWN MODULES (IMPMODULE NAMES THE ONE BEING COMPILED) SAY WHERE EACH OF THEIR VARIABLES IS: A RECORD OF ITS ADDRESS, ITS SIZE AND ITS NAME, MODULE:SYMBOL, IN THE SECTION IMPVARS.  THE IMAGE THAT THE SWITCHES</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">251</td><td class="c a">  <ins>U AND V SAVE (STAGE0/IMAGE.C) IS MADE OF THEM AND OF THE FREE STORAGE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">252</td><td class="c a"><ins>SUBR IRVARREC(SYM,SZ) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">253</td><td class="c a"> <ins>MD,W ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">254</td><td class="c a"> <ins>MD:=CCALL getenv(LOC('IMPMODULE'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">255</td><td class="c a"> <ins>MD=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">256</td><td class="c a"> <ins>IMPBYTE(MD,0)=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">257</td><td class="c a"> <ins>TGSET=0 =&gt; TGINIT(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">258</td><td class="c a"> <ins>TWLL NE 0 =&gt; W:=LOC('.long') ELSE W:=LOC('.quad');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">259</td><td class="c a"> <ins>IXPASS(LOC('# varrec %s %ld %s:%s'),SYM,SZ,MD,SYM);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">260</td><td class="c a"> <ins>IXPASS(LOC('	.section .rodata'),0,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">261</td><td class="c a"> <ins>IXPASS(LOC('.LIV%d:'),VN,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">262</td><td class="c a"> <ins>IXPASS(LOC('	.asciz "%s:%s"'),MD,SYM,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">263</td><td class="c a"> <ins>IXPASS(LOC('	.section impvars,"aw"'),0,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">264</td><td class="c a"> <ins>IXPASS(LOC('	%s %s'),W,SYM,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">265</td><td class="c a"> <ins>IXPASS(LOC('	%s %ld'),W,SZ,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">266</td><td class="c a"> <ins>IXPASS(LOC('	%s .LIV%d'),W,VN,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">267</td><td class="c a"> <ins>IXPASS(LOC('	.data'),0,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">268</td><td class="c a"> <ins>VN:=VN+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">269</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">271</td><td class="c a"><ins># THE NAMES OF THE DIRECTORY ENTRIES AS THE ASSEMBLER AND THE IR HAVE THEM (STAGE0/IRSEM.C, WHICH HAD THEM IN C) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">273</td><td class="c a"><ins>SYMC,NSYMC ARE COMMON;                                  # THE CACHE OF THE ASSEMBLER NAMES: AN ARRAY OF POINTERS, BY DIRECTORY INDEX (IMAGE.C CLEARS IT AFTER AN IMAGE IS LOADED) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">274</td><td class="c a"><ins>SBUF IS 52 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">275</td><td class="c a"><ins>OBUF IS 200 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">276</td><td class="c a"><ins>WB IS 1 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">277</td><td class="c a"><ins>MBUF IS 24 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">279</td><td class="c a"><ins># IRNAMEOF(V): THE WHOLE NAME OF ENTRY V, A C STRING IN SBUF; ITS LENGTH #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">280</td><td class="c a"><ins>SUBR IRNAMEOF(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">281</td><td class="c a"> <ins>K,J,Q,C ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">282</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">283</td><td class="c a"> <ins>NM1: SBUF[K]:=DNAME(V,K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">284</td><td class="c a">      <ins>Q:=BYTEP SBUF&lt;7,36&gt;; Q:=Q+(8*K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">285</td><td class="c a">      <ins>J:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">286</td><td class="c a">      <ins>NM2: J&lt;8 =&gt; (C:=&lt;+Q&gt;; C=0 =&gt; RETURN (8*K)+J; J:=J+1; GO TO NM2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">287</td><td class="c a">      <ins>K:=K+1; K&lt;48 =&gt; GO TO NM1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">288</td><td class="c a"> <ins>8*K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">290</td><td class="c a"><ins># THE ASSEMBLER NAME OF DIRECTORY ENTRY V: LOWER CASE (UNLESS THE NAME HAS A LOWER CASE LETTER: THEN AS IT IS), CHARACTERS AN ASSEMBLER WOULD NOT TAKE AS _XX (TWO HEXADECIMAL DIGITS) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">291</td><td class="c a"><ins>SUBR IRSYMNAME(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">292</td><td class="c a"> <ins>L,Q,P,OUT,C,H,I,N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">293</td><td class="c a"> <ins>V GE NSYMC =&gt; (N:=V+64; SYMC:=CCALL realloc(SYMC,8*N); CCALL memset(SYMC+(8*NSYMC),0,8*(N-NSYMC)); NSYMC:=N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">294</td><td class="c a"> <ins>[SYMC+(8*V)] NE 0 =&gt; RETURN [SYMC+(8*V)];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">295</td><td class="c a"> <ins>L:=IRNAMEOF(V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">296</td><td class="c a"> <ins>OUT:=CCALL malloc((3*L)+4);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">297</td><td class="c a"> <ins>Q:=BYTEP SBUF&lt;7,36&gt;; P:=BYTEP [OUT]&lt;7,36&gt;;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">298</td><td class="c a"> <ins>I:=0;                                         # THE SYMBOL IS THE NAME AS IT IS WRITTEN: IMP NAMES ARE CASE SENSITIVE, AND C'S ARE WHAT C SAYS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">299</td><td class="c a"> <ins>SY1: I&lt;L =&gt; (C:=&lt;+Q&gt;; I:=I+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">300</td><td class="c a">     <ins>C GE 101B =&gt; C LE 132B =&gt; (&lt;+P&gt;:=C; GO TO SY1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">301</td><td class="c a">     <ins>C GE 141B =&gt; C LE 172B =&gt; (&lt;+P&gt;:=C; GO TO SY1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">302</td><td class="c a">     <ins>C GE 60B =&gt; C LE 71B =&gt; (&lt;+P&gt;:=C; GO TO SY1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">303</td><td class="c a">     <ins>C=137B =&gt; (&lt;+P&gt;:=C; GO TO SY1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">304</td><td class="c a">     <ins>&lt;+P&gt;:=137B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">305</td><td class="c a">     <ins>H:=C/16; &lt;+P&gt;:=(H&lt;10 =&gt; 60B+H ELSE 127B+H);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">306</td><td class="c a">     <ins>H:=C-(16*(C/16)); &lt;+P&gt;:=(H&lt;10 =&gt; 60B+H ELSE 127B+H);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">307</td><td class="c a">     <ins>GO TO SY1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">308</td><td class="c a"> <ins>&lt;+P&gt;:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">309</td><td class="c a"> <ins>[SYMC+(8*V)]:=OUT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">310</td><td class="c a"> <ins>OUT);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">312</td><td class="c a"><ins># 0 A VARIABLE OR FUNCTION, 1 A TEXT CONSTANT, 2 A NUMBER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">313</td><td class="c a"><ins>SUBR IRKIND(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">314</td><td class="c a"> <ins>L,Q,C ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">315</td><td class="c a"> <ins>V=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">316</td><td class="c a"> <ins>L:=IRNAMEOF(V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">317</td><td class="c a"> <ins>Q:=BYTEP SBUF&lt;7,36&gt;; C:=&lt;+Q&gt;;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">318</td><td class="c a"> <ins>C=47B =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">319</td><td class="c a"> <ins>C GE 60B =&gt; C LE 71B =&gt; CONVC(V)=0-1 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">320</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">322</td><td class="c a"><ins># THE VALUE OF A TEXT CONSTANT: ITS FIRST 8 CHARACTERS, THE FIRST AT THE FIRST ADDRESS, SO THAT THE WORD IS THE START OF THE STRING IN MEMORY #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">323</td><td class="c a"><ins>SUBR IRSTRVAL(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">324</td><td class="c a"> <ins>L,Q,P,C,I ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">325</td><td class="c a"> <ins>L:=IRNAMEOF(V); WB:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">326</td><td class="c a"> <ins>Q:=BYTEP SBUF&lt;7,36&gt;; C:=&lt;+Q&gt;;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">327</td><td class="c a"> <ins>P:=BYTEP WB&lt;7,36&gt;; I:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">328</td><td class="c a"> <ins>SV1: I&lt;9 =&gt; I&lt;L =&gt; (C:=&lt;+Q&gt;; &lt;+P&gt;:=C; I:=I+1; GO TO SV1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">329</td><td class="c a"> <ins>TGTSWAP NE 0 =&gt; RETURN BSWAPW(WB);                     # THE TARGET'S MEMORY ORDER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">330</td><td class="c a"> <ins>WB);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">332</td><td class="c a"><ins># THE LABEL .LN AS A C STRING #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">333</td><td class="c a"><ins>SUBR IRLABNAME(L) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">334</td><td class="c a"> <ins>S ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">335</td><td class="c a"> <ins>S:=CCALL malloc(24);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">336</td><td class="c a"> <ins>CCALL snprintf(S,24,LOC('.L%ld'),L);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">337</td><td class="c a"> <ins>S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">339</td><td class="c a"><ins># THE BODY OF A POOLED CONSTANT: THE TEXT, OR THE NUMBER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">340</td><td class="c a"><ins>SUBR IRPOOLEMIT(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">341</td><td class="c a"> <ins>L,Q,P,C,I ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">342</td><td class="c a"> <ins>IRKIND(V)=1 =&gt; GO TO PE1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">343</td><td class="c a"> <ins>CONVC(V); IXQUAD(CONST); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">344</td><td class="c a"> <ins>PE1: L:=IRNAMEOF(V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">345</td><td class="c a"> <ins>Q:=BYTEP SBUF&lt;7,36&gt;; C:=&lt;+Q&gt;;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">346</td><td class="c a"> <ins>P:=BYTEP OBUF&lt;7,36&gt;;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">347</td><td class="c a"> <ins>I:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">348</td><td class="c a"> <ins>PE2: I&lt;L =&gt; (C:=&lt;+Q&gt;; I:=I+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">349</td><td class="c a">     <ins>C=42B =&gt; (&lt;+P&gt;:=134B; &lt;+P&gt;:=C; GO TO PE2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">350</td><td class="c a">     <ins>C=134B =&gt; (&lt;+P&gt;:=134B; &lt;+P&gt;:=C; GO TO PE2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">351</td><td class="c a">     <ins>C GE 40B =&gt; C&lt;177B =&gt; (&lt;+P&gt;:=C; GO TO PE2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">352</td><td class="c a">     <ins>&lt;+P&gt;:=134B; &lt;+P&gt;:=60B+(C/64); &lt;+P&gt;:=60B+((C/8)-(8*(C/64))); &lt;+P&gt;:=60B+(C-(8*(C/8))); GO TO PE2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">353</td><td class="c a"> <ins>&lt;+P&gt;:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">354</td><td class="c a"> <ins>IXPASS(LOC(' .string "%s"'),LOC(OBUF),0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">355</td><td class="c a"> <ins>IXPASS(LOC(' .balign 8'),0,0,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">356</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">358</td><td class="c a"><ins># 1 FOR THE PRINT ROUTINE, 2 FOR THE READ ROUTINE, ELSE 0 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">359</td><td class="c a"><ins>SUBR IRFNKIND(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">360</td><td class="c a"> <ins>N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">361</td><td class="c a"> <ins>N:=IRSYMNAME(V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">362</td><td class="c a"> <ins>CCALL strcmp(N,LOC('PRN_2e'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">363</td><td class="c a"> <ins>CCALL strcmp(N,LOC('RED_2e'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">364</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">366</td><td class="c a"><ins># THE RUNTIME LIBRARY IS IMP: ITS ROUTINES TAKE THEIR ARGUMENTS BY REFERENCE AND RETURN A WORD, LIKE ANY OTHER, SO NO NAME IS A ROUTINE THAT RETURNS A C LONG BUT THE ONES CALLED WITH CCALL #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">367</td><td class="c a"><ins>SUBR IRRUNTIME(V) IS 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">369</td><td class="c a"><ins># THE ERROR FOR A GO TO A TAG THAT IS NOT IN THE SUBROUTINE, WITH THE TAG'S NAME #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">370</td><td class="c a"><ins>SUBR IRTAGERR(D) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">371</td><td class="c a"> <ins>CCALL snprintf(LOC(MBUF),160,LOC('GO TO %s, WHICH IS NOT IN THE SUBROUTINE.'),IRSYMNAME(D));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">372</td><td class="c a"> <ins>ERROR(1,MBUF);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">373</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">375</td><td class="c a"><ins># THE NAME OF THE JUMP BUFFER OF TAG D: A GO TO FROM ANOTHER ROUTINE IS A LONGJMP TO IT (SEE EXPORTTAGS IN SRC/DEMIT.IMC) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">376</td><td class="c a"><ins>SUBR IRJBNAME(D) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">377</td><td class="c a"> <ins>S,N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">378</td><td class="c a"> <ins>N:=IRSYMNAME(D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">379</td><td class="c a"> <ins>S:=CCALL malloc(CCALL strlen(N)+8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">380</td><td class="c a"> <ins>CCALL snprintf(S,CCALL strlen(N)+8,LOC('imp_jb_%s'),N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">381</td><td class="c a"> <ins>S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">383</td><td class="c a"><ins># THE FIELDS OF STRUCTURES (FIELD OF LIB/FFI.IMC): THE DESCRIPTORS IN FDESC, EIGHT WORDS EACH (FLDP IN CODE3.IMC).  THE INDEX IN FDESC OF THE DESCRIPTOR NAMED D, OR -1 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">384</td><td class="c a"><ins>SUBR FDFIND(D) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">385</td><td class="c a"> <ins>I ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">386</td><td class="c a"> <ins>NFD&gt;0 =&gt; ((FREE(FDESC+I)=D =&gt; RETURN I) FOR I IN 0,8,NFD-8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">387</td><td class="c a"> <ins>0-1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">389</td><td class="c a"><ins># THE IR TYPE OF THE MEMORY A FIELD OF THE TYPE TY OCCUPIES; THE 4 BYTE TYPES TAKE THE PLACE OF LONG AND OF POINTERS WHERE THE WORD IS A LONG LONG (THE I386, THE ARM).  AN UNSIGNED 4 BYTE TYPE IS LOADED AS AN INT</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">390</td><td class="c a">  <ins>AND MASKED (FMASK32) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">391</td><td class="c a"><ins>SUBR FMEMTY(TY) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">392</td><td class="c a"> <ins>TY=1 =&gt; RETURN TCHAR;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">393</td><td class="c a"> <ins>TY=2 =&gt; RETURN TUCHAR;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">394</td><td class="c a"> <ins>TY=3 =&gt; RETURN TSHORT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">395</td><td class="c a"> <ins>TY=4 =&gt; RETURN TUSHORT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">396</td><td class="c a"> <ins>TY=5 =&gt; RETURN TINT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">397</td><td class="c a"> <ins>TY=6 =&gt; RETURN TINT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">398</td><td class="c a"> <ins>TY=7 =&gt; (STP32(0) NE 0 =&gt; RETURN TINT; RETURN TLONG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">399</td><td class="c a"> <ins>TY=8 =&gt; (STP32(0) NE 0 =&gt; RETURN TINT; RETURN TULONG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">400</td><td class="c a"> <ins>TY=11 =&gt; (STP32(0) NE 0 =&gt; RETURN TINT; RETURN TULONG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">401</td><td class="c a"> <ins>TY=12 =&gt; (STP32(0) NE 0 =&gt; RETURN TINT; RETURN TULONG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">402</td><td class="c a"> <ins>TY=9 =&gt; RETURN TLONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">403</td><td class="c a"> <ins>TY=10 =&gt; RETURN TULONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">404</td><td class="c a"> <ins>TY=14 =&gt; RETURN TFLOAT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">405</td><td class="c a"> <ins>TLONG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">407</td><td class="c a"><ins># 1 IF THE TYPE TY IS A 4 BYTE UNSIGNED ONE, ZERO EXTENDED WITH A MASK AFTER IT IS LOADED AS AN INT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">408</td><td class="c a"><ins>SUBR FMASK32(TY) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">409</td><td class="c a"> <ins>TY=6 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">410</td><td class="c a"> <ins>STP32(0) NE 0 =&gt; (TY=8 =&gt; RETURN 1; TY=11 =&gt; RETURN 1; TY=12 =&gt; RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">411</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">413</td><td class="c a"><ins># THE PLACE OF THE FIELD OF THE DESCRIPTOR AT FDESC+J: THE ADDRESS (THE WORD V0,V1, PLUS THE ELEMENT I TIMES ITS SIZE, PLUS THE OFFSET) AS A POINTER TO THE TYPE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">414</td><td class="c a"><ins>SUBR FPLACE(J,MEM) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">415</td><td class="c a"> <ins>X1,X2,A0,A1,OFF,ESZ,M ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">416</td><td class="c a"> <ins>M:=MEM;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">417</td><td class="c a"> <ins>A0:=FREE((FDESC+J)+1); A1:=FREE((FDESC+J)+2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">418</td><td class="c a"> <ins>X1:=VEXPR(A0,A1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">419</td><td class="c a"> <ins>FREE((FDESC+J)+3) NE 0 =&gt; (A0:=FREE((FDESC+J)+3); A1:=FREE((FDESC+J)+4);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">420</td><td class="c a">                            <ins>ESZ:=FREE((FDESC+J)+7);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">421</td><td class="c a">                            <ins>X2:=VEXPR(A0,A1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">422</td><td class="c a">                            <ins>ESZ NE 1 =&gt; X2:=IXBIN(IRMUL,TLONG,X2,ICN(ESZ));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">423</td><td class="c a">                            <ins>X1:=IXBIN(IRPLUS,TLONG,X1,X2));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">424</td><td class="c a"> <ins>OFF:=FREE((FDESC+J)+5);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">425</td><td class="c a"> <ins>OFF NE 0 =&gt; X1:=IXBIN(IRPLUS,TLONG,X1,ICN(OFF));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">426</td><td class="c a"> <ins>X2:=IXUN(IRPCONV,M+32,X1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">427</td><td class="c a"> <ins>IXDEREF(X2,M));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">429</td><td class="c a"><ins># LOAD A FIELD: RD GETS THE VALUE OF ITS TYPE AS A WORD (A SIGNED TYPE SIGN EXTENDED, AN UNSIGNED ONE AND A POINTER ZERO EXTENDED, A FLOAT AS A DOUBLE, A DOUBLE ITS BITS) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">430</td><td class="c a"><ins>SUBR ELDF(RD,J) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">431</td><td class="c a"> <ins>X1,X2,TY,MEM ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">432</td><td class="c a"> <ins>TY:=FREE((FDESC+J)+6);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">433</td><td class="c a"> <ins>MEM:=FMEMTY(TY);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">434</td><td class="c a"> <ins>X1:=FPLACE(J,MEM);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">435</td><td class="c a"> <ins>TY=14 =&gt; (X2:=IXUN(IRSCONV,TDOUBLE,X1); X1:=IXFROMDOUBLE(X2); RETURN ASG(RV(RD),X1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">436</td><td class="c a"> <ins>MEM NE TLONG =&gt; (X1:=IXUN(IRSCONV,TLONG,X1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">437</td><td class="c a">                  <ins>FMASK32(TY) NE 0 =&gt; X1:=IXBIN(IRAND,TLONG,X1,ICN(4294967295)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">438</td><td class="c a"> <ins>ASG(RV(RD),X1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">440</td><td class="c a"><ins># STORE A FIELD: THE WORD RD CONVERTED TO THE TYPE OF THE FIELD (THE LOW BITS OF AN INTEGER, A FLOAT FROM THE DOUBLE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">441</td><td class="c a"><ins>SUBR EDPF(RD,J) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">442</td><td class="c a"> <ins>X1,X2,TY,MEM ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">443</td><td class="c a"> <ins>TY:=FREE((FDESC+J)+6);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">444</td><td class="c a"> <ins>MEM:=FMEMTY(TY);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">445</td><td class="c a"> <ins>TY=14 =&gt; (X1:=RV(RD); X1:=IXTODOUBLE(X1,0); X2:=IXUN(IRSCONV,TFLOAT,X1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">446</td><td class="c a">           <ins>X1:=FPLACE(J,MEM); RETURN ASG(X1,X2));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">447</td><td class="c a"> <ins>MEM NE TLONG =&gt; (X1:=RV(RD); X2:=IXUN(IRSCONV,MEM,X1)) ELSE X2:=RV(RD);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">448</td><td class="c a"> <ins>X1:=FPLACE(J,MEM);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">449</td><td class="c a"> <ins>ASG(X1,X2))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">450</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

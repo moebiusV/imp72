@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rmod.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>rmod.imc</h1>
+<p class="mut">left, old (the tape): decus/rmod.imc<br>right, new (the port): -</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 3253 tokens deleted, 0 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n d">1</td><td class="c d"><del>TWOSEG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">2</td><td class="c d"><del>#FILE: RMOD -- REGISTER ALLOCATING MODULE FOR NEW IMP.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">4</td><td class="c d"><del>THIS MODULE REFERENCES TWO VECTORS, RST AND RSV (LENGTHS ARE NRST),</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">5</td><td class="c d"><del>WHICH KEEP TRACK OF REGISTER STATES AND VALUES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">7</td><td class="c d">   <del>RST[I] REPRESENTS THE STATE OF REGISTER I:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">9</td><td class="c d">              <del>!-- ! ---- ! - ! - ! - ! - ! - ! - ! ---!</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">10</td><td class="c d">              <del>!TT !  RX  ! S ! R ! D ! T ! M ! U ! CNT!</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">11</td><td class="c d">              <del>!-- ! ---- ! - ! - ! - ! - ! - ! - ! ---!</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">12</td><td class="c d"><del>NO. OF BITS:    6    12    1   1   1   1   1   1    12</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">14</td><td class="c d">     <del>TT: NUMBER OF THE TEMPORARY IN WHICH THIS REGISTER HAS BEEN SAVED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">15</td><td class="c d">         <del>(MEANINGFUL ONLY IF "M" BIT IS ON).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">16</td><td class="c d">     <del>RX: POINTS TO THE ELEMENT OF THE REGISTER VECTOR "RG" WHICH</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">17</td><td class="c d">         <del>RESULTED IN THE ALLOCATION OF THIS REGISTER. THIS INFORMATION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">18</td><td class="c d">         <del>NEEDED IF THE REGISTER IS TO BE REASSIGNED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">19</td><td class="c d">      <del>S: 1 IF THIS REGISTER HAS BEEN DECLARED "SCRATCH".</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">20</td><td class="c d">      <del>R: 1 IF THIS IS A REGISTER WHICH CONTAINS THE RETURNED VALUE OF A FCN.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">21</td><td class="c d">      <del>D: 1 IF THIS REFERS TO THE FIRST REGISTER OF A PAIR OF REGISTERS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">22</td><td class="c d">      <del>T: 1 IF THIS IS NOT A TEMPORARY REGISTER - SHOULD BE AVOIDED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">23</td><td class="c d">      <del>M: 1 IF THIS REGISTER HAS BEEN SAVED IN A TEMPORARY (SEE ALSO "TT").</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">24</td><td class="c d">      <del>U: 1 IF THIS REGISTER CONTAINS A USEFUL VALUE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">25</td><td class="c d">    <del>CNT: NUMBER OF TIMES THIS REGISTER IS REFERRED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">26</td><td class="c d">                   <del>TO IN THE REMAINING OBJECT CODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">28</td><td class="c d">   <del>RSV[I] CONTAINS THE VALUE OF REGISTER I IF "USE BIT" IS SET:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">29</td><td class="c d">          <del>LEFT HALF = CONSTANT OFFSET, RIGHT HALF = DIRECTORY INDEX.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">32</td><td class="c d"><del>FUNCTIONS IN THIS MODULE: (THIS DOCUMENATION IS SOMEWHAT OBSOLETE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">33</td><td class="c d">   <del>THE GENERAL FLOW IS CORRECT, BUT THE DETAILS ARE NO LONGER ACCURATE.)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">35</td><td class="c d">   <del>REGVAL(R,OPC,W)      R: REGISTER INDEX (I.E., INDEX INTO VECTOR RG)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">36</td><td class="c d">                      <del>OPC: OPCODE OF CURRENT INSTRUCTION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">37</td><td class="c d">                        <del>W: DATA WORD OF THIS INSTR. (I.E., WORD</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">38</td><td class="c d">                           <del>WHICH CONTAINS DIR INDEX &amp; CONST PART)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">39</td><td class="c d">                    <del>VALUE: RETURNS 1 IF THE CURRENT INSTR SHOULD BE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">40</td><td class="c d">                           <del>SUPPRESSED, ELSE 0.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">41</td><td class="c d">       <del>THIS FUNCTION HANDLES THE REGISTER ALLOCATION, ACCORDING TO THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d">       <del>FOLLOWING ALGORITHM:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d">         <del>1. IF RG[R]&lt;0 THEN A REGISTER HAS ALREADY BEEN ASSIGNED; THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">44</td><td class="c d">            <del>REGISTER IS -RG[R]. DECREMENT THE REF COUNT IF IT IS NOT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">45</td><td class="c d">            <del>ALREADY 0. IF THIS OPCODE CHANGES THE CONTENTS OF THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d">            <del>REGISTER, THEN CLEAR THE "USE BIT". RETURN.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">47</td><td class="c d">         <del>2. EXAMINE RG[R] TO DETERMINE THE LOWER &amp; UPPER BOUNDS FOR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">48</td><td class="c d">            <del>THIS REGISTER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d">       <del>2.1. IF LOWER BND=UPPER BND, THEN A SPECIFIC REGISTER IS BEING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">50</td><td class="c d">            <del>REQUESTED. ALLOCATE THE REGISTER AS IN (4) BUT FIRST EMIT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">51</td><td class="c d">            <del>AN ERROR MESSAGE IF THE REGISTER IS CURRENTLY IN USE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">52</td><td class="c d">         <del>3. IF W IS NOT -1 (W=-1 MEANS THAT THE MEMORY FIELD OF THIS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">53</td><td class="c d">            <del>INSTR REFERS TO A REGISTER) SEARCH RST TO SEE IF THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d">            <del>NEEDED VALUE IS ALREADY IN A REGISTER (USE BIT ON, W=RSV[I],</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">55</td><td class="c d">            <del>&amp; REF CNT=0). IF SO, PLACE REF COUNT IN RST[I]. IF THIS OPCODE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d">            <del>DOES NOT CHANGE CONTENTS OF REGISTER, TURN ON USE BIT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d">            <del>IF THIS INSTR IS A REGISTER LOAD, AND INSTRUCTION DELETION IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d">            <del>PERMITTED, RETURN 1 TO INDICATE THAT IT SHOULD BE SUPPRESSED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d">         <del>4. SEARCH RST TO FIND A REGISTER WHICH IS NOT IN USE AND</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d">            <del>WHICH DOES NOT CONTAIN A DORMANT VALUE (USE BIT OFF &amp;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d">            <del>REF COUNT=0). IF FOUND, SET USE BIT OF RST[I] ON AND</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">            <del>FILL IN REF COUNT FROM RG[R]. SET RSV[I] TO W. SET</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">63</td><td class="c d">            <del>RG[R] TO -I TO SHOW THAT A REGISTER HAS BEEN ASSIGNED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d">            <del>RETURN.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d">         <del>5. FIND ANY AVAILABLE REGISTER (REF COUNT=0). IF NONE EXISTS,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d">            <del>ISSUE ERROR MESSAGE AND QUIT, ELSE SET RST, RSV, RG[R] AS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">67</td><td class="c d">            <del>IN CASE (4). RETURN.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d">    <del>RCHK(I,L,W)    I: REGISTER NUMBER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d">                   <del>L: FUNCTION INDICATOR (SEE BELOW)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">71</td><td class="c d">                   <del>W: SYMBOL VALUE (SEE BELOW)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d">       <del>SEE IF REGISTER I SATISFIES THE CONDITIONS SPECIFIED BY L:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d">    <del>L=0   AN REGISTER WHICH CONTAINS THE VALUE W</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d">    <del>L=1   A REGISTER WHICH DOES NOT CONTAIN A DORMANT VALUE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d">    <del>L=2   A REGISTER NOT CURRENTLY IN USE--EVEN IF IT HAS AN OLD VALUE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">76</td><td class="c d">       <del>RETURN 1 IF CONDITION SATISFIED, ELSE 0.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">78</td><td class="c d">    <del>SVREG(SNO,NCO,NARR,OIW,IW,L)   SAVES REGISTERS IN TEMPORARIES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">80</td><td class="c d">    <del>RSREG(NC,OIW,IW)  RESTORES REGISTERS FROM TEMPORARIES. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">83</td><td class="c d"><del>SUBR INIREG() IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">84</td><td class="c d"> <del>RST,RSV ARE 16 LONG; NRST_15;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">85</td><td class="c d"> <del>CONFLSW_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">86</td><td class="c d"> <del>RG,CO,NCO,ARR,NARR,FINAM ARE COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">87</td><td class="c d"> <del>PSNO_-1; SVD_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">88</td><td class="c d"> <del>REGCLR(0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">90</td><td class="c d"><del>SUBR RGG(I) IS    FREE(RG+I);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">92</td><td class="c d"><del>SUBR RGS(I,V) IS   FREES(RG+I,V);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">94</td><td class="c d"><del>SUBR GETREG(R) IS  (37B AND RGG(R) RS 13);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">96</td><td class="c d"><del>SUBR REGREF(R) IS (I_RGG(R);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">97</td><td class="c d"> <del>(I RS 18) GE 7777B=&gt;ERROR(0,'TOO MANY REFERENCES TO ONE REGISTER');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">98</td><td class="c d"> <del>RGS(R,I+1000000B));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">100</td><td class="c d"><del>SUBR REGSET(ACI,IXI,VAL,VIF,OPC,IND) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">101</td><td class="c d"> <del>#RETURNS RFL=1 TO SUPPRESS CODE#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">102</td><td class="c d"> <del>AC_ACI; IX_IXI; RFL_VI_OB_0; OPC=&gt;OB_OCHK(OPC);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">103</td><td class="c d"> <del>IX =&gt; (VI_1; REGVAL(IX,0,VI));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">104</td><td class="c d"> <del>VIF=&gt; (W_VAL AND 777777B; VI_1; REGVAL(W,0,VI); OB AND 2=&gt;REGZAP(W,0))</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">105</td><td class="c d">  <del>ELSE (W_VAL; OB AND 2 =&gt; IND=0 =&gt; REGZAP(-1,W));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">106</td><td class="c d"> <del>OB NE 5 =&gt; VI_1; IND =&gt; VI_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">107</td><td class="c d"> <del>AC =&gt; (RFL_REGVAL(AC,W,VI); OB=0=&gt;GO TO EXITRS; OB AND 1=&gt;REGZAP(AC,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">108</td><td class="c d">        <del>IXI=0 =&gt; OB AND 4 =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">109</td><td class="c d">          <del>(VIF=0 =&gt; (IND=0 =&gt; (RSV[AC]_W; RST[AC]_RST[AC] OR 10000B))</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">110</td><td class="c d">               <del>ELSE (AC=W =&gt; OB=5 =&gt; RFL_1; #SUPPRESS MOVE 0#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">111</td><td class="c d">                     <del>OB AND 1 =&gt; RST[W] AND 10000B =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">112</td><td class="c d">                           <del>(RSV[AC]_RSV[W]; RST[AC]_RST[AC] OR 10000B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">113</td><td class="c d">                     <del>OB AND 2 =&gt; RST[AC] AND 10000B =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">114</td><td class="c d">                           <del>(RSV[W]_RSV[AC]; RST[W]_RST[W] OR 10000B))));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">115</td><td class="c d"><del>EXITRS: RFL);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">117</td><td class="c d"><del>SUBR REGZAP(JJ,W) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">118</td><td class="c d"> <del>JJ GE 0 =&gt; (RST[JJ]_RST[JJ] AND NOT 10000B; RSV[JJ]_0; GO TO EXITZ);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">119</td><td class="c d"> <del>(W=RSV[I] =&gt; (RST[I]_RST[I] AND NOT 10000B; RSV[I]_0)) FOR I FROM NRST;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">120</td><td class="c d"> <del>EXITZ: 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">122</td><td class="c d"><del>SUBR REGVAL(R,W,F) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">123</td><td class="c d"> <del>II_1; J_RGG(R); JJ_37B AND J RS 13; JC_7777B AND J RS 18;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">124</td><td class="c d"> <del>J&lt;0 =&gt; JC=0 =&gt; (RST[JJ] AND 7777B =&gt; RST[JJ]_RST[JJ]-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">125</td><td class="c d">                 <del>RST[JJ] AND 100000B =&gt; RST[JJ+1] AND 7777B =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">126</td><td class="c d">                                                  <del>RST[JJ+1]_RST[JJ+1]-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">127</td><td class="c d">                 <del>GO TO EXITR);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">128</td><td class="c d"> <del>JC_JC-1; (JC AND NOT 7777B) =&gt; JC_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">129</td><td class="c d"> <del>SFL_((J AND 4000B) LS 5) OR ((J AND 40B) LS 10);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">130</td><td class="c d"> <del>J&lt;0 =&gt; GO TO RV1; LWL_(J RS 6) AND 37B; UPL_J AND 37B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">131</td><td class="c d"> <del>LWL=UPL =&gt; (JJ_LWL;  RV1: IER_RCHK(JJ,2,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">132</td><td class="c d">             <del>IER=0=&gt;(CONFLSW=0=&gt;ERROR(2,'REGISTER CONFLICT(S)');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">133</td><td class="c d">		     <del># TURN ON LISTING # FINAM IS COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">134</td><td class="c d">		     <del>FINAM[5]_FINAM[5] OR 4000B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">135</td><td class="c d">		     <del>CONFLSW_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">136</td><td class="c d">		     <del>PRINT STG 0,'** ATTEMPT TO REFERENCE ',IGR 0,JJ,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">137</td><td class="c d">			<del>STG 0,'R WHICH WAS ALREADY IN USE.  AT ',/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">138</td><td class="c d">		     <del>ALIST(0,-1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">139</td><td class="c d">                     <del>FINAM[5] AND 2=&gt;(PRINT STG 0,'ATTEMPT TO ASSIGN R',OCT 0,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">140</td><td class="c d">                                          <del>R,STG 0,' TO ',OCT 0,JJ,STG 0,'R',/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">141</td><td class="c d">                                      <del>RSTATUS());</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">142</td><td class="c d">                     <del>RGS(R,(RGG(R) AND 17777B)+(JJ LS 13)+(JC LS 18)+1 LS 35);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">143</td><td class="c d">                     <del>R_JJ; RETURN 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">144</td><td class="c d">             <del>F=0=&gt;II_RCHK(JJ,0,W)-1)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">145</td><td class="c d">       <del>ELSE II_FRREG(F,2,W,JJ,LWL,UPL);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">146</td><td class="c d"> <del>J AND 40B =&gt; JJ_FRREG2(JJ,II,R,LWL,UPL);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">147</td><td class="c d"> <del>RST[JJ]_SFL OR (R LS 18) OR JC;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">148</td><td class="c d"> <del>RGS(R,(RGG(R) AND 17777B) OR (JJ LS 13) OR 1 LS 35);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">149</td><td class="c d"> <del>J AND 40B =&gt; RST[JJ+1]_RST[JJ+1]+(RST[JJ] AND 7777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">150</td><td class="c d"> <del>EXITR: R_JJ; II=0 =&gt; RFL_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">151</td><td class="c d"> <del>RFL);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">153</td><td class="c d"><del>SUBR FRREG(L1,L2,W,IX,LWL,UPL) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">154</td><td class="c d">       <del>L_L1; S_W;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">155</td><td class="c d"> <del>FRR1: (RCHK(II,L,S) =&gt; GO TO EXITF) FOR II IN LWL,1,UPL;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">156</td><td class="c d">       <del>(L_L+1) LE L2 =&gt; GO TO FRR1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">157</td><td class="c d">       <del>ERROR(0,'OUT OF REGISTERS');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">158</td><td class="c d"> <del>EXITF: IX_II; L);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">160</td><td class="c d"><del>SUBR FRREG2(JJ,II,R,LWL,UPL) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">161</td><td class="c d"> <del>M_UPL-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">162</td><td class="c d"> <del>FR20: JJ&lt;UPL =&gt; (RCHK(JJ+1,2,0) =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">163</td><td class="c d">                   <del>RST[JJ+1]_((RGG(R+1) RS 18) AND 7777B) OR ((R+1) LS 18);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">164</td><td class="c d">                   <del>RGS(R+1,(RGG(R+1) AND 17777B) OR ((JJ+1) LS 13) OR 1 LS 35);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">165</td><td class="c d">                   <del>RTV_JJ; GO TO EXITF2));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">166</td><td class="c d">       <del>JJ&lt;M =&gt; (II_FRREG(2,2,0,JJ,JJ+1,M); GO TO FR20);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">167</td><td class="c d">       <del>ERROR(0,'CANNOT GET TWO CONSECUTIVE REGISTERS');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">168</td><td class="c d"> <del>EXITF2: RTV);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">170</td><td class="c d"><del>SUBR RSCR(R) IS (I_GETREG(R); RST[I]_RST[I] OR 400000B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">172</td><td class="c d"><del>SUBR RPRT(R) IS (I_GETREG(R); RST[I]_RST[I] AND NOT 400000B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">174</td><td class="c d"><del>SUBR RELREG(R) IS (I_GETREG(R);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">175</td><td class="c d">                   <del>RGS(R,RGG(R) OR (7777B AND RST[I]) LS 18);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">176</td><td class="c d">                   <del>RST[I]_RST[I] AND NOT 7777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">178</td><td class="c d"><del>SUBR REGCLR() IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">179</td><td class="c d"> <del>SVD=0 =&gt; (RST[I]_RST[I] AND NOT 10000B FOR I TO NRST));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">181</td><td class="c d"><del>SUBR REGCON(W) IS (#RETURN A REGISTER WITH CONTENTS W#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">182</td><td class="c d"> <del>(W=RSV[I] =&gt; RST[I] AND 10000B =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">183</td><td class="c d">    <del>(RTV_(RST[I] RS 18) AND 7777B; GO TO EXITRC)) FOR I TO NRST;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">184</td><td class="c d"> <del>RTV_0;  EXITRC: RTV);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">186</td><td class="c d"><del>SUBR RCHK(I,L,W) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">187</td><td class="c d"> <del>RTV_0; GO TO (RCK0,RCK1,RCK2) L;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">188</td><td class="c d"><del>RCK0: W=RSV[I]=&gt;(RST[I] AND 10000B=&gt;GO TO RCK2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">189</td><td class="c d">      <del>GO TO RTNR;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">190</td><td class="c d"><del>RCK1: RST[I] AND 10000B=&gt;GO TO RTNR;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">191</td><td class="c d"><del>RCK2: (RST[I] AND 7777B)=0=&gt;RTV_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">192</td><td class="c d"><del>RTNR: RTV);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">194</td><td class="c d"><del>SUBR OCHK(OPC) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">195</td><td class="c d">     <del>RTV_0; GO TO (OP0,OP1,OP2,OP3,OP4,OP5,OP6,OP0) OPC RS 6;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">196</td><td class="c d"><del>OP0: RTV_1; GO TO EXITO;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">197</td><td class="c d"><del>OP1: OPC&lt;140B =&gt; (S_OP1V; I_OPC AND 7; GO TO TESTO)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">198</td><td class="c d">           <del>ELSE  (OP01: S_OP1V[1];</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">199</td><td class="c d">                  <del>OP02: I_OPC AND 3;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">200</td><td class="c d">                  <del>TESTO: RTV_RTV OR (7 AND (S RS (3*I)));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">201</td><td class="c d">                  <del>GO TO EXITO);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">203</td><td class="c d"><del>OP2: OPC&lt;204B =&gt; (S_OP2V[2]; GO TO OP02);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">204</td><td class="c d">     <del>OPC&lt;240B =&gt; GO TO OP01;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">205</td><td class="c d">     <del>OPC GE 270B =&gt; GO TO OP01;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">206</td><td class="c d">     <del>OPC&lt;254B =&gt; (S_OP2V; I_OPC-240B)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">207</td><td class="c d">            <del>ELSE (S_OP2V[1]; I_OPC-254B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">208</td><td class="c d">      <del>GO TO TESTO;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">209</td><td class="c d"><del>OP3: S_OP3V; I_7 AND (OPC RS 3); (OPC AND 770B)=330B=&gt;RTV_10B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">210</td><td class="c d">     <del>GO TO TESTO;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">211</td><td class="c d"><del>OP4: OPC AND 4 =&gt; ((OPC AND 70B)=10B =&gt; (S_OP4V; GO TO OP02);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">212</td><td class="c d">                   <del>(OPC AND 70B)=20B =&gt; (S_OP4V[1]; GO TO OP02));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">213</td><td class="c d">     <del>GO TO OP01;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">214</td><td class="c d"><del>OP5: OPC&lt;510B =&gt; (S_OP5V; GO TO OP02);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">215</td><td class="c d">     <del>OPC&lt;540B =&gt; GO TO OP01;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">216</td><td class="c d">     <del>OPC&lt;550B =&gt; (S_OP5V; GO TO OP02);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">217</td><td class="c d">     <del>GO TO OP01;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">218</td><td class="c d"><del>OP6: OPC&lt;620B =&gt; RTV_0  ELSE  RTV_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">219</td><td class="c d"><del>EXITO: RTV);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">221</td><td class="c d"><del>#OCHK RETURNS A 3-BIT VALUE WHICH CHARACTERIZES THE OPERATION CODE:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">222</td><td class="c d"> <del>BIT 1 - ALTERS ACCUMULATOR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">223</td><td class="c d"> <del>BIT 2 - ALTERS MEMORY LOCATION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">224</td><td class="c d"> <del>BIT 4 - AFTER OPERATION, [ACCUMULATOR]=[MEMORY] #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">225</td><td class="c d"><del>OP1V: DATA (02132130B, 7211B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">226</td><td class="c d"><del>OP2V: DATA (111301110111B, 131213110000B, 5615B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">227</td><td class="c d"><del>OP3V: DATA (71715000B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">228</td><td class="c d"><del>OP4V: DATA (5015B, 6600B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">229</td><td class="c d"><del>OP5V: DATA (3211B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">232</td><td class="c d"><del>SUBR RSTATUS() IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">233</td><td class="c d"> <del>(RSTI_RST[I]; RSTR_7777B AND RSTI RS 18;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">234</td><td class="c d">  <del>RSTR=0 =&gt; (RSTI AND 10000B)=0 =&gt; GO TO FORX;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">235</td><td class="c d">  <del>PRINT OCT 0,I,STG 0,'R: R',OCT 0,RSTR,STG 0,'  ',IGR 2,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">236</td><td class="c d">        <del>7777B AND RSTI,OCT 14,RSTI,STG 0,'  ';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">237</td><td class="c d">  <del>RSTI AND 10000B =&gt; (DI_RSV[I] AND 777777B; CI_RSV[I] RS 18;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">238</td><td class="c d">                      <del>DI =&gt; PNAME(DI); DI=&gt;CI&gt;0=&gt;PRINT '+';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">239</td><td class="c d">                      <del>CI =&gt; PRINT IGR 0,CI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">240</td><td class="c d">  <del>PRINT /; FORX:0) FOR I TO NRST; PRINT /);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">243</td><td class="c d"><del>SUBR SVREG(SNO,OIW,IW,L) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">244</td><td class="c d"> <del>FINAM[5] AND 2 =&gt; (PRINT STG 0,'STATUS AT REGISTER SAVE',/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">245</td><td class="c d">                    <del>RSTATUS());</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">246</td><td class="c d"> <del>SNO NE PSNO =&gt; (TNI_NEWNAME('TMP');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">247</td><td class="c d">                 <del>TNV_TNI OR 600000000000B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">248</td><td class="c d">                 <del>TNL_-1; PSNO_SNO);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">249</td><td class="c d"> <del>SVD_1; LWL_0; LNCO_NCO; RFL_IW; LS1_(L RS 6) AND 77B; LS2_L AND 77B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">250</td><td class="c d"> <del>(RST[I] AND 7777B =&gt; (RST[I] AND 400000B)=0 =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">251</td><td class="c d">         <del>(RST[I]_RST[I] OR 20000B OR (LWL LS 30);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">252</td><td class="c d">          <del>FADD(CO,NCO,TNV); FADD(CO,NCO,202000000000B+LWL+(I LS 23));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">253</td><td class="c d">          <del>LWL_LWL+1; GO TO SV1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">254</td><td class="c d">  <del>RST[I]_RST[I] AND 7777747777B; SV1:0) FOR I IN LS1,1,LS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">255</td><td class="c d"> <del>NCO NE LNCO =&gt; (RFL_LNCO;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">256</td><td class="c d">     <del>FREES(CO+OIW,400000000000B+LNCO); FADD(CO,NCO,400000000000B+IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">257</td><td class="c d">     <del>TNL=-1 =&gt; (TNL_NARR; FADD(ARR,NARR,TNI+(LWL LS 18)))</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">258</td><td class="c d">          <del>ELSE ((FREE(ARR+TNL) RS 18)&lt;LWL=&gt;FREES(ARR+TNL,TNI+(LWL LS 18))));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">259</td><td class="c d"> <del>RFL);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">261</td><td class="c d"><del>SUBR RSREG(OIW,IW) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">262</td><td class="c d"> <del>LNCO_NCO; RFL_IW; SVD_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">263</td><td class="c d"> <del>(RST[I] AND 20000B =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">264</td><td class="c d">    <del>RST[I] AND 200000B =&gt; #SUBRTN RTN REGISTER - AREG1(40B,0)#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">265</td><td class="c d">      <del>(FRREG(1,2,0,J,LS1,LS2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">266</td><td class="c d">       <del>K_7777B AND RST[I] RS 18; RGS(K,(RGG(K) AND NOT 760000B) OR J LS 13);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">267</td><td class="c d">       <del>M_(J LS 23)+(RST[I] RS 30); RST[J]_RST[I] AND 7777157777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">268</td><td class="c d">       <del>RSV[J]_RSV[I]; RST[I]_RSV[I]_0)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">269</td><td class="c d">                     <del>ELSE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">270</td><td class="c d">      <del>(M_(I LS 23)+(RST[I] RS 30); RST[I]_RST[I] AND 7777157777B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">271</td><td class="c d">    <del>FADD(CO,NCO,TNV); FADD(CO,NCO,200000000000B+M))</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">272</td><td class="c d">           <del>) FOR I IN LS1,1,LS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">273</td><td class="c d"> <del>NCO NE LNCO =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">274</td><td class="c d">    <del>RFL_LNCO; FREES(CO+OIW,400000000000B+LNCO);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">275</td><td class="c d">    <del>FADD(CO,NCO,400000000000B+IW));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">276</td><td class="c d"> <del>RFL) %%%</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">278</td><td class="c d"> <del>#IT IS ASSUMED THAT A SUBRTN RTN REGISTER IS REFERRED TO ONLY ONCE IN THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">279</td><td class="c d"> <del>COURSE OF THE CODE. BEFORE DUPLICATION, SUCH CODE MUST HAVE ITS REGISTERS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">280</td><td class="c d"> <del>REPLICATED, AS BY COPYCO.#</del></td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

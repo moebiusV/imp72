@@ -164,6 +164,7 @@ output with it.
 - [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72, declarations, callbacks, structures, `imp-cimport`
 - [docs/ROADMAP.md](docs/ROADMAP.md): what is not done
 - [docs/decisions-and-status.md](docs/decisions-and-status.md): each design and implementation choice with its rationale and precedents, and whether it is done, left to do, rejected or left in the air The author's messages it cites are rows [R<n>] of the [decision register](docs/decision-register.md).
+- [The tape and the port, side by side](https://moebiusv.github.io/imp72/docs/tape-vs-port/index.html): every module of the DECUS tape against its file in `src/` and `lib/`, token by token, old on the left in red and new on the right in green, as GitHub shows a split difference (`sh tools/token-diff.sh docs/tape-vs-port` makes the pages; `docs/porting/tape-diff.md` says how)
 - [docs/ORACLE.md](docs/ORACLE.md): the original compiler as a reference
 - [docs/internals/](docs/internals/): the kernel module by module; [docs/porting/](docs/porting/): the code generator's machine, layouts, modules, routine names compared with the tape
 - [packaging/README.md](packaging/README.md): Debian and Alpine packages

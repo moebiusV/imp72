@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cotree.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>cotree.imc</h1>
+<p class="mut">left, old (the tape): decus/cotree.imc<br>right, new (the port): src/cotree.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 29 changed places, 818 tokens deleted, 349 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n d">1</td><td class="c d">TWOSEG; #<del>&lt;EXP&gt;::=TR::="0";&lt;EXP&gt;::=TRM::="0";#</del></td><td class="n a">1</td><td class="c a">TWOSEG;</td></tr>
+<tr><td class="n d">3</td><td class="c d"><del>#</del>THIS IS FILE <del>COTREE.I10,</del> SEMANTIC STACK REDUCER FOR IMP <del>COMPILERS.</del></td><td class="n a">3</td><td class="c a">#THIS IS FILE <ins>COTREE,</ins> SEMANTIC STACK REDUCER FOR IMP <ins>COMPILERS, FOR THE 64 BIT PORT.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"> <ins>SEE DECUS/COTREE.IMC FOR THE ORIGINAL AND ITS (LONG) COMMENTS, DOCS/PORTING/MODULES.MD FOR</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"> <ins>THE DIFFERENCES.</ins></td></tr>
+<tr><td class="n q">5</td><td class="c q">COTREE(S) - CALLED BY THE PARSER TO ADD ANOTHER ITEM TO THE CODE STACK.</td><td class="n q">7</td><td class="c q">COTREE(S) - CALLED BY THE PARSER TO ADD ANOTHER ITEM TO THE CODE STACK.</td></tr>
+<tr><td class="n q">6</td><td class="c q">   S IS EITHER A PRODUCTION NUMBER OR MINUS A DIRECTORY INDEX OF A TERMINAL</td><td class="n q">8</td><td class="c q">   S IS EITHER A PRODUCTION NUMBER OR MINUS A DIRECTORY INDEX OF A TERMINAL</td></tr>
+<tr><td class="n d">7</td><td class="c d">   SYMBOL.  <del>IF THE ITEM ADDED IS A PRODUCTION NUMBER, A SEARCH-AND-PERHAPS-</del></td><td class="n a">9</td><td class="c a">   SYMBOL.  (COTREE(0) INITIALIZES CODE STACK.)</td></tr>
+<tr><td class="n d">8</td><td class="c d">   <del>GENERATE IS PERFORMED.  THIS IS DONE AS FOLLOWS: A MATCH IS ATTEMPTED</del></td><td class="n a">11</td><td class="c a"> A STACK ENTRY <ins>(CODE</ins> OR SEMANTICS) IS <ins>THREE WORDS:</ins></td></tr>
+<tr><td class="n d">9</td><td class="c d">   <del>BETWEEN A PATH THROUGH THE CODE TREE AND A SEGMENT OF THE CODE STACK,</del></td><td class="n a">12</td><td class="c a">    WORD 1  <ins>LEFT HALF</ins>   DI  USUALLY A DIRECTORY INDEX</td></tr>
+<tr><td class="n d">10</td><td class="c d">   <del>STARTING AT EACH POSITION IN THE STACK.  IF A MATCH IS FOUND, THE</del></td><td class="n a">13</td><td class="c a">            BITS 7-6    AR  0=NO TYPE ASSIGNED, 1=INTEGER, <ins>2=REAL, 3=BYTE</ins></td></tr>
+<tr><td class="n d">11</td><td class="c d">   <del>MATCHING PORTION OF THE CODE STACK IS COPIED INTO THE SEMANTIC ROUTINES</del></td><td class="n a">14</td><td class="c a">            BITS 5-0    TY  TYPE OF <ins>NODE</ins></td></tr>
+<tr><td class="n d">12</td><td class="c d">   <del>STACK, AND THE APPROPRIATE SEMANTIC ROUTINE INVOKED VIA A CALL TO DOSEM.</del></td><td class="n a">15</td><td class="c a">    WORD 2              VAL VALUE ASSOCIATED WITH <ins>NODE</ins></td></tr>
+<tr><td class="n d">13</td><td class="c d">   <del>UPON RETURN, THE TOP ENTRY IN THE SEMANTIC ROUTINES STACK CONTAINS THE</del></td><td class="n a">16</td><td class="c a">    WORD 3  <ins>LEFT HALF</ins>   CB  POINTER TO BEGINNING OF ASSOCIATED CODE</td></tr>
+<tr><td class="n d">14</td><td class="c d">   <del>RESULT OF THE SEMANTICS, AND IS COPIED INTO THE CODE STACK, REPLACING ALL</del></td><td class="n a">17</td><td class="c a">            <ins>RIGHT HALF</ins>  CE  POINTER TO END OF CODE</td></tr>
+<tr><td class="n d">15</td><td class="c d">   <del>THE ENTRIES THAT WERE COPIED OUT.  THE PROCESS IS ITERATED UNTIL NO MATCH</del></td><td class="n a">19</td><td class="c a"> <ins>CS, NCS, ENTRIES, PRIO, DEMON, MAXIE, NMAXIE</ins> AND <ins>NC</ins> ARE <ins>COMMON</ins> FOR THE <ins>C</ins> THAT <ins>READS THEM (SRC/SHARED.TXT).</ins> #</td></tr>
+<tr><td class="n d">16</td><td class="c d">   <del>IS FOUND.</del>  (COTREE(0) INITIALIZES CODE STACK.)</td><td class="n a">21</td><td class="c a"><ins>CS,NCS,ENTRIES,PRIO,DEMON,MAXIE,NMAXIE,NC ARE</ins> COMMON;</td></tr>
+<tr><td class="n d">18</td><td class="c d"> <del>THE FORMAT OF</del> A STACK ENTRY <del>(EITHER CODE</del> OR SEMANTICS) IS <del>:</del></td><td class="n a">23</td><td class="c a">SUBR COTREE(SS) IS (S<ins>:=</ins>SS;</td></tr>
+<tr><td class="n d">20</td><td class="c d">    WORD 1  <del>BITS 35-18</del>  DI  USUALLY A DIRECTORY INDEX</td><td class="n a">24</td><td class="c a"> FINAM IS COMMON; TR<ins>:=</ins>FINAM[5] AND 110000B; TRM<ins>:=</ins>FINAM[5] AND 10000B;</td></tr>
+<tr><td class="n d">21</td><td class="c d">            BITS 7-6    AR  0=NO TYPE ASSIGNED, 1=INTEGER, <del>2=REAL.</del></td><td class="n a">25</td><td class="c a"> <ins>CINIT</ins>=0=&gt;(<ins>CINIT:=</ins>1; PRIO<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">22</td><td class="c d">            BITS 5-0    TY  TYPE OF <del>NODE.  SEE BELOW.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">23</td><td class="c d">    WORD 2              VAL VALUE ASSOCIATED WITH <del>NODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">24</td><td class="c d">    WORD 3  <del>BITS 35-18</del>  CB  POINTER TO BEGINNING OF ASSOCIATED CODE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">25</td><td class="c d">            <del>BITS 17-0</del>   CE  POINTER TO END OF CODE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">27</td><td class="c d">  <del>THE TYPE IS AS FOLLOWS:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">29</td><td class="c d">      <del>0 = PRODUCTION, DI = INDEX OF PRODUCTION IN SEMS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">30</td><td class="c d">      <del>1 = RAW IDENTIFIER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">31</td><td class="c d">      <del>2 = REGISTER, VAL AS BELOW.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">32</td><td class="c d">      <del>4 = CONSTANT.  VAL=VALUE (FIRST WORD, IF CONSTANT IS MULTIWORD).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">33</td><td class="c d">             <del>DI=0 MEANS CONSTANT WAS RESULT OF COMPUTATION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">34</td><td class="c d">     <del>10 = IDENTIFIER.  MAY CONSIST OF EITHER OR BOTH OF A DIRECTORY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">35</td><td class="c d">             <del>INDEX PLUS AN OFFSET (VAL).  IF THE DIR INDEX IS 0, IT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">36</td><td class="c d">             <del>SHOULD REALLY BE A TYPE 4.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">37</td><td class="c d">     <del>20 = SUBSCRIPTED VARIABLE.  VAL (AND MAYBE CODE) ARE SUBSCRIPT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">39</td><td class="c d">  <del>FOR TYPES 2, 10,</del> AND <del>20, VAL INDICATES THE VALUE OF THE ELEMENT OR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">40</td><td class="c d">    <del>THE RESULT OF THE CODE COMPUTED, AS FOLLOWS:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d">     <del>BIT  35     INDIRECT BIT.  IF 1, THE VALUE COMPUTED BY THIS EXPRESSION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d">                   <del>IS THE ADDRESS OF THE RESULT, OTHERWISE IT IS THE RESULT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">44</td><td class="c d">     <del>BITS 28-18  REGISTER.  INDEX OF ASSOCIATED REGISTER IN REGISTER ALLOCATION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">45</td><td class="c d">                   <del>ARRAY.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d">     <del>BITS 17-0   OFFSET.  INTERPRETED AS A CONSTANT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">48</td><td class="c d">  <del>THE VALUE INDICATED IS THE SUM OF THE ADDRESS OF THE VARIABLE POINTED TO BY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d">     <del>THE DIRECTORY INDEX DI (OR 0 IF DI=0), THE CONTENTS OF THE REGISTER, AND</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">50</td><td class="c d">     <del>THE OFFSET.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">52</td><td class="c d"><del>IMP11 EXTENSIONS:  WORD 1  BITS   7-6  AR  3=BYTE (HALF-WORD)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d">     <del>FOR TYPE 20,  WORD 2  BITS 35-33  ADDRESS MODE (0-7)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">55</td><td class="c d">                           <del>BITS 28-18  REGISTER INDEX</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d">                           <del>BITS  17-0  CONSTANT OFFSET</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d"><del>SAMEAS(K,SN) - IS CALLED BY MATCH TO CHECK WHETHER THE ITEM AT FREE STORAGE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d">   <del>ADDRESS SN (WHICH COTREE HAS JUST FED TO MATCH) IS THE SAME AS THE KTH ITEM</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d">   <del>IN THE PARTIAL MATCH.  IF THERE IS ANY CODE ASSOCIATED WITH THE ITEMS, IT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">   <del>IS COMPARED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d"><del>CODENT(A,B,C,F) - CALLED BY DOSEM TO PUT STACK ENTRIES BACK IN STACK FOR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d">   <del>QUOTED SEMANTICS.  ENTRY IS (A,B,C), AND F=&gt;MAKE FRESH COPY OF CODE IF ANY.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">67</td><td class="c d"><del>SETPRI(N) - SEMANTIC ROUTINE TO SET A PRIORITY FOR IMMEDIATE EXECUTION OF</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">68</td><td class="c d">  <del>PRIORITY SEMANTICS.  IF (PRIORITY OF A PROD'N) AND (CURRENT PRIORITY) NE 0,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d">  <del>THE SEMANTICS IS EXECUTED RIGHT AWAY.  PRIORITY BITS ASSIGNED SO FAR ARE:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d">  <del>1=NORMAL STATE, 2=INSIDE QUOTED STUFF, 4=AVAIL.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d"><del>WHEN QUOTED SEMANTICS</del> ARE <del>PROCESSED, THEY ARE STORED IN FREE ARRAY MAXIE.  THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d">  <del>MAXWELL'S DEMON WHICH SHUNTS THEM THERE IS TURNED ON BY SEMANTICS MAXWELL(),</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d">  <del>WHICH PUTS A PHONY TYPE 1 ENTRY ON THE STACK TO OCCUPY THE VACANT PLACE WHERE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d">  <del>THE QUOTED STUFF WON'T GO.  MAXEND() TURNS OFF THE DEMON.  IN ORDER TO PERMIT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">76</td><td class="c d">  <del>HAVING MORE THAN ONE QUOTED PARSE OUTPUT AROUND AT A TIME, A SEPARATE ARRAY IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">77</td><td class="c d">  <del>USED</del> FOR <del>EACH ONE, AND</del> THE <del>ROUTINE</del> THAT <del>USES THE ARRAY MUST DELETE IT.</del> #</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">81</td><td class="c d"><del>TORG IS</del> COMMON;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">85</td><td class="c d">SUBR COTREE(SS) IS (S<del>_</del>SS;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">86</td><td class="c d"> FINAM IS COMMON; TR<del>_</del>FINAM[5] AND 110000B; TRM<del>_</del>FINAM[5] AND 10000B;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">87</td><td class="c d"> <del>INIT</del>=0=&gt;(<del>INIT_</del>1; PRIO<del>_</del>1;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">88</td><td class="c q">          DSEM('MAXWELL',MAXWELL);</td><td class="n q">26</td><td class="c q">          DSEM('MAXWELL',MAXWELL);</td></tr>
+<tr><td class="n q">89</td><td class="c q">          DSEM('MAXEND',MAXEND);</td><td class="n q">27</td><td class="c q">          DSEM('MAXEND',MAXEND);</td></tr>
+<tr><td class="n q">90</td><td class="c q">          DSEM('SETPRI',SETPRI);</td><td class="n q">28</td><td class="c q">          DSEM('SETPRI',SETPRI);</td></tr>
+<tr><td class="n d">91</td><td class="c d">          FRELOT(CS,'COSTK',90,0); NCS<del>_CTT_</del>0;</td><td class="n a">29</td><td class="c a">          FRELOT(CS,'COSTK',90,0); NCS<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">92</td><td class="c d">          FRELOT(<del>ST</del>,'COST2',15,0));</td><td class="n a">30</td><td class="c a">          FRELOT(<ins>CST</ins>,'COST2',15,0));</td></tr>
+<tr><td class="n d">93</td><td class="c d"> S=0 =&gt; (NCS<del>_</del>0; GO TO COTREX); #INITIALIZE#</td><td class="n a">31</td><td class="c a"> S=0 =&gt; (NCS<ins>:=</ins>0; GO TO COTREX); #INITIALIZE#</td></tr>
+<tr><td class="n q">94</td><td class="c q"> S=1 =&gt; GO TO COTREX; #DUMMY PRODUCTION NO#</td><td class="n q">32</td><td class="c q"> S=1 =&gt; GO TO COTREX; #DUMMY PRODUCTION NO#</td></tr>
+<tr><td class="n d">96</td><td class="c d"> IMMED<del>_</del>0; S&gt;0 =&gt; IMMED<del>_</del>SEMED(S);</td><td class="n a">34</td><td class="c a"> IMMED<ins>:=</ins>0; S&gt;0 =&gt; IMMED<ins>:=</ins>SEMED(S);</td></tr>
+<tr><td class="n q">97</td><td class="c q"> TR=&gt;(PRINT STG 0,'COTREE CALLED WITH ';</td><td class="n q">35</td><td class="c q"> TR=&gt;(PRINT STG 0,'COTREE CALLED WITH ';</td></tr>
+<tr><td class="n q">98</td><td class="c q">      S&lt;0 =&gt; PNAME(-S) ELSE PRINT '[',OCT 0,S,STG 0,']';</td><td class="n q">36</td><td class="c q">      S&lt;0 =&gt; PNAME(-S) ELSE PRINT '[',OCT 0,S,STG 0,']';</td></tr>
+<tr><td class="n q">99</td><td class="c q">      IMMED =&gt; (PRINT STG 0,' IMMEDIATE EXECUTION';</td><td class="n q">37</td><td class="c q">      IMMED =&gt; (PRINT STG 0,' IMMEDIATE EXECUTION';</td></tr>
+<tr><td class="n q">100</td><td class="c q">                (IMMED AND PRIO)=0 =&gt; PRINT ' (DEFERRED)');</td><td class="n q">38</td><td class="c q">                (IMMED AND PRIO)=0 =&gt; PRINT ' (DEFERRED)');</td></tr>
+<tr><td class="n q">101</td><td class="c q">      PRINT '; STACKED AT ',IGR 0,NCS,STG 0,' MARK ',IGR 0,MARK,/);</td><td class="n q">39</td><td class="c q">      PRINT '; STACKED AT ',IGR 0,NCS,STG 0,' MARK ',IGR 0,MARK,/);</td></tr>
+<tr><td class="n q">102</td><td class="c q"> DEMON =&gt; (IMMED AND PRIO)=0 =&gt; (FADD(MAXIE,NMAXIE,S); GO TO COTREX);</td><td class="n q">40</td><td class="c q"> DEMON =&gt; (IMMED AND PRIO)=0 =&gt; (FADD(MAXIE,NMAXIE,S); GO TO COTREX);</td></tr>
+<tr><td class="n d">104</td><td class="c d"> S&lt;0 =&gt; J<del>_</del>1 OR -S <del>LS 18</del></td><td class="n a">42</td><td class="c a"> S&lt;0 =&gt; J<ins>:=</ins>1 OR <ins>HW(</ins>-S<ins>,0)</ins></td></tr>
+<tr><td class="n d">105</td><td class="c d">        ELSE J<del>_</del>S <del>LS 18</del>;</td><td class="n a">43</td><td class="c a">        ELSE J<ins>:=HW(</ins>S<ins>,0)</ins>;</td></tr>
+<tr><td class="n d">106</td><td class="c d"> I<del>_</del>NCS+3; FLEN(CS) LE I =&gt; FADDEX(CS,I);</td><td class="n a">44</td><td class="c a"> I<ins>:=</ins>NCS+3; FLEN(CS) LE I =&gt; FADDEX(CS,I);</td></tr>
+<tr><td class="n d">107</td><td class="c d"> K<del>_</del>CS+NCS; NCS<del>_</del>I; <del>[</del>K<del>]_</del>J; <del>[</del>K+1<del>]_</del>0; <del>[</del>K+2<del>]_</del>0;</td><td class="n a">45</td><td class="c a"> K<ins>:=</ins>CS+NCS; NCS<ins>:=</ins>I; <ins>FREES(</ins>K<ins>,</ins>J<ins>)</ins>; <ins>FREES(</ins>K+1<ins>,</ins>0<ins>)</ins>; <ins>FREES(</ins>K+2<ins>,</ins>0<ins>)</ins>;</td></tr>
+<tr><td class="n q">108</td><td class="c q"> S&lt;0=&gt;GO TO COTREX;</td><td class="n q">46</td><td class="c q"> S&lt;0=&gt;GO TO COTREX;</td></tr>
+<tr><td class="n d">110</td><td class="c d"> (IMMED AND PRIO) =&gt; (IC<del>_</del>NCS-3;  XNOW: MARK=2 =&gt; MARK<del>_</del>4;</td><td class="n a">48</td><td class="c a"> (IMMED AND PRIO) =&gt; (IC<ins>:=</ins>NCS-3;  XNOW: MARK=2 =&gt; MARK<ins>:=</ins>4;</td></tr>
+<tr><td class="n d">111</td><td class="c d">                                       J<del>_</del>SNARG(S); NC<del>_</del>IC-3*J;</td><td class="n a">49</td><td class="c a">                                       J<ins>:=</ins>SNARG(S); NC<ins>:=</ins>IC-3*J;</td></tr>
+<tr><td class="n d">112</td><td class="c d">                                       J<del>_</del>SEMGET(S); GO TO L1);</td><td class="n a">50</td><td class="c a">                                       J<ins>:=</ins>SEMGET(S); GO TO L1);</td></tr>
+<tr><td class="n q">114</td><td class="c q"> DOITAGAINSAM: GO TO (M1,M1,M2,M3,M4) MARK;</td><td class="n q">52</td><td class="c q"> DOITAGAINSAM: GO TO (M1,M1,M2,M3,M4) MARK;</td></tr>
+<tr><td class="n d">116</td><td class="c d"> M4: IP<del>_</del>IM-3; NC<del>_</del>NM; MARK<del>_</del>1; GO TO TRYON;</td><td class="n a">54</td><td class="c a"> M4: IP<ins>:=</ins>IM-3; NC<ins>:=</ins>NM; MARK<ins>:=</ins>1; GO TO TRYON;</td></tr>
+<tr><td class="n d">118</td><td class="c d"> M1:   NC<del>_</del>-3;</td><td class="n a">56</td><td class="c a"> M1:   NC<ins>:=</ins>-3;</td></tr>
+<tr><td class="n d">119</td><td class="c d"> NXST: (NC<del>_</del>NC+3) GE NCS =&gt; (MARK<del>_</del>3; GO TO COTREX);</td><td class="n a">57</td><td class="c a"> NXST: (NC<ins>:=</ins>NC+3) GE NCS =&gt; (MARK<ins>:=</ins>3; GO TO COTREX);</td></tr>
+<tr><td class="n d">120</td><td class="c d">       IP<del>_</del>NC;  L13: IP=NCS =&gt; (MARK<del>_</del>3; GO TO COTREX);</td><td class="n a">58</td><td class="c a">       IP<ins>:=</ins>NC;  L13: IP=NCS =&gt; (MARK<ins>:=</ins>3; GO TO COTREX);</td></tr>
+<tr><td class="n d">121</td><td class="c d">       J<del>_</del>FREE(CS+IP); J AND 77B =&gt; (IP<del>_</del>IP+3; GO TO L13);</td><td class="n a">59</td><td class="c a">       J<ins>:=</ins>FREE(CS+IP); <ins>(</ins>J AND 77B<ins>)</ins> =&gt; (IP<ins>:=</ins>IP+3; GO TO L13);</td></tr>
+<tr><td class="n d">122</td><td class="c d">       S<del>_</del>J <del>RS 18</del>; GO TO CK;</td><td class="n a">60</td><td class="c a">       S<ins>:=HL(</ins>J<ins>)</ins>; GO TO CK;</td></tr>
+<tr><td class="n d">124</td><td class="c d"> M3: IP<del>_</del>NCS-3;</td><td class="n a">62</td><td class="c a"> M3: IP<ins>:=</ins>NCS-3;</td></tr>
+<tr><td class="n q">125</td><td class="c q"> CK: TRM=&gt;(PRINT STG 0,'PLIES[',OCT 0,S,STG 0,']=',OCT 0,PLIES(S),STG 0,</td><td class="n q">63</td><td class="c q"> CK: TRM=&gt;(PRINT STG 0,'PLIES[',OCT 0,S,STG 0,']=',OCT 0,PLIES(S),STG 0,</td></tr>
+<tr><td class="n q">126</td><td class="c q">                 ' AT STACK ',IGR 0,IP,STG 0,'  NC=',IGR 0,NC,/);</td><td class="n q">64</td><td class="c q">                 ' AT STACK ',IGR 0,IP,STG 0,'  NC=',IGR 0,NC,/);</td></tr>
+<tr><td class="n d">127</td><td class="c d">     IC<del>_</del>IP; K<del>_</del>PLIES(S); K&lt;0 =&gt; GO TO XNOW;</td><td class="n a">65</td><td class="c a">     IC<ins>:=</ins>IP; K<ins>:=</ins>PLIES(S); K&lt;0 =&gt; GO TO XNOW;</td></tr>
+<tr><td class="n q">128</td><td class="c q">     (SEMED(S) AND PRIO) =&gt; GO TO XNOW;</td><td class="n q">66</td><td class="c q">     (SEMED(S) AND PRIO) =&gt; GO TO XNOW;</td></tr>
+<tr><td class="n d">129</td><td class="c d">     (I<del>_</del>1 LS (IP-NC)/3)=0=&gt;ERROR(0,'SEMANTIC CONDITION TOO COMPLEX.');</td><td class="n a">67</td><td class="c a">     (I<ins>:=</ins>1 LS (IP-NC)/3)=0=&gt;ERROR(0,'SEMANTIC CONDITION TOO COMPLEX.');</td></tr>
+<tr><td class="n d">130</td><td class="c d">     L14: (K AND I)=0 =&gt; (I<del>_</del>I RS 1; I=0 =&gt; GO TO NXST; NC<del>_</del>NC+3;</td><td class="n a">68</td><td class="c a">     L14: (K AND I)=0 =&gt; (I<ins>:=</ins>I RS 1; I=0 =&gt; GO TO NXST; NC<ins>:=</ins>NC+3;</td></tr>
+<tr><td class="n d">131</td><td class="c d">                          NC GE NCS =&gt; (MARK<del>_</del>3; GO TO COTREX); GO TO L14);</td><td class="n a">69</td><td class="c a">                          NC GE NCS =&gt; (MARK<ins>:=</ins>3; GO TO COTREX); GO TO L14);</td></tr>
+<tr><td class="n d">133</td><td class="c d">	SNONR<del>_</del>SNODEN(S);</td><td class="n a">71</td><td class="c a">        SNONR<ins>:=</ins>SNODEN(S);</td></tr>
+<tr><td class="n d">134</td><td class="c d">        NODE<del>_</del>TSCR(1); NST<del>_</del>0; IM<del>_</del>NM<del>_</del>NC;</td><td class="n a">72</td><td class="c a">        NODE<ins>:=</ins>TSCR(1); NST<ins>:=</ins>0; IM<ins>:=</ins>NM<ins>:=</ins>NC;</td></tr>
+<tr><td class="n d">135</td><td class="c d"> TRYON: IM&gt;IP =&gt; (IM=NCS =&gt; (MARK<del>_</del>2; GO TO COTREX); #PARTIAL MATCH#</td><td class="n a">73</td><td class="c a"> TRYON: IM&gt;IP =&gt; (IM=NCS =&gt; (MARK<ins>:=</ins>2; GO TO COTREX); #PARTIAL MATCH#</td></tr>
+<tr><td class="n d">136</td><td class="c d">                  L20: (IP<del>_</del>IP+3)&lt;NCS =&gt; (J<del>_</del>FREE(CS+IP)) AND 77B =&gt; GO TO L20;</td><td class="n a">74</td><td class="c a">                  <ins>J:=0;</ins></td></tr>
+<tr><td class="n d">137</td><td class="c d">                  IP=NCS =&gt; (IP<del>_</del>IP-3; SNONR<del>_</del>-1) ELSE (</td><td class="n a">75</td><td class="c a">                  L20: (IP<ins>:=</ins>IP+3)&lt;NCS =&gt; (<ins>(</ins>J<ins>:=</ins>FREE(CS+IP)) AND 77B<ins>)</ins> =&gt; GO TO L20;</td></tr>
+<tr><td class="n d">138</td><td class="c d">			SEMED(S<del>_J RS 18</del>) AND PRIO=&gt;(IC<del>_</del>IP; MARK<del>_</del>2;</td><td class="n a">76</td><td class="c a">                  IP=NCS =&gt; (IP<ins>:=</ins>IP-3; SNONR<ins>:=</ins>-1) ELSE (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a">                        <ins>S:=HL(J);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a">                        <ins>(</ins>SEMED(S) AND PRIO<ins>)</ins>=&gt;(IC<ins>:=</ins>IP; MARK<ins>:=</ins>2;</td></tr>
+<tr><td class="n q">139</td><td class="c q">						    GO TO XNOW);</td><td class="n q">79</td><td class="c q">                                                    GO TO XNOW);</td></tr>
+<tr><td class="n d">140</td><td class="c d">			(K<del>_</del>PLIES(S))&gt;0=&gt;</td><td class="n a">80</td><td class="c a">                        (K<ins>:=</ins>PLIES(S))&gt;0=&gt;</td></tr>
+<tr><td class="n d">141</td><td class="c d">			   K AND 1 LS (IP-NC)/3=0=&gt;GO TO POPPIT;</td><td class="n a">81</td><td class="c a">                           <ins>(</ins>K AND <ins>(</ins>1 LS (IP-NC)/3<ins>))</ins>=0=&gt;GO TO POPPIT;</td></tr>
+<tr><td class="n d">142</td><td class="c d">			SNONR<del>_</del>SNODEN(S)));</td><td class="n a">82</td><td class="c a">                        SNONR<ins>:=</ins>SNODEN(S)));</td></tr>
+<tr><td class="n d">143</td><td class="c d"> M2:    J<del>_</del>MATCH(NODE,CS+IM,SNONR); MARK<del>_</del>1;</td><td class="n a">83</td><td class="c a"> M2:    J<ins>:=</ins>MATCH(NODE,CS+IM,SNONR); MARK<ins>:=</ins>1;</td></tr>
+<tr><td class="n q">144</td><td class="c q">        TRM=&gt;(PRINT STG 0,'MATCH NODE',IGR 4,NODE,STG 0,' BEFORE #',</td><td class="n q">84</td><td class="c q">        TRM=&gt;(PRINT STG 0,'MATCH NODE',IGR 4,NODE,STG 0,' BEFORE #',</td></tr>
+<tr><td class="n q">145</td><td class="c q">		IGR 0,SNONR,STG 0,' VS STACK',</td><td class="n q">85</td><td class="c q">                IGR 0,SNONR,STG 0,' VS STACK',</td></tr>
+<tr><td class="n q">146</td><td class="c q">                    IGR 3,IM,STG 0,' = ';</td><td class="n q">86</td><td class="c q">                    IGR 3,IM,STG 0,' = ';</td></tr>
+<tr><td class="n q">147</td><td class="c q">              J&gt;0 =&gt; PRINT OCT 0,J ELSE PRINT IGR 0,J; PRINT /);</td><td class="n q">87</td><td class="c q">              J&gt;0 =&gt; PRINT OCT 0,J ELSE PRINT IGR 0,J; PRINT /);</td></tr>
+<tr><td class="n d">148</td><td class="c d">        J=0 =&gt; (TRYALT: NODE=&gt;(NODE<del>_</del>TALT(NODE)) =&gt; GO TO M2;</td><td class="n a">88</td><td class="c a">        J=0 =&gt; (TRYALT: NODE=&gt;(NODE<ins>:=</ins>TALT(NODE)) =&gt; GO TO M2;</td></tr>
+<tr><td class="n d">149</td><td class="c d">		POPPIT: NST=&gt;(NST<del>_</del>NST-1;</td><td class="n a">89</td><td class="c a">                POPPIT: NST=&gt;(NST<ins>:=</ins>NST-1;</td></tr>
+<tr><td class="n d">150</td><td class="c d">			      (77B AND J<del>_</del>FREE(CS+IM))=0=&gt;</td><td class="n a">90</td><td class="c a">                              (77B AND <ins>(</ins>J<ins>:=</ins>FREE(CS+IM))<ins>)</ins>=0=&gt;</td></tr>
+<tr><td class="n d">151</td><td class="c d">				(SNONR<del>_</del>SNODEN(S<del>_J&lt;L&gt;</del>); IP<del>_</del>IM);</td><td class="n a">91</td><td class="c a">                                (<ins>S:=HL(J);</ins> SNONR<ins>:=</ins>SNODEN(S); IP<ins>:=</ins>IM);</td></tr>
+<tr><td class="n d">152</td><td class="c d">			      IM<del>_</del>IM-3;</td><td class="n a">92</td><td class="c a">                              IM<ins>:=</ins>IM-3;</td></tr>
+<tr><td class="n d">153</td><td class="c d">                              NODE<del>_</del>FREE(<del>ST</del>+NST) <del>AND 777777B</del>;</td><td class="n a">93</td><td class="c a">                              NODE<ins>:=HR(</ins>FREE(<ins>CST</ins>+NST)<ins>)</ins>;</td></tr>
+<tr><td class="n q">154</td><td class="c q">                              GO TO TRYALT);</td><td class="n q">94</td><td class="c q">                              GO TO TRYALT);</td></tr>
+<tr><td class="n q">155</td><td class="c q">                        GO TO NXST);</td><td class="n q">95</td><td class="c q">                        GO TO NXST);</td></tr>
+<tr><td class="n d">156</td><td class="c d">        J&lt;0 =&gt; ((T<del>_</del>TSCR(NODE)) =&gt; (#MARK VAL/ NODE READ AS ORIG PRODN#</td><td class="n a">96</td><td class="c a">        J&lt;0 =&gt; ((T<ins>:=</ins>TSCR(NODE)) =&gt; (#MARK VAL/ NODE READ AS ORIG PRODN#</td></tr>
+<tr><td class="n d">157</td><td class="c d">                                   J=-2=&gt;NODE<del>_</del>NODE OR <del>400000000000B</del>;</td><td class="n a">97</td><td class="c a">                                   J=-2=&gt;NODE<ins>:=</ins>NODE OR <ins>(1 LS 63)</ins>;</td></tr>
+<tr><td class="n d">158</td><td class="c d">                                   FADD(<del>ST</del>,NST,NODE);</td><td class="n a">98</td><td class="c a">                                   FADD(<ins>CST</ins>,NST,NODE);</td></tr>
+<tr><td class="n d">159</td><td class="c d">                                   IM<del>_</del>IM+3;</td><td class="n a">99</td><td class="c a">                                   IM<ins>:=</ins>IM+3;</td></tr>
+<tr><td class="n d">160</td><td class="c d">                                   NODE<del>_</del>T; GO TO TRYON)</td><td class="n a">100</td><td class="c a">                                   NODE<ins>:=</ins>T; GO TO TRYON)</td></tr>
+<tr><td class="n q">161</td><td class="c q">                              ELSE GO TO TRYALT);</td><td class="n q">101</td><td class="c q">                              ELSE GO TO TRYALT);</td></tr>
+<tr><td class="n d">162</td><td class="c d">        IC<del>_</del>IM; NC<del>_</del>NM;</td><td class="n a">102</td><td class="c a">        IC<ins>:=</ins>IM; NC<ins>:=</ins>NM;</td></tr>
+<tr><td class="n q">164</td><td class="c q">     #MATCH FOR NC THRU IC - INVOKE [J]#</td><td class="n q">104</td><td class="c q">     #MATCH FOR NC THRU IC - INVOKE [J]#</td></tr>
+<tr><td class="n d">165</td><td class="c d"> L1: IC<del>_</del>IC+3; L<del>_</del>STINIT(<del>IC-NC</del>); LL<del>_</del>0;</td><td class="n a">105</td><td class="c a"> L1: IC<ins>:=</ins>IC+3; L<ins>:=</ins>STINIT(<ins>0</ins>); LL<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">166</td><td class="c d">     ((<del>[</del>K<del>_</del>CS+I<del>]</del> AND 77B)=0 =&gt; (#IGNORE PRODNS UNLESS THEY ARE VAL/ ARGUMENTS#</td><td class="n a">106</td><td class="c a">     ((K<ins>:=</ins>CS+I<ins>;</ins></td></tr>
+<tr><td class="n d">167</td><td class="c d">                               <del>[</del>K+1<del>]</del>=0=&gt;GO TO IGN;</td><td class="n a">107</td><td class="c a">       <ins>(FREE(K)</ins> AND 77B)=0 =&gt; (#IGNORE PRODNS UNLESS THEY ARE VAL/ ARGUMENTS#</td></tr>
+<tr><td class="n d">168</td><td class="c d">                               FREE(<del>ST</del>+(I-NC)/3)&lt;0=&gt;GO TO IGN);</td><td class="n a">108</td><td class="c a">                               <ins>FREE(</ins>K+1<ins>)</ins>=0=&gt;GO TO IGN;</td></tr>
+<tr><td class="n d">169</td><td class="c d">      <del>[</del>L<del>]_[</del>K<del>]</del>; <del>[</del>L+1<del>]_[</del>K+1<del>]</del>; <del>[</del>L+2<del>]_[</del>K+2<del>]</del>;</td><td class="n a">109</td><td class="c a">                               FREE(<ins>CST</ins>+(I-NC)/3)&lt;0=&gt;GO TO IGN);</td></tr>
+<tr><td class="n d">170</td><td class="c d">      L<del>_</del>L+3; LL<del>_</del>LL-1; IGN: 0) FOR I IN NC,3,IC-3;</td><td class="n a">110</td><td class="c a">      <ins>FREES(</ins>L<ins>,FREE(</ins>K<ins>))</ins>; <ins>FREES(</ins>L+1<ins>,FREE(</ins>K+1<ins>))</ins>; <ins>FREES(</ins>L+2<ins>,FREE(</ins>K+2<ins>))</ins>;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a">      L<ins>:=</ins>L+3; LL<ins>:=</ins>LL-1; IGN: 0<ins>)</ins>) FOR I IN NC,3,IC-3;</td></tr>
+<tr><td class="n q">171</td><td class="c q">     STPOP(LL);</td><td class="n q">112</td><td class="c q">     STPOP(LL);</td></tr>
+<tr><td class="n d">173</td><td class="c d"> ENTRIES<del>_</del>0<del>;</del></td><td class="n a">114</td><td class="c a"> ENTRIES<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">174</td><td class="c d"> <del>FLAG'Z'=&gt;CTT_CTT-1+CALLI(27B,0)</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">175</td><td class="c q"> DOSEM(J);</td><td class="n q">115</td><td class="c q"> DOSEM(J);</td></tr>
+<tr><td class="n d">176</td><td class="c d"> <del>FLAG'Z'=&gt;CTT_CTT+CALLI(27B,0);</del></td><td class="n a">116</td><td class="c a"> MARK NE 4 =&gt; MARK<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">177</td><td class="c d"> MARK NE 4 =&gt; MARK<del>_</del>1;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">179</td><td class="c q"> ENTRIES&gt;0=&gt;(#INSERTS FROM QUOTED SEMANTICS#</td><td class="n q">118</td><td class="c q"> ENTRIES&gt;0=&gt;(#INSERTS FROM QUOTED SEMANTICS#</td></tr>
+<tr><td class="n d">180</td><td class="c d">             (I<del>_</del>ENTRIES-IC) =&gt; (J<del>_</del>NCS+I; FLEN(CS) LE J =&gt; FADDEX(CS,J);</td><td class="n a">119</td><td class="c a">             (I<ins>:=</ins>ENTRIES-IC) =&gt; (J<ins>:=</ins>NCS+I; FLEN(CS) LE J =&gt; FADDEX(CS,J);</td></tr>
+<tr><td class="n d">181</td><td class="c d">				<del>MOVE [</del>CS+IC<del>] THROUGH</del> I-1 <del>TO [CS+NCS]</del>;</td><td class="n a">120</td><td class="c a">                                <ins>FREES(</ins>CS+<ins>NCS+K,FREE(CS+</ins>IC<ins>+K)) FOR K TO</ins> I-1;</td></tr>
+<tr><td class="n d">182</td><td class="c d">				NCS<del>_</del>J);</td><td class="n a">121</td><td class="c a">                                NCS<ins>:=</ins>J);</td></tr>
+<tr><td class="n d">183</td><td class="c d">             IC<del>_</del>ENTRIES; GO TO L2);</td><td class="n a">122</td><td class="c a">             IC<ins>:=</ins>ENTRIES; GO TO L2);</td></tr>
+<tr><td class="n d">185</td><td class="c d"> J<del>_</del>STACK(0); K<del>_</del>CS+NC;</td><td class="n a">124</td><td class="c a"> J<ins>:=</ins>STACK(0); K<ins>:=</ins>CS+NC;</td></tr>
+<tr><td class="n d">186</td><td class="c d"> <del>[</del>K<del>]_[</del>J<del>]</del>; <del>[</del>K+1<del>]_[</del>J+1<del>]</del>; <del>[</del>K+2<del>]_[</del>J+2<del>]</del>;</td><td class="n a">125</td><td class="c a"> <ins>FREES(</ins>K<ins>,FREE(</ins>J<ins>))</ins>; <ins>FREES(</ins>K+1<ins>,FREE(</ins>J+1<ins>))</ins>; <ins>FREES(</ins>K+2<ins>,FREE(</ins>J+2<ins>))</ins>;</td></tr>
+<tr><td class="n q">187</td><td class="c q"> TR=&gt;(PRINT STG 0,'REDUCED AT ',IGR 0,IC-3,STG 0,'. TOP=',</td><td class="n q">126</td><td class="c q"> TR=&gt;(PRINT STG 0,'REDUCED AT ',IGR 0,IC-3,STG 0,'. TOP=',</td></tr>
+<tr><td class="n q">188</td><td class="c q">            IGR 0,NCS+NC-IC,STG 0,', RESULT: ';</td><td class="n q">127</td><td class="c q">            IGR 0,NCS+NC-IC,STG 0,', RESULT: ';</td></tr>
+<tr><td class="n d">189</td><td class="c d">      PSTACK(CS,NC)<del>; PCODE(CS+NC,5)</del>);</td><td class="n a">128</td><td class="c a">      PSTACK(CS,NC));</td></tr>
+<tr><td class="n q">190</td><td class="c q"> ENTRIES&lt;0=&gt;GO TO DOITAGAINSAM;</td><td class="n q">129</td><td class="c q"> ENTRIES&lt;0=&gt;GO TO DOITAGAINSAM;</td></tr>
+<tr><td class="n d">191</td><td class="c d"> NC<del>_</del>NC+3;</td><td class="n a">130</td><td class="c a"> NC<ins>:=</ins>NC+3;</td></tr>
+<tr><td class="n d">193</td><td class="c d"> L2: IC&lt;NCS=&gt;NC&lt;IC=&gt;<del>MOVE [</del>CS+IC<del>] THROUGH</del> NCS-<del>(</del>IC<del>+</del>1) <del>TO [CS+NC]</del>;</td><td class="n a">132</td><td class="c a"> L2: IC&lt;NCS=&gt;NC&lt;IC=&gt;<ins>(FREES(</ins>CS+<ins>NC+K,FREE(CS+</ins>IC<ins>+K)) FOR K TO</ins> NCS-IC<ins>-</ins>1);</td></tr>
+<tr><td class="n d">194</td><td class="c d">     NCS<del>_</del>NCS+NC-IC;</td><td class="n a">133</td><td class="c a">     NCS<ins>:=</ins>NCS+NC-IC;</td></tr>
+<tr><td class="n q">196</td><td class="c q"> TR=0=&gt;GO TO DOITAGAINSAM;</td><td class="n q">135</td><td class="c q"> TR=0=&gt;GO TO DOITAGAINSAM;</td></tr>
+<tr><td class="n q">197</td><td class="c q"> ENTRIES LE 0=&gt;GO TO DOITAGAINSAM;</td><td class="n q">136</td><td class="c q"> ENTRIES LE 0=&gt;GO TO DOITAGAINSAM;</td></tr>
+<tr><td class="n q">198</td><td class="c q"> PRINT STG 0,'STACK AFTER INSERTING QUOTED SEMANTICS IS:',/;</td><td class="n q">137</td><td class="c q"> PRINT STG 0,'STACK AFTER INSERTING QUOTED SEMANTICS IS:',/;</td></tr>
+<tr><td class="n q">199</td><td class="c q">                   PSTACK(CS,I) FOR I IN 0,3,NCS-3;</td><td class="n q">138</td><td class="c q">                   PSTACK(CS,I) FOR I IN 0,3,NCS-3;</td></tr>
+<tr><td class="n q">200</td><td class="c q"> GO TO DOITAGAINSAM;</td><td class="n q">139</td><td class="c q"> GO TO DOITAGAINSAM;</td></tr>
+<tr><td class="n d">201</td><td class="c d"> COTREX: <del>CTT</del>);</td><td class="n a">140</td><td class="c a"> COTREX: <ins>0</ins>);</td></tr>
+<tr><td class="n d">203</td><td class="c d">SUBR CFUDGE() IS (ENTRIES<del>_</del>-1);</td><td class="n a">142</td><td class="c a">SUBR CFUDGE(<ins>NIL</ins>) IS (ENTRIES<ins>:=</ins>-1);</td></tr>
+<tr><td class="n q">205</td><td class="c q">SUBR CODENT(A,B,C,F) IS (</td><td class="n q">144</td><td class="c q">SUBR CODENT(A,B,C,F) IS (</td></tr>
+<tr><td class="n d">206</td><td class="c d"> ENTRIES=0=&gt;ENTRIES<del>_</del>NCS;</td><td class="n a">145</td><td class="c a"> ENTRIES=0=&gt;ENTRIES<ins>:=</ins>NCS;</td></tr>
+<tr><td class="n q">207</td><td class="c q"> FLEN(CS) LE (NCS+3) =&gt; FADDEX(CS,NCS+3);</td><td class="n q">146</td><td class="c q"> FLEN(CS) LE (NCS+3) =&gt; FADDEX(CS,NCS+3);</td></tr>
+<tr><td class="n d">208</td><td class="c d"> CSX<del>_</del>CS+NCS; NCS<del>_</del>NCS+3;</td><td class="n a">147</td><td class="c a"> CSX<ins>:=</ins>CS+NCS; NCS<ins>:=</ins>NCS+3;</td></tr>
+<tr><td class="n d">209</td><td class="c d"> <del>[</del>CSX<del>]_</del>A; <del>[</del>CSX+1<del>]_</del>B; <del>[</del>CSX+2<del>]_</del>C;</td><td class="n a">148</td><td class="c a"> <ins>FREES(</ins>CSX<ins>,</ins>A<ins>)</ins>; <ins>FREES(</ins>CSX+1<ins>,</ins>B<ins>)</ins>; <ins>FREES(</ins>CSX+2<ins>,</ins>C<ins>)</ins>;</td></tr>
+<tr><td class="n d">210</td><td class="c d"> F=&gt;C=&gt;COPYCO(<del>CS+NCS-3</del>));</td><td class="n a">149</td><td class="c a"> F=&gt;C=&gt;COPYCO(<ins>CSX</ins>));</td></tr>
+<tr><td class="n d">212</td><td class="c d">SUBR CKDONE() IS (</td><td class="n a">151</td><td class="c a">SUBR CKDONE(<ins>NIL</ins>) IS (</td></tr>
+<tr><td class="n q">213</td><td class="c q"> NCS&gt;6=&gt;(ERROR(1,'CODE GENERATION STACK DID NOT REDUCE TO ONE ITEM **');</td><td class="n q">152</td><td class="c q"> NCS&gt;6=&gt;(ERROR(1,'CODE GENERATION STACK DID NOT REDUCE TO ONE ITEM **');</td></tr>
+<tr><td class="n q">214</td><td class="c q">         PSTACK(CS,I) FOR I IN 0,3,NCS-3));</td><td class="n q">153</td><td class="c q">         PSTACK(CS,I) FOR I IN 0,3,NCS-3));</td></tr>
+<tr><td class="n d">216</td><td class="c d">SUBR MAXWELL(N) IS (NMAXIE<del>_</del>0; DEMON<del>_</del>1;</td><td class="n a">155</td><td class="c a">SUBR MAXWELL(N) IS (NMAXIE<ins>:=</ins>0; DEMON<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">217</td><td class="c d"> MAXIE<del>_</del>FALLOT('DEMON',15);</td><td class="n a">156</td><td class="c a"> MAXIE<ins>:=</ins>FALLOT('DEMON',15);</td></tr>
+<tr><td class="n q">218</td><td class="c q"> (FADD(CS,NCS,1); FADD(CS,NCS,0); FADD(CS,NCS,0)) FOR J FROM N; 0);</td><td class="n q">157</td><td class="c q"> (FADD(CS,NCS,1); FADD(CS,NCS,0); FADD(CS,NCS,0)) FOR J FROM N; 0);</td></tr>
+<tr><td class="n d">220</td><td class="c d">SUBR MAXEND(A) IS (DEMON<del>_</del>0; FADD(MAXIE,NMAXIE,0); FREES(A+1,MAXIE); A);</td><td class="n a">159</td><td class="c a">SUBR MAXEND(A) IS (DEMON<ins>:=</ins>0; FADD(MAXIE,NMAXIE,0); FREES(A+1,MAXIE); A);</td></tr>
+<tr><td class="n d">222</td><td class="c d">SUBR SETPRI(A) IS (PRIO<del>_</del>A; 0);</td><td class="n a">161</td><td class="c a">SUBR SETPRI(A) IS (PRIO<ins>:=</ins>A; 0);</td></tr>
+<tr><td class="n q">224</td><td class="c q">SUBR SAMEAS(SN,K) IS (</td><td class="n q">163</td><td class="c q">SUBR SAMEAS(SN,K) IS (</td></tr>
+<tr><td class="n d">225</td><td class="c d"> TN<del>_</del>CS+NC+3*K; SV<del>_</del>0;</td><td class="n a">164</td><td class="c a"> TN<ins>:=</ins>CS+NC+3*K; SV<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">226</td><td class="c d"> R<del>_</del>FREE(SN); T<del>_</del>FREE(TN); R NE T=&gt;GO TO SMEX;</td><td class="n a">165</td><td class="c a"> R<ins>:=</ins>FREE(SN); T<ins>:=</ins>FREE(TN); R NE T=&gt;GO TO SMEX;</td></tr>
+<tr><td class="n d">227</td><td class="c d"> S<del>_</del>R AND 77B;</td><td class="n a">166</td><td class="c a"> S<ins>:=</ins>R AND 77B;</td></tr>
+<tr><td class="n d">228</td><td class="c d"> R<del>_</del>FREE(SN+1); T<del>_</del>FREE(TN+1); R NE T=&gt;(</td><td class="n a">167</td><td class="c a"> R<ins>:=</ins>FREE(SN+1); T<ins>:=</ins>FREE(TN+1); R NE T=&gt;(</td></tr>
+<tr><td class="n q">229</td><td class="c q">     (S AND 32B)=0=&gt;GO TO SMEX;</td><td class="n q">168</td><td class="c q">     (S AND 32B)=0=&gt;GO TO SMEX;</td></tr>
+<tr><td class="n d">230</td><td class="c d">     (R AND <del>774000777777B</del>) NE (T AND <del>774000777777B</del>)=&gt;GO TO SMEX;</td><td class="n a">169</td><td class="c a">     (R AND <ins>NOT (3777B LS 32</ins>)<ins>)</ins> NE (T AND <ins>NOT (3777B LS 32)</ins>)=&gt;GO TO SMEX;</td></tr>
+<tr><td class="n q">231</td><td class="c q">     GO TO SMUX);</td><td class="n q">170</td><td class="c q">     GO TO SMUX);</td></tr>
+<tr><td class="n d">232</td><td class="c d"> R<del>_</del>FREE(SN+2); T<del>_</del>FREE(TN+2); R NE T=&gt;(</td><td class="n a">171</td><td class="c a"> R<ins>:=</ins>FREE(SN+2); T<ins>:=</ins>FREE(TN+2); R NE T=&gt;(</td></tr>
+<tr><td class="n q">233</td><td class="c q">      R=0=&gt;GO TO SMEX; T=0=&gt;GO TO SMEX;</td><td class="n q">172</td><td class="c q">      R=0=&gt;GO TO SMEX; T=0=&gt;GO TO SMEX;</td></tr>
+<tr><td class="n q">234</td><td class="c q">      SMUX: MCODE(SN,TN)=0=&gt;GO TO SMEX);</td><td class="n q">173</td><td class="c q">      SMUX: MCODE(SN,TN)=0=&gt;GO TO SMEX);</td></tr>
+<tr><td class="n d">235</td><td class="c d"> SMOK: SV<del>_</del>-1;</td><td class="n a">174</td><td class="c a"> SMOK: SV<ins>:=</ins>-1;</td></tr>
+<tr><td class="n q">236</td><td class="c q"> SMEX: SV);</td><td class="n q">175</td><td class="c q"> SMEX: SV);</td></tr>
+<tr><td class="n d">238</td><td class="c d">SUBR PSTACK(S,N) IS <del>(</del></td><td class="n a">177</td><td class="c a">SUBR PSTACK(S,N) IS PSTAC1(S,N)%%</td></tr>
+<tr><td class="n d">239</td><td class="c d"> <del>LOC(</del>PSTAC1<del>) =&gt; J_PSTAC1</del>(S,N<del>)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">240</td><td class="c d">          <del>ELSE  (PST0CNT=0=&gt;(PST0CNT_1; J_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">241</td><td class="c d">                             <del>ERROR(2,'PSTAC1 DEBUGGING PGM NOT PRESENT')));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">242</td><td class="c d"><del>J</del>) %%</td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

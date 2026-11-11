@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>debug.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>debug.imc</h1>
+<p class="mut">left, old (the tape): decus/debug.imc<br>right, new (the port): src/debug.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 14 changed places, 602 tokens deleted, 1236 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n d">3</td><td class="c d">#THIS IS FILE <del>DEBUG.I10, CONTAINING</del> DIAGNOSTIC PRINT-OUTS FOR THE <del>IMP10</del></td><td class="n a">2</td><td class="c a"><ins>SBITM ARE COMMON,3 LONG;</ins></td></tr>
+<tr><td class="n d">4</td><td class="c d"><del>COMPILER.  IF</del> THE <del>COMPILER</del> IS <del>LOADED WITHOUT THIS FILE, REQUESTS FOR THESE</del></td><td class="n a">3</td><td class="c a"><ins>GRBITM,GRNBITM ARE COMMON,3 LONG;</ins></td></tr>
+<tr><td class="n d">5</td><td class="c d"><del>PRINTOUTS WILL BE TRAPPED</del> WITH <del>AN ADVISORY ERROR MESSAGE.</del>#</td><td class="n a">4</td><td class="c a"><ins>NG,NPRODS,GRNODES,GRNTGENT,GRNBITN,CT,NCT,NODEN,SEMS,NSEMS,PROSEM ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"><ins>FINAM IS COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"><ins>CO ARE COMMON;</ins>                                    # <ins>THE CHAINS OF CODE (CODE2), FOR PCODE1 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"><ins>#</ins>THIS IS FILE <ins>DEBUG, THE</ins> DIAGNOSTIC PRINT-OUTS <ins>OF THE IMP COMPILER</ins> FOR THE <ins>64 BIT PORT: TPRIN1, SEMPR1, GPRIN1,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>PSTAC1 AND PARTR1 OF DECUS/DEBUG.IMC, WITH</ins> THE <ins>PRINT STATEMENTS OF THE ORIGINAL, SO THAT THEY GO THROUGH THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>SAME LINE BUFFER AS THE OTHER MODULES, AND HELPD.  PCODE1, THE LISTING OF THE CODE,</ins> IS <ins>IN SRC/CODE3.IMC.  THE GLOBAL TABLES ARE SHARED</ins> WITH <ins>THE C THAT READS THEM (SRC/SHARED.TXT).</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>PLEASE REMEMBER THAT NO OPERATOR HAS PRECEDENCE IN IMP: THE EXPRESSIONS ARE FULLY PARENTHESISED.</ins> #</td></tr>
+<tr><td class="n q">7</td><td class="c q">SUBR HELPD(NIL) IS (</td><td class="n q">12</td><td class="c q">SUBR HELPD(NIL) IS (</td></tr>
+<tr><td class="n q">8</td><td class="c q"> MSG(' ');</td><td class="n q">13</td><td class="c q"> MSG(' ');</td></tr>
+<tr><td class="n q">9</td><td class="c q"> MSG('COMPILER DEBUGGING SWITCHES:');</td><td class="n q">14</td><td class="c q"> MSG('COMPILER DEBUGGING SWITCHES:');</td></tr>
+</table>
+<details><summary>unchanged: lines 15 to 24 of the new file</summary>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">10</td><td class="c q"> MSG('B = ASSEMBLER DEBUGGING PRINTOUT');</td><td class="n q">15</td><td class="c q"> MSG('B = ASSEMBLER DEBUGGING PRINTOUT');</td></tr>
+<tr><td class="n q">11</td><td class="c q"> MSG('D = TYPE THIS LIST OF DEBUGGING SWITCHES');</td><td class="n q">16</td><td class="c q"> MSG('D = TYPE THIS LIST OF DEBUGGING SWITCHES');</td></tr>
+<tr><td class="n q">12</td><td class="c q"> MSG('F = PRINT FREE STORAGE MAP WHENEVER ALTERRED');</td><td class="n q">17</td><td class="c q"> MSG('F = PRINT FREE STORAGE MAP WHENEVER ALTERRED');</td></tr>
+<tr><td class="n q">13</td><td class="c q"> MSG('G = PRINT GORY DETAILS OF PARSE');</td><td class="n q">18</td><td class="c q"> MSG('G = PRINT GORY DETAILS OF PARSE');</td></tr>
+<tr><td class="n q">14</td><td class="c q"> MSG('I = PRINT HASH-CODED DIRECTORY');</td><td class="n q">19</td><td class="c q"> MSG('I = PRINT HASH-CODED DIRECTORY');</td></tr>
+<tr><td class="n q">15</td><td class="c q"> MSG('M = PRINT CODE TREE MATCH DETAILS');</td><td class="n q">20</td><td class="c q"> MSG('M = PRINT CODE TREE MATCH DETAILS');</td></tr>
+<tr><td class="n q">16</td><td class="c q"> MSG('N = PRINT CONNECTIVITY MATRICES WITH GRAPH');</td><td class="n q">21</td><td class="c q"> MSG('N = PRINT CONNECTIVITY MATRICES WITH GRAPH');</td></tr>
+<tr><td class="n q">17</td><td class="c q"> MSG('P = PRINT PARSE OUTPUT AND SEMANTICS EXECUTION');</td><td class="n q">22</td><td class="c q"> MSG('P = PRINT PARSE OUTPUT AND SEMANTICS EXECUTION');</td></tr>
+<tr><td class="n q">18</td><td class="c q"> MSG('S = PRINT SEMANTICS ARRAYS');</td><td class="n q">23</td><td class="c q"> MSG('S = PRINT SEMANTICS ARRAYS');</td></tr>
+<tr><td class="n q">19</td><td class="c q"> MSG('T = PRINT CODE TREE');</td><td class="n q">24</td><td class="c q"> MSG('T = PRINT CODE TREE');</td></tr>
+</table>
+</details>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">20</td><td class="c q"> MSG('X = PRINT SYNTAX GRAPH');</td><td class="n q">25</td><td class="c q"> MSG('X = PRINT SYNTAX GRAPH');</td></tr>
+<tr><td class="n q">21</td><td class="c q"> MSG('Z = GATHER AND PRINT COMPILATION STATISTICS');</td><td class="n q">26</td><td class="c q"> MSG('Z = GATHER AND PRINT COMPILATION STATISTICS');</td></tr>
+<tr><td class="n q">22</td><td class="c q">0);</td><td class="n q">27</td><td class="c q"> 0);</td></tr>
+<tr><td class="n d">24</td><td class="c d">SUBR TPRIN1(<del>CT,NCT,SBITM,NODEN</del>) IS (</td><td class="n a">29</td><td class="c a"><ins># PRINT OUT TREE.  EACH NODE: ITS INDEX, SCR, ALT, THE SPECIAL FIELD, THE TYPE OF THE STUFF WORD, THE NODE NUMBER, THE STUFF</ins></td></tr>
+<tr><td class="n d">25</td><td class="c d"> <del># PRINT OUT TREE #</del></td><td class="n a">30</td><td class="c a">  <ins>WORD IN OCTAL, AND A GLOSS OF IT; THEN THE BIT MATRIX 75 COLUMNS AT A TIME. #</ins></td></tr>
+<tr><td class="n d">26</td><td class="c d"> <del>TORG1_CT+1</del>;</td><td class="n a">31</td><td class="c a">SUBR TPRIN1(<ins>NIL</ins>) IS (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"> <ins>J,KVV,KT,KV,N,T,I,K,COLS,MXC ARE LOCAL</ins>;</td></tr>
+<tr><td class="n q">27</td><td class="c q"> PRINT STG 0,'** CODE GENERATION TREE:',/,'NODE SCR ALT PDN TY NR',/;</td><td class="n q">33</td><td class="c q"> PRINT STG 0,'** CODE GENERATION TREE:',/,'NODE SCR ALT PDN TY NR',/;</td></tr>
+<tr><td class="n d">28</td><td class="c d"> J<del>_</del>0;</td><td class="n a">34</td><td class="c a"> J<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">29</td><td class="c d"> <del>L18</del>: J<del>_</del>J+1;</td><td class="n a">35</td><td class="c a"> <ins>TL1</ins>: J<ins>:=</ins>J+1;</td></tr>
+<tr><td class="n d">30</td><td class="c d"> J<del>&lt;</del>NCT=&gt;(PRINT IGR 4,J,TSCR(J),TALT(J),<del>[TORG1</del>+J-<del>2]</del>,IGR 3,</td><td class="n a">36</td><td class="c a"> J <ins>GE</ins> NCT =&gt; <ins>GO TO TREEX;</ins></td></tr>
+<tr><td class="n d">31</td><td class="c d">	<del>[TORG1+J]</del> RS <del>33</del>,TNODEN(J),</td><td class="n a">37</td><td class="c a"> <ins>KVV:=FREE</ins>(<ins>CT+J+1);</ins></td></tr>
+<tr><td class="n d">32</td><td class="c d">	OCT <del>15</del>,<del>[TORG1+J]</del>;</td><td class="n a">38</td><td class="c a"> PRINT IGR 4,J,TSCR(J),TALT(J),<ins>FREE((CT</ins>+J<ins>)</ins>-<ins>1)</ins>,IGR 3,<ins>(KVV</ins> RS <ins>61)</ins>,TNODEN(J),OCT <ins>22</ins>,<ins>KVV</ins>;</td></tr>
+<tr><td class="n d">33</td><td class="c d">	      KT<del>_</del>(KVV<del>_[TORG1+J])</del> RS <del>33</del>;</td><td class="n a">39</td><td class="c a"> KT<ins>:=</ins>(KVV RS <ins>61)</ins>;</td></tr>
+<tr><td class="n d">34</td><td class="c d">              J<del>_</del>J+2;</td><td class="n a">40</td><td class="c a"> J<ins>:=</ins>J+2;</td></tr>
+<tr><td class="n d">35</td><td class="c d">              KT=1=&gt;(<del>PRINT STG 0;</del></td><td class="n a">41</td><td class="c a"> KT=1=&gt;(</td></tr>
+<tr><td class="n d">36</td><td class="c d">                    (KVV AND <del>17600000000B</del>)=0=&gt;((KVV AND <del>2000000B</del>)=0=&gt;(</td><td class="n a">42</td><td class="c a">   (KVV AND <ins>(77B LS 53</ins>)<ins>)</ins>=0=&gt;(</td></tr>
+<tr><td class="n d">37</td><td class="c d">                             PRINT '  [',OCT 0,</td><td class="n a">43</td><td class="c a">        (KVV AND <ins>NTRM</ins>)=0=&gt;(PRINT <ins>STG 0,</ins>'  [',OCT 0,<ins>HR(</ins>KVV<ins>)</ins>,STG 0,']',/; GO TO <ins>TL1</ins>);</td></tr>
+<tr><td class="n d">38</td><td class="c d">                               KVV <del>AND 777777B</del>,STG 0,']',/; GO TO <del>L18</del>);</td><td class="n a">44</td><td class="c a">        PRINT <ins>STG 0,</ins>'  &lt;',OCT 0,<ins>HR(</ins>KVV<ins>)</ins>,STG 0,'&gt;',/; GO TO <ins>TL1</ins>);</td></tr>
+<tr><td class="n d">39</td><td class="c d">                           PRINT '  &lt;',OCT 0,KVV <del>AND 777777B</del>,STG 0,'&gt;',/;</td><td class="n a">45</td><td class="c a">   (KVV <ins>AND (1 LS 59</ins>)<ins>)</ins>=0=&gt;PRINT <ins>STG 0,</ins>' FLT ';</td></tr>
+<tr><td class="n d">40</td><td class="c d">                           GO TO <del>L18</del>);</td><td class="n a">46</td><td class="c a">   (KVV <ins>AND (1 LS 60</ins>)<ins>)</ins>=0=&gt;PRINT <ins>STG 0,</ins>' IGR ';</td></tr>
+<tr><td class="n d">41</td><td class="c d">                     (<del>20000000000B AND</del> KVV)=0=&gt;PRINT ' FLT ';</td><td class="n a">47</td><td class="c a">   (3 AND <ins>(</ins>KVV RS <ins>59</ins>)<ins>)</ins>=3=&gt;PRINT <ins>STG 0,</ins>'     ';</td></tr>
+<tr><td class="n d">42</td><td class="c d">                     (<del>40000000000B AND</del> KVV)=0=&gt;PRINT ' IGR ';</td><td class="n a">48</td><td class="c a">   (KVV <ins>AND (1 LS 58</ins>)<ins>)=0</ins> =&gt; PRINT <ins>STG 0,' '</ins> ELSE PRINT <ins>STG 0,'W'</ins>;</td></tr>
+<tr><td class="n d">43</td><td class="c d">                     (3 AND KVV RS <del>31</del>)=3=&gt;PRINT '     ';</td><td class="n a">49</td><td class="c a">   (KVV <ins>AND (1 LS 57</ins>)<ins>)=0</ins> =&gt; PRINT <ins>STG 0,' '</ins> ELSE PRINT <ins>STG 0,'S'</ins>;</td></tr>
+<tr><td class="n d">44</td><td class="c d">                     (<del>10000000000B AND</del> KVV)=&gt;PRINT <del>'W'</del> ELSE PRINT <del>' '</del>;</td><td class="n a">50</td><td class="c a">   (KVV <ins>AND (1 LS 56</ins>)<ins>)=0</ins> =&gt; PRINT <ins>STG 0,' '</ins> ELSE PRINT <ins>STG 0,'V'</ins>;</td></tr>
+<tr><td class="n d">45</td><td class="c d">                     ( <del>4000000000B AND</del> KVV)=&gt;PRINT <del>'S'</del> ELSE PRINT <del>' '</del>;</td><td class="n a">51</td><td class="c a">   (KVV <ins>AND (1 LS 55</ins>)<ins>)=0</ins> =&gt; PRINT <ins>STG 0,' '</ins> ELSE PRINT <ins>STG 0,'C'</ins>;</td></tr>
+<tr><td class="n d">46</td><td class="c d">                     ( <del>2000000000B AND</del> KVV)=&gt;PRINT <del>'V'</del> ELSE PRINT <del>' '</del>;</td><td class="n a">52</td><td class="c a">   (KVV <ins>AND (1 LS 54</ins>)<ins>)=0</ins> =&gt; PRINT <ins>STG 0,' '</ins> ELSE PRINT <ins>STG 0,'R'</ins>;</td></tr>
+<tr><td class="n d">47</td><td class="c d">                     ( <del>1000000000B AND</del> KVV)=&gt;PRINT <del>'C'</del> ELSE PRINT <del>' '</del>;</td><td class="n a">53</td><td class="c a">   (KVV <ins>AND (1 LS 53</ins>)<ins>)=0</ins> =&gt; PRINT <ins>STG 0,' '</ins> ELSE PRINT <ins>STG 0,'N'</ins>;</td></tr>
+<tr><td class="n d">48</td><td class="c d">                     (  <del>400000000B AND</del> KVV)=&gt;PRINT <del>'R'</del> ELSE PRINT <del>' '</del>;</td><td class="n a">54</td><td class="c a">   PRINT <ins>STG 0,</ins>'  ',OCT 2,<ins>(</ins>37B AND <ins>(</ins>KVV RS <ins>24))</ins>,STG 1,' ',OCT 2,<ins>(</ins>37B AND <ins>(</ins>KVV RS <ins>16))</ins>,STG 1,' ',</td></tr>
+<tr><td class="n d">49</td><td class="c d">                     (  <del>200000000B AND</del> KVV)=&gt;PRINT <del>'N'</del> ELSE PRINT <del>' '</del>;</td><td class="n a">55</td><td class="c a">         OCT 3,<ins>(</ins>177B AND <ins>(</ins>KVV RS 8<ins>))</ins>,STG 1,' ',OCT 3,<ins>(</ins>377B AND KVV<ins>)</ins>,/;</td></tr>
+<tr><td class="n d">50</td><td class="c d">                  PRINT '  ',OCT 2,37B AND KVV RS <del>20</del>,STG 1,' ',</td><td class="n a">56</td><td class="c a">   GO TO <ins>TL1</ins>);</td></tr>
+<tr><td class="n d">51</td><td class="c d">                           OCT 2,37B AND KVV RS <del>15</del>,STG 1,' ',OCT 3,</td><td class="n a">57</td><td class="c a"> KT=3=&gt;(KV<ins>:=HR(</ins>KVV<ins>)</ins>; PRINT STG 1,' ';</td></tr>
+<tr><td class="n d">52</td><td class="c d">                           177B AND KVV RS 8,STG 1,' ',OCT 3,377B AND KVV,/;</td><td class="n a">58</td><td class="c a">        PNAME(KV);</td></tr>
+<tr><td class="n d">53</td><td class="c d">                           GO TO <del>L18</del>);</td><td class="n a">59</td><td class="c a">        (KVV <ins>AND NCLS</ins>)<ins>=0</ins> =&gt; <ins>GO TO NOKV;</ins></td></tr>
+<tr><td class="n d">54</td><td class="c d">               KT=3=&gt;(KV<del>_</del>KVV <del>AND 777777B</del>; PRINT STG 1,' ';</td><td class="n a">60</td><td class="c a">        KV<ins>:=</ins>FREE(CT+J); J<ins>:=</ins>J+1;</td></tr>
+<tr><td class="n d">55</td><td class="c d">                      PNAME(KV); (<del>1000000B AND</del> KVV)=&gt;<del>(</del></td><td class="n a">61</td><td class="c a">        PRINT OCT <ins>22</ins>,KV;</td></tr>
+<tr><td class="n d">56</td><td class="c d">                                    KV<del>_</del>FREE(CT+J); J<del>_</del>J+1;</td><td class="n a">62</td><td class="c a">   <ins>NOKV:</ins> PRINT /; GO TO <ins>TL1</ins>);</td></tr>
+<tr><td class="n d">57</td><td class="c d">                                    PRINT OCT <del>13</del>,KV<del>)</del>;</td><td class="n a">63</td><td class="c a"> PRINT STG 2,' ',OCT 5,<ins>HR(</ins>KVV<ins>)</ins>,/; GO TO <ins>TL1</ins>;</td></tr>
+<tr><td class="n d">58</td><td class="c d">                      PRINT /; GO TO <del>L18</del>);</td><td class="n a">64</td><td class="c a"><ins>TREEX:</ins> PRINT STG 0,'CODE TREE BIT MATRIX:',/,/;</td></tr>
+<tr><td class="n d">59</td><td class="c d">               PRINT STG 2,' ',OCT 5,KVV <del>AND 777777B</del>,/; GO TO <del>L18)</del>;</td><td class="n a">65</td><td class="c a"> <ins>MXC:=</ins>0;                                                <ins># THE COLUMNS THE ORIGINAL'S MATRIX WOULD HAVE: 5 WORDS OF</ins> 36 <ins>BITS TO BEGIN WITH, MORE WHEN A BIT BEYOND THEM IS SET #</ins></td></tr>
+<tr><td class="n d">60</td><td class="c d"> PRINT STG 0,'CODE TREE BIT MATRIX:',/,/;</td><td class="n a">66</td><td class="c a"> <ins>((BIT(SBITM,I,K) NE 0 =&gt; (K&gt;MXC =&gt; MXC:=K)) FOR K IN 0,</ins>1<ins>,(64*(</ins>SBITM[2]<ins>+1))-1) FOR I IN 0</ins>,<ins>1</ins>,<ins>NODEN</ins>;</td></tr>
+<tr><td class="n d">61</td><td class="c d"> <del>J_</del>0;</td><td class="n a">67</td><td class="c a"> <ins>COLS:=</ins>(<ins>MXC/36)+1;</ins></td></tr>
+<tr><td class="n d">62</td><td class="c d"> <del>N_</del>36<del>*</del>1<del>+</del>SBITM[2]<del>;</del></td><td class="n a">68</td><td class="c a"> <ins>COLS&lt;5=&gt;COLS:=5;</ins></td></tr>
+<tr><td class="n d">63</td><td class="c d"> <del>(PRINT STG 5</del>,<del>' '</del>,<del>IGR 6</del>;</td><td class="n a">69</td><td class="c a"> <ins>N:=36*COLS;</ins></td></tr>
+<tr><td class="n d">64</td><td class="c d">  (T<del>_</del>J+74<del>)</del>&gt;N=&gt;T<del>_</del>N;</td><td class="n a">70</td><td class="c a"> <ins>J:=0;</ins></td></tr>
+<tr><td class="n d">65</td><td class="c d">  (PRINT K) FOR K IN J+4,5,T;</td><td class="n a">71</td><td class="c a"><ins>MX:</ins> T<ins>:=</ins>J+74<ins>; T</ins>&gt;N=&gt;T<ins>:=</ins>N;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a"> <ins>PRINT STG 5,' ';                                     # (THE TAPE'S IGR 6 HAS NO VALUE AND PRINTS NOTHING) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a"> (PRINT <ins>IGR 6,</ins>K) FOR K IN J+4,5,T;</td></tr>
+<tr><td class="n q">66</td><td class="c q">  PRINT /;</td><td class="n q">74</td><td class="c q"> PRINT /;</td></tr>
+<tr><td class="n q">67</td><td class="c q">  (PRINT IGR 3,I,STG 2,' ',IGR 1;</td><td class="n q">75</td><td class="c q"> (PRINT IGR 3,I,STG 2,' ',IGR 1;</td></tr>
+<tr><td class="n d">68</td><td class="c d">   (K//5=0=&gt;PRINT STG 1,' ',IGR 1;</td><td class="n a">76</td><td class="c a">  (<ins>(</ins>K//5<ins>)</ins>=0=&gt;PRINT STG 1,' ',IGR 1;</td></tr>
+<tr><td class="n d">69</td><td class="c d">    PRINT 1 <del>AND</del>(BIT(SBITM,I,K) NE 0)) FOR K IN J,1,T;</td><td class="n a">77</td><td class="c a">   PRINT <ins>(K&lt;(64*(SBITM[2]+</ins>1<ins>)) =&gt;</ins> (BIT(SBITM,I,K) NE 0 <ins>=&gt; 1 ELSE 0</ins>) <ins>ELSE 0</ins>)<ins>)</ins> FOR K IN J,1,T;     <ins># (THE TAPE'S LOOP ENDS AT N ITSELF, ONE COLUMN PAST THE MATRIX, AND PRINTS WHAT LIES AFTER IT IN FREE STORAGE: 0 HERE) #</ins></td></tr>
+<tr><td class="n d">70</td><td class="c d">   PRINT /) FOR I <del>TO</del> NODEN;</td><td class="n a">78</td><td class="c a">  PRINT /) FOR I <ins>IN 0,1,</ins>NODEN;</td></tr>
+<tr><td class="n d">71</td><td class="c d">  PRINT /; J<del>_</del>J+75<del>) UNTIL</del> T<del>=</del>N;</td><td class="n a">79</td><td class="c a"> PRINT /;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"> J<ins>:=</ins>J+75<ins>;</ins> T <ins>NE</ins> N<ins>=&gt;GO TO MX</ins>;</td></tr>
+<tr><td class="n q">72</td><td class="c q"> 0);</td><td class="n q">81</td><td class="c q"> 0);</td></tr>
+<tr><td class="n d">75</td><td class="c d">SUBR SEMPR1(<del>SEMS,PROSEM,NSEMS,K</del>) IS (</td><td class="n a">83</td><td class="c a"><ins># PRINT THE SEMANTICS ARRAY: EACH PRODUCTION'S HEADER WITH ITS PLIES, SNODE NUMBER AND THE LIST OF TERMINAL NODES IT MATCHES, THEN</ins></td></tr>
+<tr><td class="n d">76</td><td class="c d"> PRINT /,STG 0,'*** SEMANTICS ***',/;  NN<del>_</del>0;</td><td class="n a">84</td><td class="c a">  <ins>THE WORDS OF SEMS IN OCTAL, FIVE TO A LINE. #</ins></td></tr>
+<tr><td class="n d">77</td><td class="c d"> <del>(</del>J<del>_</del>FREE(SEMS+K);</td><td class="n a">85</td><td class="c a">SUBR SEMPR1(<ins>NIL</ins>) IS (</td></tr>
+<tr><td class="n d">78</td><td class="c d">  (J RS <del>30</del>)=0=&gt;(NN=&gt;PRINT /; NN<del>_</del>0; PRINT STG 1,'[',OCT 4,K,STG 1,']  ';</td><td class="n a">86</td><td class="c a"> <ins>NN,K,J,L,LLN,K1,N ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">79</td><td class="c d">                (L<del>_</del>J <del>AND 777777B</del>)=&gt;(</td><td class="n a">87</td><td class="c a"> PRINT /,STG 0,'*** SEMANTICS ***',/;</td></tr>
+<tr><td class="n d">80</td><td class="c d">                      PRINT STG 0,' PLIES:',OCT 0,FREE(PROSEM+L);</td><td class="n a">88</td><td class="c a"> NN<ins>:=</ins>0; <ins>K:=1;</ins></td></tr>
+<tr><td class="n d">81</td><td class="c d">		     PRINT STG 0,',#',IGR 0,FREE(PROSEM+L+2);</td><td class="n a">89</td><td class="c a"><ins>SL1:</ins> J<ins>:=</ins>FREE(SEMS+K);</td></tr>
+<tr><td class="n d">82</td><td class="c d">                      L<del>_</del>FREE(PROSEM+L+1); LLN<del>_</del>0;</td><td class="n a">90</td><td class="c a"> (J RS <ins>44</ins>)=0=&gt;(NN <ins>NE 0</ins>=&gt;PRINT /; NN<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">83</td><td class="c d">                      <del>L32</del>: L=&gt;(<del>(</del>LLN<del>_</del>LLN+1<del>)</del>&gt;5=&gt;(LLN<del>_</del>1; PRINT /,STG 12,' ');</td><td class="n a">91</td><td class="c a">                    PRINT STG 1,'[',OCT 4,K,STG 1,']  ';</td></tr>
+<tr><td class="n d">84</td><td class="c d">                               K1<del>_</del>FREE(PROSEM+L); PRINT STG 0,' &lt;',OCT 0,</td><td class="n a">92</td><td class="c a">                    (L<ins>:=HR(</ins>J)<ins>) NE 0</ins>=&gt;(</td></tr>
+<tr><td class="n d">85</td><td class="c d">                                K1 <del>RS 18</del>,STG 0,'/'<del>,OCT 0</del>;</td><td class="n a">93</td><td class="c a">                       PRINT STG 0,' PLIES:',OCT 0,<ins>(</ins>FREE(PROSEM+L)<ins>)</ins>;</td></tr>
+<tr><td class="n d">86</td><td class="c d">                                <del>NN_</del>FREE(PROSEM+L+1);</td><td class="n a">94</td><td class="c a">                       PRINT STG 0,',#',IGR 0,FREE(<ins>(</ins>PROSEM+L<ins>)</ins>+2);</td></tr>
+<tr><td class="n d">87</td><td class="c d">                                (<del>NN RS 18</del>)=&gt;PRINT <del>NN RS 18</del>,STG 0,'_'<del>,OCT 0</del>;</td><td class="n a">95</td><td class="c a">                       L<ins>:=</ins>FREE(<ins>(</ins>PROSEM+L<ins>)</ins>+1); LLN<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">88</td><td class="c d">                                PRINT (<del>NN AND 777777B</del>),</td><td class="n a">96</td><td class="c a">                       <ins>SL3</ins>: L <ins>NE 0</ins>=&gt;(LLN<ins>:=</ins>LLN+1<ins>; LLN</ins>&gt;5=&gt;(LLN<ins>:=</ins>1; PRINT /,STG 12,' ');</td></tr>
+<tr><td class="n d">89</td><td class="c d">                                STG 0,'&gt;'; L<del>_</del>K1 <del>AND 777777B</del>; GO TO <del>L32</del>);</td><td class="n a">97</td><td class="c a">                                     K1<ins>:=</ins>FREE(PROSEM+L); PRINT STG 0,' &lt;',OCT 0,<ins>(HL(</ins>K1<ins>))</ins>,STG 0,'/';</td></tr>
+<tr><td class="n d">90</td><td class="c d">                      NN<del>_</del>5));</td><td class="n a">98</td><td class="c a">                                     <ins>N:=</ins>FREE(<ins>(</ins>PROSEM+L<ins>)</ins>+1);</td></tr>
+<tr><td class="n d">91</td><td class="c d">  <del>(</del>NN<del>_</del>NN+1<del>)</del>=6=&gt;(NN<del>_</del>1; PRINT /,STG 6,' ');</td><td class="n a">99</td><td class="c a">                                     (<ins>HL(N</ins>)<ins>) NE 0</ins>=&gt;PRINT <ins>OCT 0</ins>,<ins>(HL(N)),</ins>STG 0,'_';</td></tr>
+<tr><td class="n d">92</td><td class="c d">  PRINT STG 2,' ',OCT <del>12</del>,J<del>) FOR</del> K <del>IN</del> 1<del>,1,</del>NSEMS-1;</td><td class="n a">100</td><td class="c a">                                     PRINT <ins>OCT 0,HR</ins>(<ins>N</ins>),STG 0,'&gt;';</td></tr>
+<tr><td class="n d">93</td><td class="c d"> PRINT /);</td><td class="n a">101</td><td class="c a">                                     L<ins>:=HR(</ins>K1<ins>)</ins>; GO TO <ins>SL3</ins>);</td></tr>
+<tr><td class="n d">96</td><td class="c d">SUBR GPRIN1(<del>NPRODS</del>,<del>GA</del>,<del>NS</del>,<del>NG</del>,<del>NODES</del>,<del>BITM</del>,<del>NTGENT</del>,<del>NBITM</del>,<del>NBITN) IS (</del></td><td class="n a">102</td><td class="c a">                       NN<ins>:=</ins>5));</td></tr>
+<tr><td class="n d">97</td><td class="c d">PRINT STG 0,'HERE IS THE GRAPH FOLLOWING ENTRY OF PRODUCTION NR. ', IGR 0,</td><td class="n a">103</td><td class="c a"> NN<ins>:=</ins>NN+1<ins>; NN</ins>=6=&gt;(NN<ins>:=</ins>1; PRINT /,STG 6,' ');</td></tr>
+<tr><td class="n d">98</td><td class="c d"> NPRODS,/,STG 8,'INDEX','SCR','ALT','TYPE','NB','NAME','NT#','ENTRY',/;</td><td class="n a">104</td><td class="c a"> PRINT STG 2,' ',OCT <ins>17</ins>,J<ins>;</ins></td></tr>
+<tr><td class="n d">99</td><td class="c d">(W1<del>_</del>FREE(GA+I); <del>W2_FREE</del>(<del>GA+</del>I<del>+1</del>);</td><td class="n a">105</td><td class="c a"> K<ins>:=K+</ins>1<ins>; K LE (</ins>NSEMS-1<ins>)=&gt;GO TO SL1</ins>;</td></tr>
+<tr><td class="n d">100</td><td class="c d"> <del>PNAME</del>(<del>-1</del>);</td><td class="n a">106</td><td class="c a"> PRINT /<ins>;</ins></td></tr>
+<tr><td class="n d">101</td><td class="c d"> PRINT IGR 8,I,W1 <del>AND 777777B</del>, W1 <del>RS 18</del>, <del>W2 RS 33</del>,<del>7777B AND W2 RS 18;</del></td><td class="n a">107</td><td class="c a"> <ins>0</ins>);</td></tr>
+<tr><td class="n d">102</td><td class="c d"> (<del>W2 RS 33</del>)=3=&gt;(PRINT STG 2,'[',OCT 0,<del>W2 AND 777777B</del>,STG 1,']')</td><td class="n a">109</td><td class="c a"><ins># PRINT THE SYNTAX GRAPH FOLLOWING ENTRY OF A PRODUCTION, AND, WITH THE N SWITCH, THE CONNECTIVITY MATRICES.  NS IS THE SIZE OF</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a">  <ins>A NODE.  THE MATRIX NBITM IS PRINTED AS THE MASKS THE BIT MACRO GIVES IN THE ORIGINAL: BIT J OF A WORD IS 1 LS (J MOD 64) THERE. #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a">SUBR GPRIN1(<ins>NIL) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">112</td><td class="c a"> <ins>I</ins>,<ins>K</ins>,<ins>J</ins>,<ins>N</ins>,<ins>NNO</ins>,<ins>NS</ins>,<ins>W1</ins>,<ins>TY</ins>,<ins>ID ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"> <ins>NS:=2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">114</td><td class="c a"> PRINT STG 0,'HERE IS THE GRAPH FOLLOWING ENTRY OF PRODUCTION NR. ',IGR 0,NPRODS,/,</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">115</td><td class="c a">       STG 8,'INDEX','SCR','ALT','TYPE','NB','NAME','NT#','ENTRY',/;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">116</td><td class="c a"> (W1<ins>:=</ins>FREE(GA+I); <ins>TY:=GTYPE</ins>(I); <ins>ID:=GVAL</ins>(<ins>I</ins>);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">117</td><td class="c a">  PRINT IGR 8,I,<ins>HR(</ins>W1<ins>)</ins>,<ins>HL(</ins>W1<ins>)</ins>,<ins>TY</ins>,(<ins>GNB(I</ins>) <ins>AND 7777B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">118</td><td class="c a">  <ins>TY</ins>=3=&gt;(PRINT STG 2,'[',OCT 0,<ins>ID</ins>,STG 1,']')</td></tr>
+<tr><td class="n q">103</td><td class="c q">  ELSE(PRINT STG 4,' ';</td><td class="n q">119</td><td class="c q">   ELSE (PRINT STG 4,' ';</td></tr>
+<tr><td class="n d">104</td><td class="c d">       PNAME(<del>W2 AND 777777B</del>); PRINT IGR 5,DPROP('NODE',<del>W2 AND 777777B</del>),</td><td class="n a">120</td><td class="c a">         PNAME(<ins>ID</ins>); PRINT IGR 5,DPROP('NODE',<ins>ID</ins>),DPROP('ENTRY',<ins>ID</ins>));</td></tr>
+<tr><td class="n d">105</td><td class="c d">             DPROP('ENTRY',<del>W2 AND 777777B</del>)); PRINT /)</td><td class="n a">121</td><td class="c a">  PRINT /) FOR I IN 1,NS,NG;</td></tr>
+<tr><td class="n d">106</td><td class="c d">                  FOR I IN 1,NS,NG; PRINT /;</td><td class="n a">122</td><td class="c a"> PRINT /;</td></tr>
+<tr><td class="n d">107</td><td class="c d"> N<del>_</del>-1;</td><td class="n a">123</td><td class="c a"> N<ins>:=0</ins>-1;</td></tr>
+<tr><td class="n d">108</td><td class="c d"> L5: DSEQ(N); N GE 0 =&gt;(DNAME(N,0) <del>RS 29</del>=<del>'#' RS 29</del> =&gt; GO TO L5;</td><td class="n a">124</td><td class="c a">L5: DSEQ(N);</td></tr>
+<tr><td class="n d">109</td><td class="c d">                        J<del>_</del>DPROP('NODE',N); J=0=&gt;GO TO L5;</td><td class="n a">125</td><td class="c a"> N GE 0=&gt;(<ins>CHR0(</ins>DNAME(N,0)<ins>)</ins>=<ins>43B</ins>=&gt;GO TO L5;</td></tr>
+<tr><td class="n d">110</td><td class="c d">                        PRINT STG 0,'TERMINAL '; PNAME(<del>-1); PNAME(</del>N);</td><td class="n a">126</td><td class="c a">          J<ins>:=</ins>DPROP('NODE',N); J=0=&gt;GO TO L5;</td></tr>
+<tr><td class="n d">111</td><td class="c d">                        L4: J<del>_</del>FREE(<del>NODES</del>+J); PRINT IGR 4,J <del>AND 777777B</del>;</td><td class="n a">127</td><td class="c a">          PRINT STG 0,'TERMINAL '; PNAME(N);</td></tr>
+<tr><td class="n d">112</td><td class="c d">                        J<del>_</del>J <del>RS 18</del>; J=&gt;GO TO L4; PRINT /; GO TO L5)<del>;</del></td><td class="n a">128</td><td class="c a"> L4:      J<ins>:=</ins>FREE(<ins>GRNODES</ins>+J); PRINT IGR 4,<ins>HR(</ins>J<ins>)</ins>;</td></tr>
+<tr><td class="n d">113</td><td class="c d"> <del>FINAM IS COMMON</del>; (FINAM[5] AND 20000B)=0 =&gt; GO TO L6;</td><td class="n a">129</td><td class="c a">          J<ins>:=HL(</ins>J<ins>)</ins>; J <ins>NE 0</ins>=&gt;GO TO L4;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">130</td><td class="c a">          PRINT /; GO TO L5);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">131</td><td class="c a"> (FINAM[5] AND 20000B)=0=&gt;GO TO L6;</td></tr>
+<tr><td class="n q">114</td><td class="c q"> PRINT STG 0,'CONNECTIVITY MATRICES BITM AND NBITM.',/,/;</td><td class="n q">132</td><td class="c q"> PRINT STG 0,'CONNECTIVITY MATRICES BITM AND NBITM.',/,/;</td></tr>
+<tr><td class="n d">115</td><td class="c d"> NNO<del>_</del>(2+NG/NS)/2;</td><td class="n a">133</td><td class="c a"> NNO<ins>:=</ins>(<ins>(</ins>2+<ins>(</ins>NG/NS)<ins>)</ins>/2<ins>)</ins>;</td></tr>
+<tr><td class="n d">116</td><td class="c d"> ((PRINT STG 0,'NODE#',IGR 4,I+I-1,STG 2,' ',IGR 1;</td><td class="n a">134</td><td class="c a"> ((PRINT STG 0,'NODE#',IGR 4,<ins>(</ins>I+I<ins>)</ins>-1,STG 2,' ',IGR 1;</td></tr>
+<tr><td class="n d">117</td><td class="c d">   (PRINT (BIT(<del>BITM</del>,I,J)=&gt;1 ELSE 0);</td><td class="n a">135</td><td class="c a">   (PRINT (BIT(<ins>GRBITM</ins>,I,J) <ins>NE 0</ins> =&gt; 1 ELSE 0);</td></tr>
+<tr><td class="n d">118</td><td class="c d">    (5*J/5)=J=&gt;PRINT STG 1,' ',IGR 1) FOR J IN 1,1,<del>NTGENT</del>-1;</td><td class="n a">136</td><td class="c a">    (<ins>(</ins>5*<ins>(</ins>J/5)<ins>)</ins>=J=&gt;PRINT STG 1,' ',IGR 1)<ins>)</ins> FOR J IN 1,1,<ins>GRNTGENT</ins>-1;</td></tr>
+<tr><td class="n q">119</td><td class="c q">   PRINT STG 5,' ',IGR 1) FOR I IN K,NNO,K+NNO;</td><td class="n q">137</td><td class="c q">   PRINT STG 5,' ',IGR 1) FOR I IN K,NNO,K+NNO;</td></tr>
+<tr><td class="n q">120</td><td class="c q">  PRINT /) FOR K IN 1,1,NNO;</td><td class="n q">138</td><td class="c q">  PRINT /) FOR K IN 1,1,NNO;</td></tr>
+<tr><td class="n q">121</td><td class="c q"> PRINT /;</td><td class="n q">139</td><td class="c q"> PRINT /;</td></tr>
+<tr><td class="n d">122</td><td class="c d"> NNO<del>_NBITN</del>/2;</td><td class="n a">140</td><td class="c a"> NNO<ins>:=(GRNBITN</ins>/2<ins>)</ins>;</td></tr>
+<tr><td class="n q">123</td><td class="c q"> ((PRINT STG 0,'NBIT#',IGR 4,I,STG 2,' ',IGR 1;</td><td class="n q">141</td><td class="c q"> ((PRINT STG 0,'NBIT#',IGR 4,I,STG 2,' ',IGR 1;</td></tr>
+<tr><td class="n d">124</td><td class="c d">   (PRINT BIT(<del>NBITM</del>,I,J);</td><td class="n a">142</td><td class="c a">   (PRINT <ins>(</ins>BIT(<ins>GRNBITM</ins>,I,J) <ins>NE 0 =&gt; (1 LS (J-(64*(J/64)))) ELSE 0)</ins>;</td></tr>
+<tr><td class="n d">125</td><td class="c d">    (5*J/5)=J=&gt;PRINT STG 1,' ',IGR 1) FOR J IN 1,1,<del>NTGENT</del>-1;</td><td class="n a">143</td><td class="c a">    (<ins>(</ins>5*<ins>(</ins>J/5)<ins>)</ins>=J=&gt;PRINT STG 1,' ',IGR 1)<ins>)</ins> FOR J IN 1,1,<ins>GRNTGENT</ins>-1;</td></tr>
+<tr><td class="n q">126</td><td class="c q">   PRINT STG 5,' ',IGR 1) FOR I IN K,NNO,K+NNO;</td><td class="n q">144</td><td class="c q">   PRINT STG 5,' ',IGR 1) FOR I IN K,NNO,K+NNO;</td></tr>
+<tr><td class="n q">127</td><td class="c q">  PRINT /) FOR K IN 1,1,NNO;</td><td class="n q">145</td><td class="c q">  PRINT /) FOR K IN 1,1,NNO;</td></tr>
+<tr><td class="n q">128</td><td class="c q"> L6: PRINT /;</td><td class="n q">146</td><td class="c q">L6: PRINT /;</td></tr>
+<tr><td class="n q">129</td><td class="c q"> NPRODS);</td><td class="n q">147</td><td class="c q"> NPRODS);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">149</td><td class="c a"><ins># PRINT THE STACK ENTRY AT OFFSET N OF THE STACK AT S #</ins></td></tr>
+<tr><td class="n q">132</td><td class="c q">SUBR PSTAC1(S,N) IS (</td><td class="n q">150</td><td class="c q">SUBR PSTAC1(S,N) IS (</td></tr>
+<tr><td class="n d">133</td><td class="c d"> SS<del>_</del>FREE(S+N);</td><td class="n a">151</td><td class="c a"> SS<ins>,T ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">134</td><td class="c d"> PRINT STG 0,'STACK NODE ',IGR 0,N,STG 0,', TYPE ',OCT 2,77B AND SS;</td><td class="n a">152</td><td class="c a"> <ins>SS:=</ins>FREE(S+N);</td></tr>
+<tr><td class="n d">135</td><td class="c d"> (77B AND SS)=0=&gt;<del>(</del>PRINT STG 0,' [',OCT 0,SS <del>RS 18</del>,STG 0,']'<del>; GO TO PSEX);</del></td><td class="n a">153</td><td class="c a"> PRINT STG 0,'STACK NODE ',IGR 0,N,STG 0,', TYPE ',OCT 2,<ins>(</ins>77B AND SS<ins>)</ins>;</td></tr>
+<tr><td class="n d">136</td><td class="c d"> (T<del>_</del>SS <del>RS 18</del>)=&gt;(PRINT STG 0,', NAME '; PNAME(T));</td><td class="n a">154</td><td class="c a"> (77B AND SS)=0=&gt;PRINT STG 0,' [',OCT 0,<ins>(HL(</ins>SS<ins>))</ins>,STG 0,']'</td></tr>
+<tr><td class="n d">137</td><td class="c d"> (SS AND 100B)=&gt;PRINT STG 0,', IGR';</td><td class="n a">155</td><td class="c a">  <ins>ELSE</ins> (<ins>(</ins>T<ins>:=HL(</ins>SS)<ins>) NE 0</ins>=&gt;(PRINT STG 0,', NAME '; PNAME(T));</td></tr>
+<tr><td class="n d">138</td><td class="c d"> (SS AND 200B)=&gt;PRINT STG 0,', REAL';</td><td class="n a">156</td><td class="c a">        (SS AND 100B) <ins>NE 0</ins>=&gt;PRINT STG 0,', IGR';</td></tr>
+<tr><td class="n d">139</td><td class="c d"> <del>PSEX:</del> (T<del>_</del>FREE(S+N+1))=&gt;<del>(</del>PRINT STG 0,', VALUE ',OCT <del>12</del>,T<del>)</del>;</td><td class="n a">157</td><td class="c a">        (SS AND 200B) <ins>NE 0</ins>=&gt;PRINT STG 0,', REAL'<ins>)</ins>;</td></tr>
+<tr><td class="n d">140</td><td class="c d"> PRINT /);</td><td class="n a">158</td><td class="c a"> (T<ins>:=</ins>FREE(<ins>(</ins>S+N<ins>)</ins>+1)) <ins>NE 0</ins>=&gt;PRINT STG 0,', VALUE ',OCT <ins>22</ins>,T;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">159</td><td class="c a"> PRINT /<ins>;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">160</td><td class="c a"> <ins>0</ins>);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">162</td><td class="c a"><ins># TRACE ONE STEP OF THE PARSER: THE CURRENT NODE, ITS TYPE AND VALUE, THE OUTPUT SO FAR, AND THE GOALS BEING PARSED.  (THE ORIGINAL</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">163</td><td class="c a">  <ins>LISTS THE OUTPUT BY INDEXING FREE STORAGE WITH THE ENTRY IT HAS JUST LOADED; THE ENTRY ITSELF IS MEANT, AND IS WHAT IS PRINTED.) #</ins></td></tr>
+<tr><td class="n q">142</td><td class="c q">SUBR PARTR1(CNODE,CTYP,CVAL,P,IP,O,CW) IS (</td><td class="n q">164</td><td class="c q">SUBR PARTR1(CNODE,CTYP,CVAL,P,IP,O,CW) IS (</td></tr>
+<tr><td class="n d">143</td><td class="c d"> PRINT STG 0, '   CURRENT NODE #',</td><td class="n a">165</td><td class="c a"> <ins>J,K,N ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">144</td><td class="c d">  IGR 0,CNODE,STG 0,', TYPE ',IGR 0,CTYP,STG 0,', ';</td><td class="n a">166</td><td class="c a"> PRINT STG 0,'   CURRENT NODE #',IGR 0,CNODE,STG 0,', TYPE ',IGR 0,CTYP,STG 0,', ';</td></tr>
+<tr><td class="n d">145</td><td class="c d"> CTYP=3=&gt;(PRINT '[',OCT 0,CVAL,STG 1,']')</td><td class="n a">167</td><td class="c a"> CTYP=3=&gt;(PRINT <ins>STG 0,</ins>'[',OCT 0,CVAL,STG 1,']') ELSE PNAME(CVAL);</td></tr>
+<tr><td class="n d">146</td><td class="c d">     ELSE <del>(</del>PNAME(CVAL)<del>)</del>;</td><td class="n a">168</td><td class="c a"> J<ins>:=HL(</ins>FREE(P+IP))<ins>;</ins></td></tr>
+<tr><td class="n d">147</td><td class="c d"> <del>(</del>J<del>_</del>FREE(P+IP) <del>RS 18</del>) =&gt; (</td><td class="n a">169</td><td class="c a"> <ins>J NE 0</ins>=&gt;(PRINT STG 0,', OUTPUT: ';</td></tr>
+<tr><td class="n d">148</td><td class="c d">                PRINT STG 0,', OUTPUT: ';</td><td class="n a">170</td><td class="c a">  P5: J <ins>NE 0</ins>=&gt;(J<ins>:=</ins>FREE(O+J); K<ins>:=HLS</ins>(J)<ins>;</ins></td></tr>
+<tr><td class="n d">149</td><td class="c d">                P5: J=&gt;(J<del>_</del>FREE(O+J);</td><td class="n a">171</td><td class="c a">               <ins>K</ins>&gt;0=&gt;PRINT OCT 0,K ELSE PNAME(<ins>0</ins>-K);</td></tr>
+<tr><td class="n d">150</td><td class="c d">			<del>(</del>K<del>_FREE</del>(J) <del>ARS 18)</del>&gt;0=&gt; PRINT OCT 0,K ELSE PNAME(-K);</td><td class="n a">172</td><td class="c a">               PRINT STG 0,' '; J<ins>:=HR(</ins>J<ins>)</ins>; GO TO P5));</td></tr>
+<tr><td class="n d">151</td><td class="c d">			PRINT STG 0,' '; J<del>_</del>J<del>&lt;R&gt;</del>; GO TO P5));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">152</td><td class="c q"> PRINT /;</td><td class="n q">173</td><td class="c q"> PRINT /;</td></tr>
+<tr><td class="n d">153</td><td class="c d"> CW&gt;(IP+3) =&gt;((N<del>_</del>FREE(P+K) <del>AND 777777B</del>; J<del>_</del>FREE(P+K) <del>RS 18</del>;</td><td class="n a">174</td><td class="c a"> CW&gt;(IP+3)=&gt;((N<ins>:=HR(</ins>FREE(P+K)<ins>)</ins>; J<ins>:=HL(</ins>FREE(P+K)<ins>)</ins>;</td></tr>
+<tr><td class="n d">154</td><td class="c d">               PRINT STG 0,'    '; K=CW=&gt;PRINT 'CURRENT ' ELSE PRINT '        ';</td><td class="n a">175</td><td class="c a">              PRINT STG 0,'    ';</td></tr>
+<tr><td class="n d">155</td><td class="c d">               PRINT 'GOAL: '; PNAME(GVAL(J));  PRINT STG 0,'=NT NR. '</td><td class="n a">176</td><td class="c a">              K=CW=&gt;PRINT <ins>STG 0,</ins>'CURRENT ' ELSE PRINT <ins>STG 0,</ins>'        ';</td></tr>
+<tr><td class="n d">156</td><td class="c d">                  , IGR 0, N,STG 0,' AT NODE #',IGR 0,J<del>;</del></td><td class="n a">177</td><td class="c a">              PRINT <ins>STG 0,</ins>'GOAL: '; PNAME(GVAL(J));</td></tr>
+<tr><td class="n d">157</td><td class="c d">               <del>PRINT</del> /) FOR K IN CW,-1,IP+4);</td><td class="n a">178</td><td class="c a">              PRINT STG 0,'=NT NR. ',IGR 0,N,STG 0,' AT NODE #',IGR 0,J<ins>,</ins>/) FOR K IN CW,<ins>0</ins>-1,IP+4);</td></tr>
+<tr><td class="n q">158</td><td class="c q"> 0);</td><td class="n q">179</td><td class="c q"> 0) ;</td></tr>
+<tr><td class="n d">160</td><td class="c d">SUBR PCODE1(S,NS) IS (<del>#PRINTS CODE FOR OBJECT S, UP TO NS LINES#</del></td><td class="n a">182</td><td class="c a">SUBR PCODE1(S,NS) IS (</td></tr>
+<tr><td class="n d">161</td><td class="c d"> <del>CO IS COMMON</del>;</td><td class="n a">183</td><td class="c a"> <ins>R,H,OP,KD,N,K ARE LOCAL</ins>;</td></tr>
+<tr><td class="n d">162</td><td class="c d"> (N<del>_</del>NS)=0=&gt;N<del>_</del>15;</td><td class="n a">184</td><td class="c a"> (N<ins>:=</ins>NS)=0=&gt;N<ins>:=</ins>15;</td></tr>
+<tr><td class="n d">163</td><td class="c d"> <del>J_</del>FREE(S+2)<del>;</del></td><td class="n a">185</td><td class="c a"> <ins>R:=</ins>FREE(S+2) RS <ins>32</ins>; K<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">164</td><td class="c d"> <del>J_J</del> RS <del>18</del>; K<del>_</del>0;</td><td class="n a">186</td><td class="c a"> L3: <ins>R=0</ins>=&gt;<ins>RETURN 0;</ins></td></tr>
+<tr><td class="n d">165</td><td class="c d"> L3: <del>J</del>=&gt;<del>(L_</del>FREE(CO+<del>J</del>); <del>LTY_L</del> RS <del>34</del>;</td><td class="n a">187</td><td class="c a"> <ins>K GE N=&gt;RETURN 0;</ins></td></tr>
+<tr><td class="n d">166</td><td class="c d">         <del>LTY=2=&gt;(J_L</del> AND <del>777777B</del>; <del>GO TO L3);</del></td><td class="n a">188</td><td class="c a"> <ins>H:=</ins>FREE(CO+<ins>R</ins>); <ins>OP:=(H</ins> RS <ins>8) AND 377B</ins>; <ins>KD:=H</ins> AND <ins>377B</ins>;</td></tr>
+<tr><td class="n d">167</td><td class="c d">         PRINT <del>STG 5</del>,<del>' '</del>,<del>OCT 4</del>,<del>J,</del>STG 0;</td><td class="n a">189</td><td class="c a"> PRINT <ins>IGR 6</ins>,<ins>R</ins>,<ins>STG 0</ins>,<ins>'  ';</ins></td></tr>
+<tr><td class="n d">168</td><td class="c d">         <del>LL_</del>FREE(CO+<del>J</del>+<del>1</del>);</td><td class="n a">190</td><td class="c a"> <ins>KD=2=&gt;(PRINT</ins> STG 0<ins>,'TAG    '</ins>; <ins>PNAME(</ins>FREE(CO+<ins>R</ins>+<ins>4</ins>)<ins>)</ins>; PRINT <ins>/</ins>; GO TO <ins>L8</ins>);</td></tr>
+<tr><td class="n d">169</td><td class="c d">         <del>LTY=3=&gt;(</del>PRINT <del>OCT 18,LL</del>; GO TO <del>L7</del>);</td><td class="n a">191</td><td class="c a"> <ins>KD</ins>=<ins>3</ins>=&gt;(PRINT <ins>STG</ins> 0<ins>,'WORD   ',IGR 0,FREE</ins>(<ins>CO+R+3</ins>),<ins>/</ins>; GO TO L8);</td></tr>
+<tr><td class="n d">170</td><td class="c d">         <del>LTY</del>=<del>1</del>=&gt;(<del>LTY_177B AND L RS 27;</del> PRINT <del>'  ';</del></td><td class="n a">192</td><td class="c a"> <ins>OP&lt;72 =&gt; (CHR0(OPN[OP]) NE CODE('?') =&gt; (</ins>PRINT STG <ins>6</ins>,<ins>OPN</ins>[<ins>OP</ins>]; GO TO <ins>L9</ins>)<ins>)</ins>;</td></tr>
+<tr><td class="n d">171</td><td class="c d">                 <del>LTY=</del>0<del>=&gt;</del>(<del>PNAME(L AND 777777B</del>)<del>; PRINT STG 0</del>,<del>':'</del>; GO TO L8);</td><td class="n a">193</td><td class="c a"> PRINT <ins>IGR</ins> 0,<ins>OP</ins>;</td></tr>
+<tr><td class="n d">172</td><td class="c d">                 PRINT STG <del>5</del>,<del>SFT</del>[<del>LTY+LTY-2</del>]<del>,SFT[LTY+LTY-1],</del></td><td class="n a">194</td><td class="c a"> <ins>OP&lt;10</ins>=&gt;PRINT <ins>STG 5</ins>,<ins>'      ' ELSE</ins> (<ins>OP&lt;100</ins>=&gt;PRINT <ins>STG 4</ins>,<ins>'      ' ELSE PRINT</ins> STG <ins>3</ins>,<ins>'      '</ins>);</td></tr>
+<tr><td class="n d">173</td><td class="c d">                   <del>STG 0,' ',OCT 0,(L AND 777777B)</del>; GO TO <del>L8</del>);</td><td class="n a">195</td><td class="c a"> <ins>L9:</ins> PRINT <ins>STG 0</ins>,<ins>' R',IGR</ins> 0,<ins>FREE</ins>(<ins>CO+R+1</ins>)<ins>,</ins>STG 0<ins>,'  V ',</ins>OCT 0,<ins>FREE(CO+R+2)</ins>,STG 0,<ins>',',</ins></td></tr>
+<tr><td class="n d">174</td><td class="c d">         PRINT <del>'     ';</del></td><td class="n a">196</td><td class="c a">          OCT 0,<ins>FREE(CO+R+3)</ins>,STG 0,<ins>'  X ',IGR 0,FREE(CO</ins>+<ins>R+4),/</ins>;</td></tr>
+<tr><td class="n d">175</td><td class="c d">         <del>TM_777B AND L RS 24;</del></td><td class="n a">197</td><td class="c a"> L8: <ins>R:=H RS 32</ins>; K<ins>:=</ins>K+1<ins>;</ins> GO TO L3)</td></tr>
+<tr><td class="n d">176</td><td class="c d">         <del>PRINT OCT 3,TM,STG</del> 0,<del>' '</del>;</td><td class="n a">198</td><td class="c a">%%</td></tr>
+<tr><td class="n d">177</td><td class="c d">         <del>OPCODE(TM,P,T)</del>=&gt;PRINT <del>P</del>,<del>T;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">178</td><td class="c d">         (<del>M_3777B AND L RS 12)</del>=&gt;PRINT <del>'R'</del>,<del>OCT 0,M,</del>STG <del>0</del>,<del>',';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">179</td><td class="c d">         <del>(L RS 33</del>)<del>=&gt;PRINT '@'</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">180</td><td class="c d">         <del>(M_LL AND 777777B)=&gt;((L AND 4000B)=&gt;(</del>PRINT <del>'R'</del>,<del>OCT</del> 0,<del>M)ELSE PNAME</del>(<del>M</del>)<del>);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">181</td><td class="c d">         <del>PRINT</del> STG 0<del>;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">182</td><td class="c d">         <del>(LL_LL RS 18)=&gt;(M=&gt;PRINT '+'; PRINT</del> OCT 0,<del>LL</del>,STG 0<del>);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">183</td><td class="c d">         <del>(M_L AND 3777B)=&gt;PRINT '(R'</del>,OCT 0,<del>M</del>,STG 0,<del>')';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">184</td><td class="c d">         <del>L7: J_J</del>+<del>1</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">185</td><td class="c d">         L8: <del>PRINT /</del>; <del>J_J+1; (</del>K<del>_</del>K+1<del>)&lt;NS=&gt;</del>GO TO L3)<del>;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">186</td><td class="c d"> <del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">188</td><td class="c d"><del>SFT: DATA('SAVE REGS RSTR REGS NO DELETE END NODEL REFERREG ',</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">189</td><td class="c d">          <del>'RESRV REG OPTMZ REG RLEAS REG SCRAT REG PRTCTREG ') %</del>%%</td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

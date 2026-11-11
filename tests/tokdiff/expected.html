@@ -1,24 +1,30 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>new.imc: the tape and the port, token by token</title><style>
-:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--del:#ffc1c0;--delfg:#82071e;--ins:#aceebb;--insfg:#0f5323}
-@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--del:#6b1a1f;--delfg:#ffdcd7;--ins:#1a4727;--insfg:#d2fedb}}
-body{margin:0 auto;max-width:1100px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
 h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
-pre{background:var(--pre);border:1px solid var(--bd);border-radius:6px;padding:10px 14px;margin:6px 0;overflow-x:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}pre:empty{display:none}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
 del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
 ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
 details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
-table{border-collapse:collapse;width:100%}th,td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
-th:first-child,td:first-child{text-align:left}th{font-size:13px;color:var(--mut);font-weight:600}
-@media (max-width:600px){body{padding:10px}th,td{padding:4px 6px}}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>new.imc</h1>
-<p class="mut">old (the tape): tests/tokdiff/old.imc<br>new (the port): tests/tokdiff/new.imc</p>
+<p class="mut">left, old (the tape): tests/tokdiff/old.imc<br>right, new (the port): tests/tokdiff/new.imc</p>
 <p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 4 tokens deleted, 8 inserted.</p>
-<pre>#A COMMENT WITH AN APOSTROPHE, DONT STOP -- IT'S ONLY TEXT#
-SUBR F(X) IS (
-    Y<del>_</del><ins>:=</ins>X+<del>1</del><ins>2</ins>; Z<del>_</del><ins>:=</ins>'A''B'; K<del>_</del><ins>:=</ins>!Q!<ins>;
-    MY_NAME:=Y</ins>;
-  Y);</pre>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">1</td><td class="c q">#A COMMENT WITH AN APOSTROPHE, DONT STOP -- IT'S ONLY TEXT#</td><td class="n q">1</td><td class="c q">#A COMMENT WITH AN APOSTROPHE, DONT STOP -- IT'S ONLY TEXT#</td></tr>
+<tr><td class="n q">2</td><td class="c q">SUBR F(X) IS (</td><td class="n q">2</td><td class="c q">SUBR F(X) IS (</td></tr>
+<tr><td class="n d">3</td><td class="c d">  Y<del>_</del>X+<del>1</del>; Z<del>_</del>'A''B'; K<del>_</del>!Q!;</td><td class="n a">3</td><td class="c a">    Y<ins>:=</ins>X+<ins>2</ins>; Z<ins>:=</ins>'A''B'; K<ins>:=</ins>!Q!<ins>;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a">    <ins>MY_NAME:=Y</ins>;</td></tr>
+<tr><td class="n q">4</td><td class="c q">  Y);</td><td class="n q">5</td><td class="c q">  Y);</td></tr>
+</table>
 </body></html>

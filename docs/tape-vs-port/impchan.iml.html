@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>impchan.iml: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>impchan.iml</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): lib/impchan.iml</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 2173 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>TWOSEG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"><ins>EXTERNAL PTR fopen(PTR, PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"><ins>EXTERNAL INT fclose(PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"><ins>EXTERNAL INT fflush(PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"><ins>EXTERNAL PTR fgets(PTR, INT, PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"><ins>EXTERNAL SIZE fread(PTR, SIZE, SIZE, PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"><ins>EXTERNAL SIZE fwrite(PTR, SIZE, SIZE, PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"><ins>EXTERNAL PTR malloc(SIZE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"><ins>EXTERNAL VOID free(PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"><ins>EXTERNAL PTR strdup(PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"><ins>EXTERNAL SIZE strlen(PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a"><ins>EXTERNAL INT strncmp(PTR, PTR, SIZE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"><ins>EXTERNAL INT remove(PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"><ins>EXTERNAL INT rename(PTR, PTR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"><ins>#THIS IS FILE IMPCHAN, THE CHANNEL INPUT AND OUTPUT OF TOPS-10 THAT THE ORIGINAL'S PROGRAMS CALL AS ROUTINES (INIT, LOOKUP, ENTER, INPUT, OUTPUT, CLOSE, RENAME, RELEAS), OVER THE C LIBRARY'S FILES.  THE ORIGINAL'S ARE THE MONITOR'S OWN CALLS: A CHANNEL IS</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"> <ins>A NUMBER, THE PROGRAM GIVES THE MONITOR A RING OF BUFFERS AND A HEADER (A RING POINTER, A BYTE POINTER AND A COUNT), THE MONITOR FILLS OR EMPTIES A BUFFER AT INPUT OR OUTPUT, AND THE PROGRAM READS OR WRITES THE BYTES ITSELF THROUGH THE POINTER, COUNTING.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>HERE A CHANNEL IS 0 TO 15 AND HAS ONE BUFFER OF 1024 BYTES OF THE LIBRARY'S, WHATEVER RING THE PROGRAM BUILT (THE ORIGINAL'S RING LINKS ARE 18 BIT ADDRESSES).  THE HEADER IS THREE WORDS: THE ADDRESS OF THE BUFFER, THE BYTE POINTER (THE ADDRESS OF THE BYTE BEFORE THE NEXT ONE, FOR A BYTE IS TAKEN WITH THE POINTER ADVANCED FIRST, &lt;+P&gt;, AS THE PDP-10'S ILDB AND IDPB DO), AND THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>COUNT, THE BYTES LEFT TO READ OR THE ROOM LEFT TO WRITE.  A PROGRAM READS WITH THE COUNT DECREMENTED BEFORE EACH BYTE, CALLING INPUT WHEN IT IS 0 OR LESS (AS THE LEXER OF THE ORIGINAL DOES), AND WRITES BYTES WITH THE POINTER ADVANCED AND THE COUNT</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>DECREMENTED, CALLING OUTPUT WHEN IT IS FULL.  NAMES ARE STRINGS (THE EXTENSION IS ADDED AFTER A DOT), AND THE DEVICES ARE DSK (THE FILE SYSTEM) AND TTY (THE STANDARD FILES).  A ROUTINE RETURNS 0 FOR SUCCESS, AS THE ORIGINAL'S LOOKUP, ENTER AND INPUT ARE TRUE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"> <ins>FOR A FAILURE OR THE END OF THE FILE.  NOT PROVIDED: DUMP MODE (A COMMAND LIST), BINARY MODE, THE OTHER DEVICES, USETI AND USETO, AND THE STATUS BITS.  THE MODE IS KEPT AND NOT USED: A TEXT IS BYTES (UTF-8) IN EVERY MODE.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"><ins>CHF,CHM,CHO,CHI,CHD,CHB,CHT,CHN ARE 16 LONG;    # PER CHANNEL: THE FILE (0 IF NONE), THE MODE, THE OUTPUT AND THE INPUT HEADER, THE DIRECTION (1 INPUT, 2 OUTPUT), THE BUFFER, THE DEVICE (1 DSK, 2 TTY, 0 NO INIT), THE NAME #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"><ins>CHP IS 548 LONG;                                  # A FILE NAME: NAME.EXT, 4384 BYTES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"><ins># CHPATH(NM,EX): THE FILE NAME NAME.EXT IN CHP (NAME ALONE IF THE EXTENSION IS EMPTY) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"><ins>SUBR CHPATH(NM,EX) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"> <ins>CCALL strlen(LOC(EX))=0 =&gt; CCALL snprintf(LOC(CHP),4384,LOC('%s'),LOC(NM))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a">   <ins>ELSE CCALL snprintf(LOC(CHP),4384,LOC('%s.%s'),LOC(NM),LOC(EX));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"><ins># CHFREE(CH): THE FILE OF CHANNEL CH IS CLOSED (THE STANDARD FILES ARE NOT) AND ITS BUFFER AND NAME ARE FREED #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">33</td><td class="c a"><ins>SUBR CHFREE(CH) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"> <ins>CHF[CH] NE 0 =&gt; CHT[CH]=1 =&gt; CCALL fclose(CHF[CH]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"> <ins>CHF[CH]:=0; CHD[CH]:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a"> <ins>CHB[CH] NE 0 =&gt; (CCALL free(CHB[CH]); CHB[CH]:=0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"> <ins>CHN[CH] NE 0 =&gt; (CCALL free(CHN[CH]); CHN[CH]:=0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">38</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"><ins># CHHEAD(CH,K,V): WORD K OF THE HEADER OF THE DIRECTION THE CHANNEL IS OPEN FOR (0 THE BUFFER, 1 THE BYTE POINTER, 2 THE COUNT) IS V #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a"><ins>SUBR CHHEAD(CH,K,V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a"> <ins>H,KK ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">43</td><td class="c a"> <ins>CHD[CH]=1 =&gt; H:=CHI[CH] ELSE H:=CHO[CH];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a"> <ins>KK:=K;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a"> <ins>[H+(8*KK)]:=V;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">48</td><td class="c a"><ins># CHOPEN(CH,D,F): THE FILE F, OPENED IN THE DIRECTION D (1 INPUT, 2 OUTPUT) ON CHANNEL CH, WITH ITS BUFFER AND ITS HEADER MADE: THE BYTE POINTER BEFORE THE START, THE COUNT 0 FOR INPUT AND THE WHOLE BUFFER FOR OUTPUT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a"><ins>SUBR CHOPEN(CH,D,F) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a"> <ins>DD ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a"> <ins>DD:=D;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">52</td><td class="c a"> <ins>CHF[CH]:=F; CHD[CH]:=DD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"> <ins>CHB[CH]:=CCALL malloc(1024);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">54</td><td class="c a"> <ins>CHB[CH]=0 =&gt; (CHFREE(CH); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"> <ins>CHN[CH]:=CCALL strdup(LOC(CHP));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"> <ins>CHHEAD(CH,0,CHB[CH]); CHHEAD(CH,1,CHB[CH]-1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a"> <ins>DD=1 =&gt; CHHEAD(CH,2,0) ELSE CHHEAD(CH,2,1024);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">58</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">60</td><td class="c a"><ins># INIT(CH,MODE,DEV,OHDR,IHDR): THE CHANNEL CH FOR THE DEVICE DEV WITH THE HEADERS OHDR (OUTPUT) AND IHDR (INPUT); THE ORIGINAL PASSES '0' FOR THE ONE IT DOES NOT USE.  1 FOR A DEVICE THAT IS NOT HERE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">61</td><td class="c a"><ins>SUBR INIT(CH,MODE,DEV,OHDR,IHDR) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">62</td><td class="c a"> <ins>CHA ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">63</td><td class="c a"> <ins>CHA:=CH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a"> <ins>CHA&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">65</td><td class="c a"> <ins>CHA&gt;15 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"> <ins>CHF[CHA] NE 0 =&gt; CHFREE(CHA);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"> <ins>CHT[CHA]:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>CCALL strncmp(LOC(DEV),LOC('DSK'),3)=0 =&gt; CHT[CHA]:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">69</td><td class="c a"> <ins>CCALL strncmp(LOC(DEV),LOC('TTY'),3)=0 =&gt; CHT[CHA]:=2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">70</td><td class="c a"> <ins>CHT[CHA]=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a"> <ins>CHM[CHA]:=MODE; CHO[CHA]:=LOC(OHDR); CHI[CHA]:=LOC(IHDR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"><ins># LOOKUP(CH,NAME,EXT,X,Y): THE FILE NAME.EXT OPENED FOR INPUT ON CH; 1 IF IT IS NOT THERE (THE ORIGINAL'S X AND Y ARE ITS DATE, PROTECTION AND PROJECT-PROGRAMMER NUMBER: NOT USED) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"><ins>SUBR LOOKUP(CH,NM,EX,X,Y) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"> <ins>CHA,F ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a"> <ins>CHA:=CH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a"> <ins>CHA&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a"> <ins>CHA&gt;15 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"> <ins>CHT[CHA]=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"> <ins>CHF[CHA] NE 0 =&gt; CHFREE(CHA);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>CHT[CHA]=2 =&gt; (F:=IMPSTDIN(0); CCALL snprintf(LOC(CHP),4384,LOC('%s'),LOC('TTY'))) ELSE (CHPATH(NM,EX); F:=CCALL fopen(LOC(CHP),LOC('r')); F=0 =&gt; RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a"> <ins>CHOPEN(CHA,1,F));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a"><ins># ENTER(CH,NAME,EXT,X,Y): THE FILE NAME.EXT MADE FOR OUTPUT ON CH (AN OLD ONE OF THE NAME IS REPLACED); 1 IF IT CANNOT BE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"><ins>SUBR ENTER(CH,NM,EX,X,Y) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a"> <ins>CHA,F ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a"> <ins>CHA:=CH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">89</td><td class="c a"> <ins>CHA&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"> <ins>CHA&gt;15 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">91</td><td class="c a"> <ins>CHT[CHA]=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">92</td><td class="c a"> <ins>CHF[CHA] NE 0 =&gt; CHFREE(CHA);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">93</td><td class="c a"> <ins>CHT[CHA]=2 =&gt; (F:=IMPSTDOUT(0); CCALL snprintf(LOC(CHP),4384,LOC('%s'),LOC('TTY'))) ELSE (CHPATH(NM,EX); F:=CCALL fopen(LOC(CHP),LOC('w')); F=0 =&gt; RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"> <ins>CHOPEN(CHA,2,F));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">96</td><td class="c a"><ins># INPUT(CH,LIST): THE NEXT BUFFER OF THE FILE OF CH IS READ (A LINE FROM THE TERMINAL), THE BYTE POINTER BACK BEFORE THE START OF THE BUFFER AND THE COUNT THE BYTES READ; 1 AT THE END OF THE FILE OR IF THE CHANNEL IS NOT OPEN FOR INPUT (A LIST IS THE ORIGINAL'S DUMP MODE: NOT USED) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">97</td><td class="c a"><ins>SUBR INPUT(CH,LS) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">98</td><td class="c a"> <ins>CHA,N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"> <ins>CHA:=CH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"> <ins>CHA&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">101</td><td class="c a"> <ins>CHA&gt;15 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">102</td><td class="c a"> <ins>CHD[CHA] NE 1 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">103</td><td class="c a"> <ins>CHT[CHA]=2 =&gt; (CCALL fgets(CHB[CHA],1024,CHF[CHA])=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">104</td><td class="c a">                <ins>N:=CCALL strlen(CHB[CHA]))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">105</td><td class="c a">   <ins>ELSE N:=CCALL fread(CHB[CHA],1,1024,CHF[CHA]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">106</td><td class="c a"> <ins>CHHEAD(CHA,1,CHB[CHA]-1); CHHEAD(CHA,2,N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">107</td><td class="c a"> <ins>N=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">108</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a"><ins># OUTPUT(CH,LIST): THE BYTES THE PROGRAM HAS STORED IN THE BUFFER OF CH, FROM THE BUFFER TO THE BYTE POINTER, ARE WRITTEN, AND THE BUFFER IS EMPTY; 1 IF THE CHANNEL IS NOT OPEN FOR OUTPUT OR THE WRITE FAILED #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a"><ins>SUBR OUTPUT(CH,LS) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">112</td><td class="c a"> <ins>CHA,H,N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"> <ins>CHA:=CH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">114</td><td class="c a"> <ins>CHA&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">115</td><td class="c a"> <ins>CHA&gt;15 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">116</td><td class="c a"> <ins>CHD[CHA] NE 2 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">117</td><td class="c a"> <ins>H:=CHO[CHA]; N:=[H+1]-(CHB[CHA]-1);                  # (THE SECOND WORD OF THE HEADER: A CONSTANT OFFSET IN BRACKETS IS WORDS) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">118</td><td class="c a"> <ins>N&gt;0 =&gt; CCALL fwrite(CHB[CHA],1,N,CHF[CHA]) NE N =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">119</td><td class="c a"> <ins>CHT[CHA]=2 =&gt; CCALL fflush(CHF[CHA]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">120</td><td class="c a"> <ins>CHHEAD(CHA,1,CHB[CHA]-1); CHHEAD(CHA,2,1024);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">121</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">123</td><td class="c a"><ins># CLOSE(CH,BITS): WHAT THE PROGRAM STORED FOR OUTPUT IS WRITTEN AND THE FILE IS CLOSED, THE CHANNEL STAYS INITIALISED (THE ORIGINAL'S BITS ARE NOT USED) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a"><ins>SUBR CLOSE(CH,BITS) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">125</td><td class="c a"> <ins>CHA,R ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">126</td><td class="c a"> <ins>CHA:=CH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">127</td><td class="c a"> <ins>CHA&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">128</td><td class="c a"> <ins>CHA&gt;15 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">129</td><td class="c a"> <ins>R:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">130</td><td class="c a"> <ins>CHD[CHA]=2 =&gt; R:=OUTPUT(CHA,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">131</td><td class="c a"> <ins>CHFREE(CHA);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">132</td><td class="c a"> <ins>R);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">134</td><td class="c a"><ins># RELEAS(CH): THE CHANNEL IS RELEASED: THE FILE IS CLOSED WITHOUT WRITING WHAT THE PROGRAM STORED, AND THE CHANNEL IS TO BE INITIALISED AGAIN #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">135</td><td class="c a"><ins>SUBR RELEAS(CH) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">136</td><td class="c a"> <ins>CHA ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">137</td><td class="c a"> <ins>CHA:=CH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">138</td><td class="c a"> <ins>CHA&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">139</td><td class="c a"> <ins>CHA&gt;15 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">140</td><td class="c a"> <ins>CHFREE(CHA);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">141</td><td class="c a"> <ins>CHT[CHA]:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">142</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a"><ins># RENAME(CH,NAME,EXT,X,Y): THE FILE OF CH GETS THE NAME NAME.EXT; AN EMPTY NAME (THE ORIGINAL'S 0) DELETES IT; 1 IF IT CANNOT BE DONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">145</td><td class="c a"><ins>SUBR RENAME(CH,NM,EX,X,Y) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">146</td><td class="c a"> <ins>CHA ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">147</td><td class="c a"> <ins>CHA:=CH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">148</td><td class="c a"> <ins>CHA&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">149</td><td class="c a"> <ins>CHA&gt;15 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">150</td><td class="c a"> <ins>CHN[CHA]=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">151</td><td class="c a"> <ins>CCALL strlen(LOC(NM))=0 =&gt; RETURN (CCALL remove(CHN[CHA]) NE 0 =&gt; 1 ELSE 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">152</td><td class="c a"> <ins>CHPATH(NM,EX);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">153</td><td class="c a"> <ins>CCALL rename(CHN[CHA],LOC(CHP)) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">154</td><td class="c a"> <ins>CCALL free(CHN[CHA]); CHN[CHA]:=CCALL strdup(LOC(CHP));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">155</td><td class="c a"> <ins>0)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">156</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

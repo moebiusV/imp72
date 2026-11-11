@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>linktab.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>linktab.imc</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): src/linktab.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 2940 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>#THIS IS FILE LINKTAB, THE TABLE OF THE LINK FOR ANOTHER SYSTEM (SRC/DRIVER.IMC: LNKCROSS): FROM THE FIELDS OF THE TARGET'S TRIPLE THE ARCHITECTURE AS THE TABLE NAMES IT (CROSSARCH), THE DIRECTORY OF ITS C LIBRARY, THE DYNAMIC LINKER OF</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"> <ins>GLIBC AND OF MUSL (SETARCH), AND THE EMULATION OF GNU LD (SETEMU).  IT IS A FILE OF ITS OWN BECAUSE THE CODE GENERATOR CAN NAME ONLY 2047 REGISTERS IN A COMPILATION.  THE RESULTS ARE IN THE VARIABLES THE DRIVER READS.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"><ins>TRI,DLG,DLM,EMU ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"><ins># THE ARCHITECTURE OF A TRIPLE (ITS FIRST FIELD, AS LLVM NORMALISES IT) AS THE TABLE OF LOADERS NAMES IT: X86_64, I386, ARM, ARMEB, AARCH64, AARCH64_BE, PPC, PPC64, PPC64LE, S390X, RISCV64, RISCV32,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a">  <ins>LOONGARCH64, LOONGARCH32, MIPS, MIPSEL, MIPS64, MIPS64EL, SPARC, SPARC64, M68K, HEXAGON; 0 FOR ONE THAT HAS NO C LIBRARY OF LINUX WITH A KNOWN LOADER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"><ins>SUBR CROSSARCH(A) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>(CCALL strcmp(A,LOC('x86_64')) AND 4294967295)=0 =&gt; RETURN LOC('x86_64');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>(CCALL strcmp(A,LOC('x86_64h')) AND 4294967295)=0 =&gt; RETURN LOC('x86_64');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"> <ins>((IMPBYTE(A,0)=151B) AND (IMPBYTE(A,2)=70B) AND (IMPBYTE(A,3)=66B) AND (IMPBYTE(A,4)=0)) =&gt; RETURN LOC('i386');          # I386 TO I686 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"> <ins>STARTS(A,LOC('aarch64_be'))=1 =&gt; RETURN LOC('aarch64_be');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a"> <ins>((STARTS(A,LOC('aarch64'))=1) OR (STARTS(A,LOC('arm64'))=1)) =&gt; RETURN LOC('aarch64');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"> <ins>((STARTS(A,LOC('armeb'))=1) OR (STARTS(A,LOC('thumbeb'))=1)) =&gt; RETURN LOC('armeb');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"> <ins>((STARTS(A,LOC('arm'))=1) OR (STARTS(A,LOC('thumb'))=1)) =&gt; RETURN LOC('arm');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"> <ins>((STARTS(A,LOC('powerpc64le'))=1) OR (STARTS(A,LOC('ppc64le'))=1)) =&gt; RETURN LOC('ppc64le');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"> <ins>((STARTS(A,LOC('powerpc64'))=1) OR (STARTS(A,LOC('ppc64'))=1)) =&gt; RETURN LOC('ppc64');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>((STARTS(A,LOC('powerpc'))=1) OR (STARTS(A,LOC('ppc'))=1)) =&gt; RETURN LOC('ppc');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>((STARTS(A,LOC('s390x'))=1) OR (STARTS(A,LOC('systemz'))=1)) =&gt; RETURN LOC('s390x');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>STARTS(A,LOC('riscv64'))=1 =&gt; RETURN LOC('riscv64');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"> <ins>STARTS(A,LOC('riscv32'))=1 =&gt; RETURN LOC('riscv32');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"> <ins>STARTS(A,LOC('loongarch64'))=1 =&gt; RETURN LOC('loongarch64');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"> <ins>STARTS(A,LOC('loongarch32'))=1 =&gt; RETURN LOC('loongarch32');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"> <ins>STARTS(A,LOC('mips64el'))=1 =&gt; RETURN LOC('mips64el');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a"> <ins>STARTS(A,LOC('mips64'))=1 =&gt; RETURN LOC('mips64');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"> <ins>STARTS(A,LOC('mipsel'))=1 =&gt; RETURN LOC('mipsel');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"> <ins>STARTS(A,LOC('mips'))=1 =&gt; RETURN LOC('mips');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"> <ins>((STARTS(A,LOC('sparc64'))=1) OR (STARTS(A,LOC('sparcv9'))=1)) =&gt; RETURN LOC('sparc64');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a"> <ins>STARTS(A,LOC('sparc'))=1 =&gt; RETURN LOC('sparc');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a"> <ins>STARTS(A,LOC('m68k'))=1 =&gt; RETURN LOC('m68k');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a"> <ins>STARTS(A,LOC('hexagon'))=1 =&gt; RETURN LOC('hexagon');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"><ins># THE LOADERS OF A LINUX TARGET: FOR THE ARCHITECTURE A (CROSSARCH'S NAME) AND THE ENVIRONMENT E OF THE TRIPLE (GNU..., MUSL...) SETS TRI (THE NAME OF THE DIRECTORY OF ITS C LIBRARY IN /USR/LIB ON DEBIAN), DLG (THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a">  <ins>LOADER OF GLIBC) AND ITS MUSL NAME IN DLM (THE LOADER OF MUSL IS /LIB/LD-MUSL-NAME.SO.1); 0 IF THE ARCHITECTURE IS NOT ONE OF THE TABLE.  THE FLOATING POINT ABI OF A 32 BIT ARM IS THE ENVIRONMENT'S: ENDING IN HF</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a">  <ins>IS THE HARD FLOAT ONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"><ins>SUBR SETARCH(A,E) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">38</td><td class="c a"> <ins>HF ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"> <ins>HF:=((CCALL strlen(E) AND 4294967295) GE 2 =&gt; (CCALL strcmp(E+((CCALL strlen(E) AND 4294967295)-2),LOC('hf')) AND 4294967295) ELSE 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"> <ins>CCALL strcmp(A,LOC('x86_64'))=0 =&gt; (STARTS(E,LOC('gnux32'))=1 =&gt; (TRI:=LOC('x86_64-linux-gnux32'); DLG:=LOC('/libx32/ld-linux-x32.so.2'); DLM:=LOC('x32'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a">                                     <ins>TRI:=LOC('x86_64-linux-gnu'); DLG:=LOC('/lib64/ld-linux-x86-64.so.2'); DLM:=LOC('x86_64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a"> <ins>CCALL strcmp(A,LOC('i386'))=0 =&gt; (TRI:=LOC('i386-linux-gnu'); DLG:=LOC('/lib/ld-linux.so.2'); DLM:=LOC('i386'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">43</td><td class="c a"> <ins>((CCALL strcmp(A,LOC('arm'))=0) OR (CCALL strcmp(A,LOC('armeb'))=0)) =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a">     <ins>CCALL strcmp(A,LOC('arm'))=0 =&gt; TRI:=LOC('arm-linux-gnueabi') ELSE TRI:=LOC('armeb-linux-gnueabi');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a">     <ins>HF=0 =&gt; (CCALL strcmp(A,LOC('arm'))=0 =&gt; TRI:=LOC('arm-linux-gnueabihf') ELSE TRI:=LOC('armeb-linux-gnueabihf');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a">              <ins>DLG:=LOC('/lib/ld-linux-armhf.so.3'); DLM:=LOC('armhf'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">47</td><td class="c a">     <ins>DLG:=LOC('/lib/ld-linux.so.3'); DLM:=LOC('arm'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">48</td><td class="c a"> <ins>CCALL strcmp(A,LOC('aarch64'))=0 =&gt; (TRI:=LOC('aarch64-linux-gnu'); DLG:=LOC('/lib/ld-linux-aarch64.so.1'); DLM:=LOC('aarch64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a"> <ins>CCALL strcmp(A,LOC('aarch64_be'))=0 =&gt; (TRI:=LOC('aarch64_be-linux-gnu'); DLG:=LOC('/lib/ld-linux-aarch64_be.so.1'); DLM:=LOC('aarch64_be'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a"> <ins>CCALL strcmp(A,LOC('ppc'))=0 =&gt; (TRI:=LOC('powerpc-linux-gnu'); DLG:=LOC('/lib/ld.so.1'); DLM:=LOC('powerpc'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a"> <ins>CCALL strcmp(A,LOC('ppc64'))=0 =&gt; (TRI:=LOC('powerpc64-linux-gnu'); DLG:=LOC('/lib64/ld64.so.1'); DLM:=LOC('powerpc64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">52</td><td class="c a"> <ins>CCALL strcmp(A,LOC('ppc64le'))=0 =&gt; (TRI:=LOC('powerpc64le-linux-gnu'); DLG:=LOC('/lib64/ld64.so.2'); DLM:=LOC('powerpc64le'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"> <ins>CCALL strcmp(A,LOC('s390x'))=0 =&gt; (TRI:=LOC('s390x-linux-gnu'); DLG:=LOC('/lib/ld64.so.1'); DLM:=LOC('s390x'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">54</td><td class="c a"> <ins>CCALL strcmp(A,LOC('riscv64'))=0 =&gt; (TRI:=LOC('riscv64-linux-gnu'); DLG:=LOC('/lib/ld-linux-riscv64-lp64d.so.1'); DLM:=LOC('riscv64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"> <ins>CCALL strcmp(A,LOC('riscv32'))=0 =&gt; (TRI:=LOC('riscv32-linux-gnu'); DLG:=LOC('/lib/ld-linux-riscv32-ilp32d.so.1'); DLM:=LOC('riscv32'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"> <ins>CCALL strcmp(A,LOC('loongarch64'))=0 =&gt; (TRI:=LOC('loongarch64-linux-gnu'); DLG:=LOC('/lib64/ld-linux-loongarch-lp64d.so.1'); DLM:=LOC('loongarch64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a"> <ins>CCALL strcmp(A,LOC('loongarch32'))=0 =&gt; (TRI:=LOC('loongarch32-linux-gnu'); DLG:=LOC('/lib32/ld-linux-loongarch-ilp32d.so.1'); DLM:=LOC('loongarch32'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">58</td><td class="c a"> <ins>CCALL strcmp(A,LOC('mips'))=0 =&gt; (TRI:=LOC('mips-linux-gnu'); DLG:=LOC('/lib/ld.so.1'); DLM:=LOC('mips'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">59</td><td class="c a"> <ins>CCALL strcmp(A,LOC('mipsel'))=0 =&gt; (TRI:=LOC('mipsel-linux-gnu'); DLG:=LOC('/lib/ld.so.1'); DLM:=LOC('mipsel'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">60</td><td class="c a"> <ins>CCALL strcmp(A,LOC('mips64'))=0 =&gt; (STARTS(E,LOC('gnuabin32'))=1 =&gt; (TRI:=LOC('mips64-linux-gnuabin32'); DLG:=LOC('/lib32/ld.so.1'); DLM:=LOC('mipsn32'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">61</td><td class="c a">                                     <ins>TRI:=LOC('mips64-linux-gnuabi64'); DLG:=LOC('/lib64/ld.so.1'); DLM:=LOC('mips64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">62</td><td class="c a"> <ins>CCALL strcmp(A,LOC('mips64el'))=0 =&gt; (STARTS(E,LOC('gnuabin32'))=1 =&gt; (TRI:=LOC('mips64el-linux-gnuabin32'); DLG:=LOC('/lib32/ld.so.1'); DLM:=LOC('mipsn32el'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">63</td><td class="c a">                                       <ins>TRI:=LOC('mips64el-linux-gnuabi64'); DLG:=LOC('/lib64/ld.so.1'); DLM:=LOC('mips64el'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a"> <ins>CCALL strcmp(A,LOC('sparc'))=0 =&gt; (TRI:=LOC('sparc-linux-gnu'); DLG:=LOC('/lib/ld-linux.so.2'); DLM:=LOC('sparc'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">65</td><td class="c a"> <ins>CCALL strcmp(A,LOC('sparc64'))=0 =&gt; (TRI:=LOC('sparc64-linux-gnu'); DLG:=LOC('/lib64/ld-linux.so.2'); DLM:=LOC('sparc64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"> <ins>CCALL strcmp(A,LOC('m68k'))=0 =&gt; (TRI:=LOC('m68k-linux-gnu'); DLG:=LOC('/lib/ld.so.1'); DLM:=LOC('m68k'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"> <ins>CCALL strcmp(A,LOC('hexagon'))=0 =&gt; (TRI:=LOC('hexagon-linux-musl'); DLG:=LOC('/lib/ld-musl-hexagon.so.1'); DLM:=LOC('hexagon'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">70</td><td class="c a"><ins># THE EMULATION OF GNU LD (-M) OF A TARGET: LLD INFERS IT FROM THE OBJECTS AND TAKES -M TOO, BUT GNU LD DEFAULTS TO THE HOST'S, SO A LINK FOR ANOTHER ARCHITECTURE NAMES IT.  FOR THE ARCHITECTURE A (CROSSARCH'S</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a">  <ins>NAME) AND THE ENVIRONMENT E ON LINUX (K=0), OR THE BSD K (1 FREEBSD, 2 NETBSD, 3 OPENBSD): SETS EMU, 0 IF GNU LD HAS NONE TO NAME #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a"><ins>SUBR SETEMU(A,E,K) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a"> <ins>EMU:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"> <ins>K=1 =&gt; (CCALL strcmp(A,LOC('x86_64'))=0 =&gt; (EMU:=LOC('elf_x86_64_fbsd'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a">         <ins>CCALL strcmp(A,LOC('i386'))=0 =&gt; (EMU:=LOC('elf_i386_fbsd'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a">         <ins>CCALL strcmp(A,LOC('aarch64'))=0 =&gt; (EMU:=LOC('aarch64fbsd'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a">         <ins>CCALL strcmp(A,LOC('arm'))=0 =&gt; (EMU:=LOC('armelf_fbsd'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a">         <ins>CCALL strcmp(A,LOC('ppc'))=0 =&gt; (EMU:=LOC('elf32ppc_fbsd'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a">         <ins>CCALL strcmp(A,LOC('ppc64'))=0 =&gt; (EMU:=LOC('elf64ppc_fbsd'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a">         <ins>CCALL strcmp(A,LOC('riscv64'))=0 =&gt; (EMU:=LOC('elf64lriscv'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a">         <ins>RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>K=2 =&gt; (CCALL strcmp(A,LOC('x86_64'))=0 =&gt; (EMU:=LOC('elf_x86_64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a">         <ins>CCALL strcmp(A,LOC('i386'))=0 =&gt; (EMU:=LOC('elf_i386'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a">         <ins>CCALL strcmp(A,LOC('aarch64'))=0 =&gt; (EMU:=LOC('aarch64nbsd'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a">         <ins>RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"> <ins>K=3 =&gt; (CCALL strcmp(A,LOC('x86_64'))=0 =&gt; (EMU:=LOC('elf_x86_64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a">         <ins>CCALL strcmp(A,LOC('i386'))=0 =&gt; (EMU:=LOC('elf_i386'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a">         <ins>RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">89</td><td class="c a"> <ins>CCALL strcmp(A,LOC('x86_64'))=0 =&gt; (STARTS(E,LOC('gnux32'))=1 =&gt; EMU:=LOC('elf32_x86_64') ELSE EMU:=LOC('elf_x86_64'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"> <ins>CCALL strcmp(A,LOC('i386'))=0 =&gt; (EMU:=LOC('elf_i386'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">91</td><td class="c a"> <ins>CCALL strcmp(A,LOC('arm'))=0 =&gt; (EMU:=LOC('armelf_linux_eabi'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">92</td><td class="c a"> <ins>CCALL strcmp(A,LOC('armeb'))=0 =&gt; (EMU:=LOC('armelfb_linux_eabi'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">93</td><td class="c a"> <ins>CCALL strcmp(A,LOC('aarch64'))=0 =&gt; (EMU:=LOC('aarch64linux'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"> <ins>CCALL strcmp(A,LOC('aarch64_be'))=0 =&gt; (EMU:=LOC('aarch64linuxb'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">95</td><td class="c a"> <ins>CCALL strcmp(A,LOC('ppc'))=0 =&gt; (EMU:=LOC('elf32ppclinux'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">96</td><td class="c a"> <ins>CCALL strcmp(A,LOC('ppc64'))=0 =&gt; (EMU:=LOC('elf64ppc'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">97</td><td class="c a"> <ins>CCALL strcmp(A,LOC('ppc64le'))=0 =&gt; (EMU:=LOC('elf64lppc'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">98</td><td class="c a"> <ins>CCALL strcmp(A,LOC('s390x'))=0 =&gt; (EMU:=LOC('elf64_s390'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"> <ins>CCALL strcmp(A,LOC('riscv64'))=0 =&gt; (EMU:=LOC('elf64lriscv'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"> <ins>CCALL strcmp(A,LOC('riscv32'))=0 =&gt; (EMU:=LOC('elf32lriscv'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">101</td><td class="c a"> <ins>CCALL strcmp(A,LOC('loongarch64'))=0 =&gt; (EMU:=LOC('elf64loongarch'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">102</td><td class="c a"> <ins>CCALL strcmp(A,LOC('loongarch32'))=0 =&gt; (EMU:=LOC('elf32loongarch'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">103</td><td class="c a"> <ins>CCALL strcmp(A,LOC('mips'))=0 =&gt; (EMU:=LOC('elf32btsmip'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">104</td><td class="c a"> <ins>CCALL strcmp(A,LOC('mipsel'))=0 =&gt; (EMU:=LOC('elf32ltsmip'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">105</td><td class="c a"> <ins>CCALL strcmp(A,LOC('mips64'))=0 =&gt; (STARTS(E,LOC('gnuabin32'))=1 =&gt; EMU:=LOC('elf32btsmipn32') ELSE EMU:=LOC('elf64btsmip'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">106</td><td class="c a"> <ins>CCALL strcmp(A,LOC('mips64el'))=0 =&gt; (STARTS(E,LOC('gnuabin32'))=1 =&gt; EMU:=LOC('elf32ltsmipn32') ELSE EMU:=LOC('elf64ltsmip'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">107</td><td class="c a"> <ins>CCALL strcmp(A,LOC('sparc'))=0 =&gt; (EMU:=LOC('elf32_sparc'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">108</td><td class="c a"> <ins>CCALL strcmp(A,LOC('sparc64'))=0 =&gt; (EMU:=LOC('elf64_sparc'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">109</td><td class="c a"> <ins>CCALL strcmp(A,LOC('m68k'))=0 =&gt; (EMU:=LOC('m68kelf'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">112</td><td class="c a"><ins>SUBR LTEND(Z) IS 0</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

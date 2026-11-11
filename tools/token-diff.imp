@@ -1,6 +1,6 @@
 #TOKEN-DIFF.IMP -- THE DIFFERENCES OF TWO VERSIONS OF A PROGRAM IN IMP, TOKEN BY TOKEN, AS HTML: WHAT THE ORIGINAL (THE DECUS TAPE) HAS AND THE PORT HAS NOT IS RED, WHAT THE PORT HAS ADDED IS GREEN.  THE COMPILER OF THE TREE BUILDS IT (SH TOOLS/IMPTOOL.SH TOKEN-DIFF ARGS; TOOLS/TOKEN-DIFF.SH
 IS THE COMMAND FOR THE TWO TREES).
-    TOKEN-DIFF OUTDIR OLD NEW [OLD NEW ...]
+    TOKEN-DIFF [-N NOTE] OUTDIR OLD NEW [OLD NEW ...]
 WRITES OUTDIR/NAME.HTML FOR EACH PAIR OF FILES (NAME IS THE NAME OF NEW, OR OF OLD WHERE NEW IS -) AND OUTDIR/INDEX.HTML; A FILE NAMED - IS NOT THERE (EVERYTHING OF THE OTHER IS THEN NEW, OR OLD).  OLD IS READ AS THE ORIGINAL'S IMP (THE UNDERSCORE IS A TOKEN OF ITS
 OWN), NEW AS THE PORT'S (THE UNDERSCORE IS A LETTER); TOKENS ARE THOSE OF TOOLS/TOKEN-DIFF-LEX.IMP.  THE LINES ARE COMPARED FIRST (A LINE IS THE SEQUENCE OF ITS TOKENS, SO THE WHITE SPACE IS NOT A DIFFERENCE), AND THE TOKENS OF A RUN OF LINES THAT DIFFER ARE COMPARED
 THEN (TOOLS/TOKEN-DIFF-MYERS.IMP): A TOKEN THAT MOVED TO ANOTHER LINE IS A DELETION AND AN INSERTION, AS IN ANY LINE DIFFERENCE.  THE ORIGINAL'S ASSIGNMENT _ AND THE PORT'S := ARE DIFFERENT TOKENS AND SHOW AS ONE REPLACING THE OTHER, NOTHING MORE.#
@@ -19,15 +19,17 @@ EXTERNAL PTR strrchr(PTR, INT);
 EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);
 EXTERNAL LONG write(INT, PTR, SIZE);
 EXTERNAL VOID exit(INT);
-FO,DRY,CUR,FIRSTB,NBUF,CTX,DLIM,DCOARSE,FLEN,NHUNK,NDEL,NINS,OUTDIR,ROWS ARE COMMON;
-NARGS,MI ARE COMMON;
+FO,CUR,FIRSTB,NBUF,CTX,TOP,OSTAT,NSTAT,DLIM,DCOARSE,FLEN,NHUNK,NDEL,NINS,OUTDIR,ROWS,NOTE ARE COMMON;
+NARGS,MI,AI ARE COMMON;
 
 NARGS:=CCALL impargc(0);
-((NARGS<4) OR ((NARGS AND 1) NE 0)) => DIE(LOC('usage: token-diff OUTDIR OLD NEW [OLD NEW ...]'),LOC('(a file that is not there is -)'));
-NBUF:=CCALL calloc(64,1); CTX:=3; DLIM:=2500; DCOARSE:=0;
+AI:=1; NOTE:=0;
+NARGS>2 => (CCALL strcmp(ARG(1),LOC('-n'))=0 => (NOTE:=ARG(2); AI:=3));
+(((NARGS-AI)<3) OR (((NARGS-AI) AND 1) = 0)) => DIE(LOC('usage: token-diff [-n NOTE] OUTDIR OLD NEW [OLD NEW ...]'),LOC('(a file that is not there is -)'));
+NBUF:=CCALL calloc(64,1); CTX:=3; DLIM:=2500; DCOARSE:=0; TOP:=0;
 TABINIT(0);
-OUTDIR:=ARG(1); ROWS:=L_NEW(0);
-MI:=2;
+OUTDIR:=ARG(AI); ROWS:=L_NEW(0);
+MI:=AI+1;
 WHILE MI<NARGS DO (L_ADD(ROWS,DIFFPAIR(ARG(MI),ARG(MI+1))); MI:=MI+2);
 INDEXPAGE(0);
 CCALL exit(0);
@@ -111,43 +113,41 @@ SUBR BUILDSIDE(PATH,PORT) IS (
     I:=I+1);
  FS);
 
-# THE LINES I0 TO I1 OF THE OLD FILE AND J0 TO J1 OF THE NEW ONE DIFFER: THEIR TOKENS ARE COMPARED #
-SUBR HUNK(FO0,FN,I0,I1,J0,J1) IS (
+# THE LINES I0 TO I1 OF THE OLD FILE AND J0 TO J1 OF THE NEW ONE DIFFER: THEIR TOKENS ARE COMPARED, AND THE ONES THAT ARE IN ONE FILE ONLY ARE MARKED (OSTAT, NSTAT) AND COUNTED #
+SUBR MARKHUNK(FO0,FN,I0,I1,J0,J1) IS (
  T0,T1,U0,U1,HA,HB,OPS,P,N,OP,TI,UJ ARE LOCAL;
  T0:=TOKRANGE(FO0,I0); T1:=TOKRANGE(FO0,I1); U0:=TOKRANGE(FN,J0); U1:=TOKRANGE(FN,J1);
  HA:=RD(RD(FO0,FTD),2)+(8*T0); HB:=RD(RD(FN,FTD),2)+(8*U0);
  OPS:=L_NEW(0);
  MYERS(HA,T1-T0,HB,U1-U0,OPS);
- DRY NE 0 => NHUNK:=NHUNK+1;
+ NHUNK:=NHUNK+1;
  P:=0; N:=L_LEN(OPS); TI:=T0; UJ:=U0;
  WHILE P<N DO (
     OP:=L_GET(OPS,P);
-    OP=0 => (EMITTOK(FN,UJ,0); TI:=TI+1; UJ:=UJ+1)
-    ELSE (OP=1 => (EMITTOK(FO0,TI,1); TI:=TI+1; DRY NE 0 => NDEL:=NDEL+1)
-    ELSE (EMITTOK(FN,UJ,2); UJ:=UJ+1; DRY NE 0 => NINS:=NINS+1));
+    OP=0 => (TI:=TI+1; UJ:=UJ+1)
+    ELSE (OP=1 => (WR(OSTAT,TI,1); TI:=TI+1; NDEL:=NDEL+1)
+    ELSE (WR(NSTAT,UJ,2); UJ:=UJ+1; NINS:=NINS+1));
     P:=P+1);
- CLOSESPAN(0);
  0);
 
-# THE BODY OF A PAGE: THE LINES THAT ARE THE SAME, AND THE LINES THAT DIFFER, IN ORDER (OPS: THE STEPS OF THE LINE DIFFERENCE) #
-SUBR RENDER(FO0,FN,OPS) IS (
+# THE LINES THAT ARE THE SAME AND THE LINES THAT DIFFER, IN ORDER (OPS: THE STEPS OF THE LINE DIFFERENCE): MODE 0 MARKS THE TOKENS OF THE LINES THAT DIFFER, MODE 1 WRITES THE ROWS #
+SUBR WALK(FO0,FN,OPS,MODE) IS (
  P,NO,IO,JN,OP,Q,F,ND,NI ARE LOCAL;
- BLOCKOPEN(0);
  P:=0; NO:=L_LEN(OPS); IO:=0; JN:=0;
  WHILE P<NO DO (
     OP:=L_GET(OPS,P);
     OP=0 => (
        Q:=P; F:=1;
        WHILE F NE 0 DO (Q<NO => (L_GET(OPS,Q)=0 => Q:=Q+1 ELSE F:=0) ELSE F:=0);
-       EQSEG(FN,JN,JN+(Q-P),(P=0),(Q=NO));
+       MODE=1 => EQSEG(FO0,FN,IO,JN,Q-P,(P=0),(Q=NO));
        IO:=IO+(Q-P); JN:=JN+(Q-P); P:=Q)
     ELSE (
        Q:=P; ND:=0; NI:=0; F:=1;
        WHILE F NE 0 DO (
           Q<NO => (L_GET(OPS,Q)=0 => F:=0 ELSE (L_GET(OPS,Q)=1 => ND:=ND+1 ELSE NI:=NI+1; Q:=Q+1)) ELSE F:=0);
-       HUNK(FO0,FN,IO,IO+ND,JN,JN+NI);
+       MODE=0 => MARKHUNK(FO0,FN,IO,IO+ND,JN,JN+NI) ELSE HUNKROWS(FO0,FN,IO,IO+ND,JN,JN+NI);
        IO:=IO+ND; JN:=JN+NI; P:=Q));
- BLOCKCLOSE(0);
+ TABLEEND(0);
  0);
 
 # THE NAME OF A FILE WITHOUT ITS DIRECTORY #
@@ -166,24 +166,25 @@ SUBR DIFFPAIR(OP,NP) IS (
  LOPS:=L_NEW(0);
  DCOARSE:=0;
  MYERS(RD(RD(FO0,FLH),2),L_LEN(RD(FO0,FLS)),RD(RD(FN,FLH),2),L_LEN(RD(FN,FLS)),LOPS);
- NHUNK:=0; NDEL:=0; NINS:=0; DRY:=1; CUR:=0; FIRSTB:=0;
- RENDER(FO0,FN,LOPS);
+ OSTAT:=CCALL calloc(L_LEN(RD(FO0,FTT))+1,8); NSTAT:=CCALL calloc(L_LEN(RD(FN,FTT))+1,8);
+ NHUNK:=0; NDEL:=0; NINS:=0;
+ WALK(FO0,FN,LOPS,0);
  HREF:=CCALL calloc(CCALL strlen(NAME)+16,1);
  CCALL snprintf(HREF,CCALL strlen(NAME)+16,LOC('%s.html'),NAME);
  PATH:=CCALL calloc(CCALL strlen(OUTDIR)+CCALL strlen(HREF)+4,1);
  CCALL snprintf(PATH,CCALL strlen(OUTDIR)+CCALL strlen(HREF)+4,LOC('%s/%s'),OUTDIR,HREF);
  FO:=CCALL fopen(PATH,LOC('wb'));
  FO=0 => DIE(LOC('cannot write'),PATH);
- DRY:=0; CUR:=0;
+ CUR:=0; TOP:=0;
  TITLE:=CCALL calloc(CCALL strlen(NAME)+64,1);
  CCALL snprintf(TITLE,CCALL strlen(NAME)+64,LOC('%s: the tape and the port, token by token'),NAME);
  PAGEHEAD(TITLE);
  OUTS(LOC('<p class="mut"><a href="index.html">all modules</a></p><h1>')); ESC(NAME); OUTS(LOC('</h1>')); OUTC(10);
- OUTS(LOC('<p class="mut">old (the tape): ')); ESC(OP); OUTS(LOC('<br>new (the port): ')); ESC(NP); OUTS(LOC('</p>')); OUTC(10);
+ OUTS(LOC('<p class="mut">left, old (the tape): ')); ESC(OP); OUTS(LOC('<br>right, new (the port): ')); ESC(NP); OUTS(LOC('</p>')); OUTC(10);
  OUTS(LOC('<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; ')); OUTN(NHUNK);
  OUTS(LOC(' changed places, ')); OUTN(NDEL); OUTS(LOC(' tokens deleted, ')); OUTN(NINS); OUTS(LOC(' inserted.</p>')); OUTC(10);
  DCOARSE NE 0 => (OUTS(LOC('<p class="mut">Parts of this file differ so much that the token comparison there is not guaranteed to be the shortest (it is cut where the two files have gone furthest together).</p>')); OUTC(10));
- RENDER(FO0,FN,LOPS);
+ WALK(FO0,FN,LOPS,1);
  PAGEFOOT(0);
  CCALL fclose(FO);
  ROW:=CCALL calloc(10,8);
@@ -200,12 +201,13 @@ SUBR INDEXPAGE(Z) IS (
  CCALL snprintf(PATH,CCALL strlen(OUTDIR)+16,LOC('%s/index.html'),OUTDIR);
  FO:=CCALL fopen(PATH,LOC('wb'));
  FO=0 => DIE(LOC('cannot write'),PATH);
- DRY:=0; CUR:=0;
+ CUR:=0; TOP:=0;
  PAGEHEAD(LOC('IMP: the tape and the port, token by token'));
  OUTS(LOC('<h1>IMP: the tape and the port, token by token</h1>')); OUTC(10);
  OUTS(LOC('<p><del>Red</del> is what the original (the DECUS tape) has and the port has not, <ins>green</ins> what the port has added.')); OUTC(10);
  OUTS(LOC('Where the original has the assignment as an underscore the port has :=, and that shows as one replacing the other.</p>')); OUTC(10);
- OUTS(LOC('<table><tr><th>module</th><th>tokens, old</th><th>tokens, new</th><th>changed places</th><th>deleted</th><th>inserted</th></tr>')); OUTC(10);
+ NOTE NE 0 => (OUTS(LOC('<p class="mut">')); ESC(NOTE); OUTS(LOC('</p>')); OUTC(10));
+ OUTS(LOC('<table class="idx"><tr><th>module</th><th>tokens, old</th><th>tokens, new</th><th>changed places</th><th>deleted</th><th>inserted</th></tr>')); OUTC(10);
  N:=L_LEN(ROWS); I:=0; TD:=0; TI:=0; TH:=0; TN:=0;
  WHILE I<N DO (
     R:=L_GET(ROWS,I);

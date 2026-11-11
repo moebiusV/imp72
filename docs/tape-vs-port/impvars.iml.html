@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>impvars.iml: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>impvars.iml</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): lib/impvars.iml</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 550 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>#IMPVARS: THE VARIABLES OF THE COMPILER'S OWN MODULES, FOR THE IMAGES (SRC/IMAGE.IMC).  THE TRANSLATION OF IMPVARLIST OF LIB/IMPSYS.C.  SRC/IX.IMC IRVARREC (AND TOOLS/IR2LL.C) PUT A RECORD OF THE ADDRESS, THE SIZE AND THE NAME,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>MODULE:SYMBOL, OF EACH VARIABLE IN A SECTION OF THE OBJECT, impvars; THE SECTION IS FOUND BY THE FORMAT OF THE OBJECT (LIB/IMPVARSX-ELF.IML OR IMPVARSX-MACHO.IML: VSTART, VSTOP, WRITABLE).  ONLY WHAT LIES IN THE WRITABLE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"><ins>PART OF THE PROGRAM IS A VARIABLE (A NAME THAT A MODULE USES AND DOES NOT DEFINE IS A VARIABLE OF THE MODULE TO THE COMPILER, WHATEVER IT IS, A ROUTINE OF ANOTHER MODULE, SAY); EACH VARIABLE ONCE, WITH ITS BIGGEST SIZE.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"><ins>IMPVARLIST(OUT,MX) WRITES UP TO MX RECORDS OF THREE WORDS (ADDRESS, SIZE, POINTER TO THE NAME) AND RETURNS HOW MANY THERE ARE, OR -1 IF THERE IS NO TABLE; WITH OUT 0 IT ONLY COUNTS.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"><ins>SUBR IMPVARLIST(OUT,MX) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>R,Q,LO,HI,RS,N,I,A,S,NM,QA,QS,DUP ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>LO:=VSTART(0); HI:=VSTOP(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>LO=0 =&gt; RETURN 0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>LO=HI =&gt; RETURN 0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"> <ins>RS:=3*SCPTR(0); N:=0; R:=LO;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"> <ins>VL1: R&lt;HI =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a">    <ins>A:=IMPPEEKPTR(R); S:=IMPPEEKPTR(R+SCPTR(0)); NM:=IMPPEEKPTR(R+(2*SCPTR(0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a">    <ins>WRITABLE(A,S)=0 =&gt; (R:=R+RS; GO TO VL1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a">    <ins>OUT=0 =&gt; (                                                  # COUNTING: THE SAME TEST, ON THE RECORDS SEEN SO FAR #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a">        <ins>DUP:=0; Q:=LO;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a">        <ins>VL2: Q&lt;R =&gt; (QA:=IMPPEEKPTR(Q); QA=A =&gt; (WRITABLE(QA,IMPPEEKPTR(Q+SCPTR(0))) NE 0 =&gt; (DUP:=1; GO TO VL3));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a">                     <ins>Q:=Q+RS; GO TO VL2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a">        <ins>VL3: DUP=0 =&gt; N:=N+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a">        <ins>R:=R+RS; GO TO VL1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a">    <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a">    <ins>VL4: I&lt;N =&gt; ([OUT+(24*I)]=A =&gt; (S&gt;[OUT+((24*I)+8)] =&gt; [OUT+((24*I)+8)]:=S; GO TO VL5);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a">                 <ins>I:=I+1; GO TO VL4);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a">    <ins>VL5: I=N =&gt; (N&lt;MX =&gt; ([OUT+(24*N)]:=A; [OUT+((24*N)+8)]:=S; [OUT+((24*N)+16)]:=NM; N:=N+1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a">    <ins>R:=R+RS; GO TO VL1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"> <ins>N)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

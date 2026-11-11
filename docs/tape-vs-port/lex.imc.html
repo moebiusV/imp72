@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lex.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>lex.imc</h1>
+<p class="mut">left, old (the tape): decus/lex.imc<br>right, new (the port): src/lex.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 19 changed places, 214 tokens deleted, 745 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n d">1</td><td class="c d"><del>#LEX: LEXICAL ANALYZER MODULE FOR IMP COMPILER#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">2</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n d">4</td><td class="c d"><del>BHEAD,FINAM</del> ARE <del>COMMON;</del></td><td class="n a">2</td><td class="c a"><ins>#LEX: LEXICAL ANALYZER MODULE FOR IMP COMPILER, FOR THE 64 BIT PORT.</ins></td></tr>
+<tr><td class="n d">5</td><td class="c d">C IS <del>REGISTER,</del>RESERVED<del>,SCRATCH</del>;</td><td class="n a">3</td><td class="c a"> <ins>SEE DECUS/LEX.IMC FOR THE ORIGINAL AND DOCS/PORTING/MODULES.MD FOR THE DIFFERENCES.</ins></td></tr>
+<tr><td class="n d">8</td><td class="c d">SUBR LEXIN() IS (</td><td class="n a">4</td><td class="c a"> <ins>A TOKEN IS A RUN OF LETTERS AND DIGITS; A TEXT IN APOSTROPHES (THE TOKEN KEEPS ITS OPENING</ins></td></tr>
+<tr><td class="n d">9</td><td class="c d"> <del>CHAN_OPENIN</del>();</td><td class="n a">5</td><td class="c a"> <ins>APOSTROPHE AND LOSES THE CLOSING ONE; TWO APOSTROPHES</ins> ARE <ins>ONE); A TEXT BETWEEN EXCLAMATION MARKS (THE</ins></td></tr>
+<tr><td class="n d">10</td><td class="c d"> <del>CHAN</del>=0 =&gt; RETURN -1;</td><td class="n a">6</td><td class="c a"> <ins>MARKS ARE DROPPED); OR ONE OTHER NON-BLANK CHARACTER.  BLANKS AND CONTROL CHARACTERS SEPARATE TOKENS;</ins></td></tr>
+<tr><td class="n d">11</td><td class="c d"> LINIT=0=&gt;(LINIT<del>_</del>1;</td><td class="n a">7</td><td class="c a"> <ins>A TEXT BETWEEN NUMBER SIGNS IS A COMMENT.</ins></td></tr>
+<tr><td class="n d">12</td><td class="c d">	LINE<del>_</del>FALLOT('LEXL',20); LLINE<del>_</del>90;</td><td class="n a">8</td><td class="c a"> <ins>THE LINE AND THE TOKEN ARE PACKED, A CHARACTER (A BYTE, UTF-8) TO A BYTE, EIGHT TO A WORD, AND ARE STEPPED THROUGH</ins></td></tr>
+<tr><td class="n d">13</td><td class="c d">	TOKE<del>_</del>FALLOT('LEXT',20); LTOKE<del>_</del>90;</td><td class="n a">9</td><td class="c a"> <ins>WITH BYTE POINTERS AS IN THE ORIGINAL; THE TOKEN IS A NAME OF THE DIRECTORY AS IT IS.  THE FILE IS READ WITH THE</ins> C</td></tr>
+<tr><td class="n d">14</td><td class="c d">	PC<del>_</del>QC<del>_</del>BYTEP FREE(LINE)&lt;7,36&gt;;</td><td class="n a">10</td><td class="c a"> <ins>LIBRARY'S FOPEN AND IMPGETC WHERE THE ORIGINAL READS BUFFERS OF A CHANNEL (OPENIN, INPUT, BHEAD); BYTES OF 128 AND UP</ins></td></tr>
+<tr><td class="n d">15</td><td class="c d">	K0<del>_</del>BYTEP FREE(TOKE)&lt;7,36&gt;);</td><td class="n a">11</td><td class="c a"> <ins>ARE LETTERS, SO THAT A NAME MAY BE IN UTF-8.  THE ARRAYS ARE FILLED THROUGH POINTERS INTO FREE STORAGE, WHICH DOES NOT MOVE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"> <ins>(SEE CORE IN FREE).  C</ins> IS <ins>AN ORDINARY VARIABLE OF THE MODULE, WHERE THE ORIGINAL KEEPS IT IN A</ins> RESERVED <ins>REGISTER. #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"><ins>FINAM IS COMMON</ins>;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a">SUBR LEXIN(<ins>NAME</ins>) IS (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>SRCFP NE 0 =&gt; CCALL impfclose</ins>(<ins>SRCFP</ins>);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>SRCFP:=CCALL fopen(NAME,LOC('r'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>SRCFP</ins>=0 =&gt; RETURN -1;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"> LINIT=0=&gt;(LINIT<ins>:=</ins>1;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a">	LINE<ins>:=</ins>FALLOT('LEXL',20); LLINE<ins>:=</ins>90;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a">	TOKE<ins>:=</ins>FALLOT('LEXT',20); LTOKE<ins>:=</ins>90;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a">	PC<ins>:=</ins>QC<ins>:=</ins>BYTEP FREE(LINE)&lt;7,36&gt;;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a">	K0<ins>:=</ins>BYTEP FREE(TOKE)&lt;7,36&gt;);</td></tr>
+<tr><td class="n q">16</td><td class="c q"> FREES(LINE,0);</td><td class="n q">26</td><td class="c q"> FREES(LINE,0);</td></tr>
+<tr><td class="n d">17</td><td class="c d"> PCT<del>_</del>0);</td><td class="n a">27</td><td class="c a"> <ins>PC:=QC; SKIP:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"> PCT<ins>:=</ins>0);</td></tr>
+<tr><td class="n q">19</td><td class="c q">SUBR LEX(S) IS (</td><td class="n q">30</td><td class="c q">SUBR LEX(S) IS (</td></tr>
+<tr><td class="n d">20</td><td class="c d">     C<del>_</del>CSV; K<del>_</del>K0; ITOKE<del>_</del>0;</td><td class="n a">31</td><td class="c a">     C<ins>:=</ins>CSV; K<ins>:=</ins>K0; ITOKE<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">21</td><td class="c d"> T0: SKIP=0 =&gt; NEXTCHAR(); SKIP<del>_</del>0;</td><td class="n a">32</td><td class="c a"> T0: SKIP=0 =&gt; NEXTCHAR(); SKIP<ins>:=</ins>0;</td></tr>
+<tr><td class="n q">22</td><td class="c q">     ISANM=0 =&gt; GO TO T2;</td><td class="n q">33</td><td class="c q">     ISANM=0 =&gt; GO TO T2;</td></tr>
+<tr><td class="n d">23</td><td class="c d"> T1: &lt;+K&gt;<del>_</del>C; NEXTCHAR();</td><td class="n a">34</td><td class="c a"> T1: &lt;+K&gt;<ins>:=</ins>C; NEXTCHAR();</td></tr>
+<tr><td class="n q">24</td><td class="c q">     ISANM =&gt; GO TO T1;</td><td class="n q">35</td><td class="c q">     ISANM =&gt; GO TO T1;</td></tr>
+<tr><td class="n d">25</td><td class="c d">     SKIP<del>_</del>-1; GO TO LX;</td><td class="n a">36</td><td class="c a">     SKIP<ins>:=</ins>-1; GO TO LX;</td></tr>
+<tr><td class="n q">26</td><td class="c q"> T2: C LE 040B=&gt;GO TO T0;</td><td class="n q">37</td><td class="c q"> T2: C LE 040B=&gt;GO TO T0;</td></tr>
+<tr><td class="n q">27</td><td class="c q">     C=043B =&gt; (T3: NEXTCHAR();</td><td class="n q">38</td><td class="c q">     C=043B =&gt; (T3: NEXTCHAR();</td></tr>
+<tr><td class="n q">28</td><td class="c q">                C NE 043B =&gt; GO TO T3;</td><td class="n q">39</td><td class="c q">                C NE 043B =&gt; GO TO T3;</td></tr>
+<tr><td class="n q">29</td><td class="c q">                GO TO T0);</td><td class="n q">40</td><td class="c q">                GO TO T0);</td></tr>
+<tr><td class="n d">30</td><td class="c d">     C=047B =&gt; (T4: &lt;+K&gt;<del>_</del>C; NEXTCHAR();</td><td class="n a">41</td><td class="c a">     C=047B =&gt; (T4: &lt;+K&gt;<ins>:=</ins>C; NEXTCHAR();</td></tr>
+<tr><td class="n q">31</td><td class="c q">                C NE 047B =&gt; GO TO T4;</td><td class="n q">42</td><td class="c q">                C NE 047B =&gt; GO TO T4;</td></tr>
+<tr><td class="n q">32</td><td class="c q">		NEXTCHAR(); C=047B=&gt;GO TO T4;</td><td class="n q">43</td><td class="c q">		NEXTCHAR(); C=047B=&gt;GO TO T4;</td></tr>
+<tr><td class="n d">33</td><td class="c d">		SKIP<del>_</del>-1;</td><td class="n a">44</td><td class="c a">		SKIP<ins>:=</ins>-1;</td></tr>
+<tr><td class="n q">34</td><td class="c q">                GO TO LX);</td><td class="n q">45</td><td class="c q">                GO TO LX);</td></tr>
+<tr><td class="n q">35</td><td class="c q">     C=041B =&gt; (T5: NEXTCHAR();</td><td class="n q">46</td><td class="c q">     C=041B =&gt; (T5: NEXTCHAR();</td></tr>
+<tr><td class="n d">36</td><td class="c d">                C NE 041B =&gt; (&lt;+K&gt;<del>_</del>C; GO TO T5);</td><td class="n a">47</td><td class="c a">                C NE 041B =&gt; (&lt;+K&gt;<ins>:=</ins>C; GO TO T5);</td></tr>
+<tr><td class="n q">37</td><td class="c q">                GO TO LX);</td><td class="n q">48</td><td class="c q">                GO TO LX);</td></tr>
+<tr><td class="n d">38</td><td class="c d">     &lt;+K&gt;<del>_</del>C;</td><td class="n a">49</td><td class="c a">     &lt;+K&gt;<ins>:=</ins>C;</td></tr>
+<tr><td class="n d">39</td><td class="c d"> LX: &lt;+K&gt;<del>_</del>0 FOR I FROM <del>4</del>;</td><td class="n a">50</td><td class="c a">     <ins>C=072B =&gt; (LC NE 072B =&gt; (NEXTCHAR(); C=075B =&gt; (&lt;+K&gt;:=C; GO TO</ins> LX<ins>); SKIP:=-1));    # := IS ONE TOKEN, ::= IS NOT #</ins></td></tr>
+<tr><td class="n d">40</td><td class="c d">     CSV<del>_</del>C;</td><td class="n a">51</td><td class="c a"> <ins>LX</ins>: &lt;+K&gt;<ins>:=</ins>0 FOR I FROM <ins>7</ins>;</td></tr>
+<tr><td class="n d">41</td><td class="c d">     S<del>_</del>DIR(FREE(TOKE)); IC);</td><td class="n a">52</td><td class="c a">     CSV<ins>:=</ins>C;</td></tr>
+<tr><td class="n d">43</td><td class="c d">SUBR LEXSAV() IS (PC0<del>_</del>PC; IC0<del>_</del>IC; SKIP0<del>_</del>SKIP; CSV0<del>_</del>CSV; ISANM0<del>_</del>ISANM; SKIP<del>_</del>0);</td><td class="n a">53</td><td class="c a">     S<ins>:=</ins>DIR(FREE(TOKE)); IC);</td></tr>
+<tr><td class="n d">45</td><td class="c d">SUBR LEXRES() IS (PC<del>_</del>PC0; IC<del>_</del>IC0; SKIP<del>_</del>SKIP0; CSV<del>_</del>CSV0; ISANM<del>_</del>ISANM0);</td><td class="n a">55</td><td class="c a">SUBR LEXSAV() IS (PC0<ins>:=</ins>PC; IC0<ins>:=</ins>IC; SKIP0<ins>:=</ins>SKIP; CSV0<ins>:=</ins>CSV; ISANM0<ins>:=</ins>ISANM; SKIP<ins>:=</ins>0);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a">SUBR LEXRES() IS (PC<ins>:=</ins>PC0; IC<ins>:=</ins>IC0; SKIP<ins>:=</ins>SKIP0; CSV<ins>:=</ins>CSV0; ISANM<ins>:=</ins>ISANM0);</td></tr>
+<tr><td class="n q">47</td><td class="c q">SUBR NEXTCHAR() IS (</td><td class="n q">59</td><td class="c q">SUBR NEXTCHAR() IS (</td></tr>
+<tr><td class="n d">48</td><td class="c d"> (ITOKE<del>_</del>ITOKE+1) GE LTOKE=&gt;(</td><td class="n a">60</td><td class="c a"> (ITOKE<ins>:=</ins>ITOKE+1) GE LTOKE=&gt;(</td></tr>
+<tr><td class="n d">49</td><td class="c d">	TOKE<del>_</del>FALLOT(OTOKE<del>_</del>TOKE,(<del>10</del>+LTOKE<del>_</del>LTOKE+50)/<del>5</del>);</td><td class="n a">61</td><td class="c a">	TOKE<ins>:=</ins>FALLOT(OTOKE<ins>:=</ins>TOKE,(<ins>17</ins>+LTOKE<ins>:=</ins>LTOKE+50)/<ins>8</ins>);</td></tr>
+<tr><td class="n d">50</td><td class="c d">	K<del>_</del>K-OTOKE<del>_</del>OTOKE-TOKE; K0<del>_</del>K0-OTOKE);</td><td class="n a">62</td><td class="c a">	K<ins>:=</ins>K-<ins>8*(</ins>OTOKE<ins>:=</ins>OTOKE-TOKE<ins>)</ins>; K0<ins>:=</ins>K0-<ins>8*</ins>OTOKE);</td></tr>
+<tr><td class="n d">51</td><td class="c d"> NEXT: C<del>_</del>&lt;+PC&gt;; IC<del>_</del>IC+1;</td><td class="n a">63</td><td class="c a"> NEXT: <ins>LC:=</ins>C<ins>; C:=</ins>&lt;+PC&gt;; IC<ins>:=</ins>IC+1;</td></tr>
+<tr><td class="n d">52</td><td class="c d"> C=0 =&gt; (PC<del>_</del>QC; OPCT<del>_</del>PCT;</td><td class="n a">64</td><td class="c a"> C=0 =&gt; (PC<ins>:=</ins>QC; OPCT<ins>:=</ins>PCT;</td></tr>
+<tr><td class="n d">53</td><td class="c d">	 ILINE<del>_</del>0;</td><td class="n a">65</td><td class="c a">	 ILINE<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">54</td><td class="c d">         GCHRS: (<del>BHEAD[2]_BHEAD[2]-1) LE 0 =&gt; INPUT(CHAN) =&gt;</del></td><td class="n a">66</td><td class="c a">         GCHRS: (ILINE<ins>:=</ins>ILINE+1) GE LLINE=&gt;(</td></tr>
+<tr><td class="n d">55</td><td class="c d">                            <del>ERROR(0,'PREMATURE END OF INPUT FILE');</del></td><td class="n a">67</td><td class="c a">		LINE<ins>:=</ins>FALLOT(OTOKE<ins>:=</ins>LINE,(<ins>17</ins>+LLINE<ins>:=</ins>LLINE+50)/<ins>8</ins>);</td></tr>
+<tr><td class="n d">56</td><td class="c d">	 <del>(</del>ILINE<del>_</del>ILINE+1) GE LLINE=&gt;(</td><td class="n a">68</td><td class="c a">		PC<ins>:=</ins>PC-<ins>8*(</ins>OTOKE<ins>:=</ins>OTOKE-LINE<ins>)</ins>; QC<ins>:=</ins>QC-<ins>8*</ins>OTOKE);</td></tr>
+<tr><td class="n d">57</td><td class="c d">		LINE<del>_</del>FALLOT(OTOKE<del>_</del>LINE,(<del>10</del>+LLINE<del>_</del>LLINE+50)/<del>5</del>);</td><td class="n a">69</td><td class="c a">         C<ins>:=IMPGETC(SRCFP);</ins></td></tr>
+<tr><td class="n d">58</td><td class="c d">		PC<del>_</del>PC-OTOKE<del>_</del>OTOKE-LINE; QC<del>_</del>QC-OTOKE);</td><td class="n a">70</td><td class="c a">         <ins>C</ins>&lt;<ins>0 =&gt; ERROR(0,'PREMATURE END OF INPUT FILE')</ins>;</td></tr>
+<tr><td class="n d">59</td><td class="c d">         C<del>_</del>&lt;<del>+BHEAD[1]&gt;</del>;</td><td class="n a">71</td><td class="c a">	 C NE 12B=&gt;(C=&gt;&lt;+PC&gt;<ins>:=</ins>C;</td></tr>
+<tr><td class="n d">60</td><td class="c d">	 C NE 12B=&gt;(C=&gt;&lt;+PC&gt;<del>_</del>C;</td><td class="n a">72</td><td class="c a">	         C=<ins>CODE(</ins>'('<ins>)</ins> =&gt; PCT<ins>:=</ins>PCT+1;</td></tr>
+<tr><td class="n d">61</td><td class="c d">	         C='(' <del>RS 29</del> =&gt; PCT<del>_</del>PCT+1;</td><td class="n a">73</td><td class="c a">	         C=<ins>CODE(</ins>')'<ins>)</ins> =&gt; PCT<ins>:=</ins>PCT-1;</td></tr>
+<tr><td class="n d">62</td><td class="c d">	         C=')' <del>RS 29</del> =&gt; PCT<del>_</del>PCT-1;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">63</td><td class="c q">		GO TO GCHRS);</td><td class="n q">74</td><td class="c q">		GO TO GCHRS);</td></tr>
+<tr><td class="n d">64</td><td class="c d">         &lt;+PC&gt;<del>_</del>0; PC<del>_</del>QC; IC<del>_</del>TFL<del>_</del>0;</td><td class="n a">75</td><td class="c a">         &lt;+PC&gt;<ins>:=</ins>0; PC<ins>:=</ins>QC; IC<ins>:=</ins>TFL<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">65</td><td class="c d">         PLINE(FREE(LINE),OPCT); C<del>_</del>12B);</td><td class="n a">76</td><td class="c a">         PLINE(FREE(LINE),OPCT); C<ins>:=</ins>12B);</td></tr>
+<tr><td class="n q">66</td><td class="c q"> #ISANM IS MADE NON-ZERO FOR ALPHA-NUMERIC CHARS#</td><td class="n q">77</td><td class="c q"> #ISANM IS MADE NON-ZERO FOR ALPHA-NUMERIC CHARS#</td></tr>
+<tr><td class="n d">67</td><td class="c d"> ISANM<del>_</del>(1 LS <del>35</del>) AND ISTAB[C RS 5] LS 37B AND C);</td><td class="n a">78</td><td class="c a"> ISANM<ins>:=</ins>(1 LS <ins>31</ins>) AND ISTAB[C RS 5] LS 37B AND C<ins>;</ins></td></tr>
+<tr><td class="n d">69</td><td class="c d">ISTAB: DATA(0,<del>3776000B</del>,<del>377777777000B</del>,<del>377777777000B</del>);</td><td class="n a">79</td><td class="c a"> <ins>CMDM =&gt; (C=137B =&gt; ISANM:=0</ins>)<ins>)</ins>;      <ins># A COMMAND LINE IS NOT IMP: THERE _ SEPARATES, AS IT DID IN THE ORIGINAL (SEE READCMD) #</ins></td></tr>
+<tr><td class="n d">71</td><td class="c d">SUBR PLINE1(OL) IS (TFL=0=&gt;(TFL<del>_</del>-1; RC<del>_</del>QC; J<del>_</del>0;</td><td class="n a">81</td><td class="c a"><ins>#</ins>ISTAB <ins>IS THE ORIGINAL'S TABLE OF A BIT FOR EACH CHARACTER, A WORD OF 32 BITS FOR 32 CHARACTERS, THE FIRST AT THE TOP BIT OF THE 32 (THE ORIGINAL HAS 36): THE DIGITS, @ AND THE</ins></td></tr>
+<tr><td class="n d">72</td><td class="c d"> WHILE (I<del>_</del>&lt;+RC&gt;) DO (</td><td class="n a">82</td><td class="c a"> <ins>LETTERS, THE UNDERSCORE (A NAME IS A VALID C NAME; ASSIGNMENT IS :=), ` AND THE LOWER CASE LETTERS, AND, TO TAKE UTF-8, ALL OF 128 AND UP#</ins></td></tr>
+<tr><td class="n d">73</td><td class="c d">	(J<del>_</del>J+1)=OL=&gt;OUTCHR(12B); OUTCHR(I));</td><td class="n a">83</td><td class="c a"><ins>ISTAB</ins>: DATA(0,<ins>177700B</ins>,<ins>37777777741B</ins>,<ins>37777777740B,37777777777B,37777777777B,37777777777B,37777777777B</ins>);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a">SUBR PLINE1(OL) IS (TFL=0=&gt;(TFL<ins>:=</ins>-1; RC<ins>:=</ins>QC; J<ins>:=</ins>0;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"> WHILE (I<ins>:=</ins>&lt;+RC&gt;) DO (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a">	(J<ins>:=</ins>J+1)=OL=&gt;OUTCHR(12B); OUTCHR(I));</td></tr>
+<tr><td class="n q">74</td><td class="c q"> OUTCHR(12B)));</td><td class="n q">88</td><td class="c q"> OUTCHR(12B)));</td></tr>
+<tr><td class="n q">76</td><td class="c q">SUBR PLINE(BF,PCT) IS (</td><td class="n q">90</td><td class="c q">SUBR PLINE(BF,PCT) IS (</td></tr>
+<tr><td class="n q">77</td><td class="c q"> FINAM[5] AND 4000B =&gt; PRINT IGR 3,PCT,STG 0,' ',BF,/;</td><td class="n q">91</td><td class="c q"> FINAM[5] AND 4000B =&gt; PRINT IGR 3,PCT,STG 0,' ',BF,/;</td></tr>
+<tr><td class="n q">78</td><td class="c q"> FINAM[5] AND 100000000B =&gt; MSG(BF));</td><td class="n q">92</td><td class="c q"> FINAM[5] AND 100000000B =&gt; MSG(BF));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"><ins># GETTY(BF): A LINE FROM THE TERMINAL, WITH THE PROMPT (ON THE STANDARD ERROR, AS A SHELL'S IS), IN BF; -1 AT THE END OF THE INPUT (^D).  THE TAPE TURNED A TYPED ! INTO \ (A TOPS-10 TERMINAL HAD NO BACKSLASH); A UNIX KEYBOARD HAS BOTH, AND ! QUOTES A NAME (!DIR/FILE.IMP!).  A TAB IS A BLANK #</ins></td></tr>
+<tr><td class="n q">80</td><td class="c q">SUBR GETTY(BF) IS (OUTSTR('*');</td><td class="n q">95</td><td class="c q">SUBR GETTY(BF) IS (OUTSTR('*');</td></tr>
+<tr><td class="n d">81</td><td class="c d">                   Q<del>_</del>BYTEP BF&lt;7,36&gt;;</td><td class="n a">96</td><td class="c a">                   Q<ins>:=</ins>BYTEP BF&lt;7,36&gt;; <ins>N:=0;</ins></td></tr>
+<tr><td class="n d">82</td><td class="c d">                   PL: C<del>_</del>INCHWL(0);</td><td class="n a">97</td><td class="c a">                   PL: C<ins>:=</ins>INCHWL(0);</td></tr>
+<tr><td class="n d">83</td><td class="c d">                       C=<del>041B</del> =&gt; C<del>_134B</del>;</td><td class="n a">98</td><td class="c a">                       C<ins>&lt;0 =&gt; RETURN -1;</ins></td></tr>
+<tr><td class="n d">84</td><td class="c d">                       C GE 040B =&gt; &lt;+Q&gt;<del>_</del>C;</td><td class="n a">99</td><td class="c a">                       <ins>C</ins>=<ins>011B</ins> =&gt; C<ins>:=040B</ins>;</td></tr>
+<tr><td class="n d">85</td><td class="c d">                       C NE <del>015B</del> =&gt; GO TO PL;</td><td class="n a">100</td><td class="c a">                       C GE 040B =&gt; <ins>(N</ins>&lt;<ins>4128 =&gt; (&lt;</ins>+Q&gt;<ins>:=</ins>C; <ins>N:=N+1));</ins></td></tr>
+<tr><td class="n d">86</td><td class="c d">                   <del>INCHWL(0);</del></td><td class="n a">101</td><td class="c a">                       C NE <ins>12B</ins> =&gt; GO TO PL;</td></tr>
+<tr><td class="n d">87</td><td class="c d">                   &lt;+Q&gt;<del>_</del>045B);</td><td class="n a">102</td><td class="c a">                   &lt;+Q&gt;<ins>:=</ins>045B<ins>; &lt;+Q&gt;:=0</ins>);</td></tr>
+<tr><td class="n q">89</td><td class="c q">SUBR READCMD(BF,FINAM,FREL,FLST,DEV,RPGM) IS (</td><td class="n q">104</td><td class="c q">SUBR READCMD(BF,FINAM,FREL,FLST,DEV,RPGM) IS (</td></tr>
+<tr><td class="n q">90</td><td class="c q"># REL,LST_DEV:FILE.EXT[PJ,PG]/A/B...(AB...)PGM\% #</td><td class="n q">105</td><td class="c q"># REL,LST_DEV:FILE.EXT[PJ,PG]/A/B...(AB...)PGM\% #</td></tr>
+<tr><td class="n d">91</td><td class="c d"> FINAM[I]<del>_</del>0 FOR I FROM 5; DEV<del>_</del>'DSK';</td><td class="n a">106</td><td class="c a"> FINAM[I]<ins>:=</ins>0 FOR I FROM 5; DEV<ins>:=</ins>'DSK';</td></tr>
+<tr><td class="n d">92</td><td class="c d"> FREL<del>_</del>FREL[1]<del>_</del>FLST<del>_</del>FLST[1]<del>_</del>0;</td><td class="n a">107</td><td class="c a"> FREL<ins>:=</ins>FREL[1]<ins>:=</ins>FLST<ins>:=</ins>FLST[1]<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">93</td><td class="c d"> KEY IS 8 LONG; K<del>_</del>BYTEP ',_.[/(%'&lt;7,36&gt;;</td><td class="n a">108</td><td class="c a"> KEY IS 8 LONG; K<ins>:=</ins>BYTEP ',_.[/(%'&lt;7,36&gt;;</td></tr>
+<tr><td class="n d">94</td><td class="c d"> KEY[I]<del>_</del>DIR(&lt;+K&gt; <del>LS 29</del>) FOR I IN 1,1,7;</td><td class="n a">109</td><td class="c a"> KEY[I]<ins>:=</ins>DIR(<ins>CHAT(</ins>&lt;+K&gt;<ins>,0</ins>)<ins>)</ins> FOR I IN 1,1,7;</td></tr>
+<tr><td class="n d">95</td><td class="c d"> CMA<del>_</del>KEY[1]; LAR<del>_</del>KEY[2];</td><td class="n a">110</td><td class="c a"> CMA<ins>:=</ins>KEY[1]; LAR<ins>:=</ins>KEY[2];</td></tr>
+<tr><td class="n d">96</td><td class="c d"> COL<del>_</del>DIR(':'); BSL<del>_</del>DIR('\');</td><td class="n a">111</td><td class="c a"> COL<ins>:=</ins>DIR(':'); BSL<ins>:=</ins>DIR('\');</td></tr>
+<tr><td class="n d">97</td><td class="c d"> LEXSAV(); PC<del>_</del>BYTEP BF&lt;7,36&gt;;</td><td class="n a">112</td><td class="c a"> LEXSAV(); PC<ins>:=</ins>BYTEP BF&lt;7,36&gt;<ins>; CMDM:=1</ins>;</td></tr>
+<tr><td class="n q">98</td><td class="c q"> L0: LEX(S);</td><td class="n q">113</td><td class="c q"> L0: LEX(S);</td></tr>
+<tr><td class="n q">99</td><td class="c q"> L1: (S=KEY[I] =&gt; GO TO L2) FOR I IN 7,-1,1;</td><td class="n q">114</td><td class="c q"> L1: (S=KEY[I] =&gt; GO TO L2) FOR I IN 7,-1,1;</td></tr>
+<tr><td class="n q">100</td><td class="c q"> L2: GO TO (K00,K1,K2,K3,K4,K5,K6,K7) I;</td><td class="n q">115</td><td class="c q"> L2: GO TO (K00,K1,K2,K3,K4,K5,K6,K7) I;</td></tr>
+<tr><td class="n q">101</td><td class="c q"> K00: LEX(S1);</td><td class="n q">116</td><td class="c q"> K00: LEX(S1);</td></tr>
+<tr><td class="n d">102</td><td class="c d">     S1=BSL =&gt; (<del>NM IS 2 LONG;</del> K<del>_</del>GNAME(S); <del>NM_</del>[<del>K</del>]<del>;</del></td><td class="n a">117</td><td class="c a">     S1=BSL =&gt; (K<ins>:=</ins>GNAME(S); <ins>RPGM</ins>[<ins>I</ins>]<ins>:=</ins>[K+<ins>8*I</ins>] <ins>FOR I FROM 3</ins>; GO TO L0);</td></tr>
+<tr><td class="n d">103</td><td class="c d">                <del>NM</del>[<del>1]_[</del>K+<del>1</del>]; <del>RPGM_SIXBIT(NM);</del> GO TO L0);</td><td class="n a">118</td><td class="c a">     S1=CMA =&gt; (PUTN(FREL,S,1); S<ins>:=</ins>S1; GO TO L1);</td></tr>
+<tr><td class="n d">104</td><td class="c d">     S1=CMA =&gt; (PUTN(FREL,S,1); S<del>_</del>S1; GO TO L1);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">105</td><td class="c q">     S1=LAR =&gt; (PUTN(FREL,S,1); GO TO L0);</td><td class="n q">119</td><td class="c q">     S1=LAR =&gt; (PUTN(FREL,S,1); GO TO L0);</td></tr>
+<tr><td class="n q">106</td><td class="c q">     S1=COL =&gt; (PUTN(DEV,S,0); LEX(S); LEX(S1));</td><td class="n q">120</td><td class="c q">     S1=COL =&gt; (PUTN(DEV,S,0); LEX(S); LEX(S1));</td></tr>
+<tr><td class="n d">107</td><td class="c d">     PUTN(FINAM,S,1); S<del>_</del>S1; GO TO L1;</td><td class="n a">121</td><td class="c a">     PUTN(FINAM,S,1); S<ins>:=</ins>S1; GO TO L1;</td></tr>
+<tr><td class="n q">108</td><td class="c q"> K1: LEX(S); S=LAR=&gt; GO TO L0;</td><td class="n q">122</td><td class="c q"> K1: LEX(S); S=LAR=&gt; GO TO L0;</td></tr>
+<tr><td class="n q">109</td><td class="c q">     PUTN(FLST,S,1); GO TO L0;</td><td class="n q">123</td><td class="c q">     PUTN(FLST,S,1); GO TO L0;</td></tr>
+<tr><td class="n q">110</td><td class="c q"> K2: GO TO L0;</td><td class="n q">124</td><td class="c q"> K2: GO TO L0;</td></tr>
+<tr><td class="n q">111</td><td class="c q"> K3: LEX(S); PUTN(FINAM[2],S,0); GO TO L0;</td><td class="n q">125</td><td class="c q"> K3: LEX(S); PUTN(FINAM[2],S,0); GO TO L0;</td></tr>
+<tr><td class="n q">112</td><td class="c q"> K4: LEX(S); PUTO(FINAM[3],S); LEX(S);</td><td class="n q">126</td><td class="c q"> K4: LEX(S); PUTO(FINAM[3],S); LEX(S);</td></tr>
+<tr><td class="n q">113</td><td class="c q">     LEX(S); PUTO(FINAM[4],S); LEX(S); GO TO L0;</td><td class="n q">127</td><td class="c q">     LEX(S); PUTO(FINAM[4],S); LEX(S); GO TO L0;</td></tr>
+<tr><td class="n q">114</td><td class="c q"> K5: LEX(S); PUTSW(FINAM[5],S); GO TO L0;</td><td class="n q">128</td><td class="c q"> K5: LEX(S); PUTSW(FINAM[5],S); GO TO L0;</td></tr>
+<tr><td class="n q">115</td><td class="c q"> K6: LEX(S); PUTSW(FINAM[5],S); LEX(S); GO TO L0;</td><td class="n q">129</td><td class="c q"> K6: LEX(S); PUTSW(FINAM[5],S); LEX(S); GO TO L0;</td></tr>
+<tr><td class="n d">116</td><td class="c d"> K7: FLST =&gt; FINAM[5]<del>_</del>FINAM[5] OR 4000B;</td><td class="n a">130</td><td class="c a"> K7: FLST =&gt; FINAM[5]<ins>:=</ins>FINAM[5] OR 4000B;</td></tr>
+<tr><td class="n d">117</td><td class="c d">     FREL=0 =&gt; (FREL<del>_</del>FINAM; FREL[1]<del>_</del>FINAM[1]);</td><td class="n a">131</td><td class="c a">     FREL=0 =&gt; (FREL<ins>:=</ins>FINAM; FREL[1]<ins>:=</ins>FINAM[1]);</td></tr>
+<tr><td class="n d">118</td><td class="c d">     FLST=0 =&gt; (FLST<del>_</del>FINAM; FLST[1]<del>_</del>FINAM[1]);</td><td class="n a">132</td><td class="c a">     FLST=0 =&gt; (FLST<ins>:=</ins>FINAM; FLST[1]<ins>:=</ins>FINAM[1]);</td></tr>
+<tr><td class="n d">119</td><td class="c d">     LEXRES());</td><td class="n a">133</td><td class="c a">     <ins>CMDM:=0;</ins> LEXRES());</td></tr>
+<tr><td class="n d">121</td><td class="c d">SUBR PUTN(X,S,N) IS (K<del>_</del>GNAME(S); X[<del>I</del>]<del>_[</del>K<del>+I</del>] <del>FOR I FROM N</del>);</td><td class="n a">135</td><td class="c a"><ins># PUTN(X,S,N): THE TAPE COPIES THE FIRST N+1 WORDS OF THE NAME OF THE TOKEN S TO X (SIX SIXBIT CHARACTERS A WORD).  HERE A NAME OF A FILE (N&gt;0) IS KEPT WHOLE, A UNIX NAME OF ANY LENGTH: A COPY OF IT AS A C STRING, ITS ADDRESS IN THE FIRST WORD OF X AND 0 IN THE SECOND (MKNAME OF IMPM READS IT); THE ONE WORD (N=0) OF THE DEVICE AND THE EXTENSION IS AS ON THE TAPE #</ins></td></tr>
+<tr><td class="n d">123</td><td class="c d">SUBR PUTO(X,S) IS (X<del>_</del>0; K<del>_</del>GNAME(S); K<del>_</del>BYTEP [K]&lt;7,36&gt;;</td><td class="n a">136</td><td class="c a">SUBR PUTN(X,S,N) IS (K<ins>:=</ins>GNAME(S);</td></tr>
+<tr><td class="n d">124</td><td class="c d">                   WHILE I<del>_</del>&lt;+K&gt; DO X<del>_</del>(X LS 3)+I-060B);</td><td class="n a">137</td><td class="c a">                     <ins>N=0 =&gt; (</ins>X<ins>:=</ins>[<ins>K</ins>]<ins>; RETURN 0);</ins></td></tr>
+<tr><td class="n d">126</td><td class="c d">SUBR PUTSW(X,S) IS (K<del>_</del>GNAME(S); K<del>_</del>BYTEP [K]&lt;7,36&gt;;</td><td class="n a">138</td><td class="c a">                     <ins>X:=CCALL strdup(</ins>K<ins>); X[1</ins>]<ins>:=0</ins>);</td></tr>
+<tr><td class="n d">127</td><td class="c d">                    WHILE I<del>_</del>&lt;+K&gt; DO X<del>_</del>X OR 1 LS 37B AND I-101B) <del>%</del>%%</td><td class="n a">140</td><td class="c a">SUBR PUTO(X,S) IS (X<ins>:=</ins>0; K<ins>:=</ins>GNAME(S); K<ins>:=</ins>BYTEP [K]&lt;7,36&gt;;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">141</td><td class="c a">                   WHILE I<ins>:=</ins>&lt;+K&gt; DO X<ins>:=</ins>(X LS 3)+I-060B);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">143</td><td class="c a">SUBR PUTSW(X,S) IS (K<ins>:=</ins>GNAME(S); K<ins>:=</ins>BYTEP [K]&lt;7,36&gt;;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a">                    WHILE I<ins>:=</ins>&lt;+K&gt; DO X<ins>:=</ins>X OR 1 LS 37B AND I-101B)%%</td></tr>
+</table>
+</body></html>

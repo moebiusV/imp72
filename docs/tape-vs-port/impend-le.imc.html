@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>impend-le.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>impend-le.imc</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): src/impend-le.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 482 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins># THE BYTE ORDER OF THE MACHINE THE COMPILER RUNS ON: LITTLE ENDIAN.  A NAME, OR A TEXT CONSTANT, IS A STRING OF CHARACTERS IN THE BYTES OF A WORD, THE FIRST AT THE FIRST ADDRESS, WHICH IS THE LOW</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"> <ins>BYTE HERE.  THE MODULES SAY WHAT THEY MEAN WITH THESE, SO THAT THE SAME TEXT COMPILES ON A BIG ENDIAN MACHINE (IMPEND-BE.IMC).  A IS A WORD OF CHARACTERS, K THE NUMBER OF A CHARACTER (FROM 0), C A CHARACTER. #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CHR0(&lt;A&gt;)         ::= "((A) AND 377B)";                   # THE FIRST CHARACTER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CHR(&lt;A&gt;,&lt;K&gt;)      ::= "(((A) RS (8*(K))) AND 377B)";      # CHARACTER K #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>&lt;ATOM&gt; ::= REST(&lt;A&gt;)         ::= "((A) RS 8)";                       # WITHOUT THE FIRST CHARACTER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>&lt;ATOM&gt; ::= PREP(&lt;A&gt;,&lt;C&gt;)     ::= "(((A) LS 8) OR (C))";              # C IN FRONT OF A, THE LAST CHARACTER OF A GONE (LASTC OF A) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>&lt;ATOM&gt; ::= LASTC(&lt;A&gt;)        ::= "((A) RS 56)";                      # THE LAST CHARACTER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>&lt;ATOM&gt; ::= FRONTLAST(&lt;A&gt;)    ::= "(((A) AND 377B) LS 56)";           # THE FIRST CHARACTER OF A AS THE LAST OF A WORD #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>&lt;ATOM&gt; ::= PFX4(&lt;A&gt;)         ::= "((A) AND 37777777777B)";           # THE FIRST FOUR CHARACTERS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CHAT(&lt;C&gt;,&lt;K&gt;)      ::= "((C) LS (8*(K)))";                 # THE CHARACTER C AS CHARACTER K OF A WORD OF ZEROS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CODE(&lt;A&gt;)         ::= "(A)";                              # THE CHARACTER CODE OF A TEXT CONSTANT OF ONE CHARACTER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CHFIRST           ::= "0";                                # THE SHIFTS THAT REACH THE CHARACTERS OF A WORD IN ORDER: FOR N IN CHFIRST,CHSTEP,CHEND #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CHSTEP            ::= "8";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CHBEYOND         ::= "64";                               # THE SHIFT BEFORE THE FIRST OF A WORD, AND THE TEST THAT A SHIFT HAS PASSED THE LAST #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CHPAST(&lt;A&gt;)       ::= "((A)&gt;56)";</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"> <ins>&lt;ATOM&gt; ::= CHEND             ::= "56"%%</ins></td></tr>
+</table>
+</body></html>

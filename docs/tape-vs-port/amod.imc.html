@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>amod.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>amod.imc</h1>
+<p class="mut">left, old (the tape): decus/amod.imc<br>right, new (the port): -</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 3548 tokens deleted, 0 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n d">1</td><td class="c d"><del>TWOSEG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">2</td><td class="c d"><del>#FILE AMOD -- ASSEMBLY MODULE FOR NEW IMP.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">3</td><td class="c d">  <del>THE ASSEMBLER MAKES THREE PASSES THRU THE CODE:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">4</td><td class="c d">    <del>PASS 1: COUNT REGISTER REFERENCES</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">5</td><td class="c d">    <del>PASS 2: ALLOCATE REGISTERS, INSERT REGISTER SAVES &amp; RESTORES, DEFINE TAGS,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">6</td><td class="c d">            <del>COUNT INSTRUCTIONS, SUPPRESS REGISTER LOADS (WHEN PERMITTED),</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">7</td><td class="c d">            <del>AND MARK REFERENCES TO VARIABLES OR LONG CONSTANTS BY SETTING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">8</td><td class="c d">            <del>THE DIR PROPERTY "ATYPE" TO 6.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">9</td><td class="c d">    <del>PASS 3: PUT OUT THE OBJECT CODE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">10</td><td class="c d">  <del>BETWEEN THE SECOND AND THIRD PASSES, STORAGE IS ALLOCATED FOR VARIABLES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">12</td><td class="c d">  <del>/A   PROVIDES AN ASSEMBLY LISTING.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">13</td><td class="c d">  <del>/B   TURNS ON DEBUGGING PRINTOUT AND LISTING.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">15</td><td class="c d">  <del>THE FORMATTING OF THE OBJECT PROGRAM IS DONE IN FILE "OMOD" (OUTPUT MODULE).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">17</td><td class="c d">  <del>*** IMPORTANT ASSUMPTION: THE ASSEMBLER MUST BE CALLED ONLY ONCE! ***     #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">20</td><td class="c d"><del>CO,NCO,FINAM,CONST,RG,ARR,NARR ARE COMMON;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">21</td><td class="c d"><del>SUBR ASSEMB(E,F,REGN,IMPM,RELNM) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">23</td><td class="c d"> <del>AST_CALLI(27B,0); IASSEM(RELNM); INIREG();</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">24</td><td class="c d"> <del>SUPPR_1; LCONS_FALLOT('LCONS',25); NLCONS_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">25</td><td class="c d"> <del>FINAM[5]_FINAM[5] AND NOT 4;  #TURN OFF CONTINUE OPTION#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">26</td><td class="c d"> <del>LIST_FINAM[5] AND 3; LIST =&gt; ALIST(8,RELNM);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">27</td><td class="c d"> <del>(DBG_FINAM[5] AND 2) =&gt; (S_ENSTACK(0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">28</td><td class="c d">                          <del>E =&gt; (PRINT /,STG 0,'HIGH SEGMENT --',/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">29</td><td class="c d">                                <del>FREES(S+2,E LS 18); PCODE(S,9999));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">30</td><td class="c d">                          <del>F =&gt; (PRINT /,STG 0,'LOW SEGMENT --',/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">31</td><td class="c d">                                <del>FREES(S+2,F LS 18); PCODE(S,9999)));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">32</td><td class="c d"> <del>IW_E; SEG_1; UNREFL_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">33</td><td class="c d"><del>PASS1: IW=0=&gt;GO TO P1X; W_NXCW(IW); IW =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">34</td><td class="c d">    <del>UNPKCW(W);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">35</td><td class="c d">    <del>CODE NE 1 =&gt; (W_NXCW2(IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">36</td><td class="c d">                  <del>CODE=0 =&gt; (ACI=&gt;REGREF(ACI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">37</td><td class="c d">                             <del>IXI=&gt;UNREFL=0=&gt;REGREF(IXI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">38</td><td class="c d">			       <del>UNREFL_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">39</td><td class="c d">                             <del>VIF=&gt;REGREF(W AND 777777B)))</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">40</td><td class="c d">           <del>ELSE  (CODE_(W RS 27) AND 177B; VI_W AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">41</td><td class="c d">		  <del>CODE=0=&gt;DPROP('COM',VI)=1=&gt;DPROPS('COM',VI,2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d">                  <del>CODE=5 =&gt; REGREF(VI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d">                  <del>CODE=6 =&gt; (REGREF(VI); REGREF(VI)); #EXTRA REFERENCE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">44</td><td class="c d">                            <del>TO RESERVE REGISTER FOR DURATION OF PROGRAM#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">45</td><td class="c d">                  <del>CODE=7 =&gt; OPTREG(IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d">                  <del>CODE=8 =&gt; REGREF(VI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">47</td><td class="c d">                  <del>CODE=9 =&gt; REGREF(VI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">48</td><td class="c d">                  <del>CODE=10 =&gt; REGREF(VI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d">                  <del>CODE=11=&gt;UNREFL_1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">50</td><td class="c d">    <del>GO TO PASS1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">51</td><td class="c d">   <del>P1X: SEG=&gt;(IW_F; SEG_0; GO TO PASS1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">53</td><td class="c d"> <del>DBG =&gt; (PRINT /,STG 0,'REGISTER ARRAY --',/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d">         <del>N_(REGN+2)/4;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">55</td><td class="c d">         <del>(K_I; DBR: R_RGG(K); PRINT STG 0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d">          <del>R AND 10000B =&gt; PRINT 'U'; R AND 4000B =&gt; PRINT 'Z';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d">          <del>R AND 40B =&gt; PRINT 'D'; (R AND 14040B)=0 =&gt; PRINT ' ';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d">          <del>PRINT ' R',OCT 3,K,STG 0,' ',OCT 2,37B AND R RS 6,37B AND R,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d">                <del>IGR 3,7777B AND R RS 18,STG 0,'    ';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d">          <del>K_K+N; K&lt;REGN =&gt; GO TO DBR;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d">          <del>PRINT /) FOR I IN 1,1,N;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">         <del>PRINT /);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d"> <del>IW_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d"><del>ASCOM: IW&lt;NARR =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d">             <del>VI_FREE(ARR+IW) AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">67</td><td class="c d">             <del>DPROP('COM',VI)=1 =&gt; DPROPS('COM',VI,2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">68</td><td class="c d">             <del>IW_IW+1; GO TO ASCOM);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d"> <del>IW_E; SEG_1; ADR_400000B; SNO_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d"><del>PASS2: IW=0=&gt;GO TO P2X; OIW_IW; W_NXCW(IW); IW =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d"> <del>UNPKCW(W);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d"> <del>CODE=1 =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d">    <del>VI_W AND 777777B; OPC_(W RS 27) AND 177B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">76</td><td class="c d">    <del>OPC&gt;11 =&gt; GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">77</td><td class="c d">    <del>GO TO (SF0,SF1,SF2,SF3,SF4,SF5,SF5,PASS2,SF8,SF9,SF10,PASS2) OPC;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">79</td><td class="c d"><del>#TAG#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">80</td><td class="c d">    <del>SF0: DPROP('ATYPE',VI)=7 =&gt; (ERROR(1,'DUPLICATE TAG'); ERTYP(VI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">81</td><td class="c d">                                 <del>ALIST(0,VI); GO TO PASS2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">82</td><td class="c d">         <del>DPROPS('SEM',VI,ADR); DPROPS('ATYPE',VI,7); REGCLR(0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">83</td><td class="c d">         <del>PUTS(VI,ADR)=2=&gt;SNO_SNO+1; LIST=&gt;ALIST(0,VI); GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">85</td><td class="c d"><del>#SAVE REGISTERS#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">86</td><td class="c d">    <del>SF1: IW_SVREG(SNO,OIW,IW,VI); GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">88</td><td class="c d"><del>#RESTORE REGISTERS; VI NE 0 MEANS FORCE A REFERENCE TO THE REGISTER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">89</td><td class="c d"> <del>WHICH IS INDEXED BY VI (THIS ALLOCATES THE REGISTER WHICH CONTAINS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">90</td><td class="c d"> <del>THE RETURNED VALUE OF A FUNCTION). #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">91</td><td class="c d">    <del>SF2: IW_RSREG(OIW,IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">92</td><td class="c d">         <del>VI =&gt; (REGREF(VI); REGSET(VI,0,0,0,0,0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">93</td><td class="c d">         <del>GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">95</td><td class="c d"><del>#ENTER DELETE NO INSTRUCTIONS MODE#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">96</td><td class="c d">    <del>SF3: SUPPR_0; GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">98</td><td class="c d"><del>#LEAVE DELETE NO INSTRUCTIONS MODE#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">99</td><td class="c d">    <del>SF4: SUPPR_1; GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">101</td><td class="c d"><del>#RESERVE A REGISTER-- COUNT THIS AS A REFERENCE TO IT#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">102</td><td class="c d">    <del>SF5: REGSET(VI,0,0,0,0,0); GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">104</td><td class="c d"><del>#RELEASE A PARTICULAR REGISTER#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">105</td><td class="c d">    <del>SF8: REGSET(VI,0,0,0,0,0); RELREG(VI); GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">107</td><td class="c d"><del>#DECLARE REGISTER SCRATCH - WON'T BE SAVED &amp; RESTORED#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">108</td><td class="c d">    <del>SF9: REGSET(VI,0,0,0,0,0); RSCR(VI); GO TO PASS2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">110</td><td class="c d"><del>#PROTECT REGISTER - SAVE &amp; RESTORE#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">111</td><td class="c d">    <del>SF10: REGSET(VI,0,0,0,0,0); RPRT(VI); GO TO PASS2); #END OF SPECIAL FUNCTIONS#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">113</td><td class="c d"> <del>SW_W; W_NXCW2(IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">114</td><td class="c d"> <del>CODE=0 =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">115</td><td class="c d">      <del>(OPC_(SW RS 24) AND 777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">116</td><td class="c d">       <del>(OPC RS 3)=33B =&gt; (IXI=0=&gt;(OPTSKP(IW,OPC,VIF,W,ADR)=&gt;GO TO PASS2));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">117</td><td class="c d">       <del>REGSET(ACI,IXI,W,VIF,OPC,1 AND SW RS 33) =&gt; SUPPR =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">118</td><td class="c d">                        <del>(FREES(CO+OIW,400000000000B+IW); GO TO PASS2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">119</td><td class="c d"><del># IN DELETE NO INSTRUCTIONS MODE, PRESUMABLY INSTRUCTION MAY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">120</td><td class="c d">	<del>BE SKIPPED (THAT'S WHY THE MODE EXISTS).  THUS, ZAP</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">121</td><td class="c d">	<del>CONTENTS OF REGISTER AND/OR MEMORY AFFECTED. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">122</td><td class="c d">	<del>SUPPR=0=&gt;(	J_OCHK(OPC);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">123</td><td class="c d">			<del>(J AND 1)=&gt;ACI=&gt;REGZAP(37B AND RGG(R) RS 13,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">124</td><td class="c d">			<del>(J AND 2)=&gt;REGZAP(-1,W));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">125</td><td class="c d">       <del>VIF=0 =&gt; ((I_W&lt;R&gt;) =&gt; MKVAR(I,ADR,OPC)))</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">126</td><td class="c d">    <del>ELSE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">127</td><td class="c d">       <del>(I_SW AND 777777B) =&gt; MKVAR(I,ADR,202B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">128</td><td class="c d"> <del>ADR_ADR+1; GO TO PASS2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">129</td><td class="c d"><del>P2X: SEG=&gt;(IW_F; SEG_0; HADR_ADR; ADR_0; GO TO PASS2);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">130</td><td class="c d"> <del>LADR_ADR;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">132</td><td class="c d"> <del>IW_0; LIST =&gt; ALIST(6,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">133</td><td class="c d"><del>ASVEC: IW&lt;NARR =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">134</td><td class="c d">            <del>W_FREE(ARR+IW); VI_W AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">135</td><td class="c d">            <del>DPROP('ATYPE',VI)=7 =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">136</td><td class="c d">                 <del>ERROR(2,'VECTOR APPEARS IN MORE THAN ONE DECLARATION');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">137</td><td class="c d">                 <del>ERTYP(VI); ALIST(0,VI); GO TO NXVEC);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">138</td><td class="c d">            <del>DPROPS('SEM',VI,ADR); DPROPS('ATYPE',VI,7); PUTS(VI,ADR);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">139</td><td class="c d">            <del>LIST =&gt; ALIST(0,VI);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">140</td><td class="c d">            <del>ADR_ADR+(W RS 18);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">141</td><td class="c d">            <del>NXVEC: IW_IW+1; GO TO ASVEC);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">143</td><td class="c d"> <del>IW_-1; VEND_ADR; LIST =&gt; ALIST(6,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">144</td><td class="c d"><del>ASSCA: (IW_DSEQ(IW)) GE 0 =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">145</td><td class="c d">             <del>DPROP('ATYPE',IW)=6 =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">146</td><td class="c d">                   <del>(I_CONVC(IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">147</td><td class="c d">                   <del>I=0=&gt;(LIST =&gt; ALIST(0,IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">148</td><td class="c d">                         <del>DPROPS('SEM',IW,ADR); PUTS(IW,ADR);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">149</td><td class="c d">                         <del>DPROP('ENTRY',IW) NE 7 =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">150</td><td class="c d">                             <del>ERROR(2,'QUESTIONABLY DEFINED VARIABLE');</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">151</td><td class="c d">                             <del>ERTYP(IW); PNAME(IW); ALIST(6,0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">152</td><td class="c d">                         <del>ADR_ADR+1; GO TO ASSCA);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">153</td><td class="c d">                   <del>I NE 0=&gt;(DPROPS('SEM',IW,NLCONS);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">154</td><td class="c d">                          <del>I=-1 =&gt; FADD(LCONS,NLCONS,CONST);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">155</td><td class="c d">                          <del>I&gt;0 =&gt; (VI_FREE(I); IX_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">156</td><td class="c d">                                  <del>SVCNS: (IX_IX+1) LE VI =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">157</td><td class="c d">                                                <del>FADD(LCONS,NLCONS,FREE(I+IX));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">158</td><td class="c d">                                                <del>GO TO SVCNS))));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">159</td><td class="c d">              <del>GO TO ASSCA);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">161</td><td class="c d"> <del>SEND_ADR;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">162</td><td class="c d"> <del>STCONS_(E=&gt;HADR ELSE ADR); LIST =&gt; ALIST(7,NLCONS);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">163</td><td class="c d"> <del>E=&gt;HISEG(HADR);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">164</td><td class="c d"> <del>IMPM=&gt;(E=&gt;STADR(400000B) ELSE STADR(0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">166</td><td class="c d"> <del>IW_E; SEG_1; STCODE(400000B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">167</td><td class="c d"><del>PASS3: IW=0=&gt;GO TO P3X; W_NXCW(IW); IW =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">168</td><td class="c d">  <del>UNPKCW(W); CODE=1=&gt;(LIST=&gt;(((W RS 27) AND 177B)=0=&gt;ALIST(4,W AND 777777B));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">169</td><td class="c d">                      <del>GO TO PASS3);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">170</td><td class="c d">  <del>I_NXCW2(IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">171</td><td class="c d">  <del>CODE=3 =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">172</td><td class="c d">     <del>(C_I; (VI_W AND 777777B) =&gt; C_C+GETADR(VI,IXI)   ELSE   IXI_0)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">173</td><td class="c d">    <del>ELSE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">174</td><td class="c d">     <del>(J_((W LS 3) AND 777000000000B) OR ((W RS 11) AND 20000000B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">175</td><td class="c d">      <del>IXI=&gt;J_J OR (GETREG(IXI) LS 18);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">176</td><td class="c d">      <del>ACI=&gt;J_J OR (GETREG(ACI) LS 23);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">177</td><td class="c d">      <del>VI_I AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">178</td><td class="c d">      <del>VIF =&gt; (C_J OR GETREG(VI); VI_IXI_0)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">179</td><td class="c d">        <del>ELSE (I_I RS 18;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">180</td><td class="c d">              <del>VI =&gt; C_J OR (GETADR(VI,IXI)+I) AND 777777B</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">181</td><td class="c d">               <del>ELSE (C_J OR I; IXI_0)));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">182</td><td class="c d">  <del>ADR_PUT(C,IXI); LIST =&gt; ALIST(3,VI); GO TO PASS3);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">184</td><td class="c d"> <del>P3X: SEG=&gt;(NLCONS=&gt;(IW_NLCONS-1; STCODE(STCONS);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">185</td><td class="c d">                 <del>PUT(FREE(LCONS+I),0) FOR I TO IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">186</td><td class="c d">        <del>IW_F; SEG_0; STCODE(0); GO TO PASS3);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">187</td><td class="c d">  <del>BRK1_STCONS+NLCONS; BRK2_(E=&gt;SEND ELSE 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">188</td><td class="c d">  <del>EASSEM(BRK1,BRK2); LIST =&gt; ALIST(9,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">189</td><td class="c d"><del>AST_CALLI(27B,0)-AST; ASTATS(0));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">192</td><td class="c d"><del>SUBR MKVAR(VI,A,OPC) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">193</td><td class="c d"> <del>DPROP('ATYPE',VI) NE 7 =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">194</td><td class="c d">          <del>DPROP('COM',VI) NE 1 =&gt; (DPROPS('ATYPE',VI,6);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">195</td><td class="c d">                                   <del>OPC=320B=&gt;M_2 ELSE M_OCHK(OPC);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">196</td><td class="c d">                                   <del>M AND 2=&gt;DPROPS('ENTRY',VI,7))</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">197</td><td class="c d">                             <del>ELSE  (PUTS(VI,A); DPROPS('SEM',VI,0)));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">198</td><td class="c d"> <del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">201</td><td class="c d"><del>SUBR GETADR(IW,IXI) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">202</td><td class="c d"> <del>RTV_DPROP('SEM',IW); IXI_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">203</td><td class="c d"> <del>CONVC(IW) =&gt; RTV_RTV+STCONS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">204</td><td class="c d">         <del>ELSE (DPROP('COM',IW)=1=&gt;IXI_0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">205</td><td class="c d"> <del>RTV);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">208</td><td class="c d"><del>SUBR NXCW(I) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">209</td><td class="c d"> <del>GWC: J_FREE(CO+I);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">210</td><td class="c d">      <del>(J RS 34)=2=&gt;((I_J AND 777777B)=&gt;GO TO GWC; GO TO EXITN);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">211</td><td class="c d">      <del>I_I+1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">212</td><td class="c d"> <del>EXITN: J);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">215</td><td class="c d"><del>SUBR NXCW2(I) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">216</td><td class="c d"> <del>J_FREE(CO+I);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">217</td><td class="c d"> <del>I_I+1; J);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">220</td><td class="c d"><del>SUBR UNPKCW(W) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">221</td><td class="c d"> <del>(CODE_W RS 34)=0 =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">222</td><td class="c d">    <del>ACI_(W RS 12) AND 3777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">223</td><td class="c d">    <del>IXI_W AND 3777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">224</td><td class="c d">    <del>VIF_(W RS 11) AND 1);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">225</td><td class="c d"> <del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">228</td><td class="c d"><del>#FCN WHICH OPTIMIZES EXPLICIT REGISTER USEAGE:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">229</td><td class="c d">     <del>MOVE   TREG,UREG</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">230</td><td class="c d">     <del>INST   TREG,ANYTHING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">231</td><td class="c d">     <del>MOVE   UREG,TREG</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">232</td><td class="c d"> <del>BECOMES</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">233</td><td class="c d">     <del>INST   UREG,ANYTHING  #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">235</td><td class="c d"><del>SUBR OPTREG(IW) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">236</td><td class="c d"> <del>ADF_IW; AC_3777B AND (NXCW(ADF) RS 12); VI_3777B AND NXCW2(ADF);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">237</td><td class="c d"> <del>OP_NXCW(ADF); ADR_NXCW2(ADF); C_NXCW(ADF);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">238</td><td class="c d"> <del>VI=3777B AND C RS 12 =&gt; C AND 4000B =&gt; 200B=777B AND C RS 24 =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">239</td><td class="c d">        <del>(C_NXCW2(ADF); AC=3777B AND C =&gt;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">240</td><td class="c d">               <del>(FREES(CO+IW,(OP AND 777740007777B) OR (VI LS 12));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">241</td><td class="c d">                <del>FREES(CO+IW+1,ADR); NXCW(IW); NXCW2(IW);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">242</td><td class="c d">                <del>FREES(CO+IW,400000000000B+ADF);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">243</td><td class="c d">                <del>REGREF(VI)));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">244</td><td class="c d"> <del>0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">248</td><td class="c d"><del>#FCN WHICH RECOGNIZES THE SEQUENCE:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">249</td><td class="c d">  <del>SKIPX  MEM     WHEN MEM HAPPENS TO ALREADY BE IN A REGISTER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">250</td><td class="c d">  <del>JRST   L</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">251</td><td class="c d"> <del>THIS BECOMES:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">252</td><td class="c d">  <del>JUMPNX  R,L    (WHERE REG R CONTAINS MEM)  #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">254</td><td class="c d"><del>SUBR OPTSKP(IW,OPC,VIF,W,ADR) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">255</td><td class="c d"> <del>RTV_0; VIF=&gt;VI_ W AND 777777B ELSE ((VI_REGCON(W))=0=&gt;GO TO EXITSK);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">256</td><td class="c d"> <del>ADF_IW; (C_NXCW(ADF)) RS 34 =&gt; (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">257</td><td class="c d">                <del>C NE 203000000000B=&gt;GO TO EXITSK; #IGNORE SCL FCN 3#</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">258</td><td class="c d">                <del>(C_NXCW(ADF)) RS 34=&gt;GO TO EXITSK);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">259</td><td class="c d"> <del>(I_777B AND C RS 24) NE 254B =&gt; (I NE 324B=&gt;GO TO EXITSK);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">260</td><td class="c d"> <del>C AND 100000007777B =&gt; GO TO EXITSK;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">261</td><td class="c d"> <del>J_7 AND 4+(OPC AND 7); I_((320B OR J) LS 24) OR (VI LS 12);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">262</td><td class="c d"> <del>C_NXCW2(ADF); (J_C AND 777777B) =&gt; MKVAR(J,ADR,0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">263</td><td class="c d"> <del>FREES(CO+IW-2,I); FREES(CO+IW-1,C); FREES(CO+IW,400000000000B+ADF);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">264</td><td class="c d"> <del>ADR_ADR+1; IW_ADF; RTV_1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">265</td><td class="c d"> <del>EXITSK: RTV);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">268</td><td class="c d"><del>SUBR ERTYP(VI)  IS  (ADF_GNAME(VI); MSG([ADF]));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">271</td><td class="c d"><del>SUBR ALIST(L,V) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">272</td><td class="c d"> <del>GO TO ATG[L];</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">273</td><td class="c d"><del>ATG: GO TO AL0; GO TO AL1; GO TO AL1; GO TO AL3; GO TO AL4;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">274</td><td class="c d">     <del>GO TO AL5; GO TO AL6; GO TO AL7; GO TO AL8; GO TO AL9;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">276</td><td class="c d"><del>AL0: PRINT STG 3,' ', OCT 6,ADR, STG 3,' ';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">277</td><td class="c d">     <del>PNAME(V); GO TO AL6;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">278</td><td class="c d"><del>AL1: PRINT OCT 4,IW-L, STG 4,' ', OCT 1,CODE, STG 1,' ',</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">279</td><td class="c d">           <del>OCT 3,OPC, STG 1,' ';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">280</td><td class="c d">     <del>L=1 =&gt; PRINT OCT 6,V,/</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">281</td><td class="c d">       <del>ELSE PRINT OCT 4,ACI, IGR 2,VIF, STG 1,' ', OCT 4,IXI, OCT 15,V,/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">282</td><td class="c d">     <del>GO TO EXITA;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">283</td><td class="c d"><del>AL3: ADF_C AND 777777B; OP_C RS 27;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">284</td><td class="c d">     <del>PRINT STG 3,' ', OCT 6,ADR-1,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">285</td><td class="c d">           <del>STG 3,' ', OCT 6,C RS 18, STG 1,' ', OCT 6,ADF, STG 5,' ';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">286</td><td class="c d">     <del>OPCODE(OP,O,M) =&gt; M_PRINT STG 0,O,M</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">287</td><td class="c d">                  <del>ELSE M_PRINT OCT 3,OP;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">288</td><td class="c d">     <del>AC_(C RS 23) AND 17B; IX_(C RS 18) AND 17B; I_I AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">289</td><td class="c d">     <del>PRINT STG 38-M,' '; AC=&gt;PRINT OCT 0,AC, STG 0,',';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">290</td><td class="c d">     <del>C AND 20000000B =&gt; PRINT STG 0,'@';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">291</td><td class="c d">     <del>V=&gt;PNAME(V)  ELSE  (PRINT OCT 0,ADF; I_0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">292</td><td class="c d">     <del>I =&gt; (I AND 400000B=&gt;PRINT STG 0,'-', OCT 0, -(I OR 777777000000B)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">293</td><td class="c d">                     <del>ELSE PRINT STG 0,'+', OCT 0,I);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">294</td><td class="c d">     <del>IX =&gt; PRINT STG 0,'(', OCT 0,IX, STG 0,')';</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">295</td><td class="c d">     <del>GO TO AL6;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">296</td><td class="c d"><del>AL4: PRINT STG 25,' '; PNAME(V); PRINT STG 0,':',/; GO TO EXITA;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">297</td><td class="c d"><del>AL5: PRINT OCT 4,IW-2, OCT 16,SW, OCT 20,V,/; GO TO EXITA;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">298</td><td class="c d"><del>AL9: PRINT STG 33,'END',/; GO TO EXITA;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">299</td><td class="c d"><del>AL7: V =&gt; (PRINT /; ADF_V-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">300</td><td class="c d">              <del>(PRINT STG 3,' ', OCT 6, STCONS+I,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">301</td><td class="c d">               <del>OCT 15,FREE(LCONS+I),/) FOR I TO ADF);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">302</td><td class="c d">     <del>GO TO AL6;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">303</td><td class="c d"><del>AL8: PRINT /, STG 0,'** CODE PRODUCED BY PROGRAM '; PNAME(V); PRINT /;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">304</td><td class="c d"><del>AL6: PRINT /;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">305</td><td class="c d"><del>EXITA: 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">307</td><td class="c d"><del>SUBR ASTIME(NIL) IS (AST);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">309</td><td class="c d"><del>SUBR ASTATS(NIL) IS (</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">310</td><td class="c d"> <del>HLEN_HADR-400000B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">311</td><td class="c d"> <del>PRINT /,STG 0, 'ASSEMBLY TIME = ', IGR 0,AST, STG 0, '   MSEC.',/,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">312</td><td class="c d">       <del>' ', IGR 0,HLEN+LADR, STG 0,' WORDS OBJECT CODE',/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">313</td><td class="c d"> <del>HLEN=&gt;PRINT ' ',IGR 0,HLEN+NLCONS,STG 0,' WORDS HIGH SEGMENT,   ',</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">314</td><td class="c d">                 <del>IGR 0,SEND,STG 0,' WORDS LOW SEGMENT',/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">315</td><td class="c d"> <del>PRINT ' ', IGR 0,VEND-LADR, STG 0,' WORDS VECTOR STORAGE,   ',</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">316</td><td class="c d">            <del>IGR 0,SEND-VEND, STG 0,' WORDS SCALAR STORAGE,   ',</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">317</td><td class="c d">            <del>IGR 0,NLCONS, STG 0,' CONSTANTS',/,/;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">318</td><td class="c d"> <del>0) %%%</del></td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

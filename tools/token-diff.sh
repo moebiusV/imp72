@@ -23,5 +23,11 @@ for f in src/*.imc lib/*.iml; do
     pairs="$pairs - $f"
 done
 # shellcheck disable=SC2086
-sh tools/imptool.sh token-diff "$out" $pairs || exit 1
+note=
+if command -v git >/dev/null 2>&1 && git rev-parse --short HEAD >/dev/null 2>&1; then
+    note="Generated from decus/ and src/ at commit $(git rev-parse --short HEAD) ($(git log -1 --format=%cs))."
+fi
+if [ -n "$note" ]; then sh tools/imptool.sh token-diff -n "$note" "$out" $pairs || exit 1
+else sh tools/imptool.sh token-diff "$out" $pairs || exit 1
+fi
 echo "token-diff: $out/index.html"

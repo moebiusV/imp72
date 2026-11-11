@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ir2ll.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>ir2ll.imc</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): src/ir2ll.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 10119 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>#THIS IS FILE IR2LL, THE LLVM IR WRITER: THE TRANSLATION OF TOOLS/IR2LL.C (WHICH THE SEED KEEPS) INTO IMP, SO THAT NO C IS LEFT IN IT BUT THE SHIM STAGE0/IR2LL_SHIM.C THAT STAGE0/LLVMORC.C CALLS.  NOT IN THE TAPE: THE ORIGINAL'S OMOD</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"> <ins>WRITES PDP-10 OBJECT CODE.  IR2LLRUN(INF,OUTF,PTR32) READS THE TEXT OF THE IR THAT THE CODE GENERATOR WRITES (SRC/IX.IMC: "* TEXT" LINES, "! TYPE FLAGS PROLAB TMPBASE LBLBASE NAME", "^ N", '" OP TYPE QUAL ...' ONE TREE NODE A LINE, PREORDER,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"> <ins>AND "% AUTOS RETLAB TMPEND LBLEND NAME") FROM THE FILE INF AND WRITES THE MODULE OF LLVM IR AS TEXT TO THE FILE OUTF; PTR32 IS 1 WHEN THE HOST'S POINTERS ARE 32 BITS.  IT RETURNS 0.  THE TEXT IS THE C'S BYTE FOR BYTE.  THE CODE GENERATOR OF THIS COMPILER CAN NAME ONLY 2047 REGISTERS IN A COMPILATION (AREG1 IN SRC/IMPSEM.IMC: THE INDEX IS 11 BITS IN THE RECORDS), SO THE WRITER IS IN TWO FILES: THIS ONE HAS</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"> <ins>THE ENTRY, THE READING AND THE DATA, AND SRC/IR2LLX.IMC THE EXPRESSIONS AND THE STATEMENTS.  WHAT THEY SHARE IS COMMON, DECLARED THE SAME IN BOTH (THE IMAGE LEAVES ALL OF IT OUT: IMGSKIP IN SRC/IMAGE.IMC).</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"> <ins>A NODE IS EIGHT WORDS (OP, TYPE, VALUE, REGISTER OR TEMP NUMBER, NAME, LEFT, RIGHT; THE FIELDS ARE [N]..[N+6]: A BRACKET WITH A LITERAL INDEX COUNTS WORDS).  THE TEXT IS BUILT IN BUFFERS OF OUR OWN (IRLPC, IRLPS, IRLPN:</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>THE C LIBRARY'S OPEN_MEMSTREAM HAS AN UNDERSCORE, AND A NUMBER IS WRITTEN WITHOUT A CALL THAT TAKES A 64 BIT VALUE, AS IN IX.IMC); THE NODES AND THE STRINGS OF A FUNCTION ARE IN AN ARENA THAT IS GIVEN BACK AT ITS END.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>THE ROUTINES THAT CALL ONE ANOTHER WITHOUT END (THE EXPRESSIONS: IRLEXPR, IRLEXC, IRLLOAD, IRLPLACE, IRLSTORE, IRLCOMPARE, IRLCALLEXPR, AND IRLREAD AND IRLNOTE FOR THE TREES) KEEP NOTHING IN THEIR VARIABLES ACROSS A CALL (A VARIABLE IS ONE WORD</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>OF STORAGE, NOT A PLACE ON A STACK): WHAT THEY NEED AFTERWARDS THEY PUSH ON THE STACK IRLSTK (IRLPUSH, IRLPOP) AND TAKE BACK, AND THEY COPY THEIR ARGUMENTS INTO VARIABLES AT ONCE, BECAUSE AN ARGUMENT IS A REFERENCE TO A WORD THE CALLER MAY CHANGE.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>THE OPERATORS AND TYPES ARE THOSE OF PCC'S PASS 2 (WHERE THE FORMAT COMES FROM): NAME 2, ICON 4, REG 6, TEMP 8, PLUS 10, MINUS 11, DIV 12, MOD 13, MUL 14, AND 15, OR 16, ER 17, LS 18, RS 19, COMPL 20, UMUL 23, UMINUS 24, EQ 25, NE 26, LE 27, LT 28, GE 29, GT 30, ULE 31, ULT 32,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>UGE 33, UGT 34, CBRANCH 35, SCONV 37, PCONV 38, CALL 41, UCALL 42, CM 48, ASSIGN 49, GOTO 54; UCHAR 3, INT 6, LONG 8, ULONG 9, DOUBLE 13.  THE SETS OF NAMES ARE NUMBERED: CALLED 0, DATAREFS 1, DATADEFS 2, FUNCS 3, CFUNCS 4, LOCALS 5, THE DECLARATIONS OF THE TYPED C FUNCTIONS 6 (NAME, A NEW LINE, THE DECLARE LINE), THE C ENTRIES OF THE CALLBACKS 7.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"> <ins>THE BUFFERS ARE NUMBERED: THE FUNCTION BEING WRITTEN 0, THE GLOBAL VARIABLES 1, THE FUNCTIONS 2, THE STRING BEING MADE 3, AN ASSEMBLER STRING AS AN LLVM CONSTANT 4.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a"><ins>IRLIN,IRLOUTP,IRLP32,IRLSP,IRLCH,IRLTOP,IRLEND,IRLNVR,IRLNCM,IRLNDQ,IRLDLABEL,IRLDSTRING,IRLUSEJ,IRLNVAL,IRLTERM,IRLNDEAD,IRLNT,IRLMAXARG,IRLPOS,IRLV,IRLLEN ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"><ins>IRLTBE ARE COMMON;                                             # 1 WHEN THE TARGET IS BIG ENDIAN: THE ADDRESS IN A DATA WORD OF A 32 BIT POINTER IS ITS SECOND HALF #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"><ins>IRLBB,IRLBL,IRLBC ARE COMMON,6 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"><ins>IRLSETV IS COMMON,32768 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"><ins>IRLSETN IS COMMON,8 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"><ins>IRLTT IS COMMON,8192 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"><ins>IRLSTM IS COMMON,100000 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"><ins>IRLLAB IS COMMON,100000 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"><ins>IRLSTK IS COMMON,200000 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"><ins>IRLDQ,IRLDS ARE COMMON,4096 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"><ins>IRLVRS,IRLVRN,IRLVRZ ARE COMMON,4096 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"><ins>IRLCMN,IRLCMZ,IRLCML ARE COMMON,4096 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a"><ins>IRLLINE IS COMMON,80 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"><ins>IRLHDR IS COMMON,90 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"><ins>IRLFNM IS COMMON,33 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"><ins>IRLTOKB IS COMMON,70 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a"><ins>IRLSYMB IS COMMON,33 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a"><ins>IRLNMB IS COMMON,38 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a"><ins>IRLDG IS COMMON,24 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"><ins>IRLZERO IS COMMON,2 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">33</td><td class="c a"><ins>IRLSTP IS COMMON,260 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"><ins># THE BYTE I OF THE MEMORY AT P, AND STORING ONE (AS IN TOOLS/IMPRENAME.IMP) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a"><ins>SUBR IRLGB(P,I) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"> <ins>Q ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">38</td><td class="c a"> <ins>Q:=BYTEP [P]&lt;7,36&gt;; Q:=Q+I; &lt;+Q&gt;);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"><ins>SUBR IRLPUTB(P,I,V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a"> <ins>Q ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a"> <ins>Q:=BYTEP [P]&lt;7,36&gt;; Q:=Q+I; &lt;+Q&gt;:=V; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a"><ins># THE BYTE I OF THE STRING AT P #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a"><ins>SUBR IRLGETB(P,I) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a"> <ins>Q,C ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">47</td><td class="c a"> <ins>Q:=BYTEP [P]&lt;7,36&gt;; Q:=Q+I; C:=&lt;+Q&gt;; C);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a"><ins># AN ERROR: ONLY THE MESSAGE AND WHAT IT IS ABOUT ON THE STANDARD ERROR, AND THE END (IR2LL: MSG: LINE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a"><ins>SUBR IRLDIE(M,A) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a"> <ins>CCALL write(2,LOC('ir2ll: '),7);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">52</td><td class="c a"> <ins>CCALL write(2,M,CCALL strlen(M));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"> <ins>CCALL write(2,LOC(': '),2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">54</td><td class="c a"> <ins>CCALL write(2,A,CCALL strlen(A));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"> <ins>IRLPUTB(LOC(IRLDG),0,10); CCALL write(2,LOC(IRLDG),1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"> <ins>CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">59</td><td class="c a"><ins># WHAT IS NOT TO BE DONE: THE TEXT AND A NUMBER ON THE STANDARD ERROR, AND THE END #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">60</td><td class="c a"><ins>SUBR IRLERRN(S,V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">61</td><td class="c a"> <ins>IRLRST(3); IRLPS(3,S); IRLPN(3,V); IRLPC(3,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">62</td><td class="c a"> <ins>CCALL write(2,IRLBB[3],IRLBL[3]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">63</td><td class="c a"> <ins>CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"><ins># ---- THE STACK FOR WHAT A ROUTINE NEEDS AFTER IT CALLS ITSELF ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"><ins>SUBR IRLPUSH(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>IRLSP GE 199000 =&gt; IRLDIE(LOC('tree too deep'),LOC(IRLZERO));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">69</td><td class="c a"> <ins>IRLSTK[IRLSP]:=V; IRLSP:=IRLSP+1; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a"><ins>SUBR IRLPOP(Z) IS (IRLSP:=IRLSP-1; IRLSTK[IRLSP]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a"><ins># ---- THE ARENA: CHUNKS OF A MEGABYTE, LINKED BY THE FIRST WORD, GIVEN BACK ALL AT ONCE ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"><ins>SUBR IRLALLOC(N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"> <ins>M,R,S,Q ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"> <ins>M:=(N+7) AND (NOT 7);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a"> <ins>(IRLTOP+M)&gt;IRLEND =&gt; (S:=1048576; M&gt;S =&gt; S:=M;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a">                       <ins>Q:=CCALL malloc(S+8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a">                       <ins>Q=0 =&gt; IRLDIE(LOC('out of memory'),LOC(IRLZERO));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a">                       <ins>[Q]:=IRLCH; IRLCH:=Q; IRLTOP:=Q+8; IRLEND:=(Q+8)+S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"> <ins>R:=IRLTOP; IRLTOP:=IRLTOP+M;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>CCALL memset(R,0,M);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a"> <ins>R);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a"><ins>SUBR IRLARST(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"> <ins>C,Q ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a"> <ins>C:=IRLCH;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a"> <ins>AR1: C NE 0 =&gt; (Q:=[C]; CCALL free(C); C:=Q; GO TO AR1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">89</td><td class="c a"> <ins>IRLCH:=0; IRLTOP:=0; IRLEND:=0; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">91</td><td class="c a"><ins># A COPY OF THE STRING S IN THE ARENA #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">92</td><td class="c a"><ins>SUBR IRLSDUP(S) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">93</td><td class="c a"> <ins>L,R ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"> <ins>L:=CCALL strlen(S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">95</td><td class="c a"> <ins>R:=IRLALLOC(L+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">96</td><td class="c a"> <ins>CCALL memcpy(R,S,L+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">97</td><td class="c a"> <ins>R);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"><ins># ---- THE BUFFERS ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"><ins>SUBR IRLRST(B) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">101</td><td class="c a"> <ins>K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">102</td><td class="c a"> <ins>K:=B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">103</td><td class="c a"> <ins>IRLBL[K]:=0; IRLPUTB(IRLBB[K],0,0); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">105</td><td class="c a"><ins>SUBR IRLGROW(B,N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">106</td><td class="c a"> <ins>K,NC ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">107</td><td class="c a"> <ins>K:=B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">108</td><td class="c a"> <ins>NC:=IRLBC[K]*2; NC&lt;((IRLBL[K]+N)+64) =&gt; NC:=(IRLBL[K]+N)+64;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">109</td><td class="c a"> <ins>IRLBB[K]:=CCALL realloc(IRLBB[K],NC);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a"> <ins>IRLBB[K]=0 =&gt; IRLDIE(LOC('out of memory'),LOC(IRLZERO));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a"> <ins>IRLBC[K]:=NC; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"><ins># A BYTE, A STRING AND A DECIMAL NUMBER ONTO THE BUFFER B #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">114</td><td class="c a"><ins>SUBR IRLPC(B,C) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">115</td><td class="c a"> <ins>K,Q ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">116</td><td class="c a"> <ins>K:=B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">117</td><td class="c a"> <ins>(IRLBL[K]+2)&gt;IRLBC[K] =&gt; IRLGROW(K,2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">118</td><td class="c a"> <ins>Q:=IRLBB[K]+IRLBL[K];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">119</td><td class="c a"> <ins>IRLPUTB(Q,0,C); IRLPUTB(Q,1,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">120</td><td class="c a"> <ins>IRLBL[K]:=IRLBL[K]+1; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">122</td><td class="c a"><ins>SUBR IRLPS(B,S) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">123</td><td class="c a"> <ins>K,Q,L ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a"> <ins>K:=B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">125</td><td class="c a"> <ins>L:=CCALL strlen(S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">126</td><td class="c a"> <ins>((IRLBL[K]+L)+1)&gt;IRLBC[K] =&gt; IRLGROW(K,L+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">127</td><td class="c a"> <ins>Q:=IRLBB[K]+IRLBL[K];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">128</td><td class="c a"> <ins>CCALL memcpy(Q,S,L+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">129</td><td class="c a"> <ins>IRLBL[K]:=IRLBL[K]+L; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">131</td><td class="c a"><ins>SUBR IRLPN(B,V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">132</td><td class="c a"> <ins>K,W,R,NG,J ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">133</td><td class="c a"> <ins>K:=B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">134</td><td class="c a"> <ins>W:=V; NG:=0; W&lt;0 =&gt; NG:=1; J:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">135</td><td class="c a"> <ins>PN1: R:=W-((W/10)*10); R&lt;0 =&gt; R:=0-R;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">136</td><td class="c a"> <ins>IRLDG[J]:=R; J:=J+1; W:=W/10; W NE 0 =&gt; GO TO PN1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">137</td><td class="c a"> <ins>NG NE 0 =&gt; IRLPC(K,45);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">138</td><td class="c a"> <ins>PN2: J:=J-1; IRLPC(K,48+IRLDG[J]); J&gt;0 =&gt; GO TO PN2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">139</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">141</td><td class="c a"><ins># THE TWO UPPER CASE HEXADECIMAL DIGITS OF C (THE C'S %02X) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">142</td><td class="c a"><ins>SUBR IRLPH(B,C) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">143</td><td class="c a"> <ins>K,V ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a"> <ins>K:=B; V:=C AND 255;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">145</td><td class="c a"> <ins>IRLPC(K,((V RS 4)&lt;10 =&gt; 48+(V RS 4) ELSE 55+(V RS 4)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">146</td><td class="c a"> <ins>V:=V AND 15;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">147</td><td class="c a"> <ins>IRLPC(K,(V&lt;10 =&gt; 48+V ELSE 55+V));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">148</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">150</td><td class="c a"><ins># THE ADDRESS OF A GLOBAL NAME, @"S" #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">151</td><td class="c a"><ins>SUBR IRLGN(B,S) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">152</td><td class="c a"> <ins>K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">153</td><td class="c a"> <ins>K:=B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">154</td><td class="c a"> <ins>IRLPS(K,LOC('@"')); IRLPS(K,S); IRLPC(K,34); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">156</td><td class="c a"><ins># THE STRING IN BUFFER 3 AS A STRING OF THE ARENA #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">157</td><td class="c a"><ins>SUBR IRLSVE(Z) IS IRLSDUP(IRLBB[3]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">159</td><td class="c a"><ins># THE STRING "%" CH V: %v7, %a0, %t100, %n9 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">160</td><td class="c a"><ins>SUBR IRLVN(CH,V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">161</td><td class="c a"> <ins>IRLRST(3); IRLPC(3,37); IRLPC(3,CH); IRLPN(3,V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">162</td><td class="c a"> <ins>IRLSVE(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">164</td><td class="c a"><ins>SUBR IRLINIT(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">165</td><td class="c a"> <ins>K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">166</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">167</td><td class="c a"> <ins>IT1: IRLBB[K]=0 =&gt; (IRLBB[K]:=CCALL malloc(4096); IRLBC[K]:=4096);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">168</td><td class="c a"> <ins>IRLRST(K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">169</td><td class="c a"> <ins>K:=K+1; K&lt;5 =&gt; GO TO IT1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">170</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">171</td><td class="c a"> <ins>IT2: IRLSETN[K]:=0; K:=K+1; K&lt;8 =&gt; GO TO IT2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">172</td><td class="c a"> <ins>IRLNVR:=0; IRLNCM:=0; IRLNDQ:=0; IRLDLABEL:=0; IRLDSTRING:=0; IRLUSEJ:=0; IRLSP:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">173</td><td class="c a"> <ins>IRLCH:=0; IRLTOP:=0; IRLEND:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">174</td><td class="c a"> <ins>IRLNVAL:=0; IRLTERM:=0; IRLNDEAD:=0; IRLNT:=0; IRLMAXARG:=0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">175</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">177</td><td class="c a"><ins># ---- THE SETS OF NAMES (CALLED, DATAREFS, DATADEFS, FUNCS, CFUNCS, LOCALS, TYPED): UP TO 4096 EACH, THE NAMES COPIED ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">178</td><td class="c a"><ins>SUBR IRLINSET(K,X) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">179</td><td class="c a"> <ins>I,B,S ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">180</td><td class="c a"> <ins>S:=K;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">181</td><td class="c a"> <ins>B:=S*4096; I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">182</td><td class="c a"> <ins>SI1: I&lt;IRLSETN[S] =&gt; (CCALL strcmp(IRLSETV[B+I],X)=0 =&gt; RETURN 1; I:=I+1; GO TO SI1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">183</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">185</td><td class="c a"><ins>SUBR IRLADD(K,X) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">186</td><td class="c a"> <ins>S,Y ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">187</td><td class="c a"> <ins>S:=K; Y:=X;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">188</td><td class="c a"> <ins>IRLINSET(S,Y) NE 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">189</td><td class="c a"> <ins>IRLSETN[S]&lt;4096 =&gt; (IRLSETV[(S*4096)+IRLSETN[S]]:=CCALL strdup(Y); IRLSETN[S]:=IRLSETN[S]+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">190</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">192</td><td class="c a"><ins># THE C FUNCTIONS (CCALL'S, MARKED WITH A CFUNC COMMENT LINE): THEY RETURN A C LONG, NOT A WORD; WHAT THE IR DEFINES, AND THE RUNTIME LIBRARY, RETURNS A WORD #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">193</td><td class="c a"><ins>SUBR IRLISC(NM) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">194</td><td class="c a"> <ins>IRLINSET(3,NM) NE 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">195</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('_setjmp'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">196</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('setjmp'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">197</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('longjmp'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">198</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('_longjmp'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">199</td><td class="c a"> <ins>IRLINSET(4,NM));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">201</td><td class="c a"><ins># THE NUMBER OF FIXED PARAMETERS OF THE C LIBRARY'S VARIADIC FUNCTIONS THAT PROGRAMS CALL, ELSE 0 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">202</td><td class="c a"><ins>SUBR IRLVARF(NM) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">203</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('printf'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">204</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('fprintf'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">205</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('sprintf'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">206</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('snprintf'))=0 =&gt; RETURN 3;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">207</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('dprintf'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">208</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('scanf'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">209</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('sscanf'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">210</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('fscanf'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">211</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('syslog'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">212</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('open'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">213</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('fcntl'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">214</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('ioctl'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">215</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('execl'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">216</td><td class="c a"> <ins>CCALL strcmp(NM,LOC('execlp'))=0 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">217</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">219</td><td class="c a"><ins># ---- LLVM TYPES ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">220</td><td class="c a"><ins>SUBR IRLLTYPE(T) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">221</td><td class="c a"> <ins>T=3 =&gt; RETURN LOC('i8');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">222</td><td class="c a"> <ins>T=2 =&gt; RETURN LOC('i8');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">223</td><td class="c a"> <ins>T=4 =&gt; RETURN LOC('i16');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">224</td><td class="c a"> <ins>T=5 =&gt; RETURN LOC('i16');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">225</td><td class="c a"> <ins>T=6 =&gt; RETURN LOC('i32');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">226</td><td class="c a"> <ins>T=12 =&gt; RETURN LOC('float');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">227</td><td class="c a"> <ins>T=13 =&gt; RETURN LOC('double');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">228</td><td class="c a"> <ins>LOC('i64'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">230</td><td class="c a"><ins>SUBR IRLBITS(T) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">231</td><td class="c a"> <ins>T=3 =&gt; RETURN 8;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">232</td><td class="c a"> <ins>T=2 =&gt; RETURN 8;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">233</td><td class="c a"> <ins>T=4 =&gt; RETURN 16;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">234</td><td class="c a"> <ins>T=5 =&gt; RETURN 16;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">235</td><td class="c a"> <ins>T=6 =&gt; RETURN 32;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">236</td><td class="c a"> <ins>T=12 =&gt; RETURN 32;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">237</td><td class="c a"> <ins>64);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">239</td><td class="c a"><ins>SUBR IRLISU(T) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">240</td><td class="c a"> <ins>T=9 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">241</td><td class="c a"> <ins>T=3 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">242</td><td class="c a"> <ins>T=5 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">243</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">245</td><td class="c a"><ins>SUBR IRLLALIGN(T) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">246</td><td class="c a"> <ins>T=3 =&gt; RETURN LOC('1');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">247</td><td class="c a"> <ins>T=2 =&gt; RETURN LOC('1');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">248</td><td class="c a"> <ins>T=4 =&gt; RETURN LOC('2');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">249</td><td class="c a"> <ins>T=5 =&gt; RETURN LOC('2');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">250</td><td class="c a"> <ins>T=6 =&gt; RETURN LOC('4');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">251</td><td class="c a"> <ins>T=12 =&gt; RETURN LOC('4');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">252</td><td class="c a"> <ins>IRLP32 NE 0 =&gt; RETURN LOC('4');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">253</td><td class="c a"> <ins>LOC('8'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">255</td><td class="c a"><ins># THE TYPE OF A POINTER SIZED INTEGER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">256</td><td class="c a"><ins>SUBR IRLIPT(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">257</td><td class="c a"> <ins>IRLP32 NE 0 =&gt; RETURN LOC('i32');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">258</td><td class="c a"> <ins>LOC('i64'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">260</td><td class="c a"><ins># ---- THE TEXT OF AN INSTRUCTION: A BLOCK THAT WAS ENDED IS FOLLOWED BY ONE THAT NOTHING REACHES; IRLI BEGINS ONE, IRLE ENDS IT, IRLTE ENDS ONE THAT TERMINATES THE BLOCK ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">261</td><td class="c a"><ins>SUBR IRLI(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">262</td><td class="c a"> <ins>IRLTERM NE 0 =&gt; (IRLPS(0,LOC('dead')); IRLPN(0,IRLNDEAD); IRLPC(0,58); IRLPC(0,10); IRLNDEAD:=IRLNDEAD+1; IRLTERM:=0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">263</td><td class="c a"> <ins>IRLPS(0,LOC('  ')); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">265</td><td class="c a"><ins>SUBR IRLE(Z) IS (IRLPC(0,10); 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">267</td><td class="c a"><ins>SUBR IRLTE(Z) IS (IRLPC(0,10); IRLTERM:=1; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">269</td><td class="c a"><ins># A NAME "%vN": THE SSA VALUES OF THE FUNCTION #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">270</td><td class="c a"><ins>SUBR IRLNEWVAL(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">271</td><td class="c a"> <ins>R ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">272</td><td class="c a"> <ins>R:=IRLVN(118,IRLNVAL); IRLNVAL:=IRLNVAL+1; R);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">274</td><td class="c a"><ins># ---- READING: THE LINE BEING SCANNED IS AT IRLPOS ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">275</td><td class="c a"><ins>SUBR IRLISSP(C) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">276</td><td class="c a"> <ins>C=32 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">277</td><td class="c a"> <ins>((C GE 9) AND (C LE 13)) =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">278</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">280</td><td class="c a"><ins>SUBR IRLSKW(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">281</td><td class="c a"> <ins>C ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">282</td><td class="c a"> <ins>SK1: C:=IRLGB(IRLPOS,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">283</td><td class="c a"> <ins>IRLISSP(C) NE 0 =&gt; (IRLPOS:=IRLPOS+1; GO TO SK1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">284</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">286</td><td class="c a"><ins># A DECIMAL NUMBER (THE C'S %D, %LD, %LLD): BLANKS, A SIGN, DIGITS; 1 AND THE NUMBER IN IRLV, ELSE 0.  A NUMBER TOO LARGE IS THE LARGEST, AS STRTOLL'S IS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">287</td><td class="c a"><ins>SUBR IRLSCI(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">288</td><td class="c a"> <ins>C,NG,ACC,D,OV,LIM,V ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">289</td><td class="c a"> <ins>IRLSKW(0); C:=IRLGB(IRLPOS,0); NG:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">290</td><td class="c a"> <ins>((C=45) OR (C=43)) =&gt; (C=45 =&gt; NG:=1; IRLPOS:=IRLPOS+1; C:=IRLGB(IRLPOS,0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">291</td><td class="c a"> <ins>((C&lt;48) OR (C&gt;57)) =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">292</td><td class="c a"> <ins>LIM:=0-922337203685477580; ACC:=0; OV:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">293</td><td class="c a"> <ins>SC1: ((C GE 48) AND (C LE 57)) =&gt; (D:=C-48;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">294</td><td class="c a">        <ins>OV=0 =&gt; (((ACC&lt;LIM) OR ((ACC=LIM) AND (D&gt;8))) =&gt; OV:=1 ELSE ACC:=(ACC*10)-D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">295</td><td class="c a">        <ins>IRLPOS:=IRLPOS+1; C:=IRLGB(IRLPOS,0); GO TO SC1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">296</td><td class="c a"> <ins>OV NE 0 =&gt; (NG NE 0 =&gt; V:=(0-9223372036854775807)-1 ELSE V:=9223372036854775807)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">297</td><td class="c a">   <ins>ELSE (NG NE 0 =&gt; V:=ACC ELSE (ACC=((0-9223372036854775807)-1) =&gt; V:=9223372036854775807 ELSE V:=0-ACC));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">298</td><td class="c a"> <ins>IRLV:=V; 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">300</td><td class="c a"><ins># ATOLL OF THE STRING P #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">301</td><td class="c a"><ins>SUBR IRLATOLL(P) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">302</td><td class="c a"> <ins>IRLPOS:=P;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">303</td><td class="c a"> <ins>IRLSCI(0)=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">304</td><td class="c a"> <ins>IRLV);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">306</td><td class="c a"><ins># V AS AN INT: THE LOW 32 BITS, SIGNED #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">307</td><td class="c a"><ins>SUBR IRLSX32(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">308</td><td class="c a"> <ins>X ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">309</td><td class="c a"> <ins>X:=V AND 4294967295;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">310</td><td class="c a"> <ins>X GE 2147483648 =&gt; X:=X-4294967296;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">311</td><td class="c a"> <ins>X);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">313</td><td class="c a"><ins># THE WORD AT IRLPOS (THE C'S %NNNS): BLANKS, THEN AT MOST MAXN CHARACTERS THAT ARE NOT BLANKS, TO THE STRING AT DEST; THE LENGTH #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">314</td><td class="c a"><ins>SUBR IRLTOK(MAXN,DEST) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">315</td><td class="c a"> <ins>K,C,MX,DS ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">316</td><td class="c a"> <ins>MX:=MAXN; DS:=DEST;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">317</td><td class="c a"> <ins>IRLSKW(0); K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">318</td><td class="c a"> <ins>TK1: C:=IRLGB(IRLPOS,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">319</td><td class="c a"> <ins>((K&lt;MX) AND (C NE 0) AND (IRLISSP(C)=0)) =&gt; (IRLPUTB(DS,K,C); K:=K+1; IRLPOS:=IRLPOS+1; GO TO TK1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">320</td><td class="c a"> <ins>IRLPUTB(DS,K,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">321</td><td class="c a"> <ins>K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">323</td><td class="c a"><ins># THE NEXT CHARACTER OF THE INPUT, OR -1 AT THE END #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">324</td><td class="c a"><ins>SUBR IRLGETC(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">325</td><td class="c a"> <ins>C ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">326</td><td class="c a"> <ins>C:=CCALL fgetc(IRLIN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">327</td><td class="c a"> <ins>(C AND 4294967295)=4294967295 =&gt; RETURN 0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">328</td><td class="c a"> <ins>C AND 255);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">330</td><td class="c a"><ins># FSCANF(IN,"%D"): A NUMBER FROM THE INPUT, AFTER BLANKS INCLUDING LINE ENDS; 1 AND THE NUMBER IN IRLV, ELSE 0 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">331</td><td class="c a"><ins>SUBR IRLFSCI(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">332</td><td class="c a"> <ins>C,NG,ACC,D,OV,LIM,V ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">333</td><td class="c a"> <ins>FC0: C:=IRLGETC(0); C GE 0 =&gt; IRLISSP(C) NE 0 =&gt; GO TO FC0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">334</td><td class="c a"> <ins>C&lt;0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">335</td><td class="c a"> <ins>NG:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">336</td><td class="c a"> <ins>((C=45) OR (C=43)) =&gt; (C=45 =&gt; NG:=1; C:=IRLGETC(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">337</td><td class="c a"> <ins>((C&lt;48) OR (C&gt;57)) =&gt; (C GE 0 =&gt; CCALL ungetc(C,IRLIN); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">338</td><td class="c a"> <ins>LIM:=0-922337203685477580; ACC:=0; OV:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">339</td><td class="c a"> <ins>FC1: ((C GE 48) AND (C LE 57)) =&gt; (D:=C-48;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">340</td><td class="c a">        <ins>OV=0 =&gt; (((ACC&lt;LIM) OR ((ACC=LIM) AND (D&gt;8))) =&gt; OV:=1 ELSE ACC:=(ACC*10)-D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">341</td><td class="c a">        <ins>C:=IRLGETC(0); GO TO FC1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">342</td><td class="c a"> <ins>C GE 0 =&gt; CCALL ungetc(C,IRLIN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">343</td><td class="c a"> <ins>OV NE 0 =&gt; (NG NE 0 =&gt; V:=(0-9223372036854775807)-1 ELSE V:=9223372036854775807)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">344</td><td class="c a">   <ins>ELSE (NG NE 0 =&gt; V:=ACC ELSE (ACC=((0-9223372036854775807)-1) =&gt; V:=9223372036854775807 ELSE V:=0-ACC));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">345</td><td class="c a"> <ins>IRLV:=V; 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">347</td><td class="c a"><ins># ---- A TREE FROM THE INPUT: A LINE A NODE, PREORDER ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">348</td><td class="c a"><ins>SUBR IRLREAD(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">349</td><td class="c a"> <ins>N,OP,TY,K,T,P ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">350</td><td class="c a"> <ins>P:=CCALL fgets(LOC(IRLLINE),600,IRLIN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">351</td><td class="c a"> <ins>P=0 =&gt; IRLDIE(LOC('tree expected'),LOC(IRLLINE));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">352</td><td class="c a"> <ins>IRLGB(LOC(IRLLINE),0) NE 34 =&gt; IRLDIE(LOC('tree expected'),LOC(IRLLINE));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">353</td><td class="c a"> <ins>N:=IRLALLOC(64);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">354</td><td class="c a"> <ins>IRLPOS:=LOC(IRLLINE); IRLPOS:=IRLPOS+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">355</td><td class="c a"> <ins>IRLSCI(0)=0 =&gt; IRLDIE(LOC('bad node'),LOC(IRLLINE));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">356</td><td class="c a"> <ins>OP:=IRLSX32(IRLV);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">357</td><td class="c a"> <ins>IRLSCI(0)=0 =&gt; IRLDIE(LOC('bad node'),LOC(IRLLINE));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">358</td><td class="c a"> <ins>TY:=IRLSX32(IRLV);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">359</td><td class="c a"> <ins>IRLSCI(0)=0 =&gt; IRLDIE(LOC('bad node'),LOC(IRLLINE));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">360</td><td class="c a"> <ins>[N]:=OP; [N+1]:=TY;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">361</td><td class="c a"> <ins>((OP=2) OR (OP=4)) =&gt; GO TO RDLEAF;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">362</td><td class="c a"> <ins>((OP=6) OR (OP=8)) =&gt; GO TO RDREG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">363</td><td class="c a"> <ins>IRLSCI(0)=0 =&gt; GO TO RDBIN;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">364</td><td class="c a"> <ins>[N+3]:=IRLSX32(IRLV);                                     # UNARY #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">365</td><td class="c a"> <ins>IRLPUSH(N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">366</td><td class="c a"> <ins>T:=IRLREAD(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">367</td><td class="c a"> <ins>N:=IRLPOP(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">368</td><td class="c a"> <ins>[N+5]:=T;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">369</td><td class="c a"> <ins>RETURN N;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">370</td><td class="c a"> <ins>RDBIN: IRLPUSH(N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">371</td><td class="c a"> <ins>T:=IRLREAD(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">372</td><td class="c a"> <ins>N:=IRLPOP(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">373</td><td class="c a"> <ins>[N+5]:=T;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">374</td><td class="c a"> <ins>IRLPUSH(N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">375</td><td class="c a"> <ins>T:=IRLREAD(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">376</td><td class="c a"> <ins>N:=IRLPOP(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">377</td><td class="c a"> <ins>[N+6]:=T;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">378</td><td class="c a"> <ins>RETURN N;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">379</td><td class="c a"> <ins>RDLEAF: IRLSCI(0)=0 =&gt; IRLDIE(LOC('bad leaf'),LOC(IRLLINE));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">380</td><td class="c a"> <ins>[N+2]:=IRLV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">381</td><td class="c a"> <ins>K:=IRLTOK(499,LOC(IRLTOKB));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">382</td><td class="c a"> <ins>K NE 0 =&gt; [N+4]:=IRLSDUP(LOC(IRLTOKB));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">383</td><td class="c a"> <ins>RETURN N;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">384</td><td class="c a"> <ins>RDREG: IRLSCI(0)=0 =&gt; IRLDIE(LOC('bad register'),LOC(IRLLINE));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">385</td><td class="c a"> <ins>IRLSCI(0)=0 =&gt; IRLDIE(LOC('bad register'),LOC(IRLLINE));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">386</td><td class="c a"> <ins>[N+3]:=IRLSX32(IRLV);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">387</td><td class="c a"> <ins>N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">389</td><td class="c a"><ins># THE TEMPS OF A TREE: THE TYPE OF THE FIRST APPEARANCE OF EACH, AND HOW MANY #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">390</td><td class="c a"><ins>SUBR IRLNOTE(NN) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">391</td><td class="c a"> <ins>N,I ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">392</td><td class="c a"> <ins>N:=NN;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">393</td><td class="c a"> <ins>N=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">394</td><td class="c a"> <ins>[N]=8 =&gt; (I:=[N+3]-100;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">395</td><td class="c a">           <ins>((I&lt;0) OR (I GE 8192)) =&gt; IRLDIE(LOC('temp out of range'),LOC(IRLZERO));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">396</td><td class="c a">           <ins>IRLTT[I]=0 =&gt; IRLTT[I]:=[N+1];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">397</td><td class="c a">           <ins>(I+1)&gt;IRLNT =&gt; IRLNT:=I+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">398</td><td class="c a"> <ins>IRLPUSH(N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">399</td><td class="c a"> <ins>IRLNOTE([N+5]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">400</td><td class="c a"> <ins>N:=IRLPOP(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">401</td><td class="c a"> <ins>IRLNOTE([N+6]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">402</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">404</td><td class="c a"><ins># ---- DATA ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">405</td><td class="c a"><ins># THE VALUE OF A HEXADECIMAL DIGIT, OR -1 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">406</td><td class="c a"><ins>SUBR IRLHEXV(C) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">407</td><td class="c a"> <ins>((C GE 48) AND (C LE 57)) =&gt; RETURN C-48;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">408</td><td class="c a"> <ins>((C GE 97) AND (C LE 102)) =&gt; RETURN (C-97)+10;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">409</td><td class="c a"> <ins>((C GE 65) AND (C LE 70)) =&gt; RETURN (C-65)+10;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">410</td><td class="c a"> <ins>0-1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">412</td><td class="c a"><ins># THE BYTES OF AN ASSEMBLER STRING (ESCAPES: \N \T \R \B \F \A \V \X AND OCTAL; ANY OTHER CHARACTER AFTER A BACKSLASH IS ITSELF) AS AN LLVM CONSTANT, \XX FOR EACH, THEN \00; THE STRING IS BUFFER 4, ITS LENGTH IN IRLLEN #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">413</td><td class="c a"><ins>SUBR IRLLLSTR(S) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">414</td><td class="c a"> <ins>P,C,X,K,N,D ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">415</td><td class="c a"> <ins>P:=S; N:=0; IRLRST(4);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">416</td><td class="c a"> <ins>LL1: C:=IRLGB(P,0); C=0 =&gt; GO TO LL9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">417</td><td class="c a"> <ins>P:=P+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">418</td><td class="c a"> <ins>((C=92) AND (IRLGB(P,0) NE 0)) =&gt; (C:=IRLGB(P,0); P:=P+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">419</td><td class="c a">    <ins>C=110 =&gt; (C:=10; GO TO LL8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">420</td><td class="c a">    <ins>C=116 =&gt; (C:=9; GO TO LL8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">421</td><td class="c a">    <ins>C=114 =&gt; (C:=13; GO TO LL8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">422</td><td class="c a">    <ins>C=98 =&gt; (C:=8; GO TO LL8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">423</td><td class="c a">    <ins>C=102 =&gt; (C:=12; GO TO LL8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">424</td><td class="c a">    <ins>C=97 =&gt; (C:=7; GO TO LL8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">425</td><td class="c a">    <ins>C=118 =&gt; (C:=11; GO TO LL8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">426</td><td class="c a">    <ins>C=120 =&gt; (X:=0; K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">427</td><td class="c a">              <ins>LL2: D:=IRLHEXV(IRLGB(P,0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">428</td><td class="c a">              <ins>((K&lt;2) AND (D GE 0)) =&gt; (X:=(X*16)+D; P:=P+1; K:=K+1; GO TO LL2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">429</td><td class="c a">              <ins>C:=X; GO TO LL8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">430</td><td class="c a">    <ins>((C GE 48) AND (C LE 55)) =&gt; (X:=C-48; K:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">431</td><td class="c a">              <ins>LL3: D:=IRLGB(P,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">432</td><td class="c a">              <ins>((K&lt;3) AND (D GE 48) AND (D LE 55)) =&gt; (X:=(X*8)+(D-48); P:=P+1; K:=K+1; GO TO LL3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">433</td><td class="c a">              <ins>C:=X AND 255));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">434</td><td class="c a"> <ins>LL8: IRLPC(4,92); IRLPH(4,C); N:=N+1; GO TO LL1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">435</td><td class="c a"> <ins>LL9: IRLPC(4,92); IRLPC(4,48); IRLPC(4,48); N:=N+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">436</td><td class="c a"> <ins>IRLLEN:=N;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">437</td><td class="c a"> <ins>IRLBB[4]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">439</td><td class="c a"><ins># THE LABEL AND THE DATA OF THE ASSEMBLER LINES SO FAR, AS A GLOBAL VARIABLE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">440</td><td class="c a"><ins>SUBR IRLFLUSH(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">441</td><td class="c a"> <ins>S,I,LK,MX ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">442</td><td class="c a"> <ins>IRLDLABEL=0 =&gt; GO TO FL9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">443</td><td class="c a"> <ins>LK:=LOC('dso_local'); CCALL strncmp(IRLDLABEL,LOC('.L'),2)=0 =&gt; LK:=LOC('internal');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">444</td><td class="c a"> <ins>IRLDSTRING NE 0 =&gt; (S:=IRLLLSTR(IRLDSTRING);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">445</td><td class="c a">                     <ins>IRLGN(1,IRLDLABEL); IRLPS(1,LOC(' = ')); IRLPS(1,LK); IRLPS(1,LOC(' global [')); IRLPN(1,IRLLEN); IRLPS(1,LOC(' x i8] c"')); IRLPS(1,S); IRLPS(1,LOC('", align 8')); IRLPC(1,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">446</td><td class="c a">                     <ins>IRLADD(2,IRLDLABEL);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">447</td><td class="c a">                     <ins>GO TO FL9);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">448</td><td class="c a"> <ins>IRLNDQ&gt;0 =&gt; (MX:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">449</td><td class="c a">              <ins>IRLP32 NE 0 =&gt; (I:=0; FL0: I&lt;IRLNDQ =&gt; (IRLDS[I] NE 0 =&gt; MX:=1; I:=I+1; GO TO FL0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">450</td><td class="c a">              <ins>IRLGN(1,IRLDLABEL); IRLPS(1,LOC(' = ')); IRLPS(1,LK); IRLPS(1,LOC(' global '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">451</td><td class="c a">              <ins>MX NE 0 =&gt; (IRLPS(1,LOC('&lt;{ '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">452</td><td class="c a">                          <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">453</td><td class="c a">                          <ins>FL2: I&lt;IRLNDQ =&gt; (I&gt;0 =&gt; IRLPS(1,LOC(', '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">454</td><td class="c a">                                            <ins>IRLDS[I]=0 =&gt; IRLPS(1,LOC('i64')) ELSE IRLPS(1,LOC('{ i32, i32 }'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">455</td><td class="c a">                                            <ins>I:=I+1; GO TO FL2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">456</td><td class="c a">                          <ins>IRLPS(1,LOC(' }&gt; &lt;{ ')))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">457</td><td class="c a">                <ins>ELSE (IRLPC(1,91); IRLPN(1,IRLNDQ); IRLPS(1,LOC(' x i64] [')));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">458</td><td class="c a">              <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">459</td><td class="c a">              <ins>FL1: I&lt;IRLNDQ =&gt; (I&gt;0 =&gt; IRLPS(1,LOC(', '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">460</td><td class="c a">                                <ins>IRLDS[I]=0 =&gt; (IRLPS(1,LOC('i64 ')); IRLPN(1,IRLDQ[I]))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">461</td><td class="c a">                                  <ins>ELSE (MX NE 0 =&gt; (IRLDQ[I]=0 =&gt; (IRLPS(1,LOC('{ i32, i32 } {')); IRLTBE NE 0 =&gt; IRLPS(1,LOC(' i32 0,')); IRLPS(1,LOC(' i32 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i32)')); IRLTBE=0 =&gt; IRLPS(1,LOC(', i32 0')); IRLPS(1,LOC(' }')))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">462</td><td class="c a">                                                      <ins>ELSE (IRLPS(1,LOC('{ i32, i32 } {')); IRLTBE NE 0 =&gt; IRLPS(1,LOC(' i32 0,')); IRLPS(1,LOC(' i32 add (i32 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i32), i32 ')); IRLPN(1,IRLDQ[I]); IRLPC(1,41); IRLTBE=0 =&gt; IRLPS(1,LOC(', i32 0')); IRLPS(1,LOC(' }'))))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">463</td><td class="c a">                                          <ins>ELSE (IRLDQ[I]=0 =&gt; (IRLPS(1,LOC('i64 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i64)')))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">464</td><td class="c a">                                                  <ins>ELSE (IRLPS(1,LOC('i64 add (i64 ptrtoint (ptr ')); IRLGN(1,IRLDS[I]); IRLPS(1,LOC(' to i64), i64 ')); IRLPN(1,IRLDQ[I]); IRLPC(1,41)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">465</td><td class="c a">                                        <ins>CCALL free(IRLDS[I]));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">466</td><td class="c a">                                <ins>I:=I+1; GO TO FL1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">467</td><td class="c a">              <ins>MX NE 0 =&gt; IRLPS(1,LOC(' }&gt;, align 8')) ELSE IRLPS(1,LOC('], align 8')); IRLPC(1,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">468</td><td class="c a">              <ins>IRLADD(2,IRLDLABEL));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">469</td><td class="c a"> <ins>FL9: IRLDLABEL NE 0 =&gt; CCALL free(IRLDLABEL);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">470</td><td class="c a"> <ins>IRLDSTRING NE 0 =&gt; CCALL free(IRLDSTRING);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">471</td><td class="c a"> <ins>IRLDLABEL:=0; IRLDSTRING:=0; IRLNDQ:=0; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">473</td><td class="c a"><ins># A .COMM LINE (THE C'S SSCANF(LINE, ".COMM %255[^,],%LD")): 1 IF IT WAS ONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">474</td><td class="c a"><ins>SUBR IRLCOMM(LL) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">475</td><td class="c a"> <ins>L,C,K,SZ ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">476</td><td class="c a"> <ins>L:=LL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">477</td><td class="c a"> <ins>CCALL strncmp(L,LOC('.comm'),5) NE 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">478</td><td class="c a"> <ins>IRLPOS:=L+5; IRLSKW(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">479</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">480</td><td class="c a"> <ins>CM1: C:=IRLGB(IRLPOS,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">481</td><td class="c a"> <ins>((K&lt;255) AND (C NE 0) AND (C NE 44)) =&gt; (IRLPUTB(LOC(IRLNMB),K,C); K:=K+1; IRLPOS:=IRLPOS+1; GO TO CM1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">482</td><td class="c a"> <ins>K=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">483</td><td class="c a"> <ins>C NE 44 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">484</td><td class="c a"> <ins>IRLPUTB(LOC(IRLNMB),K,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">485</td><td class="c a"> <ins>IRLPOS:=IRLPOS+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">486</td><td class="c a"> <ins>IRLSCI(0)=0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">487</td><td class="c a"> <ins>SZ:=IRLV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">488</td><td class="c a"> <ins>IRLFLUSH(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">489</td><td class="c a"> <ins>IRLNCM&lt;4096 =&gt; (IRLCMN[IRLNCM]:=CCALL strdup(LOC(IRLNMB)); IRLCMZ[IRLNCM]:=SZ; IRLCML[IRLNCM]:=IRLINSET(5,LOC(IRLNMB)); IRLNCM:=IRLNCM+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">490</td><td class="c a"> <ins>IRLADD(2,LOC(IRLNMB));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">491</td><td class="c a"> <ins>1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">493</td><td class="c a"><ins># A VARREC LINE (SYMBOL, SIZE, NAME): 1 IF IT WAS ONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">494</td><td class="c a"><ins>SUBR IRLVREC(LL) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">495</td><td class="c a"> <ins>L,K,SZ ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">496</td><td class="c a"> <ins>L:=LL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">497</td><td class="c a"> <ins>CCALL strncmp(L,LOC('# varrec '),9) NE 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">498</td><td class="c a"> <ins>IRLPOS:=L+9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">499</td><td class="c a"> <ins>K:=IRLTOK(255,LOC(IRLSYMB)); K=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">500</td><td class="c a"> <ins>IRLSCI(0)=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">501</td><td class="c a"> <ins>SZ:=IRLV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">502</td><td class="c a"> <ins>K:=IRLTOK(299,LOC(IRLNMB)); K=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">503</td><td class="c a"> <ins>IRLNVR&lt;4096 =&gt; (IRLVRS[IRLNVR]:=CCALL strdup(LOC(IRLSYMB)); IRLVRZ[IRLNVR]:=SZ; IRLVRN[IRLNVR]:=CCALL strdup(LOC(IRLNMB));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">504</td><td class="c a">                 <ins>IRLNVR:=IRLNVR+1; IRLADD(1,LOC(IRLSYMB)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">505</td><td class="c a"> <ins>1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">507</td><td class="c a"><ins># A PASS-THROUGH ASSEMBLER LINE (WITHOUT THE LEADING "* "): ONLY THE DATA DIRECTIVES MEAN ANYTHING HERE (.TEXT .DATA .ALIGN .BALIGN .GLOBL .TYPE .SECTION SAY NOTHING IN LLVM IR) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">508</td><td class="c a"><ins>SUBR IRLPASS(LL) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">509</td><td class="c a"> <ins>L,C,K,Q ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">510</td><td class="c a"> <ins>L:=LL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">511</td><td class="c a"> <ins>PA1: C:=IRLGB(L,0); ((C=32) OR (C=9)) =&gt; (L:=L+1; GO TO PA1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">512</td><td class="c a"> <ins>CCALL strncmp(L,LOC('.local '),7)=0 =&gt; (K:=L+7; IRLADD(5,K); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">513</td><td class="c a"> <ins>IRLCOMM(L) NE 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">514</td><td class="c a"> <ins>CCALL strncmp(L,LOC('.quad '),6)=0 =&gt; (IRLNDQ&lt;4096 =&gt; (K:=L+6; C:=IRLGB(K,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">515</td><td class="c a">                                                        <ins>(((C GE 48) AND (C LE 57)) OR (C=45)) =&gt; (IRLDS[IRLNDQ]:=0; IRLDQ[IRLNDQ]:=IRLATOLL(K))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">516</td><td class="c a">                                                          <ins>ELSE (IRLPOS:=K; IRLTOK(255,LOC(IRLSYMB));       # SYMBOL+OFFSET: THE ADDRESS OF A SYMBOL #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">517</td><td class="c a">                                                                <ins>Q:=CCALL strrchr(LOC(IRLSYMB),43);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">518</td><td class="c a">                                                                <ins>Q NE 0 =&gt; (IRLPUTB(Q,0,0); K:=Q+1; IRLDQ[IRLNDQ]:=IRLATOLL(K)) ELSE IRLDQ[IRLNDQ]:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">519</td><td class="c a">                                                                <ins>IRLDS[IRLNDQ]:=CCALL strdup(LOC(IRLSYMB)); IRLADD(1,LOC(IRLSYMB)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">520</td><td class="c a">                                                        <ins>IRLNDQ:=IRLNDQ+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">521</td><td class="c a">                                        <ins>RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">522</td><td class="c a"> <ins>CCALL strncmp(L,LOC('.string "'),9)=0 =&gt; (Q:=CCALL strrchr(L,34); IRLPUTB(Q,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">523</td><td class="c a">                                           <ins>IRLDSTRING NE 0 =&gt; CCALL free(IRLDSTRING);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">524</td><td class="c a">                                           <ins>K:=L+9; IRLDSTRING:=CCALL strdup(K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">525</td><td class="c a">                                           <ins>RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">526</td><td class="c a"> <ins>IRLVREC(L) NE 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">527</td><td class="c a"> <ins>CCALL strncmp(L,LOC('# cfunc '),8)=0 =&gt; (K:=L+8; IRLADD(4,K); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">528</td><td class="c a"> <ins>Q:=CCALL strchr(L,58);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">529</td><td class="c a"> <ins>Q NE 0 =&gt; (((IRLGB(L,0) NE 46) OR (CCALL strncmp(L,LOC('.L'),2)=0)) =&gt; (K:=Q+1; IRLGB(K,0)=0 =&gt; (IRLPUTB(Q,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">530</td><td class="c a">                                                                                                  <ins>IRLFLUSH(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">531</td><td class="c a">                                                                                                  <ins>IRLDLABEL:=CCALL strdup(L))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">532</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">534</td><td class="c a"><ins># ---- A FUNCTION: THE HEADER IS IN IRLHDR, THE TREES FOLLOW ON THE INPUT TO THE "%" LINE ---- #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">535</td><td class="c a"><ins>SUBR IRLFUNC(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">536</td><td class="c a"> <ins>C,NST,I,K,LAB,S,SP,X,Y,T ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">537</td><td class="c a"> <ins>IRLPOS:=LOC(IRLHDR);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">538</td><td class="c a"> <ins>IRLGB(IRLPOS,0) NE 33 =&gt; IRLDIE(LOC('bad function header'),LOC(IRLHDR));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">539</td><td class="c a"> <ins>IRLPOS:=IRLPOS+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">540</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">541</td><td class="c a"> <ins>FH1: IRLSCI(0)=0 =&gt; IRLDIE(LOC('bad function header'),LOC(IRLHDR));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">542</td><td class="c a"> <ins>I:=I+1; I&lt;5 =&gt; GO TO FH1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">543</td><td class="c a"> <ins>IRLTOK(255,LOC(IRLFNM))=0 =&gt; IRLDIE(LOC('bad function header'),LOC(IRLHDR));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">544</td><td class="c a"> <ins>CCALL memset(LOC(IRLTT),0,65536);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">545</td><td class="c a"> <ins>IRLNT:=0; IRLMAXARG:=0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">546</td><td class="c a"> <ins>IRLDLABEL NE 0 =&gt; (CCALL free(IRLDLABEL); IRLDLABEL:=0);              # THE ENTRY LABEL JUST BEFORE THE HEADER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">547</td><td class="c a"> <ins>IRLARST(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">548</td><td class="c a"> <ins>NST:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">549</td><td class="c a"> <ins>FR1: C:=IRLGETC(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">550</td><td class="c a"> <ins>C&lt;0 =&gt; IRLDIE(LOC('function without an end'),LOC(IRLFNM));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">551</td><td class="c a"> <ins>C=37 =&gt; (CCALL fgets(LOC(IRLLINE),600,IRLIN); GO TO FR9);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">552</td><td class="c a"> <ins>C=94 =&gt; (IRLFSCI(0)=0 =&gt; IRLDIE(LOC('bad label'),LOC(IRLFNM));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">553</td><td class="c a">          <ins>LAB:=IRLSX32(IRLV);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">554</td><td class="c a">          <ins>FR2: C:=IRLGETC(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">555</td><td class="c a">          <ins>((C NE 10) AND (C GE 0)) =&gt; GO TO FR2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">556</td><td class="c a">          <ins>IRLLAB[NST]:=LAB; IRLSTM[NST]:=0; NST:=NST+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">557</td><td class="c a">          <ins>GO TO FR1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">558</td><td class="c a"> <ins>C=42 =&gt; (CCALL fgets(LOC(IRLLINE),600,IRLIN)=0 =&gt; GO TO FR9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">559</td><td class="c a">          <ins>S:=CCALL strchr(LOC(IRLLINE),10); S NE 0 =&gt; IRLPUTB(S,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">560</td><td class="c a">          <ins>S:=LOC(IRLLINE); S:=S+1; IRLPASS(S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">561</td><td class="c a">          <ins>GO TO FR1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">562</td><td class="c a"> <ins>CCALL ungetc(C,IRLIN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">563</td><td class="c a"> <ins>T:=IRLREAD(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">564</td><td class="c a"> <ins>IRLSTM[NST]:=T;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">565</td><td class="c a"> <ins>IRLNOTE(T);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">566</td><td class="c a"> <ins>NST:=NST+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">567</td><td class="c a"> <ins>GO TO FR1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">568</td><td class="c a"> <ins>FR9: IRLUSEJ:=0;                                              # DOES IT CALL _SETJMP?  (THEN ITS TEMPS ARE VOLATILE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">569</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">570</td><td class="c a"> <ins>FS1: I GE NST =&gt; GO TO FS9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">571</td><td class="c a"> <ins>IRLSTM[I]=0 =&gt; (I:=I+1; GO TO FS1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">572</td><td class="c a"> <ins>SP:=0; IRLSTP[SP]:=IRLSTM[I]; SP:=SP+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">573</td><td class="c a"> <ins>FS2: SP&gt;0 =&gt; (SP:=SP-1; X:=IRLSTP[SP];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">574</td><td class="c a">               <ins>X=0 =&gt; GO TO FS2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">575</td><td class="c a">               <ins>(([X]=41) OR ([X]=42)) =&gt; (Y:=[X+5];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">576</td><td class="c a">                  <ins>(([Y]=4) AND ([Y+4] NE 0)) =&gt; (((CCALL strcmp([Y+4],LOC('_setjmp'))=0) OR (CCALL strcmp([Y+4],LOC('setjmp'))=0)) =&gt; IRLUSEJ:=1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">577</td><td class="c a">               <ins>SP&lt;250 =&gt; (Y:=[X+5]; IRLSTP[SP]:=Y; SP:=SP+1; Y:=[X+6]; IRLSTP[SP]:=Y; SP:=SP+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">578</td><td class="c a">               <ins>GO TO FS2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">579</td><td class="c a"> <ins>I:=I+1; GO TO FS1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">580</td><td class="c a"> <ins>FS9: IRLRST(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">581</td><td class="c a"> <ins>IRLNVAL:=0; IRLNDEAD:=0; IRLTERM:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">582</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">583</td><td class="c a"> <ins>FE1: I GE NST =&gt; GO TO FE9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">584</td><td class="c a"> <ins>IRLSTM[I] NE 0 =&gt; (IRLSTMT(IRLSTM[I]); I:=I+1; GO TO FE1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">585</td><td class="c a"> <ins>IRLTERM=0 =&gt; (IRLPS(0,LOC('  br label %L')); IRLPN(0,IRLLAB[I]); IRLPC(0,10));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">586</td><td class="c a"> <ins>IRLPS(0,LOC('L')); IRLPN(0,IRLLAB[I]); IRLPC(0,58); IRLPC(0,10); IRLTERM:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">587</td><td class="c a"> <ins>I:=I+1; GO TO FE1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">588</td><td class="c a"> <ins>FE9: IRLTERM=0 =&gt; (IRLPS(0,LOC('  ret i64 0')); IRLPC(0,10));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">589</td><td class="c a"> <ins>IRLADD(3,LOC(IRLFNM));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">590</td><td class="c a"> <ins>IRLPS(2,LOC('define ')); CCALL strncmp(LOC(IRLFNM),LOC('.L'),2)=0 =&gt; IRLPS(2,LOC('internal '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">591</td><td class="c a"> <ins>IRLPS(2,LOC('i64 ')); IRLGN(2,LOC(IRLFNM)); IRLPC(2,40);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">592</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">593</td><td class="c a"> <ins>FP1: K&gt;IRLMAXARG =&gt; GO TO FP9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">594</td><td class="c a"> <ins>K&gt;0 =&gt; IRLPS(2,LOC(', '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">595</td><td class="c a"> <ins>IRLPS(2,IRLIPT(0)); IRLPS(2,LOC(' %a')); IRLPN(2,K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">596</td><td class="c a"> <ins>K:=K+1; GO TO FP1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">597</td><td class="c a"> <ins>FP9: IRLPS(2,LOC(') {')); IRLPC(2,10); IRLPS(2,LOC('entry:')); IRLPC(2,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">598</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">599</td><td class="c a"> <ins>FA1: K GE IRLNT =&gt; GO TO FA9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">600</td><td class="c a"> <ins>IRLTT[K] NE 0 =&gt; (IRLPS(2,LOC('  %t')); IRLPN(2,K+100); IRLPS(2,LOC(' = alloca ')); IRLPS(2,IRLLTYPE(IRLTT[K])); IRLPS(2,LOC(', align ')); IRLPS(2,IRLLALIGN(IRLTT[K])); IRLPC(2,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">601</td><td class="c a">                   <ins>IRLPS(2,LOC('  store ')); IRLPS(2,IRLLTYPE(IRLTT[K])); IRLPC(2,32);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">602</td><td class="c a">                   <ins>IRLTT[K]=13 =&gt; IRLPS(2,LOC('0.0')) ELSE IRLPC(2,48);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">603</td><td class="c a">                   <ins>IRLPS(2,LOC(', ptr %t')); IRLPN(2,K+100); IRLPS(2,LOC(', align ')); IRLPS(2,IRLLALIGN(IRLTT[K])); IRLPC(2,10));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">604</td><td class="c a"> <ins>K:=K+1; GO TO FA1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">605</td><td class="c a"> <ins>FA9: IRLPS(2,IRLBB[0]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">606</td><td class="c a"> <ins>IRLPC(2,125); IRLPC(2,10); IRLPC(2,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">607</td><td class="c a"> <ins>IRLARST(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">608</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">610</td><td class="c a"><ins># THE END OF A RUN: WHAT WAS GOT FROM MALLOC IS GIVEN BACK #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">611</td><td class="c a"><ins>SUBR IRLCLEAN(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">612</td><td class="c a"> <ins>I,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">613</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">614</td><td class="c a"> <ins>CL1: I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">615</td><td class="c a"> <ins>CL2: I&lt;IRLSETN[K] =&gt; (CCALL free(IRLSETV[(K*4096)+I]); I:=I+1; GO TO CL2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">616</td><td class="c a"> <ins>IRLSETN[K]:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">617</td><td class="c a"> <ins>K:=K+1; K&lt;8 =&gt; GO TO CL1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">618</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">619</td><td class="c a"> <ins>CL3: I&lt;IRLNVR =&gt; (CCALL free(IRLVRS[I]); CCALL free(IRLVRN[I]); I:=I+1; GO TO CL3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">620</td><td class="c a"> <ins>IRLNVR:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">621</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">622</td><td class="c a"> <ins>CL4: I&lt;IRLNCM =&gt; (CCALL free(IRLCMN[I]); I:=I+1; GO TO CL4);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">623</td><td class="c a"> <ins>IRLNCM:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">624</td><td class="c a"> <ins>IRLDLABEL NE 0 =&gt; CCALL free(IRLDLABEL);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">625</td><td class="c a"> <ins>IRLDSTRING NE 0 =&gt; CCALL free(IRLDSTRING);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">626</td><td class="c a"> <ins>IRLDLABEL:=0; IRLDSTRING:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">627</td><td class="c a"> <ins>IRLARST(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">628</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">629</td><td class="c a"> <ins>CL5: CCALL free(IRLBB[K]); IRLBB[K]:=0; IRLBC[K]:=0; IRLBL[K]:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">630</td><td class="c a"> <ins>K:=K+1; K&lt;5 =&gt; GO TO CL5;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">631</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">633</td><td class="c a"><ins># THE IR ON INF, THE MODULE ON OUTF; PTR32: BIT 0, THE POINTERS ARE 32 BITS; BIT 1, THE BYTE ORDER OF THE TARGET IS NOT THE HOST'S.  THE C'S IR2LL_RUN: THE SHIM STAGE0/IR2LL_SHIM.C CALLS THIS FROM LLVMORC.C.  EVERYTHING STARTS AGAIN, SO THAT IT MAY RUN MORE THAN ONCE IN A PROCESS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">634</td><td class="c a"><ins>SUBR IR2LLRUN(INF,OUTF,PTR32) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">635</td><td class="c a"> <ins>C,I,NM,Q ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">636</td><td class="c a"> <ins>IRLIN:=INF; IRLOUTP:=OUTF; IRLP32:=PTR32 AND 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">637</td><td class="c a"> <ins>IRLTBE:=(SCBE(0) NE 0 =&gt; 1 ELSE 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">638</td><td class="c a"> <ins>((PTR32 RS 1) AND 1) NE 0 =&gt; IRLTBE:=1-IRLTBE;               # THE TARGET'S ORDER: THE HOST'S, OR THE OTHER #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">639</td><td class="c a"> <ins>IRLINIT(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">640</td><td class="c a"> <ins>RL1: C:=IRLGETC(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">641</td><td class="c a"> <ins>C&lt;0 =&gt; GO TO RL9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">642</td><td class="c a"> <ins>C=42 =&gt; (CCALL fgets(LOC(IRLLINE),600,IRLIN)=0 =&gt; GO TO RL9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">643</td><td class="c a">          <ins>Q:=CCALL strchr(LOC(IRLLINE),10); Q NE 0 =&gt; IRLPUTB(Q,0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">644</td><td class="c a">          <ins>Q:=LOC(IRLLINE); Q:=Q+1; IRLPASS(Q);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">645</td><td class="c a">          <ins>GO TO RL1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">646</td><td class="c a"> <ins>C=33 =&gt; (CCALL fgets(LOC(IRLLINE),600,IRLIN)=0 =&gt; GO TO RL9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">647</td><td class="c a">          <ins>IRLPUTB(LOC(IRLHDR),0,33);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">648</td><td class="c a">          <ins>Q:=LOC(IRLHDR); Q:=Q+1; CCALL memcpy(Q,LOC(IRLLINE),CCALL strlen(LOC(IRLLINE))+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">649</td><td class="c a">          <ins>IRLFLUSH(0); IRLFUNC(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">650</td><td class="c a">          <ins>GO TO RL1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">651</td><td class="c a"> <ins>RL2: ((C NE 10) AND (C GE 0)) =&gt; (C:=IRLGETC(0); GO TO RL2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">652</td><td class="c a"> <ins>GO TO RL1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">653</td><td class="c a"> <ins>RL9: IRLFLUSH(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">654</td><td class="c a"> <ins>IRLRST(3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">655</td><td class="c a"> <ins>IRLPS(3,LOC('; generated by ir2ll')); IRLPC(3,10); IRLPC(3,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">656</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">657</td><td class="c a"> <ins>DC1: I GE IRLSETN[0] =&gt; GO TO DC9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">658</td><td class="c a"> <ins>NM:=IRLSETV[I];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">659</td><td class="c a"> <ins>IRLINSET(3,NM) NE 0 =&gt; (I:=I+1; GO TO DC1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">660</td><td class="c a"> <ins>Q:=IRLTFIND(NM);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">661</td><td class="c a"> <ins>Q NE 0 =&gt; (IRLPS(3,Q); IRLPC(3,10); I:=I+1; GO TO DC1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">662</td><td class="c a"> <ins>((CCALL strcmp(NM,LOC('_setjmp'))=0) OR (CCALL strcmp(NM,LOC('setjmp'))=0)) =&gt; (IRLPS(3,LOC('declare ')); IRLPS(3,IRLIPT(0)); IRLPC(3,32); IRLGN(3,NM); IRLPS(3,LOC('(...) returns_twice')); IRLPC(3,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">663</td><td class="c a">                                                                          <ins>I:=I+1; GO TO DC1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">664</td><td class="c a"> <ins>IRLVARF(NM)&gt;0 =&gt; (IRLPS(3,LOC('declare i32 ')); IRLGN(3,NM); IRLPC(3,40); IRLPS(3,IRLIPT(0)); IRLPS(3,LOC(', ...)')); IRLPC(3,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">665</td><td class="c a">                   <ins>I:=I+1; GO TO DC1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">666</td><td class="c a"> <ins>IRLPS(3,LOC('declare '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">667</td><td class="c a"> <ins>IRLISC(NM) NE 0 =&gt; IRLPS(3,IRLIPT(0)) ELSE IRLPS(3,LOC('i64'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">668</td><td class="c a"> <ins>IRLPC(3,32); IRLGN(3,NM); IRLPS(3,LOC('(...)')); IRLPC(3,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">669</td><td class="c a"> <ins>I:=I+1; GO TO DC1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">670</td><td class="c a"> <ins>DC9: I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">671</td><td class="c a"> <ins>DR1: I GE IRLSETN[1] =&gt; GO TO DR9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">672</td><td class="c a"> <ins>NM:=IRLSETV[4096+I];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">673</td><td class="c a"> <ins>((IRLINSET(2,NM)=0) AND (IRLINSET(0,NM)=0) AND (IRLINSET(3,NM)=0)) =&gt; (IRLGN(3,NM); IRLPS(3,LOC(' = external global i8')); IRLPC(3,10));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">674</td><td class="c a"> <ins>I:=I+1; GO TO DR1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">675</td><td class="c a"> <ins>DR9: I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">676</td><td class="c a"> <ins>DM1: I GE IRLNCM =&gt; GO TO DM9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">677</td><td class="c a"> <ins>NM:=IRLCMN[I];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">678</td><td class="c a"> <ins>((IRLINSET(0,NM) NE 0) OR (IRLINSET(3,NM) NE 0)) =&gt; (I:=I+1; GO TO DM1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">679</td><td class="c a"> <ins>IRLGN(3,NM);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">680</td><td class="c a"> <ins>IRLCML[I] NE 0 =&gt; IRLPS(3,LOC(' = internal global [')) ELSE IRLPS(3,LOC(' = common global ['));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">681</td><td class="c a"> <ins>IRLPN(3,(IRLCMZ[I]+7)/8); IRLPS(3,LOC(' x i64] zeroinitializer, align 8')); IRLPC(3,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">682</td><td class="c a"> <ins>I:=I+1; GO TO DM1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">683</td><td class="c a"> <ins>DM9: CCALL fputs(IRLBB[3],IRLOUTP);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">684</td><td class="c a"> <ins>CCALL fputs(IRLBB[1],IRLOUTP);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">685</td><td class="c a"> <ins>IRLRST(3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">686</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">687</td><td class="c a"> <ins>DV1: I GE IRLNVR =&gt; GO TO DV9;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">688</td><td class="c a"> <ins>IRLLLSTR(IRLVRN[I]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">689</td><td class="c a"> <ins>IRLPS(3,LOC('@"ivn.')); IRLPN(3,I); IRLPS(3,LOC('" = private constant [')); IRLPN(3,IRLLEN); IRLPS(3,LOC(' x i8] c"')); IRLPS(3,IRLBB[4]); IRLPC(3,34); IRLPC(3,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">690</td><td class="c a"> <ins>IRLPS(3,LOC('@"ivr.')); IRLPN(3,I); IRLPS(3,LOC('" = internal global { ptr, ')); IRLPS(3,IRLIPT(0)); IRLPS(3,LOC(', ptr } { ptr ')); IRLGN(3,IRLVRS[I]);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">691</td><td class="c a"> <ins>IRLPS(3,LOC(', ')); IRLPS(3,IRLIPT(0)); IRLPC(3,32); IRLPN(3,IRLVRZ[I]); IRLPS(3,LOC(', ptr @"ivn.')); IRLPN(3,I); IRLPS(3,LOC('" }, section "'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">692</td><td class="c a"> <ins>CCALL strcmp(IMPHOSTOS(0),LOC('darwin'))=0 =&gt; IRLPS(3,LOC('__DATA,'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">693</td><td class="c a"> <ins>IRLPS(3,LOC('impvars", align ')); IRLP32 NE 0 =&gt; IRLPC(3,52) ELSE IRLPC(3,56);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">694</td><td class="c a"> <ins>IRLPC(3,10);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">695</td><td class="c a"> <ins>I:=I+1; GO TO DV1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">696</td><td class="c a"> <ins>DV9: IRLNVR&gt;0 =&gt; (IRLPS(3,LOC('@llvm.used = appending global [')); IRLPN(3,IRLNVR); IRLPS(3,LOC(' x ptr] ['));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">697</td><td class="c a">                   <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">698</td><td class="c a">                   <ins>DU1: I&lt;IRLNVR =&gt; (I&gt;0 =&gt; IRLPS(3,LOC(', ')); IRLPS(3,LOC('ptr @"ivr.')); IRLPN(3,I); IRLPC(3,34); I:=I+1; GO TO DU1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">699</td><td class="c a">                   <ins>IRLPS(3,LOC('], section "llvm.metadata"')); IRLPC(3,10));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">700</td><td class="c a"> <ins>CCALL fputs(IRLBB[3],IRLOUTP);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">701</td><td class="c a"> <ins>CCALL fputs(IRLBB[2],IRLOUTP);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">702</td><td class="c a"> <ins>IRLCLEAN(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">703</td><td class="c a"> <ins>0)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">704</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

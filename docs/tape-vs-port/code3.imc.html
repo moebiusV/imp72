@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>code3.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>code3.imc</h1>
+<p class="mut">left, old (the tape): decus/code3.imc<br>right, new (the port): src/code3.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 10 changed places, 546 tokens deleted, 5212 inserted.</p>
+<p class="mut">Parts of this file differ so much that the token comparison there is not guaranteed to be the shortest (it is cut where the two files have gone furthest together).</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n d">1</td><td class="c d"><del># THIS IS FILE CODE3, HOLDING OVERFLOW FROM CODE2 #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">2</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n d">4</td><td class="c d">CO,NCO,<del>CONST</del> ARE COMMON;</td><td class="n a">2</td><td class="c a">CO,NCO,<ins>ANCO</ins> ARE COMMON<ins>;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"><ins>BDESC,NBD,FDESC,NFD ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"><ins>TWLL,TPUSH,LVTARGET,LVTRI ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"><ins>#THIS IS FILE CODE3, HOLDING OVERFLOW FROM CODE2, THE TRANSLATION OF DECUS/CODE3.IMC FOR THE 64 BIT PORT (SEE CODE2).  PCODE, THE LISTING OF THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>CODE, AND PCODE1 ARE AT THE END; BYTEP IS NOT YET.#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"><ins>EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"><ins># CSUBCALL(A,B): CCALL F(B), A CALL OF A C FUNCTION WITH ITS ARGUMENTS BY VALUE (LIB/FFI.IMC; NOT IN THE ORIGINAL).  THE ARGUMENTS OF A DECLARED FUNCTION (EXTERNAL INT F(PTR);) ARE COUNTED</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a">  <ins>AND CONVERTED TO THE TYPES OF THE DECLARATION (CPAR); ONE THAT IS NOT DECLARED IS CALLED AS IMP CALLS A SUBROUTINE, BY VALUE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a"><ins>SUBR CSUBCALL(A,B) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"> <ins>D,H,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"> <ins>D:=HL(FREE(A));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"> <ins>H:=CPHEAD(D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"> <ins>H=0 =&gt; RETURN SUBCALL(A,B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>(H AND 1024) NE 0 =&gt; (CBNOCALL(D); RETURN SUBCALL(A,B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>A:=SUBRCALL(NAME(A));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"> <ins>WHILE GETLIST(B) DO (K&lt;16 =&gt; A:=CPAR(A,B,D,K); K:=K+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"> <ins>CPCOUNT(D,K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"> <ins>DEWFUN(A,2,REGOF(A));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"> <ins>SUBPR0(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a"> <ins>A);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"><ins># CCALL F(), WITH NO ARGUMENTS: AS THE SYNTAX OF A CALL (DEWFUN(SUBRCALL(NAME(A)),2,REGOF(A),SUBPR0(1))), AND THE COUNT OF A DECLARED FUNCTION CHECKED #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"><ins>SUBR C0CALL(A) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a"> <ins>D,R,P ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a"> <ins>D:=HL(FREE(A));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a"> <ins>(CPHEAD(D) AND 1024) NE 0 =&gt; CBNOCALL(D) ELSE (CPHEAD(D) NE 0 =&gt; CPCOUNT(D,0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"> <ins>A:=SUBRCALL(NAME(A));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">33</td><td class="c a"> <ins>R:=REGOF(A);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"> <ins>P:=SUBPR0(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"> <ins>DEWFUN(A,2,R));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"><ins># CCALL OF A NAME THAT IS DECLARED A CALLBACK: IT IS AN IMP SUBR, CALLED WITHOUT CCALL #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">38</td><td class="c a"><ins>SUBR CBNOCALL(D) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"> <ins>CCALL snprintf(LOC(CMSG),300,LOC('%s IS A CALLBACK, A SUBR: CALL IT WITHOUT CCALL.'),IRSYMNAME(D));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a"> <ins>ERROR(1,CMSG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a"><ins># CALLBACK(NAME): THE ADDRESS OF THE C FUNCTION THAT CALLS THE SUBR NAME (LIB/FFI.IMC; NOT IN THE ORIGINAL).  IT IS AN ADDR RECORD WHOSE X IS 1: DEMIT NAMES THE SYMBOL NAME@SIGNATURE, WHICH THE WRITERS OF LLVM IR</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a">  <ins>DEFINE AS THE FUNCTION WITH THE C TYPES OF THE DECLARATION (CALLBACK TYPE NAME(TYPES);) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a"><ins>SUBR CBADDR(A) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">47</td><td class="c a"> <ins>D,H,S,R ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">48</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a"> <ins>D:=HL(FREE(A));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a"> <ins>H:=CPHEAD(D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a"> <ins>(H AND 1024)=0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('%s IS NOT DECLARED A CALLBACK.'),IRSYMNAME(D)); ERROR(1,CMSG));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">52</td><td class="c a"> <ins>S:=NAME(A);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"> <ins>R:=AREG1(1,15B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">54</td><td class="c a"> <ins>ADDCODE(S,KOP,OADDR,R,FREE(S),FREE(S+1),1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"> <ins>FREES(S,((2 OR (FREE(S) AND 777700B))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"> <ins>FREES(S+1,(R LS 32));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a"> <ins>S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">59</td><td class="c a"><ins># THE NUMBER K OF ARGUMENTS OF A CALL OF THE DECLARED FUNCTION D: AT LEAST THE PARAMETERS OF A VARIADIC ONE, ELSE EXACTLY #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">60</td><td class="c a"><ins>SUBR CPCOUNT(D,K) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">61</td><td class="c a"> <ins>H,NP ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">62</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">63</td><td class="c a"> <ins>H:=CPHEAD(D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a"> <ins>NP:=(H RS 4) AND 31;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">65</td><td class="c a"> <ins>K&gt;16 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('CCALL %s HAS MORE THAN 16 ARGUMENTS.'),IRSYMNAME(D)); ERROR(1,CMSG); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"> <ins>(H AND 512) NE 0 =&gt; (K&lt;NP =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('CCALL %s TAKES AT LEAST %ld ARGUMENTS, NOT %ld.'),IRSYMNAME(D),NP,K); ERROR(1,CMSG)); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"> <ins>K NE NP =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('CCALL %s TAKES %ld ARGUMENTS, NOT %ld.'),IRSYMNAME(D),NP,K); ERROR(1,CMSG));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">70</td><td class="c a"><ins># THE ARGUMENT PP, THE K'TH OF A CALL S OF THE DECLARED FUNCTION D, CONVERTED AS C WOULD: TO THE TYPE OF THE PARAMETER, OR, FOR ONE OF THE ARGUMENTS OF A VARIADIC CALL THAT HAVE NO PARAMETER, TO A DOUBLE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a">  <ins>FOR A REAL AND TO A LONG FOR AN INTEGER.  A REAL IS FLOATED FOR A DOUBLE OR A FLOAT AND FIXED FOR ANY OTHER TYPE; A TEXT CONSTANT FOR A PTR IS PASSED BY ITS ADDRESS (+16 IN THE TYPE OF THE RECORD).</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a">  <ins>THE X OF THE OARG RECORD IS THE TYPE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a"><ins>SUBR CPAR(S,PP,D,K) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"> <ins>T,SF,X,H,P ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"> <ins>H:=CPHEAD(D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"> <ins>SF:=FREE(PP);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a"> <ins>K&lt;((H RS 4) AND 31) =&gt; T:=CPTYPE(D,K)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a">  <ins>ELSE (T:=7; (SF AND 300B)=200B =&gt; T:=13);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a"> <ins>X:=T;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"> <ins>T=13 =&gt; (FLOAT(PP); GO TO CP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"> <ins>T=14 =&gt; (FLOAT(PP); GO TO CP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>T=12 =&gt; (SF AND 77B)=4 =&gt; HL(SF) NE 0 =&gt; IRKIND(HL(SF))=1 =&gt; (X:=T+16; GO TO CP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a"> <ins>(SF AND 300B)=200B =&gt; FIX(PP);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a"> <ins>CP1: P:=SUBARG(S,PP);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a"> <ins>ADDCODE(S,KOP,OARG,0,FREE(P),FREE(P+1),X);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"> <ins>HOOK(S,P,S));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a"><ins># STRUCT N ( : BEGINS THE STRUCTURE N #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">89</td><td class="c a"><ins>SUBR STBEG(N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"> <ins>D ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">91</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">92</td><td class="c a"> <ins>D:=HL(FREE(N));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">93</td><td class="c a"> <ins>STCUR NE 0 =&gt; STEND(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"> <ins>STFIND(D) GE 0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('%s IS DECLARED TWICE AS A STRUCTURE.'),IRSYMNAME(D)); ERROR(1,CMSG); RETURN ENSTACK(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">95</td><td class="c a"> <ins>CTYPEOF(D) NE 0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('%s IS A TYPE OF C, NOT A NAME FOR A STRUCTURE.'),IRSYMNAME(D)); ERROR(1,CMSG); RETURN ENSTACK(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">96</td><td class="c a"> <ins>STT=0 =&gt; FRELOT(STT,'STT',25,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">97</td><td class="c a"> <ins>SFT=0 =&gt; FRELOT(SFT,'SFT',25,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">98</td><td class="c a"> <ins>STCUR:=NSTT+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"> <ins>FADD(STT,NSTT,D); FADD(STT,NSTT,0); FADD(STT,NSTT,1); FADD(STT,NSTT,NSFT); FADD(STT,NSTT,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"> <ins>STOFS:=0; STAL:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">101</td><td class="c a"> <ins>ENSTACK(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">103</td><td class="c a"><ins># THE INDEX IN STT OF THE STRUCTURE NAMED D, OR -1 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">104</td><td class="c a"><ins>SUBR STFIND(D) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">105</td><td class="c a"> <ins>I ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">106</td><td class="c a"> <ins>NSTT&gt;0 =&gt; ((FREE(STT+I)=D =&gt; RETURN I) FOR I IN 0,5,NSTT-5);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">107</td><td class="c a"> <ins>0-1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">109</td><td class="c a"><ins># T F OR T F [ N ]: A FIELD OF THE STRUCTURE BEING DECLARED, OF THE TYPE T (A TYPE OF C OR A STRUCTURE DECLARED BEFORE), AN ARRAY OF N OF THEM IF N IS NOT 0 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a"><ins>SUBR STFLD(T,F,N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a"> <ins>TD,FD,TY,CNT,K,I,SZ,AL ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">112</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"> <ins>STCUR=0 =&gt; RETURN ENSTACK(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">114</td><td class="c a"> <ins>TD:=HL(FREE(T)); FD:=HL(FREE(F));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">115</td><td class="c a"> <ins>TY:=CTYPEOF(TD);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">116</td><td class="c a"> <ins>TY=15 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('%s IS NOT THE TYPE OF A FIELD.'),IRSYMNAME(TD)); ERROR(1,CMSG); TY:=5);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">117</td><td class="c a"> <ins>TY=0 =&gt; TY:=TYSTRUCT(STFIND(TD));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">118</td><td class="c a"> <ins>TY=0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('%s IS NOT A TYPE OF C OR A STRUCTURE DECLARED BEFORE.'),IRSYMNAME(TD)); ERROR(1,CMSG); TY:=5);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">119</td><td class="c a"> <ins>CNT:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">120</td><td class="c a"> <ins>N NE 0 =&gt; (CNT:=FREE(N+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">121</td><td class="c a">            <ins>(FREE(N) AND 77B) NE 4 =&gt; CNT:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">122</td><td class="c a">            <ins>CNT LE 0 =&gt; CNT:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">123</td><td class="c a">            <ins>CNT GE 16777216 =&gt; CNT:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a">            <ins>CNT=0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('THE LENGTH OF THE ARRAY FIELD %s IS NOT A POSITIVE CONSTANT.'),IRSYMNAME(FD)); ERROR(1,CMSG); CNT:=1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">125</td><td class="c a"> <ins>K:=FREE(((STT+STCUR)-1)+3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">126</td><td class="c a"> <ins>K LT NSFT =&gt; ((FREE(SFT+I)=FD =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('THE FIELD %s IS DECLARED TWICE.'),IRSYMNAME(FD)); ERROR(1,CMSG))) FOR I IN K,5,NSFT-5);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">127</td><td class="c a"> <ins>SZ:=TYSIZE(TY); AL:=TYALIGN(TY);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">128</td><td class="c a"> <ins>AL LT 1 =&gt; AL:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">129</td><td class="c a"> <ins>STOFS:=((STOFS+(AL-1))/AL)*AL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">130</td><td class="c a"> <ins>FADD(SFT,NSFT,FD); FADD(SFT,NSFT,TY); FADD(SFT,NSFT,CNT); FADD(SFT,NSFT,STOFS); FADD(SFT,NSFT,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">131</td><td class="c a"> <ins>K:=((STT+STCUR)-1)+4;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">132</td><td class="c a"> <ins>FREES(K,FREE(K)+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">133</td><td class="c a"> <ins>CNT=0 =&gt; STOFS:=STOFS+SZ ELSE STOFS:=STOFS+(SZ*CNT);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">134</td><td class="c a"> <ins>AL GT STAL =&gt; STAL:=AL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">135</td><td class="c a"> <ins>ENSTACK(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">137</td><td class="c a"><ins># THE SIZE IN BYTES OF THE TYPE T #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">138</td><td class="c a"><ins>SUBR TYSIZE(T) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">139</td><td class="c a"> <ins>T=1 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">140</td><td class="c a"> <ins>T=2 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">141</td><td class="c a"> <ins>T=3 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">142</td><td class="c a"> <ins>T=4 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">143</td><td class="c a"> <ins>T=5 =&gt; RETURN 4;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a"> <ins>T=6 =&gt; RETURN 4;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">145</td><td class="c a"> <ins>T=14 =&gt; RETURN 4;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">146</td><td class="c a"> <ins>T=9 =&gt; RETURN 8;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">147</td><td class="c a"> <ins>T=10 =&gt; RETURN 8;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">148</td><td class="c a"> <ins>T=13 =&gt; RETURN 8;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">149</td><td class="c a"> <ins>T GE 64 =&gt; RETURN FREE((STT+(5*(T-64)))+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">150</td><td class="c a"> <ins>STP32(0) NE 0 =&gt; RETURN 4;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">151</td><td class="c a"> <ins>8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">153</td><td class="c a"><ins>SUBR STP32(Z) IS ((STINFO(0)-1) AND 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">155</td><td class="c a"><ins># THE ALIGNMENT OF THE TYPE T: ITS SIZE, EXCEPT THAT THE I386 ALIGNS THE 8 BYTE TYPES OF A STRUCTURE TO 4 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">156</td><td class="c a"><ins>SUBR TYALIGN(T) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">157</td><td class="c a"> <ins>N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">158</td><td class="c a"> <ins>T GE 64 =&gt; RETURN FREE((STT+(5*(T-64)))+2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">159</td><td class="c a"> <ins>N:=TYSIZE(T);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">160</td><td class="c a"> <ins>N=8 =&gt; STP32(0) NE 0 =&gt; ((STINFO(0)-1) AND 2)=0 =&gt; N:=4;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">161</td><td class="c a"> <ins>N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">163</td><td class="c a"><ins># LAYOUTS OF C STRUCTURES (STRUCT OF LIB/FFI.IMC; NOT IN THE ORIGINAL).  STT HOLDS THE STRUCTURES OF THE UNIT, FIVE WORDS EACH: THE NAME (A DIRECTORY INDEX), THE SIZE, THE ALIGNMENT, THE INDEX IN SFT OF THE FIRST</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">164</td><td class="c a">  <ins>FIELD AND THE NUMBER OF FIELDS.  SFT HOLDS THE FIELDS, FIVE WORDS EACH: THE NAME, THE TYPE, THE COUNT (0 FOR A FIELD THAT IS NOT AN ARRAY), THE OFFSET FROM THE START OF THE STRUCTURE, 0.  A TYPE IS 1 TO 14, THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">165</td><td class="c a">  <ins>NUMBER OF A TYPE OF C (THE TYPES OF THE TYPED DECLARATIONS), OR 64 PLUS THE NUMBER OF A STRUCTURE (ITS INDEX IN STT DIVIDED BY 5).  THE LAYOUT IS C'S FOR THE MACHINE THE PROGRAM IS COMPILED FOR: THE SIZES OF LONG</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">166</td><td class="c a">  <ins>AND OF POINTERS ARE THOSE OF THE WORD (4 WHERE THE POINTERS ARE 32 BITS), AND THE 8 BYTE TYPES OF THE I386 ALIGN TO 4.  STOFS IS THE OFFSET OF THE NEXT FIELD, STAL THE GREATEST ALIGNMENT, STCUR IS THE INDEX IN STT OF THE STRUCTURE BEING DECLARED, PLUS 1 (0: NONE).  STT AND SFT</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">167</td><td class="c a">  <ins>ARE EMPTIED WHEN THE UNIT ENDS (ASSEMC, STRESET) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">169</td><td class="c a"><ins># 1 + P32 + 2*ARM: P32 IF THE PROGRAM IS COMPILED FOR A MACHINE WHOSE POINTERS AND LONGS ARE 32 BITS (THE GENERATOR'S OWN TARGET, -T I386 OR ARM, OR THE ONE OF THE DRIVER: --TARGET, ELSE THE HOST), ARM IF IT IS AN ARM,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">170</td><td class="c a">  <ins>WHOSE 8 BYTE TYPES ALIGN TO 8 IN A STRUCTURE WHERE THE I386'S ALIGN TO 4.  ASKED ONCE (STPC) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">171</td><td class="c a"><ins>SUBR STINFO(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">172</td><td class="c a"> <ins>P,A ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">173</td><td class="c a"> <ins>STPC NE 0 =&gt; RETURN STPC;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">174</td><td class="c a"> <ins>P:=0; A:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">175</td><td class="c a"> <ins>TWLL NE 0 =&gt; (P:=1; TPUSH NE 0 =&gt; A:=1; STPC:=(1+P)+(2*A); RETURN STPC);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">176</td><td class="c a"> <ins>LVTARGET=0 =&gt; (IMPPTRSIZE(0)=4 =&gt; P:=1; CCALL strcmp(IMPHOSTARCH(0),LOC('arm'))=0 =&gt; A:=1; STPC:=(1+P)+(2*A); RETURN STPC);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">177</td><td class="c a"> <ins>LVPTR32(0)=1 =&gt; P:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">178</td><td class="c a"> <ins>CCALL strncmp(LVTRI,LOC('arm'),3)=0 =&gt; A:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">179</td><td class="c a"> <ins>CCALL strncmp(LVTRI,LOC('thumb'),5)=0 =&gt; A:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">180</td><td class="c a"> <ins>STPC:=(1+P)+(2*A);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">181</td><td class="c a"> <ins>STPC);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">183</td><td class="c a"><ins># THE TYPE OF THE STRUCTURE AT THE INDEX K OF STT (K&lt;0: NONE) FOR USE AS A TYPE, OR 0 FOR THE ONE BEING DECLARED #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">184</td><td class="c a"><ins>SUBR TYSTRUCT(K) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">185</td><td class="c a"> <ins>K LT 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">186</td><td class="c a"> <ins>(K+1)=STCUR =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">187</td><td class="c a"> <ins>64+(K/5));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">189</td><td class="c a"><ins># THE END OF THE UNIT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">190</td><td class="c a"><ins>SUBR STRESET(Z) IS (NSTT:=0; NSFT:=0; STCUR:=0; 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">192</td><td class="c a"><ins># ) : ENDS THE STRUCTURE.  ITS SIZE IS THE END OF THE LAST FIELD ROUNDED UP TO THE GREATEST ALIGNMENT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">193</td><td class="c a"><ins>SUBR STEND(H) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">194</td><td class="c a"> <ins>K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">195</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">196</td><td class="c a"> <ins>STCUR=0 =&gt; RETURN ENSTACK(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">197</td><td class="c a"> <ins>K:=(STT+STCUR)-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">198</td><td class="c a"> <ins>FREE(K+4)=0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('THE STRUCTURE %s HAS NO FIELD.'),IRSYMNAME(FREE(K))); ERROR(1,CMSG));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">199</td><td class="c a"> <ins>FREES(K+1,((STOFS+(STAL-1))/STAL)*STAL);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">200</td><td class="c a"> <ins>FREES(K+2,STAL);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">201</td><td class="c a"> <ins>STCUR:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">202</td><td class="c a"> <ins>ENSTACK(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">204</td><td class="c a"><ins># SIZEOF(N): THE SIZE IN BYTES OF THE TYPE OF C OR THE STRUCTURE N, A CONSTANT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">205</td><td class="c a"><ins>SUBR STSIZE(S) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">206</td><td class="c a"> <ins>D,TY ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">207</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">208</td><td class="c a"> <ins>D:=HL(FREE(S));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">209</td><td class="c a"> <ins>TY:=STTYPE(D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">210</td><td class="c a"> <ins>TY=0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('%s IS NOT A TYPE OF C OR A STRUCTURE.'),IRSYMNAME(D)); ERROR(1,CMSG); RETURN STCONST(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">211</td><td class="c a"> <ins>STCONST(TYSIZE(TY)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">213</td><td class="c a"><ins># THE TYPE OF THE NAME D, A TYPE OF C OR A STRUCTURE (FOR SIZEOF), OR 0 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">214</td><td class="c a"><ins>SUBR STTYPE(D) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">215</td><td class="c a"> <ins>TY ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">216</td><td class="c a"> <ins>TY:=CTYPEOF(D);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">217</td><td class="c a"> <ins>TY=15 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">218</td><td class="c a"> <ins>TY NE 0 =&gt; RETURN TY;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">219</td><td class="c a"> <ins>TYSTRUCT(STFIND(D)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">221</td><td class="c a"><ins># A CONSTANT OF THE SEMANTICS STACK #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">222</td><td class="c a"><ins>SUBR STCONST(V) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">223</td><td class="c a"> <ins>E ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">224</td><td class="c a"> <ins>E:=ENSTACK(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">225</td><td class="c a"> <ins>FREES(E,104B); FREES(E+1,V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">226</td><td class="c a"> <ins>E);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">228</td><td class="c a"><ins># A PATH S.F OR S,F: THE ENTRY HOLDS, IN THE WORD 0, 1 AND THE TYPE (FROM BIT 8, 16 BITS) AND THE COUNT OF THE ARRAY (FROM BIT 24) OF THE FIELD THE PATH ENDS AT, AND IN THE WORD 1 ITS OFFSET.  TYPE 0 IS A</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">229</td><td class="c a">  <ins>PATH THAT FAILED (THE ERROR IS SAID ONCE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">230</td><td class="c a"><ins>SUBR FPBEG(S,F) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">231</td><td class="c a"> <ins>D,K,E,TY ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">232</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">233</td><td class="c a"> <ins>D:=HL(FREE(S));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">234</td><td class="c a"> <ins>E:=ENSTACK(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">235</td><td class="c a"> <ins>TY:=TYSTRUCT(STFIND(D));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">236</td><td class="c a"> <ins>TY=0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('%s IS NOT A STRUCTURE.'),IRSYMNAME(D)); ERROR(1,CMSG); FREES(E,1); FREES(E+1,0); RETURN E);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">237</td><td class="c a"> <ins>FREES(E,1 OR (TY LS 8)); FREES(E+1,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">238</td><td class="c a"> <ins>FPFLD(E,F));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">240</td><td class="c a"><ins>SUBR FPFLD(P,F) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">241</td><td class="c a"> <ins>FD,TY,K,I,N,J ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">242</td><td class="c a"> <ins>CMSG IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">243</td><td class="c a"> <ins>FD:=HL(FREE(F));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">244</td><td class="c a"> <ins>TY:=(FREE(P) RS 8) AND 65535;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">245</td><td class="c a"> <ins>TY=0 =&gt; RETURN P;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">246</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">247</td><td class="c a"> <ins>TY LT 64 =&gt; I:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">248</td><td class="c a"> <ins>(FREE(P) RS 24) NE 0 =&gt; I:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">249</td><td class="c a"> <ins>I NE 0 =&gt; (CCALL snprintf(LOC(CMSG),300,LOC('%s IS NOT A FIELD OF A STRUCTURE TYPE (FOR AN ARRAY OF STRUCTURES ADD THE ELEMENT OFFSET TO THE ADDRESS).'),IRSYMNAME(FD)); ERROR(1,CMSG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">250</td><td class="c a">            <ins>FREES(P,1); RETURN P);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">251</td><td class="c a"> <ins>K:=STT+(5*(TY-64));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">252</td><td class="c a"> <ins>N:=FREE(K+4);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">253</td><td class="c a"> <ins>I:=FREE(K+3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">254</td><td class="c a"> <ins>N&gt;0 =&gt; (((FREE(SFT+J)=FD =&gt; (FREES(P,(1 OR (FREE((SFT+J)+1) LS 8)) OR (FREE((SFT+J)+2) LS 24));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">255</td><td class="c a">                              <ins>FREES(P+1,FREE(P+1)+FREE((SFT+J)+3));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">256</td><td class="c a">                              <ins>RETURN P)) FOR J IN I,5,(I+(5*N))-5));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">257</td><td class="c a"> <ins>CCALL snprintf(LOC(CMSG),300,LOC('THE STRUCTURE %s HAS NO FIELD %s.'),IRSYMNAME(FREE(K)),IRSYMNAME(FD)); ERROR(1,CMSG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">258</td><td class="c a"> <ins>FREES(P,1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">259</td><td class="c a"> <ins>P);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">261</td><td class="c a"><ins># OFFSETOF(S,F): THE OFFSET OF THE FIELD IN BYTES, A CONSTANT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">262</td><td class="c a"><ins>SUBR STOFF(P) IS STCONST(FREE(P+1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">264</td><td class="c a"><ins># FIELD(P,S.F) AND FIELD(P,S.F,I): THE FIELD F OF THE STRUCTURE S AT THE ADDRESS P (THE ITH ELEMENT IF THE FIELD IS AN ARRAY).  THE ENTRY IS A VARIABLE NAMED FOR A DESCRIPTOR IN FDESC (EIGHT WORDS: THE NAME, THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">265</td><td class="c a">  <ins>ADDRESS P AS AN OPERAND OF TWO WORDS, THE INDEX I AS AN OPERAND OF TWO WORDS OR 0, THE OFFSET OF THE FIELD PLUS THE OFFSET OF THE ELEMENT IF I IS A CONSTANT, THE TYPE, THE SIZE OF AN ELEMENT).  THE OPERATIONS</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">266</td><td class="c a">  <ins>LDB AND DPB ON IT LOAD AND STORE THE FIELD WITH ITS TYPE (DEMIT) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">267</td><td class="c a"><ins>SUBR FLDP(P,FP,IDX) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">268</td><td class="c a"> <ins>TD,E,TY,CNT,OFF,ESZ,I0,I1,CI,IX,AR ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">269</td><td class="c a"> <ins>TY:=(FREE(FP) RS 8) AND 65535;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">270</td><td class="c a"> <ins>CNT:=FREE(FP) RS 24;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">271</td><td class="c a"> <ins>OFF:=FREE(FP+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">272</td><td class="c a"> <ins>IX:=IDX;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">273</td><td class="c a"> <ins>TY=0 =&gt; TY:=5;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">274</td><td class="c a"> <ins>TY GE 64 =&gt; (ERROR(1,'THE FIELD IS OF A STRUCTURE TYPE: NAME A FIELD OF IT (FIELD(P, S.F.G)).'); TY:=5);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">275</td><td class="c a"> <ins>CI:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">276</td><td class="c a"> <ins>CNT NE 0 =&gt; IX=0 =&gt; (ERROR(1,'THE FIELD IS AN ARRAY: GIVE THE ELEMENT (FIELD(P, S.F, I)).'); CNT:=0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">277</td><td class="c a"> <ins>CNT=0 =&gt; IX NE 0 =&gt; (ERROR(1,'THE FIELD IS NOT AN ARRAY, SO IT TAKES NO ELEMENT.'); IX:=0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">278</td><td class="c a"> <ins>ESZ:=TYSIZE(TY);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">279</td><td class="c a"> <ins>I0:=0; I1:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">280</td><td class="c a"> <ins>IX NE 0 =&gt; ((FREE(IX) AND 77B)=4 =&gt; (OFF:=OFF+(FREE(IX+1)*ESZ); CI:=1)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">281</td><td class="c a">              <ins>ELSE (FETCH(IX); I0:=FREE(IX); I1:=FREE(IX+1)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">282</td><td class="c a"> <ins>TD:=NEWNAME('FLD');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">283</td><td class="c a"> <ins>E:=NAME(ENSTACK(TD));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">284</td><td class="c a"> <ins>(FREE(P) AND 77B) NE 4 =&gt; FETCH(P);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">285</td><td class="c a"> <ins>FDESC=0 =&gt; FRELOT(FDESC,'FDESC',80,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">286</td><td class="c a"> <ins>FADD(FDESC,NFD,TD);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">287</td><td class="c a"> <ins>FADD(FDESC,NFD,FREE(P)); FADD(FDESC,NFD,FREE(P+1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">288</td><td class="c a"> <ins>FADD(FDESC,NFD,I0); FADD(FDESC,NFD,I1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">289</td><td class="c a"> <ins>FADD(FDESC,NFD,OFF); FADD(FDESC,NFD,TY); FADD(FDESC,NFD,ESZ);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">290</td><td class="c a"> <ins>IX NE 0 =&gt; CI=0 =&gt; HOOK(P,P,IX);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">291</td><td class="c a"> <ins>HOOK(E,P,E);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">292</td><td class="c a"> <ins>FREES(E+1,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">293</td><td class="c a"> <ins>AR:=110B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">294</td><td class="c a"> <ins>TY=13 =&gt; AR:=210B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">295</td><td class="c a"> <ins>TY=14 =&gt; AR:=210B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">296</td><td class="c a"> <ins>FREES(E,AR OR (TD LS 32));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">297</td><td class="c a"> <ins>E);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">299</td><td class="c a"><ins># FIELD(...) := B: THE VALUE B IS CONVERTED TO THE TYPE OF THE FIELD (A REAL FOR DOUBLE AND FLOAT, AN INTEGER OTHERWISE) AND DEPOSITED #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">300</td><td class="c a"><ins>SUBR FLDST(A,B) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">301</td><td class="c a"> <ins>FA ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">302</td><td class="c a"> <ins>FA:=FREE(A) AND 300B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">303</td><td class="c a"> <ins>FA=200B =&gt; FLOAT(B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">304</td><td class="c a"> <ins>FA NE 200B =&gt; FLDFIX(B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">305</td><td class="c a"> <ins>ADDOP(25,A,B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">307</td><td class="c a"><ins># FIX(S) OF CODE2.IMC: INSURE THAT S IS AN INTEGER.  THE NAME FIX( IN IMP SOURCE IS THE OPERATOR THAT TRUNCATES A REAL, SO THE ROUTINE CANNOT BE CALLED BY ITS NAME #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">308</td><td class="c a"><ins>SUBR FLDFIX(S) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">309</td><td class="c a"> <ins>X IS REAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">310</td><td class="c a"> <ins>SF,J,B ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">311</td><td class="c a"> <ins>SF:=FREE(S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">312</td><td class="c a"> <ins>(SF AND 300B)=0 =&gt; (FREES(S,(SF OR 100B)); RETURN S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">313</td><td class="c a"> <ins>(SF AND 300B) NE 100B =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">314</td><td class="c a">     <ins>(SF AND 77B)=4 =&gt; (B:=FREE(S+1); CCALL memcpy(LOC(X),LOC(B),8); FREES(S+1,FIX(X));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">315</td><td class="c a">                        <ins>FREES(S,((104B OR (SF AND 777000B))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">316</td><td class="c a">                        <ins>RETURN S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">317</td><td class="c a">     <ins>FETCH(S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">318</td><td class="c a">     <ins>J:=REGOF(S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">319</td><td class="c a">     <ins>ADDCODE(S,KOP,OFIX,J,FREE(S),FREE(S+1),0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">320</td><td class="c a">     <ins>FREES(S,((102B OR (SF AND (NOT 377B))))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">321</td><td class="c a"> <ins>S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">323</td><td class="c a"><ins>OPN: DATA(</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">324</td><td class="c a">          <ins>'?      ','LOAD   ','NEG    ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">325</td><td class="c a">          <ins>'COMPL  ','ADDR   ','STORE  ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">326</td><td class="c a">          <ins>'ADD    ','SUB    ','MUL    ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">327</td><td class="c a">          <ins>'DIV    ','MOD    ','AND    ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">328</td><td class="c a">          <ins>'ANDCA  ','ANDCM  ','ANDCB  ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">329</td><td class="c a">          <ins>'IOR    ','ORCA   ','ORCM   ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">330</td><td class="c a">          <ins>'ORCB   ','XOR    ','EQV    ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">331</td><td class="c a">          <ins>'LSH    ','ASH    ','ROT    ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">332</td><td class="c a">          <ins>'?      ','?      ','?      ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">333</td><td class="c a">          <ins>'?      ','?      ','?      ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">334</td><td class="c a">          <ins>'FADD   ','FSUB   ','FMUL   ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">335</td><td class="c a">          <ins>'FDIV   ','FLOAT  ','FIX    ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">336</td><td class="c a">          <ins>'FNEG   ','?      ','?      ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">337</td><td class="c a">          <ins>'?      ','JUMP   ','JEQ    ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">338</td><td class="c a">          <ins>'JLT    ','JLE    ','JGE    ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">339</td><td class="c a">          <ins>'JGT    ','JNE    ','?      ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">340</td><td class="c a">          <ins>'?      ','?      ','?      ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">341</td><td class="c a">          <ins>'FJEQ   ','FJLT   ','FJLE   ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">342</td><td class="c a">          <ins>'FJGE   ','FJGT   ','FJNE   ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">343</td><td class="c a">          <ins>'?      ','?      ','?      ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">344</td><td class="c a">          <ins>'CALLB  ','ARG    ','CALLE  ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">345</td><td class="c a">          <ins>'PITEM  ','?      ','?      ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">346</td><td class="c a">          <ins>'?      ','?      ','?      ',</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">347</td><td class="c a">          <ins>'?      ','ENTRY  ','RET    ')</ins>;</td></tr>
+<tr><td class="n q">6</td><td class="c q">SUBR CODE3I(NIL) IS (DSEM('SUBSCRIPT',SUBSCRIPT);</td><td class="n q">349</td><td class="c q">SUBR CODE3I(NIL) IS (DSEM('SUBSCRIPT',SUBSCRIPT);</td></tr>
+<tr><td class="n q">7</td><td class="c q">		       DSEM('SUBCALL',SUBCALL);</td><td class="n q">350</td><td class="c q">                     DSEM('SUBCALL',SUBCALL);</td></tr>
+<tr><td class="n d">8</td><td class="c d">                     DSEM('BYTEP',BYTEP));</td><td class="n a">351</td><td class="c a">                     DSEM(<ins>'CSUBCALL',CSUBCALL);</ins></td></tr>
+<tr><td class="n d">10</td><td class="c d">SUBR SUBCALL(A,B) IS (</td><td class="n a">352</td><td class="c a">                     <ins>DSEM('CCALL0',C0CALL);</ins></td></tr>
+<tr><td class="n d">11</td><td class="c d"> A<del>_</del>SUBRCALL(NAME(A));</td><td class="n a">353</td><td class="c a">                     <ins>DSEM('CBADDR',CBADDR);</ins></td></tr>
+<tr><td class="n d">12</td><td class="c d"> WHILE GETLIST(B) DO A<del>_</del>SUBRPAR(A,B);</td><td class="n a">354</td><td class="c a">                     <ins>DSEM(</ins>'BYTEP',BYTEP)<ins>;</ins></td></tr>
+<tr><td class="n d">13</td><td class="c d"> DEWFUN(A,2,REGOF(A)<del>,</del>SUBPR0(1<del>)</del>);</td><td class="n a">355</td><td class="c a">                     <ins>DSEM('STBEG',STBEG</ins>);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">356</td><td class="c a">                     <ins>DSEM('STFLD',STFLD);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">357</td><td class="c a">                     <ins>DSEM('STEND',STEND);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">358</td><td class="c a">                     <ins>DSEM('STSIZE',STSIZE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">359</td><td class="c a">                     <ins>DSEM('FPBEG',FPBEG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">360</td><td class="c a">                     <ins>DSEM('FPFLD',FPFLD);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">361</td><td class="c a">                     <ins>DSEM('STOFF',STOFF);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">362</td><td class="c a">                     <ins>DSEM('FLDP',FLDP);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">363</td><td class="c a">                     <ins>DSEM('FLDST',FLDST);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">364</td><td class="c a">                     <ins>0);</ins>SUBR SUBCALL(A,B) IS (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">365</td><td class="c a"> A<ins>:=</ins>SUBRCALL(NAME(A));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">366</td><td class="c a"> WHILE GETLIST(B) DO A<ins>:=</ins>SUBRPAR(A,B);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">367</td><td class="c a"> DEWFUN(A,2,REGOF(A)<ins>);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">368</td><td class="c a"> SUBPR0(1);</td></tr>
+<tr><td class="n q">14</td><td class="c q"> A);</td><td class="n q">369</td><td class="c q"> A);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">371</td><td class="c a"><ins># SUBSCRIPT(S,T): THE SUBSCRIPTED VARIABLE S[T] (S=0: [T], THE WORD AT ADDRESS T) #</ins></td></tr>
+<tr><td class="n q">16</td><td class="c q">SUBR SUBSCRIPT(S,T) IS (</td><td class="n q">372</td><td class="c q">SUBR SUBSCRIPT(S,T) IS (</td></tr>
+<tr><td class="n d">17</td><td class="c d"> TTY<del>_</del>FREE(T) AND 77B;</td><td class="n a">373</td><td class="c a"> TTY<ins>,STY,TE,SC,I,SEE,R0,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">18</td><td class="c d"> TTY=2 =&gt; REG0(<del>3777B AND FREE</del>(T<del>+1</del>) <del>RS 18</del>) =&gt; GO TO <del>L46;</del></td><td class="n a">374</td><td class="c a"> <ins>TTY:=</ins>FREE(T) AND 77B;</td></tr>
+<tr><td class="n d">19</td><td class="c d"> TTY=20B =&gt; FREE(T+1)<del>&lt;</del>0 =&gt; (<del>L46:</del> DEWOP(<del>200B</del>,AREG1(1,15B),T); TTY<del>_</del>2);</td><td class="n a">375</td><td class="c a"> TTY=2 =&gt; REG0(<ins>REGOF</ins>(T)) <ins>NE 0</ins> =&gt; <ins>(DEWOP(OLOAD,AREG1(1,15B),T); TTY:=2);     # (A FIXED REGISTER, THE VALUE OF A CALL: COPIED INTO A FRESH ONE, WHICH LEAVES THE NAME OF THE ROUTINE BEHIND; THE TAPE'S</ins> GO TO <ins>L46) #</ins></td></tr>
+<tr><td class="n d">20</td><td class="c d"> S=0 =&gt; (TTY NE 2 =&gt; TTY NE 4 =&gt; (FREE(T+1)<del>&lt;</del>0=&gt;(DEWOP(<del>200B</del>,AREG1(1,15B),T);</td><td class="n a">376</td><td class="c a"> TTY=20B =&gt; FREE(T+1) <ins>LT</ins> 0 =&gt; (DEWOP(<ins>OLOAD</ins>,AREG1(1,15B),T); TTY<ins>:=</ins>2);</td></tr>
+<tr><td class="n d">21</td><td class="c d">                                  TTY<del>_</del>20B;</td><td class="n a">377</td><td class="c a"> S=0 =&gt; (TTY NE 2 =&gt; TTY NE 4 =&gt; (FREE(T+1) <ins>LT</ins> 0 =&gt; (DEWOP(<ins>OLOAD</ins>,AREG1(1,15B),T);</td></tr>
+<tr><td class="n d">22</td><td class="c d">                                  FREES(T,20B OR FREE(T) AND 77B)) ELSE</td><td class="n a">378</td><td class="c a">                                                       TTY<ins>:=</ins>20B;</td></tr>
+<tr><td class="n d">23</td><td class="c d">                        FREES(T+1,FREE(T+1) OR 1 LS <del>35</del>));</td><td class="n a">379</td><td class="c a">                                                       FREES(T,<ins>((</ins>20B OR <ins>(</ins>FREE(T) AND 77B))<ins>)))</ins></td></tr>
+<tr><td class="n d">24</td><td class="c d">         TE<del>_</del>20B OR FREE(T) AND NOT 77B;</td><td class="n a">380</td><td class="c a">                                  ELSE FREES(T+1,<ins>(</ins>FREE(T+1) OR <ins>(</ins>1 LS <ins>63</ins>))<ins>))</ins>;</td></tr>
+<tr><td class="n d">25</td><td class="c d">         TTY=4 =&gt; (TE<del>_</del>10B OR TE AND 777700B;</td><td class="n a">381</td><td class="c a">         TE<ins>:=</ins>20B OR <ins>(</ins>FREE(T) AND <ins>(</ins>NOT 77B<ins>))</ins>;</td></tr>
+<tr><td class="n d">26</td><td class="c d">                   FREES(T+1,FREE(T+1) <del>AND 777777B</del>));</td><td class="n a">382</td><td class="c a">         TTY=4 =&gt; (TE<ins>:=</ins>10B OR <ins>(</ins>TE AND 777700B<ins>)</ins>;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">383</td><td class="c a">                   FREES(T+1,<ins>HR(</ins>FREE(T+1)<ins>)</ins>));</td></tr>
+<tr><td class="n q">27</td><td class="c q">         FREES(T,TE); RETURN T);</td><td class="n q">384</td><td class="c q">         FREES(T,TE); RETURN T);</td></tr>
+<tr><td class="n d">28</td><td class="c d"> TTY NE 2 =&gt; TTY NE 4 =&gt; (DEWOP(<del>200B</del>,AREG1(1,15B),T); TTY<del>_</del>2);</td><td class="n a">385</td><td class="c a"> TTY NE 2 =&gt; TTY NE 4 =&gt; (DEWOP(<ins>OLOAD</ins>,AREG1(1,15B),T); TTY<ins>:=</ins>2);</td></tr>
+<tr><td class="n d">29</td><td class="c d"> STY<del>_</del>FREE(S) AND 77B;</td><td class="n a">386</td><td class="c a"> STY<ins>:=</ins>FREE(S) AND 77B;</td></tr>
+<tr><td class="n d">30</td><td class="c d"> STY=20B =&gt; FREE(S+1)<del>&lt;</del>0 =&gt; (DEWOP(<del>201B</del>,AREG1(1,15B),S); STY<del>_</del>20B;</td><td class="n a">387</td><td class="c a"> STY=20B =&gt; FREE(S+1) <ins>LT</ins> 0 =&gt; (DEWOP(<ins>OADDR</ins>,AREG1(1,15B),S); STY<ins>:=</ins>20B;</td></tr>
+<tr><td class="n d">31</td><td class="c d">                            FREES(S,20B OR FREE(S) AND <del>NOT 77B</del>));</td><td class="n a">388</td><td class="c a">                               FREES(S,<ins>((</ins>20B OR <ins>(</ins>FREE(S) AND <ins>700B)))</ins>));</td></tr>
+<tr><td class="n q">32</td><td class="c q"> STY=2 =&gt; (ERROR(1,'SUBSCRIPTED REGISTER - IGNORED. '); RETURN S);</td><td class="n q">389</td><td class="c q"> STY=2 =&gt; (ERROR(1,'SUBSCRIPTED REGISTER - IGNORED. '); RETURN S);</td></tr>
+<tr><td class="n d">33</td><td class="c d"> STY=4 =&gt; (<del>SE_</del>FREE(S) AND NOT 77B;</td><td class="n a">390</td><td class="c a"> STY=4 =&gt; (<ins>SEE:=</ins>FREE(S) AND <ins>(</ins>NOT 77B<ins>)</ins>;</td></tr>
+<tr><td class="n d">34</td><td class="c d">           (<del>SE RS 18</del>)=0 =&gt; (ERROR(2,'CALCULATED CONSTANT IS SUBSCRIPTED. ');</td><td class="n a">391</td><td class="c a">           <ins>HL</ins>(<ins>SEE</ins>)=0 =&gt; (ERROR(2,'CALCULATED CONSTANT IS SUBSCRIPTED. ');</td></tr>
+<tr><td class="n d">35</td><td class="c d">                            I<del>_</del>STCON(FREE(S+1));</td><td class="n a">392</td><td class="c a">                          I<ins>:=</ins>STCON(FREE(S+1));</td></tr>
+<tr><td class="n d">36</td><td class="c d">                            <del>SE_</del>(I LS <del>18</del>) OR <del>SE AND 777777B</del>);</td><td class="n a">393</td><td class="c a">                          <ins>SEE:=</ins>(<ins>(</ins>I LS <ins>32</ins>) OR <ins>HR(SEE</ins>)<ins>))</ins>;</td></tr>
+<tr><td class="n d">37</td><td class="c d">           FREES(S,<del>SE</del> OR 10B); FREES(S+1,0));</td><td class="n a">394</td><td class="c a">           FREES(S,<ins>((SEE</ins> OR 10B)<ins>))</ins>; FREES(S+1,0));</td></tr>
+<tr><td class="n d">38</td><td class="c d"> TTY=2 =&gt; (STY NE 20B =&gt; (FREES(S,20B OR FREE(S) AND NOT 77B);</td><td class="n a">395</td><td class="c a"> TTY=2 =&gt; (STY NE 20B =&gt; (FREES(S,<ins>((</ins>20B OR <ins>(</ins>FREE(S) AND <ins>(</ins>NOT 77B)<ins>))))</ins>;</td></tr>
+<tr><td class="n d">39</td><td class="c d">                          FREES(S+1,FREE(S+1) OR REGOF(T) LS <del>18</del>))</td><td class="n a">396</td><td class="c a">                          FREES(S+1,<ins>(</ins>FREE(S+1) OR <ins>(</ins>REGOF(T) LS <ins>32</ins>))<ins>))</ins></td></tr>
+<tr><td class="n d">40</td><td class="c d">           ELSE ADDCODE(S,(<del>270B</del> LS <del>24</del>)+(<del>REGOF</del>(S) <del>LS 12</del>)<del>+</del>(1 <del>LS 11</del>),<del>REGOF</del>(T)));</td><td class="n a">397</td><td class="c a">           ELSE <ins>(R0:=REGOF(S);</ins></td></tr>
+<tr><td class="n d">41</td><td class="c d"> TTY=4 =&gt; (SC<del>_</del>((FREE(S+1) <del>AND 777777B</del>)+FREE(T+1)) <del>AND 777777B</del>;</td><td class="n a">398</td><td class="c a">                 <ins>R0=0 =&gt; FREES(S+1,(FREE(S+1) OR (REGOF(T) LS 32)))</ins></td></tr>
+<tr><td class="n d">42</td><td class="c d">           FREES(S+1,SC OR FREE(S+1) AND NOT <del>777777B</del>));</td><td class="n a">399</td><td class="c a">                  <ins>ELSE (# ADD THE INDEX TO A COPY OF THE REGISTER: IT MAY BE A PARAMETER'S OR A USER'S #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">400</td><td class="c a">                        <ins>K:=AREG1(1,15B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">401</td><td class="c a">                        ADDCODE(S,<ins>KOP,OLOAD,K,2,</ins>(<ins>R0</ins> LS <ins>32</ins>)<ins>,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">402</td><td class="c a">                        <ins>FREES(S</ins>+<ins>1,REGFIELD</ins>(<ins>FREE</ins>(S<ins>+1</ins>)<ins>,R0,K</ins>)<ins>);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">403</td><td class="c a">                        <ins>HL</ins>(<ins>FREE(S))=0 =&gt; ADDCODE(S,KOP,OADDX,K,FREE(T),FREE(T+</ins>1),<ins>0)       # A POINTER IN A REGISTER: THE INDEX IS IN WORDS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">404</td><td class="c a">                         <ins>ELSE ADDCODE</ins>(<ins>S,KOP,OADD,K,FREE(</ins>T)<ins>,FREE(T+1</ins>)<ins>,0</ins>)<ins>)))</ins>;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">405</td><td class="c a"> TTY=4 =&gt; (SC<ins>:=HR</ins>(<ins>HR</ins>(FREE(S+1))+FREE(T+1));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">406</td><td class="c a">           FREES(S+1,<ins>(</ins>SC OR <ins>(</ins>FREE(S+1) AND NOT <ins>HMASK</ins>))<ins>))</ins>;      <ins># THE REGISTER AND THE INDIRECT BIT KEPT #</ins></td></tr>
+<tr><td class="n q">43</td><td class="c q"> HOOK(S,T,S));</td><td class="n q">407</td><td class="c q"> HOOK(S,T,S));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">409</td><td class="c a"><ins># BYTEP(A,S,P,FLAG): THE BYTE A&lt;S,P&gt; (S BITS WITH THE LOW BIT AT BIT P).  THE ORIGINAL BUILDS A PDP-10 BYTE POINTER AS CONSTANT CODE; HERE THE ENTRY IS A VARIABLE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">410</td><td class="c a">  <ins>NAMED FOR A DESCRIPTOR KEPT IN THE TABLE BDESC (SEVEN WORDS: THE NAME, THE OPERAND A, THE SIZE S AND THE POSITION P, TWO WORDS OF AN ENTRY EACH, A REGISTER OR</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">411</td><td class="c a">  <ins>A CONSTANT).  THE OPERATIONS LOAD BYTE, DEPOSIT BYTE AND MOVE (THE POINTER'S VALUE) READ IT IN DEMIT #</ins></td></tr>
+<tr><td class="n q">45</td><td class="c q">SUBR BYTEP(A,S,P,FLAG) IS (</td><td class="n q">412</td><td class="c q">SUBR BYTEP(A,S,P,FLAG) IS (</td></tr>
+<tr><td class="n d">46</td><td class="c d"> <del># MAKES A REMOTE BYTE POINTER FOR A&lt;S,P&gt; #</del></td><td class="n a">413</td><td class="c a"> TD <ins>ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">47</td><td class="c d"> TD<del>_</del>NEWNAME('BYTE');</td><td class="n a">414</td><td class="c a"> <ins>TD:=</ins>NEWNAME('BYTE');</td></tr>
+<tr><td class="n d">48</td><td class="c d"> <del>T_</del>ENSTACK(TD)<del>;</del></td><td class="n a">415</td><td class="c a"> <ins>NAME(</ins>ENSTACK(TD));</td></tr>
+<tr><td class="n d">49</td><td class="c d"> <del>NAME(T</del>); <del>TAG</del>(<del>T);</del></td><td class="n a">416</td><td class="c a"> (FREE(P) AND <ins>77B</ins>) <ins>NE 4 =&gt;</ins> FETCH(P);</td></tr>
+<tr><td class="n d">50</td><td class="c d"> <del>DEWFUN(T,11,0);</del></td><td class="n a">417</td><td class="c a"> (FREE(S) AND <ins>77B</ins>) <ins>NE 4 =&gt;</ins> FETCH(S);</td></tr>
+<tr><td class="n d">51</td><td class="c d"> <del>B_C_GG_R_0;</del></td><td class="n a">418</td><td class="c a"> <ins>BDESC=0 =&gt; FRELOT</ins>(<ins>BDESC</ins>,<ins>'BDESC'</ins>,<ins>70,0</ins>);</td></tr>
+<tr><td class="n d">52</td><td class="c d"> <del>#GET P POINTER #</del></td><td class="n a">419</td><td class="c a"> <ins>FADD</ins>(<ins>BDESC</ins>,<ins>NBD</ins>,<ins>TD</ins>);</td></tr>
+<tr><td class="n d">53</td><td class="c d"> <del>PTY_77B AND PE_</del>FREE(P)<del>;</del></td><td class="n a">420</td><td class="c a"> <ins>FADD</ins>(<ins>BDESC,NBD,</ins>FREE(A))<ins>; FADD</ins>(<ins>BDESC,NBD,</ins>FREE(A+1));</td></tr>
+<tr><td class="n d">54</td><td class="c d"> <del>PTY=4=&gt;(B_B OR (77B</del> AND <del>J_GG_FREE(P+1</del>)<del>) LS 27; C_C+1; GO TO L12);</del></td><td class="n a">421</td><td class="c a"> <ins>FADD</ins>(<ins>BDESC</ins>,<ins>NBD</ins>,FREE(S)); <ins>FADD</ins>(<ins>BDESC</ins>,<ins>NBD,FREE</ins>(<ins>S</ins>+1));</td></tr>
+<tr><td class="n d">55</td><td class="c d"> <del># IF NOT CONSTANT, STORE IT IN WORD #</del></td><td class="n a">422</td><td class="c a"> <ins>FADD</ins>(<ins>BDESC</ins>,<ins>NBD</ins>,FREE(<ins>P</ins>)); <ins>FADD</ins>(<ins>BDESC</ins>,<ins>NBD</ins>,FREE(<ins>P</ins>+<ins>1</ins>));</td></tr>
+<tr><td class="n d">56</td><td class="c d"> <del>R_REGOF(</del>FETCH(P)<del>)</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d"> <del>ADDCODE</del>(<del>P,024200000000B OR R LS 12,36000000B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d"> <del># NOW GET S POINTER - IF CONST, MUST FUDGE IT INTO REGISTER FIELD. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d"> <del>L12: STY_77B AND SE_</del>FREE(S)<del>;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d"> <del>STY=4=&gt;(B_B OR (70B</del> AND <del>J_FREE(S+1</del>)<del>) LS 21; C_C+1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d">	 <del>GG_GG OR J;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">         <del>B_B OR AREG(2*J AND 7) LS 12; GO TO L13);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">63</td><td class="c d"> <del>J_REGOF(</del>FETCH(S)<del>)</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d"> <del>ADDCODE</del>(<del>S</del>,<del>024200000000B OR J LS 12</del>,<del>30000000B</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d"> <del>R=&gt;DEWOP</del>(<del>434B</del>,<del>R</del>,<del>S</del>) <del>ELSE R_J</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d"> <del>L13: # IF THIS WON'T FIT IN UNINDEXED ADDRESS FIELD, PUT IN PTR. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">67</td><td class="c d"> (<del>77B AND</del> FREE(A)) <del>NE 4=&gt;FREE</del>(<del>A+1) RS 18=&gt;(</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">68</td><td class="c d">	<del>FLAG=&gt;</del>FREE(A+1) <del>GE 0=&gt;GO TO L14;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d">	<del>DEWOP((R=&gt;541B ELSE (R_AREG1(1,13</del>); <del>551B)),R,A);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d">	<del>C=2=&gt;</del>(	<del>ADDCODE(A</del>,<del>050500000000B OR R LS 12</del>,<del>((77B AND</del> FREE(<del>P+1)) LS 30)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">71</td><td class="c d">			<del>OR (77B AND FREE(</del>S<del>+1</del>)) <del>LS 24)</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d">		<del>RETURN A);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d">	<del>FREES</del>(<del>A</del>,<del>110B); FREES</del>(<del>A</del>+1<del>,0</del>)<del>; GO TO L14A</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d"> <del>L14: GG_-1;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d"> <del>L14A: FREES</del>(<del>T</del>,<del>FREE(A)); FREES(T+1</del>,FREE(<del>A+1</del>));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">76</td><td class="c d"> <del>GG=&gt;</del>(<del>DEWOP(0</del>,<del>0</del>,<del>T);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">77</td><td class="c d"> <del>J_CO+</del>FREE(<del>T</del>+<del>2)&lt;R&gt;-2;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">78</td><td class="c d"> <del>K_FREE(J); FREES(J,K OR B);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">79</td><td class="c d"> <del>REMOT(FREEZE(T)</del>));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">80</td><td class="c q"> HOOK(A,HOOK(P,P,S),A);</td><td class="n q">423</td><td class="c q"> HOOK(A,HOOK(P,P,S),A);</td></tr>
+<tr><td class="n d">81</td><td class="c d"> <del>R=&gt;(	GG=0=&gt;RETURN A;</del></td><td class="n a">424</td><td class="c a"> FREES(A+1,0); FREES(A,<ins>(</ins>110B OR <ins>(</ins>TD LS <ins>32</ins>)<ins>))</ins>;</td></tr>
+<tr><td class="n d">82</td><td class="c d">	<del>J_NAME(ENSTACK(TD));</del></td><td class="n a">425</td><td class="c a"> A);</td></tr>
+<tr><td class="n d">83</td><td class="c d">	<del>DEWOP(434B,R,J);</del></td><td class="n a">427</td><td class="c a"><ins># PCODE(S,NS): LIST THE CODE OF THE ENTRY S, UP TO NS LINES (NS=0: 15).  THE ORIGINAL LISTS THE PDP-10 INSTRUCTIONS OF THE CHAIN; HERE A RECORD OF THE CHAIN IS AN</ins></td></tr>
+<tr><td class="n d">84</td><td class="c d">	<del>RETURN HOOK(A,A,J));</del></td><td class="n a">428</td><td class="c a">  <ins>OPERATION OF IR (DOCS/PORTING/LLVM-IR-MACHINE.MD): ITS NUMBER, THE OPERATION, THE REGISTER, THE TWO FIELDS (OCTAL) AND THE EXTRA WORD.  THE TABLE OF THE NAMES</ins></td></tr>
+<tr><td class="n d">85</td><td class="c d"> FREES(A+1,0); FREES(A,110B OR TD LS <del>18</del>); A);</td><td class="n a">429</td><td class="c a">  <ins>OF THE OPERATIONS IS THAT OF DEMIT, ONE TO A WORD (A TEXT CONSTANT OF SEVEN CHARACTERS AND ITS NUL).  THE ORIGINAL TESTS WHETHER PCODE1 IS LOADED; IT ALWAYS IS HERE. #</ins></td></tr>
+<tr><td class="n d">87</td><td class="c d">SUBR PCODE(S,NS) IS <del>(</del></td><td class="n a">430</td><td class="c a">SUBR PCODE(S,NS) IS PCODE1(S,NS)%%</td></tr>
+<tr><td class="n d">88</td><td class="c d"> <del>LOC(</del>PCODE1<del>) =&gt; J_PCODE1</del>(S,NS<del>)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">89</td><td class="c d">           <del>ELSE (PCO0CNT=0 =&gt; (PCO0CNT_1; J_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">90</td><td class="c d">                               <del>ERROR(2,'PCODE1 DEBUGGING  PGM NOT PRESENT')));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">91</td><td class="c d"> <del>J</del>)%%</td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

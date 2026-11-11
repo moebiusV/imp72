@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>llvm.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>llvm.imc</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): src/llvm.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 3098 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>#THIS IS FILE LLVM, THE LLVM BACK END IN THE PROCESS (IT WAS STAGE0/LLVM.C, WHICH THE SEED KEEPS): THE MODULE OF LLVM IR THAT IR2LLRUN WRITES BECOMES AN OBJECT FILE WITH THE TARGET MACHINE OF THE HOST, OR ASSEMBLY OR IR TEXT,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"> <ins>WITHOUT A CLANG IN BETWEEN.  THE C API OF LLVM IS CALLED WITH CCALL: A NAME WITH A LOWER CASE LETTER IS A FOREIGN NAME EXACTLY AS WRITTEN (DOCS/FFI.MD), SO LLVMGETHOSTCPUNAME IS THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"> <ins>FUNCTION OF THAT NAME.  WHAT THE PREPROCESSOR DECIDED IN C IS THE MODULE LLVMGEN, WRITTEN BY TOOLS/LLVM.SH FOR THE LLVM OF THE BUILD (LLVMNATIVEINIT, LLVMALLINIT, AND THE ENTRIES OF LLD WHERE THERE IS NONE).  THE ENUMS</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"> <ins>OF THE C API ARE THEIR NUMBERS (LLVM-C/TARGETMACHINE.H): CODEGENLEVELDEFAULT 2, RELOCPIC 2, CODEMODELDEFAULT 0, OBJECTFILE 1.  A C FUNCTION RETURNS AN INT IN HALF A REGISTER, SO THE ANSWERS OF THE LLVMBOOL KIND ARE MASKED TO 32 BITS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"><ins>TGTSWAP ARE COMMON;                                    # 1 WHEN THE TARGET HAS THE OTHER BYTE ORDER FROM THE HOST (SET ONCE BY LLVMTARGET, FROM THE DATA LAYOUT OF THE TARGET MACHINE; SRC/DIR.IMC, SRC/IX.IMC, SRC/IR2LL.IMC READ IT) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"><ins>LVINIT,LVCPU,LVFEAT,LVTARGET,LVTRI,LVZERO ARE COMMON;       # LVTARGET: THE TRIPLE OF --TARGET, 0 FOR THE HOST; LVTRI: THE TRIPLE IN USE; LVZERO: A WORD OF ZEROS, THE EMPTY C STRING #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"><ins>LVTXT,LVTXTN,LVOBJP,LVOBJN ARE COMMON;                          # THE TEXT OF THE MODULE (LVMODULEF) AND THE OBJECT IN MEMORY (LVEMIT), EACH A POINTER AND A LENGTH #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"><ins>LVA1,LVV1,LVO1,LVE1,LVA2,LVV2,LVO2,LVE2 ARE 8 LONG;                                  # THE FIELDS OF TWO TRIPLES: ARCHITECTURE, VENDOR, SYSTEM, ENVIRONMENT #                                      # THE PATH OF THE TEXT OF THE MODULE: THE IR'S WITH .LL #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"><ins>LVKB IS 80 LONG;                                      # THE REASON A TRIPLE IS REFUSED, A C STRING #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"><ins>EXTERNAL INT sscanf(PTR, PTR, ...);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"><ins>EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a"><ins># THE FAILURE OF AN LLVM CALL: THE MESSAGE OF THE ERROR E, AFTER WHAT WAS BEING DONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"><ins>SUBR LVERR(WHAT,E) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a"> <ins>M ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a"> <ins>M:=CCALL LLVMGetErrorMessage(E);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a"> <ins>OUTSTR('imp: LLVM: '); OUTSTR(WHAT); OUTSTR(': '); OUTCS(M); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>CCALL LLVMDisposeErrorMessage(M);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"><ins># THE NATIVE TARGET, ONCE; 1 AND A MESSAGE IF LLVM HAS NO CODE GENERATOR FOR THIS MACHINE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"><ins>SUBR LVINIT1(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"> <ins>LVINIT NE 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"> <ins>LVTARGET NE 0 =&gt; (LLVMALLINIT(0); LVINIT:=1; RETURN 0);                           # --TARGET: EVERY TARGET THIS LLVM HAS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a"> <ins>LLVMNATIVEINIT(0) NE 0 =&gt; (OUTSTR('imp: LLVM has no code generator for this machine'); OUTCHR(12B); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"> <ins>LVINIT:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">27</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a"><ins># THE MODULE OF THE TEXT AT LVTXT (LVTXTN BYTES) IN CONTEXT CTX, THE BUFFER NAMED NAME (A C STRING); 0 AND A MESSAGE IF IT DOES NOT PARSE.  (LVTSC OF LLVMGEN CALLS IT WITH THE NAME ITS CALLER GAVE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a"><ins>SUBR LVPARSE(CTX,NAME) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a"> <ins>MB,M,MSG ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"> <ins>M:=0; MSG:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">33</td><td class="c a"> <ins>MB:=CCALL LLVMCreateMemoryBufferWithMemoryRangeCopy(LVTXT,LVTXTN,NAME);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"> <ins>(CCALL LLVMParseIRInContext(CTX,MB,LOC(M),LOC(MSG)) AND 4294967295) NE 0 =&gt; (        # (THE BUFFER IS CONSUMED) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a">     <ins>OUTSTR('imp: LLVM: the module does not parse: '); MSG NE 0 =&gt; OUTCS(MSG); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a">     <ins>MSG NE 0 =&gt; CCALL LLVMDisposeMessage(MSG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a">     <ins>RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">38</td><td class="c a"> <ins>M);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">40</td><td class="c a"><ins># THE PROCESSOR AND FEATURES OF THE HOST, IN LVCPU AND LVFEAT; 1 IF THEY ARE NOT LLVM'S OWN TO TAKE.  RISCV64 UNDER AN EMULATOR DOES NOT SAY WHAT IT HAS (NO +D), AND THEN THE CODE WOULD BE SOFT FLOAT: RV64GC, WHAT</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a">  <ins>EVERY LINUX DISTRIBUTION IS BUILT FOR.  AND WHERE IT DOES SAY, THE LIST HAS FEATURES THAT LLVM DOES NOT KNOW ("-ZICFISS"), EACH A WARNING ON THE STANDARD ERROR EVERY TIME A TARGET MACHINE IS MADE FROM IT: THE ONES</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">42</td><td class="c a">  <ins>THAT ONLY SWITCH A FEATURE OFF ARE LEFT OUT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">43</td><td class="c a"><ins>SUBR LVHOSTCPU(TRIPLE) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a"> <ins>F,O,T,L ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a"> <ins>LVCPU:=CCALL LLVMGetHostCPUName();</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a"> <ins>LVFEAT:=CCALL LLVMGetHostCPUFeatures();</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">47</td><td class="c a"> <ins>CCALL getenv(LOC('IMPLLVMINFO')) NE 0 =&gt; (          # WHAT THE HOST SAYS (TOOLS/CI-HOST.SH RECORDS IT IN EVERY CI RUN) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">48</td><td class="c a">     <ins>OUTSTR('imp-host: triple='); OUTCS(TRIPLE); OUTSTR(' cpu='); OUTCS(LVCPU); OUTSTR(' features='); OUTCS(LVFEAT); OUTCHR(12B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a"> <ins>(CCALL strncmp(TRIPLE,LOC('riscv64'),7) AND 4294967295) NE 0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a"> <ins>CCALL strstr(LVFEAT,LOC('+d'))=0 =&gt; (LVCPU:=LOC('generic-rv64'); LVFEAT:=LOC('+m,+a,+f,+d,+c'); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a"> <ins>F:=LVFEAT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">52</td><td class="c a"> <ins>O:=CCALL malloc(CCALL strlen(F)+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"> <ins>O=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">54</td><td class="c a"> <ins>CCALL memset(O,0,CCALL strlen(F)+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"> <ins>T:=CCALL strtok(F,LOC(','));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"> <ins>LH1: T=0 =&gt; GO TO LH2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a">      <ins>(CCALL strncmp(T,LOC('-'),1) AND 4294967295) NE 0 =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">58</td><td class="c a">          <ins>L:=CCALL strlen(O);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">59</td><td class="c a">          <ins>L NE 0 =&gt; (CCALL memcpy(O+L,LOC(','),1); L:=L+1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">60</td><td class="c a">          <ins>CCALL memcpy(O+L,T,CCALL strlen(T)+1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">61</td><td class="c a">      <ins>T:=CCALL strtok(0,LOC(','));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">62</td><td class="c a">      <ins>GO TO LH1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">63</td><td class="c a"> <ins>LH2: LVFEAT:=O;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a"> <ins>1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"><ins># THE TRIPLE, PROCESSOR AND FEATURES OF THE TARGET (--TARGET, NORMALISED BY LLVM) OR OF THE HOST, IN LVTRI, LVCPU AND LVFEAT.  A TARGET IS GENERIC, EXCEPT RISCV64, WHICH IS RV64GC AS THE HOST'S FALLBACK IS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"><ins>SUBR LVTRIPLE(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>LVTARGET=0 =&gt; (LVTRI:=CCALL LLVMNormalizeTargetTriple(CCALL LLVMGetDefaultTargetTriple()); LVHOSTCPU(LVTRI); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">69</td><td class="c a"> <ins>LVTRI:=CCALL LLVMNormalizeTargetTriple(LVTARGET);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">70</td><td class="c a"> <ins>LVCPU:=LOC('generic'); LVZERO:=0; LVFEAT:=LOC(LVZERO);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a"> <ins>(CCALL strncmp(LVTRI,LOC('riscv64'),7) AND 4294967295)=0 =&gt; (LVCPU:=LOC('generic-rv64'); LVFEAT:=LOC('+m,+a,+f,+d,+c'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"><ins># 1 IF THE NORMALISED --TARGET TRIPLE IS ONE LLVM'S OWN TRIPLE PARSER KNOWS (STAGE0/LVTRIPLE.CPP: THE CHARACTERS, THE ARCHITECTURE, THE OPERATING SYSTEM, THE ENVIRONMENT AND OBJECT FORMAT; THE VENDOR IS FREE TEXT); 0 AND THE REASON IN LVKB IF NOT.  THE HOST'S OWN TRIPLE IS NOT CHECKED #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"><ins>SUBR LVTRIOK(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"> <ins>LVTARGET=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a"> <ins>LVKB:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a"> <ins>(CCALL imp_triple_check(LVTARGET,LVTRI,LOC(LVKB),640) AND 4294967295)=0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"><ins># THE TARGET MACHINE FOR LVTRI, LVCPU, LVFEAT (MODEL IS THE CODE MODEL); 0 AND A MESSAGE IF LLVM HAS NONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"><ins>SUBR LVMAKETM(MODEL) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"> <ins>TGT,MSG ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a"> <ins>TGT:=0; MSG:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a"> <ins>LVTRIOK(0)=0 =&gt; (OUTSTR('imp: unrecognized target "'); OUTCS(LVTARGET); OUTSTR('": '); OUTCS(LOC(LVKB)); OUTSTR(' (expected ARCH-VENDOR-OS[-ENVIRONMENT], for example x86_64-linux-gnu)'); OUTCHR(12B); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a"> <ins>(CCALL LLVMGetTargetFromTriple(LVTRI,LOC(TGT),LOC(MSG)) AND 4294967295) NE 0 =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a">     <ins>OUTSTR('imp: LLVM: '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a"> <ins>CCALL LLVMCreateTargetMachine(TGT,LVTRI,LVCPU,LVFEAT,2,2,MODEL));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">89</td><td class="c a"><ins># THE BYTE ORDER OF THE HOST (1 LITTLE, 0 BIG), AS LLVM'S DATA LAYOUT OF THE HOST'S TRIPLE SAYS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"><ins>SUBR LVHOSTBO(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">91</td><td class="c a"> <ins>T,TM,TGT,MSG ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">92</td><td class="c a"> <ins>T:=CCALL LLVMNormalizeTargetTriple(CCALL LLVMGetDefaultTargetTriple());</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">93</td><td class="c a"> <ins>TGT:=0; MSG:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a"> <ins>(CCALL LLVMGetTargetFromTriple(T,LOC(TGT),LOC(MSG)) AND 4294967295) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">95</td><td class="c a"> <ins>LVZERO:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">96</td><td class="c a"> <ins>TM:=CCALL LLVMCreateTargetMachine(TGT,T,LOC('generic'),LOC(LVZERO),2,2,0);                 # THE HOST'S ORDER DOES NOT DEPEND ON THE PROCESSOR, AND THE TARGET'S SETTINGS ARE NOT FOR IT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">97</td><td class="c a"> <ins>(CCALL LLVMByteOrder(CCALL LLVMCreateTargetDataLayout(TM)) AND 4294967295));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"><ins># THE POINTERS OF THE TARGET: 1 IF THEY ARE 32 BITS, 0 IF 64, 0-1 IF THERE IS NO SUCH TARGET #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"><ins>SUBR LVPTR32(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">101</td><td class="c a"> <ins>TM,DL,N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">102</td><td class="c a"> <ins>LVTARGET=0 =&gt; RETURN (IMPPTRSIZE(0)=4 =&gt; 1 ELSE 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">103</td><td class="c a"> <ins>LVINIT1(0) NE 0 =&gt; RETURN 0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">104</td><td class="c a"> <ins>LVTRIPLE(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">105</td><td class="c a"> <ins>TM:=LVMAKETM(0); TM=0 =&gt; RETURN 0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">106</td><td class="c a"> <ins>DL:=CCALL LLVMCreateTargetDataLayout(TM);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">107</td><td class="c a"> <ins>N:=CCALL LLVMPointerSize(DL) AND 4294967295;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">108</td><td class="c a"> <ins>N=4 =&gt; 1 ELSE 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a"><ins># THE MODULE AT LVTXT, OPTIMISED, AS A FILE PATH FOR THE TARGET (FT IS 1 FOR AN OBJECT, 0 FOR ASSEMBLY); OR, WITH PATH 0, AN OBJECT IN MEMORY, AT LVOBJP (LVOBJN BYTES) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a"><ins>SUBR LVEMIT(PATH,FT) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">112</td><td class="c a"> <ins>CTX,M,TM,DL,PBO,E,MSG,OB ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"> <ins>LVINIT1(0) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">114</td><td class="c a"> <ins>CTX:=CCALL LLVMContextCreate();</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">115</td><td class="c a"> <ins>M:=LVPARSE(CTX,LOC('module')); M=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">116</td><td class="c a"> <ins>LVTRIPLE(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">117</td><td class="c a"> <ins>TM:=LVMAKETM(0); TM=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">118</td><td class="c a"> <ins>CCALL LLVMSetTarget(M,LVTRI);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">119</td><td class="c a"> <ins>DL:=CCALL LLVMCreateTargetDataLayout(TM);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">120</td><td class="c a"> <ins>CCALL LLVMSetModuleDataLayout(M,DL);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">121</td><td class="c a"> <ins>PBO:=CCALL LLVMCreatePassBuilderOptions();</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">122</td><td class="c a"> <ins>E:=CCALL LLVMRunPasses(M,LOC('default&lt;O1&gt;'),TM,PBO);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">123</td><td class="c a"> <ins>E NE 0 =&gt; (LVERR('the optimiser',E); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a"> <ins>CCALL LLVMDisposePassBuilderOptions(PBO);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">125</td><td class="c a"> <ins>MSG:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">126</td><td class="c a"> <ins>PATH=0 =&gt; (OB:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">127</td><td class="c a">            <ins>(CCALL LLVMTargetMachineEmitToMemoryBuffer(TM,M,FT,LOC(MSG),LOC(OB)) AND 4294967295) NE 0 =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">128</td><td class="c a">                <ins>OUTSTR('imp: LLVM: '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">129</td><td class="c a">            <ins>LVOBJP:=CCALL LLVMGetBufferStart(OB); LVOBJN:=CCALL LLVMGetBufferSize(OB);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">130</td><td class="c a">            <ins>RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">131</td><td class="c a"> <ins>(CCALL LLVMTargetMachineEmitToFile(TM,M,PATH,FT,LOC(MSG)) AND 4294967295) NE 0 =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">132</td><td class="c a">     <ins>OUTSTR('imp: LLVM: '); OUTCS(PATH); OUTSTR(': '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">133</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">135</td><td class="c a"><ins># THE MODULE OF LLVM IR FOR THE IR READ FROM THE C STREAM FIN, AS TEXT IN MEMORY, AT LVTXT (LVTXTN BYTES): 0 FOR SUCCESS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">136</td><td class="c a"><ins>SUBR LVMODULEF(FIN) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">137</td><td class="c a"> <ins>OUTF,P32,RC ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">138</td><td class="c a"> <ins>P32:=LVPTR32(0); P32&lt;0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">139</td><td class="c a"> <ins>TGTSWAP NE 0 =&gt; P32:=P32+2;                               # (BIT 1: THE BYTE ORDER OF THE TARGET IS NOT THE HOST'S) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">140</td><td class="c a"> <ins>LVTXT:=0; LVTXTN:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">141</td><td class="c a"> <ins>OUTF:=CCALL open_memstream(LOC(LVTXT),LOC(LVTXTN));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">142</td><td class="c a"> <ins>OUTF=0 =&gt; (CCALL perror(LOC('open_memstream')); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">143</td><td class="c a"> <ins>RC:=IR2LLRUN(FIN,OUTF,P32);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a"> <ins>CCALL fclose(OUTF);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">145</td><td class="c a"> <ins>RC);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">147</td><td class="c a"><ins># THE SAME FOR THE IR TEXT AT BUF (N BYTES), IN MEMORY: NO FILE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">148</td><td class="c a"><ins>SUBR LVMODULEB(BUF,N) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">149</td><td class="c a"> <ins>FIN,RC ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">150</td><td class="c a"> <ins>N=0 =&gt; FIN:=CCALL fopen(LOC('/dev/null'),LOC('r')) ELSE FIN:=CCALL fmemopen(BUF,N,LOC('r'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">151</td><td class="c a"> <ins>FIN=0 =&gt; (CCALL perror(LOC('the IR in memory')); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">152</td><td class="c a"> <ins>RC:=LVMODULEF(FIN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">153</td><td class="c a"> <ins>CCALL fclose(FIN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">154</td><td class="c a"> <ins>RC);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">156</td><td class="c a"><ins># THE SAME FOR THE IR IN THE FILE PATH (THE INTERACTIVE MODE KEEPS ITS IR IN A FILE OF THE USER'S) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">157</td><td class="c a"><ins>SUBR LVMODULEP(PATH) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">158</td><td class="c a"> <ins>FIN,RC ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">159</td><td class="c a"> <ins>FIN:=CCALL fopen(PATH,LOC('r'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">160</td><td class="c a"> <ins>FIN=0 =&gt; (CCALL perror(PATH); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">161</td><td class="c a"> <ins>RC:=LVMODULEF(FIN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">162</td><td class="c a"> <ins>CCALL fclose(FIN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">163</td><td class="c a"> <ins>RC);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">165</td><td class="c a"><ins># THE ENTRIES OF THE DRIVER (SRC/DRIVER.IMC): 0 FOR SUCCESS.  THE IR TEXT OF THE KERNEL IS IN MEMORY (BUF, N BYTES) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">166</td><td class="c a"><ins>SUBR LLVMHAVE(Z) IS 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">168</td><td class="c a"><ins># --TARGET: THE TRIPLE (A C STRING) THE OBJECT, THE ASSEMBLY AND THE IR ARE MADE FOR.  THE BYTE ORDER OF THE TARGET IS WHAT THE DATA LAYOUT OF ITS TARGET MACHINE SAYS; TGTSWAP IS SET HERE, BEFORE ANY CODE IS GENERATED.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">169</td><td class="c a">  <ins>1 AND A MESSAGE IF LLVM HAS NO SUCH TARGET #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">170</td><td class="c a"><ins>SUBR LLVMTARGET(T) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">171</td><td class="c a"> <ins>TM ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">172</td><td class="c a"> <ins>LVTARGET:=T; TGTSWAP:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">173</td><td class="c a"> <ins>LVINIT1(0) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">174</td><td class="c a"> <ins>LVTRIPLE(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">175</td><td class="c a"> <ins>TM:=LVMAKETM(0); TM=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">176</td><td class="c a"> <ins>(CCALL LLVMByteOrder(CCALL LLVMCreateTargetDataLayout(TM)) AND 4294967295) NE LVHOSTBO(0) =&gt; TGTSWAP:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">177</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">179</td><td class="c a"><ins>SUBR LLVMTRIPLE(Z) IS (LVTRIPLE(0); LVTRI);                 # THE NORMALISED TRIPLE OF THE TARGET (OR THE HOST'S), A C STRING #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">181</td><td class="c a"><ins>SUBR LLVMNATIVE(Z) IS (                                     # 1 IF THE TARGET IS THE HOST (NONE NAMED, OR THE SAME ARCHITECTURE AND SYSTEM WHATEVER THE VENDOR AND THE C LIBRARY: X86_64-LINUX-GNU IS X86_64-PC-LINUX-GNU AND X86_64-ALPINE-LINUX-MUSL), SO THAT A PROGRAM CAN BE LINKED AND RUN #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">182</td><td class="c a"> <ins>N,H ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">183</td><td class="c a"> <ins>LVTARGET=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">184</td><td class="c a"> <ins>N:=CCALL LLVMNormalizeTargetTriple(LVTARGET);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">185</td><td class="c a"> <ins>H:=CCALL LLVMNormalizeTargetTriple(CCALL LLVMGetDefaultTargetTriple());</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">186</td><td class="c a"> <ins>LVA1:=0; LVO1:=0; LVE1:=0; LVA2:=0; LVO2:=0; LVE2:=0; LVV1:=0; LVV2:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">187</td><td class="c a"> <ins>CCALL sscanf(N,LOC('%[^-]-%[^-]-%[^-]-%s'),LOC(LVA1),LOC(LVV1),LOC(LVO1),LOC(LVE1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">188</td><td class="c a"> <ins>CCALL sscanf(H,LOC('%[^-]-%[^-]-%[^-]-%s'),LOC(LVA2),LOC(LVV2),LOC(LVO2),LOC(LVE2));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">189</td><td class="c a"> <ins>(((CCALL strcmp(LOC(LVA1),LOC(LVA2)) AND 4294967295)=0) AND ((CCALL strcmp(LOC(LVO1),LOC(LVO2)) AND 4294967295)=0)) =&gt; RETURN 1;      # THE SAME ARCHITECTURE AND SYSTEM: GNU OR MUSL, IT LINKS WITH THE C LIBRARY THERE IS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">190</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">192</td><td class="c a"><ins>SUBR LLVMOBJ(IR,OUT) IS (                              # THE OBJECT OF THE PROGRAM IN THE FILE IR, TO THE FILE OUT (THE INTERACTIVE MODE) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">193</td><td class="c a"> <ins>LVMODULEP(IR) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">194</td><td class="c a"> <ins>LVEMIT(OUT,1) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">195</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">197</td><td class="c a"><ins>SUBR LLVMOBJB(BUF,N,OUT) IS (                          # THE OBJECT OF THE PROGRAM, TO THE FILE OUT (-C) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">198</td><td class="c a"> <ins>LVMODULEB(BUF,N) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">199</td><td class="c a"> <ins>LVEMIT(OUT,1) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">200</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">202</td><td class="c a"><ins>SUBR LLVMOBJMEM(BUF,N) IS (                            # THE OBJECT OF THE PROGRAM IN MEMORY: AT LVOBJP, LVOBJN BYTES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">203</td><td class="c a"> <ins>LVMODULEB(BUF,N) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">204</td><td class="c a"> <ins>LVEMIT(0,1) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">205</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">207</td><td class="c a"><ins>SUBR LLVMASMB(BUF,N,OUT) IS (                          # THE ASSEMBLY OF THE PROGRAM FOR THE TARGET (-S) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">208</td><td class="c a"> <ins>LVMODULEB(BUF,N) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">209</td><td class="c a"> <ins>LVEMIT(OUT,0) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">210</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">212</td><td class="c a"><ins>SUBR LLVMSAVEB(BUF,N,OUT) IS (                         # THE MODULE AS LLVM IR TEXT (-SIR) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">213</td><td class="c a"> <ins>F ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">214</td><td class="c a"> <ins>LVMODULEB(BUF,N) NE 0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">215</td><td class="c a"> <ins>F:=CCALL fopen(OUT,LOC('w'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">216</td><td class="c a"> <ins>F=0 =&gt; (CCALL perror(OUT); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">217</td><td class="c a"> <ins>(CCALL fwrite(LVTXT,1,LVTXTN,F)) NE LVTXTN =&gt; (CCALL perror(OUT); CCALL fclose(F); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">218</td><td class="c a"> <ins>(CCALL fclose(F) AND 4294967295) NE 0 =&gt; (CCALL perror(OUT); RETURN 1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">219</td><td class="c a"> <ins>0)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">220</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

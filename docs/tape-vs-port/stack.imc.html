@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stack.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>stack.imc</h1>
+<p class="mut">left, old (the tape): decus/stack.imc<br>right, new (the port): src/stack.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 18 changed places, 53 tokens deleted, 67 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>ST,STP ARE COMMON;                          # THE C SIDE READS THEM (SRC/SHARED.TXT) #</ins></td></tr>
+<tr><td class="n q">2</td><td class="c q">#THIS IS FILE STACK, CONTAINING THE FOLLOWING ROUTINES FOR THE IMP COMPILER:</td><td class="n q">3</td><td class="c q">#THIS IS FILE STACK, CONTAINING THE FOLLOWING ROUTINES FOR THE IMP COMPILER:</td></tr>
+<tr><td class="n q">4</td><td class="c q">          STACK  -  THE SEMANTICS STACK PACKAGE.</td><td class="n q">5</td><td class="c q">          STACK  -  THE SEMANTICS STACK PACKAGE.</td></tr>
+<tr><td class="n q">5</td><td class="c q">          PUSHMI -  A HANDY-DANDY PUSHDOWN STACK PACK.</td><td class="n q">6</td><td class="c q">          PUSHMI -  A HANDY-DANDY PUSHDOWN STACK PACK.</td></tr>
+</table>
+<details><summary>unchanged: lines 7 to 16 of the new file</summary>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">6</td><td class="c q">          BITS   -  THE GENERAL BIT MATRIX PACKAGE</td><td class="n q">7</td><td class="c q">          BITS   -  THE GENERAL BIT MATRIX PACKAGE</td></tr>
+<tr><td class="n q">8</td><td class="c q">THE STACK CONSISTS OF THREE WORD ENTRIES.</td><td class="n q">9</td><td class="c q">THE STACK CONSISTS OF THREE WORD ENTRIES.</td></tr>
+<tr><td class="n q">9</td><td class="c q"> THE STACK HANDLING ROUTINES ARE:</td><td class="n q">10</td><td class="c q"> THE STACK HANDLING ROUTINES ARE:</td></tr>
+<tr><td class="n q">10</td><td class="c q">   STACK(N) - RETURNS FREE POINTER TO STACK POINTER + NTH ENTRY.</td><td class="n q">11</td><td class="c q">   STACK(N) - RETURNS FREE POINTER TO STACK POINTER + NTH ENTRY.</td></tr>
+<tr><td class="n q">11</td><td class="c q">   STPOP(N) - WHICH POPS THE STACK UP N THREE-WORD ENTRIES.</td><td class="n q">12</td><td class="c q">   STPOP(N) - WHICH POPS THE STACK UP N THREE-WORD ENTRIES.</td></tr>
+<tr><td class="n q">12</td><td class="c q">   STPUSH(A,B,C) - WHICH PUSHES AN ENTRY A,B,C ONTO STACK AND SETS THE</td><td class="n q">13</td><td class="c q">   STPUSH(A,B,C) - WHICH PUSHES AN ENTRY A,B,C ONTO STACK AND SETS THE</td></tr>
+<tr><td class="n q">13</td><td class="c q">              POINTER TO POINT TO IT.</td><td class="n q">14</td><td class="c q">              POINTER TO POINT TO IT.</td></tr>
+<tr><td class="n q">14</td><td class="c q">   SETSTK(N,A,B,C) - SETS THE ENTRY AT POINTER+N ENTRIES (POINTER+3*N WORDS)</td><td class="n q">15</td><td class="c q">   SETSTK(N,A,B,C) - SETS THE ENTRY AT POINTER+N ENTRIES (POINTER+3*N WORDS)</td></tr>
+<tr><td class="n q">15</td><td class="c q">              TO (A,B,C).</td><td class="n q">16</td><td class="c q">              TO (A,B,C).</td></tr>
+</table>
+</details>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">16</td><td class="c q">   STINIT(NIL) - INITIALIZES THE STACK TO EMPTY.</td><td class="n q">17</td><td class="c q">   STINIT(NIL) - INITIALIZES THE STACK TO EMPTY.</td></tr>
+<tr><td class="n q">17</td><td class="c q"> ALL STACK ROUTINES RETURN THE POINTER TO THE WORD IN FREE STORAGE CONTAINING</td><td class="n q">18</td><td class="c q"> ALL STACK ROUTINES RETURN THE POINTER TO THE WORD IN FREE STORAGE CONTAINING</td></tr>
+<tr><td class="n q">18</td><td class="c q">   THE FIRST WORD OF THE ENTRY IT MAKES (STPOP - THE ENTRY AT THE NEW POINTER).#</td><td class="n q">19</td><td class="c q">   THE FIRST WORD OF THE ENTRY IT MAKES (STPOP - THE ENTRY AT THE NEW POINTER).#</td></tr>
+<tr><td class="n d">19</td><td class="c d">SUBR STACK(N) IS (S<del>_</del>ST+STP+3*N; S);</td><td class="n a">20</td><td class="c a">SUBR STACK(N) IS (S<ins>:=</ins>ST+STP+3*N; S);</td></tr>
+<tr><td class="n q">20</td><td class="c q">SUBR STINIT(NIL) IS (</td><td class="n q">21</td><td class="c q">SUBR STINIT(NIL) IS (</td></tr>
+<tr><td class="n d">21</td><td class="c d">  INIT=0=&gt;(INIT<del>_</del>1; ST<del>_</del>FALLOT('STACK',110));</td><td class="n a">22</td><td class="c a">  INIT=0=&gt;(INIT<ins>:=</ins>1; ST<ins>:=</ins>FALLOT('STACK',110));</td></tr>
+<tr><td class="n d">22</td><td class="c d">  STP<del>_</del>-3; ST);</td><td class="n a">23</td><td class="c a">  STP<ins>:=</ins>-3; ST);</td></tr>
+<tr><td class="n d">23</td><td class="c d">SUBR STPOP(N) IS (STP<del>_</del>STP-3*N; STP);</td><td class="n a">24</td><td class="c a">SUBR STPOP(N) IS (STP<ins>:=</ins>STP-3*N; STP);</td></tr>
+<tr><td class="n d">24</td><td class="c d">SUBR STPUSH(A,B,C) IS (STP<del>_</del>STP+3;</td><td class="n a">25</td><td class="c a">SUBR STPUSH(A,B,C) IS (STP<ins>:=</ins>STP+3;</td></tr>
+<tr><td class="n d">25</td><td class="c d">                       STN<del>_</del>STP+3; FLEN(ST) LE STN =&gt; FADDEX(ST,STN);</td><td class="n a">26</td><td class="c a">                       STN<ins>:=</ins>STP+3; FLEN(ST) LE STN =&gt; FADDEX(ST,STN);</td></tr>
+<tr><td class="n d">26</td><td class="c d">                       STX<del>_</del>FORG+ST+STP;</td><td class="n a">27</td><td class="c a">                       STX<ins>:=</ins>FORG+ST+STP;</td></tr>
+<tr><td class="n d">27</td><td class="c d">                       [STX]<del>_</del>A; [STX+1]<del>_</del>B; [STX+2]<del>_</del>C;</td><td class="n a">28</td><td class="c a">                       [STX]<ins>:=</ins>A; [STX+1]<ins>:=</ins>B; [STX+2]<ins>:=</ins>C;</td></tr>
+<tr><td class="n d">28</td><td class="c d">                       S<del>_</del>ST+STP; S);</td><td class="n a">29</td><td class="c a">                       S<ins>:=</ins>ST+STP; S);</td></tr>
+<tr><td class="n d">29</td><td class="c d">SUBR SETSTK(N,A,B,C) IS (S<del>_</del>STN<del>_</del>STP+3*N;</td><td class="n a">30</td><td class="c a">SUBR SETSTK(N,A,B,C) IS (S<ins>:=</ins>STN<ins>:=</ins>STP+3*N;</td></tr>
+<tr><td class="n q">30</td><td class="c q">                       FADD(ST,STN,A); FADD(ST,STN,B); FADD(ST,STN,C);</td><td class="n q">31</td><td class="c q">                       FADD(ST,STN,A); FADD(ST,STN,B); FADD(ST,STN,C);</td></tr>
+<tr><td class="n d">31</td><td class="c d">                       S<del>_</del>ST+S; S);</td><td class="n a">32</td><td class="c a">                       S<ins>:=</ins>ST+S; S);</td></tr>
+<tr><td class="n q">33</td><td class="c q"># THIS IS PUSHMI-PULLYU, A HANDY-DANDY STACK PACK FOR DOING RECURSIONS AND</td><td class="n q">34</td><td class="c q"># THIS IS PUSHMI-PULLYU, A HANDY-DANDY STACK PACK FOR DOING RECURSIONS AND</td></tr>
+<tr><td class="n q">34</td><td class="c q">   THE LIKE.  IT SITS ON TOP OF THE FREE STORAGE PACKAGE.</td><td class="n q">35</td><td class="c q">   THE LIKE.  IT SITS ON TOP OF THE FREE STORAGE PACKAGE.</td></tr>
+<tr><td class="n q">35</td><td class="c q"> PUSHMI(VALUE) PUTS VALUE ON TOP OF THE PD STACK.  PULLYU(SWITCH) RETURNS THE</td><td class="n q">36</td><td class="c q"> PUSHMI(VALUE) PUTS VALUE ON TOP OF THE PD STACK.  PULLYU(SWITCH) RETURNS THE</td></tr>
+<tr><td class="n q">36</td><td class="c q">   TOP VALUE, AND, IF SWITCH=0, POPS THE PD STACK.  #</td><td class="n q">37</td><td class="c q">   TOP VALUE, AND, IF SWITCH=0, POPS THE PD STACK.  #</td></tr>
+<tr><td class="n q">37</td><td class="c q">SUBR PUSHMI(V) IS (</td><td class="n q">38</td><td class="c q">SUBR PUSHMI(V) IS (</td></tr>
+<tr><td class="n d">38</td><td class="c d">  PNIT=0=&gt;(PNIT<del>_</del>1;</td><td class="n a">39</td><td class="c a">  PNIT=0=&gt;(PNIT<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">39</td><td class="c d">           STACKN<del>_</del>0; PSTACK<del>_</del>FALLOT('PSHMI',20));</td><td class="n a">40</td><td class="c a">           STACKN<ins>:=</ins>0; PSTACK<ins>:=</ins>FALLOT('PSHMI',20));</td></tr>
+<tr><td class="n q">40</td><td class="c q">  FADD(PSTACK,STACKN,V));</td><td class="n q">41</td><td class="c q">  FADD(PSTACK,STACKN,V));</td></tr>
+<tr><td class="n q">41</td><td class="c q">SUBR PULLYU(SW) IS (</td><td class="n q">42</td><td class="c q">SUBR PULLYU(SW) IS (</td></tr>
+<tr><td class="n q">42</td><td class="c q">  PNIT=0=&gt;GO TO ERR;</td><td class="n q">43</td><td class="c q">  PNIT=0=&gt;GO TO ERR;</td></tr>
+<tr><td class="n d">43</td><td class="c d">  VAL<del>_</del>FREE(PSTACK+STACKN-1);</td><td class="n a">44</td><td class="c a">  VAL<ins>:=</ins>FREE(PSTACK+STACKN-1);</td></tr>
+<tr><td class="n d">44</td><td class="c d">  SW=0=&gt;(STACKN<del>_</del>STACKN-1;</td><td class="n a">45</td><td class="c a">  SW=0=&gt;(STACKN<ins>:=</ins>STACKN-1;</td></tr>
+<tr><td class="n q">45</td><td class="c q">         STACKN&lt;0=&gt;(ERR: ERROR(0,'** PUSHDOWN STACK UNDERFLOW ERROR')));</td><td class="n q">46</td><td class="c q">         STACKN&lt;0=&gt;(ERR: ERROR(0,'** PUSHDOWN STACK UNDERFLOW ERROR')));</td></tr>
+<tr><td class="n q">46</td><td class="c q">  VAL);</td><td class="n q">47</td><td class="c q">  VAL);</td></tr>
+<tr><td class="n q">48</td><td class="c q"> #THIS IS BITS, THE BIT MATRIX PACKAGE.</td><td class="n q">49</td><td class="c q"> #THIS IS BITS, THE BIT MATRIX PACKAGE.</td></tr>
+<tr><td class="n q">49</td><td class="c q">  A BIT MATRIX IS DESCRIBED BY A THREE WORD USER-PROVIDED ARRAY A:</td><td class="n q">50</td><td class="c q">  A BIT MATRIX IS DESCRIBED BY A THREE WORD USER-PROVIDED ARRAY A:</td></tr>
+<tr><td class="n q">50</td><td class="c q">    A[0] - FREE STORAGE INDEX OF THE BIT MATRIX</td><td class="n q">51</td><td class="c q">    A[0] - FREE STORAGE INDEX OF THE BIT MATRIX</td></tr>
+<tr><td class="n q">51</td><td class="c q">    A[1] - NUMBER OF ROWS IN MATRIX (FIRST SUBSCRIPT, I)</td><td class="n q">52</td><td class="c q">    A[1] - NUMBER OF ROWS IN MATRIX (FIRST SUBSCRIPT, I)</td></tr>
+<tr><td class="n d">52</td><td class="c d">    A[2] - (NUMBER OF COLUMNS, 2ND SUBSCRIPT, J) / <del>36</del> - I.E., NUMBER</td><td class="n a">53</td><td class="c a">    A[2] - (NUMBER OF COLUMNS, 2ND SUBSCRIPT, J) / <ins>64</ins> - I.E., NUMBER</td></tr>
+<tr><td class="n q">53</td><td class="c q">              OF WORDS NEEDED TO REPRESENT A ROW (LESS 1).</td><td class="n q">54</td><td class="c q">              OF WORDS NEEDED TO REPRESENT A ROW (LESS 1).</td></tr>
+<tr><td class="n q">54</td><td class="c q">    THE ARRAY A IS UPDATED BY THE BIT MATRIX PACKAGE, NEVER BY THE USER.</td><td class="n q">55</td><td class="c q">    THE ARRAY A IS UPDATED BY THE BIT MATRIX PACKAGE, NEVER BY THE USER.</td></tr>
+<tr><td class="n q">55</td><td class="c q">  THE CALLS TO ACCESS THE MATRIX ARE:</td><td class="n q">56</td><td class="c q">  THE CALLS TO ACCESS THE MATRIX ARE:</td></tr>
+</table>
+<details><summary>unchanged: lines 57 to 63 of the new file</summary>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">56</td><td class="c q">    BITS(A,I,J) - SETS THE (I,J) BIT OF THE MATRIX.  A IS THE DESCRIPTOR</td><td class="n q">57</td><td class="c q">    BITS(A,I,J) - SETS THE (I,J) BIT OF THE MATRIX.  A IS THE DESCRIPTOR</td></tr>
+<tr><td class="n q">57</td><td class="c q">      ARRAY.  ON THE INITIAL CALL, A, A[1] AND A[2] SHOULD ALL BE 0.  IF IT IS</td><td class="n q">58</td><td class="c q">      ARRAY.  ON THE INITIAL CALL, A, A[1] AND A[2] SHOULD ALL BE 0.  IF IT IS</td></tr>
+<tr><td class="n q">58</td><td class="c q">      DESIRED TO ALLOCATE AN INITIAL MINIMUM SIZE, INITIALLY SET A[1] TO THE</td><td class="n q">59</td><td class="c q">      DESIRED TO ALLOCATE AN INITIAL MINIMUM SIZE, INITIALLY SET A[1] TO THE</td></tr>
+<tr><td class="n q">59</td><td class="c q">      NUMBER OF ROWS DESIRED, AND A[2] TO THE NUMBER OF COLUMN WORDS LESS 1.</td><td class="n q">60</td><td class="c q">      NUMBER OF ROWS DESIRED, AND A[2] TO THE NUMBER OF COLUMN WORDS LESS 1.</td></tr>
+<tr><td class="n q">60</td><td class="c q">    BIT(A,I,J) - THE VALUE OF THE (I,J) BIT OF THE MATRIX.</td><td class="n q">61</td><td class="c q">    BIT(A,I,J) - THE VALUE OF THE (I,J) BIT OF THE MATRIX.</td></tr>
+<tr><td class="n q">61</td><td class="c q">    BITOR(A,I,J) - ORS THE JTH ROW OF THE BIT MATRIX A INTO THE ITH ROW.</td><td class="n q">62</td><td class="c q">    BITOR(A,I,J) - ORS THE JTH ROW OF THE BIT MATRIX A INTO THE ITH ROW.</td></tr>
+<tr><td class="n q">62</td><td class="c q">      EACH ROW MUST ALREADY BE NONZERO SOMEWHERE.</td><td class="n q">63</td><td class="c q">      EACH ROW MUST ALREADY BE NONZERO SOMEWHERE.</td></tr>
+</table>
+</details>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">63</td><td class="c q">    BITZ(A) - ZEROS THE BIT MATRIX A.</td><td class="n q">64</td><td class="c q">    BITZ(A) - ZEROS THE BIT MATRIX A.</td></tr>
+<tr><td class="n q">64</td><td class="c q">  THE MATRIX IS AUTOMATICALLY ENLARGED WHEN BITS IS CALLED WITH AN INDEX LARGER</td><td class="n q">65</td><td class="c q">  THE MATRIX IS AUTOMATICALLY ENLARGED WHEN BITS IS CALLED WITH AN INDEX LARGER</td></tr>
+<tr><td class="n q">65</td><td class="c q">    THAN THE CURRENT LIMITS. #</td><td class="n q">66</td><td class="c q">    THAN THE CURRENT LIMITS. #</td></tr>
+<tr><td class="n d">67</td><td class="c d">SUBR BITS(A,I,J) IS (QBITS<del>_</del>QBITS+1;</td><td class="n a">68</td><td class="c a">SUBR BITS(A,I,J) IS (QBITS<ins>:=</ins>QBITS+1;</td></tr>
+<tr><td class="n d">68</td><td class="c d"> COL<del>_</del>J/<del>36</del>;</td><td class="n a">69</td><td class="c a"> COL<ins>:=</ins>J/<ins>64</ins>;</td></tr>
+<tr><td class="n d">69</td><td class="c d"> A=0=&gt;(I GE A[1]=&gt;(A[1]<del>_</del>10) LE I =&gt; A[1]<del>_</del>I+1;</td><td class="n a">70</td><td class="c a"> A=0=&gt;(I GE A[1]=&gt;(A[1]<ins>:=</ins>10) LE I =&gt; A[1]<ins>:=</ins>I+1;</td></tr>
+<tr><td class="n d">70</td><td class="c d">       COL&gt;A[2]=&gt;A[2]<del>_</del>COL;</td><td class="n a">71</td><td class="c a">       COL&gt;A[2]=&gt;A[2]<ins>:=</ins>COL;</td></tr>
+<tr><td class="n q">71</td><td class="c q">       FRELOT(A,'BITS',A[1]*A[2]+1,0));</td><td class="n q">72</td><td class="c q">       FRELOT(A,'BITS',A[1]*A[2]+1,0));</td></tr>
+<tr><td class="n d">72</td><td class="c d"> COL&gt;A[2]=&gt;(A<del>_</del>FALLOT(A,A[1]*COL+1);</td><td class="n a">73</td><td class="c a"> COL&gt;A[2]=&gt;(A<ins>:=</ins>FALLOT(A,A[1]*COL+1);</td></tr>
+<tr><td class="n d">73</td><td class="c d">            S<del>_</del>A+A[1]*A[2]+1; E<del>_</del>A+(A[1]*COL+1)-1;</td><td class="n a">74</td><td class="c a">            S<ins>:=</ins>A+A[1]*A[2]+1; E<ins>:=</ins>A+(A[1]*COL+1)-1;</td></tr>
+<tr><td class="n q">74</td><td class="c q">            FREES(K,0) FOR K IN S,1,E;</td><td class="n q">75</td><td class="c q">            FREES(K,0) FOR K IN S,1,E;</td></tr>
+<tr><td class="n d">75</td><td class="c d">            A[2]<del>_</del>COL);</td><td class="n a">76</td><td class="c a">            A[2]<ins>:=</ins>COL);</td></tr>
+<tr><td class="n d">76</td><td class="c d"> I GE A[1]=&gt;(NEW<del>_</del>I+5;</td><td class="n a">77</td><td class="c a"> I GE A[1]=&gt;(NEW<ins>:=</ins>I+5;</td></tr>
+<tr><td class="n d">77</td><td class="c d">             A<del>_</del>FALLOT(A,NEW*A[2]+1);</td><td class="n a">78</td><td class="c a">             A<ins>:=</ins>FALLOT(A,NEW*A[2]+1);</td></tr>
+<tr><td class="n d">78</td><td class="c d">             (S<del>_</del>A+A[1]*K; DS<del>_</del>A+NEW*K;</td><td class="n a">79</td><td class="c a">             (S<ins>:=</ins>A+A[1]*K; DS<ins>:=</ins>A+NEW*K;</td></tr>
+<tr><td class="n q">79</td><td class="c q">              FREES(DS+L,0) FOR L IN NEW-1,-1,A[1];</td><td class="n q">80</td><td class="c q">              FREES(DS+L,0) FOR L IN NEW-1,-1,A[1];</td></tr>
+<tr><td class="n d">80</td><td class="c d">              (Q<del>_</del>FREE(S+L); FREES(DS+L,Q)) FOR L FROM A[1]-1)</td><td class="n a">81</td><td class="c a">              (Q<ins>:=</ins>FREE(S+L); FREES(DS+L,Q)) FOR L FROM A[1]-1)</td></tr>
+<tr><td class="n q">81</td><td class="c q">                                               FOR K FROM A[2];</td><td class="n q">82</td><td class="c q">                                               FOR K FROM A[2];</td></tr>
+<tr><td class="n d">82</td><td class="c d">             A[1]<del>_</del>NEW);</td><td class="n a">83</td><td class="c a">             A[1]<ins>:=</ins>NEW);</td></tr>
+<tr><td class="n d">83</td><td class="c d"> S<del>_</del>A+I+A[1]*COL;</td><td class="n a">84</td><td class="c a"> S<ins>:=</ins>A+I+A[1]*COL;</td></tr>
+<tr><td class="n d">84</td><td class="c d"> K<del>_</del>FREE(S);</td><td class="n a">85</td><td class="c a"> K<ins>:=</ins>FREE(S);</td></tr>
+<tr><td class="n d">85</td><td class="c d"> FREES(S,K OR 1 LS J-<del>36</del>*COL));</td><td class="n a">86</td><td class="c a"> FREES(S,K OR 1 LS J-<ins>64</ins>*COL));</td></tr>
+<tr><td class="n q">86</td><td class="c q">#SUBR BIT(A,I,J) IS (QBIT_QBIT+1;</td><td class="n q">87</td><td class="c q">#SUBR BIT(A,I,J) IS (QBIT_QBIT+1;</td></tr>
+<tr><td class="n q">87</td><td class="c q"> VAL_0; I GE A[1]=&gt;GO TO BITE;</td><td class="n q">88</td><td class="c q"> VAL_0; I GE A[1]=&gt;GO TO BITE;</td></tr>
+<tr><td class="n d">88</td><td class="c d"> <del>(COL_J/36)&gt;A[2]=&gt;GO</del> TO BITE;</td><td class="n a">89</td><td class="c a"> <ins>(COL_J/64)&gt;A[2]=&gt;GO</ins> TO BITE;</td></tr>
+<tr><td class="n q">89</td><td class="c q"> K_FREE(A+I+A[1]*COL);</td><td class="n q">90</td><td class="c q"> K_FREE(A+I+A[1]*COL);</td></tr>
+<tr><td class="n d">90</td><td class="c d"> VAL_1 AND K RS <del>J-COL*36;</del></td><td class="n a">91</td><td class="c a"> VAL_1 AND K RS <ins>J-COL*64;</ins></td></tr>
+<tr><td class="n q">91</td><td class="c q"> BITE: VAL);#</td><td class="n q">92</td><td class="c q"> BITE: VAL);#</td></tr>
+<tr><td class="n q">92</td><td class="c q">SUBR BITZ(A) IS (</td><td class="n q">93</td><td class="c q">SUBR BITZ(A) IS (</td></tr>
+<tr><td class="n d">93</td><td class="c d"> A=&gt;(L<del>_</del>(A[1]*A[2]+1)-1;</td><td class="n a">94</td><td class="c a"> A=&gt;(L<ins>:=</ins>(A[1]*A[2]+1)-1;</td></tr>
+<tr><td class="n q">94</td><td class="c q">     FREES(A+K,0) FOR K TO L);</td><td class="n q">95</td><td class="c q">     FREES(A+K,0) FOR K TO L);</td></tr>
+<tr><td class="n q">95</td><td class="c q"> 0);</td><td class="n q">96</td><td class="c q"> 0);</td></tr>
+<tr><td class="n d">96</td><td class="c d">SUBR BITOR(A,I,J) IS (QBO<del>_</del>QBO+1;</td><td class="n a">97</td><td class="c a">SUBR BITOR(A,I,J) IS (QBO<ins>:=</ins>QBO+1;</td></tr>
+<tr><td class="n d">97</td><td class="c d"> S<del>_</del>A+J; D<del>_</del>A+I;</td><td class="n a">98</td><td class="c a"> S<ins>:=</ins>A+J; D<ins>:=</ins>A+I;</td></tr>
+<tr><td class="n d">98</td><td class="c d"> (L<del>_</del>FREE(S); K<del>_</del>FREE(D);</td><td class="n a">99</td><td class="c a"> (L<ins>:=</ins>FREE(S); K<ins>:=</ins>FREE(D);</td></tr>
+<tr><td class="n q">99</td><td class="c q">  FREES(D,L OR K);</td><td class="n q">100</td><td class="c q">  FREES(D,L OR K);</td></tr>
+<tr><td class="n d">100</td><td class="c d">  D<del>_</del>D+A[1];</td><td class="n a">101</td><td class="c a">  D<ins>:=</ins>D+A[1];</td></tr>
+<tr><td class="n d">101</td><td class="c d">  S<del>_</del>S+A[1]) FOR E TO A[2]);</td><td class="n a">102</td><td class="c a">  S<ins>:=</ins>S+A[1]) FOR E TO A[2]);</td></tr>
+<tr><td class="n q">102</td><td class="c q">SUBR BSTATS(I) IS (</td><td class="n q">103</td><td class="c q">SUBR BSTATS(I) IS (</td></tr>
+<tr><td class="n q">103</td><td class="c q"> I=&gt;PRINT IGR 0,QBITS,STG 0,' CALLS TO BITS, ',IGR 0,QBIT,</td><td class="n q">104</td><td class="c q"> I=&gt;PRINT IGR 0,QBITS,STG 0,' CALLS TO BITS, ',IGR 0,QBIT,</td></tr>
+<tr><td class="n q">104</td><td class="c q">   STG 0,' CALLS TO BIT, ',IGR 0,QBO,STG 0,' CALLS TO BITOR.',/;</td><td class="n q">105</td><td class="c q">   STG 0,' CALLS TO BIT, ',IGR 0,QBO,STG 0,' CALLS TO BITOR.',/;</td></tr>
+<tr><td class="n d">105</td><td class="c d"> QBO<del>_</del>QBIT<del>_</del>QBITS<del>_</del>0)%%</td><td class="n a">106</td><td class="c a"> QBO<ins>:=</ins>QBIT<ins>:=</ins>QBITS<ins>:=</ins>0)%%</td></tr>
+</table>
+</body></html>

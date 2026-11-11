@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dosem.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>dosem.imc</h1>
+<p class="mut">left, old (the tape): decus/dosem.imc<br>right, new (the port): src/dosem.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 45 changed places, 1365 tokens deleted, 866 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n d">2</td><td class="c d">#THIS IS FILE <del>DOSEM.I10,</del> SEMANTIC ARRAY INTERPRETER FOR IMP <del>COMPILERS.</del></td><td class="n a">2</td><td class="c a"><ins>RTN,NRTN ARE COMMON;</ins>                    # <ins>THE TABLE OF SEMANTIC ROUTINES (DIR) #</ins></td></tr>
+<tr><td class="n d">4</td><td class="c d">DOSEM IS CALLED BY COTREE WITH A POINTER INTO THE SEMANTIC ARRAY <del>SEMS:</del></td><td class="n a">3</td><td class="c a"><ins>#</ins>THIS IS FILE <ins>DOSEM,</ins> SEMANTIC ARRAY INTERPRETER FOR IMP <ins>COMPILERS, FOR THE 64 BIT PORT.</ins></td></tr>
+<tr><td class="n d">6</td><td class="c d">           BITS <del>17-0</del>   V (ADDRESS OR VALUE FIELD).</td><td class="n a">4</td><td class="c a"> <ins>SEE DECUS/DOSEM.IMC FOR THE ORIGINAL AND ITS (LONG) COMMENTS, DOCS/PORTING/MODULES.MD FOR</ins></td></tr>
+<tr><td class="n d">7</td><td class="c d">           BITS <del>29-18</del>  N (AUXILIARY COUNT FIELD).</td><td class="n a">5</td><td class="c a"> <ins>THE DIFFERENCES.</ins></td></tr>
+<tr><td class="n d">8</td><td class="c d">           BITS <del>35-30</del>  TYPE  0=THIS IS BEGINNING OF A SEMANTIC ROUTINE WITH</td><td class="n a">7</td><td class="c a">DOSEM IS CALLED BY COTREE WITH A POINTER INTO THE SEMANTIC ARRAY <ins>SEMS.  A WORD OF SEMS HAS:</ins></td></tr>
+<tr><td class="n d">9</td><td class="c d">                                   N ARGUMENTS.  BITS <del>29-27</del> ARE PRIORITY FOR</td><td class="n a">9</td><td class="c a">           BITS <ins>31-0</ins>   V (ADDRESS OR VALUE FIELD).</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a">           BITS <ins>43-32</ins>  N (AUXILIARY COUNT FIELD).  <ins>V AND N TOGETHER ARE A SIGNED NUMBER OF 44</ins> BITS <ins>FOR THE TYPES 4, 5 AND 10.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a">           <ins>BITS 49-44</ins>  TYPE  0=THIS IS BEGINNING OF A SEMANTIC ROUTINE WITH</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a">                                   N ARGUMENTS.  BITS <ins>43-41</ins> ARE PRIORITY FOR</td></tr>
+<tr><td class="n q">10</td><td class="c q">                                   IMMEDIATE EXECUTION BY COTREE.  V IS THE</td><td class="n q">13</td><td class="c q">                                   IMMEDIATE EXECUTION BY COTREE.  V IS THE</td></tr>
+<tr><td class="n q">11</td><td class="c q">                                   INDEX OF THE PRODUCTION'S ENTRY IN PROSEM.</td><td class="n q">14</td><td class="c q">                                   INDEX OF THE PRODUCTION'S ENTRY IN PROSEM.</td></tr>
+<tr><td class="n q">12</td><td class="c q">                             1=THIS IS END OF SEMANTICS.  (SO IS SECOND TYPE 0.)</td><td class="n q">15</td><td class="c q">                             1=THIS IS END OF SEMANTICS.  (SO IS SECOND TYPE 0.)</td></tr>
+<tr><td class="n q">13</td><td class="c q">                             2=PUSH STACK POINTER OF PARAMETER V ONTO PSTAK.</td><td class="n q">16</td><td class="c q">                             2=PUSH STACK POINTER OF PARAMETER V ONTO PSTAK.</td></tr>
+<tr><td class="n q">14</td><td class="c q">                             3=CALL SEMANTIC SUBROUTINE V WITH N BOTTOM ENTRIES</td><td class="n q">17</td><td class="c q">                             3=CALL SEMANTIC SUBROUTINE V WITH N BOTTOM ENTRIES</td></tr>
+<tr><td class="n d">15</td><td class="c d">                                   <del>(MAX 12)</del> OF PSTAK AND PUT RESULT ON PSTAK.</td><td class="n a">18</td><td class="c a">                                   OF PSTAK AND PUT RESULT ON PSTAK.</td></tr>
+<tr><td class="n q">16</td><td class="c q">                             4=PUSH THE VALUE -V AS NEXT SEMANTICS PARAMETER.</td><td class="n q">19</td><td class="c q">                             4=PUSH THE VALUE -V AS NEXT SEMANTICS PARAMETER.</td></tr>
+<tr><td class="n d">17</td><td class="c d">                 <del>TYPES 5-7 ARE FOR USE IN QUOTED SEMANTICS.  THEY MAKE A NUMBER</del></td><td class="n a">20</td><td class="c a">                             <ins>5-7, 10-12: SEE</ins> THE <ins>ORIGINAL.</ins></td></tr>
+<tr><td class="n d">18</td><td class="c d">                   <del>OF ENTRIES AT</del> THE <del>CURRENT POSITION IN</del> THE <del>CODE GENERATOR'S</del></td><td class="n a">22</td><td class="c a">THE <ins>SEMANTIC</ins> ROUTINES ARE <ins>CALLED THROUGH SEMCALL (BELOW, NEXT</ins> TO <ins>DOSEM) WHERE</ins> THE <ins>ORIGINAL JUMPS TO THE</ins></td></tr>
+<tr><td class="n d">19</td><td class="c d">                   <del>STACK.  TYPES 6 AND 7 ALSO REPLACE FUNNY TYPE 0 NODES</del></td><td class="n a">23</td><td class="c a">ADDRESS IN THE <ins>JSA INSTRUCTION:</ins> THE <ins>TABLE OF THEM (DSEM, SRC/DIR.IMC) HOLDS ADDRESSES,</ins> AND <ins>AN IMP</ins> WORD <ins>CANNOT BE JUMPED TO.</ins></td></tr>
+<tr><td class="n d">20</td><td class="c d">                   <del>(GENERATED BY VALUE SEMANTICS) BY THEIR ORIGINAL PRODUCTIONS.</del></td><td class="n a">24</td><td class="c a">SEMS, <ins>NSEMS, PROSEM, NPROSEM, SCRATCH</ins> AND <ins>CASEP ARE COMMON FOR</ins> THE <ins>C</ins> THAT <ins>READS THEM (SRC/SHARED.TXT).  #</ins></td></tr>
+<tr><td class="n d">21</td><td class="c d">                             <del>5=ENTER A NODE WITH VALUE V IN NEXT POSITION.  IF</del></td><td class="n a">26</td><td class="c a">SEMS<ins>,NSEMS,PROSEM,NPROSEM,SCRATCH,CASEP ARE COMMON;</ins></td></tr>
+<tr><td class="n d">22</td><td class="c d">                                   <del>VALUE LESS THEN -100000, IT IS LOCAL SYMBOL -</del></td><td class="n a">27</td><td class="c a"><ins>PARS</ins> IS <ins>10 LONG;</ins></td></tr>
+<tr><td class="n d">23</td><td class="c d">                                   <del>INDEX LS 18, AND, FIRST TIME ONLY, DIR INDEX</del></td><td class="n a">28</td><td class="c a"><ins>&lt;ATOM&gt; ::= MARGS ::= "10";</ins></td></tr>
+<tr><td class="n d">24</td><td class="c d">                                   <del>IN LOW 18 BITS.  MAKE FUNNYNAME ACCCORDINGLY.</del></td><td class="n a">32</td><td class="c a"><ins># SEMCALL(ID,PARS): CALL</ins> THE SEMANTIC ROUTINE WITH <ins>ID, WITH</ins> THE <ins>PARAMETERS</ins> IN THE <ins>ARRAY PARS,</ins> BY <ins>REFERENCE.</ins>  THE <ins>ORIGINAL JUMPS</ins> TO THE <ins>ADDRESS</ins> IN THE <ins>JSA INSTRUCTION</ins> THAT <ins>DOSEM PATCHES; AN IMP WORD CANNOT BE JUMPED TO, SO</ins></td></tr>
+<tr><td class="n d">25</td><td class="c d">                             <del>6=ENTER NTH PARAMETER OF STACK IN NEXT POSITION.</del></td><td class="n a">33</td><td class="c a">  THE <ins>CALL</ins> IS A <ins>CALL THROUGH</ins> THE <ins>ADDRESS (IMPCALLW, SEE IR2LLX), WITH POINTERS</ins> TO A <ins>COPY</ins> OF THE <ins>PARAMETERS (THE ROUTINE MAY CHANGE THEM) #</ins></td></tr>
+<tr><td class="n d">26</td><td class="c d">                             <del>7=COPY NTH PARAMETER OF STACK TO NEXT POSITION,</del></td><td class="n a">34</td><td class="c a"><ins>SEMSTK</ins> IS <ins>5000 LONG;</ins></td></tr>
+<tr><td class="n d">27</td><td class="c d">                                   <del>MAKING COPY OF GENERATED CODE IF ANY.</del></td><td class="n a">35</td><td class="c a"><ins>SUBR SEMCALL(ID,PARS)</ins> IS <ins>(</ins></td></tr>
+<tr><td class="n d">28</td><td class="c d">                            <del>10=LOAD CONSTANT ON STACK OF PARAMS FOR 'CASE'.</del></td><td class="n a">36</td><td class="c a"> <ins>SMFR ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">29</td><td class="c d">                            <del>11=PERFORM + FUNCTION ON LAST TWO STACK ELEMENTS.</del></td><td class="n a">37</td><td class="c a"> <ins>ID&lt;1 =&gt; (ERROR(0,'ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE.'); RETURN 0);</ins></td></tr>
+<tr><td class="n d">30</td><td class="c d">                            <del>12=PUT NODE TYPE 0 FOR [V], VALUE N, ON STACK.</del></td><td class="n a">38</td><td class="c a"> <ins>ID&gt;NRTN =&gt; (ERROR(0,'ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE.'); RETURN 0);</ins></td></tr>
+<tr><td class="n d">31</td><td class="c d">                                   <del>(OTHER</del> ROUTINES <del>EXPECT THIS TO BE RIGHT</del></td><td class="n a">39</td><td class="c a"> <ins>SMFR:=SEMSP; SEMSP:=SMFR+5;                  #</ins> A <ins>FRAME</ins> OF <ins>FIVE WORDS</ins> ON A <ins>STACK</ins> OF <ins>OUR OWN:</ins> THE <ins>LOCALS</ins> OF A <ins>ROUTINE ARE ONE SET</ins> FOR <ins>ALL ITS CALLS,</ins> AND A <ins>SEMANTIC ROUTINE CALLS SEMCALL AGAIN #</ins></td></tr>
+<tr><td class="n d">32</td><td class="c d">                                   <del>AFTER TYPE 0 NODE).  ALSO TELLS COTREE THAT</del></td><td class="n a">40</td><td class="c a"> <ins>SEMSP&gt;5000 =&gt; (ERROR(0,'SEMANTIC ROUTINES NESTED TOO DEEP.'); SEMSP:=SMFR; RETURN 0);</ins></td></tr>
+<tr><td class="n d">33</td><td class="c d">                                   <del>ARGS OF THIS PRODN</del> ARE <del>NOT</del> TO <del>BE COLLAPSED.</del></td><td class="n a">41</td><td class="c a"> <ins>SEMSTK[SMFR]:=[LOC(PARS)]; SEMSTK[SMFR+1]:=[LOC(PARS)+1]; SEMSTK[SMFR+2]:=[LOC(PARS)+2]; SEMSTK[SMFR+3]:=[LOC(PARS)+3]; SEMSTK[SMFR+4]:=[LOC(PARS)+4];      # ([X+N] WITH</ins> A <ins>CONSTANT N</ins> IS <ins>N WORDS FROM X) #</ins></td></tr>
+<tr><td class="n d">35</td><td class="c d">          <del>********************** WARNING *************************</del></td><td class="n a">42</td><td class="c a"> <ins>SMFR:=CCALL impcallw([RTN+((16*(ID</ins>-<ins>1))+8)],LOC(SEMSTK[SMFR]),LOC(SEMSTK[SMFR+1]),LOC(SEMSTK[SMFR+2]),LOC(SEMSTK[SMFR+3]),LOC(SEMSTK[SMFR+4]));</ins></td></tr>
+<tr><td class="n d">36</td><td class="c d"><del>ANY CHANGES IN</del> THE <del>ABOVE MUST BE REFLECTED IN TWO PLACES: IN DOSEM AND IN SEMFIX</del></td><td class="n a">43</td><td class="c a"> <ins>SEMSP:=SEMSP</ins>-<ins>5;</ins></td></tr>
+<tr><td class="n d">38</td><td class="c d"> <del>IF A NAME IS A SEMANTIC ROUTINE OR PREDICATE, ITS</del> ADDRESS <del>IS</del> IN THE</td><td class="n a">44</td><td class="c a"> <ins>SMFR);</ins>SUBR DOSEM(PPO) IS (</td></tr>
+<tr><td class="n d">39</td><td class="c d">   <del>DIRECTORY WITH</del> THE <del>PROPERTY 'SEM'.</del></td><td class="n a">45</td><td class="c a"> NPO<ins>:=HL(</ins>PPO<ins>)</ins>; PO<ins>:=HR(</ins>PPO<ins>)</ins>;</td></tr>
+<tr><td class="n d">40</td><td class="c d"> <del>THE ARRAY SEMS IS SET BY THE ROUTINE SETSEM(TY,VAL) WHICH PLACES A WORD</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">41</td><td class="c d">   <del>WITH TYPE TY</del> AND <del>VALUE VAL IN THE NEXT</del> WORD <del>IN</del> SEMS, AND <del>RETURNS</del> THE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d">   <del>INDEX (GUARANTEED NONZERO) OF</del> THAT <del>WORD.  (THE PRODUCTION NUMBERS IN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d">   <del>THE SYNTAX GRAPH WILL BE THE</del> SEMS <del>INDEX OF THE FIRST WORD OF THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">44</td><td class="c d">   <del>SEMANTICS OF THAT PRODUCTION.)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">45</td><td class="c d"> <del>SNARG(PRODNR)</del> IS THE <del>NUMBER OF ARGUMENTS IN THAT PRODUCTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d"> <del>THE</del> SEMANTIC <del>ROUTINES OPERATE ON ENTRIES IN THE STACK ST, WHICH IS MAINTAINED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">47</td><td class="c d">   <del>BY THE MODULE STACK AND SET UP UNDER COTREE'S DIRECTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">48</td><td class="c d"> <del>THE WAY SEMANTIC ROUTINES WORK IS THIS: WHEN COTREE DECIDES THAT A</del> ROUTINE <del>IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d">   <del>TO BE INVOKED, IT SETS UP THE STACK AND CALLS DOSEM.  THE STACK POINTER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">50</td><td class="c d">   <del>POINTS TO THE FIRST ARGUMENT OF THE PRODUCTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">51</td><td class="c d"> <del>NOW THE SEMANTIC ROUTINES ARE INVOKED, AS FOLLOWS: PARAMETERS ARE EITHER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">52</td><td class="c d">   <del>OBJECTS OR CONSTANTS OR OTHER NAMES.  (THE ROUTINES ARE CALLED</del> WITH <del>MINUS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">53</td><td class="c d">   THE <del>DIRECTORY INDEX FOR OTHER NAMES.)  IT IS UP TO THE SEMANTIC ROUTINE TO</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d">   <del>DO SANE THINGS (MAY CHANGE STACK ENTRIES, ETC.).  THE SEMANTIC ROUTINE WILL</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">55</td><td class="c d">   <del>USUALLY RETURN A VALUE WHICH IS A STACK POINTER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d"> <del>AFTER ALL THE SEMANTIC ROUTINES HAVE BEEN EXECUTED, IF THEIR RESULT IS NON-</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d">   <del>ZERO THEN IT IS A STACK POINTER TO THE RESULT OF THE SEMANTICS.  IF THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d">   <del>RESULT IS ZERO, THE RESULT OF THE SEMANTICS IS WHATEVER IS</del> IN THE <del>STACK</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d">   <del>ENTRY POINTED TO</del> BY THE <del>STACK POINTER (FIRST ARGUMENT OF THE PRODUCTION).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d"><del>SEMFIX(I,A) IS CALLED BY THE SEMANTICS MAKER ROUTINE</del> TO <del>FIX UP SEMANTICS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">  <del>INVOKED BY A QUOTED CONDITIONAL.  I IS</del> THE <del>INDEX OF THE SEMANTICS, AND</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">63</td><td class="c d">  <del>A IS A FREE ARRAY CONTAINING THE INDICES OF THE LOCAL NAMES OF THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d">  <del>ARGUMENTS, TERMINATED BY -1.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d"><del>SEMFX1(I,A,N) IS CALLED BY SEMANTICS MAKER TO PATCH UP A POSSIBLE CASE OF</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">67</td><td class="c d">  <del>VAL/"STUFF" AS DEFAULT CASE.  IT REPLACES TYPE 05 REFERENCES TO PRODUCTIONS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">68</td><td class="c d">  <del>WHICH ARE CASES OF VAL BY TYPE 06 IF IT FINDS VAL</del> IN THE <del>PARAMETER LIST OF</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d">  <del>THE PRODUCTION.  IT ALSO REPLACES ENTRIES IN THE PARAMETER LIST BY PRODN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d">  <del>NUMBER FOR VAL.  I,A AS ABOVE, N IS LENGTH OF A.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d"><del>ENPROD(PN,NO,SEM) - IS CALLED BY ENTREE TO RECORD THE FACT</del> THAT <del>A PRODUCTION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d">  <del>MATCHES AT A CODE GENERATION TREE TERMINAL NODE.  PN IS</del> THE <del>PRODUCTION NUMBER,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d">  <del>NO THE TERMINAL NODE, AND SEM THE SEMANTICS ENTRY.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d">  <del>THE DATA</del> IS <del>RECORDED IN THE FREE ARRAY PROSEM IN ENTRIES</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">76</td><td class="c d">  <del>FOR TERMINAL NODE PRODUCTIONS.  THERE IS</del> A <del>POINTER INTO PROSEM IN</del> THE <del>TYPE 0</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">77</td><td class="c d">  <del>WORD OF THE PRODUCTION (BITS 17-0).  THE WORD POINTED</del> TO <del>CONTAINS</del> A <del>BIT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">78</td><td class="c d">  <del>VECTOR - 1 LS N IN THE VECTOR MEANS THAT THE PRODUCTION MATCHES SOME NODE ON</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">79</td><td class="c d">  <del>LEVEL N</del> OF THE <del>CODE GENERATION TREE (NOT NECESSARILY TERMINAL).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">80</td><td class="c d">    <del>**THIS "PLIES" BIT VECTOR</del> IS <del>INCREMENTED EVERY TIME A PRODUCTION</del> IS <del>ADDED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">81</td><td class="c d">  <del>TO THE CODE GEN TREE.  FIRST TIME ONLY: PLIES_-(1 LS N).  THEREAFTER, PLIES</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">82</td><td class="c d">  <del>IS AS DESCRIBED ABOVE.  THUS, PLIES&lt;0 NOW INDICATES THAT THE PRODUCTION HAS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">83</td><td class="c d">  <del>ONLY BEEN ENTERRED ONCE INTO CODE GEN TREE, HENCE THAT THERE IS NO NEED TO</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">84</td><td class="c d">  <del>WALK INTO THE TREE WITH IT - CAN CALL SINGLE SEMANTICS IMMEDIATELY.**</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">85</td><td class="c d">  <del>THE NEXT WORD POINTS TO THE START OF</del> A <del>LINKED LIST</del> OF <del>NODES WITH FORMAT:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">87</td><td class="c d">          <del>WORD 0: BITS 35-18: NUMBER OF A TERMINAL CODE TREE NODE WHICH THIS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">88</td><td class="c d">                              <del>PRODUCTION MATCHES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">89</td><td class="c d">                  <del>BITS 17-0 : INDEX OF NEXT ENTRY</del> ON <del>LIST (OR 0).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">90</td><td class="c d">          <del>WORD 1: BITS 35-18: IF NONZERO, THIS IS</del> A <del>CASE</del> OF <del>A CLASS.</del>  THE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">91</td><td class="c d">                              <del>SEMANTICS FROM THE LOW 18 BITS SETS UP THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">92</td><td class="c d">                              <del>PARAMETERS.  WHEN THE OP=1 IS ENCOUNTERD, THIS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">93</td><td class="c d">                              <del>IS THE INDEX AT WHICH TO START EXECUTING THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">94</td><td class="c d">                              <del>CLASS SEMANTICS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">95</td><td class="c d">                  <del>BITS 17-0 : INDEX IN SEMS</del> OF <del>THE SEMANTICS TO BE INVOKED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">96</td><td class="c d">	  <del>WORD 2: ROW IN BIT MATRIX SBITM FOR THIS PRODUCTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">97</td><td class="c d">		  <del>SBITM[I,J] TELLS IF TREE NODE J CAN LEAD TO PRODUCTION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">98</td><td class="c d">		  <del>I.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">101</td><td class="c d"><del>WHEN</del> A <del>CLASS OF SEMANTICS IS DEFINED, A SPECIAL DUMMY PRODUCTION NUMBER IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">102</td><td class="c d">  <del>CREATED AND ENTERED IN THE DICTIONARY AS THE PROPERTY 'SEM' OF THE CLASS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">103</td><td class="c d">  <del>NAME.  A LIST IN PROSEM IS CREATED</del> FOR <del>THIS DUMMY ENTRY, TELLING WHERE IT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">104</td><td class="c d">  <del>MATCHES IN THE CODE TREE</del> AND <del>WHERE IN SEMS TO GO FOR THE SEMANTICS.  WHEN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">105</td><td class="c d">  A <del>CASE OF IT IS FOUND,</del> A <del>DUPLICATE OF THE LIST</del> IS <del>MADE, PLUGGING IN THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">106</td><td class="c d">  <del>PARTICULAR SETUP SEMANTICS INDEX INTO THE SECOND WORD OF EACH NODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">107</td><td class="c d"><del>PLIES(I)</del> - <del>RETURNS THE BIT VECTOR FOR PRODUCTION I</del> - <del>BUT, IF [I] MATCHES AT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">108</td><td class="c d">  <del>NO TERMINAL NODES, IT RETURNS 0 REGARDLESS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">109</td><td class="c d"><del>NOTEPROD(PN,N) - MAKES A BIT VECTOR ENTRY FOR PRODUCTION PN AT PLY N.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">110</td><td class="c d"><del>MATCHP(PN,N) - CALLED BY TREE NODE MATCHER.  RETURNS SEMANTICS ENTRY IF</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">111</td><td class="c d">  <del>PRODUCTION PN MATCHES AT NODE N, ELSE ZERO.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">112</td><td class="c d"><del>PAR(I) - SEMANTIC ROUTINE WHICH FETCHES THE I-TH PARAMETER ON THE 'CASE'</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">113</td><td class="c d">  <del>PARAMETER STACK. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">116</td><td class="c d">SUBR DOSEM(PPO) IS (</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">117</td><td class="c d"> NPO<del>_</del>PPO <del>RS 18</del>; PO<del>_</del>PPO <del>AND 777777B</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">118</td><td class="c q"> PO=1 =&gt; GO TO DOSEX;</td><td class="n q">46</td><td class="c q"> PO=1 =&gt; GO TO DOSEX;</td></tr>
+<tr><td class="n d">119</td><td class="c d"> FINAM IS COMMON; TR<del>_</del>FINAM[5] AND 100000B;</td><td class="n a">47</td><td class="c a"> FINAM IS COMMON; TR<ins>:=</ins>FINAM[5] AND 100000B;</td></tr>
+<tr><td class="n d">120</td><td class="c d"> S<del>_</del>PO; NCASEP<del>_</del>NT0<del>_</del>0; FREES(PSTAK,0);</td><td class="n a">48</td><td class="c a"> S<ins>:=</ins>PO; NCASEP<ins>:=</ins>NT0<ins>:=</ins>0; FREES(PSTAK,0);</td></tr>
+<tr><td class="n d">121</td><td class="c d"> NEXTSEM: SE<del>_</del>FREE(SEMS+S); STY<del>_</del>SE RS <del>30</del>; SVAL<del>_</del>SE <del>AND 777777B</del>;</td><td class="n a">49</td><td class="c a"> NEXTSEM: SE<ins>:=</ins>FREE(SEMS+S); STY<ins>:=</ins>SE RS <ins>44</ins>; SVAL<ins>:=HR(</ins>SE<ins>)</ins>;</td></tr>
+<tr><td class="n d">122</td><td class="c d"> TR =&gt; PRINT STG 0,' [', OCT 0,S,STG 0,'] = ',OCT <del>12</del>,SE;</td><td class="n a">50</td><td class="c a"> TR =&gt; <ins>(</ins>PRINT STG 0,' [', OCT 0,S,STG 0,'] = ',OCT <ins>17</ins>,SE<ins>)</ins>;</td></tr>
+<tr><td class="n q">123</td><td class="c q"> GO TO (TYPE0,TYPE1,TYPE2,TYPE3,TYPE4,TYPE5,</td><td class="n q">51</td><td class="c q"> GO TO (TYPE0,TYPE1,TYPE2,TYPE3,TYPE4,TYPE5,</td></tr>
+<tr><td class="n q">124</td><td class="c q">                TYPE6,TYPE7,TYPE10,TYPE11,TYPE12) STY;</td><td class="n q">52</td><td class="c q">                TYPE6,TYPE7,TYPE10,TYPE11,TYPE12) STY;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"> <ins>ERROR(0,'BAD TYPE IN SEMANTICS'); GO TO TYPEX;</ins></td></tr>
+<tr><td class="n q">125</td><td class="c q"> TYPE0: NT0=&gt;GO TO TYPE1;    # SECOND TYPE 0 IS A TYPE 1 #</td><td class="n q">54</td><td class="c q"> TYPE0: NT0=&gt;GO TO TYPE1;    # SECOND TYPE 0 IS A TYPE 1 #</td></tr>
+<tr><td class="n d">126</td><td class="c d">        NT0<del>_</del>1;</td><td class="n a">55</td><td class="c a">        NT0<ins>:=</ins>1;</td></tr>
+<tr><td class="n q">127</td><td class="c q">        NPO=&gt;GO TO NXSEM;</td><td class="n q">56</td><td class="c q">        NPO=&gt;GO TO NXSEM;</td></tr>
+<tr><td class="n d">128</td><td class="c d">        SCRATCH<del>_</del>SNARG(S);</td><td class="n a">57</td><td class="c a">        SCRATCH<ins>:=</ins>SNARG(S);</td></tr>
+<tr><td class="n q">129</td><td class="c q"> # TRY TO INSURE STACK WON'T MOVE DURING DOSEM, WHICH WOULD BE DISASTROUS. #</td><td class="n q">58</td><td class="c q"> # TRY TO INSURE STACK WON'T MOVE DURING DOSEM, WHICH WOULD BE DISASTROUS. #</td></tr>
+<tr><td class="n q">130</td><td class="c q">        SETSTK(MANY,0,0,0);</td><td class="n q">59</td><td class="c q">        SETSTK(MANY,0,0,0);</td></tr>
+<tr><td class="n d">131</td><td class="c d">        <del>STACKP_</del>STPOP(SCRATCH-1);</td><td class="n a">60</td><td class="c a">        STPOP(SCRATCH-1);</td></tr>
+<tr><td class="n q">132</td><td class="c q">        GO TO NXSEM;</td><td class="n q">61</td><td class="c q">        GO TO NXSEM;</td></tr>
+<tr><td class="n d">133</td><td class="c d"> TYPE1: NPO=0=&gt;(J<del>_</del>FREE(PSTAK); K<del>_</del>STACK(0);</td><td class="n a">62</td><td class="c a"> TYPE1: NPO=0=&gt;(J<ins>:=</ins>FREE(PSTAK); K<ins>:=</ins>STACK(0);</td></tr>
+<tr><td class="n q">134</td><td class="c q">                J=K =&gt; GO TO TYPEX;</td><td class="n q">63</td><td class="c q">                J=K =&gt; GO TO TYPEX;</td></tr>
+<tr><td class="n d">135</td><td class="c d">                J&gt;K =&gt; J LE (K+3*SCRATCH) =&gt; (<del>[</del>K<del>]_[</del>J<del>]</del>; <del>[</del>K+1<del>]_[</del>J+1<del>]</del>;</td><td class="n a">64</td><td class="c a">                J&gt;K =&gt; J LE (K+3*SCRATCH) =&gt; (<ins>FREES(</ins>K<ins>,FREE(</ins>J<ins>))</ins>; <ins>FREES(</ins>K+1<ins>,FREE(</ins>J+1<ins>))</ins>;</td></tr>
+<tr><td class="n d">136</td><td class="c d">                                              <del>[</del>K+2<del>]_[</del>J+2<del>]</del>; GO TO TYPEX);</td><td class="n a">65</td><td class="c a">                                              <ins>FREES(</ins>K+2<ins>,FREE(</ins>J+2<ins>))</ins>; GO TO TYPEX);</td></tr>
+<tr><td class="n q">137</td><td class="c q">                J=0=&gt;(FREES(K+2,0); GO TO TYPEX);</td><td class="n q">66</td><td class="c q">                J=0=&gt;(FREES(K+2,0); GO TO TYPEX);</td></tr>
+<tr><td class="n q">138</td><td class="c q">                PRINT /,OCT 0,PPO,STG 0,'=',OCT 0,J,STG 0,', ';</td><td class="n q">67</td><td class="c q">                PRINT /,OCT 0,PPO,STG 0,'=',OCT 0,J,STG 0,', ';</td></tr>
+<tr><td class="n q">139</td><td class="c q">                ERROR(2,'BAD RESULT OF SEMANTICS; IGNORED **');</td><td class="n q">68</td><td class="c q">                ERROR(2,'BAD RESULT OF SEMANTICS; IGNORED **');</td></tr>
+<tr><td class="n q">140</td><td class="c q">                GO TO TYPEX);</td><td class="n q">69</td><td class="c q">                GO TO TYPEX);</td></tr>
+<tr><td class="n d">141</td><td class="c d">        S<del>_</del>NPO; NPO<del>_</del>NT0<del>_</del>0; GO TO NEXTSEM;</td><td class="n a">70</td><td class="c a">        S<ins>:=</ins>NPO; NPO<ins>:=</ins>NT0<ins>:=</ins>0; GO TO NEXTSEM;</td></tr>
+<tr><td class="n d">142</td><td class="c d"> TYPE2: FADD(PSTAK,NPSTAK,<del>STACK(SVAL)</del>);</td><td class="n a">71</td><td class="c a"> TYPE2: <ins>SW:=STACK(SVAL);</ins> FADD(PSTAK,NPSTAK,<ins>SW</ins>);</td></tr>
+<tr><td class="n q">143</td><td class="c q">        GO TO NXSEM;</td><td class="n q">72</td><td class="c q">        GO TO NXSEM;</td></tr>
+<tr><td class="n q">144</td><td class="c q"> TYPE3: SVAL=0=&gt;ERROR(0,'ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE.');</td><td class="n q">73</td><td class="c q"> TYPE3: SVAL=0=&gt;ERROR(0,'ATTEMPT TO EXECUTE UNDEFINED SEMANTIC ROUTINE.');</td></tr>
+<tr><td class="n d">145</td><td class="c d">        SN<del>_</del>7777B AND SE <del>RS 18</del>;</td><td class="n a">74</td><td class="c a">        SN<ins>:=</ins>7777B AND <ins>HL(</ins>SE<ins>)</ins>;</td></tr>
+<tr><td class="n d">146</td><td class="c d">        NPSTAK<del>_</del>NPSTAK-SN;</td><td class="n a">75</td><td class="c a">        NPSTAK<ins>:=</ins>NPSTAK-SN;</td></tr>
+<tr><td class="n q">147</td><td class="c q">        SN LE MARGS=&gt;NPSTAK GE 0 =&gt;GO TO L1;</td><td class="n q">76</td><td class="c q">        SN LE MARGS=&gt;NPSTAK GE 0 =&gt;GO TO L1;</td></tr>
+<tr><td class="n q">148</td><td class="c q">        ERROR(0,'** TOO MANY ARGS TO SEMANTIC RTN OR PARAM STACK UNDERFLOW **');</td><td class="n q">77</td><td class="c q">        ERROR(0,'** TOO MANY ARGS TO SEMANTIC RTN OR PARAM STACK UNDERFLOW **');</td></tr>
+<tr><td class="n d">149</td><td class="c d">        L1: SN =&gt; (JX<del>_</del>PSTAK+NPSTAK+SN;</td><td class="n a">78</td><td class="c a">        L1: SN =&gt; (JX<ins>:=</ins>PSTAK+NPSTAK+SN;</td></tr>
+<tr><td class="n d">150</td><td class="c d">                   <del>PARS[I]_[</del>JX<del>_</del>JX-1] FOR I FROM SN-1);</td><td class="n a">79</td><td class="c a">                   <ins>(</ins>JX<ins>:=</ins>JX-1<ins>; PARS[I</ins>]<ins>:=FREE(JX))</ins> FOR I FROM SN-1);</td></tr>
+<tr><td class="n d">151</td><td class="c d">        <del>JSA_SVAL OR JSA AND NOT 777777B; GO TO JSA;</del></td><td class="n a">80</td><td class="c a">        J<ins>:=SEMCALL</ins>(<ins>SVAL</ins>,PARS);</td></tr>
+<tr><td class="n d">152</td><td class="c d">        <del>REMOTE (JSA:</del> J<del>_DOSEM</del>(<del>PARS[0]</del>,PARS<del>[1],PARS[2],PARS[3],PARS[4],PARS[5],</del></td><td class="n a">81</td><td class="c a">        FADD(PSTAK,NPSTAK,J); GO TO NXSEM;</td></tr>
+<tr><td class="n d">153</td><td class="c d">                             <del>PARS[6],PARS[7],PARS[8],PARS[9]</del>); <del>GO TO RET);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">154</td><td class="c d">        <del>RET:</del> FADD(PSTAK,NPSTAK,J); GO TO NXSEM;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">155</td><td class="c q"> TYPE10:</td><td class="n q">82</td><td class="c q"> TYPE10:</td></tr>
+<tr><td class="n q">156</td><td class="c q"> TYPE4:</td><td class="n q">83</td><td class="c q"> TYPE4:</td></tr>
+<tr><td class="n d">157</td><td class="c d"> TYPE5: SVAL<del>_</del>SE AND <del>007777777777B</del>;</td><td class="n a">84</td><td class="c a"> TYPE5: SVAL<ins>:=</ins>SE AND <ins>SVMASK</ins>;</td></tr>
+<tr><td class="n d">158</td><td class="c d">        (SVAL AND <del>004000000000B</del>)=&gt;SVAL<del>_</del>SVAL OR <del>770000000000B</del>;</td><td class="n a">85</td><td class="c a">        (SVAL AND <ins>SVSIGN</ins>)=&gt;SVAL<ins>:=</ins>SVAL OR <ins>NOT SVMASK</ins>;</td></tr>
+<tr><td class="n q">159</td><td class="c q">        STY=4=&gt;(FADD(PSTAK,NPSTAK,-SVAL); GO TO NXSEM);</td><td class="n q">86</td><td class="c q">        STY=4=&gt;(FADD(PSTAK,NPSTAK,-SVAL); GO TO NXSEM);</td></tr>
+<tr><td class="n q">160</td><td class="c q">        STY=10B=&gt;(FADD(CASEP,NCASEP,-SVAL); GO TO NXSEM);</td><td class="n q">87</td><td class="c q">        STY=10B=&gt;(FADD(CASEP,NCASEP,-SVAL); GO TO NXSEM);</td></tr>
+<tr><td class="n d">161</td><td class="c d">        J<del>_</del>1;</td><td class="n a">88</td><td class="c a">        J<ins>:=</ins>1;</td></tr>
+<tr><td class="n q">162</td><td class="c q">        SVAL&gt;0=&gt;(# USE PARS FOR LOCAL VBLS SINCE SEMANTIC RTNS AND "STUFF" NEVER</td><td class="n q">89</td><td class="c q">        SVAL&gt;0=&gt;(# USE PARS FOR LOCAL VBLS SINCE SEMANTIC RTNS AND "STUFF" NEVER</td></tr>
+<tr><td class="n q">163</td><td class="c q">                                                                   ARE MIXED. #</td><td class="n q">90</td><td class="c q">                                                                   ARE MIXED. #</td></tr>
+<tr><td class="n d">164</td><td class="c d">                 SVAL&gt;<del>777777B</del>=&gt;((I<del>_</del>(SVAL <del>RS 18</del>)-1)&gt;MARGS=&gt;<del>ERROR</del>(<del>(</del>I<del>_</del>1<del>)</del>,</td><td class="n a">91</td><td class="c a">                 SVAL&gt;<ins>HMASK</ins>=&gt;((I<ins>:=</ins>(<ins>HL(</ins>SVAL)<ins>)</ins>-1)&gt;MARGS=&gt;(I<ins>:=</ins>1<ins>; ERROR(1</ins>,</td></tr>
+<tr><td class="n d">165</td><td class="c d">                             ' TOO MANY LOCAL SYMBOLS IN REFERENCED SEMANTICS');</td><td class="n a">92</td><td class="c a">                             ' TOO MANY LOCAL SYMBOLS IN REFERENCED SEMANTICS')<ins>)</ins>;</td></tr>
+<tr><td class="n d">166</td><td class="c d">                                (SVAL<del>_</del>SVAL <del>AND 777777B</del>)=&gt;(</td><td class="n a">93</td><td class="c a">                                (SVAL<ins>:=HR(</ins>SVAL)<ins>)</ins>=&gt;(</td></tr>
+<tr><td class="n d">167</td><td class="c d">                                             XNAME<del>_</del>DNAME(SVAL,0);</td><td class="n a">94</td><td class="c a">                                             XNAME<ins>:=</ins>DNAME(SVAL,0);</td></tr>
+<tr><td class="n d">168</td><td class="c d">                                             SVAL<del>_</del>NEWNAME(XNAME);</td><td class="n a">95</td><td class="c a">                                             SVAL<ins>:=</ins>NEWNAME(XNAME);</td></tr>
+<tr><td class="n d">169</td><td class="c d">                                             PARS[I]<del>_</del>SVAL);</td><td class="n a">96</td><td class="c a">                                             PARS[I]<ins>:=</ins>SVAL);</td></tr>
+<tr><td class="n d">170</td><td class="c d">                                SVAL<del>_</del>PARS[I]));</td><td class="n a">97</td><td class="c a">                                SVAL<ins>:=</ins>PARS[I]));</td></tr>
+<tr><td class="n d">171</td><td class="c d">        SVAL&lt;0=&gt;(J<del>_</del>0; SVAL<del>_</del>-SVAL);</td><td class="n a">98</td><td class="c a">        SVAL&lt;0=&gt;(J<ins>:=</ins>0; SVAL<ins>:=</ins>-SVAL);</td></tr>
+<tr><td class="n d">172</td><td class="c d">        CODENT(J OR SVAL LS <del>18</del>,0,0,0);</td><td class="n a">99</td><td class="c a">        CODENT(<ins>(</ins>J OR <ins>(</ins>SVAL LS <ins>32))</ins>,0,0,0);</td></tr>
+<tr><td class="n q">173</td><td class="c q">        GO TO NXSEM;</td><td class="n q">100</td><td class="c q">        GO TO NXSEM;</td></tr>
+<tr><td class="n q">174</td><td class="c q"> TYPE6:</td><td class="n q">101</td><td class="c q"> TYPE6:</td></tr>
+<tr><td class="n d">175</td><td class="c d"> TYPE7: J<del>_</del>STACK(SVAL);</td><td class="n a">102</td><td class="c a"> TYPE7: J<ins>:=</ins>STACK(SVAL);</td></tr>
+<tr><td class="n d">176</td><td class="c d">        I<del>_</del>FREE(J);</td><td class="n a">103</td><td class="c a">        I<ins>:=</ins>FREE(J);</td></tr>
+<tr><td class="n q">177</td><td class="c q">        (I AND 77B)=0=&gt;FREE(J+1)=&gt;(# VALUE SEMANTICS - REPLACE ORIG. PRODN NR #</td><td class="n q">104</td><td class="c q">        (I AND 77B)=0=&gt;FREE(J+1)=&gt;(# VALUE SEMANTICS - REPLACE ORIG. PRODN NR #</td></tr>
+<tr><td class="n d">178</td><td class="c d">               I<del>_</del>FREE(J+1);</td><td class="n a">105</td><td class="c a">               I<ins>:=</ins>FREE(J+1);</td></tr>
+<tr><td class="n d">179</td><td class="c d">               FREES(J,<del>777777000000B AND</del> I);</td><td class="n a">106</td><td class="c a">               FREES(J,I <ins>AND NOT HMASK</ins>);</td></tr>
+<tr><td class="n q">180</td><td class="c q">               FREES(J+1,0));</td><td class="n q">107</td><td class="c q">               FREES(J+1,0));</td></tr>
+<tr><td class="n q">181</td><td class="c q">        CODENT(FREE(J),FREE(J+1),FREE(J+2),STY-6);</td><td class="n q">108</td><td class="c q">        CODENT(FREE(J),FREE(J+1),FREE(J+2),STY-6);</td></tr>
+<tr><td class="n q">182</td><td class="c q">        GO TO NXSEM;</td><td class="n q">109</td><td class="c q">        GO TO NXSEM;</td></tr>
+<tr><td class="n d">183</td><td class="c d"> TYPE11:NPSTAK<del>_</del>NPSTAK-1; J<del>_</del>FREE(PSTAK+NPSTAK);</td><td class="n a">110</td><td class="c a"> TYPE11:NPSTAK<ins>:=</ins>NPSTAK-1; J<ins>:=</ins>FREE(PSTAK+NPSTAK);</td></tr>
+<tr><td class="n d">184</td><td class="c d">        QQ<del>_</del>FREE(PSTAK+NPSTAK-1); FREES(PSTAK+NPSTAK-1,J+QQ);</td><td class="n a">111</td><td class="c a">        QQ<ins>:=</ins>FREE(PSTAK+NPSTAK-1); FREES(PSTAK+NPSTAK-1,<ins>(</ins>J+QQ<ins>)</ins>);</td></tr>
+<tr><td class="n q">185</td><td class="c q">        GO TO NXSEM;</td><td class="n q">112</td><td class="c q">        GO TO NXSEM;</td></tr>
+<tr><td class="n d">186</td><td class="c d"> TYPE12:J<del>_</del>STACK(0);</td><td class="n a">113</td><td class="c a"> TYPE12:J<ins>:=</ins>STACK(0);</td></tr>
+<tr><td class="n d">187</td><td class="c d">        FREES(J,SVAL LS <del>18</del>);</td><td class="n a">114</td><td class="c a">        FREES(J,<ins>(</ins>SVAL LS <ins>32</ins>)<ins>)</ins>;</td></tr>
+<tr><td class="n d">188</td><td class="c d">        FREES(J+1,(PO LS <del>18</del>) OR 7777B AND SE <del>RS 18</del>);</td><td class="n a">115</td><td class="c a">        FREES(J+1,(<ins>((</ins>PO LS <ins>32</ins>)<ins>)</ins> OR <ins>(</ins>7777B AND <ins>HL(</ins>SE<ins>)))</ins>);</td></tr>
+<tr><td class="n q">189</td><td class="c q">        FREES(J+2,0);</td><td class="n q">116</td><td class="c q">        FREES(J+2,0);</td></tr>
+<tr><td class="n q">190</td><td class="c q">        FREES(PSTAK,J);</td><td class="n q">117</td><td class="c q">        FREES(PSTAK,J);</td></tr>
+<tr><td class="n q">191</td><td class="c q">        CFUDGE(0);</td><td class="n q">118</td><td class="c q">        CFUDGE(0);</td></tr>
+<tr><td class="n q">192</td><td class="c q"> NXSEM: TR=&gt;(PRINT STG 0,'=&gt;STK[',IGR 0,NPSTAK,STG 0,']=';</td><td class="n q">119</td><td class="c q"> NXSEM: TR=&gt;(PRINT STG 0,'=&gt;STK[',IGR 0,NPSTAK,STG 0,']=';</td></tr>
+<tr><td class="n d">193</td><td class="c d">	<del>(</del>J<del>_</del>FREE(PSTAK+NPSTAK)<del>) GE</del> STACK(0)=&gt;J LE <del>STACK</del>(<del>0)</del>+3*SCRATCH=&gt;</td><td class="n a">120</td><td class="c a">        J<ins>:=</ins>FREE(PSTAK+NPSTAK)<ins>; K:=</ins>STACK(0)<ins>;</ins></td></tr>
+<tr><td class="n d">194</td><td class="c d">	(PSTACK(<del>STACK(0)</del>,J-<del>STACK(0)</del>); GO TO LL1);</td><td class="n a">121</td><td class="c a">        <ins>J GE K</ins>=&gt;J LE (<ins>K</ins>+3*SCRATCH<ins>)</ins>=&gt;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">122</td><td class="c a">        (PSTACK(<ins>K</ins>,J-<ins>K</ins>); GO TO LL1);</td></tr>
+<tr><td class="n q">195</td><td class="c q">	PRINT IGR 0,J,/; LL1:0);</td><td class="n q">123</td><td class="c q">        PRINT IGR 0,J,/; LL1:0);</td></tr>
+<tr><td class="n d">196</td><td class="c d"> S<del>_</del>S+1; GO TO NEXTSEM;</td><td class="n a">124</td><td class="c a"> S<ins>:=</ins>S+1; GO TO NEXTSEM;</td></tr>
+<tr><td class="n d">197</td><td class="c d"> TYPEX: TR=&gt;PRINT /; NPSTAK<del>_</del>0;</td><td class="n a">125</td><td class="c a"> TYPEX: TR=&gt;PRINT /; NPSTAK<ins>:=</ins>0;</td></tr>
+<tr><td class="n q">198</td><td class="c q"> DOSEX: 0);</td><td class="n q">126</td><td class="c q"> DOSEX: 0);</td></tr>
+<tr><td class="n q">200</td><td class="c q">SUBR SEMFIX(I,A) IS (</td><td class="n q">128</td><td class="c q">SUBR SEMFIX(I,A) IS (</td></tr>
+<tr><td class="n d">201</td><td class="c d"> NA<del>_</del>I0<del>_</del>0;</td><td class="n a">129</td><td class="c a"> NA<ins>:=</ins>I0<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">202</td><td class="c d"> L2: K<del>_</del>FREE(A+NA); K GE 0=&gt;(NA<del>_</del>NA+1; GO TO L2);</td><td class="n a">130</td><td class="c a"> L2: K<ins>:=</ins>FREE(A+NA); K GE 0=&gt;(NA<ins>:=</ins>NA+1; GO TO L2);</td></tr>
+<tr><td class="n d">203</td><td class="c d"> J<del>_</del>FREE(SEMS+I);</td><td class="n a">131</td><td class="c a"> J<ins>:=</ins>FREE(SEMS+I);</td></tr>
+<tr><td class="n d">204</td><td class="c d"> FREES(SEMS+I,(NA LS <del>18</del>) OR J AND <del>776000777777B</del>);</td><td class="n a">132</td><td class="c a"> FREES(SEMS+I,(NA LS <ins>32</ins>) OR <ins>(</ins>J AND <ins>NOT (1777B LS 32</ins>)<ins>))</ins>;</td></tr>
+<tr><td class="n d">205</td><td class="c d"> NA<del>_</del>NA-1;</td><td class="n a">133</td><td class="c a"> NA<ins>:=</ins>NA-1;</td></tr>
+<tr><td class="n d">206</td><td class="c d"> J<del>_</del>I;</td><td class="n a">134</td><td class="c a"> J<ins>:=</ins>I;</td></tr>
+<tr><td class="n d">207</td><td class="c d"> L3: J<del>_</del>J+1;</td><td class="n a">135</td><td class="c a"> L3: J<ins>:=</ins>J+1;</td></tr>
+<tr><td class="n d">208</td><td class="c d">     K<del>_</del>FREE(SEMS+J);</td><td class="n a">136</td><td class="c a">     K<ins>:=</ins>FREE(SEMS+J);</td></tr>
+<tr><td class="n d">209</td><td class="c d">     JT<del>_</del>K RS <del>30</del>;</td><td class="n a">137</td><td class="c a">     JT<ins>:=</ins>K RS <ins>44</ins>;</td></tr>
+<tr><td class="n d">210</td><td class="c d">     GO TO <del>L4[JT];</del></td><td class="n a">138</td><td class="c a">     GO TO <ins>(</ins>L10<ins>,</ins>L11<ins>,</ins>L12<ins>,</ins>L3<ins>,</ins>L14<ins>,</ins>L14<ins>,</ins>L12<ins>,</ins>L12<ins>,</ins>L3<ins>,</ins>L3<ins>,</ins>L3<ins>) JT</ins>;</td></tr>
+<tr><td class="n d">211</td><td class="c d"> <del>L4: GO TO</del> L10<del>; GO TO</del> L11<del>; GO TO</del> L12<del>; GO TO</del> L3<del>; GO TO</del> L14<del>;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">212</td><td class="c d">     <del>GO TO</del> L14<del>; GO TO</del> L12<del>; GO TO</del> L12<del>; GO TO</del> L3<del>; GO TO</del> L3<del>;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">213</td><td class="c d">     <del>GO TO</del> L3;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">214</td><td class="c q"> L10: I0=&gt;GO TO L11;</td><td class="n q">139</td><td class="c q"> L10: I0=&gt;GO TO L11;</td></tr>
+<tr><td class="n d">215</td><td class="c d">      I0<del>_</del>1; GO TO L3;</td><td class="n a">140</td><td class="c a">      I0<ins>:=</ins>1; GO TO L3;</td></tr>
+<tr><td class="n d">216</td><td class="c d"> L12: JT<del>_</del>4 OR 2 AND JT RS 1;</td><td class="n a">141</td><td class="c a"> L12: JT<ins>:=</ins>4 OR <ins>(</ins>2 AND <ins>(</ins>JT RS 1<ins>))</ins>;</td></tr>
+<tr><td class="n d">217</td><td class="c d">      K<del>_</del>SYNARG(K <del>AND 777777B</del>)<del>; K_K</del> OR <del>040000000000B</del>;</td><td class="n a">142</td><td class="c a">      K<ins>:=</ins>SYNARG(<ins>HR(</ins>K)<ins>)</ins> OR <ins>(4 LS 44)</ins>;</td></tr>
+<tr><td class="n q">218</td><td class="c q">      FREES(SEMS+J,K);</td><td class="n q">143</td><td class="c q">      FREES(SEMS+J,K);</td></tr>
+<tr><td class="n d">219</td><td class="c d"> L14: (K AND <del>004000000000B</del>)=0=&gt;NA GE 0=&gt;(K<del>_</del>K <del>AND 777777B</del>)=&gt;(</td><td class="n a">144</td><td class="c a"> L14: (K AND <ins>SVSIGN</ins>)=0=&gt;NA GE 0=&gt;(K<ins>:=HR(</ins>K)<ins>)</ins>=&gt;(</td></tr>
+<tr><td class="n d">220</td><td class="c d">        (KT<del>_</del>FREE(A+KK);</td><td class="n a">145</td><td class="c a">        (KT<ins>:=</ins>FREE(A+KK);</td></tr>
+<tr><td class="n d">221</td><td class="c d">         KT=(-K)=&gt;(FREES(SEMS+J,<del>70000000000B</del> OR KK); GO TO L3);</td><td class="n a">146</td><td class="c a">         KT=(-K)=&gt;(FREES(SEMS+J,<ins>(7 LS 44)</ins> OR KK); GO TO L3);</td></tr>
+<tr><td class="n d">222</td><td class="c d">         KT=K=&gt;(JT=4=&gt;FREES(SEMS+J,<del>20000000000B</del> OR KK)</td><td class="n a">147</td><td class="c a">         KT=K=&gt;(JT=4=&gt;FREES(SEMS+J,<ins>(2 LS 44)</ins> OR KK)</td></tr>
+<tr><td class="n d">223</td><td class="c d">                   ELSE (FREES(SEMS+J,<del>60000000000B</del> OR KK);</td><td class="n a">148</td><td class="c a">                   ELSE (FREES(SEMS+J,<ins>(6 LS 44)</ins> OR KK);</td></tr>
+<tr><td class="n q">224</td><td class="c q">                         FREES(A+KK,-KT));</td><td class="n q">149</td><td class="c q">                         FREES(A+KK,-KT));</td></tr>
+<tr><td class="n q">225</td><td class="c q">                GO TO L3)) FOR KK TO NA);</td><td class="n q">150</td><td class="c q">                GO TO L3)) FOR KK TO NA);</td></tr>
+<tr><td class="n q">226</td><td class="c q">      # CHECK FOR VAL/ ARGUMENTS #</td><td class="n q">151</td><td class="c q">      # CHECK FOR VAL/ ARGUMENTS #</td></tr>
+<tr><td class="n d">227</td><td class="c d">      (K AND <del>004000000000B</del>)=&gt;(</td><td class="n a">152</td><td class="c a">      (K AND <ins>SVSIGN</ins>)=&gt;(</td></tr>
+<tr><td class="n d">228</td><td class="c d">            KT<del>_</del>-(K OR <del>770000000000B</del>);</td><td class="n a">153</td><td class="c a">            KT<ins>:=</ins>-(K OR <ins>NOT SVMASK</ins>);</td></tr>
+<tr><td class="n d">229</td><td class="c d">            KT&lt;<del>1000000B</del>=&gt;GO TO L3;</td><td class="n a">154</td><td class="c a">            KT&lt;<ins>40000000000B</ins>=&gt;GO TO L3;</td></tr>
+<tr><td class="n d">230</td><td class="c d">            NA GE 0=&gt;((JJ<del>_</del>FREE(A+KK);</td><td class="n a">155</td><td class="c a">            NA GE 0=&gt;((JJ<ins>:=</ins>FREE(A+KK);</td></tr>
+<tr><td class="n d">231</td><td class="c d">                       JJ=KT=&gt;(FREES(SEMS+J,<del>600000000000B</del> OR KK);</td><td class="n a">156</td><td class="c a">                       JJ=KT=&gt;(FREES(SEMS+J,<ins>(60B LS 44)</ins> OR KK);</td></tr>
+<tr><td class="n q">232</td><td class="c q">                               GO TO L3)) FOR KK TO NA));</td><td class="n q">157</td><td class="c q">                               GO TO L3)) FOR KK TO NA));</td></tr>
+<tr><td class="n q">233</td><td class="c q">      GO TO L3;</td><td class="n q">158</td><td class="c q">      GO TO L3;</td></tr>
+<tr><td class="n q">234</td><td class="c q"> L11: 0);</td><td class="n q">159</td><td class="c q"> L11: 0);</td></tr>
+<tr><td class="n q">236</td><td class="c q">SUBR SEMFX1(I,A,NA) IS (</td><td class="n q">161</td><td class="c q">SUBR SEMFX1(I,A,NA) IS (</td></tr>
+<tr><td class="n q">237</td><td class="c q"> NA=0=&gt;GO TO L20;</td><td class="n q">162</td><td class="c q"> NA=0=&gt;GO TO L20;</td></tr>
+<tr><td class="n d">238</td><td class="c d"> J<del>_</del>I+1;</td><td class="n a">163</td><td class="c a"> J<ins>:=</ins>I+1;</td></tr>
+<tr><td class="n d">239</td><td class="c d"> L21: K<del>_</del>FREE(SEMS+J);</td><td class="n a">164</td><td class="c a"> L21: K<ins>:=</ins>FREE(SEMS+J);</td></tr>
+<tr><td class="n d">240</td><td class="c d"> JT<del>_</del>K RS <del>30</del>;</td><td class="n a">165</td><td class="c a"> JT<ins>:=</ins>K RS <ins>44</ins>;</td></tr>
+<tr><td class="n d">241</td><td class="c d"> JT=5=&gt;(K AND <del>004000000000B</del>)=&gt;(K<del>_</del>-(<del>770000000000B OR</del> K)) GE <del>1000000B</del>=&gt;(</td><td class="n a">166</td><td class="c a"> JT=5=&gt;(K AND <ins>SVSIGN</ins>)=&gt;(K<ins>:=</ins>-(K <ins>OR NOT SVMASK</ins>)) GE <ins>40000000000B</ins>=&gt;(</td></tr>
+<tr><td class="n d">242</td><td class="c d">    K<del>_</del>K <del>AND 777777B</del>;</td><td class="n a">167</td><td class="c a">    K<ins>:=HR(</ins>K<ins>)</ins>;</td></tr>
+<tr><td class="n d">243</td><td class="c d">    (JJ<del>_</del>-FREE(A+KK);</td><td class="n a">168</td><td class="c a">    (JJ<ins>:=</ins>-FREE(A+KK);</td></tr>
+<tr><td class="n d">244</td><td class="c d">     JJ&lt;0=&gt;JJ<del>_</del>DPROP('SEM',-JJ);</td><td class="n a">169</td><td class="c a">     JJ&lt;0=&gt;JJ<ins>:=</ins>DPROP('SEM',-JJ);</td></tr>
+<tr><td class="n d">245</td><td class="c d">     JJ=K=&gt;(FREES(A+KK,-(JJ OR JJ LS <del>18</del>));</td><td class="n a">170</td><td class="c a">     JJ=K=&gt;(FREES(A+KK,-(JJ OR <ins>(</ins>JJ LS <ins>32</ins>))<ins>)</ins>;</td></tr>
+<tr><td class="n d">246</td><td class="c d">            FREES(SEMS+J,<del>060000000000B</del> OR KK))) FOR KK FROM NA-1);</td><td class="n a">171</td><td class="c a">            FREES(SEMS+J,<ins>(6 LS 44)</ins> OR KK))) FOR KK FROM NA-1);</td></tr>
+<tr><td class="n d">247</td><td class="c d"> JT&gt;1=&gt;(J<del>_</del>J+1; GO TO L21);</td><td class="n a">172</td><td class="c a"> JT&gt;1=&gt;(J<ins>:=</ins>J+1; GO TO L21);</td></tr>
+<tr><td class="n q">248</td><td class="c q"> L20: 0);</td><td class="n q">173</td><td class="c q"> L20: 0);</td></tr>
+<tr><td class="n q">250</td><td class="c q">SUBR DOCASE(ID,SEMN,PRODN) IS (</td><td class="n q">175</td><td class="c q">SUBR DOCASE(ID,SEMN,PRODN) IS (</td></tr>
+<tr><td class="n q">251</td><td class="c q"> # ROUTINE TO MAKE PROSEM ENTRIES FOR ALL CASES OF CASE ID UNDER PRODN,</td><td class="n q">176</td><td class="c q"> # ROUTINE TO MAKE PROSEM ENTRIES FOR ALL CASES OF CASE ID UNDER PRODN,</td></tr>
+<tr><td class="n q">252</td><td class="c q">     WHERE SEMN IS THE SEMANTICS FOR THE SETUP. #</td><td class="n q">177</td><td class="c q">     WHERE SEMN IS THE SEMANTICS FOR THE SETUP. #</td></tr>
+<tr><td class="n d">253</td><td class="c d"> JD<del>_</del>DPROP('SEM',ID);</td><td class="n a">178</td><td class="c a"> JD<ins>:=</ins>DPROP('SEM',ID);</td></tr>
+<tr><td class="n q">254</td><td class="c q"> JD=0=&gt;(ERROR(1,'CASE UNDEFINED ** '); PNAME(ID); PRINT /;</td><td class="n q">179</td><td class="c q"> JD=0=&gt;(ERROR(1,'CASE UNDEFINED ** '); PNAME(ID); PRINT /;</td></tr>
+<tr><td class="n q">255</td><td class="c q">        GO TO DOCEX);</td><td class="n q">180</td><td class="c q">        GO TO DOCEX);</td></tr>
+<tr><td class="n d">256</td><td class="c d"> JD<del>_</del>FREE(SEMS+JD)<del>; JD_JD AND 777777B</del>;</td><td class="n a">181</td><td class="c a"> JD<ins>:=HR(</ins>FREE(SEMS+JD)<ins>)</ins>;</td></tr>
+<tr><td class="n q">257</td><td class="c q"> # OR IN LEVEL BITS FOR CODE GENERATION TREE #</td><td class="n q">182</td><td class="c q"> # OR IN LEVEL BITS FOR CODE GENERATION TREE #</td></tr>
+<tr><td class="n d">258</td><td class="c d"> JE<del>_</del>FREE(PROSEM+JD); JE&lt;0=&gt;JE<del>_</del>-JE;</td><td class="n a">183</td><td class="c a"> JE<ins>:=</ins>FREE(PROSEM+JD); JE&lt;0=&gt;JE<ins>:=</ins>-JE;</td></tr>
+<tr><td class="n q">259</td><td class="c q"> NOTEPROD(PRODN,-1);</td><td class="n q">184</td><td class="c q"> NOTEPROD(PRODN,-1);</td></tr>
+<tr><td class="n d">260</td><td class="c d"> KD<del>_</del>FREE(SEMS+PRODN); <del>KD_PROSEM+KD AND 777777B;</del></td><td class="n a">185</td><td class="c a"> KD<ins>:=PROSEM+HR(</ins>FREE(SEMS+PRODN)<ins>)</ins>;</td></tr>
+<tr><td class="n d">261</td><td class="c d"> KE<del>_</del>FREE(KD); KE&lt;0=&gt;KE<del>_</del>-KE; FREES(KD,KE OR JE);</td><td class="n a">186</td><td class="c a"> KE<ins>:=</ins>FREE(KD); KE&lt;0=&gt;KE<ins>:=</ins>-KE; FREES(KD,<ins>(</ins>KE OR JE)<ins>)</ins>;</td></tr>
+<tr><td class="n d">262</td><td class="c d"> JD<del>_</del>FREE(PROSEM+JD+1);</td><td class="n a">187</td><td class="c a"> JD<ins>:=</ins>FREE(PROSEM+JD+1);</td></tr>
+<tr><td class="n d">263</td><td class="c d"> L29: JD=&gt;(JE<del>_</del>FREE(PROSEM+JD+1); JD<del>_</del>FREE(PROSEM+JD);</td><td class="n a">188</td><td class="c a"> L29: JD=&gt;(JE<ins>:=</ins>FREE(PROSEM+JD+1); JD<ins>:=</ins>FREE(PROSEM+JD);</td></tr>
+<tr><td class="n d">264</td><td class="c d">           ENPROD(PRODN,JD <del>RS 18</del>,SEMN OR JE LS <del>18</del>);</td><td class="n a">189</td><td class="c a">           ENPROD(PRODN,<ins>HL(</ins>JD<ins>)</ins>,<ins>(</ins>SEMN OR <ins>(</ins>JE LS <ins>32</ins>)<ins>))</ins>;</td></tr>
+<tr><td class="n d">265</td><td class="c d">           JD<del>_</del>JD <del>AND 777777B</del>;</td><td class="n a">190</td><td class="c a">           JD<ins>:=HR(</ins>JD<ins>)</ins>;</td></tr>
+<tr><td class="n q">266</td><td class="c q">           GO TO L29);</td><td class="n q">191</td><td class="c q">           GO TO L29);</td></tr>
+<tr><td class="n q">267</td><td class="c q"> DOCEX: 0);</td><td class="n q">192</td><td class="c q"> DOCEX: 0);</td></tr>
+<tr><td class="n q">269</td><td class="c q">SUBR ENPROD(PN,NO,SEM) IS (</td><td class="n q">194</td><td class="c q">SUBR ENPROD(PN,NO,SEM) IS (</td></tr>
+<tr><td class="n d">270</td><td class="c d"> J<del>_</del>FREE(SEMS+PN);</td><td class="n a">195</td><td class="c a"> J<ins>:=</ins>FREE(SEMS+PN);</td></tr>
+<tr><td class="n d">271</td><td class="c d"> (K<del>_</del>J <del>AND 777777B</del>)=0=&gt;(K<del>_</del>NPROSEM; FADD(PROSEM,NPROSEM,0);</td><td class="n a">196</td><td class="c a"> (K<ins>:=HR(</ins>J)<ins>)</ins>=0=&gt;(K<ins>:=</ins>NPROSEM; FADD(PROSEM,NPROSEM,0);</td></tr>
+<tr><td class="n q">272</td><td class="c q">                       FADD(PROSEM,NPROSEM,0);</td><td class="n q">197</td><td class="c q">                       FADD(PROSEM,NPROSEM,0);</td></tr>
+<tr><td class="n d">273</td><td class="c d">                       FREES(SEMS+PN,J OR K));</td><td class="n a">198</td><td class="c a">                       FREES(SEMS+PN,<ins>(</ins>J OR K))<ins>)</ins>;</td></tr>
+<tr><td class="n d">274</td><td class="c d"> J<del>_</del>FREE(PROSEM+K+1);</td><td class="n a">199</td><td class="c a"> J<ins>:=</ins>FREE(PROSEM+K+1);</td></tr>
+<tr><td class="n q">275</td><td class="c q"> FREES(PROSEM+K+1,NPROSEM);</td><td class="n q">200</td><td class="c q"> FREES(PROSEM+K+1,NPROSEM);</td></tr>
+<tr><td class="n d">276</td><td class="c d"> FADD(PROSEM,NPROSEM,J OR NO LS <del>18</del>);</td><td class="n a">201</td><td class="c a"> FADD(PROSEM,NPROSEM,<ins>(</ins>J OR <ins>(</ins>NO LS <ins>32))</ins>);</td></tr>
+<tr><td class="n q">277</td><td class="c q"> FADD(PROSEM,NPROSEM,SEM));</td><td class="n q">202</td><td class="c q"> FADD(PROSEM,NPROSEM,SEM));</td></tr>
+<tr><td class="n q">279</td><td class="c q">SUBR MATCHP(PN,N) IS (</td><td class="n q">204</td><td class="c q">SUBR MATCHP(PN,N) IS (</td></tr>
+<tr><td class="n d">280</td><td class="c d"> J<del>,JX ARE REGISTER;</del></td><td class="n a">205</td><td class="c a"> J<ins>:=HR</ins>(FREE(SEMS+PN))<ins>;</ins></td></tr>
+<tr><td class="n d">281</td><td class="c d"> (<del>J_</del>FREE(SEMS+PN)<del>&lt;R&gt;</del>)=0 =&gt; GO TO MATCHPX;</td><td class="n a">206</td><td class="c a"> <ins>J</ins>=0 =&gt; GO TO MATCHPX;</td></tr>
+<tr><td class="n d">282</td><td class="c d"> J<del>_</del>FREE(<del>(</del>PROSEM+J<del>)</del>+1);</td><td class="n a">207</td><td class="c a"> J<ins>:=</ins>FREE(PROSEM+J+1);</td></tr>
+<tr><td class="n d">283</td><td class="c d"> LM1: J=&gt;(<del>K_FREE(</del>JX<del>_</del>PROSEM+J);</td><td class="n a">208</td><td class="c a"> LM1: J=&gt;(JX<ins>:=</ins>PROSEM+J<ins>; K:=FREE(JX</ins>);</td></tr>
+<tr><td class="n d">284</td><td class="c d">          N=K<del>&lt;L&gt;</del> =&gt; (J<del>_</del>FREE(JX+1); GO TO MATCHPX);</td><td class="n a">209</td><td class="c a">          N=<ins>HL(</ins>K<ins>)</ins> =&gt; (J<ins>:=</ins>FREE(JX+1); GO TO MATCHPX);</td></tr>
+<tr><td class="n d">285</td><td class="c d">          J<del>_</del>K<del>&lt;R&gt;</del>; GO TO LM1);</td><td class="n a">210</td><td class="c a">          J<ins>:=HR(</ins>K<ins>)</ins>; GO TO LM1);</td></tr>
+<tr><td class="n q">286</td><td class="c q"> MATCHPX: J);</td><td class="n q">211</td><td class="c q"> MATCHPX: J);</td></tr>
+<tr><td class="n d">287</td><td class="c d"> <del>J,JX ARE RELEASED;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">289</td><td class="c q">SUBR NOTEPROD(PN,N) IS (</td><td class="n q">213</td><td class="c q">SUBR NOTEPROD(PN,N) IS (</td></tr>
+<tr><td class="n d">290</td><td class="c d"> J<del>_</del>FREE(SEMS+PN);</td><td class="n a">214</td><td class="c a"> J<ins>:=</ins>FREE(SEMS+PN);</td></tr>
+<tr><td class="n d">291</td><td class="c d"> (K<del>_</del>J <del>AND 777777B</del>)=0=&gt;(K<del>_</del>NPROSEM; FADD(PROSEM,NPROSEM,0);</td><td class="n a">215</td><td class="c a"> (K<ins>:=HR(</ins>J)<ins>)</ins>=0=&gt;(K<ins>:=</ins>NPROSEM; FADD(PROSEM,NPROSEM,0);</td></tr>
+<tr><td class="n q">292</td><td class="c q">                                  FADD(PROSEM,NPROSEM,0);</td><td class="n q">216</td><td class="c q">                                  FADD(PROSEM,NPROSEM,0);</td></tr>
+<tr><td class="n d">293</td><td class="c d">				  FADD(PROSEM,NPROSEM,NSNODES<del>_</del>NSNODES+1);</td><td class="n a">217</td><td class="c a">                                  FADD(PROSEM,NPROSEM,NSNODES<ins>:=</ins>NSNODES+1);</td></tr>
+<tr><td class="n d">294</td><td class="c d">                                  FREES(SEMS+PN,J OR K));</td><td class="n a">218</td><td class="c a">                                  FREES(SEMS+PN,<ins>(</ins>J OR K))<ins>)</ins>;</td></tr>
+<tr><td class="n d">295</td><td class="c d"> J<del>_</del>FREE(PROSEM+K);</td><td class="n a">219</td><td class="c a"> J<ins>:=</ins>FREE(PROSEM+K);</td></tr>
+<tr><td class="n d">296</td><td class="c d"> J=0 =&gt; (J<del>_</del>-(1 LS N))</td><td class="n a">220</td><td class="c a"> J=0 =&gt; (J<ins>:=</ins>-(1 LS N))</td></tr>
+<tr><td class="n d">297</td><td class="c d">   ELSE (J&lt;0 =&gt; J<del>_</del>-J;</td><td class="n a">221</td><td class="c a">   ELSE (J&lt;0 =&gt; J<ins>:=</ins>-J;</td></tr>
+<tr><td class="n d">298</td><td class="c d">         J<del>_</del>J OR 1 LS N);</td><td class="n a">222</td><td class="c a">         J<ins>:=</ins>J OR <ins>(</ins>1 LS N<ins>)</ins>);</td></tr>
+<tr><td class="n q">299</td><td class="c q"> FREES(PROSEM+K,J));</td><td class="n q">223</td><td class="c q"> FREES(PROSEM+K,J));</td></tr>
+<tr><td class="n d">301</td><td class="c d">SUBR PLIES(I) IS ((J<del>_</del>FREE(SEMS+I)<del>&lt;R&gt;</del>)=&gt;J<del>_</del>FREE(PROSEM+J); J);</td><td class="n a">225</td><td class="c a">SUBR PLIES(I) IS ((J<ins>:=HR(</ins>FREE(SEMS+I))<ins>)</ins>=&gt;J<ins>:=</ins>FREE(PROSEM+J); J);</td></tr>
+<tr><td class="n d">303</td><td class="c d">SUBR SNODEN(I) IS ((J<del>_</del>FREE(SEMS+I)<del>&lt;R&gt;</del>)=&gt;J<del>_</del>FREE(PROSEM+J+2); J);</td><td class="n a">227</td><td class="c a">SUBR SNODEN(I) IS ((J<ins>:=HR(</ins>FREE(SEMS+I))<ins>)</ins>=&gt;J<ins>:=</ins>FREE(PROSEM+J+2); J);</td></tr>
+<tr><td class="n q">305</td><td class="c q">SUBR ENSTACK(V) IS(</td><td class="n q">229</td><td class="c q">SUBR ENSTACK(V) IS(</td></tr>
+<tr><td class="n q">306</td><td class="c q"> #TAKES A POS OR NEG. DIRECTORY INDEX, MAKES A SCRATCH STACK NODE.#</td><td class="n q">230</td><td class="c q"> #TAKES A POS OR NEG. DIRECTORY INDEX, MAKES A SCRATCH STACK NODE.#</td></tr>
+<tr><td class="n q">307</td><td class="c q"> SCRATCH&gt;MANY=&gt;ERROR(0,' SEMANTICS STACK OVERFLOW **');</td><td class="n q">231</td><td class="c q"> SCRATCH&gt;MANY=&gt;ERROR(0,' SEMANTICS STACK OVERFLOW **');</td></tr>
+<tr><td class="n d">308</td><td class="c d"> <del>(</del>VV<del>_</del>V<del>)</del>&lt;0=&gt;VV<del>_</del>-V;</td><td class="n a">232</td><td class="c a"> VV<ins>:=</ins>V<ins>; V</ins>&lt;0=&gt;VV<ins>:=</ins>-V;</td></tr>
+<tr><td class="n d">309</td><td class="c d"> W<del>_</del>SETSTK(SCRATCH,1 OR VV LS <del>18</del>,0,0);</td><td class="n a">233</td><td class="c a"> W<ins>:=</ins>SETSTK(SCRATCH,1 OR <ins>(</ins>VV LS <ins>32)</ins>,0,0);</td></tr>
+<tr><td class="n d">310</td><td class="c d"> SCRATCH<del>_</del>SCRATCH+1; W);</td><td class="n a">234</td><td class="c a"> SCRATCH<ins>:=</ins>SCRATCH+1; W);</td></tr>
+<tr><td class="n q">312</td><td class="c q">SUBR RESETSEM(VAL,A) IS (</td><td class="n q">236</td><td class="c q">SUBR RESETSEM(VAL,A) IS (</td></tr>
+<tr><td class="n d">313</td><td class="c d"> J<del>_</del>FREE(SEMS+A);</td><td class="n a">237</td><td class="c a"> J<ins>:=</ins>FREE(SEMS+A);</td></tr>
+<tr><td class="n d">314</td><td class="c d"> FREES(SEMS+A,(J <del>AND 777777B</del>) OR VAL LS <del>18</del>));</td><td class="n a">238</td><td class="c a"> FREES(SEMS+A,(<ins>HR(</ins>J) OR <ins>(</ins>VAL LS <ins>32))</ins>));</td></tr>
+<tr><td class="n q">316</td><td class="c q">SUBR SETSEM(TY,VAL) IS (</td><td class="n q">240</td><td class="c q">SUBR SETSEM(TY,VAL) IS (</td></tr>
+<tr><td class="n d">317</td><td class="c d"> SNIT=0=&gt;(SNIT<del>_</del>1; FRELOT(SEMS,'SEMS',2200,0); NSEMS<del>_</del>2;</td><td class="n a">241</td><td class="c a"> SNIT=0=&gt;(SNIT<ins>:=</ins>1; FRELOT(SEMS,'SEMS',2200,0); NSEMS<ins>:=</ins>2;</td></tr>
+<tr><td class="n d">318</td><td class="c d">          MANY<del>_</del>31; #MAX STACK EXPANSION DURING ONE EXECUTION#</td><td class="n a">242</td><td class="c a">          MANY<ins>:=</ins>31; #MAX STACK EXPANSION DURING ONE EXECUTION#</td></tr>
+<tr><td class="n d">319</td><td class="c d">          FREES(SEMS+1,<del>010000000001B</del>);</td><td class="n a">243</td><td class="c a">          FREES(SEMS+1,<ins>(1 LS 44</ins>) <ins>OR 1)</ins>;</td></tr>
+<tr><td class="n d">320</td><td class="c d">          FRELOT(PSTAK,'SPSTK',20,0); NPSTAK<del>_</del>0;</td><td class="n a">244</td><td class="c a">          FRELOT(PSTAK,'SPSTK',20,0); NPSTAK<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">321</td><td class="c d">          FRELOT(PROSEM,'PROSM',1200,0); NPROSEM<del>_</del>1;</td><td class="n a">245</td><td class="c a">          FRELOT(PROSEM,'PROSM',1200,0); NPROSEM<ins>:=</ins>1;</td></tr>
+<tr><td class="n q">322</td><td class="c q">          FRELOT(CASEP,'CASEP',10,0);</td><td class="n q">246</td><td class="c q">          FRELOT(CASEP,'CASEP',10,0);</td></tr>
+<tr><td class="n d">323</td><td class="c d">          DSEM('PAR',PAR);</td><td class="n a">247</td><td class="c a">          DSEM('PAR',PAR); DSEM('STACK',STACK);</td></tr>
+<tr><td class="n d">324</td><td class="c d">          DSEM('STACK',STACK);</td><td class="n a">248</td><td class="c a">          NSNODES<ins>:=</ins>0);</td></tr>
+<tr><td class="n d">325</td><td class="c d">	  NSNODES<del>_</del>0<del>;</del></td><td class="n a">249</td><td class="c a"> V<ins>:=</ins>NSEMS; FADD(SEMS,NSEMS,VAL OR <ins>(</ins>TY LS <ins>44)</ins>); V);</td></tr>
+<tr><td class="n d">326</td><td class="c d">          <del>PARS IS 10 LONG; MARGS_10</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">327</td><td class="c d"> V<del>_</del>NSEMS; FADD(SEMS,NSEMS,VAL OR TY LS <del>30</del>); V);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">329</td><td class="c q">SUBR PAR(I) IS FREE(CASEP+I);</td><td class="n q">251</td><td class="c q">SUBR PAR(I) IS FREE(CASEP+I);</td></tr>
+<tr><td class="n d">331</td><td class="c d">SUBR SEMPER() IS <del>(</del></td><td class="n a">253</td><td class="c a">SUBR SEMPER(<ins>NIL</ins>) IS SEMPR1(0);</td></tr>
+<tr><td class="n d">332</td><td class="c d"> <del>LOC(</del>SEMPR1<del>) =&gt; J_SEMPR1</del>(<del>SEMS,PROSEM,NSEMS,K)</del></td><td class="n a">255</td><td class="c a">SUBR SNARG(N) IS (777B AND <ins>HL(</ins>FREE(SEMS+N))<ins>)</ins>;</td></tr>
+<tr><td class="n d">333</td><td class="c d">          <del>ELSE  (SE0CNT=</del>0<del>=&gt;(SE0CNT_1;  J_0;</del></td><td class="n a">257</td><td class="c a">SUBR SEMGET(N) IS (Q<ins>:=HR(</ins>FREE(SEMS+N)<ins>)</ins>;</td></tr>
+<tr><td class="n d">334</td><td class="c d">                            <del>ERROR(2,'SEMPER DEBUGGING PGM NOT PRESENT'</del>)<del>))</del>;</td><td class="n a">258</td><td class="c a">                   Q<ins>:=</ins>FREE(PROSEM+Q+1);</td></tr>
+<tr><td class="n d">335</td><td class="c d"> <del>J);</del></td><td class="n a">259</td><td class="c a">                   <ins>HR(</ins>FREE(PROSEM+Q+1))<ins>)</ins>;</td></tr>
+<tr><td class="n d">337</td><td class="c d">SUBR SNARG(N) IS (777B AND FREE(SEMS+N) <del>RS 18</del>);</td><td class="n a">261</td><td class="c a">SUBR SEMED(A) IS (7 AND <ins>(</ins>FREE(SEMS+A) RS <ins>41</ins>)<ins>)</ins>;</td></tr>
+<tr><td class="n d">339</td><td class="c d">SUBR SEMGET(N) IS (Q<del>_</del>FREE(SEMS+N) <del>AND 777777B</del>;</td><td class="n a">263</td><td class="c a">SUBR SEMOR(A,N) IS (QQ<ins>:=</ins>FREE(SEMS+N);</td></tr>
+<tr><td class="n d">340</td><td class="c d">                   Q<del>_</del>FREE(PROSEM+Q+1);</td><td class="n a">264</td><td class="c a">                    FREES(SEMS+N,<ins>(</ins>QQ OR A<ins>)</ins>));</td></tr>
+<tr><td class="n d">341</td><td class="c d">                   <del>Q_</del>FREE(PROSEM+Q+1) <del>AND 777777B; Q</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">343</td><td class="c d">SUBR SEMED(A) IS (7 AND FREE(SEMS+A) RS <del>27</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">345</td><td class="c d">SUBR SEMOR(A,N) IS (QQ<del>_</del>FREE(SEMS+N);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">346</td><td class="c d">                    FREES(SEMS+N,QQ OR A));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">348</td><td class="c q">SUBR CKSVAL(V,I) IS ( # CHECKS IF [V] IS A VALUE (TYPE 12) CASE OF I #</td><td class="n q">266</td><td class="c q">SUBR CKSVAL(V,I) IS ( # CHECKS IF [V] IS A VALUE (TYPE 12) CASE OF I #</td></tr>
+<tr><td class="n d">349</td><td class="c d"> Q<del>_</del>FREE(SEMS+V+1);</td><td class="n a">267</td><td class="c a"> Q<ins>:=(</ins>FREE(SEMS+V+1)<ins>)</ins>;</td></tr>
+<tr><td class="n d">350</td><td class="c d"> VAL<del>_</del>0;</td><td class="n a">268</td><td class="c a"> VAL<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">351</td><td class="c d"> (Q AND <del>770000777777B</del>)=(I OR <del>120000000000B</del>)=&gt;VAL<del>_</del>1;</td><td class="n a">269</td><td class="c a"> (Q AND <ins>((77B LS 44</ins>) <ins>OR HMASK))</ins>=(I OR <ins>(12B LS 44</ins>)<ins>)</ins>=&gt;VAL<ins>:=</ins>1;</td></tr>
+<tr><td class="n q">352</td><td class="c q"> VAL)%%</td><td class="n q">270</td><td class="c q"> VAL)%%</td></tr>
+</table>
+</body></html>

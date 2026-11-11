@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>image.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>image.imc</h1>
+<p class="mut">left, old (the tape): -<br>right, new (the port): src/image.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 4267 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>TWOSEG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>FSIZE,RELP,NRELOC,SYMC,NSYMC,FORGN,FEND ARE COMMON;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"><ins>#THIS IS FILE IMAGE, THE SWITCHES U AND V OF THE TAPE'S DRIVER: SAVE THE COMPILER, WITH THE SYNTAX AND THE DECLARATIONS IT HAS COMPILED, SO THAT A LATER RUN STARTS FROM THERE.  NOT IN THE TAPE AS A PROGRAM: ON TOPS-10 THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">4</td><td class="c a"> <ins>MONITOR'S SSAVE WRITES THE CORE IMAGE OF THE COMPILER; HERE THE LANGUAGE THE COMPILER HAS LEARNED IS WRITTEN TO A FILE: THE FREE STORAGE (THE DIRECTORY, THE SYNTAX GRAPH, THE CODE TREE, THE SEMANTICS ARRAY: ALL THE TABLES),</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"> <ins>THE VARIABLES OF THE MODULES OF THE COMPILER (THEY ARE LISTED IN THE SECTION IMPVARS, A RECORD FOR EACH, BY THE COMPILER THAT COMPILED THE MODULES: IRVARREC IN SRC/IX.IMC; THE LIBRARY'S IMPVARLIST READS THEM) AND THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>TABLE OF THE SEMANTIC ROUTINES BY NAME.  THE IMAGE IS FOR THE COMPILER THAT MADE IT: THE VARIABLES ARE MATCHED BY NAME AND THE FILE SAYS IF THE LIST IS NOT THE SAME.  THE DRIVER MODULE (IMPM) IS NOT IN THE IMAGE, NOR THE FILE THAT</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>THE LEXER HAS OPEN.  THE ARENA IS ASKED FOR WHERE IT WAS SAVED (THE DEFAULT HINT IS ALWAYS THE SAME), BUT THE IMAGE DOES NOT NEED IT THERE: ALMOST EVERYTHING IN THE ARENA IS A WORD INDEX FROM FB, WHICH IS THE SAME WHEREVER THE ARENA</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>LIES, AND THE FEW ABSOLUTE ADDRESSES OF IT ARE MOVED BY THE DIFFERENCE OF THE BASES WHEN THE IMAGE IS LOADED.  THE CENSUS OF THE ABSOLUTE ADDRESSES (IMPIMGCENSUS=1 AT THE SAVING PRINTS IT; TESTS/IMAGE/RUN.SH CHECKS IT):</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a">   <ins>- THE WORDS OF THE ARENA (THE DIRECTORY, THE SYNTAX GRAPH, THE CODE TREE, THE SEMANTICS ARRAY, THE STACKS, THE HEADERS OF THE BLOCKS): NONE.  THEY HOLD INDICES, NAMES, FLAGS AND PACKED FIELDS.  A WORD THAT HAPPENS TO HAVE THE VALUE OF</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a">     <ins>THE BASE (A PACKED FIELD OF 42 IN BITS 40 AND UP IS 2A0000000000 HEX) IS NOT AN ADDRESS: NO WORD OF THE ARENA IS SCANNED OR CHANGED BY THE LOAD.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a">   <ins>- THE VARIABLES OF THE MODULES THAT THE IMAGE SAVES, FIVE: THE BYTE POINTERS OF THE LEXER INTO ITS LINE AND ITS TOKEN, LEX:PC, LEX:QC, LEX:K0, LEX:K AND LEX:PC0 (THE LINE AND THE TOKEN ARE ARRAYS OF THE ARENA, STEPPED THROUGH BY BYTE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a">     <ins>POINTERS AS ON THE TAPE: THEY STAY POINTERS).  THE LIST IS IMGPTRNAME; THE LOAD ADDS THE DIFFERENCE OF THE BASES TO EACH ONE THAT HOLDS A VALUE OF THE OLD ARENA, ONCE, BEFORE THE LEXER IS USED.  FB ITSELF (IMPSEM:FB, THE SAME</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">13</td><td class="c a">     <ins>VARIABLE FOR ALL THE MODULES) IS SET TO THE BASE OF THE NEW ARENA.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a">   <ins>- THE PARAMETERS AND LOCAL VARIABLES OF ROUTINES (THEIR NAMES START WITH _25PAR OR _25 AND A NAME; THEY ARE STATIC): THE ONES OF FREE AND DIR AND LEX HOLD STALE ADDRESSES OF THE ARENA OR OF THE PROGRAM FROM THE LAST CALL.  THEY ARE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">15</td><td class="c a">     <ins>ALWAYS ASSIGNED BEFORE THEY ARE READ, AND ARE NOT MOVED.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">16</td><td class="c a">   <ins>- ADDRESSES OF THE PROGRAM (STATIC DATA, CODE, HEAP): NONE IN THE SAVED VARIABLES BUT THE STALE ONES JUST SAID.  THE ROUTINES OF THE SEMANTICS ARE SAVED BY NAME (SEMREMAP), THE REGISTRY BY THE NAME OF THE VARIABLE AND ITS OFFSET, THE CACHE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a">     <ins>OF THE ASSEMBLER NAMES (IX:SYMC, A HEAP ARRAY) IS NOT SAVED AND IS EMPTIED, THE FILE THE LEXER HAS OPEN IS NOT SAVED.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>THE FILE IS WORDS OF 8 BYTES AND BYTES: THE MAGIC, THE VERSION (6; THE EARLIER ONES NEEDED THE ARENA AT THE SAME ADDRESS AND ARE REFUSED), THE SIZE OF A POINTER, THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>BUILD (A HASH OF THE LIST OF VARIABLES), THE ADDRESS OF THE ARENA, HOW MUCH OF IT, THE NUMBER OF VARIABLES AND OF ENTRIES OF THE REGISTRY OF THE ARRAYS THAT MOVE; THE VARIABLES (A LENGTH, THE NAME, THE SIZE, THE BYTES); THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>ARENA; THE NAMES OF THE SEMANTIC ROUTINES IN THE ORDER OF THEIR IDS; THE REGISTRY (A LENGTH, THE NAME OF THE VARIABLE THAT POINTS AT THE ARRAY AND THE OFFSET IN IT, THE SECOND WORD OF THE ENTRY).#</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a"><ins>VT,VN,IBUF,IBN,WV ARE COMMON;         # THE LIST OF THE VARIABLES (THREE WORDS EACH: ADDRESS, SIZE, NAME), HOW MANY; A BUFFER; A WORD #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a"><ins>NMB IS 40 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a"><ins>MB IS 24 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a"><ins>ONM IS 2 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">26</td><td class="c a"><ins>CN1,CN2,CN3,CN4 ARE COMMON;                  # THE COUNTS OF THE CENSUS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"><ins>EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">29</td><td class="c a"><ins># THE LIST OF THE VARIABLES OF THE MODULES THAT CAN BE WRITTEN, FROM THE LIBRARY; 0 IF THERE IS NONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">30</td><td class="c a"><ins>SUBR IMGLIST(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">31</td><td class="c a"> <ins>N ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">32</td><td class="c a"> <ins>N:=IMPVARLIST(0,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">33</td><td class="c a"> <ins>N&lt;0 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">34</td><td class="c a"> <ins>VT:=CCALL calloc(N+1,24);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">35</td><td class="c a"> <ins>IMPVARLIST(VT,N);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">36</td><td class="c a"> <ins>VN:=N;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">37</td><td class="c a"> <ins>1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"><ins>SUBR IMGADDR(I) IS [VT+(24*I)];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">41</td><td class="c a"><ins>SUBR IMGSIZE(I) IS [VT+((24*I)+8)];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">43</td><td class="c a"><ins>SUBR IMGNAME(I) IS [VT+((24*I)+16)];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a"><ins># NOT KEPT IN THE IMAGE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">46</td><td class="c a"><ins>SUBR IMGSKIP(NP) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">47</td><td class="c a"> <ins>CCALL strncmp(NP,LOC('impm:'),5)=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">48</td><td class="c a"> <ins>CCALL strncmp(NP,LOC('ix:'),3)=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">49</td><td class="c a"> <ins>CCALL strncmp(NP,LOC('image:'),6)=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">50</td><td class="c a"> <ins>CCALL strncmp(NP,LOC('driver:'),7)=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">51</td><td class="c a"> <ins>CCALL strncmp(NP,LOC('llvm:'),5)=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">52</td><td class="c a"> <ins>CCALL strncmp(NP,LOC('llvmgen:'),8)=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">53</td><td class="c a"> <ins>CCALL strncmp(NP,LOC('ir2ll'),5)=0 =&gt; RETURN 1;                  # THE LLVM IR WRITER (IR2LL AND IR2LLX): ITS STATE IS A RUN'S, AND ITS COMMON VARIABLES ARE MEGABYTES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">54</td><td class="c a"> <ins>CCALL strcmp(NP,LOC('demit:USEDFS'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">55</td><td class="c a"> <ins>CCALL strcmp(NP,LOC('dir:TGTSWAP'))=0 =&gt; RETURN 1;                  # THE BYTE ORDER OF THE TARGET IS A RUN'S #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">56</td><td class="c a"> <ins>CCALL strcmp(NP,LOC('ix:TGTSWAP'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">57</td><td class="c a"> <ins>CCALL strcmp(NP,LOC('dir:RTN'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">58</td><td class="c a"> <ins>CCALL strcmp(NP,LOC('dir:NRTN'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">59</td><td class="c a"> <ins>CCALL strcmp(NP,LOC('dir:CRTN'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">60</td><td class="c a"> <ins>CCALL strcmp(NP,LOC('lex:SRCFP'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">61</td><td class="c a"> <ins>CCALL strcmp(NP,LOC('free:RELP'))=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">62</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">64</td><td class="c a"><ins>SUBR IMGFIND(NP) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">65</td><td class="c a"> <ins>I ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">66</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">67</td><td class="c a"> <ins>IF1: I&lt;VN =&gt; (CCALL strcmp(IMGNAME(I),NP)=0 =&gt; RETURN I; I:=I+1; GO TO IF1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">68</td><td class="c a"> <ins>0-1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">70</td><td class="c a"><ins># WHAT SAYS THE LISTS OF VARIABLES ARE THE SAME: A HASH OF THEIR NAMES AND SIZES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">71</td><td class="c a"><ins>SUBR IMGBUILD(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a"> <ins>H,I,Q,C,PP ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a"> <ins>H:=1469598103934665603;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"> <ins>IB1: I&lt;VN =&gt; (PP:=IMGNAME(I); Q:=BYTEP [PP]&lt;7,36&gt;;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a">               <ins>IB2: C:=&lt;+Q&gt;; C NE 0 =&gt; (H:=(H XOR C)*1099511628211; GO TO IB2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a">               <ins>H:=(H XOR IMGSIZE(I))*1099511628211;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a">               <ins>I:=I+1; GO TO IB1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a"> <ins>H);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"><ins># THE VARIABLE THAT HAS THE ADDRESS A INSIDE IT: ITS INDEX, AND THE OFFSET IN IWV; 0-1 IF NONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">82</td><td class="c a"><ins>SUBR IMGOWNER(A) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a"> <ins>I ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a"> <ins>IO1: I&lt;VN =&gt; (A GE IMGADDR(I) =&gt; A&lt;(IMGADDR(I)+IMGSIZE(I)) =&gt; (WV:=A-IMGADDR(I); RETURN I); I:=I+1; GO TO IO1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"> <ins>0-1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">88</td><td class="c a"><ins>SUBR IMGPUT(F,V) IS (WV:=V; CCALL fwrite(LOC(WV),8,1,F));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">90</td><td class="c a"><ins># THE NEXT WORD OF THE FILE F IN WV: 1 IF THERE WAS ONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">91</td><td class="c a"><ins>SUBR IMGGET(F) IS (CCALL fread(LOC(WV),8,1,F)=1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">93</td><td class="c a"><ins># THE CENSUS OF THE ABSOLUTE POINTERS (IMPIMGCENSUS IN THE ENVIRONMENT, AT THE SAVING): EVERY WORD OF EVERY VARIABLE OF THE LIST, AND EVERY WORD OF THE ARENA, WHOSE VALUE LIES IN THE ARENA [BASE,BASE+USED), AND THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">94</td><td class="c a">  <ins>VARIABLE WORDS WHOSE VALUE LIES NEAR THE PROGRAM'S OWN DATA (WITHIN 4 GB OF THE FIRST VARIABLE: THE STATIC DATA, THE HEAP, THE CODE) OR NEAR THE ARENA BUT OUTSIDE IT; A LINE FOR EACH, ON THE STANDARD ERROR #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">95</td><td class="c a"><ins>SUBR IMGOWNERARR(J) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">96</td><td class="c a"> <ins>K,E ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">97</td><td class="c a"> <ins>K:=FORGN;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">98</td><td class="c a"> <ins>IA1: K NE FEND =&gt; (E:=FFWD(K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a">                    <ins>J GE K =&gt; J&lt;(K+4+FLENX(K)) =&gt; (ONM:=FREE(K+1); ONM[1]:=0; RETURN K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a">                    <ins>K:=E; GO TO IA1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">101</td><td class="c a"> <ins>ONM:=0; ONM[1]:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">102</td><td class="c a"> <ins>0-1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">104</td><td class="c a"><ins># THE VARIABLES THAT HOLD AN ADDRESS OF THE ARENA (THE CENSUS IN THE HEADER): THE LEXER'S BYTE POINTERS INTO ITS LINE AND ITS TOKEN.  THE IMAGE MOVES THEM WITH THE ARENA.  FB, THE BASE ITSELF, IS SET FROM THE ARENA #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">105</td><td class="c a"><ins>SUBR IMGPTRNAME(K) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">106</td><td class="c a"> <ins>K=0 =&gt; RETURN LOC('lex:PC');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">107</td><td class="c a"> <ins>K=1 =&gt; RETURN LOC('lex:QC');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">108</td><td class="c a"> <ins>K=2 =&gt; RETURN LOC('lex:K0');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">109</td><td class="c a"> <ins>K=3 =&gt; RETURN LOC('lex:K');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">110</td><td class="c a"> <ins>K=4 =&gt; RETURN LOC('lex:PC0');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">113</td><td class="c a"><ins># 1 IF THE VARIABLE I OF THE LIST IS ONE THAT THE IMAGE MOVES WITH THE ARENA (OR IS FB) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">114</td><td class="c a"><ins>SUBR IMGISPTR(I) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">115</td><td class="c a"> <ins>K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">116</td><td class="c a"> <ins>IMGADDR(I)=LOC(FB) =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">117</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">118</td><td class="c a"> <ins>IP1: IMGPTRNAME(K) NE 0 =&gt; (CCALL strcmp(IMGNAME(I),IMGPTRNAME(K))=0 =&gt; RETURN 1; K:=K+1; GO TO IP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">119</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">121</td><td class="c a"><ins># 1 IF V IS WITHIN 4 GB OF THE ARENA BUT OUTSIDE IT (A MAPPING), 2 IF WITHIN 4 GB OF A0 (THE PROGRAM'S DATA, HEAP, CODE), ELSE 0 #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">122</td><td class="c a"><ins>SUBR IMGNEAR(V,BASE,USED,A0) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">123</td><td class="c a"> <ins>D ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a"> <ins>V&lt;65536 =&gt; RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">125</td><td class="c a"> <ins>D:=V-BASE;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">126</td><td class="c a"> <ins>D&lt;0 =&gt; D:=0-D;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">127</td><td class="c a"> <ins>D&lt;4294967296 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">128</td><td class="c a"> <ins>D:=V-A0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">129</td><td class="c a"> <ins>D&lt;0 =&gt; D:=0-D;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">130</td><td class="c a"> <ins>D&lt;4294967296 =&gt; RETURN 2;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">131</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">133</td><td class="c a"><ins>SUBR IMGSKS(I) IS (IMGSKIP(IMGNAME(I)) NE 0 =&gt; RETURN LOC(' (not saved)'); IMGISPTR(I) NE 0 =&gt; RETURN LOC(' (moved)'); LOC(' '));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">135</td><td class="c a"><ins>SUBR IMGCENSUS(BASE,USED) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">136</td><td class="c a"> <ins>I,J,V,N,A,D,K,A0 ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">137</td><td class="c a"> <ins>A0:=IMGADDR(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">138</td><td class="c a"> <ins>CCALL snprintf(LOC(MB),160,LOC('census: arena %ld..%ld, %ld variables'),BASE,BASE+USED,VN); OUTCS(LOC(MB)); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">139</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">140</td><td class="c a"> <ins>CV1: I&lt;VN =&gt; (A:=IMGADDR(I); N:=IMGSIZE(I)/8; J:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">141</td><td class="c a">               <ins>CV2: J&lt;N =&gt; (V:=[A+(8*J)];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">142</td><td class="c a">                            <ins>V GE BASE =&gt; V&lt;(BASE+USED) =&gt; (CCALL snprintf(LOC(MB),180,LOC('census: ARENA %s%s word %ld = base+%ld'),IMGNAME(I),IMGSKS(I),J,V-BASE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">143</td><td class="c a">                                                          <ins>OUTCS(LOC(MB)); OUTCHR(12B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">144</td><td class="c a">                            <ins>D:=IMGNEAR(V,BASE,USED,A0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">145</td><td class="c a">                            <ins>D NE 0 =&gt; (V GE BASE =&gt; V&lt;(BASE+USED) =&gt; D:=0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">146</td><td class="c a">                            <ins>D NE 0 =&gt; (CCALL snprintf(LOC(MB),180,LOC('census: NEAR%ld %s%s word %ld = %ld'),D,IMGNAME(I),IMGSKS(I),J,V);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">147</td><td class="c a">                                       <ins>OUTCS(LOC(MB)); OUTCHR(12B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">148</td><td class="c a">                            <ins>J:=J+1; GO TO CV2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">149</td><td class="c a">               <ins>I:=I+1; GO TO CV1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">150</td><td class="c a"> <ins>N:=USED/8; J:=0; K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">151</td><td class="c a"> <ins>CA1: J&lt;N =&gt; (V:=[BASE+(8*J)];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">152</td><td class="c a">              <ins>V GE BASE =&gt; V&lt;(BASE+USED) =&gt; (K:=K+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">153</td><td class="c a">                                             <ins>IMGOWNERARR(J);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">154</td><td class="c a">                                             <ins>CCALL snprintf(LOC(MB),180,LOC('census: IN-ARENA word %ld (array %s) = base+%ld'),J,LOC(ONM),V-BASE);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">155</td><td class="c a">                                             <ins>OUTCS(LOC(MB)); OUTCHR(12B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">156</td><td class="c a">              <ins>J:=J+1; GO TO CA1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">157</td><td class="c a"> <ins>CCALL snprintf(LOC(MB),160,LOC('census: %ld words of the arena hold an address of the arena'),K); OUTCS(LOC(MB)); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">158</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">160</td><td class="c a"><ins>SUBR IMGVERSION(Z) IS 6;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">162</td><td class="c a"><ins># IMPIMGSAVE(PATH): THE SWITCH U OR V: WRITE THE IMAGE; 1 IF ALL WENT WELL #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">163</td><td class="c a"><ins>SUBR IMPIMGSAVE(P) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">164</td><td class="c a"> <ins>BASE,USABLE,USED,F,I,NK,K,L,A,O,S,NR ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">165</td><td class="c a"> <ins>IMGLIST(0)=0 =&gt; GO TO NOTAB;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">166</td><td class="c a"> <ins>BASE:=IMPCOREBASE(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">167</td><td class="c a"> <ins>BASE NE 0 =&gt; GO TO HAVE;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">168</td><td class="c a"> <ins>NOTAB: OUTSTR('imp: this compiler has no table of its variables to save (the modules were not compiled for it)'); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">169</td><td class="c a"> <ins>RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">170</td><td class="c a"> <ins>HAVE: USABLE:=IMPCOREUSED(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">171</td><td class="c a"> <ins>USED:=(FSIZE-FIORG)*8;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">172</td><td class="c a"> <ins>USED&gt;USABLE =&gt; USED:=USABLE;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">173</td><td class="c a"> <ins>CCALL getenv(LOC('IMPIMGCENSUS')) NE 0 =&gt; IMGCENSUS(BASE,USED);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">174</td><td class="c a"> <ins>NK:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">175</td><td class="c a"> <ins>(IMGSKIP(IMGNAME(I))=0 =&gt; NK:=NK+1) FOR I FROM VN-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">176</td><td class="c a"> <ins>F:=CCALL fopen(P,LOC('wb'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">177</td><td class="c a"> <ins>F=0 =&gt; (CCALL perror(P); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">178</td><td class="c a"> <ins>CCALL fwrite(LOC('IMPIMG'),8,1,F);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">179</td><td class="c a"> <ins>IMGPUT(F,IMGVERSION(0)); IMGPUT(F,IMPPTRSIZE(0)); IMGPUT(F,IMGBUILD(0)); IMGPUT(F,BASE); IMGPUT(F,USED); IMGPUT(F,NK); IMGPUT(F,NRELOC);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">180</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">181</td><td class="c a"> <ins>SV1: I&lt;VN =&gt; (IMGSKIP(IMGNAME(I))=0 =&gt; (L:=CCALL strlen(IMGNAME(I))+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">182</td><td class="c a">                                          <ins>IMGPUT(F,L); CCALL fwrite(IMGNAME(I),1,L,F);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">183</td><td class="c a">                                          <ins>IMGPUT(F,IMGSIZE(I)); CCALL fwrite(IMGADDR(I),1,IMGSIZE(I),F));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">184</td><td class="c a">               <ins>I:=I+1; GO TO SV1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">185</td><td class="c a"> <ins>CCALL fwrite(BASE,1,USED,F);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">186</td><td class="c a"> <ins>NK:=SEMCOUNT(0);                                 # THE ROUTINES IN THE ORDER OF THEIR IDS, WHICH THE TABLES CARRY #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">187</td><td class="c a"> <ins>IMGPUT(F,NK);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">188</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">189</td><td class="c a"> <ins>SV2: K&lt;NK =&gt; (L:=CCALL strlen(SEMNAME(K))+1; IMGPUT(F,L); CCALL fwrite(SEMNAME(K),1,L,F); K:=K+1; GO TO SV2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">190</td><td class="c a"> <ins>I:=0;                                            # THE REGISTRY OF THE ARRAYS THAT MOVE: THE VARIABLE THAT POINTS AT EACH, AS A NAME AND AN OFFSET #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">191</td><td class="c a"> <ins>SV3: I&lt;NRELOC =&gt; (A:=[RELP+(16*I)]; S:=[RELP+((16*I)+8)];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">192</td><td class="c a">                   <ins>O:=0-1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">193</td><td class="c a">                   <ins>A NE 0 =&gt; O:=IMGOWNER(A);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">194</td><td class="c a">                   <ins>A NE 0 =&gt; O&lt;0 =&gt; (CCALL snprintf(LOC(MB),160,LOC('imp: a pointer variable of the free storage (slot %ld) is not one the image knows'),I);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">195</td><td class="c a">                                      <ins>OUTCS(LOC(MB)); OUTCHR(12B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">196</td><td class="c a">                   <ins>O&lt;0 =&gt; IMGPUT(F,0)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">197</td><td class="c a">                     <ins>ELSE (L:=CCALL strlen(IMGNAME(O))+1; NR:=WV; IMGPUT(F,L); CCALL fwrite(IMGNAME(O),1,L,F); IMGPUT(F,NR));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">198</td><td class="c a">                   <ins>IMGPUT(F,S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">199</td><td class="c a">                   <ins>I:=I+1; GO TO SV3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">200</td><td class="c a"> <ins>CCALL impfclose(F)=0 =&gt; RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">201</td><td class="c a"> <ins>CCALL perror(P);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">202</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">204</td><td class="c a"><ins># IMPIMGLOAD(PATH): THE OPTION -I: PUT THE IMAGE BACK; 1 IF ALL WENT WELL #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">205</td><td class="c a"><ins>SUBR IMPIMGLOAD(P) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">206</td><td class="c a"> <ins>F,I,K,L,N,SZ,V,NMN,RN,A,OFF,S,VERS,PS,BLD,BASE,USED,NV,NR,NQ,NAMES,T,NEWB,DELTA,W ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">207</td><td class="c a"> <ins>IMGLIST(0)=0 =&gt; (OUTSTR('imp: this compiler cannot load an image'); OUTCHR(12B); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">208</td><td class="c a"> <ins>F:=CCALL fopen(P,LOC('rb'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">209</td><td class="c a"> <ins>F=0 =&gt; (CCALL perror(P); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">210</td><td class="c a"> <ins>CCALL fread(LOC(NMB),8,1,F)=1 =&gt; CCALL memcmp(LOC(NMB),LOC('IMPIMG'),8)=0 =&gt; GO TO LD1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">211</td><td class="c a"> <ins>GO TO NOTIMG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">212</td><td class="c a"> <ins>LD1: IMGGET(F)=0 =&gt; GO TO BAD; VERS:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">213</td><td class="c a"> <ins>IMGGET(F)=0 =&gt; GO TO BAD; PS:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">214</td><td class="c a"> <ins>IMGGET(F)=0 =&gt; GO TO BAD; BLD:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">215</td><td class="c a"> <ins>IMGGET(F)=0 =&gt; GO TO BAD; BASE:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">216</td><td class="c a"> <ins>IMGGET(F)=0 =&gt; GO TO BAD; USED:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">217</td><td class="c a"> <ins>IMGGET(F)=0 =&gt; GO TO BAD; NV:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">218</td><td class="c a"> <ins>IMGGET(F)=0 =&gt; GO TO BAD; NR:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">219</td><td class="c a"> <ins>VERS NE IMGVERSION(0) =&gt; GO TO NOTIMG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">220</td><td class="c a"> <ins>PS NE IMPPTRSIZE(0) =&gt; GO TO NOTIMG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">221</td><td class="c a"> <ins>BLD NE IMGBUILD(0) =&gt; (OUTSTR('imp: '); OUTCS(P); OUTSTR(' was saved by another build of the compiler'); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">222</td><td class="c a">                        <ins>CCALL impfclose(F); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">223</td><td class="c a"> <ins>NEWB:=IMPCOREAT(BASE,USED);                                          # THE ARENA, WHERE IT WAS SAVED IF THE SYSTEM GIVES THAT ADDRESS, ELSE ANYWHERE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">224</td><td class="c a"> <ins>NEWB=0 =&gt; (OUTSTR('imp: cannot make the free storage of '); OUTCS(P); OUTSTR(' usable'); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">225</td><td class="c a">            <ins>CCALL impfclose(F); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">226</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">227</td><td class="c a"> <ins>LD2: I&lt;NV =&gt; (IMGGET(F)=0 =&gt; GO TO BAD; L:=WV;                      # THE VARIABLES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">228</td><td class="c a">               <ins>L&gt;300 =&gt; GO TO BAD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">229</td><td class="c a">               <ins>CCALL fread(LOC(NMB),1,L,F) NE L =&gt; GO TO BAD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">230</td><td class="c a">               <ins>IMGGET(F)=0 =&gt; GO TO BAD; SZ:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">231</td><td class="c a">               <ins>SZ+1 &gt; IBN =&gt; (IBN:=SZ+64; IBUF:=CCALL realloc(IBUF,IBN));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">232</td><td class="c a">               <ins>CCALL fread(IBUF,1,SZ,F) NE SZ =&gt; GO TO BAD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">233</td><td class="c a">               <ins>V:=IMGFIND(LOC(NMB));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">234</td><td class="c a">               <ins>V GE 0 =&gt; IMGSIZE(V)=SZ =&gt; CCALL memcpy(IMGADDR(V),IBUF,SZ);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">235</td><td class="c a">               <ins>I:=I+1; GO TO LD2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">236</td><td class="c a"> <ins>CCALL fread(NEWB,1,USED,F) NE USED =&gt; GO TO BAD;                      # THE ARENA #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">237</td><td class="c a"> <ins>DELTA:=NEWB-BASE;                                                     # THE ARENA IS ELSEWHERE: THE ADDRESSES OF IT THAT THE VARIABLES HOLD MOVE WITH IT #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">238</td><td class="c a"> <ins>FB:=NEWB-(8*FIORG);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">239</td><td class="c a"> <ins>DELTA NE 0 =&gt; (K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">240</td><td class="c a">                <ins>LD5: IMGPTRNAME(K) NE 0 =&gt; (V:=IMGFIND(IMGPTRNAME(K));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">241</td><td class="c a">                                            <ins>V GE 0 =&gt; IMGSIZE(V) GE 8 =&gt; (W:=[IMGADDR(V)];</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">242</td><td class="c a">                                                                          <ins>W GE BASE =&gt; W&lt;(BASE+USED) =&gt; [IMGADDR(V)]:=W+DELTA);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">243</td><td class="c a">                                            <ins>K:=K+1; GO TO LD5));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">244</td><td class="c a"> <ins>SYMC NE 0 =&gt; CCALL memset(SYMC,0,8*NSYMC);                           # THE DIRECTORY IS ANOTHER: THE NAMES ARE MADE AGAIN #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">245</td><td class="c a"> <ins>IMGGET(F)=0 =&gt; GO TO BAD; N:=WV;                                      # THE SEMANTIC ROUTINES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">246</td><td class="c a"> <ins>N&gt;100000 =&gt; GO TO BAD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">247</td><td class="c a"> <ins>NAMES:=CCALL calloc(N+1,8);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">248</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">249</td><td class="c a"> <ins>LD3: K&lt;N =&gt; (IMGGET(F)=0 =&gt; GO TO BAD; L:=WV; L&gt;300 =&gt; GO TO BAD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">250</td><td class="c a">              <ins>T:=CCALL malloc(L);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">251</td><td class="c a">              <ins>[NAMES+(8*K)]:=T;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">252</td><td class="c a">              <ins>CCALL fread(T,1,L,F) NE L =&gt; GO TO BAD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">253</td><td class="c a">              <ins>K:=K+1; GO TO LD3);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">254</td><td class="c a"> <ins>SEMREMAP(NAMES,N)=0 =&gt; (CCALL impfclose(F); RETURN 0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">255</td><td class="c a"> <ins>RELP:=CCALL calloc(NR+1,16);                                          # THE REGISTRY #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">256</td><td class="c a"> <ins>I:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">257</td><td class="c a"> <ins>LD4: I&lt;NR =&gt; (IMGGET(F)=0 =&gt; GO TO BAD; L:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">258</td><td class="c a">               <ins>A:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">259</td><td class="c a">               <ins>L&gt;0 =&gt; (L&gt;300 =&gt; GO TO BAD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">260</td><td class="c a">                       <ins>CCALL fread(LOC(NMB),1,L,F) NE L =&gt; GO TO BAD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">261</td><td class="c a">                       <ins>IMGGET(F)=0 =&gt; GO TO BAD; OFF:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">262</td><td class="c a">                       <ins>V:=IMGFIND(LOC(NMB));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">263</td><td class="c a">                       <ins>V GE 0 =&gt; A:=IMGADDR(V)+OFF);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">264</td><td class="c a">               <ins>IMGGET(F)=0 =&gt; GO TO BAD; S:=WV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">265</td><td class="c a">               <ins>[RELP+(16*I)]:=A; [RELP+((16*I)+8)]:=S;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">266</td><td class="c a">               <ins>I:=I+1; GO TO LD4);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">267</td><td class="c a"> <ins>NRELOC:=NR;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">268</td><td class="c a"> <ins>CCALL impfclose(F);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">269</td><td class="c a"> <ins>RETURN 1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">270</td><td class="c a"> <ins>NOTIMG: OUTSTR('imp: '); OUTCS(P); OUTSTR(' is not an image of this kind of compiler'); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">271</td><td class="c a">         <ins>CCALL impfclose(F); RETURN 0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">272</td><td class="c a"> <ins>BAD: OUTSTR('imp: '); OUTCS(P); OUTSTR(' is damaged'); OUTCHR(12B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">273</td><td class="c a">      <ins>CCALL impfclose(F);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">274</td><td class="c a">      <ins>0)</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">275</td><td class="c a"><ins>%%</ins></td></tr>
+</table>
+</body></html>

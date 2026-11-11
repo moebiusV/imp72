@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>entree.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>entree.imc</h1>
+<p class="mut">left, old (the tape): decus/entree.imc<br>right, new (the port): src/entree.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 54 changed places, 1726 tokens deleted, 942 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n d">3</td><td class="c d">#THIS IS ENTREE, THE CODE TREE MAKING ROUTINE FOR THE IMP <del>COMPILERS.</del></td><td class="n a">2</td><td class="c a"><ins>CONST IS COMMON;</ins></td></tr>
+<tr><td class="n d">5</td><td class="c d"> THE CODE TREE IS KEPT IN FREE STORAGE ARRAY CT, <del>AND CONSISTS</del> OF TWO (OR</td><td class="n a">4</td><td class="c a">#THIS IS ENTREE, THE CODE TREE MAKING ROUTINE FOR THE IMP <ins>COMPILERS, FOR</ins> THE <ins>64 BIT PORT.</ins></td></tr>
+<tr><td class="n d">6</td><td class="c d">SOMETIMES THREE) <del>WORD NODES:</del></td><td class="n a">5</td><td class="c a"> <ins>SEE DECUS/ENTREE.IMC FOR THE ORIGINAL AND ITS (LONG) COMMENTS, DOCS/PORTING/MODULES.MD FOR</ins></td></tr>
+<tr><td class="n d">8</td><td class="c d">    <del>WORD 1: BITS 35-18</del>  INDEX OF <del>ALTERNATE</del> NODE <del>(DOWN POINTER)</del></td><td class="n a">6</td><td class="c a"> <ins>THE DIFFERENCES.</ins></td></tr>
+<tr><td class="n d">9</td><td class="c d">            <del>BITS 17-0   INDEX</del> OF <del>SUCCESSOR NODE (RIGHT POINTER)</del></td><td class="n a">8</td><td class="c a"><ins>THE</ins> CODE TREE IS KEPT IN FREE STORAGE ARRAY CT, <ins>IN NODES</ins> OF TWO (OR SOMETIMES THREE)</td></tr>
+<tr><td class="n d">10</td><td class="c d">    WORD <del>2:</del> BITS <del>35-33  TYPE: 2=THIS NODE</del> IS <del>TO BE MATCHED</del> WITH KTH ITEM OF</td><td class="n a">9</td><td class="c a"><ins>WORDS NAMED BY THE</ins> INDEX OF <ins>THE FIRST:</ins></td></tr>
+<tr><td class="n d">11</td><td class="c d">                                THE <del>PATTERN.  K IS LOW 18 BITS OF THIS WORD.</del></td><td class="n a">11</td><td class="c a">    <ins>WORD -1: THE SPECIAL FIELD, THE FIRST PRODUCTION</ins> NODE <ins>AMONG THE ALTERNATES</ins></td></tr>
+<tr><td class="n d">12</td><td class="c d">                              <del>3=MATCH WITH</del> IDENTIFIER ID  (DIR INDEX <del>OF ID IS</del></td><td class="n a">12</td><td class="c a">    <ins>WORD 0:  THREE FIELDS</ins> OF <ins>20 BITS (TMASK): SCR (BITS 0-19), ALT (20-39), NODEN (40-59)</ins></td></tr>
+<tr><td class="n d">13</td><td class="c d">                                <del>LOW 18 BITS).</del>  IF <del>BIT 18</del> IS <del>A 1,</del>  ID IS <del>THE</del></td><td class="n a">13</td><td class="c a">    WORD <ins>1:  THE STUFF WORD, WITH THE TYPE IN</ins> BITS <ins>61-63 (BIT 63</ins> IS <ins>FREE: ENTRCA MARKS NODES</ins> WITH <ins>IT):</ins></td></tr>
+<tr><td class="n d">14</td><td class="c d">                                <del>INDEX OF</del> A ONE WORD CONSTANT WHOSE VALUE IS IN</td><td class="n a">14</td><td class="c a">                <ins>2  MATCH THE</ins> KTH ITEM OF THE <ins>PATTERN (K IN THE RIGHT HALF)</ins></td></tr>
+<tr><td class="n d">15</td><td class="c d">                                <del>THE THIRD</del> WORD OF <del>THIS NODE, AND AN ATTEMPT</del></td><td class="n a">15</td><td class="c a">                <ins>3  MATCH</ins> IDENTIFIER ID (DIR INDEX <ins>IN THE RIGHT HALF;</ins> IF <ins>NCLS</ins> IS <ins>SET THE</ins> ID</td></tr>
+<tr><td class="n d">16</td><td class="c d">                                <del>SHOULD ALSO BE MADE TO</del> MATCH <del>BY VALUE.</del></td><td class="n a">16</td><td class="c a">                   IS A ONE WORD CONSTANT WHOSE VALUE IS IN WORD <ins>2</ins> OF <ins>THE NODE)</ins></td></tr>
+<tr><td class="n d">17</td><td class="c d">                              <del>1=MATCH WITH</del> A STACK ITEM OF <del>INDICATED TYPE:</del></td><td class="n a">17</td><td class="c a">                <ins>1</ins>  MATCH A STACK ITEM OF A <ins>KIND GIVEN BY THE OTHER BITS:</ins></td></tr>
+<tr><td class="n d">19</td><td class="c d">     <del>TYPE 1 NODE HAS</del> A <del>SECOND WORD AS FOLLOWS:</del></td><td class="n a">19</td><td class="c a">        <ins>BITS   61-63  60 59  58 57 56 55 54 53  24-31 16-23  8-15  0-7</ins></td></tr>
+<tr><td class="n d">21</td><td class="c d">      <del>(NR BITS)  3   2 111 111  5  5  7   8</del></td><td class="n a">20</td><td class="c a">               TTT     X  I   W  S  V  C  R  N    PP    QQ    KKK   LLL</td></tr>
+<tr><td class="n d">22</td><td class="c d">                TTT <del>XI WSV CRN PP QQ KKK LLL</del></td><td class="n a">22</td><td class="c a">     <ins>(THE ORIGINAL</ins> HAS <ins>THEM PACKED TOGETHER: SEE ITS COMMENT</ins> FOR <ins>WHAT</ins> THE <ins>LETTERS MEAN.)  A</ins> NODE <ins>WITH W=S=V=C=R=N=0</ins></td></tr>
+<tr><td class="n d">24</td><td class="c d">     <del>TTT = TYPE</del></td><td class="n a">23</td><td class="c a">     MATCHES <ins>PRODUCTIONS:</ins> THE <ins>ID</ins> IS THE <ins>RIGHT HALF; NCLS SAYS</ins> IT IS A CLASS OF VAL/ <ins>PRODUCTIONS; NTRM THAT IT</ins></td></tr>
+<tr><td class="n d">25</td><td class="c d">      X  <del>= 1 IF FLOATING POINT MAY MATCH (NOT CHECKED FOR N)</del></td><td class="n a">24</td><td class="c a">     IS A TERMINAL NODE <ins>(MATCHP, IN DOSEM, SAYS WHETHER</ins> THERE HAS BEEN A <ins>MATCH).</ins></td></tr>
+<tr><td class="n d">26</td><td class="c d">      I  <del>= 1 IF INTEGER MAY MATCH (NOT CHECKED FOR N)</del></td><td class="n a">26</td><td class="c a"> <ins>CT, NCT, NODEN</ins> AND <ins>SBITM</ins> ARE <ins>COMMON</ins> FOR THE C THAT <ins>READS THEM (SRC/SHARED.TXT).  #</ins></td></tr>
+<tr><td class="n d">27</td><td class="c d">             <del>(IMP11: IF X=I=0, ONLY BYTE MAY MATCH)</del></td><td class="n a">28</td><td class="c a"><ins>CT,NCT,NODEN</ins> ARE <ins>COMMON;</ins></td></tr>
+<tr><td class="n d">28</td><td class="c d">      W  <del>= 1 IF ONLY EXPRESSIONS GENERATING EXACTLY 1 WORD OF CODE MAY MATCH</del></td><td class="n a">29</td><td class="c a"><ins>SBITM</ins> ARE <ins>COMMON,3 LONG;</ins></td></tr>
+<tr><td class="n d">29</td><td class="c d">             <del>(IMP11: ONLY EXPRESSIONS WITHOUT SIDE-EFFECTS MAY MATCH)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">30</td><td class="c d">      S  <del>= 1 IF ANY SUBSCRIPTED VARIABLE MAY MATCH.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">31</td><td class="c d">      V  <del>= 1 IF ANY SIMPLE VARIABLE MAY MATCH.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">32</td><td class="c d">      C  <del>= 1 IF SOME CONSTANT MIGHT MATCH (MODIFIED BY KKK LLL)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">33</td><td class="c d">      R  <del>= 1 IF SOME REGISTER MIGHT MATCH (MODIFIED BY PPP QQQ)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">34</td><td class="c d">      N  <del>= 1 IF ANY RAW IDENTIFIER MAY MATCH.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">36</td><td class="c d">     <del>IF A REGISTER IS CALLED FOR IT MUST BE ONE OF THE REGISTERS NUMBERED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">37</td><td class="c d">       PP <del>THROUGH</del> QQ <del>(RANGE 0-37B).  IF A CONSTANT IS CALLED FOR,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">38</td><td class="c d">       <del>IT MUST BE ZERO EXCEPT FOR THE</del> KKK <del>BITS STARTING</del> LLL <del>BITS FROM THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">39</td><td class="c d">       <del>RIGHT END OF THE WORD (RANGE 00-177B).  IF LLL</del> HAS <del>THE 200B BIT SET,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">40</td><td class="c d">       <del>THEN THE CONSTANT MUST BE ALL ONES EXCEPT</del> FOR THE <del>KKK BIITS STARTING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">41</td><td class="c d">       <del>(LLL AND 177B) BITS FROM THE RIGHT OF THE WORD.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d">     <del>IF WSVCRN=00, THEN THE</del> NODE MATCHES <del>PRODUCTIONS, AND</del> THE <del>NODE IDENTIFIER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d">       IS <del>IN</del> THE <del>RIGHTMOST 18 BITS OF THE WORD.  IF BIT 19=0, THEN THE NODE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">44</td><td class="c d">       <del>MATCHES ONLY THE PRODUCTION NUMBER WHICH IS THE IDENTIFIER.  BIT 18 IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">45</td><td class="c d">       <del>0 IF THIS IS A REAL PRODUCTION AND 1 IF</del> IT IS A CLASS OF VAL/ <del>PROD'NS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d">       <del>IF BIT 19</del> IS <del>1, THEN THIS IS</del> A TERMINAL NODE <del>AND MATCHP (IN DOSEM) IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">47</td><td class="c d">       <del>CALLED TO DETERMINE IF</del> THERE HAS BEEN A <del>MATCH</del> AND <del>TO FETCH THE SEMANTICS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d"><del>THE ROUTINES WHICH BUILD AND SEARCH THE CODE TREE ARE:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">51</td><td class="c d"><del>MATCH(TN,SN) - CHECKS IF TREE NODE TN IS MATCHED BY A STACK ENTRY BEGINNING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">52</td><td class="c d">   <del>AT FREE STORAGE ADDRESS SN.  RETURNS 0 IF NO MATCH, -1 IF A MATCH, AND</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">53</td><td class="c d">   <del>THE SEMANTICS NUMBER IF A MATCH WAS MADE AT A TERMINAL NODE (I.E., WHEN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d">   <del>A COMPLETE PATH HAS BEEN FOUND).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d"><del>ENTREE(S,CS,SR,PN) - S IS THE POINTER TO A FREE STORAGE ARRAY CONTAINING PARSER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d">   <del>OUTPUT TO BE ENTERED IN THE CODE TREE.  THE ENTRIES</del> ARE <del>EITHER NEGATIVE DIR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d">   <del>INDICES OR POSITIVE SEMANTICS INDICES.  CS IS THE NUMBER OF THE PRODUCTION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d">   <del>BEING PROCESSED (I.E., PARSER OUTPUT).  SR IS THE SEMANTIC ROUTINE TO BE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d">   <del>INVOKED BY THIS INSTANCE OF THE SEMANTICS.  PN IS THE PRODUCTION NUMBER TO</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d">   <del>BE INSERTED IN THE CODE GENERATION TREE (DIFFERS FROM CS IF A CASE IS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">   <del>BEING DEFINED).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">63</td><td class="c d">  <del>THE VALUE RETURNED BY ENTREE IS A FREE STORAGE ARRAY CONTAINING THE DIR</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d">   <del>INDICES OF THE IDENTIFIER CORRESPONDING TO EACH TERMINAL SYMBOL IN S (OR 0</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d">   FOR <del>A CONSTANT.</del> THE <del>ARRAY IS TERMINATED BY A NEGATIVE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d">   <del>ENTRY.  ENTREE WILL ALTER THE ARRAY S.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">68</td><td class="c d"> <del>THE PARSER OUTPUT IS GENERATED BY PARSING AN INSTANCE OF THE PRODUCTION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d">   <del>BEING PROCESSED.  IT CONTAINS IDENTIFIERS OF THE FOLLOWING FORMS:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">71</td><td class="c d">             <del>REGNNKK      NN,KK DECIMAL DIGITS - WILL MATCH A REGISTER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">72</td><td class="c d">                              <del>BETWEEN NN AND KK.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">73</td><td class="c d">             <del>REGNN        SAME AS REGNNNN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">74</td><td class="c d">             <del>REG          MATCHES ANY REGISTER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">75</td><td class="c d">             <del>CONMMKK      MATCHES A CONSTANT IN MM BITS SHIFTED KK BITS LEFT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">76</td><td class="c d">             <del>CONMM        SAME AS CONMM00</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">77</td><td class="c d">             <del>CON          MATCHES ANY CONSTANT</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">78</td><td class="c d">             <del>CNG          USED SAME AS CON, BUT FOR NEGATIVE CONSTANTS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">79</td><td class="c d">             <del>VAR          MATCHES ANY CONSTANT OR SIMPLE VARIABLE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">80</td><td class="c d">             <del>MEM          MATCHES ANY SUBSCRIPTED VARIABLE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">81</td><td class="c d">             <del>FLT          ONLY FLOATING POINT MAY MATCH</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">82</td><td class="c d">             <del>IGR          ONLY FIXED POINT MAY MATCH</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">83</td><td class="c d">             <del>BYT          (IMP11) ONLY ATYPE BYTE WILL MATCH</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">84</td><td class="c d">             <del>NAM          MATCHES A RAW IDENTIFIER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">85</td><td class="c d">             <del>WRD          (IMP10) ONLY 1 WORD OF CODE MAY MATCH.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">86</td><td class="c d">             <del>NSE          (IMP11) ONLY NO-SIDE-EFFECTS MAY MATCH.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">88</td><td class="c d">     <del>AN IDENTIFIER WITHOUT MODIFIERS MAY MATCH ANY OF THE ABOVE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">89</td><td class="c d">       <del>THE PROPERTIES FLT AND IGR ARE ORTHOGONAL TO THE OTHERS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">90</td><td class="c d">       <del>THE PROPERTY WRD IS ORTHOGONAL TO THE OTHERS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">91</td><td class="c d">     <del>A REGISTER MATCHES THE SPECIFICATIONS ONLY WHEN IT IS FORCED, WHEN</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">92</td><td class="c d">       <del>EVENTUALLY ALLOCATED, TO FALL WITHIN THE SPECIFIED LIMITS.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">93</td><td class="c d">     <del>AN IDENTIFIER WHICH MAY MATCH MORE THAN ONE OF THE ABOVE MAY BE MADE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">94</td><td class="c d">       <del>BY CATENATING THE APPROPRIATE IDENTIFIERS - E.G.,CON18REG0115.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">95</td><td class="c d">     <del>IN ADDITION, ANY IDENTIFIER NOT CONTAINING THE CHARACTER 0 MAY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">96</td><td class="c d">       <del>APPEAR.  IF AN IDENTIFIER APPEARS MORE THAN ONCE, SUBSEQUENT OCCURRENCES</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">97</td><td class="c d">       <del>WILL BE REQUIRED TO MATCH THE FIRST OCCURRENCE EXACTLY (I.E., SAME</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">98</td><td class="c d">       <del>EXPRESSION).  MODIFIERS ARE NOT ALLOWED ON THE SUBSEQUENT OCCURRENCES</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">99</td><td class="c d">       <del>EXCEPT THAT IF THE IDENTIFIER IS TO MATCH A 'NAM' THE MODIFIER NAM</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">100</td><td class="c d">       <del>&gt;&gt;MUST&lt;&lt; APPEAR ON EVERY OCCURENCE OF IT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">101</td><td class="c d">     <del>TO INDICATE AN IDENTIFIER WHICH MATCHES ONE OR MORE OF THE CASES ABOVE,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">102</td><td class="c d">       <del>FOLLOW THE IDENTIFIER BY 0 AND THE APPROPRIATE CASES.  EXAMPLE:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">103</td><td class="c d">              <del>Q0REG0115 _ Q + CON18</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">104</td><td class="c d">       <del>INDICATES SOMETHING OF THE FORM Q_Q+C WHERE Q IS A REGISTER BETWEEN 1</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">105</td><td class="c d">       <del>AND 15, AND</del> C <del>IS AN 18-BIT CONSTANT.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">106</td><td class="c d">     <del>THE PARSE OUTPUT PROVIDED WILL, OF COURSE, BE A COMPLETE PARSE FROM RAW</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">107</td><td class="c d">       <del>IDENTIFIERS TO STATEMENT LIST.  THE PARSE IS TRUNCATED TO MAKE THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">108</td><td class="c d">       <del>TREE BRANCH AS FOLLOWS:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">109</td><td class="c d">         <del>1: EVERYTHING ABOVE THE HIGHEST OCCURRENCE OF THE PRODUCTION NUMBER  .</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">110</td><td class="c d">              <del>BEING ENTERED (CS) IS DELETED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">111</td><td class="c d">         <del>2: ALL [1] (NULL) SEMANTICS ARE DELETED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">112</td><td class="c d">         <del>3: IF AN IDENTIFIER IS NOT A NAME (CONTAINS THE DESIGNATION 'NAM'), AND</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">113</td><td class="c d">              <del>IF THE FIRST PRODUCTION ABOVE IT HAS ONE ARGUMENT, IT IS ASSUMED</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">114</td><td class="c d">              <del>TO BE THE PRODUCTION &lt;NAM&gt;::=NAM", AND IS DELETED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">115</td><td class="c d">      <del>THE TRUNCATED PARSE IS THEN ENTERED IN THE TREE, TERMINATED BY A NEWLY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">116</td><td class="c d">       <del>CREATED SEMANTIC ENTRY IN THE SEMANTICS TABLE.  IT IS UP TO THE CALLING</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">117</td><td class="c d">       <del>ROUTINE TO COMPLETE THIS ENTRY.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">118</td><td class="c d">     <del>NODES IN THE TREE MUST BE ORDERED SO</del> THAT <del>THE MORE SPECIFIC CASES</del> ARE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">119</td><td class="c d">       <del>ALWAYS ENCOUNTERED FIRST.  THIS IS DONE BY CONSIDERING THE RESTRICTION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">120</td><td class="c d">       <del>BYTE 'WSVCRN' AS A 6-BIT NUMBER (WITH THE W BIT COMPLEMENTED).  THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">121</td><td class="c d">       <del>LOWER THE NUMBER, THE MORE RESTRICTIVE THE CASE.  WHERE NUMBERS</del> ARE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">122</td><td class="c d">       <del>EQUAL, THE RESTRICTIONS ON THE REGISTERS AND CONSTANTS ARE CONSIDERED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">123</td><td class="c d">       <del>PRODUCTION NODES ARE ENTERED WITH THE LOWEST VALUE OF BITS 19-18 FIRST.,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">124</td><td class="c d">       <del>EXCEPT THAT TERMINAL NODES (BITS 19-18=2) ARE ENTERED AFTER ALL OTHER</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">125</td><td class="c d">       <del>NODES. #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">131</td><td class="c q">SUBR ENTREE(S,CS,SR,PN) IS (</td><td class="n q">31</td><td class="c q">SUBR ENTREE(S,CS,SR,PN) IS (</td></tr>
+<tr><td class="n d">132</td><td class="c d"> PLY<del>_</del>NTBL<del>_</del>0; NODE<del>_</del>1;</td><td class="n a">32</td><td class="c a"> PLY<ins>:=</ins>NTBL<ins>:=</ins>0; NODE<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">133</td><td class="c d"> <del>INIT</del>=0=&gt;(FRELOT(CT,'TREE',550,<del>TORGFIX</del>);</td><td class="n a">33</td><td class="c a"> <ins>EINIT</ins>=0=&gt;(<ins>EINIT:=1;</ins></td></tr>
+<tr><td class="n d">134</td><td class="c d">	  SBITM <del>IS 3 LONG; SBITM_</del>0;</td><td class="n a">34</td><td class="c a">          FRELOT(CT,'TREE',550,<ins>0</ins>);</td></tr>
+<tr><td class="n d">135</td><td class="c d">	  SBITM[1]<del>_</del>340; SBITM[2]<del>_</del>4;</td><td class="n a">35</td><td class="c a">          SBITM<ins>[</ins>0<ins>]:=0</ins>; SBITM[1]<ins>:=</ins>340; SBITM[2]<ins>:=</ins>4;</td></tr>
+<tr><td class="n d">136</td><td class="c d">          <del>INIT_</del>NCT<del>_</del>3; FINCSET(CT,40);</td><td class="n a">36</td><td class="c a">          NCT<ins>:=</ins>3; FINCSET(CT,40);</td></tr>
+<tr><td class="n q">137</td><td class="c q">          FREES(CT+1,0); FREES(CT+2,0);</td><td class="n q">37</td><td class="c q">          FREES(CT+1,0); FREES(CT+2,0);</td></tr>
+<tr><td class="n d">138</td><td class="c d">	  FRELOT(PRODS,'NTRE2',10,0); NODEN<del>_</del>-1;</td><td class="n a">38</td><td class="c a">          FRELOT(PRODS,'NTRE2',10,0); NODEN<ins>:=</ins>-1;</td></tr>
+<tr><td class="n q">139</td><td class="c q">          FRELOT(TBL,'NTREE',10,0));</td><td class="n q">39</td><td class="c q">          FRELOT(TBL,'NTREE',10,0));</td></tr>
+<tr><td class="n q">140</td><td class="c q"> #TBL HOLDS NAMES OF IDENTIFIERS FOR NODES ALREADY ENTERED.</td><td class="n q">40</td><td class="c q"> #TBL HOLDS NAMES OF IDENTIFIERS FOR NODES ALREADY ENTERED.</td></tr>
+<tr><td class="n q">141</td><td class="c q"> ENTRY POINT OF TREE IS TSCR(1);</td><td class="n q">41</td><td class="c q"> ENTRY POINT OF TREE IS TSCR(1);</td></tr>
+<tr><td class="n q">142</td><td class="c q"> NODE IS NEXT PLACE TO HANG A NODE AS AN ALT (POSITIVE) OR SCR (NEG.)#</td><td class="n q">42</td><td class="c q"> NODE IS NEXT PLACE TO HANG A NODE AS AN ALT (POSITIVE) OR SCR (NEG.)#</td></tr>
+<tr><td class="n d">143</td><td class="c d"> ST<del>_</del>S;</td><td class="n a">43</td><td class="c a"> ST<ins>:=</ins>S;</td></tr>
+<tr><td class="n d">144</td><td class="c d"> <del>NPRODS_</del>0;</td><td class="n a">44</td><td class="c a"> <ins>NPR:=</ins>0;</td></tr>
+<tr><td class="n d">145</td><td class="c d"> L24: (J<del>_</del>FREE(ST))=&gt;(ST<del>_</del>ST+1; GO TO L24);</td><td class="n a">45</td><td class="c a"> L24: (J<ins>:=</ins>FREE(ST))=&gt;(ST<ins>:=</ins>ST+1; GO TO L24);</td></tr>
+<tr><td class="n d">146</td><td class="c d"> L23: (ST<del>_</del>ST-1)&lt;S=&gt;</td><td class="n a">46</td><td class="c a"> L23: (ST<ins>:=</ins>ST-1)&lt;S=&gt;</td></tr>
+<tr><td class="n q">147</td><td class="c q">        (ERROR(1,'QUOTED SEMANTICS NOT AN INSTANCE OF PRODUCTION.');</td><td class="n q">47</td><td class="c q">        (ERROR(1,'QUOTED SEMANTICS NOT AN INSTANCE OF PRODUCTION.');</td></tr>
+<tr><td class="n q">148</td><td class="c q">         GO TO ENTRX);</td><td class="n q">48</td><td class="c q">         GO TO ENTRX);</td></tr>
+<tr><td class="n d">149</td><td class="c d">      J<del>_</del>FREE(ST);</td><td class="n a">49</td><td class="c a">      J<ins>:=</ins>FREE(ST);</td></tr>
+<tr><td class="n q">150</td><td class="c q">      J NE CS=&gt;GO TO L23;</td><td class="n q">50</td><td class="c q">      J NE CS=&gt;GO TO L23;</td></tr>
+<tr><td class="n d">151</td><td class="c d"> SS<del>_</del>S; EATIT<del>_</del>0;</td><td class="n a">51</td><td class="c a"> SS<ins>:=</ins>S; EATIT<ins>:=</ins>0;</td></tr>
+<tr><td class="n q">152</td><td class="c q"> # NEXT ELEMENT IN PARSER OUTPUT #</td><td class="n q">52</td><td class="c q"> # NEXT ELEMENT IN PARSER OUTPUT #</td></tr>
+<tr><td class="n d">153</td><td class="c d"> NEXT: J<del>_</del>FREE(SS); SS<del>_</del>SS+1;</td><td class="n a">53</td><td class="c a"> NEXT: J<ins>:=</ins>FREE(SS); SS<ins>:=</ins>SS+1;</td></tr>
+<tr><td class="n q">154</td><td class="c q"> J&lt;0=&gt;(#IDENTIFIER. CHECK FOR CONSTANT. #</td><td class="n q">54</td><td class="c q"> J&lt;0=&gt;(#IDENTIFIER. CHECK FOR CONSTANT. #</td></tr>
+<tr><td class="n d">155</td><td class="c d">       EATIT<del>_</del>1;</td><td class="n a">55</td><td class="c a">       EATIT<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">156</td><td class="c d">       KON<del>_</del>CONVC(-J); KON=&gt;(<del>CONST IS COMMON;</del></td><td class="n a">56</td><td class="c a">       KON<ins>:=</ins>CONVC(-J); KON=&gt;(NOTY<ins>:=NT3 OR NCLS</ins> OR -J;</td></tr>
+<tr><td class="n d">157</td><td class="c d">                            NOTY<del>_300001000000B</del> OR -J;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">158</td><td class="c q">                            FADD(TBL,NTBL,0);</td><td class="n q">57</td><td class="c q">                            FADD(TBL,NTBL,0);</td></tr>
+<tr><td class="n q">159</td><td class="c q">                            GO TO L11);</td><td class="n q">58</td><td class="c q">                            GO TO L11);</td></tr>
+<tr><td class="n q">160</td><td class="c q">       CODEID(-J);</td><td class="n q">59</td><td class="c q">       CODEID(-J);</td></tr>
+<tr><td class="n d">161</td><td class="c d">       J<del>_</del>CODEID(0); KK<del>_</del>J;</td><td class="n a">60</td><td class="c a">       J<ins>:=</ins>CODEID(0); KK<ins>:=</ins>J;</td></tr>
+<tr><td class="n q">162</td><td class="c q">       FADD(TBL,NTBL,J);</td><td class="n q">61</td><td class="c q">       FADD(TBL,NTBL,J);</td></tr>
+<tr><td class="n q">163</td><td class="c q">       J&gt;0=&gt;(#THIS ONE AT LEAST STARTS WITH A NAME - SEEN BEFORE? #</td><td class="n q">62</td><td class="c q">       J&gt;0=&gt;(#THIS ONE AT LEAST STARTS WITH A NAME - SEEN BEFORE? #</td></tr>
+<tr><td class="n d">164</td><td class="c d">             NTBL&gt;1=&gt;((K<del>_</del>FREE(TBL+I);</td><td class="n a">63</td><td class="c a">             NTBL&gt;1=&gt;((K<ins>:=</ins>FREE(TBL+I);</td></tr>
+<tr><td class="n q">165</td><td class="c q">                       K=J=&gt;(# YES. #</td><td class="n q">64</td><td class="c q">                       K=J=&gt;(# YES. #</td></tr>
+<tr><td class="n d">166</td><td class="c d">                             L22: J<del>_</del>CODEID(0);</td><td class="n a">65</td><td class="c a">                             L22: J<ins>:=</ins>CODEID(0);</td></tr>
+<tr><td class="n q">167</td><td class="c q">                             J NE 0=&gt;(</td><td class="n q">66</td><td class="c q">                             J NE 0=&gt;(</td></tr>
+<tr><td class="n d">168</td><td class="c d">         J=-10=&gt;(EATIT<del>_</del>0; GO TO L22);</td><td class="n a">67</td><td class="c a">         J=-10=&gt;(EATIT<ins>:=</ins>0; GO TO L22);</td></tr>
+<tr><td class="n q">169</td><td class="c q">         PNAME(K); PRINT STG 0,' ';</td><td class="n q">68</td><td class="c q">         PNAME(K); PRINT STG 0,' ';</td></tr>
+<tr><td class="n q">170</td><td class="c q">         ERROR(1,'MODIFIER ON OTHER THAN FIRST OCCURRENCE OF NAME IS IGNORED');</td><td class="n q">69</td><td class="c q">         ERROR(1,'MODIFIER ON OTHER THAN FIRST OCCURRENCE OF NAME IS IGNORED');</td></tr>
+<tr><td class="n q">171</td><td class="c q">         GO TO L22);</td><td class="n q">70</td><td class="c q">         GO TO L22);</td></tr>
+<tr><td class="n d">172</td><td class="c d">                             NOTY<del>_</del>I OR <del>2 LS 33</del>; GO TO L11)) FOR I TO NTBL-2);</td><td class="n a">71</td><td class="c a">                             NOTY<ins>:=</ins>I OR <ins>NT2</ins>; GO TO L11)) FOR I TO NTBL-2);</td></tr>
+<tr><td class="n d">173</td><td class="c d">             J<del>_</del>CODEID(0));</td><td class="n a">72</td><td class="c a">             J<ins>:=</ins>CODEID(0));</td></tr>
+<tr><td class="n q">174</td><td class="c q">       # FIRST OCCURRENCE OF ID, SO CHECK FOR RESTRICTIONS. #</td><td class="n q">73</td><td class="c q">       # FIRST OCCURRENCE OF ID, SO CHECK FOR RESTRICTIONS. #</td></tr>
+<tr><td class="n d">175</td><td class="c d">       NOTY<del>_160000000000B</del>;</td><td class="n a">74</td><td class="c a">       NOTY<ins>:=NT1 OR (3 LS 59)</ins>;</td></tr>
+<tr><td class="n d">176</td><td class="c d">       NTY1<del>_007603700177B</del>;</td><td class="n a">75</td><td class="c a">       NTY1<ins>:=(37B LS 53) OR (37B LS 16) OR 177B</ins>;</td></tr>
+<tr><td class="n q">177</td><td class="c q">       L12: J=&gt;(J&gt;0=&gt;(PNAME(J); PRINT STG 0,' ';</td><td class="n q">76</td><td class="c q">       L12: J=&gt;(J&gt;0=&gt;(PNAME(J); PRINT STG 0,' ';</td></tr>
+<tr><td class="n q">178</td><td class="c q">                      ERROR(1,'BAD MODIFIER **');</td><td class="n q">77</td><td class="c q">                      ERROR(1,'BAD MODIFIER **');</td></tr>
+<tr><td class="n q">179</td><td class="c q">                      GO TO L11);</td><td class="n q">78</td><td class="c q">                      GO TO L11);</td></tr>
+<tr><td class="n d">180</td><td class="c d">                (K<del>_</del>-J)&gt;2=&gt;K<del>_</del>K-1;</td><td class="n a">79</td><td class="c a">                (K<ins>:=</ins>-J)&gt;2=&gt;K<ins>:=</ins>K-1;</td></tr>
+<tr><td class="n d">181</td><td class="c d">                K=9=&gt;(K<del>_</del>EATIT<del>_</del>0);</td><td class="n a">80</td><td class="c a">                K=9=&gt;(K<ins>:=</ins>EATIT<ins>:=</ins>0);</td></tr>
+<tr><td class="n d">182</td><td class="c d">                K=8 =&gt; (NOTY<del>_</del>NOTY AND NOT (3 LS <del>31</del>); GO TO L21);</td><td class="n a">81</td><td class="c a">                K=8 =&gt; (NOTY<ins>:=</ins>NOTY AND NOT (3 LS <ins>59</ins>); GO TO L21);</td></tr>
+<tr><td class="n d">183</td><td class="c d">                K&gt;5=&gt;(NOTY<del>_</del>NOTY AND NOT (1 LS <del>38</del>-K); GO TO L21);</td><td class="n a">82</td><td class="c a">                K&gt;5=&gt;(NOTY<ins>:=</ins>NOTY AND NOT (1 LS <ins>(66</ins>-K)<ins>)</ins>; GO TO L21);</td></tr>
+<tr><td class="n d">184</td><td class="c d">                K=5=&gt;(NOTY<del>_</del>NOTY OR <del>010000000000B</del>; GO TO L21);</td><td class="n a">83</td><td class="c a">                K=5=&gt;(NOTY<ins>:=</ins>NOTY OR <ins>(1 LS 58)</ins>; GO TO L21);</td></tr>
+<tr><td class="n d">185</td><td class="c d">                NTY1<del>_</del>0;</td><td class="n a">84</td><td class="c a">                NTY1<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">186</td><td class="c d">                NOTY<del>_</del>NOTY OR 1 LS K+<del>25</del>;</td><td class="n a">85</td><td class="c a">                NOTY<ins>:=</ins>NOTY OR <ins>(</ins>1 LS <ins>(</ins>K+<ins>53))</ins>;</td></tr>
+<tr><td class="n d">187</td><td class="c d">                J=-3=&gt;NOTY<del>_</del>NOTY OR 200B;</td><td class="n a">86</td><td class="c a">                J=-3=&gt;NOTY<ins>:=</ins>NOTY OR 200B;</td></tr>
+<tr><td class="n d">188</td><td class="c d">                K=2=&gt;(N1&lt;0=&gt;N1<del>_</del>177B; N2&lt;0=&gt;N2<del>_</del>0;</td><td class="n a">87</td><td class="c a">                K=2=&gt;(N1&lt;0=&gt;N1<ins>:=</ins>177B; N2&lt;0=&gt;N2<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">189</td><td class="c d">                      NOTY<del>_</del>NOTY OR N2 OR N1 LS 8);</td><td class="n a">88</td><td class="c a">                      NOTY<ins>:=</ins>NOTY OR N2 OR <ins>(</ins>N1 LS 8)<ins>)</ins>;</td></tr>
+<tr><td class="n d">190</td><td class="c d">                K=1=&gt;(N1&lt;0=&gt;(N1<del>_</del>0; N2<del>_</del>37B);</td><td class="n a">89</td><td class="c a">                K=1=&gt;(N1&lt;0=&gt;(N1<ins>:=</ins>0; N2<ins>:=</ins>37B);</td></tr>
+<tr><td class="n d">191</td><td class="c d">                      N2&lt;0=&gt;N2<del>_</del>N1;</td><td class="n a">90</td><td class="c a">                      N2&lt;0=&gt;N2<ins>:=</ins>N1;</td></tr>
+<tr><td class="n d">192</td><td class="c d">                      NOTY<del>_</del>NOTY OR (N1 LS <del>20</del>) OR N2 LS <del>15</del>);</td><td class="n a">91</td><td class="c a">                      NOTY<ins>:=</ins>NOTY OR (N1 LS <ins>24</ins>) OR <ins>(</ins>N2 LS <ins>16</ins>)<ins>)</ins>;</td></tr>
+<tr><td class="n d">193</td><td class="c d">                L21: J<del>_</del>CODEID(0); GO TO L12);</td><td class="n a">92</td><td class="c a">                L21: J<ins>:=</ins>CODEID(0); GO TO L12);</td></tr>
+<tr><td class="n d">194</td><td class="c d">       NOTY<del>_</del>NOTY OR NTY1;</td><td class="n a">93</td><td class="c a">       NOTY<ins>:=</ins>NOTY OR NTY1;</td></tr>
+<tr><td class="n d">195</td><td class="c d">       L11: NODE<del>_</del>INSNO(NODE,NOTY,KON,CONST); #INSERT NODE IN TREE #</td><td class="n a">94</td><td class="c a">       L11: NODE<ins>:=</ins>INSNO(NODE,NOTY,KON,CONST); #INSERT NODE IN TREE #</td></tr>
+<tr><td class="n d">196</td><td class="c d">       FADD(PRODS,<del>NPRODS</del>,NODE);</td><td class="n a">95</td><td class="c a">       FADD(PRODS,<ins>NPR</ins>,NODE);</td></tr>
+<tr><td class="n q">197</td><td class="c q">       GO TO NEXT);</td><td class="n q">96</td><td class="c q">       GO TO NEXT);</td></tr>
+<tr><td class="n q">198</td><td class="c q"> SS LE ST=&gt;(</td><td class="n q">97</td><td class="c q"> SS LE ST=&gt;(</td></tr>
+<tr><td class="n q">199</td><td class="c q">   J=1=&gt;GO TO NEXT;</td><td class="n q">98</td><td class="c q">   J=1=&gt;GO TO NEXT;</td></tr>
+<tr><td class="n q">200</td><td class="c q">   # CHECK FOR VAL/ PRODUCTION #</td><td class="n q">99</td><td class="c q">   # CHECK FOR VAL/ PRODUCTION #</td></tr>
+<tr><td class="n d">201</td><td class="c d">   JJ<del>_</del>J;</td><td class="n a">100</td><td class="c a">   JJ<ins>:=</ins>J;</td></tr>
+<tr><td class="n d">202</td><td class="c d">   (J <del>RS 18</del>)=&gt;(FADD(TBL,NTBL,J);</td><td class="n a">101</td><td class="c a">   <ins>HL</ins>(J)=&gt;(FADD(TBL,NTBL,J);</td></tr>
+<tr><td class="n d">203</td><td class="c d">               <del>JJ_1000000B OR</del> (J<del>_J AND 777777B</del>));</td><td class="n a">102</td><td class="c a">            <ins>J:=HR</ins>(J)<ins>; JJ:=NCLS OR J</ins>);</td></tr>
+<tr><td class="n q">204</td><td class="c q">   EATIT=&gt;(# EAT FIRST SEMANTICS NODE WITH 1 ARG DIRECTLY AFTER IDENTIFIER. #</td><td class="n q">103</td><td class="c q">   EATIT=&gt;(# EAT FIRST SEMANTICS NODE WITH 1 ARG DIRECTLY AFTER IDENTIFIER. #</td></tr>
+<tr><td class="n d">205</td><td class="c d">           EATIT<del>_</del>0;</td><td class="n a">104</td><td class="c a">           EATIT<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">206</td><td class="c d">           K<del>_</del>SNARG(J); K=1=&gt;GO TO NEXT);</td><td class="n a">105</td><td class="c a">           K<ins>:=</ins>SNARG(J); K=1=&gt;GO TO NEXT);</td></tr>
+<tr><td class="n d">207</td><td class="c d">   EATIT<del>_</del>0;</td><td class="n a">106</td><td class="c a">   EATIT<ins>:=</ins>0;</td></tr>
+<tr><td class="n q">208</td><td class="c q">   J=CS=&gt;CS NE PN=&gt;ERROR(2,</td><td class="n q">107</td><td class="c q">   J=CS=&gt;CS NE PN=&gt;ERROR(2,</td></tr>
+<tr><td class="n q">209</td><td class="c q">       'CASE CONTAINS SUBEXPRESSION WHICH IS CASE BUT WONT GENERALIZE.');</td><td class="n q">108</td><td class="c q">       'CASE CONTAINS SUBEXPRESSION WHICH IS CASE BUT WONT GENERALIZE.');</td></tr>
+<tr><td class="n q">210</td><td class="c q">   NOTEPROD(J,PLY);</td><td class="n q">109</td><td class="c q">   NOTEPROD(J,PLY);</td></tr>
+<tr><td class="n d">211</td><td class="c d">   SNO<del>_</del>SNODEN(J);</td><td class="n a">110</td><td class="c a">   SNO<ins>:=</ins>SNODEN(J);</td></tr>
+<tr><td class="n d">212</td><td class="c d">   NODE<del>_</del>INSNO(NODE,JJ OR <del>100000000000B</del>,0,0);</td><td class="n a">111</td><td class="c a">   NODE<ins>:=</ins>INSNO(NODE,JJ OR <ins>NT1</ins>,0,0);</td></tr>
+<tr><td class="n d">213</td><td class="c d">   FADD(PRODS,<del>NPRODS</del>,NODE);</td><td class="n a">112</td><td class="c a">   FADD(PRODS,<ins>NPR</ins>,NODE);</td></tr>
+<tr><td class="n q">214</td><td class="c q">   ENTMARK(SNO);</td><td class="n q">113</td><td class="c q">   ENTMARK(SNO);</td></tr>
+<tr><td class="n q">215</td><td class="c q">   GO TO NEXT);</td><td class="n q">114</td><td class="c q">   GO TO NEXT);</td></tr>
+<tr><td class="n q">216</td><td class="c q"> # MADE PRODUCTION - END OFF TREE AND RETURN #</td><td class="n q">115</td><td class="c q"> # MADE PRODUCTION - END OFF TREE AND RETURN #</td></tr>
+<tr><td class="n q">217</td><td class="c q"> NOTEPROD(PN,PLY);</td><td class="n q">116</td><td class="c q"> NOTEPROD(PN,PLY);</td></tr>
+<tr><td class="n d">218</td><td class="c d"> NODE<del>_</del>INSNO(NODE,<del>100002000000B</del>,0,0);</td><td class="n a">117</td><td class="c a"> NODE<ins>:=</ins>INSNO(NODE,<ins>NT1 OR NTRM</ins>,0,0);</td></tr>
+<tr><td class="n q">219</td><td class="c q"> ENPROD(PN,NODE,SR);</td><td class="n q">118</td><td class="c q"> ENPROD(PN,NODE,SR);</td></tr>
+<tr><td class="n d">220</td><td class="c d"> FADD(PRODS,<del>NPRODS</del>,NODE);</td><td class="n a">119</td><td class="c a"> FADD(PRODS,<ins>NPR</ins>,NODE);</td></tr>
+<tr><td class="n d">221</td><td class="c d"> J<del>_</del>SNODEN(PN);</td><td class="n a">120</td><td class="c a"> J<ins>:=</ins>SNODEN(PN);</td></tr>
+<tr><td class="n q">222</td><td class="c q"> ENTMARK(J);</td><td class="n q">121</td><td class="c q"> ENTMARK(J);</td></tr>
+<tr><td class="n q">223</td><td class="c q"> ENTRX: FADD(TBL,NTBL,-1); TBL);</td><td class="n q">122</td><td class="c q"> ENTRX: FADD(TBL,NTBL,-1); TBL);</td></tr>
+<tr><td class="n d">225</td><td class="c d">SUBR ENTMARK(<del>J</del>) IS (</td><td class="n a">124</td><td class="c a">SUBR ENTMARK(<ins>EJ</ins>) IS (</td></tr>
+<tr><td class="n d">226</td><td class="c d"> <del>K_</del>0;</td><td class="n a">125</td><td class="c a"> <ins>EK:=</ins>0;</td></tr>
+<tr><td class="n d">227</td><td class="c d"> (<del>L_</del>FREE(PRODS+<del>I</del>);</td><td class="n a">126</td><td class="c a"> (<ins>EL:=</ins>FREE(PRODS+<ins>EI</ins>);</td></tr>
+<tr><td class="n d">228</td><td class="c d">  <del>K</del>=&gt;<del>[TORG1</del>+<del>L]&lt;L&gt;</del> LE <del>100002B</del>=&gt;RETURN 0;</td><td class="n a">127</td><td class="c a">  <ins>EK</ins>=&gt;<ins>HL(FREE(CT</ins>+<ins>EL+1))</ins> LE <ins>PLIM</ins>=&gt;RETURN 0;</td></tr>
+<tr><td class="n d">229</td><td class="c d">  <del>K_</del>-1;</td><td class="n a">128</td><td class="c a">  <ins>EK:=</ins>-1;</td></tr>
+<tr><td class="n d">230</td><td class="c d">  BITS(SBITM,TNODEN(<del>L</del>),<del>J</del>)) FOR <del>I</del> FROM <del>NPRODS</del>-1<del>)</del>;</td><td class="n a">129</td><td class="c a">  BITS(SBITM,TNODEN(<ins>EL</ins>),<ins>EJ</ins>)) FOR <ins>EI</ins> FROM <ins>NPR</ins>-1;</td></tr>
+<tr><td class="n d">232</td><td class="c d"><del>SUBR TORGFIX(NIL) IS (</del></td><td class="n a">130</td><td class="c a"> 0);</td></tr>
+<tr><td class="n d">233</td><td class="c d"> <del>TORG,TSCRBP,TALTBP,TNONBP ARE 1 LONG;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">234</td><td class="c d"> <del>TORG_CT;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">235</td><td class="c d"> <del>TSCRBP_BYTEP [TORG]&lt;12,24&gt;;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">236</td><td class="c d"> <del>TALTBP_BYTEP [TORG]&lt;12,12&gt;;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">237</td><td class="c d"> <del>TNONBP_BYTEP [TORG]&lt;12,</del>0<del>&gt;;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">238</td><td class="c d"> <del>TORG1_TORG+1</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">240</td><td class="c q">SUBR INSNO(HOOK,STUFF,K1,K2) IS (</td><td class="n q">132</td><td class="c q">SUBR INSNO(HOOK,STUFF,K1,K2) IS (</td></tr>
+<tr><td class="n q">241</td><td class="c q"> # INSERTS NODE ON AS SCR TO HOOK, WD 2 = STUFF #</td><td class="n q">133</td><td class="c q"> # INSERTS NODE ON AS SCR TO HOOK, WD 2 = STUFF #</td></tr>
+<tr><td class="n d">242</td><td class="c d"> PLY<del>_</del>PLY+1;</td><td class="n a">134</td><td class="c a"> PLY<ins>:=</ins>PLY+1;</td></tr>
+<tr><td class="n d">243</td><td class="c d"> SH<del>_</del>TSCR(HOOK);</td><td class="n a">135</td><td class="c a"> SH<ins>:=</ins>TSCR(HOOK);</td></tr>
+<tr><td class="n d">244</td><td class="c d"> SH=0=&gt;(<del>J_</del>NUNO(STUFF,K1,K2); STSCR(HOOK,<del>J</del>); GO TO INSX);</td><td class="n a">136</td><td class="c a"> SH=0=&gt;(<ins>IJ:=</ins>NUNO(STUFF,K1,K2); STSCR(HOOK,<ins>IJ</ins>); GO TO INSX);</td></tr>
+<tr><td class="n d">245</td><td class="c d"> <del>K_</del>COMPNO(SH,STUFF);</td><td class="n a">137</td><td class="c a"> <ins>IK:=</ins>COMPNO(SH,STUFF);</td></tr>
+<tr><td class="n d">246</td><td class="c d"> <del>K</del>=0=&gt;GO TO INSXX;</td><td class="n a">138</td><td class="c a"> <ins>IK</ins>=0=&gt;GO TO INSXX;</td></tr>
+<tr><td class="n d">247</td><td class="c d"> <del>K</del>&gt;0=&gt;(<del>J_</del>NUNO(STUFF,K1,K2); STSCR(HOOK,<del>J</del>); STALT(<del>J</del>,SH); GO TO INSX);</td><td class="n a">139</td><td class="c a"> <ins>IK</ins>&gt;0=&gt;(<ins>IJ:=</ins>NUNO(STUFF,K1,K2); STSCR(HOOK,<ins>IJ</ins>); STALT(<ins>IJ</ins>,SH); GO TO INSX);</td></tr>
+<tr><td class="n d">248</td><td class="c d"> L15: LSH<del>_</del>SH; SH<del>_</del>TALT(SH);</td><td class="n a">140</td><td class="c a"> L15: LSH<ins>:=</ins>SH; SH<ins>:=</ins>TALT(SH);</td></tr>
+<tr><td class="n d">249</td><td class="c d"> SH=0=&gt;(<del>J_</del>NUNO(STUFF,K1,K2); STALT(LSH,<del>J</del>); GO TO INSX);</td><td class="n a">141</td><td class="c a"> SH=0=&gt;(<ins>IJ:=</ins>NUNO(STUFF,K1,K2); STALT(LSH,<ins>IJ</ins>); GO TO INSX);</td></tr>
+<tr><td class="n d">250</td><td class="c d"> <del>K_</del>COMPNO(SH,STUFF);</td><td class="n a">142</td><td class="c a"> <ins>IK:=</ins>COMPNO(SH,STUFF);</td></tr>
+<tr><td class="n d">251</td><td class="c d"> <del>K</del>=&gt;(<del>K</del>&lt;0=&gt;GO TO L15;</td><td class="n a">143</td><td class="c a"> <ins>IK</ins>=&gt;(<ins>IK</ins>&lt;0=&gt;GO TO L15;</td></tr>
+<tr><td class="n d">252</td><td class="c d">     <del>J_</del>NUNO(STUFF,K1,K2);</td><td class="n a">144</td><td class="c a">     <ins>IJ:=</ins>NUNO(STUFF,K1,K2);</td></tr>
+<tr><td class="n d">253</td><td class="c d">     STALT(<del>J</del>,SH); STALT(LSH,<del>J</del>);</td><td class="n a">145</td><td class="c a">     STALT(<ins>IJ</ins>,SH); STALT(LSH,<ins>IJ</ins>);</td></tr>
+<tr><td class="n q">254</td><td class="c q">     GO TO INSX);</td><td class="n q">146</td><td class="c q">     GO TO INSX);</td></tr>
+<tr><td class="n d">255</td><td class="c d"> INSXX: <del>J_</del>SH;</td><td class="n a">147</td><td class="c a"> INSXX: <ins>IJ:=</ins>SH;</td></tr>
+<tr><td class="n d">256</td><td class="c d"> INSX: SH<del>_</del>TSCR(HOOK);</td><td class="n a">148</td><td class="c a"> INSX: SH<ins>:=</ins>TSCR(HOOK);</td></tr>
+<tr><td class="n q">257</td><td class="c q"> # SET SPECIAL FIELD TO INDEX OF FIRST PROD'N NODE #</td><td class="n q">149</td><td class="c q"> # SET SPECIAL FIELD TO INDEX OF FIRST PROD'N NODE #</td></tr>
+<tr><td class="n d">258</td><td class="c d"> WHILE SH DO (<del>[</del>CT+SH+1<del>]&lt;L&gt;</del> LE <del>100002B</del>=&gt;GO TO L31; SH<del>_</del>TALT(SH));</td><td class="n a">150</td><td class="c a"> WHILE SH DO (<ins>HL(FREE(</ins>CT+SH+1<ins>))</ins> LE <ins>PLIM</ins>=&gt;GO TO L31; SH<ins>:=</ins>TALT(SH));</td></tr>
+<tr><td class="n d">259</td><td class="c d"> L31: <del>K_</del>TSCR(HOOK);</td><td class="n a">151</td><td class="c a"> L31: <ins>IK:=</ins>TSCR(HOOK);</td></tr>
+<tr><td class="n d">260</td><td class="c d"> WHILE <del>K</del> NE SH DO (FREES(CT+<del>K</del>-1,SH); <del>K_</del>TALT(<del>K</del>));</td><td class="n a">152</td><td class="c a"> WHILE <ins>IK</ins> NE SH DO (FREES(CT+<ins>IK</ins>-1,SH); <ins>IK:=</ins>TALT(<ins>IK</ins>));</td></tr>
+<tr><td class="n d">261</td><td class="c d"> <del>J</del>);</td><td class="n a">153</td><td class="c a"> <ins>IJ</ins>);</td></tr>
+<tr><td class="n q">263</td><td class="c q">SUBR NUNO(A,B,C) IS (</td><td class="n q">155</td><td class="c q">SUBR NUNO(A,B,C) IS (</td></tr>
+<tr><td class="n d">264</td><td class="c d"> NCT<del>_</del>NCT+1;</td><td class="n a">156</td><td class="c a"> NCT<ins>:=</ins>NCT+1;</td></tr>
+<tr><td class="n q">265</td><td class="c q"> FLEN(CT) LE (NCT+4) =&gt; FADDEX(CT,NCT+4);</td><td class="n q">157</td><td class="c q"> FLEN(CT) LE (NCT+4) =&gt; FADDEX(CT,NCT+4);</td></tr>
+<tr><td class="n d">266</td><td class="c d"> Q<del>_</del>NCT; FREES(CT+NCT,0);</td><td class="n a">158</td><td class="c a"> Q<ins>:=</ins>NCT; FREES(CT+NCT,0);</td></tr>
+<tr><td class="n d">267</td><td class="c d"> STNODEN(Q,(NODEN<del>_</del>NODEN+1));</td><td class="n a">159</td><td class="c a"> STNODEN(Q,(NODEN<ins>:=</ins>NODEN+1));</td></tr>
+<tr><td class="n d">268</td><td class="c d"> (AA<del>_</del>A)=<del>100002000000B</del>=&gt;AA<del>_</del>AA OR Q;</td><td class="n a">160</td><td class="c a"> (AA<ins>:=</ins>A)=<ins>(NT1 OR NTRM)</ins>=&gt;AA<ins>:=</ins>AA OR Q;</td></tr>
+<tr><td class="n d">269</td><td class="c d"> FREES(CT+NCT+1,AA); NCT<del>_</del>NCT+2;</td><td class="n a">161</td><td class="c a"> FREES(CT+NCT+1,AA); NCT<ins>:=</ins>NCT+2;</td></tr>
+<tr><td class="n d">270</td><td class="c d"> B=&gt;(FREES(CT+NCT,C); NCT<del>_</del>NCT+1);</td><td class="n a">162</td><td class="c a"> B=&gt;(FREES(CT+NCT,C); NCT<ins>:=</ins>NCT+1);</td></tr>
+<tr><td class="n q">271</td><td class="c q"> Q);</td><td class="n q">163</td><td class="c q"> Q);</td></tr>
+<tr><td class="n q">273</td><td class="c q">SUBR COMPNO(NO,VV) IS (</td><td class="n q">165</td><td class="c q">SUBR COMPNO(NO,VV) IS (</td></tr>
+<tr><td class="n q">274</td><td class="c q"> # COMPARES NODE NO WITH VALUE VV.  RETURNS 1,0,-1 ACCORDING AS VV</td><td class="n q">166</td><td class="c q"> # COMPARES NODE NO WITH VALUE VV.  RETURNS 1,0,-1 ACCORDING AS VV</td></tr>
+<tr><td class="n q">275</td><td class="c q">   BELONGS ABOVE, IS EQUAL TO, BELONGS BELOW, NODE NO. #</td><td class="n q">167</td><td class="c q">   BELONGS ABOVE, IS EQUAL TO, BELONGS BELOW, NODE NO. #</td></tr>
+<tr><td class="n d">276</td><td class="c d"> V<del>_</del>FREE(CT+NO+1);</td><td class="n a">168</td><td class="c a"> V<ins>:=</ins>FREE(CT+NO+1);</td></tr>
+<tr><td class="n d">277</td><td class="c d"> VL<del>_</del>0; V=VV=&gt;GO TO COMPX;</td><td class="n a">169</td><td class="c a"> VL<ins>:=</ins>0; V=VV=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n d">278</td><td class="c d"> VL<del>_</del>1;</td><td class="n a">170</td><td class="c a"> VL<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">279</td><td class="c d"> (TV<del>_</del>V RS <del>33</del>)=1=&gt;TV<del>_</del>4;        #CHECK TYPE #</td><td class="n a">171</td><td class="c a"> (TV<ins>:=</ins>V RS <ins>61</ins>)=1=&gt;TV<ins>:=</ins>4;        #CHECK TYPE #</td></tr>
+<tr><td class="n d">280</td><td class="c d"> (TVV<del>_</del>VV RS <del>33</del>)=1=&gt;TVV<del>_</del>4;</td><td class="n a">172</td><td class="c a"> (TVV<ins>:=</ins>VV RS <ins>61</ins>)=1=&gt;TVV<ins>:=</ins>4;</td></tr>
+<tr><td class="n q">281</td><td class="c q"> TVV&lt;TV=&gt;GO TO COMPX;</td><td class="n q">173</td><td class="c q"> TVV&lt;TV=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n q">282</td><td class="c q"> TVV=TV=&gt;(TV NE 4=&gt;GO TO COMPX;</td><td class="n q">174</td><td class="c q"> TVV=TV=&gt;(TV NE 4=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n d">283</td><td class="c d">          TV<del>_</del>V <del>RS 18</del>; TVV<del>_</del>VV <del>RS 18</del>;      # CHECK FOR PROD'N NODES #</td><td class="n a">175</td><td class="c a">          TV<ins>:=HL(</ins>V<ins>)</ins>; TVV<ins>:=HL(</ins>VV<ins>)</ins>;      # CHECK FOR PROD'N NODES #</td></tr>
+<tr><td class="n d">284</td><td class="c d">	  TV LE <del>100002B</del>=&gt;(TV=TVV=&gt;TV=<del>100002B</del>=&gt;RETURN 0;</td><td class="n a">176</td><td class="c a">          TV LE <ins>PLIM</ins>=&gt;(TV=TVV=&gt;TV=<ins>PLIM</ins>=&gt;RETURN 0;</td></tr>
+<tr><td class="n d">285</td><td class="c d">			  TVV&gt;<del>100002B</del>=&gt;GO TO COMPX;</td><td class="n a">177</td><td class="c a">                          TVV&gt;<ins>PLIM</ins>=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n q">286</td><td class="c q">			  TV&gt;TVV=&gt;GO TO COMPX;</td><td class="n q">178</td><td class="c q">                          TV&gt;TVV=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n q">287</td><td class="c q">			  GO TO COMPXX);</td><td class="n q">179</td><td class="c q">                          GO TO COMPXX);</td></tr>
+<tr><td class="n d">288</td><td class="c d">	  TVV LE <del>100002B</del>=&gt;GO TO COMPXX;</td><td class="n a">180</td><td class="c a">          TVV LE <ins>PLIM</ins>=&gt;GO TO COMPXX;</td></tr>
+<tr><td class="n d">289</td><td class="c d">          TV<del>_</del>77B AND 40B+V RS <del>25</del>;        # CHECK WSCVRN #</td><td class="n a">181</td><td class="c a">          TV<ins>:=</ins>77B AND <ins>(</ins>40B+<ins>(</ins>V RS <ins>53))</ins>;        # CHECK WSCVRN #</td></tr>
+<tr><td class="n d">290</td><td class="c d">          TVV<del>_</del>77B AND 40B+VV RS <del>25</del>;</td><td class="n a">182</td><td class="c a">          TVV<ins>:=</ins>77B AND <ins>(</ins>40B+<ins>(</ins>VV RS <ins>53))</ins>;</td></tr>
+<tr><td class="n q">291</td><td class="c q">          TVV&lt;TV=&gt;GO TO COMPX;</td><td class="n q">183</td><td class="c q">          TVV&lt;TV=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n q">292</td><td class="c q">          TVV=TV=&gt;(</td><td class="n q">184</td><td class="c q">          TVV=TV=&gt;(</td></tr>
+<tr><td class="n d">293</td><td class="c d">              TV<del>_</del>V RS <del>31</del>;            # CHECK ARITH. TYPE #</td><td class="n a">185</td><td class="c a">              TV<ins>:=</ins>V RS <ins>59</ins>;            # CHECK ARITH. TYPE #</td></tr>
+<tr><td class="n d">294</td><td class="c d">              TVV<del>_</del>VV RS <del>31</del>;</td><td class="n a">186</td><td class="c a">              TVV<ins>:=</ins>VV RS <ins>59</ins>;</td></tr>
+<tr><td class="n q">295</td><td class="c q">              TVV&lt;TV=&gt;GO TO COMPX;</td><td class="n q">187</td><td class="c q">              TVV&lt;TV=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n q">296</td><td class="c q">              TVV=TV=&gt;(</td><td class="n q">188</td><td class="c q">              TVV=TV=&gt;(</td></tr>
+<tr><td class="n d">297</td><td class="c d">                   KV<del>_</del>177B AND V RS 8; KVV<del>_</del>177B AND VV RS 8;</td><td class="n a">189</td><td class="c a">                   KV<ins>:=</ins>177B AND <ins>(</ins>V RS 8<ins>)</ins>; KVV<ins>:=</ins>177B AND <ins>(</ins>VV RS 8<ins>)</ins>;</td></tr>
+<tr><td class="n d">298</td><td class="c d">                   LV<del>_</del>177B AND V; LVV<del>_</del>177B AND VV;</td><td class="n a">190</td><td class="c a">                   LV<ins>:=</ins>177B AND V; LVV<ins>:=</ins>177B AND VV;</td></tr>
+<tr><td class="n q">299</td><td class="c q"># CHECK CONS #     (KVV+LVV)&gt;(KV+LV)=&gt;GO TO COMPX;</td><td class="n q">191</td><td class="c q"># CHECK CONS #     (KVV+LVV)&gt;(KV+LV)=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n q">300</td><td class="c q">                   (KVV+LVV)=(KV+LV)=&gt;(LVV&gt;LV=&gt;GO TO COMPX;</td><td class="n q">192</td><td class="c q">                   (KVV+LVV)=(KV+LV)=&gt;(LVV&gt;LV=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n d">301</td><td class="c d">                                       LVV=LV=&gt;(KV<del>_</del>37B AND V RS <del>20</del>;</td><td class="n a">193</td><td class="c a">                                       LVV=LV=&gt;(KV<ins>:=</ins>37B AND <ins>(</ins>V RS <ins>24)</ins>;</td></tr>
+<tr><td class="n d">302</td><td class="c d">#CHECK REGS #                                   KVV<del>_</del>37B AND VV RS <del>20</del>;</td><td class="n a">194</td><td class="c a">#CHECK REGS #                                   KVV<ins>:=</ins>37B AND <ins>(</ins>VV RS <ins>24)</ins>;</td></tr>
+<tr><td class="n q">303</td><td class="c q">                                                KVV&gt;KV=&gt;GO TO COMPX;</td><td class="n q">195</td><td class="c q">                                                KVV&gt;KV=&gt;GO TO COMPX;</td></tr>
+<tr><td class="n d">304</td><td class="c d">                                                KVV=KV=&gt;(KV<del>_</del>37B AND V RS <del>15</del>;</td><td class="n a">196</td><td class="c a">                                                KVV=KV=&gt;(KV<ins>:=</ins>37B AND <ins>(</ins>V RS <ins>16)</ins>;</td></tr>
+<tr><td class="n d">305</td><td class="c d">                                                         KVV<del>_</del>37B AND VV RS <del>15</del>;</td><td class="n a">197</td><td class="c a">                                                         KVV<ins>:=</ins>37B AND <ins>(</ins>VV RS <ins>16)</ins>;</td></tr>
+<tr><td class="n q">306</td><td class="c q">                                                         KVV&lt;KV=&gt;GO TO COMPX)</td><td class="n q">198</td><td class="c q">                                                         KVV&lt;KV=&gt;GO TO COMPX)</td></tr>
+<tr><td class="n q">307</td><td class="c q">                                                                     )))));</td><td class="n q">199</td><td class="c q">                                                                     )))));</td></tr>
+<tr><td class="n d">308</td><td class="c d"> COMPXX: VL<del>_</del>-1;</td><td class="n a">200</td><td class="c a"> COMPXX: VL<ins>:=</ins>-1;</td></tr>
+<tr><td class="n q">309</td><td class="c q"> COMPX: VL);</td><td class="n q">201</td><td class="c q"> COMPX: VL);</td></tr>
+<tr><td class="n d">311</td><td class="c d"><del>REMOTE IDTB:</del> DATA<del>('REG  CON  CNG  VAR  MEM  WRD  IGR  FLT  BYT  NAM  NSE');</del></td><td class="n a">203</td><td class="c a"><ins># THE NAMES OF THE SPECIAL IDENTIFIERS, THREE CHARACTERS PACKED RIGHT JUSTIFIED, 7 BITS EACH:</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">204</td><td class="c a">  <ins>REG CON CNG VAR MEM WRD IGR FLT BYT NAM NSE (THE ORIGINAL'S</ins> DATA <ins>IS PACKED FIVE TO A WORD;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">205</td><td class="c a">  <ins>A STRING CONSTANT IS BYTES HERE.) #</ins></td></tr>
+<tr><td class="n q">313</td><td class="c q">SUBR CODEID(SW) IS (</td><td class="n q">207</td><td class="c q">SUBR CODEID(SW) IS (</td></tr>
+<tr><td class="n q">314</td><td class="c q"> # ROUTINE TO DISASSEMBLE AN IDENTIFIER.  IF SW=0, RETURNS THE DIRECTORY</td><td class="n q">208</td><td class="c q"> # ROUTINE TO DISASSEMBLE AN IDENTIFIER.  IF SW=0, RETURNS THE DIRECTORY</td></tr>
+<tr><td class="n q">315</td><td class="c q">   INDEX OF THE NEXT INDICATOR IN THE IDENTIFIER, OR 0 IF DONE.  IF SW NE 0,</td><td class="n q">209</td><td class="c q">   INDEX OF THE NEXT INDICATOR IN THE IDENTIFIER, OR 0 IF DONE.  IF SW NE 0,</td></tr>
+<tr><td class="n q">316</td><td class="c q">   INITIALIZES ON IDENTIFIER ID.  FOR SPECIAL IDENTIFIER, RETURNS MINUS DEXE</td><td class="n q">210</td><td class="c q">   INITIALIZES ON IDENTIFIER ID.  FOR SPECIAL IDENTIFIER, RETURNS MINUS DEXE</td></tr>
+<tr><td class="n q">317</td><td class="c q">   OF IDENTIFIER IN IDTB, AND N1 AND N2 ARE SET TO NUMERIC ARGS, OR -1 #</td><td class="n q">211</td><td class="c q">   OF IDENTIFIER IN IDTB, AND N1 AND N2 ARE SET TO NUMERIC ARGS, OR -1 #</td></tr>
+<tr><td class="n d">318</td><td class="c d"> CINIT=0=&gt;(CINIT<del>_</del>1;</td><td class="n a">212</td><td class="c a"> <ins>IDTB IS 11 LONG;</ins></td></tr>
+<tr><td class="n d">319</td><td class="c d">           <del>(</del>IDTB[<del>I</del>]<del>_</del>IDTB[<del>I</del>] <del>RS 15) FOR I FROM</del> 10);</td><td class="n a">213</td><td class="c a"> CINIT=0=&gt;(CINIT<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">320</td><td class="c d"> SW=&gt;(<del>CHAR_SH_</del>0; LCH<del>_CHAR_</del>-1;</td><td class="n a">214</td><td class="c a">           IDTB[<ins>0</ins>]<ins>:='REG';</ins> IDTB[<ins>1</ins>]<ins>:='CON'; IDTB[2]:='CNG'; IDTB[3]:='VAR';</ins></td></tr>
+<tr><td class="n d">321</td><td class="c d">      IDDIR<del>_</del>SW; IDDIRX<del>_</del>-1;  GO TO CODEIDX);</td><td class="n a">215</td><td class="c a">           <ins>IDTB[4]:='MEM'; IDTB[5]:='WRD'; IDTB[6]:='IGR'; IDTB[7]:='FLT';</ins></td></tr>
+<tr><td class="n d">322</td><td class="c d"> NSW<del>_</del>ANS<del>_</del>NAN<del>_</del>NA<del>_</del>0; NA IS 10 LONG;</td><td class="n a">216</td><td class="c a">           <ins>IDTB[8]:='BYT'; IDTB[9]:='NAM'; IDTB[</ins>10<ins>]:='NSE'</ins>);</td></tr>
+<tr><td class="n d">323</td><td class="c d"> LCH=0=&gt;(ANS<del>_</del>0; GO TO CODEIDX);</td><td class="n a">217</td><td class="c a"> SW=&gt;(<ins>CHR:=</ins>0; <ins>SH:=CHBEYOND;</ins> LCH<ins>:=CHR:=</ins>-1;</td></tr>
+<tr><td class="n d">324</td><td class="c d"> N1<del>_</del>N2<del>_</del>-1;</td><td class="n a">218</td><td class="c a">      IDDIR<ins>:=</ins>SW; IDDIRX<ins>:=</ins>-1;  GO TO CODEIDX);</td></tr>
+<tr><td class="n d">325</td><td class="c d"> <del>CHAR</del> LE 0=&gt;(NXCH: LCH=0=&gt;(<del>CHAR_</del>0; GO TO L9);</td><td class="n a">219</td><td class="c a"> NSW<ins>:=</ins>ANS<ins>:=</ins>NAN<ins>:=</ins>NA<ins>:=</ins>0; <ins>NSH:=CHFIRST;</ins> NA IS 10 LONG;</td></tr>
+<tr><td class="n d">326</td><td class="c d">                   SH<del>&lt;1</del>=&gt;(IDDIRX<del>_</del>IDDIRX+1;</td><td class="n a">220</td><td class="c a"> LCH=0=&gt;(ANS<ins>:=</ins>0; GO TO CODEIDX);</td></tr>
+<tr><td class="n d">327</td><td class="c d">                          ID<del>_</del>DNAME(IDDIR,IDDIRX);</td><td class="n a">221</td><td class="c a"> N1<ins>:=</ins>N2<ins>:=</ins>-1;</td></tr>
+<tr><td class="n d">328</td><td class="c d">                          SH<del>_29</del>);</td><td class="n a">222</td><td class="c a"> <ins>CHR</ins> LE 0=&gt;(NXCH: LCH=0=&gt;(<ins>CHR:=</ins>0; GO TO L9);</td></tr>
+<tr><td class="n d">329</td><td class="c d">                   LCH<del>_CHAR_177B</del> AND ID RS SH;</td><td class="n a">223</td><td class="c a">                   <ins>CHPAST(</ins>SH<ins>)</ins>=&gt;(IDDIRX<ins>:=</ins>IDDIRX+1;</td></tr>
+<tr><td class="n d">330</td><td class="c d">                   SH<del>_</del>SH<del>-7</del>);</td><td class="n a">224</td><td class="c a">                          ID<ins>:=</ins>DNAME(IDDIR,IDDIRX);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">225</td><td class="c a">                          SH<ins>:=CHFIRST</ins>);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">226</td><td class="c a">                   LCH<ins>:=CHR:=377B</ins> AND <ins>(</ins>ID RS SH<ins>)</ins>;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">227</td><td class="c a">                   SH<ins>:=</ins>SH<ins>+CHSTEP</ins>);</td></tr>
+<tr><td class="n q">331</td><td class="c q">  L9: NSW=&gt;GO TO L3;</td><td class="n q">228</td><td class="c q">  L9: NSW=&gt;GO TO L3;</td></tr>
+<tr><td class="n q">332</td><td class="c q">  (NA=IDTB[C]=&gt;GO TO L2) FOR C FROM 10;</td><td class="n q">229</td><td class="c q">  (NA=IDTB[C]=&gt;GO TO L2) FOR C FROM 10;</td></tr>
+<tr><td class="n q">333</td><td class="c q">  ANS=0=&gt;(# MAKE NAME #</td><td class="n q">230</td><td class="c q">  ANS=0=&gt;(# MAKE NAME #</td></tr>
+<tr><td class="n d">334</td><td class="c d">          <del>CHAR</del> NE 0 =&gt;<del>CHAR</del> NE 60B =&gt;(NA[NAN]<del>_CHAR OR</del> NA[NAN] LS <del>7</del>;</td><td class="n a">231</td><td class="c a">          <ins>CHR</ins> NE 0 =&gt;<ins>CHR</ins> NE 60B =&gt;(NA[NAN]<ins>:=</ins>NA[NAN] <ins>OR (CHR</ins> LS <ins>NSH)</ins>;</td></tr>
+<tr><td class="n d">335</td><td class="c d">                                     (<del>NA[NAN] RS 28</del>)=&gt;(</td><td class="n a">232</td><td class="c a">                                     <ins>NSH:=NSH+CHSTEP;</ins></td></tr>
+<tr><td class="n d">336</td><td class="c d">                          <del>NA[NAN]_NA[NAN] LS 1</del>;</td><td class="n a">233</td><td class="c a">                                     <ins>CHPAST</ins>(<ins>NSH</ins>)=&gt;(</td></tr>
+<tr><td class="n d">337</td><td class="c d">                          (NAN<del>_</del>NAN+1)&gt;9=&gt;ERROR(0,'NAME TOO LONG **');</td><td class="n a">234</td><td class="c a">                          <ins>NSH:=CHFIRST</ins>;</td></tr>
+<tr><td class="n d">338</td><td class="c d">                          NA[NAN]<del>_</del>0);</td><td class="n a">235</td><td class="c a">                          (NAN<ins>:=</ins>NAN+1)&gt;9=&gt;ERROR(0,'NAME TOO LONG **');</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">236</td><td class="c a">                          NA[NAN]<ins>:=</ins>0);</td></tr>
+<tr><td class="n q">339</td><td class="c q">                                     GO TO NXCH);</td><td class="n q">237</td><td class="c q">                                     GO TO NXCH);</td></tr>
+<tr><td class="n d">340</td><td class="c d">          <del>(NA[NAN]_NA[NAN] LS 1)=&gt;(</del></td><td class="n a">238</td><td class="c a">          ANS<ins>:=</ins>DIR(NA);</td></tr>
+<tr><td class="n d">341</td><td class="c d">                <del>L1: (NA[NAN] RS 29)=0=&gt;(NA[NAN]_NA[NAN] LS 7;</del></td><td class="n a">239</td><td class="c a">          <ins>CHR:=</ins>0; GO TO CODEIDX);</td></tr>
+<tr><td class="n d">342</td><td class="c d">                                        <del>GO TO L1));</del></td><td class="n a">240</td><td class="c a"> L2: NSW<ins>:=</ins>1; C=10=&gt;C<ins>:=</ins>5; ANS<ins>:=</ins>-(C+1); C&gt;2=&gt;GO TO CODEIDX;</td></tr>
+<tr><td class="n d">343</td><td class="c d">          ANS<del>_</del>DIR(NA);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">344</td><td class="c d">          <del>CHAR_</del>0; GO TO CODEIDX);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">345</td><td class="c d"> L2: NSW<del>_</del>1; C=10=&gt;C<del>_</del>5; ANS<del>_</del>-(C+1); C&gt;2=&gt;GO TO CODEIDX;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">346</td><td class="c q"> L3: NSW=5=&gt;GO TO CODEIDX;</td><td class="n q">241</td><td class="c q"> L3: NSW=5=&gt;GO TO CODEIDX;</td></tr>
+<tr><td class="n d">347</td><td class="c d"> <del>CHAR</del> GE 60B=&gt;<del>CHAR</del> LE 71B=&gt;GO TO <del>SWTB[</del>NSW-1<del>]</del>;</td><td class="n a">242</td><td class="c a"> <ins>CHR</ins> GE 60B=&gt;<ins>CHR</ins> LE 71B=&gt;GO TO <ins>(L4,L5,L6,L7)</ins> NSW-1;</td></tr>
+<tr><td class="n q">348</td><td class="c q"> (1 AND NSW)=&gt;GO TO CODEIDX;</td><td class="n q">243</td><td class="c q"> (1 AND NSW)=&gt;GO TO CODEIDX;</td></tr>
+<tr><td class="n q">349</td><td class="c q"> L8: ERROR(1,'NUMBER MISSING OR OUT OF PLACE IN SEMANTICS IDENTIFIER **');</td><td class="n q">244</td><td class="c q"> L8: ERROR(1,'NUMBER MISSING OR OUT OF PLACE IN SEMANTICS IDENTIFIER **');</td></tr>
+<tr><td class="n d">350</td><td class="c d">     ANS<del>_</del>0; GO TO CODEIDX;</td><td class="n a">245</td><td class="c a">     ANS<ins>:=</ins>0; GO TO CODEIDX;</td></tr>
+<tr><td class="n d">351</td><td class="c d"> <del>SWTB: GO TO</del> L4<del>; GO TO L5; GO TO L6; GO TO L7;</del></td><td class="n a">246</td><td class="c a"> L4: N1<ins>:=</ins>10*<ins>(CHR</ins>-60B<ins>)</ins>; GO TO L10;</td></tr>
+<tr><td class="n d">352</td><td class="c d"> <del>L4</del>: N1<del>_</del>10*<del>CHAR</del>-60B; GO TO L10;</td><td class="n a">247</td><td class="c a"> L5: N1<ins>:=</ins>N1+<ins>CHR</ins>-60B; GO TO L10;</td></tr>
+<tr><td class="n d">353</td><td class="c d"> L5: N1<del>_</del>N1+<del>CHAR</del>-60B; GO TO L10;</td><td class="n a">248</td><td class="c a"> L6: N2<ins>:=</ins>10*<ins>(CHR</ins>-60B<ins>)</ins>; L10: NSW<ins>:=</ins>NSW+1; GO TO NXCH;</td></tr>
+<tr><td class="n d">354</td><td class="c d"> L6: N2<del>_</del>10*<del>CHAR</del>-60B; L10: NSW<del>_</del>NSW+1; GO TO NXCH;</td><td class="n a">249</td><td class="c a"> L7: N2<ins>:=</ins>N2+<ins>CHR</ins>-60B; GO TO L10;</td></tr>
+<tr><td class="n d">355</td><td class="c d"> L7: N2<del>_</del>N2+<del>CHAR</del>-60B; GO TO L10;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">356</td><td class="c q"> CODEIDX: ANS);</td><td class="n q">250</td><td class="c q"> CODEIDX: ANS);</td></tr>
+<tr><td class="n q">358</td><td class="c q">SUBR MATCH(TN,SN,SNONR) IS (</td><td class="n q">252</td><td class="c q">SUBR MATCH(TN,SN,SNONR) IS (</td></tr>
+<tr><td class="n d">359</td><td class="c d"> VAL<del>_</del>-1;</td><td class="n a">253</td><td class="c a"> <ins># TN IS A REFERENCE: IT IS LEFT AT THE NODE THAT MATCHED, WHICH COTREE READS. #</ins></td></tr>
+<tr><td class="n d">360</td><td class="c d"> S<del>_</del>FREE(SN);</td><td class="n a">254</td><td class="c a"> VAL<ins>:=</ins>-1;</td></tr>
+<tr><td class="n d">361</td><td class="c d"> STY<del>_</del>S AND 37B;</td><td class="n a">255</td><td class="c a"> S<ins>:=</ins>FREE(SN);</td></tr>
+<tr><td class="n d">362</td><td class="c d"> SDI<del>_</del>S <del>RS 18</del>;</td><td class="n a">256</td><td class="c a"> STY<ins>:=</ins>S AND 37B;</td></tr>
+<tr><td class="n d">363</td><td class="c d"> SVAL<del>_</del>FREE(SN+1);</td><td class="n a">257</td><td class="c a"> SDI<ins>:=HL(</ins>S<ins>)</ins>;</td></tr>
+<tr><td class="n d">364</td><td class="c d"> STY=0=&gt;(<del>TB_BYTEP [TORG1]&lt;11,25&gt;;</del></td><td class="n a">258</td><td class="c a"> SVAL<ins>:=</ins>FREE(SN+1);</td></tr>
+<tr><td class="n d">365</td><td class="c d">	TY0AL0: <del>&lt;TN</del>+<del>TB&gt;</del> NE 400B=&gt;((TN<del>_[TORG</del>+TN-1<del>]</del>)=&gt;GO TO TY0AL0;</td><td class="n a">259</td><td class="c a"> STY=0=&gt;(</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">260</td><td class="c a">   TY0AL0: <ins>(FREE(CT</ins>+<ins>1+TN) RS 53)</ins> NE 400B=&gt;(</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">261</td><td class="c a">                  (TN<ins>:=FREE(CT</ins>+TN-1<ins>)</ins>)=&gt;GO TO TY0AL0;</td></tr>
+<tr><td class="n q">366</td><td class="c q">					RETURN 0);</td><td class="n q">262</td><td class="c q">                  RETURN 0);</td></tr>
+<tr><td class="n d">367</td><td class="c d">	<del>(</del>T<del>_[</del>TN+<del>TORG1]</del>) AND <del>2000000B</del>=&gt;(</td><td class="n a">263</td><td class="c a">   T<ins>:=FREE(</ins>TN+<ins>CT+1</ins>)<ins>;</ins></td></tr>
+<tr><td class="n d">368</td><td class="c d">		(VAL<del>_</del>MATCHP(SDI,TN))=0=&gt;GO TO TY0ALT;</td><td class="n a">264</td><td class="c a">   <ins>(T</ins> AND <ins>NTRM)</ins>=&gt;(</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">265</td><td class="c a">        (VAL<ins>:=</ins>MATCHP(SDI,TN))=0=&gt;GO TO TY0ALT;</td></tr>
+<tr><td class="n q">369</td><td class="c q">		RETURN VAL);</td><td class="n q">266</td><td class="c q">        RETURN VAL);</td></tr>
+<tr><td class="n d">370</td><td class="c d">	T<del>&lt;R&gt;</del>=SDI=&gt;RETURN -1;</td><td class="n a">267</td><td class="c a">   <ins>HR(</ins>T<ins>)</ins>=SDI=&gt;RETURN -1;</td></tr>
+<tr><td class="n q">371</td><td class="c q">	SVAL=0=&gt;GO TO TY0ALT;</td><td class="n q">268</td><td class="c q">   SVAL=0=&gt;GO TO TY0ALT;</td></tr>
+<tr><td class="n d">372</td><td class="c d">	T<del>&lt;R&gt;</del>=SVAL<del>&lt;L&gt;</del>=&gt;RETURN -2;</td><td class="n a">269</td><td class="c a">   <ins>HR(</ins>T<ins>)</ins>=<ins>HL(</ins>SVAL<ins>)</ins>=&gt;RETURN -2;</td></tr>
+<tr><td class="n d">373</td><td class="c d">	TY0ALT: (TN<del>_</del>TALT(TN))=&gt;GO TO TY0AL0; RETURN 0);</td><td class="n a">270</td><td class="c a">   TY0ALT: (TN<ins>:=</ins>TALT(TN))=&gt;GO TO TY0AL0; RETURN 0);</td></tr>
+<tr><td class="n d">374</td><td class="c d"> SNN<del>_</del>SNONR;</td><td class="n a">271</td><td class="c a"> SNN<ins>:=</ins>SNONR;</td></tr>
+<tr><td class="n d">375</td><td class="c d"> <del>SN1_SBITM+SBITM[1]*SNN/36; SN2_1 LS SNN//36;</del></td><td class="n a">272</td><td class="c a"> TYALT: SNN GE 0=&gt;(<ins>BIT(SBITM,</ins>TNODEN(TN)<ins>,SNN</ins>)=0=&gt;GO TO NIX<ins>)</ins>;</td></tr>
+<tr><td class="n d">376</td><td class="c d"> TYALT: SNN GE 0=&gt;(<del>SN2 AND [SN1+</del>TNODEN(TN)<del>]</del>)=0=&gt;GO TO NIX;</td><td class="n a">273</td><td class="c a"> T<ins>:=FREE(</ins>TN+<ins>CT+1)</ins>;</td></tr>
+<tr><td class="n d">377</td><td class="c d"> T<del>_[</del>TN+<del>TORG1]</del>;</td><td class="n a">274</td><td class="c a"> (TTY<ins>:=</ins>T RS <ins>61</ins>)=1=&gt;(</td></tr>
+<tr><td class="n d">378</td><td class="c d"> (TTY<del>_</del>T RS <del>33</del>)=1=&gt;(</td><td class="n a">275</td><td class="c a">        # PRODUCTIONS ARE LAST # <ins>((</ins>T <ins>RS 53) AND 77B)</ins>=0=&gt;RETURN 0;</td></tr>
+<tr><td class="n d">379</td><td class="c d">	# PRODUCTIONS ARE LAST # T<del>&lt;6,25&gt;</del>=0=&gt;RETURN <del>(TN_</del>0<del>)</del>;</td><td class="n a">276</td><td class="c a">        J<ins>:=</ins>S AND <ins>(</ins>T RS <ins>53</ins>)<ins>;</ins></td></tr>
+<tr><td class="n d">380</td><td class="c d">	<del>(37B AND</del> J<del>_</del>S AND T RS <del>25</del>)=0=&gt;<del>(</del></td><td class="n a">277</td><td class="c a">        <ins>(37B AND J)</ins>=0=&gt;GO TO <ins>NIX</ins>;</td></tr>
+<tr><td class="n d">381</td><td class="c d">		<del>NIX: (TN_TALT(TN))=&gt;</del>GO TO <del>TYALT</del>;</td><td class="n a">278</td><td class="c a">        (J RS 6)=0=&gt;(<ins>((</ins>T <ins>RS 59</ins>) <ins>AND 3)</ins> NE 3=&gt;GO TO NIX<ins>)</ins>;</td></tr>
+<tr><td class="n d">382</td><td class="c d">		<del>RETURN 0);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">383</td><td class="c d">	 (J RS 6)=0=&gt;(<del>3 AND</del> T <del>LROT 5</del>) NE 3=&gt;GO TO NIX;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">384</td><td class="c q">         (STY AND 6)=0=&gt;GO TO MEX;</td><td class="n q">279</td><td class="c q">        (STY AND 6)=0=&gt;GO TO MEX;</td></tr>
+<tr><td class="n d">385</td><td class="c d">         STY=2=&gt;<del>(VAL_-RMATCH(T&lt;5,20&gt;,T&lt;5,15&gt;,SVAL&lt;11,18&gt;);</del></td><td class="n a">280</td><td class="c a">        STY=2=&gt;GO TO MEX;           <ins># THE ORIGINAL ASKS RMATCH; STAGE0/ENTREE.C DOES NOT #</ins></td></tr>
+<tr><td class="n d">386</td><td class="c d">                 GO TO MEX<del>)</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">387</td><td class="c q">         # CHECK IF CONSTANT MATCHES REQUIREMENTS #</td><td class="n q">281</td><td class="c q">        # CHECK IF CONSTANT MATCHES REQUIREMENTS #</td></tr>
+<tr><td class="n d">388</td><td class="c d">	 T<del>&lt;15,0&gt;</del>=177B=&gt;GO TO MEX;</td><td class="n a">282</td><td class="c a">        <ins>(</ins>T <ins>AND 177777B)</ins>=177B=&gt;GO TO MEX;</td></tr>
+<tr><td class="n d">389</td><td class="c d">	 <del>(</del>MASK<del>_</del>((1 LS T<del>&lt;7,</del>8<del>&gt;</del>)-1) LS T<del>&lt;7,0&gt;</del>)=0=&gt;GO TO MEX;</td><td class="n a">283</td><td class="c a">        MASK<ins>:=</ins>((1 LS <ins>((</ins>T <ins>RS</ins> 8) <ins>AND 177B))</ins>-1) LS <ins>(</ins>T <ins>AND 177B</ins>)<ins>;</ins></td></tr>
+<tr><td class="n d">390</td><td class="c d">         MASK<del>_</del>NOT MASK;</td><td class="n a">284</td><td class="c a">        <ins>MASK</ins>=0=&gt;GO TO MEX;</td></tr>
+<tr><td class="n d">391</td><td class="c d">         REST<del>_</del>0; (T AND 200B)=&gt;REST<del>_</del>MASK;</td><td class="n a">285</td><td class="c a">        MASK<ins>:=</ins>NOT MASK;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">286</td><td class="c a">        REST<ins>:=</ins>0; (T AND 200B)=&gt;REST<ins>:=</ins>MASK;</td></tr>
+<tr><td class="n q">392</td><td class="c q">         (SVAL AND MASK)=REST=&gt;GO TO MEX;</td><td class="n q">287</td><td class="c q">        (SVAL AND MASK)=REST=&gt;GO TO MEX;</td></tr>
+<tr><td class="n q">393</td><td class="c q">         GO TO NIX);</td><td class="n q">288</td><td class="c q">        GO TO NIX);</td></tr>
+<tr><td class="n d">394</td><td class="c d"> TVAL<del>_</del>T <del>AND 777777B</del>;</td><td class="n a">289</td><td class="c a"> TVAL<ins>:=HR(</ins>T<ins>)</ins>;</td></tr>
+<tr><td class="n d">395</td><td class="c d"> TTY=0=&gt;(VAL<del>_</del>TVAL; GO TO MEX);</td><td class="n a">290</td><td class="c a"> TTY=0=&gt;(VAL<ins>:=</ins>TVAL; GO TO MEX);</td></tr>
+<tr><td class="n d">396</td><td class="c d"> TTY=2=&gt;((VAL<del>_</del>SAMEAS(SN,TVAL))=0=&gt;GO TO NIX; GO TO MEX);</td><td class="n a">291</td><td class="c a"> TTY=2=&gt;((VAL<ins>:=</ins>SAMEAS(SN,TVAL))=0=&gt;GO TO NIX; GO TO MEX);</td></tr>
+<tr><td class="n q">397</td><td class="c q"> # MATCH WITH IDENTIFIER - IF DI ENTRIES EQUAL AND NO OFFSET THEN MATCH. #</td><td class="n q">292</td><td class="c q"> # MATCH WITH IDENTIFIER - IF DI ENTRIES EQUAL AND NO OFFSET THEN MATCH. #</td></tr>
+<tr><td class="n q">398</td><td class="c q"> FREE(SN+2)=&gt;GO TO NIX;</td><td class="n q">293</td><td class="c q"> FREE(SN+2)=&gt;GO TO NIX;</td></tr>
+<tr><td class="n q">399</td><td class="c q"> SDI=TVAL=&gt;SVAL=0=&gt;GO TO MEX;</td><td class="n q">294</td><td class="c q"> SDI=TVAL=&gt;SVAL=0=&gt;GO TO MEX;</td></tr>
+<tr><td class="n d">400</td><td class="c d"> (T AND <del>1000000B</del>)=&gt;STY=4=&gt;(<del>J_</del>FREE(CT+TN+2);</td><td class="n a">295</td><td class="c a"> (T AND <ins>NCLS</ins>)=&gt;STY=4=&gt;(<ins>MJ:=</ins>FREE(CT+TN+2);</td></tr>
+<tr><td class="n d">401</td><td class="c d">                           <del>J</del>=SVAL=&gt;GO TO MEX);</td><td class="n a">296</td><td class="c a">                           <ins>MJ</ins>=SVAL=&gt;GO TO MEX);</td></tr>
+<tr><td class="n q">402</td><td class="c q"> GO TO NIX;</td><td class="n q">297</td><td class="c q"> GO TO NIX;</td></tr>
+<tr><td class="n d">403</td><td class="c d"> MEX: (T AND <del>010000000000B</del>)=&gt;ONEWORD(SN)=0=&gt;GO TO NIX;</td><td class="n a">298</td><td class="c a"> MEX: (T AND <ins>(1 LS 58</ins>)<ins>)</ins>=&gt;ONEWORD(SN)=0=&gt;GO TO NIX;</td></tr>
+<tr><td class="n d">404</td><td class="c d"> VAL=0=&gt;VAL<del>_</del>-1;</td><td class="n a">299</td><td class="c a"> VAL=0=&gt;VAL<ins>:=</ins>-1;</td></tr>
+<tr><td class="n d">405</td><td class="c d"> VAL);</td><td class="n a">300</td><td class="c a"> <ins>RETURN</ins> VAL<ins>;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">301</td><td class="c a"> <ins>NIX: (TN:=TALT(TN))=&gt;GO TO TYALT;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">302</td><td class="c a"> <ins>0</ins>);</td></tr>
+<tr><td class="n q">407</td><td class="c q">SUBR ENTRCA(SEMN) IS (</td><td class="n q">304</td><td class="c q">SUBR ENTRCA(SEMN) IS (</td></tr>
+<tr><td class="n q">408</td><td class="c q"> # SUBROUTINE CALLED WHEN SEMN IS A CASE OF ANOTHER PRODN.</td><td class="n q">305</td><td class="c q"> # SUBROUTINE CALLED WHEN SEMN IS A CASE OF ANOTHER PRODN.</td></tr>
+<tr><td class="n q">409</td><td class="c q">   MUST COMPLETE SBITM MATRIX BY BRUTE FORCE.</td><td class="n q">306</td><td class="c q">   MUST COMPLETE SBITM MATRIX BY BRUTE FORCE.</td></tr>
+<tr><td class="n q">410</td><td class="c q">   USES THE UNUSED HIGH-ORDER BIT OF TYPE WORD TO MARK NODES. #</td><td class="n q">307</td><td class="c q">   USES THE UNUSED HIGH-ORDER BIT OF TYPE WORD TO MARK NODES. #</td></tr>
+<tr><td class="n q">411</td><td class="c q"> # FIRST MARK TERMINAL TREE NODES MATCHING SEMN #</td><td class="n q">308</td><td class="c q"> # FIRST MARK TERMINAL TREE NODES MATCHING SEMN #</td></tr>
+<tr><td class="n d">412</td><td class="c d"> ENTRNO<del>_</del>1;</td><td class="n a">310</td><td class="c a"> ENTRNO<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">413</td><td class="c d"> WHILE (<del>I_</del>ENTRC1()) DO (<del>[TORG1</del>+<del>I]&lt;L&gt;</del>=<del>100002B</del>=&gt;MATCHP(SEMN,<del>I</del>)=&gt;</td><td class="n a">311</td><td class="c a"> WHILE (<ins>EI:=</ins>ENTRC1()) DO (<ins>HL(FREE(CT</ins>+<ins>EI+1))</ins>=<ins>PLIM</ins>=&gt;MATCHP(SEMN,<ins>EI</ins>)=&gt;</td></tr>
+<tr><td class="n d">414</td><td class="c d">		<del>[TORG1</del>+<del>I]_[TORG1</del>+<del>I]</del> OR <del>400000000000B</del>);</td><td class="n a">312</td><td class="c a">                <ins>FREES(CT</ins>+<ins>EI</ins>+<ins>1,FREE(CT+EI+1)</ins> OR <ins>NMARK)</ins>);</td></tr>
+<tr><td class="n q">415</td><td class="c q"> # NOW MAKE MULTIPLE PASSES MARKING PREDECESSORS OF MARKED NODES</td><td class="n q">313</td><td class="c q"> # NOW MAKE MULTIPLE PASSES MARKING PREDECESSORS OF MARKED NODES</td></tr>
+<tr><td class="n q">416</td><td class="c q">   UP TO A PRODUCTION NODE #</td><td class="n q">314</td><td class="c q">   UP TO A PRODUCTION NODE #</td></tr>
+<tr><td class="n d">417</td><td class="c d"> (FLAG <del>_</del>0;</td><td class="n a">315</td><td class="c a"> (FLAG <ins>:=</ins>0;</td></tr>
+<tr><td class="n d">418</td><td class="c d">  WHILE (<del>I_</del>ENTRC1()) DO (<del>[TORG1</del>+<del>I] ARS 18</del> GT <del>100002B</del>=&gt;</td><td class="n a">316</td><td class="c a">  WHILE (<ins>EI:=</ins>ENTRC1()) DO (<ins>HLS(FREE(CT</ins>+<ins>EI+1))</ins> GT <ins>PLIM</ins>=&gt;</td></tr>
+<tr><td class="n d">419</td><td class="c d">	(<del>J_</del>TSCR(<del>I</del>);</td><td class="n a">317</td><td class="c a">        (<ins>EJ:=</ins>TSCR(<ins>EI</ins>);</td></tr>
+<tr><td class="n d">420</td><td class="c d">	 WHILE <del>J</del> DO (<del>[TORG1</del>+<del>J]</del>&lt;0=&gt;(<del>[TORG1</del>+<del>I]_[TORG1</del>+<del>I]</del> OR <del>400000000000B</del>;</td><td class="n a">318</td><td class="c a">         WHILE <ins>EJ</ins> DO (<ins>FREE(CT</ins>+<ins>EJ+1)</ins>&lt;0=&gt;(<ins>FREES(CT</ins>+<ins>EI</ins>+<ins>1,FREE(CT+EI+1)</ins> OR <ins>NMARK)</ins>;</td></tr>
+<tr><td class="n d">421</td><td class="c d">				   FLAG<del>_</del>-1; <del>J_</del>0)</td><td class="n a">319</td><td class="c a">                                   FLAG<ins>:=</ins>-1; <ins>EJ:=</ins>0)</td></tr>
+<tr><td class="n d">422</td><td class="c d">		     ELSE (<del>J_</del>TALT(<del>J</del>)))))) UNTIL FLAG=0;</td><td class="n a">320</td><td class="c a">                     ELSE (<ins>EJ:=</ins>TALT(<ins>EJ</ins>)))))) UNTIL FLAG=0;</td></tr>
+<tr><td class="n q">423</td><td class="c q"> # NOW CLEAR MARKER BIT, SETTING BIT MATRIX AT SAME TIME #</td><td class="n q">321</td><td class="c q"> # NOW CLEAR MARKER BIT, SETTING BIT MATRIX AT SAME TIME #</td></tr>
+<tr><td class="n d">424</td><td class="c d"> <del>S_</del>SNODEN(SEMN);</td><td class="n a">322</td><td class="c a"> <ins>ES:=</ins>SNODEN(SEMN);</td></tr>
+<tr><td class="n d">425</td><td class="c d"> WHILE (<del>I_</del>ENTRC1()) DO (<del>[TORG1</del>+<del>I]</del>&lt;0=&gt;(</td><td class="n a">323</td><td class="c a"> WHILE (<ins>EI:=</ins>ENTRC1()) DO (<ins>FREE(CT</ins>+<ins>EI+1)</ins>&lt;0=&gt;(</td></tr>
+<tr><td class="n d">426</td><td class="c d">	<del>[TORG1</del>+<del>I]_[TORG1</del>+<del>I]</del> AND NOT <del>400000000000B</del>;</td><td class="n a">324</td><td class="c a">        <ins>FREES(CT</ins>+<ins>EI</ins>+<ins>1,FREE(CT+EI+1)</ins> AND NOT <ins>NMARK)</ins>;</td></tr>
+<tr><td class="n d">427</td><td class="c d">	BITS(SBITM,TNODEN(<del>I</del>),<del>S</del>))));</td><td class="n a">325</td><td class="c a">        BITS(SBITM,TNODEN(<ins>EI</ins>),<ins>ES</ins>)))<ins>;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">326</td><td class="c a"> <ins>0</ins>);</td></tr>
+<tr><td class="n q">428</td><td class="c q">SUBR ENTRC1() IS (</td><td class="n q">328</td><td class="c q">SUBR ENTRC1() IS (</td></tr>
+<tr><td class="n d">429</td><td class="c d"> (<del>J_</del>TSCR(ENTRNO))=&gt;(PUSHMI(ENTRNO); RETURN (ENTRNO<del>_J</del>));</td><td class="n a">329</td><td class="c a"> (<ins>EJ1:=</ins>TSCR(ENTRNO))=&gt;(PUSHMI(ENTRNO); RETURN (ENTRNO<ins>:=EJ1</ins>));</td></tr>
+<tr><td class="n d">430</td><td class="c d"> EN1: (ENTRNO<del>_</del>TALT(ENTRNO))=&gt;RETURN ENTRNO;</td><td class="n a">330</td><td class="c a"> EN1: (ENTRNO<ins>:=</ins>TALT(ENTRNO))=&gt;RETURN ENTRNO;</td></tr>
+<tr><td class="n d">431</td><td class="c d"> (ENTRNO<del>_</del>PULLYU(0)) NE 1=&gt;GO TO EN1;</td><td class="n a">331</td><td class="c a"> (ENTRNO<ins>:=</ins>PULLYU(0)) NE 1=&gt;GO TO EN1;</td></tr>
+<tr><td class="n q">432</td><td class="c q"> 0);</td><td class="n q">332</td><td class="c q"> 0);</td></tr>
+<tr><td class="n d">434</td><td class="c d">SUBR TPRINT() IS <del>(</del></td><td class="n a">334</td><td class="c a"><ins># TPRINT: THE DUMP OF THE CODE TREE (SEE GPRINT) #</ins></td></tr>
+<tr><td class="n d">435</td><td class="c d"> <del>LOC(</del>TPRIN1<del>) =&gt; J_TPRIN1</del>(<del>CT,NCT,SBITM,NODEN)</del></td><td class="n a">335</td><td class="c a">SUBR TPRINT() IS TPRIN1(0) %%%</td></tr>
+<tr><td class="n d">436</td><td class="c d">          <del>ELSE  (TPR0CNT=</del>0<del>=&gt;(TPR0CNT_1; J_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">437</td><td class="c d">                             <del>ERROR(2,'TPRIN1 DEBUGGING PGM NOT PRESENT')));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">438</td><td class="c d"><del>J</del>) %%%</td><td class="n e"></td><td class="c e"></td></tr>
+</table>
+</body></html>

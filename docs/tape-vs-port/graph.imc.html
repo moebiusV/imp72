@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>graph.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}
+body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}
+td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}
+td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}
+td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>graph.imc</h1>
+<p class="mut">left, old (the tape): decus/graph.imc<br>right, new (the port): src/graph.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 53 changed places, 851 tokens deleted, 423 inserted.</p>
+<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
+<tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
+<tr><td class="n d">3</td><td class="c d">#THIS IS FILE <del>GRAPH.I10,</del> GRAPH CREATION AND ACCESS MODULE FOR IMP <del>COMPILERS.</del></td><td class="n a">2</td><td class="c a"><ins>NG,NPRODS,GRNODES,GRNTGENT,GRNBITN ARE COMMON;</ins>   # <ins>THE C SIDE READS THEM (SRC/SHARED.TXT) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"><ins>GRBITM,GRNBITM ARE COMMON,3 LONG;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a"><ins>#</ins>THIS IS FILE <ins>GRAPH,</ins> GRAPH CREATION AND ACCESS MODULE FOR IMP <ins>COMPILERS, FOR THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>64 BIT PORT.  SEE DECUS/GRAPH.IMC FOR THE ORIGINAL AND ITS COMMENTS, DOCS/PORTING/MODULES.MD</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>FOR THE DIFFERENCES.</ins></td></tr>
+<tr><td class="n q">5</td><td class="c q">THE SYNTAX GRAPH IS KEPT IN NODES OF NS WORDS EACH IN A FREE STORAGE ARRAY</td><td class="n q">9</td><td class="c q">THE SYNTAX GRAPH IS KEPT IN NODES OF NS WORDS EACH IN A FREE STORAGE ARRAY</td></tr>
+<tr><td class="n q">6</td><td class="c q">POINTED TO BY GA.  THE FIRST NODE IS AT 1, THE LAST NODE IS AT NG.  THE ARRAY</td><td class="n q">10</td><td class="c q">POINTED TO BY GA.  THE FIRST NODE IS AT 1, THE LAST NODE IS AT NG.  THE ARRAY</td></tr>
+<tr><td class="n d">7</td><td class="c d">IS INITIALIZED WITH A FREE NODE, SO THAT NG&gt;0 IS ALWAYS TRUE.</td><td class="n a">11</td><td class="c a">IS INITIALIZED WITH A FREE NODE, SO THAT NG&gt;0 IS ALWAYS TRUE.  THE NODE AT</td></tr>
+<tr><td class="n d">8</td><td class="c d">    <del>IN ORDER TO REFER TO NODES BY INTEGERS 1,2,3... (FOR</del> THE <del>CONNECTIVITY</del></td><td class="n a">12</td><td class="c a">1+NS*(N-1) IS NODE NUMBER N.</td></tr>
+<tr><td class="n d">9</td><td class="c d"><del>MATRICES) THE</del> NODE AT 1+NS*(N-1) IS <del>ASSIGNED THE</del> NODE NUMBER N.</td><td class="n a">14</td><td class="c a">THE FORMAT FOR GRAPH NODES <ins>IS (HALVES ARE 32 BITS, AS IN DIR.IMC):</ins></td></tr>
+<tr><td class="n d">11</td><td class="c d">THE FORMAT FOR GRAPH NODES <del>IS:</del></td><td class="n a">16</td><td class="c a">   WD. 0  <ins>LEFT HALF</ins>   INDEX OF <ins>ALT (ALTERNATE, DOWN</ins> LINK) OR <ins>0</ins></td></tr>
+<tr><td class="n d">13</td><td class="c d">   WD. 0  <del>BITS 0-17</del>   INDEX OF <del>SCR (SUCCESSOR, RIGHT</del> LINK) OR <del>0.</del></td><td class="n a">17</td><td class="c a">          <ins>RIGHT HALF</ins>  INDEX OF <ins>SCR (SUCCESSOR, RIGHT</ins> LINK) OR 0</td></tr>
+<tr><td class="n d">14</td><td class="c d">          <del>BITS 18-35</del>  INDEX OF <del>ALT (ALTERNATE, DOWN</del> LINK) OR 0</td><td class="n a">18</td><td class="c a">   WD. 1  BITS <ins>48-50</ins>  TYPE: 0=NONTERMINAL NODE</td></tr>
+<tr><td class="n d">15</td><td class="c d">   WD. 1  BITS <del>0-2</del>    TYPE: 0=NONTERMINAL NODE</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">16</td><td class="c q">                            1=TERMINAL NODE</td><td class="n q">19</td><td class="c q">                            1=TERMINAL NODE</td></tr>
+<tr><td class="n q">17</td><td class="c q">                            2=CIRCLED NONTERMINAL NODE</td><td class="n q">20</td><td class="c q">                            2=CIRCLED NONTERMINAL NODE</td></tr>
+<tr><td class="n q">18</td><td class="c q">                            3=BOXED PRODUCTION NODE</td><td class="n q">21</td><td class="c q">                            3=BOXED PRODUCTION NODE</td></tr>
+<tr><td class="n q">19</td><td class="c q">                            5=NODE ON CHAIN OF TERMINAL ENTRY POINTS</td><td class="n q">22</td><td class="c q">                            5=NODE ON CHAIN OF TERMINAL ENTRY POINTS</td></tr>
+<tr><td class="n d">20</td><td class="c d">          BITS <del>3-17   FOR CIRCLED NONTERMINAL NODES, AND NONTERMINAL AND</del></td><td class="n a">23</td><td class="c a">          BITS <ins>32-47</ins>  A ROW INDEX FOR <ins>THE</ins> NODE IN THE BIT MATRIX NBITM.</td></tr>
+<tr><td class="n d">21</td><td class="c d">                       <del>TERMINAL NODES IMMEDIATELY FOLLOWING</del> A <del>CIRCLED NT NODE,</del></td><td class="n a">24</td><td class="c a">          BITS <ins>0-31</ins>   PRODUCTION NODES: NUMBER OF PRODUCTION</td></tr>
+<tr><td class="n d">22</td><td class="c d">                       <del>A</del> ROW INDEX FOR <del>THAT</del> NODE IN THE BIT MATRIX NBITM.</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">23</td><td class="c d">          BITS <del>18-35</del>  PRODUCTION NODES: NUMBER OF PRODUCTION</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">24</td><td class="c q">                      NONTERMINAL AND TERMINAL NODES: DIR INDEX OF NAME</td><td class="n q">25</td><td class="c q">                      NONTERMINAL AND TERMINAL NODES: DIR INDEX OF NAME</td></tr>
+<tr><td class="n d">26</td><td class="c d"> <del>THE GRAPH ENTRY SUBROUTINE, GENT, ASSIGNS THE 15-BIT PROPERTY 'NODE' TO</del></td><td class="n a">27</td><td class="c a"><ins>GA, NG, NPRODS, GRNODES, GRNTGENT, GRNBITN, GRBITM</ins> AND <ins>GRNBITM</ins> ARE <ins>COMMON</ins> FOR THE <ins>C THAT READS THEM (SRC/SHARED.TXT).</ins></td></tr>
+<tr><td class="n d">27</td><td class="c d">   <del>ALL TERMINALS</del> AND <del>NON-TERMINALS IT ENCOUNTERS.  FOR THE NON-TERMINALS,</del></td><td class="n a">28</td><td class="c a"><ins>GA, PRP</ins> AND <ins>ALF</ins> ARE <ins>DECLARED</ins> IN <ins>IMPSYN.</ins> #</td></tr>
+<tr><td class="n d">28</td><td class="c d">   <del>IT IS JUST A SERIAL NUMBER; NTGENT HOLDS THE NEXT ONE TO BE ASSIGNED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">29</td><td class="c d">   <del>FOR THE TERMINALS, IT IS A POINTER TO AN ENTRY IN THE FREE STORAGE ARRAY</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">30</td><td class="c d">   <del>POINTED TO BY NODES (AND NUMBERED BY NNODES).  0 IS NOT USED FOR 'NODE'</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">31</td><td class="c d">   <del>TO ALLOW THE ABSENCE OF THE PROPERTY TO BE DISTINGUISHED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">32</td><td class="c d"> <del>GENT ALSO ASSIGNS THE 18-BIT PROPERTY 'ENTRY' WHICH IS THE GA INDEX OF THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">33</td><td class="c d">    <del>ENTRY POINT (FOR TERMINALS WHICH HAVE ONE) OR CIRCLED NODE (FOR NON-TERMS).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">34</td><td class="c d"> <del>NODES HOLDS INFORMATION TELLING AT WHICH GRAPH NODE A TERMINAL MAY BE REQUIRED.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">35</td><td class="c d">   <del>BITS 18-35 HOLD THE NODE INDEX OF A NODE REQUIRING THE TERMINAL,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">36</td><td class="c d">   <del>BITS 0-17, IF NE 0,</del> ARE <del>THE INDEX IN NODES OF NEXT ENTRY</del> FOR THE <del>TERMINAL.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">38</td><td class="c d"> <del>THE ROUTINES WHICH FIDDLE WITH THE GRAPH ARE:</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">39</td><td class="c d">     <del>GRAPH(SYNT,NSYNT,PN) - ENTERS A PRODUCTION IN THE GRAPH.  SYNT IS A FREE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">40</td><td class="c d">           <del>STORAGE ARRAY CONTAINING NSYNT DIR INDICES. PN IS THE PRODUCTION</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">41</td><td class="c d">           <del>NUMBER (OR 0 IF NONE NEEDED.)  SYNT[0] IS THE NON-TERMINAL PRODUCED,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">42</td><td class="c d">           AND <del>SYNT[1]-SYNT[NSYNT]</del> ARE <del>THE TERMINALS AND NON-TERMINALS OF THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">43</td><td class="c d">           <del>PRODUCTION.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">44</td><td class="c d">     <del>GMATR() - REMAKES THE CONNECTIVITY MATRIX NBITM AND ASSIGNS INDEXES.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">45</td><td class="c d">           <del>BITM&lt;N,CN&gt; INDICATES WHETHER YOU CAN GET TO CIRCLED NODE CN FROM</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">46</td><td class="c d">           <del>NODE N (NODE NUMBERS, NOT INDICES).  NBITM INDICATES THE SAME</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">47</td><td class="c d">           <del>THING, EXCEPT THE PATH MUST BE VIA ONLY CIRCLED OR BOXED NODES,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">48</td><td class="c d">           <del>AND N IS THE SPECIAL NBITM INDEX FOR THE NODE.  CN IS A NT NUMBER.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">49</td><td class="c d">     <del>GGOAL(NT) - MAKES A SPECIAL NODE FOR NONTERMINAL WITH DIR INDEX NT,</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">50</td><td class="c d">           <del>POINTING TO ITSELF. ONLY ONE SUCH WILL BE AROUND AT ANY TIME.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">51</td><td class="c d">           <del>THE PARSER NEEDS SUCH A NODE TO START OFF.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">52</td><td class="c d">     <del>GTYPE(N) - TYPE OF GRAPH NODE INDEX N</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">53</td><td class="c d">     <del>GVAL(N) - THE VALUE (NAME) OF NODE N</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">54</td><td class="c d">     <del>GNB(N) - THE NBITM ROW INDEX (BITS 3-17) OF NODE N</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">55</td><td class="c d">     <del>GALT(N,GOAL) - THE NEXT ALTERNATE OF NODE N LEADING TO THE NONTERMINAL</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">56</td><td class="c d">           <del>GOAL (OR 0 IF NONE).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">57</td><td class="c d">     <del>GNEXT(N,GOAL) - EITHER N OR ITS FIRST ALTERNATE LEADING TO GOAL</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">58</td><td class="c d">     <del>GCONN(N,GOAL) - 0 OR 1; WHETHER NODE N CONNECTS TO NT GOAL</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">59</td><td class="c d">     <del>GMADE(C,GO) - 0 OR 1; WHETHER AT CIRCLED NODE C WE HAVE MADE GOAL GO.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">60</td><td class="c d">     <del>GNT2T(NT,NI,GOAL,NODE) - SETS NODE TO THE NEXT GRAPH NODE WHERE THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">61</td><td class="c d">           <del>TERMINAL SYMBOL IS REQUIRED IMMEDIATELY FOLLOWING THE CIRCLED NODE OF</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">62</td><td class="c d">           <del>NONTERMINAL NT.  NI IS THE POINTER INTO THE CHAIN OF REFERENCES</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">63</td><td class="c d">           <del>FOR THE TERMINAL</del> IN <del>NODES, AND IS UPDATED (MAYBE TO 0).</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">64</td><td class="c d">     <del>GNT2TX(NT,NI,GOAL,NODE) - IS A SPEEDED-UP VERSION OF GNT2T.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">65</td><td class="c d">     <del>GLEAP(NT,NO) - 1 IF TERMINAL NODE NO IMMEDIATELY FOLLOWS NONTERMINAL   .</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">66</td><td class="c d">           <del>NT'S CIRCLED NODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">67</td><td class="c d">     <del>GENTRY(0) - START OF THE CHAIN OF TERMINAL ENTRY POINTS</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">68</td><td class="c d">     <del>SCR(N) - SUCCESSOR OF NODE N.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">69</td><td class="c d">     <del>ALT(N) - ALTERNATE OF NODE N.</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">70</td><td class="c d">     <del>GPOUT1 AND GPOUT2 - PUT OUT PRODUCTION NUMBERS ALONG A PATH WHICH THE</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">71</td><td class="c d">           <del>PARSER KNOWS EXISTS AND, THEREFORE, DOESN'T TRAVERSE ITSELF.</del>#</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">72</td><td class="c q">&lt;ATOM&gt;::=NS::="2"; #NS IS SIZE OF A GRAPH NODE #</td><td class="n q">30</td><td class="c q">&lt;ATOM&gt;::=NS::="2"; #NS IS SIZE OF A GRAPH NODE #</td></tr>
+<tr><td class="n q">73</td><td class="c q">&lt;EXP&gt; ::= &lt;A&gt;/NS::="A RS 1";</td><td class="n q">31</td><td class="c q">&lt;EXP&gt; ::= &lt;A&gt;/NS::="A RS 1";</td></tr>
+<tr><td class="n d">74</td><td class="c d">SUBR GRAPH(SYNT,NSYNT,PNQ) IS (PNR<del>_</del>PNQ;</td><td class="n a">33</td><td class="c a">SUBR GRAPH(SYNT,NSYNT,PNQ) IS (PNR<ins>:=</ins>PNQ;</td></tr>
+<tr><td class="n d">75</td><td class="c d"> NPRODS<del>_</del>PNR;</td><td class="n a">34</td><td class="c a"> NPRODS<ins>:=</ins>PNR;</td></tr>
+<tr><td class="n d">76</td><td class="c d"> INIT=0=&gt;(INIT<del>_</del>1;</td><td class="n a">35</td><td class="c a"> INIT=0=&gt;(INIT<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">77</td><td class="c d">          FRELOT(GA,'GRAPH',1300,<del>GORGFIX</del>); FINCSET(GA,50);</td><td class="n a">36</td><td class="c a">          FRELOT(GA,'GRAPH',1300,<ins>0</ins>); FINCSET(GA,50);</td></tr>
+<tr><td class="n d">78</td><td class="c d">          FREES(GA+2,<del>700000000000B</del>);</td><td class="n a">37</td><td class="c a">          FREES(GA+2,<ins>7 LS GTSH</ins>);</td></tr>
+<tr><td class="n d">79</td><td class="c d">          NG<del>_NTGENT_</del>NNODES<del>_NBITN_</del>1;</td><td class="n a">38</td><td class="c a">          NG<ins>:=GRNTGENT:=</ins>NNODES<ins>:=GRNBITN:=</ins>1;</td></tr>
+<tr><td class="n d">80</td><td class="c d">          FRELOT(<del>NODES</del>,'NODES',100,0);</td><td class="n a">39</td><td class="c a">          FRELOT(<ins>GRNODES</ins>,'NODES',100,0);</td></tr>
+<tr><td class="n d">81</td><td class="c d">          <del>BITM,NBITM ARE 3 LONG;</del></td><td class="n a">40</td><td class="c a">          <ins>GRBITM</ins>[1]<ins>:=</ins>625; <ins>GRNBITM</ins>[1]<ins>:=</ins>150;</td></tr>
+<tr><td class="n d">82</td><td class="c d">          <del>BITM</del>[1]<del>_</del>625; <del>NBITM</del>[1]<del>_</del>150;</td><td class="n a">41</td><td class="c a">          GEPT<ins>:=</ins>0);</td></tr>
+<tr><td class="n d">83</td><td class="c d">          GEPT<del>_</del>0);</td><td class="n a">42</td><td class="c a"> MAKING<ins>:=</ins>NEWNO(0,0,2,FREE(SYNT));</td></tr>
+<tr><td class="n d">84</td><td class="c d"> MAKING<del>_</del>NEWNO(0,0,2,FREE(SYNT));</td><td class="n a">43</td><td class="c a"> MAKENT<ins>:=</ins>DPROP('NODE',FREE(SYNT));</td></tr>
+<tr><td class="n d">85</td><td class="c d"> MAKENT<del>_</del>DPROP('NODE',FREE(SYNT));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">86</td><td class="c q"> #COMMENCE BY LOOKING FOR ENTRY POINT/CIRCLED NODE FOR FIRST SYMBOL.#</td><td class="n q">44</td><td class="c q"> #COMMENCE BY LOOKING FOR ENTRY POINT/CIRCLED NODE FOR FIRST SYMBOL.#</td></tr>
+<tr><td class="n d">87</td><td class="c d"> ENT<del>_</del>0;</td><td class="n a">45</td><td class="c a"> ENT<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">88</td><td class="c d"> HOOK<del>_</del>DPROP('ENTRY',FREE(SYNT+1)); HOOKN<del>_</del>1;</td><td class="n a">46</td><td class="c a"> HOOK<ins>:=</ins>DPROP('ENTRY',FREE(SYNT+1)); HOOKN<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">89</td><td class="c d"> HOOK=&gt;(J<del>_</del>GTYPE(HOOK); J=2=&gt;ENT<del>_</del>HOOK);</td><td class="n a">47</td><td class="c a"> HOOK=&gt;(J<ins>:=</ins>GTYPE(HOOK); J=2=&gt;ENT<ins>:=</ins>HOOK);</td></tr>
+<tr><td class="n q">90</td><td class="c q"> #IF NO ENTRY POINT, WE WILL HAVE TO ENTER THE WHOLE PRODUCTION - SO MAKE</td><td class="n q">48</td><td class="c q"> #IF NO ENTRY POINT, WE WILL HAVE TO ENTER THE WHOLE PRODUCTION - SO MAKE</td></tr>
+<tr><td class="n q">91</td><td class="c q">  AN ENTRY POINT, AND THAT BECOMES THE HOOK-ON POINT.#</td><td class="n q">49</td><td class="c q">  AN ENTRY POINT, AND THAT BECOMES THE HOOK-ON POINT.#</td></tr>
+<tr><td class="n d">92</td><td class="c d"> HOOK=0=&gt;(HOOK<del>_</del>NEWNO(0,0,6,FREE(SYNT+1));</td><td class="n a">50</td><td class="c a"> HOOK=0=&gt;(HOOK<ins>:=</ins>NEWNO(0,0,6,FREE(SYNT+1));</td></tr>
+<tr><td class="n d">93</td><td class="c d">          J<del>_</del>GTYPE(HOOK); J=1=&gt;(GEPT<del>_</del>NEWNO(GEPT,HOOK,5,0))</td><td class="n a">51</td><td class="c a">          J<ins>:=</ins>GTYPE(HOOK); J=1=&gt;(GEPT<ins>:=</ins>NEWNO(GEPT,HOOK,5,0))</td></tr>
+<tr><td class="n d">94</td><td class="c d">                             ELSE(GMARK(HOOK); ENT<del>_</del>HOOK);</td><td class="n a">52</td><td class="c a">                             ELSE(GMARK(HOOK); ENT<ins>:=</ins>HOOK);</td></tr>
+<tr><td class="n q">95</td><td class="c q">          DPROPS('ENTRY',FREE(SYNT+1),HOOK); GO TO MAKEIT);</td><td class="n q">53</td><td class="c q">          DPROPS('ENTRY',FREE(SYNT+1),HOOK); GO TO MAKEIT);</td></tr>
+<tr><td class="n q">96</td><td class="c q"> #CHECK IF WE CAN EXTEND HOOK-ON POINT FURTHER DOWN PRODUCTION#</td><td class="n q">54</td><td class="c q"> #CHECK IF WE CAN EXTEND HOOK-ON POINT FURTHER DOWN PRODUCTION#</td></tr>
+<tr><td class="n q">97</td><td class="c q"> CHOOK: GMARK(HOOK);</td><td class="n q">55</td><td class="c q"> CHOOK: GMARK(HOOK);</td></tr>
+<tr><td class="n q">98</td><td class="c q">        HOOKN=NSYNT=&gt;GO TO CHECKIT;</td><td class="n q">56</td><td class="c q">        HOOKN=NSYNT=&gt;GO TO CHECKIT;</td></tr>
+<tr><td class="n d">99</td><td class="c d">        NHOOK<del>_</del>SCR(HOOK);</td><td class="n a">57</td><td class="c a">        NHOOK<ins>:=</ins>SCR(HOOK);</td></tr>
+<tr><td class="n q">100</td><td class="c q">        LHOOK: NHOOK=0=&gt;GO TO MAKEIT;</td><td class="n q">58</td><td class="c q">        LHOOK: NHOOK=0=&gt;GO TO MAKEIT;</td></tr>
+<tr><td class="n d">101</td><td class="c d">               SQ<del>_</del>GVAL(NHOOK);</td><td class="n a">59</td><td class="c a">               SQ<ins>:=</ins>GVAL(NHOOK);</td></tr>
+<tr><td class="n d">102</td><td class="c d">               J<del>_</del>FREE(SYNT+HOOKN+1);</td><td class="n a">60</td><td class="c a">               J<ins>:=</ins>FREE(SYNT+HOOKN+1);</td></tr>
+<tr><td class="n d">103</td><td class="c d">               J NE SQ=&gt;(L3:NHOOK<del>_</del>ALT(NHOOK);</td><td class="n a">61</td><td class="c a">               J NE SQ=&gt;(L3:NHOOK<ins>:=</ins>ALT(NHOOK);</td></tr>
+<tr><td class="n q">104</td><td class="c q">                            GO TO LHOOK);</td><td class="n q">62</td><td class="c q">                            GO TO LHOOK);</td></tr>
+<tr><td class="n d">105</td><td class="c d">               J<del>_</del>GTYPE(NHOOK); J&gt;1=&gt;GO TO L3;</td><td class="n a">63</td><td class="c a">               J<ins>:=</ins>GTYPE(NHOOK); J&gt;1=&gt;GO TO L3;</td></tr>
+<tr><td class="n d">106</td><td class="c d">               HOOK<del>_</del>NHOOK; HOOKN<del>_</del>HOOKN+1; GO TO CHOOK;</td><td class="n a">64</td><td class="c a">               HOOK<ins>:=</ins>NHOOK; HOOKN<ins>:=</ins>HOOKN+1; GO TO CHOOK;</td></tr>
+<tr><td class="n q">107</td><td class="c q"> #CHECK IF DUPLICATE PRODUCTION #</td><td class="n q">65</td><td class="c q"> #CHECK IF DUPLICATE PRODUCTION #</td></tr>
+<tr><td class="n d">108</td><td class="c d"> CHECKIT: J<del>_</del>SCR(HOOK);</td><td class="n a">66</td><td class="c a"> CHECKIT: J<ins>:=</ins>SCR(HOOK);</td></tr>
+<tr><td class="n q">109</td><td class="c q">    CK1:  J=0=&gt;GO TO MAKEIT;</td><td class="n q">67</td><td class="c q">    CK1:  J=0=&gt;GO TO MAKEIT;</td></tr>
+<tr><td class="n d">110</td><td class="c d">          JJ<del>_</del>GTYPE(J);</td><td class="n a">68</td><td class="c a">          JJ<ins>:=</ins>GTYPE(J);</td></tr>
+<tr><td class="n d">111</td><td class="c d">          JJ=2=&gt;(KK<del>_</del>GVAL(J); GO TO L22);</td><td class="n a">69</td><td class="c a">          JJ=2=&gt;(KK<ins>:=</ins>GVAL(J); GO TO L22);</td></tr>
+<tr><td class="n d">112</td><td class="c d">          JJ=3=&gt;(KK<del>_</del>GVAL(SCR(J));</td><td class="n a">70</td><td class="c a">          JJ=3=&gt;(KK<ins>:=</ins>GVAL(SCR(J));</td></tr>
+<tr><td class="n d">113</td><td class="c d">            L22: K<del>_</del>FREE(SYNT);</td><td class="n a">71</td><td class="c a">            L22: K<ins>:=</ins>FREE(SYNT);</td></tr>
+<tr><td class="n q">114</td><td class="c q">            KK=K=&gt;(ERROR(2,'PRODUCTION DUPLICATES ONE ALREADY IN SYNTAX **');</td><td class="n q">72</td><td class="c q">            KK=K=&gt;(ERROR(2,'PRODUCTION DUPLICATES ONE ALREADY IN SYNTAX **');</td></tr>
+<tr><td class="n q">115</td><td class="c q">                   JJ=2=&gt;(# NEEDS PRODUCTION #</td><td class="n q">73</td><td class="c q">                   JJ=2=&gt;(# NEEDS PRODUCTION #</td></tr>
+<tr><td class="n q">116</td><td class="c q">                          # THIS OK BECAUSE CIRCLED NODES CANT HAVE OR BE ALT #</td><td class="n q">74</td><td class="c q">                          # THIS OK BECAUSE CIRCLED NODES CANT HAVE OR BE ALT #</td></tr>
+<tr><td class="n q">117</td><td class="c q">                          SETSCR(HOOK,NEWNO(J,0,3,PNR));</td><td class="n q">75</td><td class="c q">                          SETSCR(HOOK,NEWNO(J,0,3,PNR));</td></tr>
+<tr><td class="n q">118</td><td class="c q">                          GO TO GRAPHEX);</td><td class="n q">76</td><td class="c q">                          GO TO GRAPHEX);</td></tr>
+<tr><td class="n d">119</td><td class="c d">                   NPRODS<del>_</del>GVAL(J);</td><td class="n a">77</td><td class="c a">                   NPRODS<ins>:=</ins>GVAL(J);</td></tr>
+<tr><td class="n d">120</td><td class="c d">                   NPRODS=1=&gt;(FREES(GA+J+1,<del>300000000000B</del> OR PNR); NPRODS<del>_</del>PNR);</td><td class="n a">78</td><td class="c a">                   NPRODS=1=&gt;(FREES(GA+J+1,<ins>3 LS GTSH</ins> OR PNR); NPRODS<ins>:=</ins>PNR);</td></tr>
+<tr><td class="n q">121</td><td class="c q">                   GO TO GRAPHEX));</td><td class="n q">79</td><td class="c q">                   GO TO GRAPHEX));</td></tr>
+<tr><td class="n d">122</td><td class="c d">          J<del>_</del>ALT(J);</td><td class="n a">80</td><td class="c a">          J<ins>:=</ins>ALT(J);</td></tr>
+<tr><td class="n q">123</td><td class="c q">          GO TO CK1;</td><td class="n q">81</td><td class="c q">          GO TO CK1;</td></tr>
+<tr><td class="n q">124</td><td class="c q"> #NOW MAKE A STRING OF NODES OUT OF SYNT[0], PROD. NR., AND SYNT ENTRIES</td><td class="n q">82</td><td class="c q"> #NOW MAKE A STRING OF NODES OUT OF SYNT[0], PROD. NR., AND SYNT ENTRIES</td></tr>
+<tr><td class="n q">125</td><td class="c q">   FROM HOOKN+1 TO NSYNT, IF ANY.  CONNECT STRING AS SCR TO HOOK.  DONE.#</td><td class="n q">83</td><td class="c q">   FROM HOOKN+1 TO NSYNT, IF ANY.  CONNECT STRING AS SCR TO HOOK.  DONE.#</td></tr>
+<tr><td class="n q">126</td><td class="c q"> MAKEIT:</td><td class="n q">84</td><td class="c q"> MAKEIT:</td></tr>
+<tr><td class="n q">127</td><td class="c q"> # INSERT PROD'N 1 NODE IF NEEDED TO AVOID ALT TO TYPE 2 NODE #</td><td class="n q">85</td><td class="c q"> # INSERT PROD'N 1 NODE IF NEEDED TO AVOID ALT TO TYPE 2 NODE #</td></tr>
+<tr><td class="n d">128</td><td class="c d"> (HOOKN=NSYNT=&gt;PNR=0=&gt;SCR(HOOK)=&gt;PNR<del>_</del>1);</td><td class="n a">86</td><td class="c a"> (HOOKN=NSYNT=&gt;PNR=0=&gt;SCR(HOOK)=&gt;PNR<ins>:=</ins>1);</td></tr>
+<tr><td class="n d">129</td><td class="c d"> J<del>_</del>MAKING;</td><td class="n a">87</td><td class="c a"> J<ins>:=</ins>MAKING;</td></tr>
+<tr><td class="n d">130</td><td class="c d"> PNR=&gt;(J<del>_</del>NEWNO(0,J,3,PNR));</td><td class="n a">88</td><td class="c a"> PNR=&gt;(J<ins>:=</ins>NEWNO(0,J,3,PNR));</td></tr>
+<tr><td class="n d">131</td><td class="c d"> HOOKN&lt;NSYNT=&gt;((J<del>_</del>NEWNO(0,J,4,FREE(SYNT+K))) FOR K IN NSYNT,-1,HOOKN+1);</td><td class="n a">89</td><td class="c a"> HOOKN&lt;NSYNT=&gt;((J<ins>:=</ins>NEWNO(0,J,4,FREE(SYNT+K))) FOR K IN NSYNT,-1,HOOKN+1);</td></tr>
+<tr><td class="n q">132</td><td class="c q"> SETALT(J,SCR(HOOK));</td><td class="n q">90</td><td class="c q"> SETALT(J,SCR(HOOK));</td></tr>
+<tr><td class="n q">133</td><td class="c q"> SETSCR(HOOK,J);</td><td class="n q">91</td><td class="c q"> SETSCR(HOOK,J);</td></tr>
+<tr><td class="n q">134</td><td class="c q"># IF FIRST NODE IN PRODN WAS CIRCLED NODE, WE MUST UPDATE CONNECTIVITY</td><td class="n q">92</td><td class="c q"># IF FIRST NODE IN PRODN WAS CIRCLED NODE, WE MUST UPDATE CONNECTIVITY</td></tr>
+<tr><td class="n q">135</td><td class="c q">  MATRIX FOR ALL NODES THAT GET TO IT. #</td><td class="n q">93</td><td class="c q">  MATRIX FOR ALL NODES THAT GET TO IT. #</td></tr>
+<tr><td class="n d">136</td><td class="c d"> ENT=&gt;(COL<del>_</del>DPROP('NODE',GVAL(ENT));</td><td class="n a">94</td><td class="c a"> ENT=&gt;(COL<ins>:=</ins>DPROP('NODE',GVAL(ENT));</td></tr>
+<tr><td class="n d">137</td><td class="c d">       ROW<del>_</del>1+ENT/NS;</td><td class="n a">95</td><td class="c a">       ROW<ins>:=</ins>1+ENT/NS;</td></tr>
+<tr><td class="n d">138</td><td class="c d">       J<del>_</del>1+NG/NS; <del>#G_(GGOAL1 =&gt; 1+GGOAL1/NS ELSE 0);#</del></td><td class="n a">96</td><td class="c a">       J<ins>:=</ins>1+NG/NS;</td></tr>
+<tr><td class="n d">139</td><td class="c d">       (<del>#NN NE G=&gt;#</del>BIT(<del>BITM</del>,NN,COL)=&gt;(BIT(<del>BITM</del>,NN,MAKENT);</td><td class="n a">97</td><td class="c a">       (BIT(<ins>GRBITM</ins>,NN,COL)=&gt;(BIT(<ins>GRBITM</ins>,NN,MAKENT);</td></tr>
+<tr><td class="n d">140</td><td class="c d">                                    BITOR(<del>BITM</del>,NN,ROW))) FOR NN IN 1,1,J);</td><td class="n a">98</td><td class="c a">                              BITOR(<ins>GRBITM</ins>,NN,ROW))) FOR NN IN 1,1,J);</td></tr>
+<tr><td class="n q">141</td><td class="c q"> GRAPHEX: FINAM IS COMMON;</td><td class="n q">99</td><td class="c q"> GRAPHEX: FINAM IS COMMON;</td></tr>
+<tr><td class="n q">142</td><td class="c q">  FINAM[5] AND 20B =&gt; (</td><td class="n q">100</td><td class="c q">  FINAM[5] AND 20B =&gt; (</td></tr>
+<tr><td class="n q">143</td><td class="c q">     PRINT STG 0,'PRODUCTION ENTERED IN GRAPH: ';</td><td class="n q">101</td><td class="c q">     PRINT STG 0,'PRODUCTION ENTERED IN GRAPH: ';</td></tr>
+<tr><td class="n q">144</td><td class="c q">     PNAME(FREE(SYNT)); PRINT STG 0,' [',OCT 0,NPRODS,STG 0,'] ';</td><td class="n q">102</td><td class="c q">     PNAME(FREE(SYNT)); PRINT STG 0,' [',OCT 0,NPRODS,STG 0,'] ';</td></tr>
+<tr><td class="n q">145</td><td class="c q">     PNAME(FREE(SYNT+I)) FOR I IN 1,1,NSYNT; PRINT /);</td><td class="n q">103</td><td class="c q">     PNAME(FREE(SYNT+I)) FOR I IN 1,1,NSYNT; PRINT /);</td></tr>
+<tr><td class="n q">146</td><td class="c q"> NPRODS);</td><td class="n q">104</td><td class="c q"> NPRODS);</td></tr>
+<tr><td class="n d">148</td><td class="c d"><del>SUBR GORGFIX()</del> IS <del>(GORG,GORG1,GBYPTY,GBYPNB</del> ARE <del>COMMON,1 LONG;</del></td><td class="n a">106</td><td class="c a"><ins># GPRINT: THE DUMP OF THE GRAPH.  THE ORIGINAL TESTS WHETHER GPRIN1</ins> IS <ins>LOADED AND PASSES THE TABLES; THEY</ins> ARE <ins>SHARED HERE (SRC/SHARED.TXT). #</ins></td></tr>
+<tr><td class="n d">149</td><td class="c d">                   <del>GORG_GA; GORG1_GORG+1;</del></td><td class="n a">107</td><td class="c a">SUBR GPRINT() IS GPRIN1(0);</td></tr>
+<tr><td class="n d">150</td><td class="c d">                   <del>GBYPTY_BYTEP [GORG1]&lt;3,33&gt;;</del></td><td class="n a">109</td><td class="c a">SUBR SETSCR(SV,VV) IS (SQ<ins>:=</ins>ALT(SV); FREES(GA+SV,VV OR SQ LS <ins>HSH</ins>));</td></tr>
+<tr><td class="n d">151</td><td class="c d">                   <del>GBYPNB_BYTEP [GORG1]&lt;15,18&gt;);</del></td><td class="n a">110</td><td class="c a">SUBR SETALT(SV,VV) IS (SQ<ins>:=</ins>SCR(SV); FREES(GA+SV,SQ OR VV LS <ins>HSH</ins>));</td></tr>
+<tr><td class="n d">153</td><td class="c d">SUBR GPRINT() IS <del>(</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">154</td><td class="c d"> <del>LOC(</del>GPRIN1<del>) =&gt; J_GPRIN1</del>(<del>NPRODS,GA,NS,NG,NODES,BITM,NTGENT,NBITM,NBITN)</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">155</td><td class="c d">          <del>ELSE  (GPR0CNT=</del>0<del>=&gt;(GPR0CNT_1; J_0;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">156</td><td class="c d">                             <del>ERROR(2,'GPRIN1 DEBUGGING PGM NOT PRESENT'</del>)<del>))</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">157</td><td class="c d"> <del>J);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">160</td><td class="c d">SUBR SETSCR(SV,VV) IS (SQ<del>_</del>ALT(SV); FREES(GA+SV,VV OR SQ LS <del>18</del>));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">161</td><td class="c d">SUBR SETALT(SV,VV) IS (SQ<del>_</del>SCR(SV); FREES(GA+SV,SQ OR VV LS <del>18</del>));</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">162</td><td class="c q">SUBR GENTRY() IS GEPT;</td><td class="n q">111</td><td class="c q">SUBR GENTRY() IS GEPT;</td></tr>
+<tr><td class="n d">163</td><td class="c d">SUBR GCONN(Q,QGOAL) IS (QV<del>_</del>0; Q=&gt;QV<del>_</del>BIT(<del>BITM</del>,1+Q/NS,QGOAL); QV);</td><td class="n a">112</td><td class="c a">SUBR GCONN(Q,QGOAL) IS (QV<ins>:=</ins>0; Q=&gt;QV<ins>:=</ins>BIT(<ins>GRBITM</ins>,1+Q/NS,QGOAL); QV);</td></tr>
+<tr><td class="n d">165</td><td class="c d">SUBR GMADE(Q,QGOAL) IS (<del>NBITM</del>[2]=0 =&gt; 1 AND FREE(<del>NBITM</del>+GNB(Q)) RS QGOAL</td><td class="n a">114</td><td class="c a">SUBR GMADE(Q,QGOAL) IS (<ins>GRNBITM</ins>[2]=0 =&gt; 1 AND FREE(<ins>GRNBITM</ins>+GNB(Q)) RS QGOAL</td></tr>
+<tr><td class="n d">166</td><td class="c d">                                 ELSE BIT(<del>NBITM</del>,GNB(Q),QGOAL));</td><td class="n a">115</td><td class="c a">                                 ELSE BIT(<ins>GRNBITM</ins>,GNB(Q),QGOAL));</td></tr>
+<tr><td class="n q">168</td><td class="c q">SUBR GGOAL(NT) IS (</td><td class="n q">117</td><td class="c q">SUBR GGOAL(NT) IS (</td></tr>
+<tr><td class="n d">169</td><td class="c d">  GGOAL1<del>_</del>NEWNO(0,0,0,0); SETSCR(GGOAL1,GGOAL1);</td><td class="n a">118</td><td class="c a">  GGOAL1<ins>:=</ins>NEWNO(0,0,0,0); SETSCR(GGOAL1,GGOAL1);</td></tr>
+<tr><td class="n d">170</td><td class="c d">  BITS(<del>BITM</del>,1+GGOAL1/NS,DPROP('NODE',NT));</td><td class="n a">119</td><td class="c a">  BITS(<ins>GRBITM</ins>,1+GGOAL1/NS,DPROP('NODE',NT));</td></tr>
+<tr><td class="n q">171</td><td class="c q">  FREES(GA+GGOAL1+1,NT); GGOAL1);</td><td class="n q">120</td><td class="c q">  FREES(GA+GGOAL1+1,NT); GGOAL1);</td></tr>
+<tr><td class="n d">173</td><td class="c d">SUBR GALT(Q,QGOAL) IS (QQ<del>_</del>Q;</td><td class="n a">122</td><td class="c a">SUBR GALT(Q,QGOAL) IS (QQ<ins>:=</ins>Q;</td></tr>
+<tr><td class="n q">174</td><td class="c q"> #RETURNS NEXT GRAPH NODE ALT TO Q WHICH CAN REACH GOAL QGOAL#</td><td class="n q">123</td><td class="c q"> #RETURNS NEXT GRAPH NODE ALT TO Q WHICH CAN REACH GOAL QGOAL#</td></tr>
+<tr><td class="n d">175</td><td class="c d"> L8: QQ<del>_</del>ALT(QQ); QQ=&gt;BIT(<del>BITM</del>,1+QQ/NS,QGOAL)=0=&gt;GO TO L8; QQ);</td><td class="n a">124</td><td class="c a"> L8: QQ<ins>:=</ins>ALT(QQ); QQ=&gt;BIT(<ins>GRBITM</ins>,1+QQ/NS,QGOAL)=0=&gt;GO TO L8; QQ);</td></tr>
+<tr><td class="n q">177</td><td class="c q">SUBR GNT2T(NT,NI,GL,NO) IS (</td><td class="n q">126</td><td class="c q">SUBR GNT2T(NT,NI,GL,NO) IS (</td></tr>
+<tr><td class="n d">178</td><td class="c d"> L7: NI=0=&gt;(NO<del>_</del>0; GO TO G2X);</td><td class="n a">127</td><td class="c a"> L7: NI=0=&gt;(NO<ins>:=</ins>0; GO TO G2X);</td></tr>
+<tr><td class="n d">179</td><td class="c d"> J<del>_</del>FREE(<del>NODES</del>+NI); NO<del>_</del>J AND <del>777777B</del>;</td><td class="n a">128</td><td class="c a"> J<ins>:=</ins>FREE(<ins>GRNODES</ins>+NI); NO<ins>:=</ins>J AND <ins>HMASK</ins>;</td></tr>
+<tr><td class="n d">180</td><td class="c d"> NI<del>_</del>J RS <del>18</del>;</td><td class="n a">129</td><td class="c a"> NI<ins>:=</ins>J RS <ins>HSH</ins>;</td></tr>
+<tr><td class="n d">181</td><td class="c d"> BIT(<del>BITM</del>,1+NO/NS,GL)=0=&gt;GO TO L7;</td><td class="n a">130</td><td class="c a"> BIT(<ins>GRBITM</ins>,1+NO/NS,GL)=0=&gt;GO TO L7;</td></tr>
+<tr><td class="n q">182</td><td class="c q"> GLEAP(NT,NO)=0=&gt;GO TO L7;</td><td class="n q">131</td><td class="c q"> GLEAP(NT,NO)=0=&gt;GO TO L7;</td></tr>
+<tr><td class="n q">183</td><td class="c q"> G2X: NO);</td><td class="n q">132</td><td class="c q"> G2X: NO);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">134</td><td class="c a"><ins># THE SPEEDED UP VERSION WORKS WITH A WORD OF THE MATRICES, OF 64 COLUMNS NOW, NOT 36 #</ins></td></tr>
+<tr><td class="n q">185</td><td class="c q">SUBR GNT2TX(NT,NI,GL,NO) IS (</td><td class="n q">135</td><td class="c q">SUBR GNT2TX(NT,NI,GL,NO) IS (</td></tr>
+<tr><td class="n d">186</td><td class="c d"> (MSK1<del>_</del>1 LS GL<del>)=&gt;(</del>MSK2<del>_</del>1 LS NT<del>)=&gt;</del>GO TO GNT1;</td><td class="n a">136</td><td class="c a"> <ins>GL&lt;64 =&gt; NT&lt;64 =&gt;</ins> (MSK1<ins>:=</ins>1 LS GL<ins>;</ins> MSK2<ins>:=</ins>1 LS NT<ins>;</ins> GO TO GNT1<ins>)</ins>;</td></tr>
+<tr><td class="n q">187</td><td class="c q"> GNT2T(NT,NI,GL,NO); GO TO GNTX;</td><td class="n q">137</td><td class="c q"> GNT2T(NT,NI,GL,NO); GO TO GNTX;</td></tr>
+<tr><td class="n d">188</td><td class="c d">                  GNT1: NI=0 =&gt; (NO<del>_</del>0; GO TO GNTX);</td><td class="n a">138</td><td class="c a">                  GNT1: NI=0 =&gt; (NO<ins>:=</ins>0; GO TO GNTX);</td></tr>
+<tr><td class="n d">189</td><td class="c d">                  J<del>_</del>FREE(<del>NODES</del>+NI);</td><td class="n a">139</td><td class="c a">                  J<ins>:=</ins>FREE(<ins>GRNODES</ins>+NI);</td></tr>
+<tr><td class="n d">190</td><td class="c d">                  NO<del>_</del>J AND <del>777777B</del>; NI<del>_</del>J RS <del>18</del>;</td><td class="n a">140</td><td class="c a">                  NO<ins>:=</ins>J AND <ins>HMASK</ins>; NI<ins>:=</ins>J RS <ins>HSH</ins>;</td></tr>
+<tr><td class="n d">191</td><td class="c d">                  (MSK1 AND FREE(<del>(BITM</del>+NO RS 1)+1))=0 =&gt; GO TO GNT1;</td><td class="n a">141</td><td class="c a">                  (MSK1 AND FREE(<ins>GRBITM</ins>+<ins>(</ins>NO RS 1)+1))=0 =&gt; GO TO GNT1;</td></tr>
+<tr><td class="n d">192</td><td class="c d">                  (MSK2 AND FREE(<del>NBITM</del>+GNB(NO)))=0 =&gt; GO TO GNT1;</td><td class="n a">142</td><td class="c a">                  (MSK2 AND FREE(<ins>GRNBITM</ins>+GNB(NO)))=0 =&gt; GO TO GNT1;</td></tr>
+<tr><td class="n q">193</td><td class="c q"> GNTX: NO);</td><td class="n q">143</td><td class="c q"> GNTX: NO);</td></tr>
+<tr><td class="n d">195</td><td class="c d">SUBR GLEAP(NT,NO) IS (BIT(<del>NBITM</del>,GNB(NO),NT));</td><td class="n a">145</td><td class="c a">SUBR GLEAP(NT,NO) IS (BIT(<ins>GRNBITM</ins>,GNB(NO),NT));</td></tr>
+<tr><td class="n q">197</td><td class="c q">SUBR GNEXT(Q,QGOAL) IS (</td><td class="n q">147</td><td class="c q">SUBR GNEXT(Q,QGOAL) IS (</td></tr>
+<tr><td class="n d">198</td><td class="c d"> (Q0<del>_</del>Q)=0 =&gt; RETURN 0;</td><td class="n a">148</td><td class="c a"> (Q0<ins>:=</ins>Q)=0 =&gt; RETURN 0;</td></tr>
+<tr><td class="n d">199</td><td class="c d"> <del>BITM</del>[2]=0 =&gt; (MASK<del>_</del>1 LS QGOAL;</td><td class="n a">149</td><td class="c a"> <ins>GRBITM</ins>[2]=0 =&gt; (MASK<ins>:=</ins>1 LS QGOAL;</td></tr>
+<tr><td class="n d">200</td><td class="c d">              GNE1: Q0 =&gt; ((MASK AND FREE(<del>(BITM</del>+Q0 RS 1)+1))=0</td><td class="n a">150</td><td class="c a">              GNE1: Q0 =&gt; ((MASK AND FREE(<ins>GRBITM</ins>+<ins>(</ins>Q0 RS 1)+1))=0</td></tr>
+<tr><td class="n d">201</td><td class="c d">                                  =&gt; (Q0<del>_</del>ALT(Q0); GO TO GNE1)))</td><td class="n a">151</td><td class="c a">                                  =&gt; (Q0<ins>:=</ins>ALT(Q0); GO TO GNE1)))</td></tr>
+<tr><td class="n d">202</td><td class="c d">         ELSE (GCONN(Q0,QGOAL)=0 =&gt; (Q0<del>_</del>GALT(Q0,QGOAL)));</td><td class="n a">152</td><td class="c a">         ELSE (GCONN(Q0,QGOAL)=0 =&gt; (Q0<ins>:=</ins>GALT(Q0,QGOAL)));</td></tr>
+<tr><td class="n q">203</td><td class="c q"> Q0);</td><td class="n q">153</td><td class="c q"> Q0);</td></tr>
+<tr><td class="n q">205</td><td class="c q">SUBR NEWNO(DS,RTS,TYP,ID) IS (</td><td class="n q">155</td><td class="c q">SUBR NEWNO(DS,RTS,TYP,ID) IS (</td></tr>
+<tr><td class="n q">206</td><td class="c q">   #MAKES A NEW NODE GIVEN DOWN-SUCCESSOR, RIGHT-SUCCESSOR, TYPE AND</td><td class="n q">156</td><td class="c q">   #MAKES A NEW NODE GIVEN DOWN-SUCCESSOR, RIGHT-SUCCESSOR, TYPE AND</td></tr>
+<tr><td class="n q">207</td><td class="c q">     DIR INDEX OF NAME.  FOR CIRCLED NODE, RETURNS EXISTING ONE IF ANY.</td><td class="n q">157</td><td class="c q">     DIR INDEX OF NAME.  FOR CIRCLED NODE, RETURNS EXISTING ONE IF ANY.</td></tr>
+<tr><td class="n q">208</td><td class="c q">   TY=4=&gt;DECIDE FROM NAME IF TYPE SHOULD BE 0 OR 1.  TY=6=&gt;DECIDE BETWEEN</td><td class="n q">158</td><td class="c q">   TY=4=&gt;DECIDE FROM NAME IF TYPE SHOULD BE 0 OR 1.  TY=6=&gt;DECIDE BETWEEN</td></tr>
+<tr><td class="n q">209</td><td class="c q">   1 AND 2.#</td><td class="n q">159</td><td class="c q">   1 AND 2.#</td></tr>
+<tr><td class="n d">210</td><td class="c d"> TY<del>_</del>TYP;</td><td class="n a">160</td><td class="c a"> TY<ins>:=</ins>TYP;</td></tr>
+<tr><td class="n d">211</td><td class="c d"> (TY AND 5)=4=&gt;(NR<del>_</del>DNAME(ID,0); TY<del>_</del>TY AND 3;</td><td class="n a">161</td><td class="c a"> (TY AND 5)=4=&gt;(NR<ins>:=</ins>DNAME(ID,0); TY<ins>:=</ins>TY AND 3;</td></tr>
+<tr><td class="n d">212</td><td class="c d">                (NR <del>AND 774000000000B</del>) NE <del>'#'</del> =&gt; TY<del>_</del>1);</td><td class="n a">162</td><td class="c a">                <ins>CHR0</ins>(NR) NE <ins>43B</ins> =&gt; TY<ins>:=</ins>1);</td></tr>
+<tr><td class="n d">213</td><td class="c d"> PTRS<del>_</del>RTS OR DS LS <del>18</del>;</td><td class="n a">163</td><td class="c a"> PTRS<ins>:=</ins>RTS OR DS LS <ins>HSH</ins>;</td></tr>
+<tr><td class="n q">214</td><td class="c q"> (TY AND 1)=0=&gt;(#WE HAVE NONTERMINAL - CHECK IT HAS CIRCLED NODE #</td><td class="n q">164</td><td class="c q"> (TY AND 1)=0=&gt;(#WE HAVE NONTERMINAL - CHECK IT HAS CIRCLED NODE #</td></tr>
+<tr><td class="n d">215</td><td class="c d">                N1<del>_</del>DPROP('ENTRY',ID);</td><td class="n a">165</td><td class="c a">                N1<ins>:=</ins>DPROP('ENTRY',ID);</td></tr>
+<tr><td class="n d">216</td><td class="c d">                N1=0=&gt;(DPROPS('NODE',ID,<del>NTGENT</del>);</td><td class="n a">166</td><td class="c a">                N1=0=&gt;(DPROPS('NODE',ID,<ins>GRNTGENT</ins>);</td></tr>
+<tr><td class="n d">217</td><td class="c d">                       <del>NTGENT_NTGENT</del>+1;</td><td class="n a">167</td><td class="c a">                       <ins>GRNTGENT:=GRNTGENT</ins>+1;</td></tr>
+<tr><td class="n d">218</td><td class="c d">                       N1<del>_</del>MAKENO((TY=0=&gt;0 ELSE PTRS),2,<del>NBITN</del>,ID);</td><td class="n a">168</td><td class="c a">                       N1<ins>:=</ins>MAKENO((TY=0=&gt;0 ELSE PTRS),2,<ins>GRNBITN</ins>,ID);</td></tr>
+<tr><td class="n d">219</td><td class="c d">                       <del>NBITN_NBITN</del>+1;</td><td class="n a">169</td><td class="c a">                       <ins>GRNBITN:=GRNBITN</ins>+1;</td></tr>
+<tr><td class="n q">220</td><td class="c q">                       DPROPS('ENTRY',ID,N1));</td><td class="n q">170</td><td class="c q">                       DPROPS('ENTRY',ID,N1));</td></tr>
+<tr><td class="n q">221</td><td class="c q">                TY=0=&gt;(#WE WANT NON-CIRCLED NODE#</td><td class="n q">171</td><td class="c q">                TY=0=&gt;(#WE WANT NON-CIRCLED NODE#</td></tr>
+<tr><td class="n d">222</td><td class="c d">                       N1<del>_</del>MAKENO(PTRS,TY,0,ID));</td><td class="n a">172</td><td class="c a">                       N1<ins>:=</ins>MAKENO(PTRS,TY,0,ID));</td></tr>
+<tr><td class="n q">223</td><td class="c q">                GO TO NEWEX);</td><td class="n q">173</td><td class="c q">                GO TO NEWEX);</td></tr>
+<tr><td class="n d">224</td><td class="c d"> N1<del>_</del>MAKENO(PTRS,TY,0,ID);</td><td class="n a">174</td><td class="c a"> N1<ins>:=</ins>MAKENO(PTRS,TY,0,ID);</td></tr>
+<tr><td class="n q">225</td><td class="c q"> NEWEX: N1);</td><td class="n q">175</td><td class="c q"> NEWEX: N1);</td></tr>
+<tr><td class="n q">227</td><td class="c q">SUBR MAKENO(MW1,MTY,MNO,MID) IS (</td><td class="n q">177</td><td class="c q">SUBR MAKENO(MW1,MTY,MNO,MID) IS (</td></tr>
+<tr><td class="n d">228</td><td class="c d"> MW2<del>_</del>MID OR (MTY LS <del>33</del>) OR (MNO LS <del>18</del>);</td><td class="n a">178</td><td class="c a"> MW2<ins>:=</ins>MID OR (MTY LS <ins>GTSH</ins>) OR (MNO LS <ins>HSH</ins>);</td></tr>
+<tr><td class="n d">229</td><td class="c d"> MG<del>_</del>NG; FADD(GA,NG,MW1); FADD(GA,NG,MW2);</td><td class="n a">179</td><td class="c a"> MG<ins>:=</ins>NG; FADD(GA,NG,MW1); FADD(GA,NG,MW2);</td></tr>
+<tr><td class="n d">230</td><td class="c d"> MTY NE 2=&gt;GMARK(MG) ELSE BITS(<del>BITM</del>,1+MG/NS,DPROP('NODE',MID));</td><td class="n a">180</td><td class="c a"> MTY NE 2=&gt;GMARK(MG) ELSE BITS(<ins>GRBITM</ins>,1+MG/NS,DPROP('NODE',MID));</td></tr>
+<tr><td class="n q">231</td><td class="c q"> MG);</td><td class="n q">181</td><td class="c q"> MG);</td></tr>
+<tr><td class="n q">233</td><td class="c q">SUBR GMARK(NO) IS (</td><td class="n q">183</td><td class="c q">SUBR GMARK(NO) IS (</td></tr>
+<tr><td class="n d">234</td><td class="c d"> IM<del>_</del>1+NO/NS;</td><td class="n a">184</td><td class="c a"> IM<ins>:=</ins>1+NO/NS;</td></tr>
+<tr><td class="n d">235</td><td class="c d"> BITS(<del>BITM</del>,IM,MAKENT);</td><td class="n a">185</td><td class="c a"> BITS(<ins>GRBITM</ins>,IM,MAKENT);</td></tr>
+<tr><td class="n d">236</td><td class="c d"> BITOR(<del>BITM</del>,IM,1+MAKING/NS));</td><td class="n a">186</td><td class="c a"> BITOR(<ins>GRBITM</ins>,IM,1+MAKING/NS));</td></tr>
+<tr><td class="n q">238</td><td class="c q">SUBR GMATR(TFL) IS (</td><td class="n q">188</td><td class="c q">SUBR GMATR(TFL) IS (</td></tr>
+<tr><td class="n d">239</td><td class="c d"> TIN<del>_</del>CALLI(27B,0);</td><td class="n a">189</td><td class="c a"> TIN<ins>:=</ins>CALLI(27B,0);</td></tr>
+<tr><td class="n q">240</td><td class="c q"> TFL&lt;0=&gt;GO TO GMTRX;</td><td class="n q">190</td><td class="c q"> TFL&lt;0=&gt;GO TO GMTRX;</td></tr>
+<tr><td class="n d">241</td><td class="c d"> BITZ(<del>NBITM</del>);</td><td class="n a">191</td><td class="c a"> BITZ(<ins>GRNBITM</ins>);</td></tr>
+<tr><td class="n d">242</td><td class="c d"> NNODES<del>_</del>1;</td><td class="n a">192</td><td class="c a"> NNODES<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">243</td><td class="c d"> (J<del>_</del>FREE(GA+NN+1);</td><td class="n a">193</td><td class="c a"> (J<ins>:=</ins>FREE(GA+NN+1);</td></tr>
+<tr><td class="n d">244</td><td class="c d">  (J RS <del>33</del>)=1=&gt;DPROPS('NODE',J AND <del>777777B</del>,0)) FOR NN IN 1,NS,NG;</td><td class="n a">194</td><td class="c a">  (<ins>(</ins>J RS <ins>GTSH</ins>) <ins>AND 7)</ins>=1=&gt;DPROPS('NODE',J AND <ins>HMASK</ins>,0)) FOR NN IN 1,NS,NG;</td></tr>
+<tr><td class="n q">245</td><td class="c q"> (NN=GGOAL1=&gt;GO TO M2;</td><td class="n q">195</td><td class="c q"> (NN=GGOAL1=&gt;GO TO M2;</td></tr>
+<tr><td class="n d">246</td><td class="c d">  J<del>_</del>FREE(GA+NN+1); (J RS <del>33</del>) NE 2 =&gt;GO TO M2;</td><td class="n a">196</td><td class="c a">  J<ins>:=</ins>FREE(GA+NN+1); (<ins>(</ins>J RS <ins>GTSH) AND 7</ins>) NE 2 =&gt;GO TO M2;</td></tr>
+<tr><td class="n q">247</td><td class="c q">  PUSHMI(-1);</td><td class="n q">197</td><td class="c q">  PUSHMI(-1);</td></tr>
+<tr><td class="n d">248</td><td class="c d">  COL<del>_</del>DPROP('NODE',J AND <del>777777B</del>);</td><td class="n a">198</td><td class="c a">  COL<ins>:=</ins>DPROP('NODE',J AND <ins>HMASK</ins>);</td></tr>
+<tr><td class="n d">249</td><td class="c d">  ROW<del>_77777B AND</del> J RS <del>18</del>;</td><td class="n a">199</td><td class="c a">  ROW<ins>:=(</ins>J RS <ins>HSH) AND NBMASK</ins>;</td></tr>
+<tr><td class="n d">250</td><td class="c d">  BITS(<del>NBITM</del>,ROW,COL);</td><td class="n a">200</td><td class="c a">  BITS(<ins>GRNBITM</ins>,ROW,COL);</td></tr>
+<tr><td class="n d">251</td><td class="c d">  BITS(<del>BITM</del>,1+NN/NS,COL);</td><td class="n a">201</td><td class="c a">  BITS(<ins>GRBITM</ins>,1+NN/NS,COL);</td></tr>
+<tr><td class="n d">252</td><td class="c d">  NO<del>_</del>SCR(NN);</td><td class="n a">202</td><td class="c a">  NO<ins>:=</ins>SCR(NN);</td></tr>
+<tr><td class="n d">253</td><td class="c d">  M1: NO=0=&gt;(NO<del>_</del>PULLYU(0); NO=-1=&gt;GO TO M2;</td><td class="n a">203</td><td class="c a">  M1: NO=0=&gt;(NO<ins>:=</ins>PULLYU(0); NO=-1=&gt;GO TO M2;</td></tr>
+<tr><td class="n d">254</td><td class="c d">             ALTERM: NO<del>_</del>ALT(NO); GO TO M1);</td><td class="n a">204</td><td class="c a">             ALTERM: NO<ins>:=</ins>ALT(NO); GO TO M1);</td></tr>
+<tr><td class="n d">255</td><td class="c d">  NODA<del>_</del>FREE(GA+NO+1); NOTY<del>_</del>NODA RS <del>33</del>; NOID<del>_</del>NODA AND <del>777777B</del>;</td><td class="n a">205</td><td class="c a">  NODA<ins>:=</ins>FREE(GA+NO+1); NOTY<ins>:=(</ins>NODA RS <ins>GTSH) AND 7</ins>; NOID<ins>:=</ins>NODA AND <ins>HMASK</ins>;</td></tr>
+<tr><td class="n d">256</td><td class="c d">  NOTY=2=&gt;(BITS(<del>NBITM</del>,ROW,DPROP('NODE',NOID));</td><td class="n a">206</td><td class="c a">  NOTY=2=&gt;(BITS(<ins>GRNBITM</ins>,ROW,DPROP('NODE',NOID));</td></tr>
+<tr><td class="n q">257</td><td class="c q">           NO=NN=&gt;GO TO ALTERM);</td><td class="n q">207</td><td class="c q">           NO=NN=&gt;GO TO ALTERM);</td></tr>
+<tr><td class="n q">258</td><td class="c q">  NOTY=1=&gt;(GRREQ(NOID,NO,NO);</td><td class="n q">208</td><td class="c q">  NOTY=1=&gt;(GRREQ(NOID,NO,NO);</td></tr>
+<tr><td class="n q">259</td><td class="c q">           GO TO ALTERM);</td><td class="n q">209</td><td class="c q">           GO TO ALTERM);</td></tr>
+<tr><td class="n d">260</td><td class="c d">  NOTY = 0 =&gt;     (NTNR<del>_</del>DPROP('NODE',NOID);</td><td class="n a">210</td><td class="c a">  NOTY = 0 =&gt;     (NTNR<ins>:=</ins>DPROP('NODE',NOID);</td></tr>
+<tr><td class="n q">261</td><td class="c q">                   GNT2B(NO);</td><td class="n q">211</td><td class="c q">                   GNT2B(NO);</td></tr>
+<tr><td class="n d">262</td><td class="c d">                   K<del>_</del>GEPT;</td><td class="n a">212</td><td class="c a">                   K<ins>:=</ins>GEPT;</td></tr>
+<tr><td class="n d">263</td><td class="c d">                    M3: K=&gt;(J<del>_</del>SCR(K);</td><td class="n a">213</td><td class="c a">                    M3: K=&gt;(J<ins>:=</ins>SCR(K);</td></tr>
+<tr><td class="n d">264</td><td class="c d">                            BIT(<del>BITM</del>,1+J/NS,NTNR)=&gt;GRREQ(</td><td class="n a">214</td><td class="c a">                            BIT(<ins>GRBITM</ins>,1+J/NS,NTNR)=&gt;GRREQ(</td></tr>
+<tr><td class="n d">265</td><td class="c d">                                    <del>777777B AND</del> FREE(GA+J+1),NO,J);</td><td class="n a">215</td><td class="c a">                                    FREE(GA+J+1) <ins>AND HMASK</ins>,NO,J);</td></tr>
+<tr><td class="n d">266</td><td class="c d">                            K<del>_</del>ALT(K); GO TO M3);</td><td class="n a">216</td><td class="c a">                            K<ins>:=</ins>ALT(K); GO TO M3);</td></tr>
+<tr><td class="n q">267</td><td class="c q">                   GO TO ALTERM);</td><td class="n q">217</td><td class="c q">                   GO TO ALTERM);</td></tr>
+<tr><td class="n q">268</td><td class="c q"> PUSHMI(NO);</td><td class="n q">218</td><td class="c q"> PUSHMI(NO);</td></tr>
+<tr><td class="n d">269</td><td class="c d"> NO<del>_</del>SCR(NO); GO TO M1;</td><td class="n a">219</td><td class="c a"> NO<ins>:=</ins>SCR(NO); GO TO M1;</td></tr>
+<tr><td class="n q">270</td><td class="c q"> M2:  0) FOR NN IN 1,NS,NG;</td><td class="n q">220</td><td class="c q"> M2:  0) FOR NN IN 1,NS,NG;</td></tr>
+<tr><td class="n d">271</td><td class="c d"> GMTRX: NN<del>_</del>CALLI(27B,0);</td><td class="n a">221</td><td class="c a"> GMTRX: NN<ins>:=</ins>CALLI(27B,0);</td></tr>
+<tr><td class="n d">272</td><td class="c d"> TIM<del>_</del>TIM+NN-TIN; TIN<del>_</del>TIM;</td><td class="n a">222</td><td class="c a"> TIM<ins>:=</ins>TIM+NN-TIN; TIN<ins>:=</ins>TIM;</td></tr>
+<tr><td class="n d">273</td><td class="c d"> TFL&lt;0=&gt;TIM<del>_</del>0;</td><td class="n a">223</td><td class="c a"> TFL&lt;0=&gt;TIM<ins>:=</ins>0;</td></tr>
+<tr><td class="n q">274</td><td class="c q"> TIN);</td><td class="n q">224</td><td class="c q"> TIN);</td></tr>
+<tr><td class="n q">276</td><td class="c q">SUBR GRAPHF() IS (</td><td class="n q">226</td><td class="c q">SUBR GRAPHF() IS (</td></tr>
+<tr><td class="n d">277</td><td class="c d"> FALLOT(GA,0); FALLOT(<del>NODES</del>,0));</td><td class="n a">227</td><td class="c a"> FALLOT(GA,0); FALLOT(<ins>GRNODES</ins>,0));</td></tr>
+<tr><td class="n q">279</td><td class="c q">SUBR GRREQ(TN,NNR,ND) IS (</td><td class="n q">229</td><td class="c q">SUBR GRREQ(TN,NNR,ND) IS (</td></tr>
+<tr><td class="n q">280</td><td class="c q"> GNT2B(ND);</td><td class="n q">230</td><td class="c q"> GNT2B(ND);</td></tr>
+<tr><td class="n d">281</td><td class="c d"> S<del>_</del>SS<del>_</del>DPROP('NODE',TN);</td><td class="n a">231</td><td class="c a"> S<ins>:=</ins>SS<ins>:=</ins>DPROP('NODE',TN);</td></tr>
+<tr><td class="n d">282</td><td class="c d"> L9: S=&gt;(S<del>_</del>FREE(<del>NODES</del>+S);</td><td class="n a">232</td><td class="c a"> L9: S=&gt;(S<ins>:=</ins>FREE(<ins>GRNODES</ins>+S);</td></tr>
+<tr><td class="n d">283</td><td class="c d">         (S AND <del>777777B</del>)=NNR=&gt;GO TO GRREX;</td><td class="n a">233</td><td class="c a">         (S AND <ins>HMASK</ins>)=NNR=&gt;GO TO GRREX;</td></tr>
+<tr><td class="n d">284</td><td class="c d">         S<del>_</del>S RS <del>18</del>; GO TO L9);</td><td class="n a">234</td><td class="c a">         S<ins>:=</ins>S RS <ins>HSH</ins>; GO TO L9);</td></tr>
+<tr><td class="n q">285</td><td class="c q"> DPROPS('NODE',TN,NNODES);</td><td class="n q">235</td><td class="c q"> DPROPS('NODE',TN,NNODES);</td></tr>
+<tr><td class="n d">286</td><td class="c d"> FADD(<del>NODES</del>,NNODES,NNR OR SS LS <del>18</del>);</td><td class="n a">236</td><td class="c a"> FADD(<ins>GRNODES</ins>,NNODES,NNR OR SS LS <ins>HSH</ins>);</td></tr>
+<tr><td class="n q">287</td><td class="c q"> GRREX: 0);</td><td class="n q">237</td><td class="c q"> GRREX: 0);</td></tr>
+<tr><td class="n q">288</td><td class="c q">SUBR GNT2B(ND) IS (</td><td class="n q">238</td><td class="c q">SUBR GNT2B(ND) IS (</td></tr>
+<tr><td class="n d">289</td><td class="c d"> NDA<del>_</del>FREE(GA+ND+1); NON<del>_77777B AND</del> NDA RS <del>18</del>;</td><td class="n a">239</td><td class="c a"> NDA<ins>:=</ins>FREE(GA+ND+1); NON<ins>:=(</ins>NDA RS <ins>HSH) AND NBMASK</ins>;</td></tr>
+<tr><td class="n d">290</td><td class="c d"> NON=0=&gt;(NON<del>_NBITN</del>; <del>NBITN_NBITN</del>+1;</td><td class="n a">240</td><td class="c a"> NON=0=&gt;(NON<ins>:=GRNBITN</ins>; <ins>GRNBITN:=GRNBITN</ins>+1;</td></tr>
+<tr><td class="n d">291</td><td class="c d">         FREES(GA+ND+1,NDA OR NON LS <del>18</del>));</td><td class="n a">241</td><td class="c a">         FREES(GA+ND+1,NDA OR NON LS <ins>HSH</ins>));</td></tr>
+<tr><td class="n d">292</td><td class="c d"> BITS(<del>NBITM</del>,NON,COL));</td><td class="n a">242</td><td class="c a"> BITS(<ins>GRNBITM</ins>,NON,COL));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">244</td><td class="c a"><ins># GPOUT1 AND GPOUT2: WHERE THE ORIGINAL TESTS A BIT OF A NONTERMINAL NUMBER IN A WORD,</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">245</td><td class="c a">  <ins>THIS DOES NOT FOR A NUMBER OF 64 OR MORE (STAGE0/GRAPH.C DOES THE SAME) #</ins></td></tr>
+<tr><td class="n q">294</td><td class="c q">SUBR GPOUT1(CNODE,NNODE,PUT) IS (</td><td class="n q">246</td><td class="c q">SUBR GPOUT1(CNODE,NNODE,PUT) IS (</td></tr>
+<tr><td class="n q">295</td><td class="c q"> # PUTS OUT THE PRODUCTION NUMBERS ALONG A PATH FROM CNODE TO NNODE</td><td class="n q">247</td><td class="c q"> # PUTS OUT THE PRODUCTION NUMBERS ALONG A PATH FROM CNODE TO NNODE</td></tr>
+<tr><td class="n q">296</td><td class="c q">  WHICH CONSISTS ONLY OF TYPE 2 AND 3 NODES.  NNODE IS A TERMINAL-</td><td class="n q">248</td><td class="c q">  WHICH CONSISTS ONLY OF TYPE 2 AND 3 NODES.  NNODE IS A TERMINAL-</td></tr>
+<tr><td class="n q">297</td><td class="c q">  OR NONTERMINAL-REQUIRED NODE APPEARING AFTER A CIRCLED NODE. #</td><td class="n q">249</td><td class="c q">  OR NONTERMINAL-REQUIRED NODE APPEARING AFTER A CIRCLED NODE. #</td></tr>
+<tr><td class="n d">298</td><td class="c d"> NNODE0<del>_</del>NNODE; PUT0<del>_</del>PUT;</td><td class="n a">250</td><td class="c a"> NNODE0<ins>:=</ins>NNODE; PUT0<ins>:=</ins>PUT;</td></tr>
+<tr><td class="n d">299</td><td class="c d"> BITROW<del>_</del>FREE(<del>NBITM</del>+GNB(NNODE0));</td><td class="n a">251</td><td class="c a"> BITROW<ins>:=</ins>FREE(<ins>GRNBITM</ins>+GNB(NNODE0));</td></tr>
+<tr><td class="n d">300</td><td class="c d"> K<del>_</del>SCR(CNODE);</td><td class="n a">252</td><td class="c a"> K<ins>:=</ins>SCR(CNODE);</td></tr>
+<tr><td class="n q">301</td><td class="c q"> GP1: K=NNODE0 =&gt; GO TO GPX;</td><td class="n q">253</td><td class="c q"> GP1: K=NNODE0 =&gt; GO TO GPX;</td></tr>
+<tr><td class="n q">302</td><td class="c q">      GO TO (GP6,GP6,GP2,GP3,GP6) GTYPE(K);</td><td class="n q">254</td><td class="c q">      GO TO (GP6,GP6,GP2,GP3,GP6) GTYPE(K);</td></tr>
+<tr><td class="n d">303</td><td class="c d"> GP2: VAL<del>_</del>0; L<del>_</del>K; GO TO GP4;</td><td class="n a">255</td><td class="c a"> GP2: VAL<ins>:=</ins>0; L<ins>:=</ins>K; GO TO GP4;</td></tr>
+<tr><td class="n d">304</td><td class="c d"> GP3: VAL<del>_</del>GVAL(K); L<del>_</del>SCR(K);</td><td class="n a">256</td><td class="c a"> GP3: VAL<ins>:=</ins>GVAL(K); L<ins>:=</ins>SCR(K);</td></tr>
+<tr><td class="n d">305</td><td class="c d"> GP4: NTN<del>_</del>DPROP('NODE',GVAL(L));</td><td class="n a">257</td><td class="c a"> GP4: NTN<ins>:=</ins>DPROP('NODE',GVAL(L));</td></tr>
+<tr><td class="n d">306</td><td class="c d">      (I<del>_</del>1 LS NTN)=0 =&gt; (GLEAP(NTN,NNODE) =&gt; GO TO GP5; GO TO GP6);</td><td class="n a">258</td><td class="c a">      <ins>NTN&lt;64 =&gt;</ins> (I<ins>:=</ins>1 LS NTN) <ins>ELSE I:=0;</ins></td></tr>
+<tr><td class="n d">307</td><td class="c d">      (BITROW AND I) =&gt; (GP5: K<del>_</del>SCR(L);</td><td class="n a">259</td><td class="c a">      <ins>I</ins>=0 =&gt; (GLEAP(NTN,NNODE) =&gt; GO TO GP5; GO TO GP6);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">260</td><td class="c a">      (BITROW AND I) =&gt; (GP5: K<ins>:=</ins>SCR(L);</td></tr>
+<tr><td class="n q">308</td><td class="c q">                                VAL =&gt; POUT(PUT0,VAL);</td><td class="n q">261</td><td class="c q">                                VAL =&gt; POUT(PUT0,VAL);</td></tr>
+<tr><td class="n q">309</td><td class="c q">                                GO TO GP1);</td><td class="n q">262</td><td class="c q">                                GO TO GP1);</td></tr>
+<tr><td class="n d">310</td><td class="c d"> GP6: (K<del>_</del>ALT(K)) =&gt; GO TO GP1;</td><td class="n a">263</td><td class="c a"> GP6: (K<ins>:=</ins>ALT(K)) =&gt; GO TO GP1;</td></tr>
+<tr><td class="n q">311</td><td class="c q"> GPX: 0);</td><td class="n q">264</td><td class="c q"> GPX: 0);</td></tr>
+<tr><td class="n q">313</td><td class="c q">SUBR GPOUT2(CNODE,GOAL,PUT) IS (</td><td class="n q">266</td><td class="c q">SUBR GPOUT2(CNODE,GOAL,PUT) IS (</td></tr>
+<tr><td class="n q">314</td><td class="c q"> # PUTS OUT THE PRODUCTION NUMBERS ALONG A PATH FROM CNODE TO GOAL</td><td class="n q">267</td><td class="c q"> # PUTS OUT THE PRODUCTION NUMBERS ALONG A PATH FROM CNODE TO GOAL</td></tr>
+<tr><td class="n q">315</td><td class="c q">  WHICH CONSISTS ONLY OF TYPE 2 AND 3 NODES.  GOAL IS A NONTERMINAL</td><td class="n q">268</td><td class="c q">  WHICH CONSISTS ONLY OF TYPE 2 AND 3 NODES.  GOAL IS A NONTERMINAL</td></tr>
+<tr><td class="n q">316</td><td class="c q">  NUMBER WHICH REPRESENTS THE CORRESPONDING CIRCLED NODE. #</td><td class="n q">269</td><td class="c q">  NUMBER WHICH REPRESENTS THE CORRESPONDING CIRCLED NODE. #</td></tr>
+<tr><td class="n d">317</td><td class="c d"> GOAL0<del>_</del>GOAL; PUT0<del>_</del>PUT;</td><td class="n a">270</td><td class="c a"> GOAL0<ins>:=</ins>GOAL; PUT0<ins>:=</ins>PUT;</td></tr>
+<tr><td class="n d">318</td><td class="c d"> NTN<del>_</del>DPROP('NODE',GVAL(CNODE));</td><td class="n a">271</td><td class="c a"> NTN<ins>:=</ins>DPROP('NODE',GVAL(CNODE));</td></tr>
+<tr><td class="n q">319</td><td class="c q"> NTN=GOAL0 =&gt; GO TO GPXX;</td><td class="n q">272</td><td class="c q"> NTN=GOAL0 =&gt; GO TO GPXX;</td></tr>
+<tr><td class="n d">320</td><td class="c d"> MASK<del>_</del>1 LS GOAL0;</td><td class="n a">273</td><td class="c a"> <ins>GOAL0&lt;64 =&gt;</ins> MASK<ins>:=</ins>1 LS GOAL0 <ins>ELSE MASK:=0</ins>;</td></tr>
+<tr><td class="n d">321</td><td class="c d"> K<del>_</del>SCR(CNODE);</td><td class="n a">274</td><td class="c a"> K<ins>:=</ins>SCR(CNODE);</td></tr>
+<tr><td class="n q">322</td><td class="c q"> GP7:  GO TO (GP12,GP12,GP8,GP9,GP12) GTYPE(K);</td><td class="n q">275</td><td class="c q"> GP7:  GO TO (GP12,GP12,GP8,GP9,GP12) GTYPE(K);</td></tr>
+<tr><td class="n d">323</td><td class="c d"> GP8:  VL<del>_</del>0; L<del>_</del>K; GO TO GP10;</td><td class="n a">276</td><td class="c a"> GP8:  VL<ins>:=</ins>0; L<ins>:=</ins>K; GO TO GP10;</td></tr>
+<tr><td class="n d">324</td><td class="c d"> GP9:  VL<del>_</del>GVAL(K); L<del>_</del>SCR(K);</td><td class="n a">277</td><td class="c a"> GP9:  VL<ins>:=</ins>GVAL(K); L<ins>:=</ins>SCR(K);</td></tr>
+<tr><td class="n d">325</td><td class="c d"> GP10: <del>NBITM</del>[2] =&gt; (GMADE(L,GOAL0) =&gt; GO TO GP11; GO TO GP12);</td><td class="n a">278</td><td class="c a"> GP10: <ins>GRNBITM</ins>[2] =&gt; (GMADE(L,GOAL0) =&gt; GO TO GP11; GO TO GP12);</td></tr>
+<tr><td class="n d">326</td><td class="c d">       (MASK AND FREE(<del>NBITM</del>+GNB(L))) =&gt; (GP11: K<del>_</del>SCR(L);</td><td class="n a">279</td><td class="c a">       (MASK AND FREE(<ins>GRNBITM</ins>+GNB(L))) =&gt; (GP11: K<ins>:=</ins>SCR(L);</td></tr>
+<tr><td class="n q">327</td><td class="c q">                                         VL =&gt; POUT(PUT0,VL);</td><td class="n q">280</td><td class="c q">                                         VL =&gt; POUT(PUT0,VL);</td></tr>
+<tr><td class="n d">328</td><td class="c d">                                         NTN<del>_</del>DPROP('NODE',GVAL(L));</td><td class="n a">281</td><td class="c a">                                         NTN<ins>:=</ins>DPROP('NODE',GVAL(L));</td></tr>
+<tr><td class="n q">329</td><td class="c q">                                         NTN=GOAL0 =&gt; GO TO GPXX;</td><td class="n q">282</td><td class="c q">                                         NTN=GOAL0 =&gt; GO TO GPXX;</td></tr>
+<tr><td class="n q">330</td><td class="c q">                                         GO TO GP7);</td><td class="n q">283</td><td class="c q">                                         GO TO GP7);</td></tr>
+<tr><td class="n d">331</td><td class="c d"> GP12: (K<del>_</del>ALT(K)) =&gt; GO TO GP7;</td><td class="n a">284</td><td class="c a"> GP12: (K<ins>:=</ins>ALT(K)) =&gt; GO TO GP7;</td></tr>
+<tr><td class="n q">332</td><td class="c q"> GPXX: 0) %%%</td><td class="n q">285</td><td class="c q"> GPXX: 0) %%%</td></tr>
+</table>
+</body></html>

@@ -1,18 +1,19 @@
-#TOKEN-DIFF-HTML.IMP -- THE FOURTH FILE OF TOOLS/TOKEN-DIFF.IMP: THE HTML.  A PAGE IS PRE BLOCKS OF THE SOURCE, THE TOKENS THAT ARE NOT IN THE OTHER FILE IN DEL (OLD, RED) AND INS (NEW, GREEN), AND A LONG RUN OF TOKENS THAT ARE THE SAME FOLDED IN A DETAILS
-BLOCK.  DRY NE 0 WRITES NOTHING (A FIRST PASS OVER THE SAME CALLS COUNTS, FOR THE HEAD OF THE PAGE).  THE WHITE SPACE IS THE FILE'S OWN: OF THE NEW FILE FOR A TOKEN THE FILES SHARE; CARRIAGE RETURNS ARE LEFT OUT.#
+#TOKEN-DIFF-HTML.IMP -- THE FOURTH FILE OF TOOLS/TOKEN-DIFF.IMP: THE HTML, SIDE BY SIDE AS GITHUB SHOWS A SPLIT DIFFERENCE: A TABLE OF ROWS, THE OLD FILE'S LINE (AND ITS NUMBER) IN THE TWO CELLS ON THE LEFT AND THE NEW FILE'S IN THE TWO ON THE RIGHT.  A RUN OF LINES THAT ARE
+THE SAME IS ROWS OF THE SAME LINE ON BOTH SIDES; A RUN OF LINES THAT DIFFER IS ROWS THAT PAIR THE OLD LINES WITH THE NEW ONES IN ORDER (THE SHORTER SIDE HAS EMPTY CELLS).  A LINE THAT DIFFERS HAS A LIGHT RED (OLD) OR GREEN (NEW) CELL, AND THE TOKENS THAT ARE NOT IN THE OTHER FILE
+ARE IN DEL (RED) OR INS (GREEN).  A LONG RUN OF ROWS THAT ARE THE SAME IS FOLDED IN A DETAILS BLOCK.  THE MARKS OF THE TOKENS (1 DELETED, 2 INSERTED) ARE IN THE ARRAYS OSTAT AND NSTAT, ONE WORD FOR EACH TOKEN OF THE FILE.  THE WHITE SPACE IS THE FILE'S OWN, WITHOUT CARRIAGE RETURNS.#
 
 LET FTT=0, FTP=1, FTL=2, FTD=3, FLS=4, FLC=5, FLH=6;
 EXTERNAL SIZE fwrite(PTR, SIZE, SIZE, PTR);
 EXTERNAL INT fputc(INT, PTR);
 EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);
 EXTERNAL SIZE strlen(PTR);
-FO,DRY,CUR,FIRSTB,NBUF,CTX ARE COMMON;
+FO,CUR,FIRSTB,NBUF,CTX,TOP,OSTAT,NSTAT ARE COMMON;
 
-SUBR OUTC(C) IS (DRY=0 => CCALL fputc(C,FO); 0);
+SUBR OUTC(C) IS (CCALL fputc(C,FO); 0);
 
-SUBR OUTS(S) IS (DRY=0 => CCALL fwrite(S,1,CCALL strlen(S),FO); 0);
+SUBR OUTS(S) IS (CCALL fwrite(S,1,CCALL strlen(S),FO); 0);
 
-SUBR OUTN(N) IS (DRY=0 => (CCALL snprintf(NBUF,32,LOC('%lld'),N); OUTS(NBUF)); 0);
+SUBR OUTN(N) IS (CCALL snprintf(NBUF,32,LOC('%lld'),N); OUTS(NBUF); 0);
 
 # A TEXT OF THE SOURCE, WITH & < AND > AS HTML HAS THEM #
 SUBR ESC(S) IS (
@@ -25,7 +26,7 @@ SUBR ESC(S) IS (
     I:=I+1);
  0);
 
-# THE WHITE SPACE BEFORE A TOKEN; AT THE START OF A BLOCK ONLY WHAT FOLLOWS ITS LAST NEWLINE (A BLOCK DOES NOT START WITH A BLANK LINE) #
+# THE WHITE SPACE BEFORE A TOKEN; BEFORE THE FIRST TOKEN OF A LINE ONLY WHAT FOLLOWS ITS LAST NEWLINE (THE INDENT) #
 SUBR EMITPRE(PRE) IS (
  I,N,L,C ARE LOCAL;
  N:=CCALL strlen(PRE); L:=0; I:=0;
@@ -51,61 +52,101 @@ SUBR EMITTOK(FS,TI,ST) IS (
  ST NE CUR => (CLOSESPAN(0); EMITPRE(PRE); OPENSPAN(ST)) ELSE EMITPRE(PRE);
  ESC(TX); 0);
 
-SUBR BLOCKOPEN(Z) IS (OUTS(LOC('<pre>')); FIRSTB:=1; CUR:=0; 0);
-
-SUBR BLOCKCLOSE(Z) IS (CLOSESPAN(0); OUTS(LOC('</pre>')); OUTC(10); 0);
-
 # THE FIRST TOKEN OF LINE L OF THE FILE FS (OF ITS LINES WITH TOKENS), OR THE NUMBER OF TOKENS FOR THE LINE AFTER THE LAST #
 SUBR TOKRANGE(FS,L) IS (
  L<L_LEN(RD(FS,FLS)) => RETURN L_GET(RD(FS,FLS),L);
  L_LEN(RD(FS,FTT)));
 
-# THE TOKENS OF THE LINES L0 TO L1 (NOT THE LAST) #
-SUBR EMITLINES(FS,L0,L1,ST) IS (
- T,E ARE LOCAL;
- T:=TOKRANGE(FS,L0); E:=TOKRANGE(FS,L1);
- WHILE T<E DO (EMITTOK(FS,T,ST); T:=T+1);
+# A ROW OF THE TABLE; THE TABLE IS OPENED WITH ITS FIRST ROW, AND CLOSED BY TABLEEND #
+SUBR ROWBEGIN(Z) IS (
+ TOP=0 => (
+    OUTS(LOC('<table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>')); OUTC(10);
+    TOP:=1);
+ OUTS(LOC('<tr>')); 0);
+
+SUBR TABLEEND(Z) IS (
+ TOP NE 0 => (OUTS(LOC('</table>')); OUTC(10));
+ TOP:=0; 0);
+
+# THE TWO CELLS OF LINE L OF THE FILE FS (SIDE 1 THE OLD FILE, 2 THE NEW), OR TWO EMPTY CELLS FOR L<0; CLS NAMES THE TINT: Q NONE, D RED, A GREEN #
+SUBR CELL(FS,L,SIDE,CLS) IS (
+ T,E,ST,STATS ARE LOCAL;
+ L<0 => (OUTS(LOC('<td class="n e"></td><td class="c e"></td>')); RETURN 0);
+ SIDE=1 => STATS:=OSTAT ELSE STATS:=NSTAT;
+ T:=TOKRANGE(FS,L); E:=TOKRANGE(FS,L+1);
+ OUTS(LOC('<td class="n ')); OUTS(CLS); OUTS(LOC('">')); OUTN(L_GET(RD(FS,FTL),T)); OUTS(LOC('</td><td class="c '));
+ OUTS(CLS); OUTS(LOC('">'));
+ CUR:=0; FIRSTB:=1;
+ WHILE T<E DO (ST:=RD(STATS,T); EMITTOK(FS,T,ST); T:=T+1);
+ CLOSESPAN(0);
+ OUTS(LOC('</td>')); 0);
+
+# N ROWS OF LINES THAT ARE THE SAME: THE OLD FILE FROM LINE I0 AND THE NEW FROM LINE J0 #
+SUBR EQROWS(FO0,FN,I0,J0,N) IS (
+ K ARE LOCAL;
+ K:=0;
+ WHILE K<N DO (
+    ROWBEGIN(0); CELL(FO0,I0+K,1,LOC('q')); CELL(FN,J0+K,2,LOC('q')); OUTS(LOC('</tr>')); OUTC(10);
+    K:=K+1);
  0);
 
-# A RUN OF LINES THAT ARE THE SAME: ALL OF THEM, OR THE FIRST AND LAST CTX LINES AND THE REST FOLDED (NOT AT THE START AND END OF THE FILE, WHERE THERE IS NO CHANGE TO GIVE CONTEXT FOR) #
-SUBR EQSEG(FN,J0,J1,FIRST,LAST) IS (
- N,H,T,A,B ARE LOCAL;
- N:=J1-J0; H:=0; T:=0;
+# THE OLD LINES I0 TO I1 (NOT THE LAST) AND THE NEW LINES J0 TO J1, PAIRED IN ORDER #
+SUBR HUNKROWS(FO0,FN,I0,I1,J0,J1) IS (
+ K,N,LI,RJ ARE LOCAL;
+ N:=I1-I0; (J1-J0)>N => N:=J1-J0;
+ K:=0;
+ WHILE K<N DO (
+    ROWBEGIN(0);
+    (I0+K)<I1 => LI:=I0+K ELSE LI:=-1;
+    (J0+K)<J1 => RJ:=J0+K ELSE RJ:=-1;
+    CELL(FO0,LI,1,LOC('d')); CELL(FN,RJ,2,LOC('a')); OUTS(LOC('</tr>')); OUTC(10);
+    K:=K+1);
+ 0);
+
+# A RUN OF N LINES THAT ARE THE SAME: ALL OF THEM, OR THE FIRST AND LAST CTX LINES AND THE REST FOLDED (NOT AT THE START AND END OF THE FILE, WHERE THERE IS NO CHANGE TO GIVE CONTEXT FOR) #
+SUBR EQSEG(FO0,FN,I0,J0,N,FIRST,LAST) IS (
+ H,T,A,B ARE LOCAL;
+ H:=0; T:=0;
  FIRST=0 => H:=CTX;
  LAST=0 => T:=CTX;
- N LE ((H+T)+2) => (EMITLINES(FN,J0,J1,0); RETURN 0);
- EMITLINES(FN,J0,J0+H,0);
- BLOCKCLOSE(0);
+ N LE ((H+T)+2) => (EQROWS(FO0,FN,I0,J0,N); RETURN 0);
+ EQROWS(FO0,FN,I0,J0,H);
+ TABLEEND(0);
  A:=L_GET(RD(FN,FTL),TOKRANGE(FN,J0+H));
- B:=L_GET(RD(FN,FTL),TOKRANGE(FN,J1-T)-1);
- OUTS(LOC('<details><summary>unchanged: lines ')); OUTN(A); OUTS(LOC(' to ')); OUTN(B);
- OUTS(LOC('</summary>')); BLOCKOPEN(0);
- EMITLINES(FN,J0+H,J1-T,0);
- BLOCKCLOSE(0); OUTS(LOC('</details>')); OUTC(10);
- BLOCKOPEN(0);
- EMITLINES(FN,J1-T,J1,0);
+ B:=L_GET(RD(FN,FTL),TOKRANGE(FN,(J0+N)-T)-1);
+ OUTS(LOC('<details><summary>unchanged: lines ')); OUTN(A); OUTS(LOC(' to ')); OUTN(B); OUTS(LOC(' of the new file</summary>')); OUTC(10);
+ EQROWS(FO0,FN,I0+H,J0+H,(N-H)-T);
+ TABLEEND(0);
+ OUTS(LOC('</details>')); OUTC(10);
+ EQROWS(FO0,FN,(I0+N)-T,(J0+N)-T,T);
  0);
 
-# THE HEAD OF A PAGE, TO THE OPENING OF ITS FIRST BLOCK: TITLE AND THE NAMES OF THE FILES #
+# THE HEAD OF A PAGE: TITLE, STYLE, AND THE OPENING OF THE BODY #
 SUBR PAGEHEAD(TITLE) IS (
  OUTS(LOC('<!doctype html>')); OUTC(10);
  OUTS(LOC('<html lang="en"><head><meta charset="utf-8">'));
  OUTS(LOC('<meta name="viewport" content="width=device-width, initial-scale=1">')); OUTC(10);
  OUTS(LOC('<title>')); ESC(TITLE); OUTS(LOC('</title><style>')); OUTC(10);
- OUTS(LOC(':root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;'));
- OUTS(LOC('--del:#ffc1c0;--delfg:#82071e;--ins:#aceebb;--insfg:#0f5323}')); OUTC(10);
- OUTS(LOC('@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;'));
- OUTS(LOC('--del:#6b1a1f;--delfg:#ffdcd7;--ins:#1a4727;--insfg:#d2fedb}}')); OUTC(10);
- OUTS(LOC('body{margin:0 auto;max-width:1100px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}')); OUTC(10);
+ OUTS(LOC(':root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--gut:#f6f8fa;--emp:#eaeef2;'));
+ OUTS(LOC('--del:#ffaba8;--delfg:#82071e;--delbg:#ffebe9;--delgut:#ffd7d5;'));
+ OUTS(LOC('--ins:#8ddb9b;--insfg:#0f5323;--insbg:#e6ffec;--insgut:#ccffd8}')); OUTC(10);
+ OUTS(LOC('@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--gut:#151b23;--emp:#1c2128;'));
+ OUTS(LOC('--del:#8e2a31;--delfg:#ffdcd7;--delbg:#3a1a1d;--delgut:#4a1e22;'));
+ OUTS(LOC('--ins:#23703b;--insfg:#d2fedb;--insbg:#12261e;--insgut:#173a24}}')); OUTC(10);
+ OUTS(LOC('body{margin:0 auto;max-width:1700px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}')); OUTC(10);
  OUTS(LOC('h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}')); OUTC(10);
- OUTS(LOC('pre{background:var(--pre);border:1px solid var(--bd);border-radius:6px;padding:10px 14px;margin:6px 0;'));
- OUTS(LOC('overflow-x:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}pre:empty{display:none}')); OUTC(10);
+ OUTS(LOC('table.sbs{table-layout:fixed;width:100%;border-collapse:collapse;border:1px solid var(--bd);margin:6px 0;'));
+ OUTS(LOC('font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}')); OUTC(10);
+ OUTS(LOC('col.n{width:3.6em}td{vertical-align:top;padding:0 6px;border:0;white-space:pre-wrap;overflow-wrap:anywhere}')); OUTC(10);
+ OUTS(LOC('td.n{text-align:right;color:var(--mut);background:var(--gut);user-select:none}td.c{border-right:1px solid var(--bd)}')); OUTC(10);
+ OUTS(LOC('td.e{background:var(--emp)}td.d{background:var(--delbg)}td.n.d{background:var(--delgut)}')); OUTC(10);
+ OUTS(LOC('td.a{background:var(--insbg)}td.n.a{background:var(--insgut)}')); OUTC(10);
  OUTS(LOC('del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}')); OUTC(10);
  OUTS(LOC('ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}')); OUTC(10);
  OUTS(LOC('details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}')); OUTC(10);
- OUTS(LOC('table{border-collapse:collapse;width:100%}th,td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}')); OUTC(10);
- OUTS(LOC('th:first-child,td:first-child{text-align:left}th{font-size:13px;color:var(--mut);font-weight:600}')); OUTC(10);
- OUTS(LOC('@media (max-width:600px){body{padding:10px}th,td{padding:4px 6px}}')); OUTC(10);
+ OUTS(LOC('table.idx{border-collapse:collapse;width:100%}table.idx th,table.idx td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}')); OUTC(10);
+ OUTS(LOC('table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{font-size:13px;color:var(--mut);font-weight:600}')); OUTC(10);
+ OUTS(LOC('@media (max-width:700px){body{padding:8px}td{padding:0 3px}col.n{width:2.6em}}')); OUTC(10);
  OUTS(LOC('</style></head><body>')); OUTC(10);
  0);
 
