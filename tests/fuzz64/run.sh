@@ -8,7 +8,7 @@ echo "== fuzz64"
 fail=0
 count=${FUZZ64_COUNT:-24}
 # the integer arithmetic, the byte pointers and block moves, and the bits of REAL arithmetic over the whole range of the double (each its own generator of tools/)
-for drv in stage0/impstage0 ${FUZZ64_IMP72:-build/llvm-ir2/impstage-llvm-ir}; do
+for drv in stage0/impstage0 ${FUZZ64_IMP:-build/llvm-ir2/impstage-llvm-ir}; do
     [ -x "$drv" ] || { echo "fuzz64: no $drv: skipped"; continue; }
     for gen in imp-fuzz64.py imp-fuzz-bytes.py imp-fuzz-real2.py; do
         for seed in 101 102; do

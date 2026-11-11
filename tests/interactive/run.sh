@@ -21,7 +21,7 @@ grep -q 'SINGLE LETTER SWITCHES' $out/session.out || { echo "FAILED: interactive
 grep -q 'FILE NOT FOUND' $out/session.out || { echo "FAILED: interactive: no complaint about a missing file" >&2; fail=1; }
 grep -Eq "IMP72 $(sed 's/\./\\./g' "$root/VERSION") +[0-9]{1,2}-[A-Z]{3}-[0-9]{2}" $out/session.out || { echo "FAILED: interactive: no banner with the date" >&2; fail=1; }
 # the same through the imp driver (-i): the REL file is an object, hello.o, and the IR is not left
-w=${INTERACTIVE_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${INTERACTIVE_IMP:-build/llvm-ir2/impstage-llvm-ir}
 if [ -x "$w" ]; then
     mkdir -p $out/w && cp tests/native/hello.imp $out/w/
     ( cd $out/w && printf 'hello/C\nx_/U\n' | $root/$w -i >session.out 2>&1 )

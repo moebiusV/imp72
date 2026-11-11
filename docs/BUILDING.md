@@ -215,12 +215,12 @@ triples against `tests/link/cross.out`.
 
 | target | linker flavour | arguments |
 |---|---|---|
-| this machine, Linux | ELF | `-o OUT -dynamic-linker LOADER CRT1 CRTI OBJECTS LIBIMP72 -L DIR -lc [-lm] CRTN`; the loader and `DIR` are the running program's own |
+| this machine, Linux | ELF | `-o OUT -dynamic-linker LOADER CRT1 CRTI OBJECTS LIBIMP -L DIR -lc [-lm] CRTN`; the loader and `DIR` are the running program's own |
 | another Linux (glibc, musl) | ELF | the same, with `-m EMULATION` (`elf_x86_64`, `elf_i386`, `armelf_linux_eabi`, `aarch64linux`, `elf64lppc`, `elf64ppc`, `elf32ppclinux`, `elf64_s390`, `elf64lriscv`, `elf64loongarch`, `elf32btsmip`, ...) first and `--sysroot=DIR`, the loader of the architecture, `libgcc.a` of the sysroot after `-lc` when it has one |
-| FreeBSD, NetBSD, OpenBSD | ELF | `--eh-frame-hdr -dynamic-linker LOADER -o OUT CRT0/CRT1 [CRTI] CRTBEGIN OBJECTS LIBIMP72 -lc [-lm] [libcompiler_rt.a] CRTEND [CRTN]` (OpenBSD: `libc.so.N.M` and `libm.so.N.M` by name, no `crti.o`); `-m` for a target (`elf_x86_64_fbsd`, `elf_i386_fbsd`, `aarch64fbsd`, `elf_x86_64`, ...) |
-| macOS | Mach-O | `-arch arm64\|x86_64 -platform_version macos MIN MIN -syslibroot SDK -o OUT OBJECTS LIBIMP72 -lSystem`; `ld64.lld`, or Apple's `ld` |
-| Windows, mingw-w64 | MinGW | `-m i386pep\|i386pe\|arm64pe\|thumb2pe -o OUT crt2.o OBJECTS LIBIMP72 -L DIR -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), where `libgcc.a` must be as well |
-| Cygwin (`x86_64-pc-cygwin`, LLVM's `x86_64-pc-windows-cygnus`; `i686-pc-cygwin`) | MinGW | `-m i386pep\|i386pe -o OUT crt0.o [crtbegin.o] OBJECTS LIBIMP72 -L DIR [-L GCCDIR] -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 [crtend.o]`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), `GCCDIR` is `SYSROOT/usr/lib/gcc/TRIPLE/VERSION` |
+| FreeBSD, NetBSD, OpenBSD | ELF | `--eh-frame-hdr -dynamic-linker LOADER -o OUT CRT0/CRT1 [CRTI] CRTBEGIN OBJECTS LIBIMP -lc [-lm] [libcompiler_rt.a] CRTEND [CRTN]` (OpenBSD: `libc.so.N.M` and `libm.so.N.M` by name, no `crti.o`); `-m` for a target (`elf_x86_64_fbsd`, `elf_i386_fbsd`, `aarch64fbsd`, `elf_x86_64`, ...) |
+| macOS | Mach-O | `-arch arm64\|x86_64 -platform_version macos MIN MIN -syslibroot SDK -o OUT OBJECTS LIBIMP -lSystem`; `ld64.lld`, or Apple's `ld` |
+| Windows, mingw-w64 | MinGW | `-m i386pep\|i386pe\|arm64pe\|thumb2pe -o OUT crt2.o OBJECTS LIBIMP -L DIR -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), where `libgcc.a` must be as well |
+| Cygwin (`x86_64-pc-cygwin`, LLVM's `x86_64-pc-windows-cygnus`; `i686-pc-cygwin`) | MinGW | `-m i386pep\|i386pe -o OUT crt0.o [crtbegin.o] OBJECTS LIBIMP -L DIR [-L GCCDIR] -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 [crtend.o]`; `DIR` is `SYSROOT/usr/TRIPLE/lib` (or `TRIPLE/lib`, `lib`, `usr/lib`), `GCCDIR` is `SYSROOT/usr/lib/gcc/TRIPLE/VERSION` |
 
 The Cygwin row is unverified. It follows the specs of Cygwin's gcc and has not been run on Cygwin or checked against clang's Cygwin toolchain. The start file `crt0.o`, the libraries and the gcc directory are the likely ones. The entry point, the image base and `--dynamicbase`, `--nxcompat` and `--tsaware` (lld's defaults are used) are unverified. The tests cover the argument lists (`tests/link/cross.sh`) and objects, not a run.
 

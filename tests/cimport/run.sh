@@ -8,7 +8,7 @@
 #     Linux) that the tool reads from the headers, compared with sizeof and offsetof printed by a C program; the values of macros (-D) compared with those C prints; no file left in TMPDIR
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-two=${CIMPORT_IMP72:-$root/build/llvm-ir2/impstage-llvm-ir}
+two=${CIMPORT_IMP:-$root/build/llvm-ir2/impstage-llvm-ir}
 seed=$root/stage0/impstage0
 if [ ! -x "$two" ]; then echo "cimport test skipped: no $two (the tool is built by imp)"; exit 0; fi
 w=build/cimport

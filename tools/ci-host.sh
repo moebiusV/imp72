@@ -3,7 +3,7 @@
 # isa and uarch on riscv), and the triple, CPU and features LLVM reports for it (IMPLLVMINFO, stage0/llvmorc.c), which are what the code is generated for.  Never fails.
 # Run from the top of the tree, after the build.
 name=$1
-w=${CI_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${CI_IMP:-build/llvm-ir2/impstage-llvm-ir}
 {
     uname -srm
     [ -r /proc/cpuinfo ] && grep -m4 -i '^model name\|^isa\|^uarch\|^mmu\|^cpu\b\|^machine' /proc/cpuinfo | tr '\t' ' ' | cut -c1-120 | uniq

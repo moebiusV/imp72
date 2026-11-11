@@ -5,7 +5,7 @@
 # (CROSSRUN_KEEP=1 keeps them).  Skipped, exit 77, where the inputs, dpkg, the compiler or the emulator's registration are not here.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${CROSSRUN_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${CROSSRUN_IMP:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "crossrun test skipped: no $w"; exit 77; }
 command -v dpkg >/dev/null 2>&1 || { echo "crossrun test skipped: no dpkg"; exit 77; }
 [ -d "${PREP_INPUTS:-$root/../prebsd/mirror/dev/inputs}" ] || { echo "crossrun test skipped: no prep inputs"; exit 77; }

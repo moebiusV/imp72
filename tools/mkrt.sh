@@ -9,7 +9,7 @@ set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 triple=$1
-w=${MKRT_IMP72:-$root/build/llvm-ir2/impstage-llvm-ir}
+w=${MKRT_IMP:-$root/build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "mkrt: no $w: run make first" >&2; exit 1; }
 if [ -n "$triple" ]; then
     arch=${triple%%-*}

@@ -4,7 +4,7 @@
 # compiler has no lld.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${LINK_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${LINK_IMP:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "link test skipped: no $w"; exit 0; }
 lld=1
 sh tools/llvm.sh cflags | grep -q HAVE_LLD || lld=0                 # without the lld library the compiler runs ld.lld, which has to be found by the PATH

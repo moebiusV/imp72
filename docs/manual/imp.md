@@ -117,7 +117,7 @@ facilities:
 
 The compiler is a program in IMP72 and compiles itself. Almost none of the language is built into
 it: a small kernel (the lexer, the parser, the syntax graph, the code tree matcher and the semantic
-stack, Section 4) starts empty, and the file of syntax statements SYNTAX64.IMC defines the language,
+stack, Section 4) starts empty, and the file of syntax statements SYNTAX.IMC defines the language,
 each statement carrying the semantic routines that generate its code (Section 2.3). The code is
 generated for an abstract machine of 64-bit words; the compiler translates it to LLVM IR and makes
 the object file with the LLVM libraries and links it with lld, all in its own process. The compiler

@@ -52,7 +52,7 @@ for b in $bload; do
     grep -q 'the image has the arena at' $out/relload.log || echo "image: the system did not give the arena at $b (the image was not moved): not tested" >&2
 done
 # the same through the imp driver: -i to save, -I to start from the image
-w=${IMAGE_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${IMAGE_IMP:-build/llvm-ir2/impstage-llvm-ir}
 if [ -x "$w" ]; then
     ( cd $out && printf 'ext/C\nwmy_/U\n' | $root/$w -i >wsave.log 2>&1
       $root/$w -I wmy.img -c -o prog.o prog.imp >wload.log 2>&1 )

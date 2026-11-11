@@ -4,7 +4,7 @@
 # Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${SEED_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${SEED_IMP:-build/llvm-ir2/impstage-llvm-ir}
 s=stage0/impstage0
 [ -x "$w" ] && [ -x "$s" ] || { echo "seed test skipped: no $w or $s"; exit 0; }
 out=build/seed

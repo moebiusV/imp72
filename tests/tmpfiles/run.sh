@@ -5,7 +5,7 @@
 # SIGHUP and SIGQUIT during a link do; and that a TMPDIR that is relative, a file or not there is not used.  Run from the top of the tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-two=${TMPFILES_IMP72:-$root/build/llvm-ir2/impstage-llvm-ir}
+two=${TMPFILES_IMP:-$root/build/llvm-ir2/impstage-llvm-ir}
 seed=$root/stage0/impstage0
 [ -x "$two" ] || { echo "tmpfiles test skipped: no $two"; exit 0; }
 export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a

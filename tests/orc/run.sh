@@ -3,7 +3,7 @@
 # target machine of the host; there is no clang in it.  Skipped where the compiler was built without the LLVM libraries.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${ORC_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${ORC_IMP:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "orc test skipped: no $w"; exit 0; }
 ldd "$w" 2>/dev/null | grep -qi llvm || { echo "orc test skipped: built without the LLVM libraries"; exit 0; }
 export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a

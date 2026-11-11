@@ -4,7 +4,7 @@
 # (main, impmain, the runtime's entry points).  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${RUNTIME_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${RUNTIME_IMP:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "runtime test skipped: no $w"; exit 0; }
 out=build/runtime
 rm -rf $out; mkdir -p $out

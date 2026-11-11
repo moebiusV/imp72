@@ -4,7 +4,7 @@
 # refusals (windows, no sysroot, no crt1.o) must say what is missing.  Needs no real sysroot.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${LINK_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+w=${LINK_IMP:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "link cross test skipped: no $w"; exit 0; }
 out=build/linkcross
 rm -rf $out; mkdir -p $out

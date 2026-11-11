@@ -1,12 +1,12 @@
 #!/bin/sh
 # imptool.sh NAME [ARG...]: run the tool tools/NAME.imp (and tools/NAME-*.imp, if there are any), an IMP program, built first (build/tools/NAME) by the compiler of the tree if it is not there or is older than its source or than the
 # compiler.  The tools of this tree are IMP, not Python or shell: the text they handle is IMP's to transform.  The caller's directory and standard files are kept; the build log is
-# build/tools/NAME.log (shown when the build fails).  IMP72=path names another compiler.  Run from anywhere.
+# build/tools/NAME.log (shown when the build fails).  IMP=path names another compiler.  Run from anywhere.
 root=$(cd "$(dirname "$0")/.." && pwd)
 name=$1; shift
 [ -n "$name" ] && [ -f "$root/tools/$name.imp" ] || { echo "imptool: no tools/$name.imp" >&2; exit 2; }
 b=$root/build/tools/$name
-c=${IMP72:-$root/build/llvm-ir2/impstage-llvm-ir}
+c=${IMP:-$root/build/llvm-ir2/impstage-llvm-ir}
 [ -x "$c" ] || c=$root/stage0/impstage0                      # (the seed reads the same language)
 [ -x "$c" ] || { echo "imptool: no compiler built (make first)" >&2; exit 1; }
 srcs=$root/tools/$name.imp
