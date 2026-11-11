@@ -1,4 +1,4 @@
-IMP72 is the extensible systems language of Ned Irons (IMP stands for Irons
+IMP72 is the extensible systems language of Ned Irons (IMP stands for (Ned) Irons
 Meta Processor). This is a
 compiler for it on 64-bit machines, derived from the IMP72 compiler
 Walter Bilofsky wrote for the PDP-10 (DECUS 10-198a, 1973).

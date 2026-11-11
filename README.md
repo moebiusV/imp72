@@ -176,7 +176,7 @@ output with it.
 The sources in `decus/` are DECUS program 10-198a, *IMP - PDP-10 IMP72 Compiler,
 Version 1.5*, October 3, 1973, by Walter Bilofsky, Yale University, Department of
 Computer Science, submitted by Sonya Shapiro, Bolt Beranek and Newman, Inc.
-IMP (Irons Meta Processor) is by Edgar T. (Ned) Irons, who invented it. They come from the PDP-10 archive's listing of
+IMP ((Ned) Irons Meta Processor) is by Edgar T. (Ned) Irons, who invented it. They come from the PDP-10 archive's listing of
 the DECUS library tape 10-LIB-3,
 <https://pdp-10.trailing-edge.com/decuslib10-03/index.html>, directory
 `[43,50306]`, which states of the DECUS software that it was put into the public
