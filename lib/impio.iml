@@ -32,8 +32,9 @@ SUBR impfclose(F) IS CCALL fclose(LOC(F));
 
 FMT,WID,FLM,FLN,IMG,DFP,COL,LEN,EOFF,TTY,NPT ARE 2 LONG;
 LNB IS 256 LONG;                        # THE TWO LINES, 1024 BYTES EACH #
-PRT IS 64 LONG;                         # THE FILE ITEMS: 2 DIRECTIONS (256 BYTES EACH), 4 ITEMS OF 64 BYTES #
-FNM IS 128 LONG;                        # THE NAMES OF THE FOUR OPEN FILES, 256 BYTES EACH #
+PRT IS 1088 LONG;                       # THE FILE ITEMS: 2 DIRECTIONS OF 4352 BYTES EACH, THE NAME (4096: PATH_MAX) AND THE EXTENSION (256: NAME_MAX AND A ZERO); THE OTHER TWO ITEMS ARE NOT KEPT #
+FNB IS 548 LONG;                        # THE NAME AND THE EXTENSION JOINED BY A DOT: 4384 BYTES #
+FNM IS 2192 LONG;                       # THE NAMES OF THE FOUR OPEN FILES, 4384 BYTES EACH #
 FFP,FOUT ARE 4 LONG;
 FILLCH IS 1 LONG;
 NBUF IS 40 LONG;
@@ -111,24 +112,24 @@ SUBR RTLOPENFILE(NM,OUT) IS (
  I,FS ARE LOCAL;
  FS:=0-1;
  I:=0;
- OF1: I<4 => (FFP[I] NE 0 => FOUT[I]=OUT => CCALL strcmp(LOC(FNM)+(256*I),NM)=0 => RETURN FFP[I];
+ OF1: I<4 => (FFP[I] NE 0 => FOUT[I]=OUT => CCALL strcmp(LOC(FNM)+(4384*I),NM)=0 => RETURN FFP[I];
               FFP[I]=0 => FS<0 => FS:=I;
               I:=I+1; GO TO OF1);
  FS<0 => (RTLERRS(LOC('imp: more than 4 files open')); RTLERRNL(0); CCALL exit(1));
  FFP[FS]:=CCALL fopen(NM,(OUT NE 0 => LOC('w') ELSE LOC('r')));
  FFP[FS]=0 => (RTLERRS(LOC('imp: cannot open ')); RTLERRS(NM); RTLERRNL(0); CCALL exit(1));
- CCALL snprintf(LOC(FNM)+(256*FS),256,LOC('%s'),NM);
+ CCALL snprintf(LOC(FNM)+(4384*FS),4384,LOC('%s'),NM);
  FOUT[FS]:=OUT;
  FFP[FS]);
 
 # THE FOURTH ITEM OF FILE: OPEN THE FILE #
 SUBR RTLFILESPEC(D,OUT) IS (
  PA,PB ARE LOCAL;
- PA:=LOC(PRT)+(256*D);
- PB:=PA+64;
- RTLRB(PB,0) NE 0 => CCALL snprintf(LOC(NBUF),256,LOC('%s.%s'),PA,PB) ELSE CCALL snprintf(LOC(NBUF),256,LOC('%s'),PA);
+ PA:=LOC(PRT)+(4352*D);
+ PB:=PA+4096;
+ RTLRB(PB,0) NE 0 => CCALL snprintf(LOC(FNB),4384,LOC('%s.%s'),PA,PB) ELSE CCALL snprintf(LOC(FNB),4384,LOC('%s'),PA);
  TTY[D]:=0;
- RTLRB(LOC(NBUF),0) NE 0 => DFP[D]:=RTLOPENFILE(LOC(NBUF),OUT) ELSE DFP[D]:=0;
+ RTLRB(LOC(FNB),0) NE 0 => DFP[D]:=RTLOPENFILE(LOC(FNB),OUT) ELSE DFP[D]:=0;
  NPT[D]:=0; COL[D]:=0; LEN[D]:=0; EOFF[D]:=0;
  0);
 
@@ -148,9 +149,10 @@ SUBR RTLCOMMON(D,OUT,N,P) IS (
        P NE 0 => (FLM[D]:=[P] AND 4294967295; FLM[D] GE 2147483648 => FLM[D]:=FLM[D]-4294967296;
                   FLN[D]:=([P] RS 32) AND 4294967295);
        IMG[D]:=0; RETURN 1;
- CM6: NPT[D]<4 => (PP:=LOC(PRT)+((256*D)+(64*NPT[D]));
-                   NPT[D]<2 => (P NE 0 => CCALL snprintf(PP,64,LOC('%.7s'),P) ELSE CCALL memset(PP,0,1))
-                     ELSE CCALL memset(PP,0,1);
+ CM6: NPT[D]<4 => (PP:=LOC(PRT)+(4352*D);                  # ITEM 0 IS THE NAME, ITEM 1 THE EXTENSION; THE TAPE'S OTHER TWO ARE COUNTED AND NOT KEPT #
+                   NPT[D]=1 => PP:=PP+4096;
+                   NPT[D]<2 => (P NE 0 => (NPT[D]=0 => CCALL snprintf(PP,4096,LOC('%s'),P) ELSE CCALL snprintf(PP,256,LOC('%s'),P))
+                                  ELSE CCALL memset(PP,0,1));
                    NPT[D]:=NPT[D]+1);
       NPT[D]=4 => RTLFILESPEC(D,OUT);
       RETURN 1;

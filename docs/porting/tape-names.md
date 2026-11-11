@@ -46,10 +46,11 @@ of the `FINAM` switches) is not defined in `decus/impsyn.imc`, and the modules t
 | `dir` | `SEMCALL` | call a semantic routine by number, with a frame stack of its own (`SEMSTK`; the locals of IMP are static, so a routine that calls itself through the table needs one) |
 | `dir` | `SEMCOUNT`, `SEMNAME`, `SEMREMAP` | the table of routines for the image (`-I`): how many, the name of the I-th, the table made again in the order the image has |
 | `rsyn` | `RSYNI` | the head of `RSYN`: sets up its tables and enters its semantic routines; a run from an image does not read the syntax again |
+| `lex` | `PUTNM` | the name of a file in a command of the interactive mode, whole, as a string in a buffer (`PUTN` keeps the first two words of it, six characters on the tape and 15 here, and `GNAME` gives three words): a file name is a Unix name, decided 2026-11-11; `READCMD` calls it for the file, the REL file and the listing |
 | `rsyn` | `IMPSVDAT`, `IMPSVNUM`, `IMPSVSET` | the save count and date for the banner, kept in `rsyn` because the image leaves the variables of `impm` out |
 | `impm` | `IMPK` | the driver program: reads the syntax with `RSYN`, compiles the files on the command line, returns 0 if all went well |
 | `impm` | `COMPIL` | compile the file the lexer has open and print what the switches ask for (inline in the main program on the tape) |
-| `impm` | `IMPARGV`, `IMPOPENLIST`, `IMPCLOSELIST`, `IMPBYTE`, `IMPGETC`, `MKNAME`, `SETSW`, `USAGE` | the command line and the files through the C library, where the original asks the monitor (`INIT`, `LOOKUP`, `ENTER`); `MKNAME` makes a file name (15 characters and 7 of extension; the tape's are six and three), `SETSW` sets the switches from letters |
+| `impm` | `IMPARGV`, `IMPOPENLIST`, `IMPCLOSELIST`, `IMPBYTE`, `IMPGETC`, `MKNAME`, `SETSW`, `USAGE` | the command line and the files through the C library, where the original asks the monitor (`INIT`, `LOOKUP`, `ENTER`); `MKNAME` makes a file name (up to 4095 bytes, from the string `PUTNM` kept, and 7 of extension; the tape's are six and three), `SETSW` sets the switches from letters |
 | `impm` | `IMPOBJ`, `IMPOPENIR` | the object file of the system (or of `--target`) made from the IR just written, where the tape writes a `.REL`; the file of IR (`-` is standard output) |
 | `impm` | `LISTOUT`, `OUTCS`, `IMPNOISY` | where `PRINT` goes (the listing, else standard output); print a C string; whether `ERROR` says anything |
 | `code` | `REGFIELD` | the register field of an operand (the register is in bits 32-42 of the second word) |

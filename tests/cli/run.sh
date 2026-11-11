@@ -117,6 +117,12 @@ rm -f cz1.o cz2.o
 "$w" -Sir -o cz-with.ll -C ext.imc cz1.imp >/dev/null 2>&1; "$w" -Sir -o cz-without.ll cz1.imp >/dev/null 2>&1
 [ -s cz-with.ll ] && [ -s cz-without.ll ] && ! cmp -s cz-with.ll cz-without.ll || bad "-C: the extension changes the program (ZED is 7 with it, a variable without)"
 "$w" -C >/dev/null 2>&1; [ $? = 2 ] || bad "-C: a missing argument is refused with 2"
+# a file name at the prompt is a Unix name (up to the system's), not the tape's six characters and not 15
+ln=$(printf '%0100d' 0 | tr 0 n)
+cp okp.imp $ln.imp
+printf '%s\n' "$ln" | "$w" -i > il.log 2>&1
+[ -s $ln.o ] || bad "-i: a file name of 100 characters ($(head -c 200 il.log))"
+rm -f $ln.o $ln.imp
 printf 'okp\n' | "$w" -i > i1.log 2>&1
 [ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "-i: okp makes okp.o and no IR"
 head -1 i1.log | grep -q " $(date +%e-%b-%y | tr a-z A-Z | sed 's/^ *//')" || bad "-i: the banner has the date of today ($(head -1 i1.log))"

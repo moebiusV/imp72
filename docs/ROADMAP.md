@@ -54,22 +54,6 @@ Proposed: `''` is the constant 0.
 with no third following: the constant 0) and a test. As a `STG` argument, `''`
 is 0, like any other zero word.
 
-### 4. File names with Unix limits
-
-`MKNAME` (`src/impm.imc`) builds a file name from two words (15 characters)
-and an extension of one word (7); the original had six and three. The library
-cuts the names of `FILE` items in `PRINT` and `READ` to 7 characters
-(`lib/impio.iml`, label `CM6`).
-
-Proposed: keep the form `FILE NAME.EXT`, but let a name be as long as the
-string given (up to `NAME_MAX`), since the library takes it from the string. The
-compiler's own `MKNAME` is for names on its command line, which a shell has
-limited by a shell: raise it to `PATH_MAX`.
-
-*Effect on the code.* `MKNAME` and its buffer `NMB`; the `%.7s` and the 64-byte
-file items of the library take the length of the buffer. A test with a name of
-200 characters.
-
 ### 5. The original's channel I/O
 
 `PRINT`, `READ` and `PRINT FILE` are in `lib/impio.iml`. The channel

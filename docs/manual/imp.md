@@ -191,8 +191,8 @@ comes from the machine and from the runtime library.
 
 - 5. Byte pointers to characters are byte addresses; the halves of a word are 32 bits.
 
-- 6. Files are Unix files, and a file name is at most seven characters, with an extension of at most
-  seven. Section 2.2.7.
+- 6. Files are Unix files, and a file name is as long as the system allows (a name of up to 4095
+  bytes, and an extension of up to 255). Section 2.2.7.
 
 - 7. The program is compiled to native code and linked to an executable by the compiler. The
   compiler is called imp and takes options like a C compiler. Section 3.
@@ -814,11 +814,11 @@ remainder of the current line to be skipped over.
 
 Specifies the file for input/output. A and B are file name and extension, and may be either string
 constants or unsubscripted variables holding a string. The file is the Unix file `A.B` of the
-current directory, or `A` when B is absent or 0; A and B are cut to seven characters each. A PRINT
-opens the file for writing, and replaces its contents; a READ opens it for reading. The file stays
-the one for the output (or the input) until another FILE, a DEVICE 'TTY:' or a FINI. Caution: FILE
-FOR03.DAT, e.g., refers to variables FOR03 and DAT. He who wrote this probably meant to write FILE
-'FOR03'.'DAT'.
+current directory, or `A` when B is absent or 0; A may be up to 4095 bytes and B up to 255 (a longer
+one is cut), and the system refuses what is too long for it. A PRINT opens the file for writing, and
+replaces its contents; a READ opens it for reading. The file stays the one for the output (or the
+input) until another FILE, a DEVICE 'TTY:' or a FINI. Caution: FILE FOR03.DAT, e.g., refers to
+variables FOR03 and DAT. He who wrote this probably meant to write FILE 'FOR03'.'DAT'.
 
 Examples: after `A:=101B`, the statement PRINT STG 1,A,IGR 4,A,OCT 6,A,A,/ produces the line
 

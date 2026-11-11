@@ -46,7 +46,7 @@ comes from the machine and from the runtime.
   formats (`STG`, `IGR`, `OCT`, `FLT`, `TAB`, `FILL`, ...); `FILE`, `DEVICE` and
   `IMAGE MODE` map to files and standard input and output, at most four files at
   a time. A file name is a
-  string of up to 7 characters, and image mode moves 8 bytes per word. `FINI(0)`
+  string, up to what a Unix path is (4095 bytes) with an extension of up to 255, and image mode moves 8 bytes per word. `FINI(0)`
   closes the files and exits.
 - **Calls to C.** `CCALL NAME(A,B)` calls a C function with values;
   `EXTERNAL INT NAME(PTR);` declares the types of a C function, and

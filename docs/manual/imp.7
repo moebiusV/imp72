@@ -226,8 +226,8 @@ A string constant is a sequence of bytes ended by a zero byte, not five
 Byte pointers to characters are byte addresses; the halves of a word
 are 32 bits.
 .It 6.
-Files are Unix files, and a file name is at most seven characters, with
-an extension of at most seven.
+Files are Unix files, and a file name is as long as the system allows
+(a name of up to 4095 bytes, and an extension of up to 255).
 Section 2.2.7.
 .It 7.
 The program is compiled to native code and linked to an executable by
@@ -1499,9 +1499,10 @@ when
 .Ar B
 is absent or 0;
 .Ar A
-and
+may be up to 4095 bytes and
 .Ar B
-are cut to seven characters each.
+up to 255 (a longer one is cut), and the system refuses what is too
+long for it.
 A
 .Ic PRINT
 opens the file for writing, and replaces its contents; a
