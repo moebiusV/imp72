@@ -57,7 +57,7 @@ SUBR IMGSKIP(NP) IS (
  CCALL strcmp(NP,LOC('dir:RTN'))=0 => RETURN 1;
  CCALL strcmp(NP,LOC('dir:NRTN'))=0 => RETURN 1;
  CCALL strcmp(NP,LOC('dir:CRTN'))=0 => RETURN 1;
- CCALL strcmp(NP,LOC('lex:SRCFP'))=0 => RETURN 1;
+ CCALL strcmp(NP,LOC('lex:CHAN'))=0 => RETURN 1;
  CCALL strcmp(NP,LOC('free:RELP'))=0 => RETURN 1;
  0);
 
