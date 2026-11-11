@@ -1,7 +1,7 @@
 # Architecture
 
 IMP72 is a small kernel plus a language defined in data. (IMP stands for Irons
-Meta Program: Ned Irons invented it.) This page is the map.
+Meta Processor, named for Ned Irons as LISP is for its List Processor.) This page is the map.
 `docs/internals/` describes what each kernel module does, and `docs/porting/`
 describes the code generator's machine, the layouts of the compiler's tables
 and the modules compared with the original.

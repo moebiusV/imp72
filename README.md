@@ -8,7 +8,9 @@ compiler is the original's design and source, translated to IMP for 64-bit
 words and IEEE 754 doubles. It compiles to native code through LLVM, in its own
 process, and calls C and ELF or Mach-O objects through the C ABI.
 
-IMP stands for Irons Meta Program: Ned Irons invented it.
+IMP stands for (Ned) Irons Meta Processor: it is named for Ned Irons, who invented it, as LISP is named
+for its List Processor. It follows up the Meta II project and is based on his earlier BNF-driven ALGOL 60
+compiler.
 
 Almost none of the language is built in. A small kernel (a lexer, Irons's
 multi-track parser, a syntax graph, a code-tree matcher, a semantic stack)
@@ -174,7 +176,7 @@ output with it.
 The sources in `decus/` are DECUS program 10-198a, *IMP - PDP-10 IMP72 Compiler,
 Version 1.5*, October 3, 1973, by Walter Bilofsky, Yale University, Department of
 Computer Science, submitted by Sonya Shapiro, Bolt Beranek and Newman, Inc.
-IMP (Irons Meta Program) is by Edgar T. (Ned) Irons, who invented it. They come from the PDP-10 archive's listing of
+IMP (Irons Meta Processor) is by Edgar T. (Ned) Irons, who invented it. They come from the PDP-10 archive's listing of
 the DECUS library tape 10-LIB-3,
 <https://pdp-10.trailing-edge.com/decuslib10-03/index.html>, directory
 `[43,50306]`, which states of the DECUS software that it was put into the public

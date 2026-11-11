@@ -66,10 +66,12 @@ CONTENTS
 ```
 
 The IMP72 compiler was designed and implemented at the Yale University Department of Computer
-Science by Walt Bilofsky, based largely on previous work of E. T. Irons. IMP stands for Irons Meta
-Program: E. T. Irons invented it. Substantial contributions were made by Steven Weingart and Terry
-Lyons. This manual describes version 0.10.0 of the IMP72 compiler, which translates IMP72 to native
-code on 64-bit Unix systems.
+Science by Walt Bilofsky, based largely on previous work of E. T. Irons. IMP stands for (Ned) Irons
+Meta Processor: it is named for E. T. (Ned) Irons, who invented it, as LISP is named for its List
+Processor. It follows up the Meta II project and is based on Irons's earlier BNF-driven ALGOL 60
+compiler. Substantial contributions were made by Steven Weingart and Terry Lyons. This manual
+describes version 0.10.0 of the IMP72 compiler, which translates IMP72 to native code on 64-bit Unix
+systems.
 
 ## 1: Introduction.
 
