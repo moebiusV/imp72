@@ -60,8 +60,8 @@ heap block instead (`docs/internals/stage0-foundation.md`).
 the prompt `*` and a command `REL,LST_FILE.EXT[PJ,PG]/A/B...(AB...)PGM\`, as the tape's `READCMD` takes it. As on the
 tape one compilation ends the session unless the switch `C` is given, and a fatal error ends it. What differs:
 
-- The file name is a Unix name, up to 4095 bytes, and the extension is 7 (the tape's are 6 and 3): `READCMD` keeps the name of a
-  command as a string (`PUTNM`, which is not on the tape; its `PUTN` kept the first two words of the name) and `MKNAME` reads it from there.
+- The file name is a Unix name, up to 4095 bytes, and the extension is 7 (the tape's are 6 and 3): `GNAME` gives the whole name (the tape's gives the first three words) and `PUTN`, for a name of a file in a command, keeps a copy of it as a
+  string (the tape's copies the first two words) that `MKNAME` reads. No routine is added: the two were fixed.
   `FILE` is tried as given and then with `.imp` and `.imc`.
 - The output `REL` is the IR (`REL.ir`) and `LST` a listing (`LST.lst`, written when `LST` is given).
 - `\PGM` runs `PGM` with the shell and returns to the prompt, where the tape chains to it.
