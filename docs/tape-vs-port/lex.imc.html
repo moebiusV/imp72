@@ -19,7 +19,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>lex.imc</h1>
 <p class="mut">left, old (the tape): decus/lex.imc<br>right, new (the port): src/lex.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 19 changed places, 214 tokens deleted, 745 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 19 changed places, 214 tokens deleted, 741 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n d">1</td><td class="c d"><del>#LEX: LEXICAL ANALYZER MODULE FOR IMP COMPILER#</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">2</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
@@ -95,9 +95,9 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n q">66</td><td class="c q"> #ISANM IS MADE NON-ZERO FOR ALPHA-NUMERIC CHARS#</td><td class="n q">77</td><td class="c q"> #ISANM IS MADE NON-ZERO FOR ALPHA-NUMERIC CHARS#</td></tr>
 <tr><td class="n d">67</td><td class="c d"> ISANM<del>_</del>(1 LS <del>35</del>) AND ISTAB[C RS 5] LS 37B AND C);</td><td class="n a">78</td><td class="c a"> ISANM<ins>:=</ins>(1 LS <ins>31</ins>) AND ISTAB[C RS 5] LS 37B AND C<ins>;</ins></td></tr>
 <tr><td class="n d">69</td><td class="c d">ISTAB: DATA(0,<del>3776000B</del>,<del>377777777000B</del>,<del>377777777000B</del>);</td><td class="n a">79</td><td class="c a"> <ins>CMDM =&gt; (C=137B =&gt; ISANM:=0</ins>)<ins>)</ins>;      <ins># A COMMAND LINE IS NOT IMP: THERE _ SEPARATES, AS IT DID IN THE ORIGINAL (SEE READCMD) #</ins></td></tr>
-<tr><td class="n d">71</td><td class="c d">SUBR PLINE1(OL) IS (TFL=0=&gt;(TFL<del>_</del>-1; RC<del>_</del>QC; J<del>_</del>0;</td><td class="n a">81</td><td class="c a"><ins>#</ins>ISTAB <ins>IS THE ORIGINAL'S TABLE OF A BIT FOR EACH CHARACTER, A WORD OF 32 BITS FOR 32 CHARACTERS, THE FIRST AT THE TOP BIT OF THE 32 (THE ORIGINAL HAS 36): THE DIGITS, @ AND THE</ins></td></tr>
-<tr><td class="n d">72</td><td class="c d"> WHILE (I<del>_</del>&lt;+RC&gt;) DO (</td><td class="n a">82</td><td class="c a"> <ins>LETTERS, THE UNDERSCORE (A NAME IS A VALID C NAME; ASSIGNMENT IS :=), ` AND THE LOWER CASE LETTERS, AND, TO TAKE UTF-8, ALL OF 128 AND UP#</ins></td></tr>
-<tr><td class="n d">73</td><td class="c d">	(J<del>_</del>J+1)=OL=&gt;OUTCHR(12B); OUTCHR(I));</td><td class="n a">83</td><td class="c a"><ins>ISTAB</ins>: DATA(0,<ins>177700B</ins>,<ins>37777777741B</ins>,<ins>37777777740B,37777777777B,37777777777B,37777777777B,37777777777B</ins>);</td></tr>
+<tr><td class="n d">71</td><td class="c d">SUBR PLINE1(OL) IS (TFL=0=&gt;(TFL<del>_</del>-1; RC<del>_</del>QC; J<del>_</del>0;</td><td class="n a">81</td><td class="c a"><ins>#</ins>ISTAB <ins>IS THE ORIGINAL'S TABLE OF A BIT FOR EACH CHARACTER, A WORD OF 32 BITS FOR 32 CHARACTERS, THE FIRST AT THE TOP BIT OF THE 32 (THE ORIGINAL HAS 36): THE DIGITS, THE</ins></td></tr>
+<tr><td class="n d">72</td><td class="c d"> WHILE (I<del>_</del>&lt;+RC&gt;) DO (</td><td class="n a">82</td><td class="c a"> <ins>LETTERS, THE UNDERSCORE (A NAME IS A VALID C NAME; ASSIGNMENT IS :=), THE LOWER CASE LETTERS, AND, TO TAKE UTF-8, ALL OF 128 AND UP#</ins></td></tr>
+<tr><td class="n d">73</td><td class="c d">	(J<del>_</del>J+1)=OL=&gt;OUTCHR(12B); OUTCHR(I));</td><td class="n a">83</td><td class="c a"><ins>ISTAB</ins>: DATA(0,<ins>177700B</ins>,<ins>17777777741B</ins>,<ins>17777777740B,37777777777B,37777777777B,37777777777B,37777777777B</ins>);</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">85</td><td class="c a">SUBR PLINE1(OL) IS (TFL=0=&gt;(TFL<ins>:=</ins>-1; RC<ins>:=</ins>QC; J<ins>:=</ins>0;</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">86</td><td class="c a"> WHILE (I<ins>:=</ins>&lt;+RC&gt;) DO (</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">87</td><td class="c a">	(J<ins>:=</ins>J+1)=OL=&gt;OUTCHR(12B); OUTCHR(I));</td></tr>
