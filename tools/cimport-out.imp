@@ -114,7 +114,7 @@ SUBR TMPBASE(Z) IS (
 SUBR MAKETMP(Z) IS (
  T,R ARE LOCAL;
  TDIR NE 0 => RETURN 1;
- T:=S_CAT(TMPBASE(0),LOC('/imp72cimportXXXXXX'));
+ T:=S_CAT(TMPBASE(0),LOC('/impcimportXXXXXX'));
  R:=CCALL mkdtemp(T);
  R=0 => DIE(LOC('cannot make a directory for the probe of macros'),0);
  TDIR:=T;

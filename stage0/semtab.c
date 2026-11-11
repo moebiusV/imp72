@@ -114,7 +114,7 @@ dsem_remap(char **names, word n)
             if (rtn[j].name != NULL && strcmp(rtn[j].name, names[i]) == 0)
                 break;
         if (j == nrtn) {
-            fprintf(stderr, "imp72: the image uses the routine %s, which this run has not entered\n", names[i]);
+            fprintf(stderr, "imp: the image uses the routine %s, which this run has not entered\n", names[i]);
             free(t);
             return 0;
         }

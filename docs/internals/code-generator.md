@@ -1,8 +1,8 @@
 # The code generator
 
 The code generator turns the semantics of `src/llvm-ir/syntax64.imc` into IR. It exists twice, as the same program in two
-languages: in IMP in `src/llvm-ir/` (part of the compiler `imp72`), and in C in `stage0/gen_*.c` (part of the seed
-`imp72stage0`, `stage0-semantics.md`). Both write the same IR byte for byte for the same program;
+languages: in IMP in `src/llvm-ir/` (part of the compiler `imp`), and in C in `stage0/gen_*.c` (part of the seed
+`impstage0`, `stage0-semantics.md`). Both write the same IR byte for byte for the same program;
 `tests/seed/run.sh` compares them for the native tests, the oracle programs, the runtime library and the modules of the
 code generator itself.
 
@@ -13,7 +13,7 @@ code generator itself.
       IR text                                    ix.imp (the seed: stage0/ir.c)
       ir2ll                                      LLVM IR text (src/ir2ll.imp, src/ir2llx.imp; the seed: tools/ir2ll.c)
       LLVM, in the process                       an object file, or ORC and a run (src/llvm.imp; the seed: stage0/llvmorc.c)
-      lld, in the process                        the executable, linked with libimp72.a
+      lld, in the process                        the executable, linked with libimp.a
 
 ## Files
 
@@ -131,8 +131,8 @@ function loads it into the result register.
 - **Computed `GO TO (L0,L1,...) N`.** The jumps after the table tag become one compare and branch for each.
 - **`PRINT` and `READ`.** The syntax builds a call of `PRN.` or `RED.` with one `PITEM` record per item. Each item
   stores its code and the address of its operand in the cells `impca` and calls `imppr(&impca[0], &impca[1])` (`imprd`
-  for `READ`); the library in `lib/imp72io.imp` holds the format between items. `pmod.md` describes the formats.
-- **`CALLI(a,b)`** calls `impcalli` (`lib/imp72rt.imp`: exit, date, time of day, run time, job number).
+  for `READ`); the library in `lib/impio.imp` holds the format between items. `pmod.md` describes the formats.
+- **`CALLI(a,b)`** calls `impcalli` (`lib/imprt.imp`: exit, date, time of day, run time, job number).
 - **`EXECUTE a`** calls `impxct`, which does the one operation of the machine that the word holds, with the registers
   `0R` to `15R` stored in `impac` before and loaded after. Floating operations and jumps are an error at run time.
 - **`MOVE B THROUGH N TO A`** calls `impblk(A,B,N)`, which copies N+1 words upward, a word at a time.
@@ -148,8 +148,8 @@ byte address of the byte before the first of `A`; `<+P>` adds 1 and then reads o
 character is a byte. Any other field keeps the layout of the PDP-10 pointer in one word: bits 63-58 the size, 57-52 the
 position, the low 52 bits the byte address of the word. The two are told apart by the size bits, which a byte address
 never has. Stepping a field pointer moves to the next lower field of the same size, or to the next word (address + 8)
-when there is no room. `impibp`, `impldb` and `impdpb` in `lib/imp72rt.imp` do `IBP`, `LDB` and `DPB`. When the
-environment variable `IMP72CHARPTR` is set the compiler does the stepping, loading and storing of character pointers in
+when there is no room. `impibp`, `impldb` and `impdpb` in `lib/imprt.imp` do `IBP`, `LDB` and `DPB`. When the
+environment variable `IMPCHARPTR` is set the compiler does the stepping, loading and storing of character pointers in
 line; the runtime library is compiled so, because those routines are made of such pointers.
 
 ## Shifts
@@ -167,7 +167,7 @@ A `REAL` is the bits of an IEEE 754 binary64 in a word. `FCON` makes a constant 
 store both words in the scratch words `imp_fs0` and `imp_fs1`, read them as doubles where they are used, and store the
 result in `imp_fsr` and read it back as a word; no double is held in a temporary. A comparison of a real with anything
 uses the floating jumps (`FJEQ` to `FJNE`, the integer jumps plus 10). `CONOP` folds integer constants in 64 bits and
-negates a real constant by flipping its sign bit; any other operation on a real constant is an error. `lib/imp72.h`
+negates a real constant by flipping its sign bit; any other operation on a real constant is an error. `lib/imp.h`
 converts between a `REAL` word and a `double` for C.
 
 ## The IR

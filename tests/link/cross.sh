@@ -1,17 +1,17 @@
 #!/bin/sh
-# The tables of the link for another system (src/driver.imp: LNKCROSS, SETARCH, LNKBSD): imp72 --target=TRIPLE --sysroot=DIR with a sysroot of empty files prints (IMP72LDSHOW=1) the
+# The tables of the link for another system (src/driver.imp: LNKCROSS, SETARCH, LNKBSD): imp --target=TRIPLE --sysroot=DIR with a sysroot of empty files prints (IMPLDSHOW=1) the
 # arguments of ld before lld finds them empty, and they must be those of tests/link/cross.out: the loader of each architecture and C library, the start files of each system.  The
 # refusals (windows, no sysroot, no crt1.o) must say what is missing.  Needs no real sysroot.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${LINK_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
+w=${LINK_IMP72:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "link cross test skipped: no $w"; exit 0; }
 out=build/linkcross
 rm -rf $out; mkdir -p $out
 echo "== link cross"
 sr=$out/sr
 mkdir -p $sr/usr/lib
-for f in crt1.o crt0.o crti.o crtn.o crtbegin.o crtend.o libc.so libm.so libc.so.97.1 libm.so.10.1 libimp72.a; do : > $sr/usr/lib/$f; done
+for f in crt1.o crt0.o crti.o crtn.o crtbegin.o crtend.o libc.so libm.so libc.so.97.1 libm.so.10.1 libimp.a; do : > $sr/usr/lib/$f; done
 for f in crt2.o libmingw32.a crt0.o libcygwin.a; do : > $sr/usr/lib/$f; done
 mkdir -p $sr/usr/lib/gcc/x86_64-pc-cygwin/15 $sr/usr/lib/gcc/i686-pc-cygwin/15
 for d in x86_64-pc-cygwin i686-pc-cygwin; do for f in crtbegin.o crtend.o libgcc.a; do : > $sr/usr/lib/gcc/$d/15/$f; done; done
@@ -29,8 +29,8 @@ for t in i386-linux-gnu armv7-linux-gnueabihf armv7-linux-gnueabi aarch64-linux-
     *-freebsd|*-netbsd|*-openbsd) [ "$(uname -s | tr A-Z a-z)" = "${t##*-}" ] && case "${t%%-*}:$(uname -m)" in x86_64:x86_64|x86_64:amd64|aarch64:aarch64|aarch64:arm64|i386:i?86) continue ;; esac ;;
     esac
     # (a triple whose code generator this LLVM does not have makes no object and prints no ld line: it is left out, as the golden file is cut to the triples that are in the output)
-    r=$(IMP72LDSHOW=1 $w --target=$t --sysroot=$root/$sr --runtime=$root/$sr/usr/lib/libimp72.a -o $out/a.out tests/native/hello.imp 2>&1 >/dev/null \
-        | grep -E "^ld(64)?\.lld " | sed "s#$root/$sr#SYSROOT#g; s#[^ ]*imp72stage[^ ]*#T#g; s#/proc/self/fd/[0-9]*#T#g; s#build/linkcross/a.out#a.out#")
+    r=$(IMPLDSHOW=1 $w --target=$t --sysroot=$root/$sr --runtime=$root/$sr/usr/lib/libimp.a -o $out/a.out tests/native/hello.imp 2>&1 >/dev/null \
+        | grep -E "^ld(64)?\.lld " | sed "s#$root/$sr#SYSROOT#g; s#[^ ]*impstage[^ ]*#T#g; s#/proc/self/fd/[0-9]*#T#g; s#build/linkcross/a.out#a.out#")
     [ -n "$r" ] || continue
     echo "$t:" >> $got
     echo "$r" >> $got

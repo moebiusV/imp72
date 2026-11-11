@@ -6,7 +6,7 @@ cd "$root" || exit 1
 echo "== variadic"
 # the C library's functions whose prototype ends with ... (glibc, musl, the BSDs, Darwin)
 VARIADIC="printf fprintf sprintf snprintf dprintf asprintf sscanf fscanf scanf open open64 openat openat64 fcntl fcntl64 ioctl syscall execl execle execlp prctl ptrace mq_open sem_open semctl shmctl msgctl syslog err errx warn warnx error printw wprintf swprintf fwprintf wscanf swscanf fwscanf strfmon"
-# (tests/cimport/basic.use.imp and qsort.imp have the declarations of printf from the output of imp72-cimport put before them by tests/cimport/run.sh)
+# (tests/cimport/basic.use.imp and qsort.imp have the declarations of printf from the output of imp-cimport put before them by tests/cimport/run.sh)
 files=$(find lib src tools tests -type f \( -name '*.imp' -o -name '*.imc' -o -name '*.sh' \) ! -name basic.use.imp ! -path tests/cimport/qsort.imp | sort)
 fail=0
 for f in $files; do

@@ -25,4 +25,4 @@ ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 endif
 
 override_dh_auto_install:
-	$(MAKE) $(MAKE_FLAGS) install DESTDIR=$(CURDIR)/debian/imp72 PREFIX=/usr
+	$(MAKE) $(MAKE_FLAGS) install DESTDIR=$(CURDIR)/debian/imp PREFIX=/usr

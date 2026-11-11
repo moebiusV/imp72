@@ -1,10 +1,10 @@
 #!/bin/sh
-# direct.sh: build build/direct/imp72d, the kernel with the code generator of src/llvm-ir (the translation of the tape's code*.imc and
+# direct.sh: build build/direct/impd, the kernel with the code generator of src/llvm-ir (the translation of the tape's code*.imc and
 # impsem.imc whose instructions are those of IR, docs/porting/llvm-ir-machine.md) in place of codegen.c, impsem.c, trans.c and pcode.c.
-# The modules are compiled by imp72stage0 (the compiler with the old code generator), each next to the others: their symbols
+# The modules are compiled by impstage0 (the compiler with the old code generator), each next to the others: their symbols
 # are renamed impl_NAME (all of them in all the objects, so that the modules call one another by name), except the variables the C
 # side shares (src/llvm-ir/shared.txt and src/shared.txt); there is no C of the compiler's in the result but the LLVM glue and the library.  Run from the top
-# of the tree after `make`.  imp72d with the syntax src/llvm-ir/syntax64.imc compiles IMP to IR itself.
+# of the tree after `make`.  impd with the syntax src/llvm-ir/syntax64.imc compiles IMP to IR itself.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
@@ -14,15 +14,15 @@ srcmodules=${SRC_MODULES:-free debug stack dir graph parse ercor entree cotree d
 out=${DIRECT_OUT:-build/direct}
 mkdir -p "$out"
 imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.imp, built below by the driver)
-driver=${DIRECT_DRIVER:-stage0/imp72stage0}
-case $driver in stage0/*) unset IMP72SYNTAX IMP72FFI IMP72LIB ;; esac     # the seed reads src/llvm-ir/syntax64.imc, whatever the environment says
+driver=${DIRECT_DRIVER:-stage0/impstage0}
+case $driver in stage0/*) unset IMPSYNTAX IMPFFI IMPLIB ;; esac     # the seed reads src/llvm-ir/syntax64.imc, whatever the environment says
 mkdir -p $out
 # the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
 endf=$(sh tools/endian.sh)
-export IMP72ENDIAN=$endf
+export IMPENDIAN=$endf
 sh tools/capped.sh $out/imprename.log $driver -o "$imprename" tools/imprename.imp || { dd bs=100000 count=1 if=$out/imprename.log 2>/dev/null >&2; echo "direct: imprename failed" >&2; exit 1; }
 for m in $modules; do
-    sh tools/capped.sh $out/$m.log env IMP72MODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp \
+    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp \
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
@@ -31,8 +31,8 @@ for m in $srcmodules; do
     x=; case $m in free) x=lib/ffi.imc ;; esac
     f=src/$m.imp; case $m in llvmgen) f=$out/llvmgen.imp ;; esac
     d=$driver
-    case " $oldmodules " in *" $m "*) d="env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB stage0/imp72stage0" ;; esac
-    sh tools/capped.sh $out/$m.log env IMP72MODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn64.imc $f \
+    case " $oldmodules " in *" $m "*) d="env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0" ;; esac
+    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn64.imc $f \
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
@@ -63,17 +63,17 @@ done
 # LLVM in the process (src/llvm.imp, and the IR writer src/ir2ll.imp and src/ir2llx.imp): the compiler needs the LLVM C API (tools/llvm.sh), and links lld's driver (stage0/impld.cpp) where lld is a
 # library.  There is no C of the compiler's but that
 llvmflags=$(sh tools/llvm.sh cflags); llvmlibs=; llvmobjs=
-[ -n "$llvmflags" ] || { echo "direct: imp72 needs the LLVM libraries (llvm-config, tools/llvm.sh)" >&2; exit 1; }
+[ -n "$llvmflags" ] || { echo "direct: imp needs the LLVM libraries (llvm-config, tools/llvm.sh)" >&2; exit 1; }
 llvmlibs=$(sh tools/llvm.sh libs)
 ${CXX:-c++} -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/lvtriple.cpp -o $out/lvtriple.o; llvmobjs="$llvmobjs $out/lvtriple.o"
 case $llvmflags in *HAVE_LLD*) ${CXX:-c++} -std=c++17 -O1 -g -fno-rtti $llvmflags -c stage0/impld.cpp -o $out/impld.o; llvmobjs="$llvmobjs $out/impld.o" ;; esac
 keep=
 for o in stage0/*.o; do
-    case $o in stage0/imp72s0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/impld.o|stage0/lvtriple.o|stage0/imphost.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/gen_impsem.o|stage0/gen_code.o|stage0/gen_code2.o|stage0/gen_code3.o|stage0/gen_demit.o) continue ;; esac
+    case $o in stage0/imps0.o|stage0/llvmorc.o|stage0/ir2ll.o|stage0/impld.o|stage0/lvtriple.o|stage0/imphost.o|stage0/error.o|stage0/pr.o|stage0/ir.o|stage0/semtab.o|stage0/gen_impsem.o|stage0/gen_code.o|stage0/gen_code2.o|stage0/gen_code3.o|stage0/gen_demit.o) continue ;; esac
     skip=0
     for r in $repl; do [ "$o" = "$r" ] && skip=1; done
     [ $skip = 1 ] || keep="$keep $o"
 done
-${CC:-cc} $LDFLAGS -o $out/imp72d $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp72.a} $llvmlibs
-ln -sf imp72d $out/imp72stage-llvm-ir
-echo "built $out/imp72d with the code generator of src/llvm-ir: $modules; the compiler's own: $srcmodules"
+${CC:-cc} $LDFLAGS -o $out/impd $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp.a} $llvmlibs
+ln -sf impd $out/impstage-llvm-ir
+echo "built $out/impd with the code generator of src/llvm-ir: $modules; the compiler's own: $srcmodules"

@@ -39,7 +39,7 @@ SUBR IMPK(NARGS,AV) IS (
                                       CCALL strcmp(ARGP,LOC('-c'))=0 => (IMPOPENIR(ARGJ)<0 => RETURN 1;
                                                                           ARGI:=ARGI+2; GO TO OPT);
                                       CCALL strcmp(ARGP,LOC('-T'))=0 => (IXSETTARGET(ARGJ)=0 =>
-                                                                            (OUTSTR('imp72: no target '); OUTCS(ARGJ); OUTCHR(12B); RETURN 2);
+                                                                            (OUTSTR('imp: no target '); OUTCS(ARGJ); OUTCHR(12B); RETURN 2);
                                                                           ARGI:=ARGI+2; GO TO OPT));
                      RETURN USAGE(0)));
  OPTX: ARGI GE NARGS => IMGP=0 => RETURN USAGE(0);

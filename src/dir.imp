@@ -105,7 +105,7 @@ SUBR SEMREMAP(NAMES,N) IS (
  I:=0;
  SR1: I<N => (J:=0;
      SR2: J<NRTN => (CCALL strcmp([RTN+(16*J)],[NAMES+(8*I)])=0 => GO TO SR3; J:=J+1; GO TO SR2);
-     OUTSTR('imp72: the image uses the routine '); OUTCS([NAMES+(8*I)]);
+     OUTSTR('imp: the image uses the routine '); OUTCS([NAMES+(8*I)]);
      OUTSTR(', which this run has not entered'); OUTCHR(12B);
      RETURN 0;
      SR3: [T+(16*I)]:=[RTN+(16*J)]; [T+((16*I)+8)]:=[RTN+((16*J)+8)];

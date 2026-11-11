@@ -4,11 +4,11 @@
 fail() { echo "FAILED: $*" >&2; rm -f test_syntax.err test_syntax.out test_syntax.dump; exit 1; }
 SYNTAX=../src/llvm-ir/syntax64.imc
 
-./imp72s0 -s E "$SYNTAX" >test_syntax.out 2>test_syntax.err || fail "imp72s0 exit status"
+./imps0 -s E "$SYNTAX" >test_syntax.out 2>test_syntax.err || fail "imps0 exit status"
 grep -q '^SYNTAX BOOTSTRAPPED$' test_syntax.err || fail "no SYNTAX BOOTSTRAPPED"
 grep -q 'ERROR' test_syntax.err && fail "errors reported"
 
-# syntax.imc has 177 syntax statements (tools/imp72_to_hbnf.py counts them
+# syntax.imc has 177 syntax statements (tools/imp_to_hbnf.py counts them
 # the same way); each enters one production
 n=$(grep -c '^PRODUCTION ENTERED IN GRAPH' test_syntax.out)
 [ "$n" = 177 ] || fail "$n productions entered, expected 177"
@@ -17,7 +17,7 @@ d=$(grep -c 'DUPLICATES ONE ALREADY' test_syntax.err)
 [ "$d" = 2 ] || fail "$d duplicate advisories, expected 2"
 
 # every dump runs and has its heading
-./imp72s0 -s STXN -o test_syntax.dump "$SYNTAX" 2>/dev/null || fail "dump run"
+./imps0 -s STXN -o test_syntax.dump "$SYNTAX" 2>/dev/null || fail "dump run"
 for h in '\*\* CODE GENERATION TREE:' 'CODE TREE BIT MATRIX:' \
     '\*\*\* SEMANTICS \*\*\*' 'HERE IS THE GRAPH FOLLOWING ENTRY OF PRODUCTION NR\.' \
     'CONNECTIVITY MATRICES BITM AND NBITM\.'; do
@@ -26,7 +26,7 @@ done
 
 # impsyn.imc, the syntax the compiler's own sources are written in, also
 # loads (it runs declarations: ALF IS COMMON; ...)
-./imp72s0 -s E "$SYNTAX" ../src/impsyn64.imc >test_syntax.out 2>test_syntax.err \
+./imps0 -s E "$SYNTAX" ../src/impsyn64.imc >test_syntax.out 2>test_syntax.err \
     || fail "impsyn.imc: exit status"
 grep -q 'ERROR' test_syntax.err && fail "impsyn.imc: errors reported"
 n=$(grep -c '^PRODUCTION ENTERED IN GRAPH' test_syntax.out)

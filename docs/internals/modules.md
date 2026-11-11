@@ -1,7 +1,7 @@
 # The kernel module by module
 
 One section for each module of the compiler: what it does, the original it comes from, the data it keeps, and what
-differs from the PDP-10 original. The modules exist in IMP in `src/` (the compiler `imp72`) and in C in `stage0/` (the
+differs from the PDP-10 original. The modules exist in IMP in `src/` (the compiler `imp`) and in C in `stage0/` (the
 seed). Each file's header comment is the detailed reference. `docs/porting/modules.md` lists the differences of the IMP
 modules from the tape and `docs/porting/layouts.md` the layout of the words. `stage0-*.md` describe the C modules,
 `code-generator.md` the code generating routines, `docs/ARCHITECTURE.md` the map and `docs/BOOTSTRAP.md` the route to
@@ -23,7 +23,7 @@ the compiler that compiles itself.
 | debug | `debug.imc` | `debug.c`, `pr.c` | `src/debug.imp` |
 | impsem, code, code2, code3 | `impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` | `gen_impsem.c`, `gen_code.c`, `gen_code2.c`, `gen_code3.c` | `src/llvm-ir/impsem.imp`, `code.imp`, `code2.imp`, `code3.imp` |
 | demit | `amod.imc`, `rmod.imc`, `omod.imc` (not translated) | `gen_demit.c`, `ir.c` | `src/llvm-ir/demit.imp`, `ix.imp` |
-| driver | `impm.imc` | `imp72s0.c`, `error.c` | `src/impm.imp`, `src/driver.imp` |
+| driver | `impm.imc` | `imps0.c`, `error.c` | `src/impm.imp`, `src/driver.imp` |
 | back end | none | `llvmorc.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imp`, `src/ir2ll.imp`, `src/ir2llx.imp`, `lib/imphost.imp` |
 | image | none (the monitor's `SSAVE`) | none | `src/image.imp` |
 
@@ -40,14 +40,14 @@ in a half word; there is no 64000 word ceiling on a gap; a named array is alloca
 because a name of eight characters in a 64 bit word cannot be told from an index.
 
 The seed's block is a `realloc`ed C heap. In the IMP module the block is an arena of reserved address space at `FB`
-that `CORE` makes usable with `mprotect` (`lib/imp72sys.imp`), so the arena never moves and a byte pointer into an array
+that `CORE` makes usable with `mprotect` (`lib/impsys.imp`), so the arena never moves and a byte pointer into an array
 stays good until the array itself moves.
 
 Everything the modules keep of the arena is an index from `FB`, except five byte pointers of the lexer (`lex:PC`, `QC`,
 `K0`, `K`, `PC0`), which step through the line and token arrays. The arena lies at the address of `SCHINT`, or at the
-one in `IMP72COREBASE` (a test), and an image saved by `src/image.imp` is restored with it at any address: the loader
+one in `IMPCOREBASE` (a test), and an image saved by `src/image.imp` is restored with it at any address: the loader
 adds the difference of the bases to those five variables and sets `FB`. The census of the absolute addresses is in the
-header of `src/image.imp`; `IMP72IMGCENSUS=1` prints it at the saving. The seed has no images.
+header of `src/image.imp`; `IMPIMGCENSUS=1` prints it at the saving. The seed has no images.
 
 ## dir: the directory of names
 
@@ -74,7 +74,7 @@ Entry points `LEXIN`, `LEX`, `NEXTCHAR`, `PLINE1`, `PLINE`.
 
 In IMP the line and the token are packed arrays stepped with byte pointers, as in the original, and bytes of 128 and up
 are letters, so that a name can be in UTF-8. `src/lex.imp` also has `GETTY`, `READCMD`, `PUTN`, `PUTO`, `PUTSW`,
-`LEXSAV`, `LEXRES` for the commands of `imp72 -i`. The seed's lexer reads the whole file into a buffer, takes ASCII
+`LEXSAV`, `LEXRES` for the commands of `imp -i`. The seed's lexer reads the whole file into a buffer, takes ASCII
 letters only, and has none of the command line routines.
 
 ## graph: the syntax graph
@@ -142,10 +142,10 @@ See `code-generator.md`.
 `src/impm.imp` is the kernel's driver program: `IMPK` reads the command line (`-s`, `-o`, `-c`, `-T`, `-I`, `-i`), reads
 the syntax with `RSYN`, and compiles the files with `COMPIL`; `ERROR` and `MSG` write to standard error, and a fatal
 error returns from `IMPK`. With `-i` it reads the commands of the original from the terminal (`GETTY`, `READCMD`).
-`src/image.imp` writes and reads an image (`NAME_/U`, `/V`, `-I`). `src/driver.imp` is the main program of `imp72`: it
-finds its parts relative to itself, runs `IMPK`, then the back end (`src/llvm.imp`) and the link. In the seed, `imp72s0`
-is the kernel and `imp72stage0` the compiler, the same program under another name (`stage0-semantics.md`).
+`src/image.imp` writes and reads an image (`NAME_/U`, `/V`, `-I`). `src/driver.imp` is the main program of `imp`: it
+finds its parts relative to itself, runs `IMPK`, then the back end (`src/llvm.imp`) and the link. In the seed, `imps0`
+is the kernel and `impstage0` the compiler, the same program under another name (`stage0-semantics.md`).
 
-The runtime library is in `lib/`: `imp72io.imp` (`PRINT`, `READ`, `FINI`), `imp72rt.imp` (`CALLI`, shifts, byte pointers,
-`EXECUTE`), `imp72sys.imp` (the arena, argument vectors), `imp72main.imp` (the C `main`), `imphost.imp` and
+The runtime library is in `lib/`: `impio.imp` (`PRINT`, `READ`, `FINI`), `imprt.imp` (`CALLI`, shifts, byte pointers,
+`EXECUTE`), `impsys.imp` (the arena, argument vectors), `impmain.imp` (the C `main`), `imphost.imp` and
 `impvars.imp` (what the link and the images need of the host).

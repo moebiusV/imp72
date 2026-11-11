@@ -1,0 +1,17 @@
+@bin bin/imp
+@bin bin/imp-cimport
+@bin bin/impstage0
+include/imp.h
+lib/imp/
+@static-lib lib/imp/libimp.a
+@man man/man1/imp-cimport.1
+@man man/man1/imp.1
+@man man/man1/impstage0.1
+@man man/man7/imp.7
+share/doc/imp/
+share/doc/imp/FFI.md
+share/doc/imp/LANGUAGE-NOTES.md
+share/doc/imp/imp.md
+share/imp/
+share/imp/ffi.imc
+share/imp/syntax64.imc

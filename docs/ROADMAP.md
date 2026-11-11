@@ -59,7 +59,7 @@ is 0, like any other zero word.
 `MKNAME` (`src/impm.imp`) builds a file name from two words (15 characters)
 and an extension of one word (7); the original had six and three. The library
 cuts the names of `FILE` items in `PRINT` and `READ` to 7 characters
-(`lib/imp72io.imp`, label `CM6`).
+(`lib/impio.imp`, label `CM6`).
 
 Proposed: keep the form `FILE NAME.EXT`, but let a name be as long as the
 string given (up to `NAME_MAX`), since the library takes it from the string. The
@@ -72,7 +72,7 @@ file items of the library take the length of the buffer. A test with a name of
 
 ### 5. The original's channel I/O
 
-`PRINT`, `READ` and `PRINT FILE` are in `lib/imp72io.imp`. The channel
+`PRINT`, `READ` and `PRINT FILE` are in `lib/impio.imp`. The channel
 operations of the TOPS-10 library (`INIT`, `LOOKUP`, `ENTER`, `INPUT`,
 `OUTPUT`, the buffer header) are not in `decus/syntax.imc` or `decus/impsyn.imc`;
 the original reaches them through its libraries, which the port does not have.
@@ -84,7 +84,7 @@ library. Programs of the original that call them then compile. `RLEAS` is the
 `fclose` of a channel.
 
 *Effect on the code.* A new part of the library, about the size of the file part
-of `imp72io.imp`, and the statements in an extension file. How many routines of
+of `impio.imp`, and the statements in an extension file. How many routines of
 `decus/` use the buffer header words directly decides whether the buffer
 emulation is cheap; it has not been counted.
 
@@ -110,7 +110,7 @@ existing program changes. It depends on item 2.
 
 A declaration (`EXTERNAL`, `CALLBACK`, `FNPTR`, `STRUCT`, `LET`) holds to the end
 of the compilation unit, one file ending at `%%`. A function that several
-files call is declared in each. `imp72-cimport` writes a fragment, and the
+files call is declared in each. `imp-cimport` writes a fragment, and the
 fragment goes in front of every source with `cat`.
 
 Proposed: a way to name a file of declarations that every unit reads, so that
@@ -128,7 +128,7 @@ A `SUBR` is a C function whose parameters are pointers to 64-bit words
 (`docs/FFI.md`). C, Zig and Rust code that calls one writes the prototype by
 hand.
 
-Proposed: a tool, in the manner of `imp72-cimport` and written in IMP, that reads
+Proposed: a tool, in the manner of `imp-cimport` and written in IMP, that reads
 the routines of a source (or of the object's symbols) and writes a header: a C
 header (`int64_t NAME(int64_t *A, int64_t *B);`, `extern int64_t X;` for a
 `COMMON` variable), a Zig declaration file and a Rust `extern "C"` block. The
@@ -140,39 +140,39 @@ compilers.
 
 ### 9. Initialising the runtime from a C program
 
-The `main` of the runtime library (`lib/imp72main.imp`) keeps `argc` and `argv`
+The `main` of the runtime library (`lib/impmain.imp`) keeps `argc` and `argv`
 for `impargc` and `impargvp`, and calls `impmain`. A C program with a `main` of
 its own does not link it. The command line is then not kept for the IMP
 routines, and the only way to start the main program of an IMP source is to
 call `impmain`.
 
-Proposed: split that `main` into `imp72_init(argc, argv)` and `imp72_run()`,
-declared in `lib/imp72.h`. A C program calls `imp72_init` first, so that the
-IMP routines find the runtime initialised, and `imp72_run` where it wants the
+Proposed: split that `main` into `imp_init(argc, argv)` and `imp_run()`,
+declared in `lib/imp.h`. A C program calls `imp_init` first, so that the
+IMP routines find the runtime initialised, and `imp_run` where it wants the
 main program of an IMP source. The library's `main` becomes the two calls.
 
-*Effect on the code.* `lib/imp72main.imp`, `lib/imp72.h`, and a test with a C
+*Effect on the code.* `lib/impmain.imp`, `lib/imp.h`, and a test with a C
 `main` that prints through `PRINT`.
 
-### 10. Parity of the seed's `-S` and `-Sir` with `imp72`
+### 10. Parity of the seed's `-S` and `-Sir` with `imp`
 
-`imp72 -S` writes the target's assembly and `-Sir` writes LLVM IR text. The
+`imp -S` writes the target's assembly and `-Sir` writes LLVM IR text. The
 seed's `-S` writes LLVM IR text and it has no `-Sir` and no `--target`
-(`docs/BUILDING.md`, The seed and `imp72`).
+(`docs/BUILDING.md`, The seed and `imp`).
 
 Proposed: the seed's `-S` writes assembly and `-Sir` the IR, with the same file
-names as `imp72`. `--target` stays in `imp72`: the seed makes code for the
+names as `imp`. `--target` stays in `imp`: the seed makes code for the
 machine it runs on, because it is the compiler that exists before the
 other.
 
-*Effect on the code.* `stage0/imp72s0.c` and `stage0/llvmorc.c`; `tests/seed/run.sh`,
+*Effect on the code.* `stage0/imps0.c` and `stage0/llvmorc.c`; `tests/seed/run.sh`,
 which takes the seed's IR with `-S`, takes it with `-Sir`.
 
 ### 11. A runtime library for Windows and Cygwin
 
-`imp72 --target=x86_64-w64-mingw32` and the Cygwin triples write objects and
+`imp --target=x86_64-w64-mingw32` and the Cygwin triples write objects and
 link a program that needs no runtime (`docs/BUILDING.md`). There is no
-`libimp72.a` for them: the host layer (`lib/imphost.imp`, `lib/imp72sys.imp`)
+`libimp.a` for them: the host layer (`lib/imphost.imp`, `lib/impsys.imp`)
 uses `mmap` for the arena, `dl_iterate_phdr`, `fork` and `readlink`, and
 `tools/sysconst.sh` describes POSIX systems.
 
@@ -188,15 +188,15 @@ link tables in `src/driver.imp` when a run shows them wrong.
 
 A `SUBR` returns a word, and C declares it `int64_t` (`docs/FFI.md`): the word
 is 64 bits on every host, so a C `long` would be wrong on a 32-bit one. No
-typedef for it exists (`lib/imp72.h` has none); a C caller writes `int64_t`.
+typedef for it exists (`lib/imp.h` has none); a C caller writes `int64_t`.
 
 Proposed: a study, before 1.0, of whether C callers need a name for the word
-(a `typedef` in `lib/imp72.h`) or a way for a routine to declare the C type of its
+(a `typedef` in `lib/imp.h`) or a way for a routine to declare the C type of its
 result, which would belong with item 8, the generated header. Until the study
 is made the word stays `int64_t`.
 
 *Effect on the code.* None until the study decides; a typedef is one line of
-`lib/imp72.h`, a declared result type for exports is part of item 8.
+`lib/imp.h`, a declared result type for exports is part of item 8.
 
 ## Open question: tape routines
 

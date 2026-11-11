@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "imp72words.h"
+#include "impwords.h"
 word MIXED(word *);
 /* IMP names are case sensitive, as the original's are, and a symbol is the name as it is written: MIXED is the SUBR, CountDown and plain are C's */
 long CountDown(long n) { return n * 10; }

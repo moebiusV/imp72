@@ -1,12 +1,12 @@
 #!/bin/sh
-# The command line of imp72 as a user of the C compiler would try it: where the output goes (a.out, NAME.o, NAME.s, NAME.ll), -c with several files, -o with several outputs (refused), a program
+# The command line of imp as a user of the C compiler would try it: where the output goes (a.out, NAME.o, NAME.s, NAME.ll), -c with several files, -o with several outputs (refused), a program
 # in two files, -S for the assembly of the target and -Sir for the LLVM IR, --target for another system (the object of it is in that system's format), --version and --help.  Run from the top of the
 # tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${CLI_IMP72:-$root/build/llvm-ir2/imp72stage-llvm-ir}
+w=${CLI_IMP72:-$root/build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "cli test skipped: no $w"; exit 0; }
-export IMP72SYNTAX=$root/src/llvm-ir/syntax64.imc IMP72FFI=$root/lib/ffi.imc IMP72LIB=$root/build/lib/libimp72.a
+export IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
 d=build/cli
 rm -rf $d; mkdir -p $d
 cd $d || exit 1
@@ -38,8 +38,8 @@ rm -f a.out
 "$w" -z lib2.imp >/dev/null 2>&1 && bad "an unknown option was accepted"
 "$w" -o >/dev/null 2>&1 && bad "-o with no argument was accepted"
 ver=$(cat "$root/VERSION"); verre=$(printf %s "$ver" | sed 's/\./\\./g')
-[ "$("$w" --version 2>&1)" = "imp72 $ver" ] || bad "--version"
-"$w" --help 2>&1 | grep -q '^usage: imp72' || bad "--help"
+[ "$("$w" --version 2>&1)" = "imp $ver" ] || bad "--version"
+"$w" --help 2>&1 | grep -q '^usage: imp' || bad "--help"
 case $(sh "$root/tools/endian.sh" 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac
 t64=--target=x86_64-linux-gnu                      # (the target's byte order is taken from LLVM's data layout of it, so a big endian host asks for the little endian targets too)
 mach() { od -An -tu1 -v -N20 "$1" | tr -s ' \n' '  ' | awk '{print $19 + 256 * $20}'; }       # (bytes 18 and 19 of the header; no -j, which the BSDs' od takes otherwise)
@@ -69,7 +69,7 @@ for t in garbage x86_64-nonsense-os x86_64-pc-foo-bar i686- 'x86_64-linux-gnu;rm
     rm -f tgt.o
     "$w" --target="$t" -c -o tgt.o lib2.imp > tgt.out 2>&1 && bad "--target=$t was accepted"
     [ -e tgt.o ] && bad "--target=$t left an object file"
-    grep -q '^imp72: unrecognized target' tgt.out || bad "--target=$t: no message"
+    grep -q '^imp: unrecognized target' tgt.out || bad "--target=$t: no message"
 done
 for t in x86_64-linux-gnu x86_64-pc-cygwin i686-pc-cygwin x86_64-pc-windows-cygnus x86_64-w64-mingw32 x86_64-pc-linux-gnu i686-linux-gnu aarch64-linux-gnu armv7-linux-gnueabihf riscv64-unknown-linux-gnu aarch64-apple-darwin x86_64-unknown-freebsd15.0 x86_64-unknown-openbsd8.0 x86_64-unknown-netbsd11.0 x86_64-linux-musl i586-alpine-linux-musl x86_64-unknown-hurd-gnu x86_64-pc-linux-gnux32 x86_64-unknown-linux-android wasm32-unknown-emscripten thumbv7em-none-eabi x86_64-apple-ios17.0-simulator x86_64-unknown-none-elf; do      # (the last seven are no fixed list's: LLVM's own triple parser decides)
     have $t && { rm -f tgt.o; "$w" --target="$t" -c -o tgt.o lib2.imp > tgt.out 2>&1 && [ -s tgt.o ] || bad "--target=$t was refused: $(head -c 100 tgt.out)"; }

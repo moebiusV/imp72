@@ -7,11 +7,11 @@ three steps.
    C99. It reads `src/llvm-ir/syntax64.imc` and `lib/ffi.imc` and compiles IMP to
    LLVM IR with `stage0/gen_*.c`, a C port of the code generator in
    `src/llvm-ir/*.imp`. It is the one part of the compiler that is not IMP,
-   apart from `stage0/impld.cpp`, and it is installed as `imp72stage0`. It
-   makes a program with its own driver (`stage0/imp72s0.c`): `-S` writes LLVM IR
+   apart from `stage0/impld.cpp`, and it is installed as `impstage0`. It
+   makes a program with its own driver (`stage0/imps0.c`): `-S` writes LLVM IR
    text, `-c` an object, `-o` names the output, `-s` gives the switches, `--run`
    runs a program that needs no runtime library. It has no `--target`, `-Sir`,
-   `-I` or `-i` (`docs/BUILDING.md`, The seed and `imp72`).
+   `-I` or `-i` (`docs/BUILDING.md`, The seed and `imp`).
 2. **Stage 1** is `src/*.imp` and `src/llvm-ir/*.imp` compiled by the seed
    (`tools/direct.sh`, called by `tools/llvm-ir.sh` with `DIRECT_OUT=build/llvm-ir1`),
    linked with the runtime library that the seed makes (`tools/mklib.sh`) and
@@ -21,12 +21,12 @@ three steps.
    `tools/ir2ll.c`).
 3. **Stage 2** is the same sources compiled by stage 1
    (`DIRECT_OUT=build/llvm-ir2`). It is the compiler that `make install`
-   installs as `imp72`, with the runtime library that stage 2 builds
+   installs as `imp`, with the runtime library that stage 2 builds
    (`tools/mkrt.sh`).
 
 Each stage is built in its own directory (`build/llvm-ir1`, `build/llvm-ir2`)
 and the install takes only stage 2. `tools/direct.sh` compiles each module
-separately (`IMP72MODULE` names it), renames the symbols of all modules to
+separately (`IMPMODULE` names it), renames the symbols of all modules to
 `impl_NAME` so that they call one another by name (`tools/imprename.imp`, which
 reads and rewrites ELF and Mach-O objects), and links the objects with `cc`.
 
@@ -44,7 +44,7 @@ reads and rewrites ELF and Mach-O objects), and links the objects with `cc`.
 - **`tests/direct/ir2ll.sh`**: the IMP IR writer and `tools/ir2ll.c` write the
   same LLVM IR, errors included, for the IR of those programs and for random IR
   from `tools/ir2ll-fuzz.py`, for 32- and 64-bit pointers.
-- **`tests/fuzz64/run.sh`**: the seed and `imp72` compile random programs and
+- **`tests/fuzz64/run.sh`**: the seed and `imp` compile random programs and
   print what an independent reference computes.
 
 ## What stays outside IMP

@@ -1,9 +1,9 @@
-.\" Copyright (c) 2026 The imp72 authors.  ISC licence, see LICENSE.
+.\" Copyright (c) 2026 The imp authors.  ISC licence, see LICENSE.
 .Dd November 3, 2026
 .Dt IMP72 1
 .Os
 .Sh NAME
-.Nm imp72
+.Nm imp
 .Nd compile IMP72 programs to native code
 .Sh SYNOPSIS
 .Nm
@@ -119,7 +119,7 @@ The architecture, operating system, environment and object format are checked
 by LLVM's own triple parser, so the set follows the installed LLVM; the vendor
 is free text.
 A triple that fails the check is refused
-.Pq Ql imp72: unrecognized target ,
+.Pq Ql imp: unrecognized target ,
 with status 1 and no output.
 Linking for another system needs
 .Fl -sysroot
@@ -189,16 +189,16 @@ Print the usage and exit.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width Ds
-.It Ev IMP72SYNTAX
+.It Ev IMPSYNTAX
 The syntax file, instead of
-.Pa share/imp72/syntax64.imc .
-.It Ev IMP72FFI
+.Pa share/imp/syntax64.imc .
+.It Ev IMPFFI
 The C interface file, instead of
-.Pa share/imp72/ffi.imc .
-.It Ev IMP72LIB
+.Pa share/imp/ffi.imc .
+.It Ev IMPLIB
 The runtime library linked into programs, instead of
-.Pa lib/imp72/libimp72.a .
-.It Ev IMP72SYSROOT , Ev IMP72RUNTIME
+.Pa lib/imp/libimp.a .
+.It Ev IMPSYSROOT , Ev IMPRUNTIME
 The values of
 .Fl -sysroot
 and
@@ -226,11 +226,11 @@ The directory and its files are deleted on exit and on
 .Dv SIGQUIT
 and
 .Dv SIGTERM .
-.It Ev IMP72NOMEMFD
+.It Ev IMPNOMEMFD
 If set and not
 .Ql 0 ,
 a link on Linux uses the private directory and not an unnamed memory file.
-.It Ev IMP72LDSHOW
+.It Ev IMPLDSHOW
 If set, the arguments of the linker are printed to the standard error.
 .It Ev PATH
 .Xr ld.lld 1
@@ -239,9 +239,9 @@ with, when lld is not linked in.
 .El
 .Sh FILES
 .Bl -tag -width Ds
-.It Pa /usr/share/imp72/syntax64.imc
+.It Pa /usr/share/imp/syntax64.imc
 The syntax of IMP72.
-.It Pa /usr/share/imp72/ffi.imc
+.It Pa /usr/share/imp/ffi.imc
 The extension that defines
 .Sy CCALL ,
 .Sy EXTERNAL ,
@@ -249,9 +249,9 @@ The extension that defines
 .Sy FNPTR
 and
 .Sy STRUCT .
-.It Pa /usr/lib/imp72/libimp72.a
+.It Pa /usr/lib/imp/libimp.a
 The runtime library.
-.It Pa /usr/include/imp72.h
+.It Pa /usr/include/imp.h
 C declarations for code that shares data with IMP72 programs.
 .It Pa a.out , Pa NAME.o , Pa NAME.s , Pa NAME.ll
 Output.
@@ -273,33 +273,33 @@ The command line was wrong.
 .Sh EXAMPLES
 Compile and run a program:
 .Bd -literal -offset indent
-imp72 hello.imp && ./a.out
+imp hello.imp && ./a.out
 .Ed
 .Pp
 Compile two sources and link them with a C object:
 .Bd -literal -offset indent
-imp72 main.imp lib.imp util.o -o prog
+imp main.imp lib.imp util.o -o prog
 .Ed
 .Pp
 Run without writing a file:
 .Bd -literal -offset indent
-imp72 --run hello.imp
+imp --run hello.imp
 .Ed
 .Pp
 An object for another system:
 .Bd -literal -offset indent
-imp72 -c --target=aarch64-linux-gnu hello.imp
+imp -c --target=aarch64-linux-gnu hello.imp
 .Ed
 .Pp
 LLVM IR of a program, and the code tree of its compilation:
 .Bd -literal -offset indent
-imp72 -Sir hello.imp
-imp72 -s T -c hello.imp 2> tree.txt
+imp -Sir hello.imp
+imp -s T -c hello.imp 2> tree.txt
 .Ed
 .Sh SEE ALSO
-.Xr imp72stage0 1 ,
-.Xr imp72 7 ,
-.Pa /usr/share/doc/imp72/
+.Xr impstage0 1 ,
+.Xr imp 7 ,
+.Pa /usr/share/doc/imp/
 .Sh AUTHORS
 The original IMP72 is by
 .An Walter Bilofsky ;

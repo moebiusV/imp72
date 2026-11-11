@@ -1,7 +1,7 @@
 # Things to know when writing IMP72
 
 All of this is how the original language works, and both compilers (the seed
-and `imp72`) agree on it.
+and `imp`) agree on it.
 
 ## Expressions
 

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "imp72words.h"
+#include "impwords.h"
 word T(word *), U(word *), NEG(word *), REL(word *);
 int main(void) {
     word n = 10;

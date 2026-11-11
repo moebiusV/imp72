@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "imp72.h"
+#include "imp.h"
 extern int64_t X, Y, Z, V[4];
 int64_t SETUP(int64_t *), USEC(int64_t *), CMPR(int64_t *);
 int main(void) {

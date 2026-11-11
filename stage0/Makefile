@@ -13,16 +13,16 @@ OBJS    = error.o free.o stack.o dir.o lex.o graph.o parse.o ercor.o pr.o debug.
 TESTDIR = ../tests/stage0
 TESTS   = test_free test_stack test_dir test_lex test_parse test_debug
 
-all: libstage0.a imp72s0 imp72stage0
+all: libstage0.a imps0 impstage0
 
-imp72s0: imp72s0.o imphost.o $(LLVMOBJS) libstage0.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imp72s0.o imphost.o $(LLVMOBJS) libstage0.a $(LLVMLIBS)
+imps0: imps0.o imphost.o $(LLVMOBJS) libstage0.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ imps0.o imphost.o $(LLVMOBJS) libstage0.a $(LLVMLIBS)
 
 imphost.o: imphost.c
 	$(CC) -std=c99 -O1 -g $(LLVMBINDIRDEF) -c imphost.c
 
-imp72s0.o: imp72s0.c imp.h ir.h gen.h
-	$(CC) $(CFLAGS) $(LLVMCFLAGS) -c imp72s0.c
+imps0.o: imps0.c imp.h ir.h gen.h
+	$(CC) $(CFLAGS) $(LLVMCFLAGS) -c imps0.c
 
 llvmorc.o: llvmorc.c
 	$(CC) -std=gnu99 -O1 -g $(LLVMCFLAGS) -c llvmorc.c
@@ -39,8 +39,8 @@ ir2ll.o: ../tools/ir2ll.c
 	$(CC) -std=gnu99 -O1 -g -DIR2LL_LIB -c ../tools/ir2ll.c
 
 # the compiler is the same program under another name
-imp72stage0: imp72s0
-	rm -f $@ && ln -s imp72s0 $@
+impstage0: imps0
+	rm -f $@ && ln -s imps0 $@
 
 libstage0.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)
@@ -50,7 +50,7 @@ $(OBJS): imp.h
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
-check: $(TESTS) imp72s0
+check: $(TESTS) imps0
 	@for t in $(TESTS); do echo "== $$t"; ./$$t || exit 1; done
 	@echo "== test_syntax"; sh $(TESTDIR)/test_syntax.sh
 
@@ -71,4 +71,4 @@ test_debug: $(TESTDIR)/test_debug.c libstage0.a
 
 
 clean:
-	rm -f $(OBJS) imp72s0.o llvmorc.o ir2ll.o imp72s0 imp72stage0 libstage0.a $(TESTS)
+	rm -f $(OBJS) imps0.o llvmorc.o ir2ll.o imps0 impstage0 libstage0.a $(TESTS)

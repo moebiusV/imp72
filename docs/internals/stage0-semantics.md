@@ -2,13 +2,13 @@
 
 `stage0/dosem.c`, `entree.c`, `cotree.c`, `rsyn.c`, `semtab.c` and `debug.c` correspond to `src/dosem.imp`,
 `src/entree.imp`, `src/cotree.imp`, `src/rsyn.imp`, `src/dir.imp` (the table of semantic routines) and `src/debug.imp`.
-`imp72s0.c` is the driver. The code generating routines are `stage0/gen_*.c` (`code-generator.md`).
+`imps0.c` is the driver. The code generating routines are `stage0/gen_*.c` (`code-generator.md`).
 
 ## What runs
 
-    stage0/imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]
+    stage0/imps0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]
 
-`imp72s0 src/llvm-ir/syntax64.imc` reads the syntax file of the language. `rsyn` reads the syntax for syntax with the
+`imps0 src/llvm-ir/syntax64.imc` reads the syntax file of the language. `rsyn` reads the syntax for syntax with the
 lexer alone; the parser, the code tree and the semantic stack, driven by the productions just defined, read the remaining
 statements. The result is the syntax graph, the semantics array and the code tree, with 177 productions entered (the
 number of syntax statements in the file). `tests/stage0/test_syntax.sh` (run by `make -C stage0 check`) checks the
@@ -23,11 +23,11 @@ the parser and error corrector, `I` print the directory, `L` source listing, `M`
 connectivity matrices, `P` trace semantics execution, `S` print the semantics array, `T` print the code tree, `X` print
 the graph, `Y` list the source on the terminal, `Z` statistics.
 
-The same binary is the compiler `imp72stage0` when it is called by a name that begins `imp72stage`. It reads
+The same binary is the compiler `impstage0` when it is called by a name that begins `impstage`. It reads
 `src/llvm-ir/syntax64.imc` and `lib/ffi.imc`, runs the kernel with `-c` into a temporary directory, and makes an
 executable (default), an object (`-c`), LLVM IR (`-S`) or a run (`--run`) with the LLVM back end in the process
 (`stage0/llvmorc.c`) and the linker in the process (`stage0/impld.cpp`). Where its parts are is found relative to
-the executable, in the source tree or installed; `IMP72SYNTAX`, `IMP72FFI` and `IMP72LIB` override them.
+the executable, in the source tree or installed; `IMPSYNTAX`, `IMPFFI` and `IMPLIB` override them.
 
 ## The words
 

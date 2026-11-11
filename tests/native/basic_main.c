@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "imp72words.h"
+#include "impwords.h"
 word ADD2(word *, word *);
 word MUL3(word *);
 word MAXV(word *, word *);

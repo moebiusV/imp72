@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "imp72words.h"
+#include "impwords.h"
 word F(word *, word *), G(word *);
 /* C functions called with CCALL take the values as C longs */
 long cadd3(long a, long b, long c) { return a * 10000 + b * 100 + c; }

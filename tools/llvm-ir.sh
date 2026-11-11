@@ -9,8 +9,8 @@ cd "$root"
 # the back end is LLVM, in the process: the seed must have been built with the LLVM libraries
 sh "$root/tools/llvm.sh" cflags | grep -q HAVE_LLVM || { echo "llvm-ir: the seed was built without the LLVM libraries: skipped"; exit 77; }
 mods="free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver linktab llvm llvmgen"
-DIRECT_OUT=build/llvm-ir1 DIRECT_LIB=build/lib/libimp72.a SRC_MODULES="$mods" sh tools/capped.sh build/llvm-ir1.log tools/direct.sh \
+DIRECT_OUT=build/llvm-ir1 DIRECT_LIB=build/lib/libimp.a SRC_MODULES="$mods" sh tools/capped.sh build/llvm-ir1.log tools/direct.sh \
     || { r=$?; [ $r = 77 ] && { echo "llvm-ir: skipped"; exit 77; }; dd bs=100000 count=1 if=build/llvm-ir1.log 2>/dev/null >&2; exit $r; }
-DIRECT_OUT=build/llvm-ir2 DIRECT_DRIVER=build/llvm-ir1/imp72stage-llvm-ir DIRECT_LIB=build/lib/libimp72.a SRC_MODULES="$mods" \
+DIRECT_OUT=build/llvm-ir2 DIRECT_DRIVER=build/llvm-ir1/impstage-llvm-ir DIRECT_LIB=build/lib/libimp.a SRC_MODULES="$mods" \
     sh tools/capped.sh build/llvm-ir2.log tools/direct.sh || { dd bs=100000 count=1 if=build/llvm-ir2.log 2>/dev/null >&2; exit 1; }
-echo "built build/llvm-ir2/imp72d: the compiler with the IR code generator, compiled by itself"
+echo "built build/llvm-ir2/impd: the compiler with the IR code generator, compiled by itself"

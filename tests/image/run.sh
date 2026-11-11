@@ -4,7 +4,7 @@
 # the IR that the same program gives when the file of syntax is named on the command line.  Run from the top of the tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-d=${IMAGE_IMPD:-build/llvm-ir2/imp72d}
+d=${IMAGE_IMPD:-build/llvm-ir2/impd}
 [ -x "$d" ] || { echo "image test skipped: no $d"; exit 0; }
 syn="$root/src/llvm-ir/syntax64.imc $root/lib/ffi.imc"
 out=build/image
@@ -35,28 +35,28 @@ printf 'junk' > $out/junk.img
 # a compiler whose syntax was read twice has bigger tables, and arrays that have moved: its image works too
 ( cd $out && printf 'ext/C\ntwice_/U\n' | $root/$d -i $syn $syn >twice.log 2>&1; $root/$d -I twice.img -c twice.ir prog.imp >twice2.log 2>&1 ) || { echo "FAILED: image: the image of a compiler with its syntax read twice" >&2; fail=1; }
 cmp -s $out/base.ir $out/twice.ir || { echo "FAILED: image: the IR from that image differs" >&2; fail=1; }
-# an image restores with the arena at any address: saved at one (IMP72COREBASE), loaded at others, the IR is the unrelocated run's.  The arena of the load has to be
-# at another address than the image's (the compiler says so with IMP72COREDEBUG); the census (IMP72IMGCENSUS) of the saving says which variables of the
+# an image restores with the arena at any address: saved at one (IMPCOREBASE), loaded at others, the IR is the unrelocated run's.  The arena of the load has to be
+# at another address than the image's (the compiler says so with IMPCOREDEBUG); the census (IMPIMGCENSUS) of the saving says which variables of the
 # image hold an address of the arena: the ones the image moves, and no word of the arena itself
 if [ "$(sh "$root/tools/longbits.sh")" = 64 ]; then bsave=0x2a1234560000; bload="0x100000000000 0x3b2468ac0000 0x5c13579b0000"
 else bsave=0x30123000; bload="0x50246000 0x68135000"; fi
-( cd $out && printf 'ext/C\nrel_/U\n' | IMP72COREBASE=$bsave IMP72IMGCENSUS=1 $root/$d -i $syn >relsave.log 2>&1 )
+( cd $out && printf 'ext/C\nrel_/U\n' | IMPCOREBASE=$bsave IMPIMGCENSUS=1 $root/$d -i $syn >relsave.log 2>&1 )
 [ -s $out/rel.img ] || { echo "FAILED: image: rel.img not written" >&2; cat $out/relsave.log >&2; fail=1; }
 grep -q '^census: 0 words of the arena hold an address of the arena' $out/relsave.log || { echo "FAILED: image: a word of the arena holds an address of the arena" >&2; grep '^census: IN-ARENA' $out/relsave.log >&2; fail=1; }
 grep '^census: ARENA ' $out/relsave.log | grep -v -e '(moved)' -e '(not saved)' -e ':_25' >$out/relunk.log
 [ -s $out/relunk.log ] && { echo "FAILED: image: a variable that is saved holds an address of the arena and is not moved" >&2; cat $out/relunk.log >&2; fail=1; }
 grep -q '(moved)' $out/relsave.log || { echo "FAILED: image: the census found no variable to move" >&2; fail=1; }
 for b in $bload; do
-    ( cd $out && IMP72COREBASE=$b IMP72COREDEBUG=1 $root/$d -I rel.img -c rel.ir prog.imp >relload.log 2>&1 ) || { echo "FAILED: image: -I at $b" >&2; cat $out/relload.log >&2; fail=1; }
+    ( cd $out && IMPCOREBASE=$b IMPCOREDEBUG=1 $root/$d -I rel.img -c rel.ir prog.imp >relload.log 2>&1 ) || { echo "FAILED: image: -I at $b" >&2; cat $out/relload.log >&2; fail=1; }
     cmp -s $out/base.ir $out/rel.ir || { echo "FAILED: image: the IR from the image moved to $b differs" >&2; fail=1; }
     grep -q 'the image has the arena at' $out/relload.log || echo "image: the system did not give the arena at $b (the image was not moved): not tested" >&2
 done
-# the same through the imp72 driver: -i to save, -I to start from the image
-w=${IMAGE_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
+# the same through the imp driver: -i to save, -I to start from the image
+w=${IMAGE_IMP72:-build/llvm-ir2/impstage-llvm-ir}
 if [ -x "$w" ]; then
     ( cd $out && printf 'ext/C\nwmy_/U\n' | $root/$w -i >wsave.log 2>&1
       $root/$w -I wmy.img -c -o prog.o prog.imp >wload.log 2>&1 )
-    [ -s $out/wmy.img ] && [ -s $out/prog.o ] || { echo "FAILED: image: imp72 -i then imp72 -I" >&2; fail=1; }
+    [ -s $out/wmy.img ] && [ -s $out/prog.o ] || { echo "FAILED: image: imp -i then imp -I" >&2; fail=1; }
 fi
 [ $fail = 0 ] && echo ok
 exit $fail

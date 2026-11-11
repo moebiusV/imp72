@@ -26,7 +26,7 @@ and the modules compared with the original.
 The kernel modules are `lex`, `parse`, `ercor`, `graph`, `dir`, `free`, `stack`,
 `entree`, `cotree`, `dosem`, `rsyn` and `debug`. `impm` is the kernel's driver
 (`IMPK`), `image` saves and restores a compiler together with the language it
-has learned, and `driver` is the command line of `imp72`. All are `src/*.imp`,
+has learned, and `driver` is the command line of `imp`. All are `src/*.imp`,
 the 64-bit IMP translation of the original modules in `decus/`.
 
 - **The language** is the syntax file `src/llvm-ir/syntax64.imc` (the
@@ -53,7 +53,7 @@ the 64-bit IMP translation of the original modules in `decus/`.
   and emits an object file or assembly, or compiles it with ORC (LLJIT) and runs
   it. The module `llvmgen`, written by `tools/llvm.sh imp` for the LLVM at hand, holds what the LLVM headers decide.
 - **`driver`** links an executable from the object, the objects named on the
-  command line, the C library's start files and `libimp72.a`, with lld
+  command line, the C library's start files and `libimp.a`, with lld
   (`impld`, `stage0/impld.cpp`), `ld.lld` or the system's `ld`. The loader and
   C library of this machine are those the compiler itself runs with
   (`lib/imphost*.imp`), for any architecture; a target's come from the tables
@@ -61,20 +61,20 @@ the 64-bit IMP translation of the original modules in `decus/`.
 
 ## The runtime library
 
-`lib/*.imp` is `libimp72.a`:
+`lib/*.imp` is `libimp.a`:
 
 | file | contents |
 |---|---|
-| `imp72io.imp` | `PRINT`, `READ`, files, `FINI` |
-| `imp72rt.imp` | `CALLI`, `BLT`, `IFIX`, shifts and rotations by a variable count, byte pointers, `EXECUTE` |
-| `imp72sys.imp` | the standard files, the arena's address space, argument vector access |
-| `imp72main.imp` | the C `main`, a member of its own so that a program with a `main` of its own does not link it |
+| `impio.imp` | `PRINT`, `READ`, files, `FINI` |
+| `imprt.imp` | `CALLI`, `BLT`, `IFIX`, shifts and rotations by a variable count, byte pointers, `EXECUTE` |
+| `impsys.imp` | the standard files, the arena's address space, argument vector access |
+| `impmain.imp` | the C `main`, a member of its own so that a program with a `main` of its own does not link it |
 | `imphost.imp`, `imphostx-*.imp` | what the link needs to know of the host |
 | `impvars.imp`, `impvarsx-*.imp` | the table of the compiler's own variables, for images |
 
 `tools/sysconst.sh` writes `sysgen.imp`, the constants of the target system's
 headers (`mmap` flags, directory entry layout, names of the standard files).
-`lib/imp72.h` is the C header for code that shares data with IMP programs.
+`lib/imp.h` is the C header for code that shares data with IMP programs.
 
 ## The word
 
@@ -117,14 +117,14 @@ reproduce: the arguments of a call are evaluated right to left; a `FOR` body
 runs once even when the end is below the start; locals are static; a
 relation used as a value is -1 for true.
 
-Both compilers also read `IMP72CHARPTR` (a byte pointer held in a variable is
+Both compilers also read `IMPCHARPTR` (a byte pointer held in a variable is
 a pointer to characters; the runtime library is compiled that way) and
-`IMP72MODULE` (the name of the compiler module being compiled, so that its
+`IMPMODULE` (the name of the compiler module being compiled, so that its
 variables are listed for images).
 
 ## Images
 
-`NAME_/U` (or `/V`) in the commands of `imp72 -i` saves the compiler with the
+`NAME_/U` (or `/V`) in the commands of `imp -i` saves the compiler with the
 language it has learned to `NAME.img`; `-I NAME.img` starts from it.
 `src/image.imp` writes the free storage (directory, syntax graph, code tree,
 semantics array), the variables of the compiler's modules, listed in the

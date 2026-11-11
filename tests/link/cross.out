@@ -1,68 +1,68 @@
 i386-linux-gnu:
-ld.lld -m elf_i386 --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux.so.2 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf_i386 --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux.so.2 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 armv7-linux-gnueabihf:
-ld.lld -m armelf_linux_eabi --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-armhf.so.3 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m armelf_linux_eabi --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-armhf.so.3 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 armv7-linux-gnueabi:
-ld.lld -m armelf_linux_eabi --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux.so.3 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m armelf_linux_eabi --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux.so.3 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 aarch64-linux-gnu:
-ld.lld -m aarch64linux --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-aarch64.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m aarch64linux --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-aarch64.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 aarch64_be-linux-gnu:
-ld.lld -m aarch64linuxb --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-aarch64_be.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m aarch64linuxb --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-aarch64_be.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 riscv64-linux-gnu:
-ld.lld -m elf64lriscv --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-riscv64-lp64d.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64lriscv --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-riscv64-lp64d.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 riscv32-linux-gnu:
-ld.lld -m elf32lriscv --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-riscv32-ilp32d.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf32lriscv --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-linux-riscv32-ilp32d.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 powerpc-linux-gnu:
-ld.lld -m elf32ppclinux --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf32ppclinux --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 powerpc64-linux-gnu:
-ld.lld -m elf64ppc --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld64.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64ppc --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld64.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 powerpc64le-linux-gnu:
-ld.lld -m elf64lppc --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld64.so.2 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64lppc --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld64.so.2 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 s390x-linux-gnu:
-ld.lld -m elf64_s390 --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld64.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64_s390 --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld64.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 loongarch64-linux-gnu:
-ld.lld -m elf64loongarch --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld-linux-loongarch-lp64d.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64loongarch --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld-linux-loongarch-lp64d.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 mips-linux-gnu:
-ld.lld -m elf32btsmip --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf32btsmip --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 mipsel-linux-gnu:
-ld.lld -m elf32ltsmip --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf32ltsmip --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 mips64-linux-gnuabi64:
-ld.lld -m elf64btsmip --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64btsmip --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 sparc64-linux-gnu:
-ld.lld -m elf64_sparc --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld-linux.so.2 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64_sparc --sysroot=SYSROOT -o a.out -dynamic-linker /lib64/ld-linux.so.2 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 i386-linux-musl:
-ld.lld -m elf_i386 --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-i386.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf_i386 --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-i386.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 aarch64-linux-musl:
-ld.lld -m aarch64linux --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-aarch64.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m aarch64linux --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-aarch64.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 armv7-linux-musleabihf:
-ld.lld -m armelf_linux_eabi --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-armhf.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m armelf_linux_eabi --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-armhf.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 powerpc64le-linux-musl:
-ld.lld -m elf64lppc --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-powerpc64le.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64lppc --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-powerpc64le.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 s390x-linux-musl:
-ld.lld -m elf64_s390 --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-s390x.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64_s390 --sysroot=SYSROOT -o a.out -dynamic-linker /lib/ld-musl-s390x.so.1 SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtn.o 
 x86_64-unknown-freebsd:
-ld.lld -m elf_x86_64_fbsd --eh-frame-hdr -dynamic-linker /libexec/ld-elf.so.1 -o a.out SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf_x86_64_fbsd --eh-frame-hdr -dynamic-linker /libexec/ld-elf.so.1 -o a.out SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
 aarch64-unknown-freebsd:
-ld.lld -m aarch64fbsd --eh-frame-hdr -dynamic-linker /libexec/ld-elf.so.1 -o a.out SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
+ld.lld -m aarch64fbsd --eh-frame-hdr -dynamic-linker /libexec/ld-elf.so.1 -o a.out SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
 riscv64-unknown-freebsd:
-ld.lld -m elf64lriscv --eh-frame-hdr -dynamic-linker /libexec/ld-elf.so.1 -o a.out SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf64lriscv --eh-frame-hdr -dynamic-linker /libexec/ld-elf.so.1 -o a.out SYSROOT/usr/lib/crt1.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
 x86_64-unknown-netbsd:
-ld.lld -m elf_x86_64 --eh-frame-hdr -dynamic-linker /usr/libexec/ld.elf_so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf_x86_64 --eh-frame-hdr -dynamic-linker /usr/libexec/ld.elf_so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
 i386-unknown-netbsd:
-ld.lld -m elf_i386 --eh-frame-hdr -dynamic-linker /usr/libexec/ld.elf_so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
+ld.lld -m elf_i386 --eh-frame-hdr -dynamic-linker /usr/libexec/ld.elf_so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crti.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lc -lm SYSROOT/usr/lib/crtend.o SYSROOT/usr/lib/crtn.o 
 aarch64-unknown-openbsd:
-ld.lld --eh-frame-hdr -dynamic-linker /usr/libexec/ld.so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp72.a SYSROOT/usr/lib/libc.so.97.1 SYSROOT/usr/lib/libm.so.10.1 SYSROOT/usr/lib/crtend.o 
+ld.lld --eh-frame-hdr -dynamic-linker /usr/libexec/ld.so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp.a SYSROOT/usr/lib/libc.so.97.1 SYSROOT/usr/lib/libm.so.10.1 SYSROOT/usr/lib/crtend.o 
 i386-unknown-openbsd:
-ld.lld -m elf_i386 --eh-frame-hdr -dynamic-linker /usr/libexec/ld.so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp72.a SYSROOT/usr/lib/libc.so.97.1 SYSROOT/usr/lib/libm.so.10.1 SYSROOT/usr/lib/crtend.o 
+ld.lld -m elf_i386 --eh-frame-hdr -dynamic-linker /usr/libexec/ld.so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp.a SYSROOT/usr/lib/libc.so.97.1 SYSROOT/usr/lib/libm.so.10.1 SYSROOT/usr/lib/crtend.o 
 powerpc64-unknown-openbsd:
-ld.lld --eh-frame-hdr -dynamic-linker /usr/libexec/ld.so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp72.a SYSROOT/usr/lib/libc.so.97.1 SYSROOT/usr/lib/libm.so.10.1 SYSROOT/usr/lib/crtend.o 
+ld.lld --eh-frame-hdr -dynamic-linker /usr/libexec/ld.so -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/crtbegin.o T SYSROOT/usr/lib/libimp.a SYSROOT/usr/lib/libc.so.97.1 SYSROOT/usr/lib/libm.so.10.1 SYSROOT/usr/lib/crtend.o 
 x86_64-w64-mingw32:
-ld.lld -m i386pep -o a.out SYSROOT/usr/lib/crt2.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 
+ld.lld -m i386pep -o a.out SYSROOT/usr/lib/crt2.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 
 i686-w64-mingw32:
-ld.lld -m i386pe -o a.out SYSROOT/usr/lib/crt2.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 
+ld.lld -m i386pe -o a.out SYSROOT/usr/lib/crt2.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 
 aarch64-w64-mingw32:
-ld.lld -m arm64pe -o a.out SYSROOT/usr/lib/crt2.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 
+ld.lld -m arm64pe -o a.out SYSROOT/usr/lib/crt2.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -lmingw32 -lmoldname -lmingwex -lgcc -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 
 x86_64-pc-cygwin:
-ld.lld -m i386pep -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -L SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15 -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15/crtend.o 
+ld.lld -m i386pep -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15/crtbegin.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -L SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15 -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 SYSROOT/usr/lib/gcc/x86_64-pc-cygwin/15/crtend.o 
 i686-pc-cygwin:
-ld.lld -m i386pe -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/gcc/i686-pc-cygwin/15/crtbegin.o T SYSROOT/usr/lib/libimp72.a -L SYSROOT/usr/lib -L SYSROOT/usr/lib/gcc/i686-pc-cygwin/15 -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 SYSROOT/usr/lib/gcc/i686-pc-cygwin/15/crtend.o 
+ld.lld -m i386pe -o a.out SYSROOT/usr/lib/crt0.o SYSROOT/usr/lib/gcc/i686-pc-cygwin/15/crtbegin.o T SYSROOT/usr/lib/libimp.a -L SYSROOT/usr/lib -L SYSROOT/usr/lib/gcc/i686-pc-cygwin/15 -lcygwin -lgcc -ladvapi32 -lshell32 -luser32 -lkernel32 SYSROOT/usr/lib/gcc/i686-pc-cygwin/15/crtend.o 

@@ -81,7 +81,7 @@ bindir)
     exit 0 ;;
 builtins)
     # compiler-rt's builtins archive (Apache-2.0 with the LLVM exception) for the 32 bit targets, which call __divdi3 and its kin for the division of 64 bits: mklib.sh
-    # puts its members in libimp72.a, so that nothing of libgcc is needed
+    # puts its members in libimp.a, so that nothing of libgcc is needed
     # (a target's triple as the second argument, else this machine's: tools/mkrt.sh asks for the library of another target)
     case ${2:-$(${CC:-cc} -dumpmachine 2>/dev/null)} in i?86-*|i?86|i386*) names="i386" ;; arm*) names="armhf arm" ;; *) exit 0 ;; esac
     for d in "$($lc --libdir)"/clang/*/lib; do

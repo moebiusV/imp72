@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """imp-fuzz-bytes.py SEED COUNT DIR: write COUNT programs of byte pointers and block moves to DIR/pN.imp, each with the output it must print in DIR/pN.exp.
 
-As tools/imp-fuzz64.py, the expected output is worked out here from the rules of the word of 64 bits, not by a compiler.  The rules (lib/imp72rt.imp, docs/internals/code-generator.md):
+As tools/imp-fuzz64.py, the expected output is worked out here from the rules of the word of 64 bits, not by a compiler.  The rules (lib/imprt.imp, docs/internals/code-generator.md):
 
     X:=BYTEP P[k]<S,Q>   a pointer to the field of S bits with its low bit at bit Q of the word P[k].  <X> reads the field, <X>:=E writes the low S bits of E and leaves the others,
                         <+X> steps the pointer first and then reads (<+X>_E steps and then writes): the next lower field of the same size, or, when there is no room (Q-S < 0), the

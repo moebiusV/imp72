@@ -5,13 +5,13 @@
 # (CROSSRUN_KEEP=1 keeps them).  Skipped, exit 77, where the inputs, dpkg, the compiler or the emulator's registration are not here.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${CROSSRUN_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
+w=${CROSSRUN_IMP72:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "crossrun test skipped: no $w"; exit 77; }
 command -v dpkg >/dev/null 2>&1 || { echo "crossrun test skipped: no dpkg"; exit 77; }
 [ -d "${PREP_INPUTS:-$root/../prebsd/mirror/dev/inputs}" ] || { echo "crossrun test skipped: no prep inputs"; exit 77; }
 out=tmp/crossrun
 mkdir -p $out
-export IMP72SYNTAX=$root/src/llvm-ir/syntax64.imc IMP72FFI=$root/lib/ffi.imc
+export IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc
 fail=0 ran=0
 # the programs: tests/native without a C main, and the ones whose output depends on the size of a long are left out
 progs="hello chars names bytes algo basic case callind gotoconst gotomain printorder features structs cdecl cdecl2 callback cmath datasym fltwide io extcall realffi"
@@ -29,7 +29,7 @@ one() {
     *) [ -e /proc/sys/fs/binfmt_misc/qemu-$emu ] || { echo "skipped: qemu-$emu is not registered"; return 0; } ;;
     esac
     rt=$out/rt-$triple
-    sh tools/mkrt.sh $triple $rt >$out/mkrt-$triple.log 2>&1 || { echo "FAILED: crossrun: libimp72.a for $triple" >&2; tail -5 $out/mkrt-$triple.log >&2; fail=1; return 0; }
+    sh tools/mkrt.sh $triple $rt >$out/mkrt-$triple.log 2>&1 || { echo "FAILED: crossrun: libimp.a for $triple" >&2; tail -5 $out/mkrt-$triple.log >&2; fail=1; return 0; }
     list=
     for n in $progs; do
         [ -f tests/native/$n.imp ] && [ ! -f tests/native/${n}_main.c ] && list="$list tests/native/$n.imp:tests/native/$n.out"
@@ -46,7 +46,7 @@ one() {
         n=$(basename $p .imp)
         case $triple:$n in powerpc-*:extcall) continue ;; esac    # (impcallp reads the low half of the 64 bit word an IMP routine returns, in the first register of a 32 bit little endian machine; powerpc returns it in the pair r3:r4)
         exe=$out/$triple-$n
-        $w --target=$triple --sysroot=$sr --runtime=$rt/libimp72.a -o $exe $p >$out/$triple-$n.log 2>&1 || { echo "FAILED: crossrun: $triple: $n does not compile or link" >&2; head -c 400 $out/$triple-$n.log >&2; fail=1; continue; }
+        $w --target=$triple --sysroot=$sr --runtime=$rt/libimp.a -o $exe $p >$out/$triple-$n.log 2>&1 || { echo "FAILED: crossrun: $triple: $n does not compile or link" >&2; head -c 400 $out/$triple-$n.log >&2; fail=1; continue; }
         rm -f IOTEST.TMP
         case $emu in
         direct) $sr/lib/ld-linux.so.2 --library-path $sr/usr/lib/i386-linux-gnu:$sr/lib/i386-linux-gnu $exe >$exe.got 2>&1 ;;

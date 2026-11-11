@@ -18,7 +18,7 @@
  * Three differences of the language that the port keeps in mind:
  *
  *  - IMP evaluates the ARGUMENTS OF A CALL FROM THE RIGHT TO THE LEFT (G(F(1),F(2),F(3)) calls F(3) first;
- *    tried with build/llvm-ir2/imp72stage-llvm-ir), the operands of an operator from the left, and the
+ *    tried with build/llvm-ir2/impstage-llvm-ir), the operands of an operator from the left, and the
  *    right side of an assignment before its subscript.  Where two arguments of one call have effects (a
  *    new temporary, a statement written, a new label) the C evaluates them in that order, in temporaries.
  *  - THE BODY OF A FOR LOOP RUNS ONCE EVEN WHEN THE END IS BEYOND THE START (FOR I IN 0,1,-1 runs for I=0;

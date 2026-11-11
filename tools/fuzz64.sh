@@ -1,5 +1,5 @@
 #!/bin/sh
-# fuzz64.sh DRIVER SEED COUNT: programs of tools/imp-fuzz64.py (GEN=imp-fuzz-bytes.py for the byte pointers and block moves), each compiled with DRIVER (the seed, stage0/imp72stage0, or imp72), run, and its output compared with the one
+# fuzz64.sh DRIVER SEED COUNT: programs of tools/imp-fuzz64.py (GEN=imp-fuzz-bytes.py for the byte pointers and block moves), each compiled with DRIVER (the seed, stage0/impstage0, or imp), run, and its output compared with the one
 # the generator worked out by itself in 64 bit arithmetic.  Prints the programs that differ; exit status 1 if there are any.  The programs are in tmp/fuzz64-SEED.
 driver=$1 seed=$2 count=$3
 root=$(cd "$(dirname "$0")/.." && pwd)

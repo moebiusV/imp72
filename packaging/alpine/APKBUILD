@@ -1,5 +1,5 @@
 # Maintainer: David Walther <tederific@gmail.com>
-pkgname=imp72
+pkgname=imp
 pkgver=0.10.0
 pkgrel=0
 pkgdesc="IMP72 systems programming language compiler (Bilofsky's PDP-10 compiler, ported)"
@@ -39,5 +39,5 @@ package() {
 # The sha512 of the release tarball is for abuild to fill in once the tag v$pkgver
 # exists (run `abuild checksum`).
 sha512sums="
-0  imp72-0.10.0.tar.gz
+0  imp-0.10.0.tar.gz
 "

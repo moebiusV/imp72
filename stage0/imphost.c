@@ -2,7 +2,7 @@
  * imphost.c -- what the link needs to know of the machine it runs on: the system (imphostos), the architecture (imphostarch), where this very program found its dynamic
  * linker (imphostinterp) and its C library (imphostlibc), the directory of the C library's crt files that goes with it (imphostcrtdir), and the newest version of a library that
  * is only there with its version (impfindlib).  The compiler runs on the system it makes programs for, so what its own loader did is what the programs it makes need.
- * src/driver.imp calls them with CCALL; the seed's driver, stage0/imp72s0.c, links this file in, and links the same way.
+ * src/driver.imp calls them with CCALL; the seed's driver, stage0/imps0.c, links this file in, and links the same way.
  */
 #define _GNU_SOURCE
 #include <dirent.h>
@@ -327,10 +327,10 @@ found:
     return 0;
 }
 
-#ifdef IMP72_LLVM_BINDIR
+#ifdef IMP_LLVM_BINDIR
 #define STR2(x) #x
 #define STR(x) STR2(x)
-#define LLVM_BINDIR STR(IMP72_LLVM_BINDIR)
+#define LLVM_BINDIR STR(IMP_LLVM_BINDIR)
 #endif
 
 /* run lld as a program, found by the path under the name in argv[0] (ld.lld, ld64.lld), with the argument vector argv (NULL ended); wait for it; 0 if it linked.  For a compiler built
@@ -351,7 +351,7 @@ findprog(const char *name)
             return 1;
         p = e ? e + 1 : NULL;
     }
-#ifdef IMP72_LLVM_BINDIR
+#ifdef IMP_LLVM_BINDIR
     snprintf(cand, sizeof cand, "%s/%s", LLVM_BINDIR, name);
     if (access(cand, X_OK) == 0)
         return 1;
@@ -383,19 +383,19 @@ imprunld(long argc, long argv)
         if (alt != NULL && findprog(alt))
             av[0] = (char *)alt;
         else {
-            fprintf(stderr, "imp72: cannot link: no linker found: %s is not in the PATH or in LLVM's bin directory%s\n", av[0],
+            fprintf(stderr, "imp: cannot link: no linker found: %s is not in the PATH or in LLVM's bin directory%s\n", av[0],
                     strcmp(av[0], "ld.lld") == 0 ? ", and there is no plain ld in the PATH" : "");
             return 1;
         }
     }
-    if (getenv("IMP72LDSHOW") != NULL)
+    if (getenv("IMPLDSHOW") != NULL)
         fprintf(stderr, "linker: %s\n", av[0]);
     fflush(NULL);
     if ((pid = fork()) < 0)
         return 1;
     if (pid == 0) {
         execvp(av[0], av);
-#ifdef IMP72_LLVM_BINDIR
+#ifdef IMP_LLVM_BINDIR
         if (errno == ENOENT) {                  /* not in the PATH: where the LLVM this was built with has its programs */
             char path[4096];
 
@@ -508,7 +508,7 @@ td_in(const char *base)
     struct stat st;
 
     td_arm = 0;
-    snprintf(td_try, sizeof td_try, "%s/imp72stage0.XXXXXX", base);
+    snprintf(td_try, sizeof td_try, "%s/impstage0.XXXXXX", base);
     td_pid = getpid();
     td_len = 0;
     td_kid = 0;
@@ -551,13 +551,13 @@ imptmppath(const char *name, char *out)
     size_t l;
 
     if (!td_make()) {
-        fprintf(stderr, "imp72: cannot make a temporary directory\n");
+        fprintf(stderr, "imp: cannot make a temporary directory\n");
         return 1;
     }
     snprintf(out, 4096, "%s/%s", td_try, name);
     l = strlen(out) + 1;
     if (td_len + l > TD_LIST) {
-        fprintf(stderr, "imp72: too many temporary files\n");
+        fprintf(stderr, "imp: too many temporary files\n");
         return 1;
     }
     memcpy(td_list + td_len, out, l);
@@ -584,7 +584,7 @@ imptmpclean(long z)
 static int
 td_nomemfd(void)
 {
-    const char *v = getenv("IMP72NOMEMFD");
+    const char *v = getenv("IMPNOMEMFD");
 
     return v != NULL && *v && strcmp(v, "0") != 0;
 }
@@ -593,7 +593,7 @@ static int
 td_memfd(void)
 {
 #if defined(__linux__) && defined(SYS_memfd_create)
-    long r = syscall(SYS_memfd_create, "imp72", 0u);      /* (not through memfd_create: an older C library has none); no MFD_CLOEXEC, a linker run as a program has it */
+    long r = syscall(SYS_memfd_create, "imp", 0u);      /* (not through memfd_create: an older C library has none); no MFD_CLOEXEC, a linker run as a program has it */
 
     return r < 0 ? -1 : (int)r;
 #else

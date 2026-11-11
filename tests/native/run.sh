@@ -1,12 +1,12 @@
 #!/bin/sh
-# Native tests: each tests/native/NAME.imp is compiled by imp72stage0, linked with
+# Native tests: each tests/native/NAME.imp is compiled by impstage0, linked with
 # NAME_main.c, run, and its output compared with NAME.out.  Run from the top
 # of the repository (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-driver=${DRIVER:-stage0/imp72stage0}              # DRIVER=build/direct/imp72stage-llvm-ir with IMP72SYNTAX=src/llvm-ir/syntax64.imc: the code generator of src/llvm-ir
+driver=${DRIVER:-stage0/impstage0}              # DRIVER=build/direct/impstage-llvm-ir with IMPSYNTAX=src/llvm-ir/syntax64.imc: the code generator of src/llvm-ir
 out=${NATIVE_OUT:-build/native}
-lib=${NATIVE_LIB:-build/lib/libimp72.a}          # NATIVE_LIB=build/lib/libimp72.a for the code generator of src/llvm-ir
+lib=${NATIVE_LIB:-build/lib/libimp.a}          # NATIVE_LIB=build/lib/libimp.a for the code generator of src/llvm-ir
 mkdir -p $out
 fail=0
 for p in tests/native/*.imp; do
@@ -17,12 +17,12 @@ for p in tests/native/*.imp; do
     if [ "$n" = ffi2 ] && [ "$(sh tools/longbits.sh)" != 64 ]; then echo "skipped: long is not 64 bits"; continue; fi
     if [ -f tests/native/${n}_main.c ]; then
         $driver -c -o $out/$n.o "$p" \
-            || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }
+            || { echo "FAILED: $n: impstage0" >&2; fail=1; continue; }
         cc $(sh tools/nopie.sh) -Ilib $NATIVE_CFLAGS -o $out/$n tests/native/${n}_main.c $out/$n.o \
             $lib || { echo "FAILED: $n: link" >&2; fail=1; continue; }
     else
         $driver -o $out/$n "$p" \
-            || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }
+            || { echo "FAILED: $n: impstage0" >&2; fail=1; continue; }
     fi
     $out/$n >$out/$n.got || { echo "FAILED: $n: run" >&2; fail=1; continue; }
     rm -f IOTEST.TMP

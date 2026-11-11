@@ -17,7 +17,7 @@ cmd=$1 os=$2; shift 2 2>/dev/null || true
 root=$(cd "$(dirname "$0")/../.." && pwd)
 here=$root/tools/bsd-vm
 dir=$root/tmp/vm/$os
-ctr=imp72-vm-$os
+ctr=imp-vm-$os
 cpus=${VM_CPUS:-6-9}
 mem=${VM_MEM:-5G}
 die() { echo "bsd-vm: $*" >&2; exit 1; }
@@ -113,12 +113,12 @@ ci)
     running || die "$os is not running: bsd-vm.sh start $os"
     what=${1:-all}
     ( cd "$root" && git ls-files -co --exclude-standard -z | tar --null -T - -cf "$dir/tree.tar" )
-    inctr sh -c 'cat /vm/tree.tar' | vm 'rm -rf imp72 && mkdir imp72 && tar -xf - -C imp72'
+    inctr sh -c 'cat /vm/tree.tar' | vm 'rm -rf imp && mkdir imp && tar -xf - -C imp'
     path='export PATH=/usr/pkg/bin:/usr/pkg/sbin:$PATH; '
     if [ "$what" = check ]; then run="gmake check"; else run="sh tools/ci-run.sh $os"; fi
     rm -f "$dir/run.log"
     st=0
-    vm "cd imp72 && $path$run" </dev/null > "$dir/run.log" 2>&1 || st=$?
+    vm "cd imp && $path$run" </dev/null > "$dir/run.log" 2>&1 || st=$?
     tail -n 5 "$dir/run.log" | cut -c1-200
     echo "bsd-vm: $os: $run exited $st (the output is in $dir/run.log)"
     exit $st ;;

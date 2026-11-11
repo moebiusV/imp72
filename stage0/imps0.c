@@ -1,9 +1,9 @@
 /*
- * imp72s0.c -- the stage 0 driver.  The part of decus/impm.imc that matters
+ * imps0.c -- the stage 0 driver.  The part of decus/impm.imc that matters
  * here: read the bootstrap syntax with RSYN, then compile the rest of the
  * file, and any other files named, with the syntax built so far.
  *
- *     imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]
+ *     imps0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]
  *
  * -s sets compiler switches, each letter of LETTERS the switch of that name
  * (the original's /A /B ... on the command line); the ones that mean
@@ -16,17 +16,17 @@
  * the object.  -T names the machine the IR is lowered for (amd64, the default,
  * or aarch64): the registers of the procedure call standard.
  *
- * The same program is also the compiler, imp72stage0 (a link to it, or a
+ * The same program is also the compiler, impstage0 (a link to it, or a
  * copy: the name decides):
  *
- *     imp72stage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...
+ *     impstage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...
  *
  * It reads the syntax of the language (src/llvm-ir/syntax64.imc) and the extension ffi.imc,
  * compiles the files with the kernel above to IR, and makes the IR, with LLVM
  * in this process, into an executable (default), an object (-c), LLVM IR (-S)
  * or a run (--run, with ORC).  It finds its parts relative to
- * itself: in the source tree (stage0/imp72stage0, src/llvm-ir/, lib/, build/) or installed
- * (PREFIX/bin/imp72stage0, PREFIX/lib/imp72/, PREFIX/share/imp72/).
+ * itself: in the source tree (stage0/impstage0, src/llvm-ir/, lib/, build/) or installed
+ * (PREFIX/bin/impstage0, PREFIX/lib/imp/, PREFIX/share/imp/).
  */
 /* the compiler driver below uses POSIX (readlink, realpath, mkdtemp) */
 #define _XOPEN_SOURCE 700
@@ -60,7 +60,7 @@ cotree_hook(word k)
 static void
 usage(void)
 {
-    fputs("usage: imp72s0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]\n", stderr);
+    fputs("usage: imps0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]\n", stderr);
     exit(2);
 }
 
@@ -84,7 +84,7 @@ kernel_main(int argc, char **argv)
             irout = argv[++i];
         else if (strcmp(argv[i], "-T") == 0 && i + 1 < argc) {
             if (!ir_settarget(argv[++i])) {
-                fprintf(stderr, "imp72s0: no target %s\n", argv[i]);
+                fprintf(stderr, "imps0: no target %s\n", argv[i]);
                 return 2;
             }
         } else
@@ -203,8 +203,8 @@ override(char *path, size_t n, const char *name)
 }
 
 /*
- * The link: lld in this process (stage0/impld.cpp), the same way as src/driver.imp (LNK) does it for imp72, with the same files and the same arguments for the system and the
- * architecture this is; there is no cc.  IMP72LDSHOW=1 prints the arguments of ld, and a test requires this driver and imp72 to print the same.  This is the C of what
+ * The link: lld in this process (stage0/impld.cpp), the same way as src/driver.imp (LNK) does it for imp, with the same files and the same arguments for the system and the
+ * architecture this is; there is no cc.  IMPLDSHOW=1 prints the arguments of ld, and a test requires this driver and imp to print the same.  This is the C of what
  * LNK, LNKLIN, LNKBSD and LNKMAC are in IMP: change the one, change the other.
  */
 extern long impld(long argc, const char **argv);
@@ -249,7 +249,7 @@ runld(void)
     int i;
 
     ldv[ldn] = NULL;
-    if (getenv("IMP72LDSHOW") != NULL) {
+    if (getenv("IMPLDSHOW") != NULL) {
         for (i = 0; i < ldn; i++)
             fprintf(stderr, "%s ", ldv[i]);
         fputc('\n', stderr);
@@ -289,7 +289,7 @@ lnklin(const char *out, const char *ofile, const char *lib)
     if (!ok && imphostprobe((long)(intptr_t)mad, (long)(intptr_t)dlp))                  /* a program with no loader of its own: the files of its machine */
         ok = trydir(mad);
     if (!ok) {
-        fprintf(stderr, "imp72stage0: cannot link: this program has no dynamic loader of its own, and no crt1.o of this machine is under /usr/lib, /usr/lib64 or /lib; use -c to make the object\n");
+        fprintf(stderr, "impstage0: cannot link: this program has no dynamic loader of its own, and no crt1.o of this machine is under /usr/lib, /usr/lib64 or /lib; use -c to make the object\n");
         return 1;
     }
     ladd("ld.lld"); ladd("-o"); ladd(out); ladd("-dynamic-linker"); ladd(dlp);
@@ -300,7 +300,7 @@ lnklin(const char *out, const char *ofile, const char *lib)
 static int
 missing(const char *what)
 {
-    fprintf(stderr, "imp72stage0: cannot link: no %s in /usr/lib\n", what);
+    fprintf(stderr, "impstage0: cannot link: no %s in /usr/lib\n", what);
     return 1;
 }
 
@@ -319,7 +319,7 @@ lnkbsd(const char *os, const char *out, const char *ofile, const char *lib)
         dl = "/usr/libexec/ld.so"; fc0 = "crt0.o"; wh = 0; obsd = 1;
     }
     if (dl == NULL) {
-        fprintf(stderr, "imp72stage0: cannot link: linking is not supported on %s; use -c to make the object\n", *os ? os : "this system");
+        fprintf(stderr, "impstage0: cannot link: linking is not supported on %s; use -c to make the object\n", *os ? os : "this system");
         return 1;
     }
     if (!havef(c1p, "/usr/lib", fc0))
@@ -369,7 +369,7 @@ lnkmac(const char *ha, const char *out, const char *ofile, const char *lib)
         ar = "x86_64"; mv = "10.13";
     }
     if (ar == NULL) {
-        fprintf(stderr, "imp72stage0: cannot link: macOS on %s: only arm64 and x86_64 are supported; use -c to make the object\n", *ha ? ha : "this architecture");
+        fprintf(stderr, "impstage0: cannot link: macOS on %s: only arm64 and x86_64 are supported; use -c to make the object\n", *ha ? ha : "this architecture");
         return 1;
     }
     sdk = getenv("SDKROOT");
@@ -385,7 +385,7 @@ lnkmac(const char *ha, const char *out, const char *ofile, const char *lib)
             sdk = libd;
     }
     if (sdk == NULL) {
-        fprintf(stderr, "imp72stage0: cannot link: no macOS SDK (set SDKROOT, or install the Command Line Tools or Xcode)\n");
+        fprintf(stderr, "impstage0: cannot link: no macOS SDK (set SDKROOT, or install the Command Line Tools or Xcode)\n");
         return 1;
     }
     ladd("ld64.lld"); ladd("-arch"); ladd(ar); ladd("-platform_version"); ladd("macos"); ladd(mv); ladd(mv);
@@ -431,24 +431,24 @@ driver_main(int argc, char **argv)
         else if (strcmp(argv[i], "--run") == 0)
             jit = 1;
         else {
-            fprintf(stderr, "imp72stage0: unknown option %s\n", argv[i]);
+            fprintf(stderr, "impstage0: unknown option %s\n", argv[i]);
             return 2;
         }
         i++;
     }
     if (!llvmhave(0)) {
-        fputs("imp72stage0: this compiler was built without the LLVM libraries, which it needs\n", stderr);
+        fputs("impstage0: this compiler was built without the LLVM libraries, which it needs\n", stderr);
         return 2;
     }
     if (i >= argc) {
-        fputs("usage: imp72stage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...\n", stderr);
+        fputs("usage: impstage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...\n", stderr);
         return 2;
     }
     nfiles = argc - i;
 
     /* where the parts are */
     if (exe_dir(argv[0], dir, sizeof dir) != 0) {
-        fputs("imp72stage0: cannot find myself\n", stderr);
+        fputs("impstage0: cannot find myself\n", stderr);
         return 1;
     }
     if (strlen(dir) + 4 >= sizeof root)
@@ -458,17 +458,17 @@ driver_main(int argc, char **argv)
     snprintf(syntax, sizeof syntax, "%s/src/llvm-ir/syntax64.imc", root);
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
-        snprintf(lib, sizeof lib, "%s/build/lib/libimp72.a", root);
+        snprintf(lib, sizeof lib, "%s/build/lib/libimp.a", root);
         snprintf(tmpbase, sizeof tmpbase, "%s/tmp", root);     /* the tree's own (gitignored) tmp/ */
     } else {                                    /* installed */
-        snprintf(syntax, sizeof syntax, "%s/share/imp72/syntax64.imc", root);
-        snprintf(ffi, sizeof ffi, "%s/share/imp72/ffi.imc", root);
-        snprintf(lib, sizeof lib, "%s/lib/imp72/libimp72.a", root);
+        snprintf(syntax, sizeof syntax, "%s/share/imp/syntax64.imc", root);
+        snprintf(ffi, sizeof ffi, "%s/share/imp/ffi.imc", root);
+        snprintf(lib, sizeof lib, "%s/lib/imp/libimp.a", root);
         snprintf(tmpbase, sizeof tmpbase, "/tmp");              /* installed: the system's temporary directory */
     }
-    override(syntax, sizeof syntax, "IMP72SYNTAX");
-    override(ffi, sizeof ffi, "IMP72FFI");
-    override(lib, sizeof lib, "IMP72LIB");
+    override(syntax, sizeof syntax, "IMPSYNTAX");
+    override(ffi, sizeof ffi, "IMPFFI");
+    override(lib, sizeof lib, "IMPLIB");
     snprintf(base, sizeof base, "%s", argv[i]);
     blen = strlen(base);
     if (blen > 4 && strcmp(base + blen - 4, ".imp") == 0)
@@ -479,7 +479,7 @@ driver_main(int argc, char **argv)
     /* the kernel, in this process */
     kargv = calloc((size_t)nfiles + 10, sizeof *kargv);
     k = 0;
-    kargv[k++] = "imp72s0";
+    kargv[k++] = "imps0";
     if (sw != NULL) {
         kargv[k++] = "-s";
         kargv[k++] = (char *)sw;
@@ -526,7 +526,7 @@ main(int argc, char **argv)
     const char *name = strrchr(argv[0], '/');
 
     name = name ? name + 1 : argv[0];
-    if (strncmp(name, "imp72stage", 10) == 0)
+    if (strncmp(name, "impstage", 8) == 0)
         return driver_main(argc, argv);
     return kernel_main(argc, argv);
 }

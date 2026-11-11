@@ -1,4 +1,4 @@
-# imp72
+# imp
 
 Parent: [All Projects](https://moebiusv.github.io/) | Git Repo: [github.com/moebiusV/imp72](https://github.com/moebiusV/imp72) | `git clone https://github.com/moebiusV/imp72`
 
@@ -25,18 +25,18 @@ file of such statements; `lib/ffi.imc` is one (`CCALL`, `EXTERNAL`).
     make check
     make install PREFIX=/usr/local
 
-    imp72 hello.imp && ./a.out            # compile, link, run
-    imp72 --run hello.imp                 # compile with ORC and run in the process
-    imp72 -c a.imp b.imp                  # a.o and b.o
-    imp72 -S hello.imp                    # assembly, hello.s
-    imp72 -Sir hello.imp                  # LLVM IR text, hello.ll
-    imp72 -c --target=aarch64-linux-gnu hello.imp    # an object for another system
-    imp72-cimport -n qsort -o decls.imp stdlib.h   # IMP72 declarations from a C header
+    imp hello.imp && ./a.out            # compile, link, run
+    imp --run hello.imp                 # compile with ORC and run in the process
+    imp -c a.imp b.imp                  # a.o and b.o
+    imp -S hello.imp                    # assembly, hello.s
+    imp -Sir hello.imp                  # LLVM IR text, hello.ll
+    imp -c --target=aarch64-linux-gnu hello.imp    # an object for another system
+    imp-cimport -n qsort -o decls.imp stdlib.h   # IMP72 declarations from a C header
 
 The build needs a C99 compiler, a C++ compiler, GNU make, the LLVM C API
 (`llvm-dev`) and, to link in the process, lld as a library (`liblld-dev`).
-`docs/BUILDING.md` has the details. The options are in `docs/imp72.1`
-(`man imp72` after installing).
+`docs/BUILDING.md` has the details. The options are in `docs/imp.1`
+(`man imp` after installing).
 
 A program is the statements before its first `SUBR`; it ends at `%%`:
 
@@ -64,11 +64,11 @@ declared with `...`: `EXTERNAL INT printf(PTR, ...);`.
 The compiler is IMP, apart from the seed and two short C++ files.
 
 - **The seed** (`stage0/`, C99) is a port of the kernel and of the code
-  generator to C. It builds stage 1 and is installed as `imp72stage0`.
+  generator to C. It builds stage 1 and is installed as `impstage0`.
 - **Stage 1** is `src/` (the kernel, the driver, the LLVM glue, the IR writer)
   and `src/llvm-ir/` (the code generator), compiled by the seed.
 - **Stage 2** is the same sources compiled by stage 1. It is installed as
-  `imp72`.
+  `imp`.
 - **`stage0/impld.cpp`** (47 lines of C++) gives lld's driver a C name, because
   lld has no C interface.
 - **`stage0/lvtriple.cpp`** asks LLVM's own triple parser whether a `--target`
@@ -84,10 +84,10 @@ runs, the other modes write an object file, assembly or LLVM IR. The driver link
 executables with lld in the process where lld is installed as a library, and by
 running `ld.lld` (`ld64.lld` on macOS) where it is not. It never runs `cc`.
 
-The runtime library `libimp72.a` (`PRINT`, `READ`, `FINI`, the entry `main`,
+The runtime library `libimp.a` (`PRINT`, `READ`, `FINI`, the entry `main`,
 the helpers that generated code calls) is IMP too, in `lib/*.imp`.
 `tools/mklib.sh` builds it with the seed, for the compilers themselves.
-`tools/mkrt.sh` builds it with `imp72` for any target; `make install` installs
+`tools/mkrt.sh` builds it with `imp` for any target; `make install` installs
 that one.
 
 ## Platforms
@@ -115,8 +115,8 @@ target.
     src/            the compiler in 64-bit IMP: the kernel, the driver, llvm.imp, ir2ll*.imp
     src/llvm-ir/    the code generator, and syntax64.imc, the language's syntax
     stage0/         the seed (C99), the glue to the LLVM C API, impld.cpp
-    lib/            the runtime library (IMP), ffi.imc, imp72.h
-    tools/          build scripts, tools written in IMP (run by imptool.sh, among them imp72-cimport), fuzzers (Python), CI scripts, tools/bsd-vm
+    lib/            the runtime library (IMP), ffi.imc, imp.h
+    tools/          build scripts, tools written in IMP (run by imptool.sh, among them imp-cimport), fuzzers (Python), CI scripts, tools/bsd-vm
     tests/          native programs, goldens, the bootstrap, seed, cross-compiling and cimport tests
     oracle/         the setup for the original compiler on simulated TOPS-10
     docs/           guides, the language manual, internals, porting notes
@@ -138,7 +138,7 @@ returns a word. `CCALL F(A,B)` calls a C function with arguments by value;
 the address of its C entry (for `qsort`, `signal` and the like), and `FNPTR`
 declares a call through a function pointer. `STRUCT` declares the layout of a C
 structure, `SIZEOF` and `OFFSETOF` give its size and offsets, and `FIELD(P, S.F)`
-reads and writes a field of the structure at an address. `imp72-cimport` writes
+reads and writes a field of the structure at an address. `imp-cimport` writes
 the `EXTERNAL`, `STRUCT` and `LET` declarations of the functions, structures and
 constants of a C header. `docs/FFI.md` has all of it.
 
@@ -155,12 +155,12 @@ output with it.
 
 ## Documentation
 
-- [docs/manual/imp72.md](docs/manual/imp72.md), [docs/manual/imp72.7](docs/manual/imp72.7): the language manual (the 1973 RUNOFF source rendered as Markdown and as an mdoc page)
-- [docs/imp72.1](docs/imp72.1), [docs/imp72stage0.1](docs/imp72stage0.1), [docs/cimport.1](docs/cimport.1): the manual pages of the compiler, of the seed and of `imp72-cimport`
+- [docs/manual/imp.md](docs/manual/imp.md), [docs/manual/imp.7](docs/manual/imp.7): the language manual (the 1973 RUNOFF source rendered as Markdown and as an mdoc page)
+- [docs/imp.1](docs/imp.1), [docs/impstage0.1](docs/impstage0.1), [docs/cimport.1](docs/cimport.1): the manual pages of the compiler, of the seed and of `imp-cimport`
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the build route
 - [docs/BUILDING.md](docs/BUILDING.md): building, cross-compiling, tests, CI
 - [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md): pitfalls
-- [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72, declarations, callbacks, structures, `imp72-cimport`
+- [docs/FFI.md](docs/FFI.md): IMP72 from C and C from IMP72, declarations, callbacks, structures, `imp-cimport`
 - [docs/ROADMAP.md](docs/ROADMAP.md): what is not done
 - [docs/decisions-and-status.md](docs/decisions-and-status.md): each design and implementation choice with its rationale and precedents, and whether it is done, left to do, rejected or left in the air The author's messages it cites are rows [R<n>] of the [decision register](docs/decision-register.md).
 - [docs/ORACLE.md](docs/ORACLE.md): the original compiler as a reference

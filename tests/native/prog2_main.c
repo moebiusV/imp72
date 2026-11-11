@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "imp72words.h"
+#include "impwords.h"
 word FILL(word *), TOTAL(word *), FACT(word *), GCD(word *, word *), TWICE(word *), CALLER(word *), BITS(word *), REM(word *, word *);
 int main(void) {
     word n = 10, a = 5, b = 84, c = 36, d = 12345, e = 17, f = 5;

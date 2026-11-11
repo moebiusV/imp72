@@ -1,19 +1,19 @@
 #!/bin/sh
 # Oracle goldens: the programs named in tests/oracle/LIST (in tests/oracle/ or tests/native/)
 # were compiled and run by the original compiler (IMP 1.5 on TOPS-10, tools/oracle-run.imp);
-# their output is in tests/golden/oracle/NAME.out.  Here imp72stage0 compiles the same programs
+# their output is in tests/golden/oracle/NAME.out.  Here impstage0 compiles the same programs
 # and the output must be the same.  tools/oracle-update.sh makes the goldens again.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-driver=${DRIVER:-stage0/imp72stage0}               # DRIVER=build/direct/imp72stage-llvm-ir (and IMP72SYNTAX, IMP72LIB) for the code generator of src/llvm-ir
+driver=${DRIVER:-stage0/impstage0}               # DRIVER=build/direct/impstage-llvm-ir (and IMPSYNTAX, IMPLIB) for the code generator of src/llvm-ir
 out=${ORACLE_OUT:-build/oracle-check}
 mkdir -p $out
 fail=0
 for n in $(cat tests/oracle/LIST); do
     p=tests/oracle/$n.imp; [ -f "$p" ] || p=tests/native/$n.imp
     echo "== oracle $n"
-    $driver ${IMP72_FLAGS} -o $out/$n "$p" \
-        || { echo "FAILED: $n: imp72stage0" >&2; fail=1; continue; }
+    $driver ${IMP_FLAGS} -o $out/$n "$p" \
+        || { echo "FAILED: $n: impstage0" >&2; fail=1; continue; }
     (cd $out && ./$n > $n.got) || { echo "FAILED: $n: run" >&2; fail=1; continue; }
     # REAL is IEEE 754 here, the original's 27 bit floating point there: where the two give different numbers
     # (tests/golden/ieee) the reviewed IEEE output is the golden; everything else is what the original printed

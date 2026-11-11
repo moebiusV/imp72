@@ -132,7 +132,7 @@ with `ORACLE_SW=/S sh tools/imptool.sh oracle-run --lst -d DIR prog.imp`
 
 The captures are in 36-bit octal with halves of 18 bits and names of five
 characters to a word, and the PDP-10 instructions of the original's listing.
-The seed and `imp72` print 64-bit words and the instructions of the IR machine,
+The seed and `imp` print 64-bit words and the instructions of the IR machine,
 so these captures are not compared with their output. `tools/dump-compare.imp
 KIND ORACLE.LST OURS.TXT` and `tools/lst-compare.imp ORACLE.LST OURS.TXT` are the
 comparison tools for a 36-bit path. What is compared with the real machine

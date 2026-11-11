@@ -1,15 +1,15 @@
-imp72 (0.10.0) unstable; urgency=medium
+imp (0.10.0) unstable; urgency=medium
 
   * Fix the code generator: conditions of several relations, a computed GO TO
     with a constant or an out-of-range selector, DATA of the name of a
     variable, a GO TO into another subroutine, and the registers of EXECUTE.
   * Keep the temporary files of an installed compiler in TMPDIR, else /tmp,
     and bound every string operation.
-  * Install the runtime library that imp72 itself builds.
+  * Install the runtime library that imp itself builds.
 
  -- David Walther <tederific@gmail.com>  Tue, 03 Nov 2026 17:44:21 -0700
 
-imp72 (0.9.0) unstable; urgency=medium
+imp (0.9.0) unstable; urgency=medium
 
   * Initial release.
 

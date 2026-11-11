@@ -33,46 +33,46 @@ install` installs stage 2.
 
 | target | what it makes |
 |---|---|
-| `stage0` | `stage0/imp72s0`, `stage0/imp72stage0` (the seed) |
-| `build/lib/libimp72.a` | the runtime library, built by the seed (`tools/mklib.sh`); the compilers are linked with it |
+| `stage0` | `stage0/imps0`, `stage0/impstage0` (the seed) |
+| `build/lib/libimp.a` | the runtime library, built by the seed (`tools/mklib.sh`); the compilers are linked with it |
 | `llvm-ir` | stage 1 in `build/llvm-ir1`, stage 2 in `build/llvm-ir2` (`tools/llvm-ir.sh`); skipped where there are no LLVM libraries |
-| `runtime` | `build/rt-host/libimp72.a`, built by stage 2 (`tools/mkrt.sh`) |
-| `cimport` | `build/tools/cimport`, the tool `imp72-cimport`, an IMP program (`tools/cimport*.imp`) that stage 2 compiles (`tools/imptool.sh`); skipped where stage 2 is not built |
+| `runtime` | `build/rt-host/libimp.a`, built by stage 2 (`tools/mkrt.sh`) |
+| `cimport` | `build/tools/cimport`, the tool `imp-cimport`, an IMP program (`tools/cimport*.imp`) that stage 2 compiles (`tools/imptool.sh`); skipped where stage 2 is not built |
 
 By hand:
 
-    tools/llvm-ir.sh          # stage 1 and stage 2: build/llvm-ir2/imp72d and imp72stage-llvm-ir
-    tools/direct.sh           # one stage, built by the seed: build/direct/imp72d, imp72stage-llvm-ir
-    build/llvm-ir2/imp72stage-llvm-ir -o hello tests/native/hello.imp
-    build/llvm-ir2/imp72d -s TSX -o dump.txt -c ir.txt src/llvm-ir/syntax64.imc lib/ffi.imc prog.imp
+    tools/llvm-ir.sh          # stage 1 and stage 2: build/llvm-ir2/impd and impstage-llvm-ir
+    tools/direct.sh           # one stage, built by the seed: build/direct/impd, impstage-llvm-ir
+    build/llvm-ir2/impstage-llvm-ir -o hello tests/native/hello.imp
+    build/llvm-ir2/impd -s TSX -o dump.txt -c ir.txt src/llvm-ir/syntax64.imc lib/ffi.imc prog.imp
 
-`imp72d` is the compiler proper (`src/impm.imp`). Its arguments are `-i` (the
+`impd` is the compiler proper (`src/impm.imp`). Its arguments are `-i` (the
 original's commands from the terminal), `-I IMAGE` (start from an image saved
 with `NAME_/U`), `-s LETTERS` (the original's switches), `-o FILE` (listing and
 dumps), `-c FILE` (the IR file), `-T TARGET`, then the syntax file and the
-files to compile. `imp72stage-llvm-ir` and `imp72` are the same program with the
+files to compile. `impstage-llvm-ir` and `imp` are the same program with the
 driver around it: they find the syntax file and the library, make the object with
 LLVM in the process, and link.
 
-The seed alone: `make -C stage0`, then `stage0/imp72stage0 -o prog prog.imp`,
-or `stage0/imp72s0 -s TSX -o dump.txt src/llvm-ir/syntax64.imc`.
+The seed alone: `make -C stage0`, then `stage0/impstage0 -o prog prog.imp`,
+or `stage0/imps0 -s TSX -o dump.txt src/llvm-ir/syntax64.imc`.
 
 ## Installed layout
 
-    PREFIX/bin/imp72                       stage 2
-    PREFIX/bin/imp72stage0                 the seed
-    PREFIX/bin/imp72-cimport               the declarations of a C header (where stage 2 is built)
-    PREFIX/lib/imp72/libimp72.a            the library stage 2 built
-    PREFIX/share/imp72/syntax64.imc, ffi.imc
-    PREFIX/include/imp72.h
-    PREFIX/share/man/man1/imp72.1, imp72stage0.1, imp72-cimport.1
-    PREFIX/share/man/man7/imp72.7          the language manual
-    PREFIX/share/doc/imp72/                imp72.md, FFI.md, LANGUAGE-NOTES.md
+    PREFIX/bin/imp                       stage 2
+    PREFIX/bin/impstage0                 the seed
+    PREFIX/bin/imp-cimport               the declarations of a C header (where stage 2 is built)
+    PREFIX/lib/imp/libimp.a            the library stage 2 built
+    PREFIX/share/imp/syntax64.imc, ffi.imc
+    PREFIX/include/imp.h
+    PREFIX/share/man/man1/imp.1, impstage0.1, imp-cimport.1
+    PREFIX/share/man/man7/imp.7          the language manual
+    PREFIX/share/doc/imp/                imp.md, FFI.md, LANGUAGE-NOTES.md
 
-Where stage 2 cannot be built (no LLVM libraries), `imp72` is a link to
-`imp72stage0` and the library is the seed's. Both compilers find their parts
+Where stage 2 cannot be built (no LLVM libraries), `imp` is a link to
+`impstage0` and the library is the seed's. Both compilers find their parts
 relative to their own place, and in the source tree they use the files of the
-tree. `IMP72SYNTAX`, `IMP72FFI` and `IMP72LIB` name other files.
+tree. `IMPSYNTAX`, `IMPFFI` and `IMPLIB` name other files.
 
 ### Temporary files
 
@@ -85,21 +85,21 @@ file for the linker:
   looked up at run time) and the linker is given `/proc/self/fd/N`. No
   directory is made. A linker run as a program inherits the descriptor.
 - Otherwise, or if the memory file cannot be made or opened as
-  `/proc/self/fd/N`, or if `IMP72NOMEMFD` is set to anything but `0`, the
-  object goes to a private directory made at that point: `imp72stage0.XXXXXX`
+  `/proc/self/fd/N`, or if `IMPNOMEMFD` is set to anything but `0`, the
+  object goes to a private directory made at that point: `impstage0.XXXXXX`
   made by `mkdtemp` (mode 0700, an unguessable name) in `TMPDIR`, else in the
   default. `TMPDIR` is used only if it is an absolute path naming a directory
   in which a private directory can be made. The default is `tmp/` of the
   source tree, and `/tmp` for an installed compiler. The seed checks with
   `lstat` that the directory is a directory of mode 0700 owned by the
-  effective user; `imp72` makes it private with `chmod`, which only the owner
+  effective user; `imp` makes it private with `chmod`, which only the owner
   can do. The file in it is created with `O_EXCL`, mode 0600.
 
 The directory and its files are deleted with `unlink` and `rmdir` (no shell) at
 exit, on an error, and on `SIGHUP`, `SIGINT`, `SIGQUIT` and `SIGTERM`; the
 signal is then raised again with its default action, so the exit status is the
 signal's. A signal that was ignored when the compiler started stays ignored.
-Compiling several sources with `imp72` runs the compiler on each source as a
+Compiling several sources with `imp` runs the compiler on each source as a
 process (no shell), and their objects are in the directory; a signal stops
 the process first. `lld` makes the executable next to its name, as it does
 for any link.
@@ -109,7 +109,7 @@ for any link.
 `tools/llvm.sh` gives the flags (`cflags`, `libs`, `bindir`, `imp`). The seed
 (`stage0/`) and the compilers `tools/direct.sh` builds link `libLLVM`. The back
 end makes the object with the host's target machine in the process, so no
-`clang` runs. `imp72 --run prog.imp` compiles with ORC (LLJIT) and runs in the
+`clang` runs. `imp --run prog.imp` compiles with ORC (LLJIT) and runs in the
 process, finding the runtime and the C library in the program itself.
 
 The link is lld in the process (`stage0/impld.cpp`, built where `tools/llvm.sh`
@@ -150,7 +150,7 @@ Where the LLVM C++ headers are not installed, the check is lenient: it only
 looks at the characters, and LLVM's answer for the target decides. Otherwise the
 message, with the part that is wrong, is
 
-    imp72: unrecognized target "TRIPLE": unknown operating system "nonsense" (expected ARCH-VENDOR-OS[-ENVIRONMENT], for example x86_64-linux-gnu)
+    imp: unrecognized target "TRIPLE": unknown operating system "nonsense" (expected ARCH-VENDOR-OS[-ENVIRONMENT], for example x86_64-linux-gnu)
 
 the status is 1 and no file is written (`x86_64`, `x86_64-nonsense-os` and
 `x86_64-linux-nonsense` are refused). An architecture that the installed LLVM
@@ -177,16 +177,16 @@ the division of 64 bits. A target the driver cannot link (WebAssembly, Android,
 iOS, Windows with the MSVC environment) is refused with the system named:
 `linking for wasi is not supported; use -c to make the object`. The files:
 
-- `--sysroot=DIR` (or `IMP72SYSROOT`): the root of that system, with `crt1.o`,
+- `--sysroot=DIR` (or `IMPSYSROOT`): the root of that system, with `crt1.o`,
   `crti.o`, `crtn.o` and the C library under `DIR/usr/lib/...` (`crt0.o` and
   `crtbegin.o` for a BSD), or for macOS the `MacOSX.sdk` directory;
-- `--runtime=FILE` (or `IMP72RUNTIME`): the `libimp72.a` built for it.
+- `--runtime=FILE` (or `IMPRUNTIME`): the `libimp.a` built for it.
 
 Without them the error message says what is missing (`cannot link for
 s390x-linux-gnu: no crt1.o under DIR/usr/lib/s390x-linux-gnu, ...`). The link covers ELF (Linux, the BSDs), Mach-O (macOS) and COFF through the MinGW driver (mingw-w64 and Cygwin). For WebAssembly and the MSVC environment the compiler writes objects only.
 
-`sh tools/mkrt.sh TRIPLE` builds the runtime library for a target with `imp72`
-and no C compiler, into `build/rt-TRIPLE/libimp72.a`; with no triple it builds
+`sh tools/mkrt.sh TRIPLE` builds the runtime library for a target with `imp`
+and no C compiler, into `build/rt-TRIPLE/libimp.a`; with no triple it builds
 this machine's, `build/rt-host`. It takes the byte order and the word size of the target from the object file
 the compiler makes for it, and the constants of the target's C
 library from `tools/sysconst.sh`. A system that script cannot describe from the
@@ -202,14 +202,14 @@ The linker is the first of these that exists: lld in the compiler's own process
 `ld64.lld` as a program (the `PATH`, then LLVM's bin directory), the system's own
 `ld` (GNU ld, gold, a BSD base ld, Apple's ld64; for a mingw target
 `x86_64-w64-mingw32-ld` and its kin), which takes the same arguments, as it does
-when gcc and clang run it. `IMP72LDSHOW=1` prints the arguments and a line
+when gcc and clang run it. `IMPLDSHOW=1` prints the arguments and a line
 `linker: NAME` for the one chosen. When none is found the message names what was
 looked for (`no linker found: ld.lld is not in the PATH ..., and there is no
 plain ld in the PATH`).
 
 The arguments come from tables, in `src/linktab.imp` (architecture, loader,
 directory of the C library, `-m` emulation of the target) and `src/driver.imp`
-(the system families); the seed's driver `stage0/imp72s0.c` links this machine
+(the system families); the seed's driver `stage0/imps0.c` links this machine
 only, with the same arguments for it. `tests/link/cross.sh` checks them for many
 triples against `tests/link/cross.out`.
 
@@ -232,7 +232,7 @@ a `struct dirent`, `RTLD_DEFAULT` 0, no `dl_iterate_phdr`, and `stdin` and
 needs a COFF variant of `lib/imphostx-elf.imp` and `lib/impvarsx-elf.imp`,
 which call `dl_iterate_phdr` (Cygwin has `dladdr` instead), and nothing of it
 has run. For Windows proper, the host layer (`lib/imphost.imp`,
-`lib/imp72sys.imp`: `mmap` for the arena, `dl_iterate_phdr`, `fork`,
+`lib/impsys.imp`: `mmap` for the arena, `dl_iterate_phdr`, `fork`,
 `readlink`) and `tools/sysconst.sh` describe POSIX systems only.
 
 What works for Windows targets: objects (`-c`, `-S`, `-Sir`), and the link of a
@@ -252,7 +252,7 @@ archive).
 | `tests/direct/run.sh` | the native and oracle tests, the IEEE fuzz and a differential fuzz through the compiler the seed builds |
 | `tests/direct/stage2.sh` | a compiler built by the seed and one built by that compiler write the same IR for every program |
 | `tests/direct/ir2ll.sh` | the IMP LLVM IR writer and `tools/ir2ll.c` write the same text |
-| `tests/interactive/run.sh` | `imp72d -i`, the original's commands |
+| `tests/interactive/run.sh` | `impd -i`, the original's commands |
 | `tests/image/run.sh` | saving the compiler with `/U` and starting from it with `-I`, including an image restored with the free storage at another address |
 | `tests/orc/run.sh` | `--run`, and objects made in the process |
 | `tests/llvm/gen.sh` | `tools/llvm.sh imp` in each of its shapes |
@@ -261,13 +261,13 @@ archive).
 | `tests/crossrun/run.sh` | programs compiled and linked for `s390x-linux-gnu` and `powerpc-linux-gnu` (both big endian) and `i386-linux-gnu`, and run (the first two under qemu's user mode emulation, no system emulation) with sysroots that `tests/crossrun/sysroot.sh` unpacks from Debian `.deb` files in the directory `PREP_INPUTS` (default `../prebsd/mirror/dev/inputs` beside the repository root; it holds `debian-ARCH/pool`); skipped (exit 77) where `dpkg`, those files or the emulator are absent |
 | `tests/version/run.sh` | every place that names the version (`VERSION`, the compiler's `--version` and banner, the packages, the port, the manual) agrees |
 | `tests/variadic/run.sh` | every `CCALL` in the tree's IMP sources of a C function that takes a variable number of arguments (`printf`, `open`, `fcntl`, ...) has a declaration with `...` before it in the same compilation unit |
-| `tests/runtime/run.sh` | the runtime library built by `imp72`, for the host and other targets |
-| `tests/tmpfiles/run.sh` | temporary files of the seed and of `imp72`: none for `-S`, `-c`, `-Sir` and `--run`; a link leaves `TMPDIR` empty, with and without the memory file, after an error and on `SIGHUP`, `SIGINT`, `SIGQUIT` and `SIGTERM`; a `TMPDIR` that is relative, a file or missing is not used |
+| `tests/runtime/run.sh` | the runtime library built by `imp`, for the host and other targets |
+| `tests/tmpfiles/run.sh` | temporary files of the seed and of `imp`: none for `-S`, `-c`, `-Sir` and `--run`; a link leaves `TMPDIR` empty, with and without the memory file, after an error and on `SIGHUP`, `SIGINT`, `SIGQUIT` and `SIGTERM`; a `TMPDIR` that is relative, a file or missing is not used |
 | `tests/seed/run.sh` | the seed and stage 2 write the same LLVM IR |
-| `tests/cli/run.sh` | the command line of `imp72` |
-| `tests/cimport/run.sh` | `imp72-cimport`: golden outputs for preprocessed text, compiled by the seed and by `imp72`; with `cc`, the declarations of `string.h`, `stdlib.h`, `stdio.h` used by a program, the layouts of `struct tm`, `timespec` (and `stat`, `dirent` on Linux) against `offsetof`, the values of macros against the C compiler's, and no file left in `TMPDIR` |
+| `tests/cli/run.sh` | the command line of `imp` |
+| `tests/cimport/run.sh` | `imp-cimport`: golden outputs for preprocessed text, compiled by the seed and by `imp`; with `cc`, the declarations of `string.h`, `stdlib.h`, `stdio.h` used by a program, the layouts of `struct tm`, `timespec` (and `stat`, `dirent` on Linux) against `offsetof`, the values of macros against the C compiler's, and no file left in `TMPDIR` |
 | `tests/fuzz64/run.sh` | random integer, byte-pointer and real programs against 64-bit rules worked out in Python |
-| `tests/manual/run.sh` | `docs/manual/imp72.md` and `imp72.7` are what the RUNOFF converters make of `decus/imp.rno` |
+| `tests/manual/run.sh` | `docs/manual/imp.md` and `imp.7` are what the RUNOFF converters make of `decus/imp.rno` |
 
 ### Scripts the tests share
 
@@ -281,12 +281,12 @@ archive).
   directory (`mktemp -d`, mode 0700, in an absolute `TMPDIR`, else `/tmp`),
   deleted when the script ends or gets `SIGHUP`, `SIGINT` or `SIGTERM`.
 
-## The seed and `imp72`
+## The seed and `imp`
 
-The seed (`stage0/imp72stage0`) and `imp72` read the same language and write
+The seed (`stage0/impstage0`) and `imp` read the same language and write
 the same LLVM IR for the same program. Their command lines differ:
 
-| | `imp72stage0` | `imp72` |
+| | `impstage0` | `imp` |
 |---|---|---|
 | `-S` | writes LLVM IR text, `NAME.ll` | writes the target's assembly, `NAME.s` |
 | `-Sir` | not an option | writes LLVM IR text, `NAME.ll` |
@@ -295,31 +295,31 @@ the same LLVM IR for the same program. Their command lines differ:
 | several sources | compiled together as one program, output named after the first | each compiled by itself |
 | `--run` | compiles with ORC and runs, but the seed's own program does not contain the runtime library, so a program that calls `PRINT`, `READ` or `FINI` fails with `Symbols not found`; a program that calls only C functions runs | runs any program: the runtime library is in the compiler's program |
 
-`tests/seed` compares the seed's `-S` text with `imp72 -Sir`.
+`tests/seed` compares the seed's `-S` text with `imp -Sir`.
 
 ## Diagnostics of the free storage and the images
 
 The free storage of the compiler is an arena of address space reserved once
-(`lib/imp72sys.imp`), asked for at the address `SCHINT` of `tools/sysconst.sh`. An
+(`lib/impsys.imp`), asked for at the address `SCHINT` of `tools/sysconst.sh`. An
 image (`/U`, `-I`; format version 6) is restored with the arena at any address: if the system
 gives the one the image was saved at, nothing is moved; otherwise the
 addresses of the arena that the modules' variables hold are moved with it
 (`src/image.imp`). These variables of the environment are for tests and
 diagnostics:
 
-- `IMP72COREBASE=ADDR` (decimal, or `0x` hexadecimal) asks for the arena at
+- `IMPCOREBASE=ADDR` (decimal, or `0x` hexadecimal) asks for the arena at
   ADDR instead of `SCHINT`. `tests/image/run.sh` saves an image at one address and
   restores it at others with it. The address must be aligned to a page.
-- `IMP72COREDEBUG=1` reports on the standard error where the arena was asked for
+- `IMPCOREDEBUG=1` reports on the standard error where the arena was asked for
   and where it was put, and, when an image is restored, the address it was
   saved at.
-- `IMP72IMGCENSUS=1` at the saving of an image lists the words of the
+- `IMPIMGCENSUS=1` at the saving of an image lists the words of the
   variables and of the arena that hold an address of the arena, and the
   variables that hold an address near the program's own data.
 
 ## Fuzzers
 
-`tests/fuzz64/run.sh` compiles random programs with the seed and with `imp72`
+`tests/fuzz64/run.sh` compiles random programs with the seed and with `imp`
 and compares what they print with an answer worked out in Python from the
 rules of the 64-bit word, never from a compiler. Three generators:
 
@@ -360,7 +360,7 @@ To say which a push runs:
 `tools/ci-run.sh NAME` (build and `make check`, failures as GitHub annotations,
 log in `tmp/ci-NAME.log`) is what the BSD and Linux jobs run. `tools/ci-host.sh
 NAME` records the machine, the CPU and the triple, CPU and features that LLVM
-reports (`IMP72LLVMINFO=1`) as an annotation of the run. The Debian job
+reports (`IMPLLVMINFO=1`) as an annotation of the run. The Debian job
 builds the package with `dpkg-buildpackage`, installs it and compiles a program
 with it.
 
@@ -383,7 +383,7 @@ failed leaves none and runs again, `make` going on from the objects it has.
 `-m MB`; `GUARD_OFF=1` turns it off; `tmp/vm`, the images of `tools/bsd-vm`, does
 not count). The scripts source `tools/limits.sh` (2 GB for a file one process
 writes, 40 minutes of CPU for one process, best effort;
-`IMP72_NOLIMITS=1` leaves it out), and a log that may grow goes through
+`IMP_NOLIMITS=1` leaves it out), and a log that may grow goes through
 `tools/capped.sh FILE CMD...` (at most 200 MB, the beginning, which says why).
 The scratch directory is `tmp/` of the tree (not in git).
 

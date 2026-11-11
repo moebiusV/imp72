@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """imp-fuzz2.py SEED COUNT DIR: random IMP programs with subroutines, arrays, loops and
 conditionals (no recursion, bounded loops, indices masked into range, small values), for
-comparing the original compiler with imp72stage0.  See imp-fuzz.py for the expressions."""
+comparing the original compiler with impstage0.  See imp-fuzz.py for the expressions."""
 import os, random, sys
 
 REL = ["=", "NE", "<", ">", "LE", "GE"]

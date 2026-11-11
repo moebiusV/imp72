@@ -3,13 +3,13 @@ compiler for it on 64-bit machines, derived from the IMP72 compiler
 Walter Bilofsky wrote for the PDP-10 (DECUS 10-198a, 1973).
 
 The language is defined by a file of syntax statements that the compiler
-reads; extensions are written in the same notation. imp72 compiles
+reads; extensions are written in the same notation. imp compiles
 programs to object files, executables, assembly or LLVM IR, and links
 executables with the system's ld.lld.
 
 A subroutine is a C function and takes its arguments by reference, as in
 FORTRAN. CCALL calls a C function with arguments by value, and an object
-file made by imp72 can be linked with C.
+file made by imp can be linked with C.
 
-The package also installs imp72stage0, the bootstrap compiler that builds
-imp72 from source, and the manual.
+The package also installs impstage0, the bootstrap compiler that builds
+imp from source, and the manual.

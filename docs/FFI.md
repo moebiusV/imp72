@@ -354,18 +354,18 @@ Examples that run in the suite:
 
 A `REAL` shared with C (a `COMMON REAL`, an array of them) is an IEEE 754
 double in a word that is the double's own bits. C code converts with
-`imp_real_to_double` and `imp_double_to_real` from `lib/imp72.h`
+`imp_real_to_double` and `imp_double_to_real` from `lib/imp.h`
 (`tests/native/realffi.imp`).
 
 ### Declarations from a header
 
-The tool `imp72-cimport` (`tools/cimport.imp`; in the source tree `sh
+The tool `imp-cimport` (`tools/cimport.imp`; in the source tree `sh
 tools/imptool.sh cimport ARGS`) reads the declarations of a C header and writes
 the statements above for them, so that a program does not retype the types of
 the C functions it calls.
 
-    imp72-cimport [-n NAME] [-p PREFIX] [-D MACRO] [-I DIR] [-o FILE] HEADER
-    imp72-cimport [-n NAME] [-p PREFIX] [-o FILE] -i FILE
+    imp-cimport [-n NAME] [-p PREFIX] [-D MACRO] [-I DIR] [-o FILE] HEADER
+    imp-cimport [-n NAME] [-p PREFIX] [-o FILE] -i FILE
 
 The C preprocessor (`$CC -E`, `cc` by default) reads `#include <HEADER>`, or
 `-i` names a file (`-` is the standard input) of text that it made, and then no
@@ -373,9 +373,9 @@ other program runs. The output is a fragment of IMP72 source. A declaration hold
 to the end of the file, and the compiler reads no header, so the fragment goes in
 front of the program's source:
 
-    imp72-cimport -n qsort -n malloc -o decls.imp stdlib.h
+    imp-cimport -n qsort -n malloc -o decls.imp stdlib.h
     cat decls.imp prog.imp > all.imp
-    imp72 all.imp
+    imp all.imp
 
 Header files are big (`stdio.h` declares 90 functions and includes `bits/*.h`):
 `-n NAME` declares only that name and `-p PREFIX` the names that start with it;
@@ -467,14 +467,14 @@ output, each with its reason, and writes nothing for them:
 
 A function the tool cannot declare is declared by hand or called as an undeclared function. The tool does not check that the program
 uses a declared name right; the compiler does, as for any declaration.
-`man imp72-cimport` is the reference.
+`man imp-cimport` is the reference.
 
 ## Limits
 
 - A function that is not declared is called with exactly the arguments given, each one `long`, as a fixed call: a variadic C function must be declared with `...`.
 - At most 16 arguments, and 16 parameters in a declaration.
 - A structure by value is not a type: it is not passed, returned or copied by `CCALL`.
-- Structure layouts have no bit fields and no unions, and no `packed` or `aligned` attributes. The layout is what the program declares or `imp72-cimport` writes from a header (which declares what it can express and lists the rest); the compiler reads no header. A union that is read in only one member is declared as that member's structure.
+- Structure layouts have no bit fields and no unions, and no `packed` or `aligned` attributes. The layout is what the program declares or `imp-cimport` writes from a header (which declares what it can express and lists the rest); the compiler reads no header. A union that is read in only one member is declared as that member's structure.
 - A callback has at most 16 parameters and is not variadic. A function pointer
   declaration (`FNPTR`) has at most 15 types besides the function.
 - A callback returns a word; a structure result or parameter is not a type.

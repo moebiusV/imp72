@@ -449,13 +449,13 @@ ir_fromdouble(struct irn *d)
 }
 
 /*
- * The compiler's own modules (IMP72MODULE names the one being compiled) say where each of their variables is: a record of its address, its size and
+ * The compiler's own modules (IMPMODULE names the one being compiled) say where each of their variables is: a record of its address, its size and
  * its name, MODULE:SYMBOL, in the section impvars.  The image that the switches U and V save (stage0/image.c) is made of them and of the free storage.
  */
 void
 ir_varrec(const char *sym, long size)
 {
-    const char *mod = getenv("IMP72MODULE");
+    const char *mod = getenv("IMPMODULE");
     const char *w = irtgt->wordll ? ".long" : ".quad";
     static int n;
 

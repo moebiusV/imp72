@@ -11,7 +11,7 @@ then the symbols of the production. A nonterminal's name carries a leading `#` (
 `gmatr(0)` rebuilds the connectivity matrices; `SYNTAX` in `rsyn.c` calls it after every production it enters.
 `parse("#PG")` reads symbols with `lex` and calls `parse_cotree(k)` for each output `k` as it becomes certain: a
 production number, or minus the directory index of a name or symbol that matched `NAM#` or `SYM#`. `parse_cotree` is a
-function pointer; `imp72s0` sets it to `cotree` and `test_parse` sets it to a recorder.
+function pointer; `imps0` sets it to `cotree` and `test_parse` sets it to a recorder.
 
 The header comment of `graph.c` gives the node layout and that of `parse.c` the parse and output formats. A graph node
 is two words: left half ALT, right half SCR; the second word has the node type in bits 48-50, the row `NB` in the

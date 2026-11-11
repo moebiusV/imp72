@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "imp72words.h"
+#include "impwords.h"
 extern int64_t V, ARR[8];
 word LEN(word *), SORT(word *), SHOW(word *);
 int main(void) {

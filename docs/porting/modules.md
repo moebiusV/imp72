@@ -9,7 +9,7 @@ are in `tape-names.md`.
 
 | module | what differs from the tape |
 |---|---|
-| `free` | the arena is reserved address space made usable with `CORE` (`lib/imp72sys.imp`), and it does not move while the compiler runs; `BLT` is `memmove`; arrays are named by index, so the tape's `S` of `FRELOT` (a routine to call after a move) is not used; a named array is allocated with `FNEW`, because `FALLOT` of a name cannot be told from `FALLOT` of an array by size; `FMAP` and `FSTATS` print with `PRINT` |
+| `free` | the arena is reserved address space made usable with `CORE` (`lib/impsys.imp`), and it does not move while the compiler runs; `BLT` is `memmove`; arrays are named by index, so the tape's `S` of `FRELOT` (a routine to call after a move) is not used; a named array is allocated with `FNEW`, because `FALLOT` of a name cannot be told from `FALLOT` of an array by size; `FMAP` and `FSTATS` print with `PRINT` |
 | `dir` | `DIR` takes a name or string constant as it is; `STCON` names a constant by the octal digits of its 64 bits; `RADI50`, `CONVC` and `NEWNAME` work on bytes with the macros of `impend-*.imc`; the table of semantic routines is here: `DSEM` enters a routine by name and `SEMCALL` calls it |
 | `stack` | bit matrices have 64 columns to a word |
 | `lex` | the line and the token are packed eight characters to a word and stepped with byte pointers, as on the tape; `LEXIN` opens the file with `fopen`; `PLINE` prints with `PRINT` |
@@ -30,7 +30,7 @@ debugging module is loaded; it always is here). `FORMARG` is in `src/rsyn.imp`; 
 first of A, `<+P>` adds 1 and then reads or writes the byte there, and a character is a byte (UTF-8, never masked to 7
 bits). Any other `BYTEP A<S,P>` names a bit field and keeps the layout of the PDP-10's pointer in one word: size in bits
 63-58, position in bits 57-52, the byte address of the word in the low 52 bits. The two are told apart by the size
-bits, which a byte address (below 2**47) never has. `lib/imp72rt.imp` has `impibp`, `impldb` and `impdpb`, which both
+bits, which a byte address (below 2**47) never has. `lib/imprt.imp` has `impibp`, `impldb` and `impdpb`, which both
 compilers call.
 
 ## The lexer
@@ -50,13 +50,13 @@ passed to `DIR` as it is. What differs from the tape:
 ## The arena
 
 The tape's low segment grows in place, so a byte pointer into an array stays good until the array itself moves. The arena
-is the same: `IMPCOREBASE` (`lib/imp72sys.imp`) reserves the address space once, without access, at the address `SCHINT`
-(or `IMP72COREBASE`) if the system gives it and elsewhere if not, and `CORE` makes more of it usable with `mprotect`. The seed's block is a `realloc`ed
+is the same: `IMPCOREBASE` (`lib/impsys.imp`) reserves the address space once, without access, at the address `SCHINT`
+(or `IMPCOREBASE`) if the system gives it and elsewhere if not, and `CORE` makes more of it usable with `mprotect`. The seed's block is a `realloc`ed
 heap block instead (`docs/internals/stage0-foundation.md`).
 
 ## The interactive mode
 
-`imp72d -i SYNTAX [FILE ...]` and `imp72 -i` run the tape's driver. The syntax and any files named are read first; then
+`impd -i SYNTAX [FILE ...]` and `imp -i` run the tape's driver. The syntax and any files named are read first; then
 the prompt `*` and a command `REL,LST_FILE.EXT[PJ,PG]/A/B...(AB...)PGM\`, as the tape's `READCMD` takes it. As on the
 tape one compilation ends the session unless the switch `C` is given, and a fatal error ends it. What differs:
 
@@ -75,13 +75,13 @@ tape one compilation ends the session unless the switch `C` is given, and a fata
 
 On TOPS-10 `/U` exits to the monitor, whose `SSAVE` writes the core image of the compiler; the next run starts with the
 language it had compiled. Here `NAME_/U` (or `/V`, the same: the image has no code, so there is no high segment to keep)
-writes `NAME.img` and ends the session, and `imp72d -I NAME.img [FILE ...]` (or `imp72 -I NAME.img FILE.imp`) starts
+writes `NAME.img` and ends the session, and `impd -I NAME.img [FILE ...]` (or `imp -I NAME.img FILE.imp`) starts
 from it, with no syntax file.
 
 The image is the state of the language, not of the process: the free storage (the directory, the syntax graph, the code
 tree, the semantics array, all the compiler's tables), the variables of the compiler's modules, the names of the
 semantic routines in the order of their ids, and the registry of relocatable arrays. The modules are compiled with
-`IMP72MODULE` set (`tools/direct.sh`), and each variable leaves a record (address, size, `module:name`) in the section
+`IMPMODULE` set (`tools/direct.sh`), and each variable leaves a record (address, size, `module:name`) in the section
 `impvars` (`IRVARREC`); `src/image.imp` writes and reads them, and `lib/impvars.imp` finds the section
 (`lib/impvarsx-elf.imp`, `lib/impvarsx-macho.imp`). An image is for the build that made it and says so if it is not (a
 hash of the list). The arena is restored at any address (format version 6): everything in it is an index from `FB`, and the load adds the
@@ -109,6 +109,6 @@ the target machine when it is not the host's, and `CONVC` (`dir.c`: `memorder`),
 
 The code generator writes IR (lowered for the target, `amd64` by default) whatever the host, and `src/ir2ll.imp` (the
 seed: `tools/ir2ll.c`) turns it into LLVM IR; LLVM is the only back end. The compiler links `libLLVM` and makes the
-object in the process, with no clang (`src/llvm.imp`; the seed: `stage0/llvmorc.c`). `imp72 --run` compiles a program with
+object in the process, with no clang (`src/llvm.imp`; the seed: `stage0/llvmorc.c`). `imp --run` compiles a program with
 ORC and calls its `impmain`. The records that name the compiler's own variables for the image are the section `impvars`
 (`IRVARREC`), written as data.

@@ -245,7 +245,7 @@ g_irjbname(word d)
     return s;
 }
 
-/* where a variable of one of the compiler's own modules is (IMP72MODULE) */
+/* where a variable of one of the compiler's own modules is (IMPMODULE) */
 word
 g_irvarrec(const char *sym, word sz)
 {
@@ -504,7 +504,7 @@ shr(struct irn *x, struct irn *c)
     return ir_xshift(1, x, c);
 }
 
-/* A shift or rotation of RD by a count that is not a constant, in line (the seed's same code): the runtime library is compiled so (IMP72CHARPTR, see
+/* A shift or rotation of RD by a count that is not a constant, in line (the seed's same code): the runtime library is compiled so (IMPCHARPTR, see
  * CHARPTR), for the routines IMPLSH, IMPASH and IMPROT are made of shifts and would call themselves.  A count of 64 places or more shifts everything
  * out; a negative count shifts to the right (arithmetic or logical as the operation); a rotation is by the count and 63 */
 static void
@@ -984,14 +984,14 @@ bpout(word v0, word v1)
     x1 = ir_name("impbpp", 0, TLONG); x2 = vexpr(v0, v1); asg(x2, x1);
 }
 
-/* IMP72CHARPTR in the environment (the seed's same switch): a byte pointer held in a variable is a pointer to characters, a byte address, and the stepping,
- * loading and storing are done in line instead of by IMPIBP, IMPLDB and IMPDPB.  The runtime library (lib/imp72rt.imp, imp72io.imp) is compiled so: those
+/* IMPCHARPTR in the environment (the seed's same switch): a byte pointer held in a variable is a pointer to characters, a byte address, and the stepping,
+ * loading and storing are done in line instead of by IMPIBP, IMPLDB and IMPDPB.  The runtime library (lib/imprt.imp, impio.imp) is compiled so: those
  * routines are the ones that would call themselves.  CPFLAG: 0 not asked yet, 1 no, 2 yes */
 static int
 charptr(void)
 {
     if (cpflag == 0) {
-        if (getenv("IMP72CHARPTR") == NULL)
+        if (getenv("IMPCHARPTR") == NULL)
             cpflag = 1;
         else
             cpflag = 2;

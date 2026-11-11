@@ -56,11 +56,11 @@ The routines of `code*.imp` and `impsem.imp` differ from the tape's in:
 
 `tools/llvm-ir.sh` builds stage 1 with the seed from `src/llvm-ir` and the compiler's other modules, and stage 2 with stage
 1 (`docs/BOOTSTRAP.md`, `docs/BUILDING.md`). `tools/direct.sh` is the step that compiles the modules, renames their symbols
-and links them with the LLVM glue and the library; it writes `imp72d` (the kernel) and `imp72stage-llvm-ir` (the same
+and links them with the LLVM glue and the library; it writes `impd` (the kernel) and `impstage-llvm-ir` (the same
 program with the driver). By hand:
 
     tools/direct.sh
-    IMP72SYNTAX=src/llvm-ir/syntax64.imc IMP72LIB=build/lib/libimp72.a build/direct/imp72stage-llvm-ir -o hello tests/native/hello.imp
+    IMPSYNTAX=src/llvm-ir/syntax64.imc IMPLIB=build/lib/libimp.a build/direct/impstage-llvm-ir -o hello tests/native/hello.imp
 
 - `tests/direct/run.sh` runs the native tests, the oracle goldens, the IEEE fuzz and `tests/direct/progs` through the
   compiler built by the seed.

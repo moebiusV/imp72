@@ -1,16 +1,16 @@
 #!/bin/sh
-# tools/cimport.imp (imp72-cimport): the declarations of C headers as IMP72.  Run from the top of the tree (make check does).
+# tools/cimport.imp (imp-cimport): the declarations of C headers as IMP72.  Run from the top of the tree (make check does).
 #   - tests/cimport/cases.txt: each line is NAME INPUT ARGS...; the tool reads the preprocessed text tests/cimport/INPUT (no cc) and its output is compared with tests/cimport/NAME.out
-#   - the output of the first case, with tests/cimport/basic.use.imp after it, is compiled by the seed and by imp72 and run (basic.use.out; basic.use32.out where long is 32 bits)
+#   - the output of the first case, with tests/cimport/basic.use.imp after it, is compiled by the seed and by imp and run (basic.use.out; basic.use32.out where long is 32 bits)
 #   - each file of the tool compiles with the seed
 #   - the usage and the errors
 #   - with a C compiler: <string.h>, <stdlib.h> and <stdio.h> declarations used by a program that sorts with qsort and a CALLBACK; the layouts of struct tm, timespec (and stat and dirent on
 #     Linux) that the tool reads from the headers, compared with sizeof and offsetof printed by a C program; the values of macros (-D) compared with those C prints; no file left in TMPDIR
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-two=${CIMPORT_IMP72:-$root/build/llvm-ir2/imp72stage-llvm-ir}
-seed=$root/stage0/imp72stage0
-if [ ! -x "$two" ]; then echo "cimport test skipped: no $two (the tool is built by imp72)"; exit 0; fi
+two=${CIMPORT_IMP72:-$root/build/llvm-ir2/impstage-llvm-ir}
+seed=$root/stage0/impstage0
+if [ ! -x "$two" ]; then echo "cimport test skipped: no $two (the tool is built by imp)"; exit 0; fi
 w=build/cimport
 rm -rf $w; mkdir -p $w
 fail=0
@@ -33,10 +33,10 @@ tool -o $w/o.imp -n pt -i tests/cimport/basic.i 2>/dev/null; [ -s $w/o.imp ] && 
 # the warning for a name that is not declared (the fixture 'nothing')
 grep -q 'nothing is declared with the name no_such_name' $w/nothing.err || bad "no warning for a name that nothing declares"
 
-# the output compiled with a program, by imp72 and by the seed (one file); the sizes in what it prints are those of the machine: basic.use.out (64 bit long) or basic.use32.out
+# the output compiled with a program, by imp and by the seed (one file); the sizes in what it prints are those of the machine: basic.use.out (64 bit long) or basic.use32.out
 use=tests/cimport/basic.use.out; [ "$(sh tools/longbits.sh)" = 64 ] || use=tests/cimport/basic.use32.out
 cat tests/cimport/basic.out tests/cimport/basic.use.imp > $w/basic_all.imp
-"$two" -o $w/basic_all $w/basic_all.imp > $w/basic_all.log 2>&1 || { cat $w/basic_all.log; bad "imp72 does not accept the declarations of the fixture"; }
+"$two" -o $w/basic_all $w/basic_all.imp > $w/basic_all.log 2>&1 || { cat $w/basic_all.log; bad "imp does not accept the declarations of the fixture"; }
 [ -x $w/basic_all ] && { $w/basic_all > $w/basic_all.got 2>&1; cmp -s $w/basic_all.got $use || { diff $w/basic_all.got $use; bad "the program of the fixture prints something else"; }; }
 if [ -x "$seed" ]; then
     "$seed" -o $w/basic_seed $w/basic_all.imp > $w/basic_seed.log 2>&1 || { cat $w/basic_seed.log; bad "the seed does not accept the declarations of the fixture"; }
@@ -84,7 +84,7 @@ if [ -x "$seed" ]; then
     [ -x $w/qsort_seed ] && { $w/qsort_seed > $w/qsort_seed.got 2>&1; cmp -s $w/qsort_seed.got tests/cimport/qsort.out || bad "qsort program by the seed prints something else"; }
 fi
 
-# the layouts: STRUCT NAME from HEADER, its size and the offsets of its fields, as C says them and as imp72 computes them
+# the layouts: STRUCT NAME from HEADER, its size and the offsets of its fields, as C says them and as imp computes them
 layout() {  # name header
     n=$1; h=$2
     tool -n $n $h > $w/l_$n.imp 2>$w/l_$n.err || { cat $w/l_$n.err; bad "$h"; return; }
@@ -101,7 +101,7 @@ layout() {  # name header
       printf "CCALL printf('size %%ld%%c',SIZEOF(%s),10);\n" $n
       for f in $fields; do printf "CCALL printf('%s %%ld%%c',OFFSETOF(%s,%s),10);\n" $f $n $f; done
       printf "CCALL printf('end%%c',10)\n%%%%\n"; } > $w/l_$n.all.imp
-    "$two" -o $w/l_$n.exe $w/l_$n.all.imp > $w/l_$n.log 2>&1 || { head -5 $w/l_$n.log; bad "$n: imp72 does not compile the declarations from $h"; return; }
+    "$two" -o $w/l_$n.exe $w/l_$n.all.imp > $w/l_$n.log 2>&1 || { head -5 $w/l_$n.log; bad "$n: imp does not compile the declarations from $h"; return; }
     $w/l_$n > $w/l_$n.want
     $w/l_$n.exe | grep -v '^end$' > $w/l_$n.got
     cmp -s $w/l_$n.want $w/l_$n.got || { diff $w/l_$n.want $w/l_$n.got | head; bad "struct $n from <$h>: the layout is not the one of the C compiler"; }
@@ -120,7 +120,7 @@ grep -q 'macro NO_SUCH_MACRO_AT_ALL: it is not defined' $w/m.imp || bad "-D: an 
 { printf '#include <stdio.h>\nint main(void) { printf("%%lld %%lld %%lld\\n", (long long)EOF, (long long)BUFSIZ, (long long)SEEK_END); return 0; }\n'; } > $w/m.c
 $cc -o $w/m $w/m.c 2>$w/m.cerr || { cat $w/m.cerr; bad "-D: cc"; }
 { cat $w/m.imp; printf "EXTERNAL INT printf(PTR, ...);\nCCALL printf('%%lld %%lld %%lld%%c',EOF,BUFSIZ,SEEK_END,10)\n%%%%\n"; } > $w/m.all.imp
-"$two" -o $w/m.exe $w/m.all.imp > $w/m.log 2>&1 || { head -5 $w/m.log; bad "-D: imp72 does not compile the constants"; }
+"$two" -o $w/m.exe $w/m.all.imp > $w/m.log 2>&1 || { head -5 $w/m.log; bad "-D: imp does not compile the constants"; }
 [ -x $w/m ] && [ -x $w/m.exe ] && { $w/m > $w/m.want; $w/m.exe > $w/m.got; cmp -s $w/m.want $w/m.got || { diff $w/m.want $w/m.got; bad "-D: the values are not the C compiler's"; }; }
 
 # no file is left in TMPDIR by the probe of macros, a relative TMPDIR is not used, and nothing is made in the current directory

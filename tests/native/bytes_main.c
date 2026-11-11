@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "imp72words.h"
+#include "impwords.h"
 word GETF(word *), SETF(word *, word *);
 int main(void) {
     word a = 0xABCDEF, b = 0x12;

@@ -41,7 +41,7 @@ fail() {
 { apk add --no-cache build-base binutils clang llvm llvm-dev lld-dev compiler-rt python3 >/dev/null; } >> $log 2>&1 || fail
 if [ ! -f $w/.done-src ]; then
     mkdir -p $w/tree
-    (cd /src && tar cf - --exclude=./build --exclude=./.git --exclude=./tmp --exclude=./work --exclude=./stage0/imp72s0 --exclude=./stage0/imp72stage0 --exclude=./stage0/libstage0.a --exclude='*.o' .) | (cd $w/tree && tar xf -) || fail
+    (cd /src && tar cf - --exclude=./build --exclude=./.git --exclude=./tmp --exclude=./work --exclude=./stage0/imps0 --exclude=./stage0/impstage0 --exclude=./stage0/libstage0.a --exclude='*.o' .) | (cd $w/tree && tar xf -) || fail
     touch $w/.done-src
 fi
 cd $w/tree || fail

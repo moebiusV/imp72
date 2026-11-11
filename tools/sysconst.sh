@@ -1,5 +1,5 @@
 #!/bin/sh
-# sysconst.sh [OS ARCH [BINDIR]]: the IMP module SYSGEN on the standard output: what the runtime library (lib/imp72sys.imp, lib/impvars.imp, lib/imphost.imp) has to know of the system that C
+# sysconst.sh [OS ARCH [BINDIR]]: the IMP module SYSGEN on the standard output: what the runtime library (lib/impsys.imp, lib/impvars.imp, lib/imphost.imp) has to know of the system that C
 # says with its headers: the flags of mmap, the layout of a directory entry, the names the C library gives its standard files, the size of a pointer, the system and the architecture.
 # OS is linux, freebsd, netbsd, openbsd, darwin or cygwin, ARCH x86_64, i386, aarch64, arm, ppc64le, s390x, riscv64, loongarch64 or mips64el (SYSOS and SYSARCH say the same); without them they are
 # those of this machine.  BINDIR is where lld is as a program if it is not in the PATH (tools/llvm.sh bindir).  The values are those of the headers of each system; where this machine is the

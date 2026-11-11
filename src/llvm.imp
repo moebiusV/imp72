@@ -16,13 +16,13 @@ EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);
 SUBR LVERR(WHAT,E) IS (
  M ARE LOCAL;
  M:=CCALL LLVMGetErrorMessage(E);
- OUTSTR('imp72: LLVM: '); OUTSTR(WHAT); OUTSTR(': '); OUTCS(M); OUTCHR(12B);
+ OUTSTR('imp: LLVM: '); OUTSTR(WHAT); OUTSTR(': '); OUTCS(M); OUTCHR(12B);
  CCALL LLVMDisposeErrorMessage(M);
  1);
 SUBR LVERRC(WHAT,E) IS (
  M ARE LOCAL;
  M:=CCALL LLVMGetErrorMessage(E);
- OUTSTR('imp72: LLVM: '); OUTCS(WHAT); OUTSTR(': '); OUTCS(M); OUTCHR(12B);
+ OUTSTR('imp: LLVM: '); OUTCS(WHAT); OUTSTR(': '); OUTCS(M); OUTCHR(12B);
  CCALL LLVMDisposeErrorMessage(M);
  1);
 
@@ -30,7 +30,7 @@ SUBR LVERRC(WHAT,E) IS (
 SUBR LVINIT1(Z) IS (
  LVINIT NE 0 => RETURN 0;
  LVTARGET NE 0 => (LLVMALLINIT(0); LVINIT:=1; RETURN 0);                           # --TARGET: EVERY TARGET THIS LLVM HAS #
- LLVMNATIVEINIT(0) NE 0 => (OUTSTR('imp72: LLVM has no code generator for this machine'); OUTCHR(12B); RETURN 1);
+ LLVMNATIVEINIT(0) NE 0 => (OUTSTR('imp: LLVM has no code generator for this machine'); OUTCHR(12B); RETURN 1);
  LVINIT:=1;
  0);
 
@@ -40,7 +40,7 @@ SUBR LVPARSE(CTX,NAME) IS (
  M:=0; MSG:=0;
  MB:=CCALL LLVMCreateMemoryBufferWithMemoryRangeCopy(LVTXT,LVTXTN,NAME);
  (CCALL LLVMParseIRInContext(CTX,MB,LOC(M),LOC(MSG)) AND 4294967295) NE 0 => (        # (THE BUFFER IS CONSUMED) #
-     OUTSTR('imp72: LLVM: the module does not parse: '); MSG NE 0 => OUTCS(MSG); OUTCHR(12B);
+     OUTSTR('imp: LLVM: the module does not parse: '); MSG NE 0 => OUTCS(MSG); OUTCHR(12B);
      MSG NE 0 => CCALL LLVMDisposeMessage(MSG);
      RETURN 0);
  M);
@@ -52,8 +52,8 @@ SUBR LVHOSTCPU(TRIPLE) IS (
  F,O,T,L ARE LOCAL;
  LVCPU:=CCALL LLVMGetHostCPUName();
  LVFEAT:=CCALL LLVMGetHostCPUFeatures();
- CCALL getenv(LOC('IMP72LLVMINFO')) NE 0 => (          # WHAT THE HOST SAYS (TOOLS/CI-HOST.SH RECORDS IT IN EVERY CI RUN) #
-     OUTSTR('imp72-host: triple='); OUTCS(TRIPLE); OUTSTR(' cpu='); OUTCS(LVCPU); OUTSTR(' features='); OUTCS(LVFEAT); OUTCHR(12B));
+ CCALL getenv(LOC('IMPLLVMINFO')) NE 0 => (          # WHAT THE HOST SAYS (TOOLS/CI-HOST.SH RECORDS IT IN EVERY CI RUN) #
+     OUTSTR('imp-host: triple='); OUTCS(TRIPLE); OUTSTR(' cpu='); OUTCS(LVCPU); OUTSTR(' features='); OUTCS(LVFEAT); OUTCHR(12B));
  (CCALL strncmp(TRIPLE,LOC('riscv64'),7) AND 4294967295) NE 0 => RETURN 0;
  CCALL strstr(LVFEAT,LOC('+d'))=0 => (LVCPU:=LOC('generic-rv64'); LVFEAT:=LOC('+m,+a,+f,+d,+c'); RETURN 1);
  F:=LVFEAT;
@@ -89,9 +89,9 @@ SUBR LVTRIOK(Z) IS (
 SUBR LVMAKETM(MODEL) IS (
  TGT,MSG ARE LOCAL;
  TGT:=0; MSG:=0;
- LVTRIOK(0)=0 => (OUTSTR('imp72: unrecognized target "'); OUTCS(LVTARGET); OUTSTR('": '); OUTCS(LOC(LVKB)); OUTSTR(' (expected ARCH-VENDOR-OS[-ENVIRONMENT], for example x86_64-linux-gnu)'); OUTCHR(12B); RETURN 0);
+ LVTRIOK(0)=0 => (OUTSTR('imp: unrecognized target "'); OUTCS(LVTARGET); OUTSTR('": '); OUTCS(LOC(LVKB)); OUTSTR(' (expected ARCH-VENDOR-OS[-ENVIRONMENT], for example x86_64-linux-gnu)'); OUTCHR(12B); RETURN 0);
  (CCALL LLVMGetTargetFromTriple(LVTRI,LOC(TGT),LOC(MSG)) AND 4294967295) NE 0 => (
-     OUTSTR('imp72: LLVM: '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 0);
+     OUTSTR('imp: LLVM: '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 0);
  CCALL LLVMCreateTargetMachine(TGT,LVTRI,LVCPU,LVFEAT,2,2,MODEL));
 
 # THE BYTE ORDER OF THE HOST (1 LITTLE, 0 BIG), AS LLVM'S DATA LAYOUT OF THE HOST'S TRIPLE SAYS #
@@ -133,11 +133,11 @@ SUBR LVEMIT(PATH,FT) IS (
  MSG:=0;
  PATH=0 => (OB:=0;
             (CCALL LLVMTargetMachineEmitToMemoryBuffer(TM,M,FT,LOC(MSG),LOC(OB)) AND 4294967295) NE 0 => (
-                OUTSTR('imp72: LLVM: '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 1);
+                OUTSTR('imp: LLVM: '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 1);
             LVOBJP:=CCALL LLVMGetBufferStart(OB); LVOBJN:=CCALL LLVMGetBufferSize(OB);
             RETURN 0);
  (CCALL LLVMTargetMachineEmitToFile(TM,M,PATH,FT,LOC(MSG)) AND 4294967295) NE 0 => (
-     OUTSTR('imp72: LLVM: '); OUTCS(PATH); OUTSTR(': '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 1);
+     OUTSTR('imp: LLVM: '); OUTCS(PATH); OUTSTR(': '); OUTCS(MSG); OUTCHR(12B); CCALL LLVMDisposeMessage(MSG); RETURN 1);
  0);
 
 # THE MODULE AT LVTXT COMPILED BY ORC AND ITS FUNCTION ENTRY (NO ARGUMENTS) CALLED: 0 FOR SUCCESS, THE RESULT OF THE CALL IS NOT KEPT.  THE CALL THROUGH THE ADDRESS IS IMPSEMCALL OF THE LIBRARY #

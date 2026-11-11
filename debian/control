@@ -1,4 +1,4 @@
-Source: imp72
+Source: imp
 Section: devel
 Maintainer: David Walther <tederific@gmail.com>
 Build-Depends:
@@ -13,7 +13,7 @@ Homepage: https://github.com/moebiusV/imp72
 Vcs-Git: https://github.com/moebiusV/imp72.git
 Vcs-Browser: https://github.com/moebiusV/imp72
 
-Package: imp72
+Package: imp
 Architecture: amd64 arm64 armhf i386 loong64 ppc64el riscv64 s390x
 Depends:
  ${misc:Depends},
@@ -25,7 +25,7 @@ Description: compiler for the IMP72 systems programming language
  Bilofsky wrote for the PDP-10 (DECUS 10-198a, 1973).
  .
  The language is defined by a file of syntax statements that the compiler
- reads; extensions are written in the same notation. imp72 compiles programs
+ reads; extensions are written in the same notation. imp compiles programs
  to object files, executables, assembly or LLVM IR, and links executables with
  lld. LLVM and lld run inside the compiler, so no C compiler is needed at run
  time; the C library's development files provide the start files and the
@@ -33,7 +33,7 @@ Description: compiler for the IMP72 systems programming language
  .
  A subroutine is a C function and takes its arguments by reference, as in
  FORTRAN. CCALL calls a C function with arguments by value, and an object file
- made by imp72 can be linked with C.
+ made by imp can be linked with C.
  .
- The package also installs imp72stage0, the bootstrap compiler that builds
- imp72 from source, and the manual.
+ The package also installs impstage0, the bootstrap compiler that builds
+ imp from source, and the manual.

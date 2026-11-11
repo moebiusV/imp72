@@ -28,7 +28,7 @@ init(void)
     if (ninit)
         return 0;
     if (LLVMInitializeNativeTarget() || LLVMInitializeNativeAsmPrinter() || LLVMInitializeNativeAsmParser()) {
-        fputs("imp72: LLVM has no code generator for this machine\n", stderr);
+        fputs("imp: LLVM has no code generator for this machine\n", stderr);
         return 1;
     }
     ninit = 1;
@@ -40,7 +40,7 @@ error(const char *what, LLVMErrorRef e)
 {
     char *m = LLVMGetErrorMessage(e);
 
-    fprintf(stderr, "imp72: LLVM: %s: %s\n", what, m);
+    fprintf(stderr, "imp: LLVM: %s: %s\n", what, m);
     LLVMDisposeErrorMessage(m);
     return 1;
 }
@@ -54,7 +54,7 @@ parse(LLVMContextRef ctx, const char *ir, size_t n)
     char *msg = NULL;
 
     if (LLVMParseIRInContext(ctx, mb, &m, &msg)) {                  /* (the buffer is consumed) */
-        fprintf(stderr, "imp72: LLVM: the module does not parse: %s\n", msg != NULL ? msg : "");
+        fprintf(stderr, "imp: LLVM: the module does not parse: %s\n", msg != NULL ? msg : "");
         LLVMDisposeMessage(msg);
         return NULL;
     }
@@ -69,8 +69,8 @@ hostcpu(const char *triple, char **cpu, char **feat)
 {
     *cpu = LLVMGetHostCPUName();
     *feat = LLVMGetHostCPUFeatures();
-    if (getenv("IMP72LLVMINFO") != NULL)                            /* what the host says (tools/ci-host.sh records it in every CI run) */
-        fprintf(stderr, "imp72-host: triple=%s cpu=%s features=%s\n", triple, *cpu, *feat);
+    if (getenv("IMPLLVMINFO") != NULL)                            /* what the host says (tools/ci-host.sh records it in every CI run) */
+        fprintf(stderr, "imp-host: triple=%s cpu=%s features=%s\n", triple, *cpu, *feat);
     if (strncmp(triple, "riscv64", 7) != 0)
         return 0;
     if (strstr(*feat, "+d") == NULL) {
@@ -117,7 +117,7 @@ object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
     triple = LLVMNormalizeTargetTriple(LLVMGetDefaultTargetTriple());
     hostcpu(triple, &cpu, &feat);
     if (LLVMGetTargetFromTriple(triple, &tgt, &msg)) {
-        fprintf(stderr, "imp72: LLVM: %s\n", msg);
+        fprintf(stderr, "imp: LLVM: %s\n", msg);
         LLVMDisposeMessage(msg);
         goto done;
     }
@@ -133,13 +133,13 @@ object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
     LLVMDisposePassBuilderOptions(pbo);
     if (path != NULL) {
         if (LLVMTargetMachineEmitToFile(tm, m, (char *)path, LLVMObjectFile, &msg)) {
-            fprintf(stderr, "imp72: LLVM: %s: %s\n", path, msg);
+            fprintf(stderr, "imp: LLVM: %s: %s\n", path, msg);
             LLVMDisposeMessage(msg);
             goto done;
         }
     } else {
         if (LLVMTargetMachineEmitToMemoryBuffer(tm, m, LLVMObjectFile, &msg, &mb)) {
-            fprintf(stderr, "imp72: LLVM: %s\n", msg);
+            fprintf(stderr, "imp: LLVM: %s\n", msg);
             LLVMDisposeMessage(msg);
             goto done;
         }
@@ -224,7 +224,7 @@ module(const char *ir, size_t n, char **buf, size_t *len)
 
     irf = n > 0 ? fmemopen((void *)ir, n, "r") : fopen("/dev/null", "r");
     if (irf == NULL || (mem = open_memstream(buf, len)) == NULL) {
-        perror("imp72: the IR in memory");
+        perror("imp: the IR in memory");
         return 1;
     }
     rc = ir2ll_run(irf, mem, (int)(sizeof(void *) == 4));

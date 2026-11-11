@@ -1,9 +1,9 @@
-.\" Copyright (c) 2026 The imp72 authors.  ISC licence, see LICENSE.
+.\" Copyright (c) 2026 The imp authors.  ISC licence, see LICENSE.
 .Dd November 3, 2026
 .Dt IMP72-CIMPORT 1
 .Os
 .Sh NAME
-.Nm imp72-cimport
+.Nm imp-cimport
 .Nd write the IMP72 declarations of the functions, structures and constants of a C header
 .Sh SYNOPSIS
 .Nm
@@ -101,9 +101,9 @@ The output is a fragment of a source file, not a file of its own: a declaration
 holds to the end of the compilation unit that has it.
 Put it in front of the program:
 .Bd -literal -offset indent
-imp72-cimport -n qsort -n malloc -o decls.imp stdlib.h
+imp-cimport -n qsort -n malloc -o decls.imp stdlib.h
 cat decls.imp prog.imp > all.imp
-imp72 all.imp
+imp all.imp
 .Ed
 .Pp
 A name that is a word of the IMP72 grammar
@@ -220,22 +220,22 @@ The command line was wrong (the usage is printed).
 .Sh EXAMPLES
 The declarations of two functions and a structure of the C library:
 .Bd -literal -offset indent
-imp72-cimport -n strlen -n memcpy string.h
-imp72-cimport -n tm -n mktime time.h
+imp-cimport -n strlen -n memcpy string.h
+imp-cimport -n tm -n mktime time.h
 .Ed
 .Pp
 The values of macros:
 .Bd -literal -offset indent
-imp72-cimport -n puts -D EOF -D BUFSIZ stdio.h
+imp-cimport -n puts -D EOF -D BUFSIZ stdio.h
 .Ed
 .Pp
 Text made earlier:
 .Bd -literal -offset indent
 cc -E -x c header.h > header.i
-imp72-cimport -p mpz_ -i header.i
+imp-cimport -p mpz_ -i header.i
 .Ed
 .Sh SEE ALSO
-.Xr imp72 1 ,
-.Pa /usr/share/doc/imp72/FFI.md
+.Xr imp 1 ,
+.Pa /usr/share/doc/imp/FFI.md
 .Sh AUTHORS
-.An The imp72 authors .
+.An The imp authors .

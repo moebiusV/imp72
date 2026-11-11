@@ -1,12 +1,12 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: imp72
+Upstream-Name: imp
 Source: https://github.com/moebiusV/imp72
 Comment: The files of the original IMP72 compiler (decus/) keep their own
  terms.  The provenance of the DECUS files is in
- /usr/share/doc/imp72/PROVENANCE.decus.md.
+ /usr/share/doc/imp/PROVENANCE.decus.md.
 
 Files: *
-Copyright: 2026, the imp72 contributors
+Copyright: 2026, the imp contributors
 License: ISC
 
 Files: stage0/strlcat.c

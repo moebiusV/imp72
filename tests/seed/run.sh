@@ -1,11 +1,11 @@
 #!/bin/sh
-# The seed (stage0/imp72stage0, C) and the stage 2 compiler (IMP) are one code generator in two languages: they must write the same LLVM IR, byte for byte, for the same program
+# The seed (stage0/impstage0, C) and the stage 2 compiler (IMP) are one code generator in two languages: they must write the same LLVM IR, byte for byte, for the same program
 # (docs/BOOTSTRAP.md).  Compared: the native tests, the oracle programs, the runtime library (as tools/mklib.sh compiles it) and the modules of the code generator itself.
 # Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-w=${SEED_IMP72:-build/llvm-ir2/imp72stage-llvm-ir}
-s=stage0/imp72stage0
+w=${SEED_IMP72:-build/llvm-ir2/impstage-llvm-ir}
+s=stage0/impstage0
 [ -x "$w" ] && [ -x "$s" ] || { echo "seed test skipped: no $w or $s"; exit 0; }
 out=build/seed
 rm -rf $out; mkdir -p $out
@@ -16,18 +16,18 @@ endf=$(sh tools/endian.sh)
 one() {
     nm=$1; envs=$2; shift 2
     n=$((n + 1))
-    env $envs IMP72SYNTAX=$root/src/llvm-ir/syntax64.imc IMP72FFI=$root/lib/ffi.imc "$w" -Sir -o $out/$nm.stage.ll "$@" > $out/$nm.stage.log 2>&1
-    env -u IMP72SYNTAX -u IMP72FFI -u IMP72LIB $envs "$s" -S -o $out/$nm.seed.ll "$@" > $out/$nm.seed.log 2>&1
+    env $envs IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc "$w" -Sir -o $out/$nm.stage.ll "$@" > $out/$nm.stage.log 2>&1
+    env -u IMPSYNTAX -u IMPFFI -u IMPLIB $envs "$s" -S -o $out/$nm.seed.ll "$@" > $out/$nm.seed.log 2>&1
     if [ -s $out/$nm.seed.ll ] && cmp -s $out/$nm.stage.ll $out/$nm.seed.ll; then rm -f $out/$nm.*; else
         echo "FAILED: seed: $nm: the seed and the stage compiler write different IR ($out/$nm.seed.ll, $out/$nm.stage.ll)" >&2; fail=1; fi
 }
 for f in tests/native/*.imp tests/oracle/*.imp; do
     one $(echo "$f" | tr / _) "X=1" "$f"
 done
-{ sed '/^%%$/d' lib/imp72rt.imp; sed '1d' lib/imp72io.imp; } > $out/imp72rt_all.imp
-one rt "IMP72CHARPTR=1" $endf $out/imp72rt_all.imp
+{ sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > $out/imprt_all.imp
+one rt "IMPCHARPTR=1" $endf $out/imprt_all.imp
 for m in impsem code code2 code3 demit ix; do
-    one gen_$m "IMP72MODULE=$m" $endf src/impsyn64.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp
+    one gen_$m "IMPMODULE=$m" $endf src/impsyn64.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp
 done
 [ $fail = 0 ] && echo "ok ($n programs)"
 exit $fail

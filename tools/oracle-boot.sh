@@ -3,7 +3,7 @@
 # (which has the simulator, drives the console through the boot and starts it again when it
 # hangs after "%DPA7 IS OFF-LINE").  The operator's console is telnet 10604 (KA) or 10605 (KI),
 # held open by prebsd; the user terminals are the DC lines, telnet 10603, which the other tools
-# use.  The simulator's log is $PREBSD/simh/run/imp72-oracle-KIND.log.
+# use.  The simulator's log is $PREBSD/simh/run/imp-oracle-KIND.log.
 # usage: oracle-boot.sh [ka|ki]      oracle-boot.sh stop
 root=$(cd "$(dirname "$0")/.." && pwd)
 PREBSD=${PREBSD:-$root/../prebsd}
@@ -11,11 +11,11 @@ kind=${1:-ka}
 case $kind in
 ka) sim=pdp10-ka; con=10604; common=common.ini ;;
 ki) sim=pdp10-ki; con=10605; common=common-ki.ini ;;
-stop) for k in ka ki; do (cd "$PREBSD" && ./prebsd -S imp72-oracle-$k >/dev/null 2>&1); done; exit 0 ;;
+stop) for k in ka ki; do (cd "$PREBSD" && ./prebsd -S imp-oracle-$k >/dev/null 2>&1); done; exit 0 ;;
 *) echo "usage: oracle-boot.sh [ka|ki|stop]" >&2; exit 2 ;;
 esac
 [ -x "$PREBSD/prebsd" ] || { echo "no $PREBSD/prebsd: run tools/oracle-build.sh" >&2; exit 1; }
-name=imp72-oracle-$kind
+name=imp-oracle-$kind
 mkdir -p "$root/build/oracle"
 "$0" stop                               # the DC port is the same for both
 cat > "$root/oracle/up-$kind.ini" <<EOF

@@ -1,6 +1,6 @@
 # IMP72 on the PDP-10 and IMP72 here
 
-The language is the original's. `docs/manual/imp72.md` is its manual, and
+The language is the original's. `docs/manual/imp.md` is its manual, and
 `src/llvm-ir/syntax64.imc` (the original `decus/syntax.imc` with `:=`, words of
 64 bits and the operations of the IR machine) is its definition. What differs
 comes from the machine and from the runtime.
@@ -8,9 +8,9 @@ comes from the machine and from the runtime.
 - **Assignment is `:=`, and `_` is a letter.** The tape writes `X_5`; here
   `X:=5`, which the lexer reads as one token (`::=`, the separator of syntax
   statements, is not `:` followed by `:=`). A name may contain `_`, so every IMP
-  name is a valid C and ELF name. `decus/` and `docs/manual/imp72.md` keep the
+  name is a valid C and ELF name. `decus/` and `docs/manual/imp.md` keep the
   original's `_`. In a syntax statement the token is quoted, `':='`. The command
-  line of `imp72 -i` is not IMP source: there `_` still separates
+  line of `imp -i` is not IMP source: there `_` still separates
   (`OBJ,LIST_SRC`).
 - **Names are case sensitive.** `ab` and `AB` are two variables, as on TOPS-10,
   and the symbol of a routine or `COMMON` variable is its name as written.
@@ -32,7 +32,7 @@ comes from the machine and from the runtime.
   programs with reals print the original's numbers except where its 27-bit
   arithmetic showed (`0.001` printed as `.99999"-3` there). C code that shares a
   `REAL` converts with `imp_real_to_double` and `imp_double_to_real`
-  (`lib/imp72.h`).
+  (`lib/imp.h`).
 - **Strings** are bytes: a string constant is a NUL-terminated C string in a word
   array, not five 7-bit characters to a word, so its address can be passed to C.
   The compiler packs the characters of

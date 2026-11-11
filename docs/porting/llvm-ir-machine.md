@@ -103,6 +103,6 @@ a relocatable constant on those targets.
 
 `EXECUTE A` runs the one operation of this machine that the word `A` holds: the operation number in bits 56-63 (1 to 23,
 28 and 64 are done), the accumulator in 52-55, the index register in 48-51, bit 47 for an immediate operand, and the
-address or number in the low 47 bits, signed. `impxct` in `lib/imp72rt.imp` does it with the registers `0R` to `15R` as the
+address or number in the low 47 bits, signed. `impxct` in `lib/imprt.imp` does it with the registers `0R` to `15R` as the
 accumulators; jumps and floating point operations are an error at run time. `XWD A,B` is `(A AND HMASK) LS 32 OR (B AND
 HMASK)` and `IOWD A,B` is `XWD -A,B-1`.

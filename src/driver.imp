@@ -7,7 +7,7 @@ QUIET,ARGVP,IMPHOOK ARE COMMON;
 
  (-c STOP AT THE OBJECT, NAME.O, WHICH IS WHAT A REL FILE IS ON TOPS-10; -S AT THE ASSEMBLY OF THE TARGET, NAME.S; -SIR AT LLVM IR, NAME.LL; NOTHING: A PROGRAM, A.OUT; -o THE OUTPUT; --TARGET=TRIPLE FOR ANOTHER SYSTEM; -s THE SWITCHES; -I AN IMAGE SAVED BY U OR V.)  IT FINDS ITS PARTS RELATIVE TO ITSELF (THE SOURCE TREE, OR PREFIX/BIN, PREFIX/LIB/IMP72 AND PREFIX/SHARE/IMP72),
  RUNS THE KERNEL (IMPK) IN THIS PROCESS TO WRITE THE IR OF THE PROGRAM, AND THEN THE BACK END, LLVM IN THE PROCESS (SRC/LLVM.IMP); THE LINK IS THE SYSTEM'S CC.  CALLED
- BY ANOTHER NAME THAN IMP72 OR IMP72STAGE... (IMP72D IS ONE) IT IS THE KERNEL ALONE: IMPK, WITH THE ARGUMENTS OF STAGE0/IMP72S0.C.  STAGE0/IMP72S0.C IS THE SEED'S DRIVER, WHICH THIS REPLACES FOR IMP72.#
+ BY ANOTHER NAME THAN IMP72 OR IMPSTAGE... (IMPD IS ONE) IT IS THE KERNEL ALONE: IMPK, WITH THE ARGUMENTS OF STAGE0/IMPS0.C.  STAGE0/IMPS0.C IS THE SEED'S DRIVER, WHICH THIS REPLACES FOR IMP72.#
 
 DIRB,ROOT,TMPB,OFILE,BASEN,SYNP,FFIP,LIBP,OUTB,C1P,C2P,C3P,LIBD,DLP,MAD,CBP,CEP,LCP,LMP,RTP ARE 520 LONG;
 CMD IS 4096 LONG;
@@ -119,10 +119,10 @@ SUBR HAVEF(B,D,N) IS (
  CCALL snprintf(B,4096,LOC('%s/%s'),D,N);
  EXISTS(B));
 
-# THE ARGUMENTS OF LD, WHEN IMP72LDSHOW IS SET, ON THE STANDARD ERROR (THE SEED'S DRIVER, STAGE0/IMP72S0.C, DOES THE SAME: A TEST REQUIRES THE TWO TO WRITE THE SAME) #
+# THE ARGUMENTS OF LD, WHEN IMPLDSHOW IS SET, ON THE STANDARD ERROR (THE SEED'S DRIVER, STAGE0/IMPS0.C, DOES THE SAME: A TEST REQUIRES THE TWO TO WRITE THE SAME) #
 SUBR SHOWLD(Z) IS (
  K ARE LOCAL;
- CCALL getenv(LOC('IMP72LDSHOW'))=0 => RETURN 0;
+ CCALL getenv(LOC('IMPLDSHOW'))=0 => RETURN 0;
  K:=0;
  SH1: K<KNN => (IMPARGET(LOC(DW),KA,K); OUTCS(DW); OUTCHR(40B); K:=K+1; GO TO SH1);
  OUTCHR(12B);
@@ -133,7 +133,7 @@ SUBR SHOWLD(Z) IS (
 SUBR RUNLD(Z) IS (
  OK ARE LOCAL;
  SHOWLD(0);
- CCALL getenv(LOC('IMP72LDSHOW')) NE 0 => CCALL impldhave(0) NE 0 => (OUTSTR('linker: lld in this process'); OUTCHR(12B));
+ CCALL getenv(LOC('IMPLDSHOW')) NE 0 => CCALL impldhave(0) NE 0 => (OUTSTR('linker: lld in this process'); OUTCHR(12B));
  CCALL impldhave(0) NE 0 => OK:=(CCALL impld(KNN,KA) NE 0 => 1 ELSE 0) ELSE OK:=(IMPRUNLD(KNN,KA) NE 0 => 1 ELSE 0);
  OK);
 
@@ -147,7 +147,7 @@ SUBR LNKLIN(Z) IS (
  OK:=0;
  IMPHOSTCRTDIR(LOC(MAD)) NE 0 => IMPHOSTINTERP(LOC(DLP)) NE 0 => OK:=TRYDIR(LOC(MAD));       # WHAT THIS PROGRAM'S OWN LOADER FOUND #
  OK=0 => IMPHOSTPROBE(LOC(MAD),LOC(DLP)) NE 0 => OK:=TRYDIR(LOC(MAD));                        # A PROGRAM WITH NO LOADER OF ITS OWN: THE FILES OF ITS MACHINE #
- OK=0 => (OUTSTR('imp72: cannot link: this program has no dynamic loader of its own, and no crt1.o of this machine is under /usr/lib, /usr/lib64 or /lib; use -c to make the object'); OUTCHR(12B); RETURN 1);
+ OK=0 => (OUTSTR('imp: cannot link: this program has no dynamic loader of its own, and no crt1.o of this machine is under /usr/lib, /usr/lib64 or /lib; use -c to make the object'); OUTCHR(12B); RETURN 1);
  KA:=CCALL calloc(40+DNOBJL,8); KNN:=0;
  KADD(LOC('ld.lld')); KADD(LOC('-o')); KADD(OUTNAME(0)); KADD(LOC('-dynamic-linker')); KADD(LOC(DLP));
  KADD(LOC(C1P)); KADD(LOC(C2P)); ADDOBJS(0); KADD(LOC(LIBP)); KADD(LOC('-L')); KADD(LOC(LIBD)); KADD(LOC('-lc')); LMADD(LOC(LIBD)); KADD(LOC(C3P));
@@ -163,7 +163,7 @@ SUBR BSDNAMES(OS) IS (
 
 # A FILE OF A BSD'S LIBRARY DIRECTORY (ROOT/USR/LIB) IS NOT THERE: SAY SO.  FOR A TARGET (TRIPLE IN DTGT) IT SAYS FOR WHICH #
 SUBR BSDMISS(WHAT,LD) IS (
- DTGT NE 0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no ')) ELSE OUTSTR('imp72: cannot link: no ');
+ DTGT NE 0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no ')) ELSE OUTSTR('imp: cannot link: no ');
  OUTCS(WHAT); OUTSTR(' under '); OUTCS(LD); OUTCHR(12B);
  1);
 
@@ -172,7 +172,7 @@ SUBR BSDMISS(WHAT,LD) IS (
 SUBR LNKBSD(OS,ROOT,LIB,TGT) IS (
  OBSD,UL,K ARE LOCAL;
  K:=BSDNAMES(OS);
- K=0 => (OUTSTR('imp72: cannot link: linking is not supported on '); OUTCS(OS); OUTSTR('; use -c to make the object'); OUTCHR(12B); RETURN 1);
+ K=0 => (OUTSTR('imp: cannot link: linking is not supported on '); OUTCS(OS); OUTSTR('; use -c to make the object'); OUTCHR(12B); RETURN 1);
  OBSD:=(K=3 => 1 ELSE 0);
  CCALL snprintf(LOC(LIBD),4096,LOC('%s/usr/lib'),ROOT);
  UL:=LOC(LIBD);
@@ -181,8 +181,8 @@ SUBR LNKBSD(OS,ROOT,LIB,TGT) IS (
  HAVEF(LOC(CEP),UL,LOC('crtend.o'))=0 => RETURN BSDMISS(LOC('crtend.o'),UL);
  WH NE 0 => (HAVEF(LOC(C2P),UL,LOC('crti.o'))=0 => RETURN BSDMISS(LOC('crti.o'),UL);
              HAVEF(LOC(C3P),UL,LOC('crtn.o'))=0 => RETURN BSDMISS(LOC('crtn.o'),UL));
- TGT NE 0 => (DRUNTIME=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no libimp72.a built for it is given (--runtime=FILE or IMP72RUNTIME)'); OUTCHR(12B); RETURN 1);
-              EXISTS(DRUNTIME)=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no '); OUTCS(DRUNTIME); OUTCHR(12B); RETURN 1));
+ TGT NE 0 => (DRUNTIME=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no libimp.a built for it is given (--runtime=FILE or IMPRUNTIME)'); OUTCHR(12B); RETURN 1);
+              EXISTS(DRUNTIME)=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no '); OUTCS(DRUNTIME); OUTCHR(12B); RETURN 1));
  OBSD NE 0 => (TGT NE 0 => IMPFINDLIB(LOC(LCP),UL,LOC('libc.so.'))=0 => RETURN BSDMISS(LOC('libc.so.MAJOR.MINOR'),UL);
                TGT=0 => IMPHOSTLIBC(LOC(LCP))=0 => IMPFINDLIB(LOC(LCP),UL,LOC('libc.so.'))=0 => RETURN BSDMISS(LOC('libc.so.MAJOR.MINOR'),UL));
  TGT NE 0 => CCALL snprintf(LOC(DLP),4096,LOC('%s'),DLG) ELSE (IMPHOSTINTERP(LOC(DLP))=0 => CCALL snprintf(LOC(DLP),4096,LOC('%s'),DLG));      # THE LOADER THIS PROGRAM HAS, ELSE THE SYSTEM'S #
@@ -202,12 +202,12 @@ SUBR LNKMAC(HA) IS (
  AR:=0;
  CCALL strcmp(HA,LOC('aarch64'))=0 => (AR:=LOC('arm64'); MV:=LOC('11.0'));
  CCALL strcmp(HA,LOC('x86_64'))=0 => (AR:=LOC('x86_64'); MV:=LOC('10.13'));
- AR=0 => (OUTSTR('imp72: cannot link: macOS on '); IMPBYTE(HA,0)=0 => OUTSTR('this architecture') ELSE OUTCS(HA); OUTSTR(': only arm64 and x86_64 are supported; use -c to make the object'); OUTCHR(12B); RETURN 1);
+ AR=0 => (OUTSTR('imp: cannot link: macOS on '); IMPBYTE(HA,0)=0 => OUTSTR('this architecture') ELSE OUTCS(HA); OUTSTR(': only arm64 and x86_64 are supported; use -c to make the object'); OUTCHR(12B); RETURN 1);
  SDK:=ENVOR(LOC('SDKROOT'),0);
  SDK=0 => (CCALL snprintf(LOC(LIBD),4096,LOC('/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk')); EXISTS(LOC(LIBD)) NE 0 => SDK:=LOC(LIBD));
  SDK=0 => (CCALL snprintf(LOC(LIBD),4096,LOC('/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk'));
            EXISTS(LOC(LIBD)) NE 0 => SDK:=LOC(LIBD));
- SDK=0 => (OUTSTR('imp72: cannot link: no macOS SDK (set SDKROOT, or install the Command Line Tools or Xcode)'); OUTCHR(12B); RETURN 1);
+ SDK=0 => (OUTSTR('imp: cannot link: no macOS SDK (set SDKROOT, or install the Command Line Tools or Xcode)'); OUTCHR(12B); RETURN 1);
  KA:=CCALL calloc(40+DNOBJL,8); KNN:=0;
  KADD(LOC('ld64.lld')); KADD(LOC('-arch')); KADD(AR); KADD(LOC('-platform_version')); KADD(LOC('macos')); KADD(MV); KADD(MV);
  KADD(LOC('-syslibroot')); KADD(SDK); KADD(LOC('-o')); KADD(OUTNAME(0)); ADDOBJS(0); KADD(LOC(LIBP)); KADD(LOC('-lSystem'));
@@ -228,29 +228,29 @@ SUBR LNK(Z) IS (
 # THE LINK FOR A TARGET FAILS FOR A FILE OF THE TARGET THAT IS NOT THERE: THE FIRST LINE SAYS WHICH, AND THE REST HOW TO SAY WHERE THE FILES ARE.  WHY IS 0 FOR NO SYSROOT NAMED, 1 FOR NO START FILES (CRT1.O) IN
   IT, 2 FOR NO LIBIMP72.A #
 SUBR CROSSMSG(WHY) IS (
- OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': ');
+ OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': ');
  WHY=0 => (OUTSTR('no sysroot is given, and the link needs the files of that system'); OUTCHR(12B));
  WHY=1 => (OUTSTR('no crt1.o under '); OUTCS(DSYSROOT); OUTSTR('/usr/lib/'); OUTCS(TRI); OUTSTR(', '); OUTCS(DSYSROOT); OUTSTR('/usr/lib, '); OUTCS(DSYSROOT); OUTSTR('/usr/lib64, '); OUTCS(DSYSROOT);
            OUTSTR('/lib/'); OUTCS(TRI); OUTSTR(' or '); OUTCS(DSYSROOT); OUTSTR('/lib'); OUTCHR(12B));
- WHY=2 => (OUTSTR('no libimp72.a: it was not given, nor found next to the C library ('); OUTCS(LOC(LIBD)); OUTSTR(')'); OUTCHR(12B));
- OUTSTR('  It needs, from that system: the start files of its C library (crt1.o, crti.o, crtn.o), the C library (-lc), and libimp72.a, the runtime of imp72, built for it.'); OUTCHR(12B);
+ WHY=2 => (OUTSTR('no libimp.a: it was not given, nor found next to the C library ('); OUTCS(LOC(LIBD)); OUTSTR(')'); OUTCHR(12B));
+ OUTSTR('  It needs, from that system: the start files of its C library (crt1.o, crti.o, crtn.o), the C library (-lc), and libimp.a, the runtime of imp, built for it.'); OUTCHR(12B);
  OUTSTR('  (The dynamic linker is only named, as '); OUTCS(LOC(DLP)); OUTSTR('.)'); OUTCHR(12B);
  OUTSTR('  Say where they are:'); OUTCHR(12B);
- OUTSTR('    --sysroot=DIR    the root of that system (DIR/usr/lib/'); OUTCS(TRI); OUTSTR('/crt1.o, ...), or set IMP72SYSROOT'); OUTCHR(12B);
- OUTSTR('    --runtime=FILE   its libimp72.a (or put it with the C library), or set IMP72RUNTIME'); OUTCHR(12B);
+ OUTSTR('    --sysroot=DIR    the root of that system (DIR/usr/lib/'); OUTCS(TRI); OUTSTR('/crt1.o, ...), or set IMPSYSROOT'); OUTCHR(12B);
+ OUTSTR('    --runtime=FILE   its libimp.a (or put it with the C library), or set IMPRUNTIME'); OUTCHR(12B);
  OUTSTR('  Or compile with -c (an object file) and link on that system.'); OUTCHR(12B);
  1);
 
 # WHAT A LINK FOR MACOS NEEDS AND DOES NOT HAVE.  WHY IS 0 FOR NO SDK NAMED, 1 FOR A SYSROOT THAT IS NOT AN SDK (NO USR/LIB/LIBSYSTEM.TBD), 2 FOR NO LIBIMP72.A #
 SUBR CROSSMSGMAC(WHY) IS (
- OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': ');
- WHY=0 => (OUTSTR('no SDK is given (--sysroot=DIR or IMP72SYSROOT)'); OUTCHR(12B));
+ OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': ');
+ WHY=0 => (OUTSTR('no SDK is given (--sysroot=DIR or IMPSYSROOT)'); OUTCHR(12B));
  WHY=1 => (OUTSTR('no usr/lib/libSystem.tbd under '); OUTCS(DSYSROOT); OUTCHR(12B));
- WHY=2 => (OUTSTR('no libimp72.a: it was not given (--runtime=FILE or IMP72RUNTIME)'); OUTCHR(12B));
- OUTSTR('  It needs the SDK of macOS (the MacOSX.sdk directory, with usr/lib/libSystem.tbd) and libimp72.a, the runtime of imp72, built for it.'); OUTCHR(12B);
+ WHY=2 => (OUTSTR('no libimp.a: it was not given (--runtime=FILE or IMPRUNTIME)'); OUTCHR(12B));
+ OUTSTR('  It needs the SDK of macOS (the MacOSX.sdk directory, with usr/lib/libSystem.tbd) and libimp.a, the runtime of imp, built for it.'); OUTCHR(12B);
  OUTSTR('  Say where they are:'); OUTCHR(12B);
- OUTSTR('    --sysroot=DIR    the SDK (Xcode or the Command Line Tools have it), or set IMP72SYSROOT'); OUTCHR(12B);
- OUTSTR('    --runtime=FILE   its libimp72.a, or set IMP72RUNTIME'); OUTCHR(12B);
+ OUTSTR('    --sysroot=DIR    the SDK (Xcode or the Command Line Tools have it), or set IMPSYSROOT'); OUTCHR(12B);
+ OUTSTR('    --runtime=FILE   its libimp.a, or set IMPRUNTIME'); OUTCHR(12B);
  OUTSTR('  Or compile with -c (an object file) and link on that system.'); OUTCHR(12B);
  1);
 
@@ -260,7 +260,7 @@ SUBR LNKCROSSMAC(Z) IS (
  AR:=0;
  ((CCALL strcmp(LOC(DTA),LOC('arm64'))=0) OR (CCALL strcmp(LOC(DTA),LOC('aarch64'))=0)) => (AR:=LOC('arm64'); MV:=LOC('11.0'));
  CCALL strcmp(LOC(DTA),LOC('x86_64'))=0 => (AR:=LOC('x86_64'); MV:=LOC('10.13'));
- AR=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': macOS on '); OUTCS(LOC(DTA)); OUTSTR(' is not supported (arm64 and x86_64 only); use -c to make the object'); OUTCHR(12B); RETURN 1);
+ AR=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': macOS on '); OUTCS(LOC(DTA)); OUTSTR(' is not supported (arm64 and x86_64 only); use -c to make the object'); OUTCHR(12B); RETURN 1);
  DSYSROOT=0 => RETURN CROSSMSGMAC(0);
  CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib/libSystem.tbd'),DSYSROOT);
  EXISTS(LOC(MAD))=0 => RETURN CROSSMSGMAC(1);
@@ -273,7 +273,7 @@ SUBR LNKCROSSMAC(Z) IS (
 
 # THE LINK FOR A BSD TARGET: THE SAME AS FOR THIS MACHINE, WITH THE FILES FROM --SYSROOT AND THE LIBRARY OF THE RUNTIME FROM --RUNTIME, WHATEVER THE ARCHITECTURE #
 SUBR LNKCROSSBSD(OS) IS (
- DSYSROOT=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no sysroot is given (--sysroot=DIR or IMP72SYSROOT), and the link needs its /usr/lib (crt0.o or crt1.o, crtbegin.o, crtend.o, libc)'); OUTCHR(12B); RETURN 1);
+ DSYSROOT=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no sysroot is given (--sysroot=DIR or IMPSYSROOT), and the link needs its /usr/lib (crt0.o or crt1.o, crtbegin.o, crtend.o, libc)'); OUTCHR(12B); RETURN 1);
  LNKBSD(OS,DSYSROOT,DRUNTIME,1));
 
 # THE LINK FOR WINDOWS WITH MINGW-W64 (THE ENVIRONMENT GNU: X86_64-W64-MINGW32, I686-W64-MINGW32, AARCH64-W64-MINGW32): LLD'S MINGW DRIVER (LD.LLD -M I386PEP), WITH THE FILES OF A MINGW-W64 SYSROOT: CRT2.O AND
@@ -282,7 +282,7 @@ SUBR LNKCROSSBSD(OS) IS (
 SUBR LNKCROSSWIN(Z) IS (
  MT,PM,OK ARE LOCAL;
  CYG:=STARTS(LOC(DTE),LOC('cygnus'));
- ((STARTS(LOC(DTE),LOC('gnu'))=0) AND (CYG=0)) => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for windows is supported with the mingw-w64 C library (the environment gnu: x86_64-w64-mingw32) and with Cygwin (x86_64-pc-cygwin), not for '); OUTCS(LOC(DTE));
+ ((STARTS(LOC(DTE),LOC('gnu'))=0) AND (CYG=0)) => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for windows is supported with the mingw-w64 C library (the environment gnu: x86_64-w64-mingw32) and with Cygwin (x86_64-pc-cygwin), not for '); OUTCS(LOC(DTE));
                                    OUTSTR('; use -c to make the object'); OUTCHR(12B); RETURN 1);
  MT:=0;
  CCALL strcmp(LOC(DTA),LOC('x86_64'))=0 => (MT:=LOC('x86_64-w64-mingw32'); PM:=LOC('i386pep'));
@@ -291,17 +291,17 @@ SUBR LNKCROSSWIN(Z) IS (
  STARTS(LOC(DTA),LOC('arm'))=1 => (MT:=LOC('armv7-w64-mingw32'); PM:=LOC('thumb2pe'));
  CYG NE 0 => (MT NE 0 => (CCALL strcmp(MT,LOC('x86_64-w64-mingw32'))=0 => MT:=LOC('x86_64-pc-cygwin') ELSE (CCALL strcmp(MT,LOC('i686-w64-mingw32'))=0 => MT:=LOC('i686-pc-cygwin') ELSE MT:=0)));          # (CYGWIN HAS NO ARM OR AARCH64) #
  CYG NE 0 => (WSTART:=LOC('crt0.o'); WLIBK:=LOC('libcygwin.a')) ELSE (WSTART:=LOC('crt2.o'); WLIBK:=LOC('libmingw32.a'));
- MT=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for windows on '); OUTCS(LOC(DTA)); OUTSTR(' is not supported (x86_64, i686, aarch64 and arm are); use -c to make the object'); OUTCHR(12B); RETURN 1);
- DSYSROOT=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no sysroot is given (--sysroot=DIR or IMP72SYSROOT): a mingw-w64 tree with crt2.o and libmingw32.a under DIR/usr/'); OUTCS(MT);
+ MT=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for windows on '); OUTCS(LOC(DTA)); OUTSTR(' is not supported (x86_64, i686, aarch64 and arm are); use -c to make the object'); OUTCHR(12B); RETURN 1);
+ DSYSROOT=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no sysroot is given (--sysroot=DIR or IMPSYSROOT): a mingw-w64 tree with crt2.o and libmingw32.a under DIR/usr/'); OUTCS(MT);
                 OUTSTR('/lib (the Debian package mingw-w64-x86-64-dev has it)'); OUTCHR(12B); RETURN 1);
  CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/%s/lib'),DSYSROOT,MT); OK:=WINDIR(LOC(MAD),WSTART,WLIBK);
  OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/%s/lib'),DSYSROOT,MT); OK:=WINDIR(LOC(MAD),WSTART,WLIBK));
  OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/lib'),DSYSROOT); OK:=WINDIR(LOC(MAD),WSTART,WLIBK));
  OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib'),DSYSROOT); OK:=WINDIR(LOC(MAD),WSTART,WLIBK));
- OK=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no '); OUTCS(WSTART); OUTSTR(' and '); OUTCS(WLIBK); OUTSTR(' under '); OUTCS(DSYSROOT); OUTSTR('/usr/'); OUTCS(MT); OUTSTR('/lib, '); OUTCS(DSYSROOT); OUTSTR('/'); OUTCS(MT);
+ OK=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no '); OUTCS(WSTART); OUTSTR(' and '); OUTCS(WLIBK); OUTSTR(' under '); OUTCS(DSYSROOT); OUTSTR('/usr/'); OUTCS(MT); OUTSTR('/lib, '); OUTCS(DSYSROOT); OUTSTR('/'); OUTCS(MT);
           OUTSTR('/lib, '); OUTCS(DSYSROOT); OUTSTR('/lib or '); OUTCS(DSYSROOT); OUTSTR('/usr/lib'); OUTCHR(12B); RETURN 1);
- DRUNTIME=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no libimp72.a built for it is given (--runtime=FILE or IMP72RUNTIME)'); OUTCHR(12B); RETURN 1);
- EXISTS(DRUNTIME)=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no '); OUTCS(DRUNTIME); OUTCHR(12B); RETURN 1);
+ DRUNTIME=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no libimp.a built for it is given (--runtime=FILE or IMPRUNTIME)'); OUTCHR(12B); RETURN 1);
+ EXISTS(DRUNTIME)=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no '); OUTCS(DRUNTIME); OUTCHR(12B); RETURN 1);
  KA:=CCALL calloc(48+DNOBJL,8); KNN:=0;
  HAVELGC:=0; EMPTYS:=0;                            # CYGWIN: THE FILES OF GCC (CRTBEGIN.O, CRTEND.O, LIBGCC.A) ARE IN USR/LIB/GCC/TRIPLE/VERSION #
  CYG NE 0 => (CCALL snprintf(LOC(LGCA),4096,LOC('%s/usr/lib/gcc/%s'),DSYSROOT,MT);
@@ -337,12 +337,12 @@ SUBR LNKCROSS(Z) IS (
  STARTS(LOC(DTO),LOC('freebsd'))=1 => RETURN LNKCROSSBSD(LOC('freebsd'));
  STARTS(LOC(DTO),LOC('netbsd'))=1 => RETURN LNKCROSSBSD(LOC('netbsd'));
  STARTS(LOC(DTO),LOC('openbsd'))=1 => RETURN LNKCROSSBSD(LOC('openbsd'));
- STARTS(LOC(DTO),LOC('linux'))=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for ');
+ STARTS(LOC(DTO),LOC('linux'))=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for ');
      ((IMPBYTE(LOC(DTO),0)=0) OR (CCALL strcmp(LOC(DTO),LOC('unknown'))=0) OR (CCALL strcmp(LOC(DTO),LOC('none'))=0)) => OUTSTR('a target with no operating system') ELSE OUTCS(LOC(DTO));
      OUTSTR(' is not supported; use -c to make the object (Linux, FreeBSD, NetBSD, OpenBSD, macOS and Windows with mingw-w64 are linked)'); OUTCHR(12B); RETURN 1);
- STARTS(LOC(DTE),LOC('android'))=1 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for android is not supported (its C library is bionic); use -c to make the object'); OUTCHR(12B); RETURN 1);
+ STARTS(LOC(DTE),LOC('android'))=1 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': linking for android is not supported (its C library is bionic); use -c to make the object'); OUTCHR(12B); RETURN 1);
  AR:=CROSSARCH(LOC(DTA));
- AR=0 => (OUTSTR('imp72: cannot link for '); OUTCS(DTGT); OUTSTR(': no standard dynamic loader is known for the architecture '); OUTCS(LOC(DTA)); OUTSTR(' on Linux; use -c to make the object'); OUTCHR(12B); RETURN 1);
+ AR=0 => (OUTSTR('imp: cannot link for '); OUTCS(DTGT); OUTSTR(': no standard dynamic loader is known for the architecture '); OUTCS(LOC(DTA)); OUTSTR(' on Linux; use -c to make the object'); OUTCHR(12B); RETURN 1);
  SETARCH(AR,LOC(DTE))=0 => RETURN 1;
  SETEMU(AR,LOC(DTE),0);
  STARTS(LOC(DTE),LOC('musl'))=1 => CCALL snprintf(LOC(DLP),4096,LOC('/lib/ld-musl-%s.so.1'),DLM) ELSE CCALL snprintf(LOC(DLP),4096,LOC('%s'),DLG);
@@ -354,7 +354,7 @@ SUBR LNKCROSS(Z) IS (
  OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/lib/%s'),DSYSROOT,TRI); OK:=TRYDIR(LOC(MAD)));
  OK=0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/lib'),DSYSROOT); OK:=TRYDIR(LOC(MAD)));
  OK=0 => RETURN CROSSMSG(1);
- DRUNTIME NE 0 => CCALL snprintf(LOC(LCP),4096,LOC('%s'),DRUNTIME) ELSE CCALL snprintf(LOC(LCP),4096,LOC('%s/libimp72.a'),LOC(LIBD));
+ DRUNTIME NE 0 => CCALL snprintf(LOC(LCP),4096,LOC('%s'),DRUNTIME) ELSE CCALL snprintf(LOC(LCP),4096,LOC('%s/libimp.a'),LOC(LIBD));
  EXISTS(LOC(LCP))=0 => RETURN CROSSMSG(2);
  CCALL snprintf(LOC(CBP),4096,LOC('--sysroot=%s'),DSYSROOT);
  HAVELGC:=0; EMPTYS:=0;                                   # THE BUILTINS OF THE COMPILER (LIBGCC.A: __DIVDI3 AND ITS KIN) OF THE TARGET'S SYSROOT, WHERE THE LIBRARY OF THE RUNTIME HAS NONE: USR/LIB/GCC/TRI/VERSION #
@@ -376,14 +376,14 @@ SUBR ENDS(A,E) IS (
  (CCALL strcmp(A+(LA-LE),E) AND 4294967295)=0 => 1 ELSE 0);
 
 SUBR DRVHELP(Z) IS (
- CCALL puts(LOC('usage: imp72 [options] file.imp ...'));
+ CCALL puts(LOC('usage: imp [options] file.imp ...'));
  CCALL puts(LOC('  -c                 compile to an object file, file.o, and do not link'));
  CCALL puts(LOC('  -S                 compile to the assembly of the target, file.s'));
  CCALL puts(LOC('  -Sir               compile to LLVM IR text, file.ll'));
  CCALL puts(LOC('  -o FILE            name the output (a.out for a program)'));
  CCALL puts(LOC('  --target=TRIPLE    for another system (with -c, -S, -Sir), say aarch64-linux-gnu or riscv64-unknown-linux-musl'));
-CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that system, for its C library (DIR/usr/lib/crt1.o ...); or IMP72SYSROOT'));
- CCALL puts(LOC('  --runtime=FILE     with --target and no -c: the libimp72.a built for that system; or IMP72RUNTIME'));
+CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that system, for its C library (DIR/usr/lib/crt1.o ...); or IMPSYSROOT'));
+ CCALL puts(LOC('  --runtime=FILE     with --target and no -c: the libimp.a built for that system; or IMPRUNTIME'));
  CCALL puts(LOC('  -s LETTERS         the switches of the original compiler (A listing, T tree, ...)'));
  CCALL puts(LOC('  -I IMAGE           start from the compiler saved by /U or /V'));
  CCALL puts(LOC('  -i                 the commands of the original compiler, from the terminal: OBJ,LIST_FILE/switches'));
@@ -395,7 +395,7 @@ CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that s
 SUBR OPTS(Z) IS (
  I,A,V ARE LOCAL;
  DSRCV:=CCALL calloc(NA0+1,8); DOBJI:=CCALL calloc(NA0+1,8); DKV:=CCALL calloc(NA0+1,8); DSYV:=CCALL calloc(NA0+1,8); DNSRC:=0; DNOBJI:=0; DNK:=0; DNSY:=0;
- DSTOP:=170B; DJIT:=0; DINTER:=0; OUTN:=0; DSW:=0; DIMG:=0; DTGT:=0; DSIR:=0; DEMP:=0; DSYSROOT:=ENVOR(LOC('IMP72SYSROOT'),0); DRUNTIME:=ENVOR(LOC('IMP72RUNTIME'),0);
+ DSTOP:=170B; DJIT:=0; DINTER:=0; OUTN:=0; DSW:=0; DIMG:=0; DTGT:=0; DSIR:=0; DEMP:=0; DSYSROOT:=ENVOR(LOC('IMPSYSROOT'),0); DRUNTIME:=ENVOR(LOC('IMPRUNTIME'),0);
  I:=1;
  OP1: I GE NA0 => RETURN 0;
       A:=DARG(I); I:=I+1;
@@ -405,7 +405,7 @@ SUBR OPTS(Z) IS (
       CCALL strcmp(A,LOC('-S'))=0 => (DSTOP:=123B; DSIR:=0; GO TO OP1);
       CCALL strcmp(A,LOC('-Sir'))=0 => (DSTOP:=123B; DSIR:=1; GO TO OP1);
       CCALL strcmp(A,LOC('--run'))=0 => (DJIT:=1; GO TO OP1);
-      CCALL strcmp(A,LOC('--version'))=0 => (CCALL puts(LOC('imp72 0.10.0')); CCALL exit(0));
+      CCALL strcmp(A,LOC('--version'))=0 => (CCALL puts(LOC('imp 0.10.0')); CCALL exit(0));
       ((CCALL strcmp(A,LOC('--help'))=0) OR (CCALL strcmp(A,LOC('-h'))=0)) => (DRVHELP(0); CCALL exit(0));
       STARTS(A,LOC('--target='))=1 => (DTGT:=A+9; GO TO OP1);
       STARTS(A,LOC('--sysroot='))=1 => (DSYSROOT:=A+10; GO TO OP1);
@@ -424,28 +424,28 @@ SUBR OPTS(Z) IS (
           I GE NA0 => GO TO OPM;
           CCALL strcmp(A,LOC('-s'))=0 => DSW:=DARG(I) ELSE DIMG:=DARG(I);
           I:=I+1; GO TO OP1);
-      OUTSTR('imp72: unknown option '); OUTCS(A); OUTCHR(12B); CCALL exit(2);
- OPM: OUTSTR('imp72: missing argument to '); OUTCS(A); OUTCHR(12B); CCALL exit(2);
+      OUTSTR('imp: unknown option '); OUTCS(A); OUTCHR(12B); CCALL exit(2);
+ OPM: OUTSTR('imp: missing argument to '); OUTCS(A); OUTCHR(12B); CCALL exit(2);
  OPF: ((ENDS(A,LOC('.o'))=1) OR (ENDS(A,LOC('.a'))=1) OR (ENDS(A,LOC('.so'))=1)) => (IMPARGSET(DOBJI,DNOBJI,A); DNOBJI:=DNOBJI+1; GO TO OP1);
       IMPARGSET(DKV,DNK,A); DNK:=DNK+1;                                                  # SYNTAX AND SOURCES, IN THE ORDER GIVEN: THE KERNEL READS THEM SO #
       ENDS(A,LOC('.imc'))=1 => (IMPARGSET(DSYV,DNSY,A); DNSY:=DNSY+1; GO TO OP1);         # A FILE OF SYNTAX AND DECLARATIONS (THE TAPE'S /C) #
       IMPARGSET(DSRCV,DNSRC,A); DNSRC:=DNSRC+1;
       GO TO OP1);
 
-# WHERE THE PARTS ARE: THE SOURCE TREE (BUILD/DIR/IMP72D) OR INSTALLED (DIRB, SYNP, FFIP, LIBP, TMPB) #
+# WHERE THE PARTS ARE: THE SOURCE TREE (BUILD/DIR/IMPD) OR INSTALLED (DIRB, SYNP, FFIP, LIBP, TMPB) #
 SUBR SETPATHS(Z) IS (
- EXEDIR(DARG(0))<0 => (OUTSTR('imp72: cannot find myself'); OUTCHR(12B); CCALL exit(1));
+ EXEDIR(DARG(0))<0 => (OUTSTR('imp: cannot find myself'); OUTCHR(12B); CCALL exit(1));
  CCALL snprintf(LOC(ROOT),4096,LOC('%s/..'),LOC(DIRB));
- CCALL snprintf(LOC(SYNP),4096,LOC('%s/share/imp72/syntax64.imc'),LOC(ROOT));
- EXISTS(LOC(SYNP)) NE 0 => (CCALL snprintf(LOC(FFIP),4096,LOC('%s/share/imp72/ffi.imc'),LOC(ROOT));
-                            CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/imp72/libimp72.a'),LOC(ROOT));
+ CCALL snprintf(LOC(SYNP),4096,LOC('%s/share/imp/syntax64.imc'),LOC(ROOT));
+ EXISTS(LOC(SYNP)) NE 0 => (CCALL snprintf(LOC(FFIP),4096,LOC('%s/share/imp/ffi.imc'),LOC(ROOT));
+                            CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/imp/libimp.a'),LOC(ROOT));
                             CCALL snprintf(LOC(TMPB),4096,LOC('/tmp')))                # INSTALLED: THE SYSTEM'S TEMPORARY DIRECTORY #
    ELSE (CCALL snprintf(LOC(SYNP),4096,LOC('%s/../src/llvm-ir/syntax64.imc'),LOC(ROOT));
          CCALL snprintf(LOC(FFIP),4096,LOC('%s/../lib/ffi.imc'),LOC(ROOT));
-         CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/libimp72.a'),LOC(ROOT));
+         CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/libimp.a'),LOC(ROOT));
          CCALL snprintf(LOC(TMPB),4096,LOC('%s/../tmp'),LOC(ROOT)));       # THE TREE'S OWN (GITIGNORED) TMP/ #
  IMPTMPBASE(LOC(TMPB));                           # (TMPDIR, IF IT IS AN ABSOLUTE PATH NAMING A DIRECTORY, ELSE THIS: USED ONLY WHEN A FILE IS NEEDED) #
- OVERRIDE(LOC(SYNP),LOC('IMP72SYNTAX')); OVERRIDE(LOC(FFIP),LOC('IMP72FFI')); OVERRIDE(LOC(LIBP),LOC('IMP72LIB'));
+ OVERRIDE(LOC(SYNP),LOC('IMPSYNTAX')); OVERRIDE(LOC(FFIP),LOC('IMPFFI')); OVERRIDE(LOC(LIBP),LOC('IMPLIB'));
  0);
 
 # THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL: THE KERNEL ALONE, WITH THE SYNTAX, THE FILES NAMED, THEN THE TERMINAL.  NEVER RETURNS #
@@ -453,7 +453,7 @@ SUBR RUNINTER(Z) IS (
  K ARE LOCAL;
  KA:=CCALL calloc((DNK+12),8); KNN:=0;
  QUIET:=1; IMPHOOK:=1;                                 # EACH COMPILATION WRITES ITS OBJECT, THE REL FILE #
- KADD(LOC('imp72s0')); KADD(LOC('-i'));
+ KADD(LOC('imps0')); KADD(LOC('-i'));
  DSW NE 0 => (KADD(LOC('-s')); KADD(DSW));
  DIMG NE 0 => (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));
  K:=0; RI1: K<DNK => (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO RI1);
@@ -466,7 +466,7 @@ SUBR ONEFILE(SRC) IS (
  R,K ARE LOCAL;
  BASEOF(SRC,LOC(BASEN));
  KA:=CCALL calloc(DNK+16,8); KNN:=0;                           # THE KERNEL, IN THIS PROCESS #
- KADD(LOC('imp72s0'));
+ KADD(LOC('imps0'));
  DSW NE 0 => (KADD(LOC('-s')); KADD(DSW); CCALL dup2(2,1)) ELSE QUIET:=1;        # THE DUMPS GO WITH THE MESSAGES #
  DIMG NE 0 => (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));
  K:=0; OK1: K<DNK => (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO OK1);
@@ -522,17 +522,17 @@ SUBR IMPD(Z) IS (
  NA0:=CCALL impargc(0); AV0:=CCALL impargvp(0);
  P:=CCALL strrchr(DARG(0),57B);
  P=0 => P:=DARG(0) ELSE P:=P+1;
- CCALL strncmp(P,LOC('imp72stage'),10)=0 => GO TO DRV;
- CCALL strcmp(P,LOC('imp72'))=0 => GO TO DRV;
- ARGVP:=AV0;                                       # ANOTHER NAME (IMP72D): THE KERNEL ALONE #
+ CCALL strncmp(P,LOC('impstage'),8)=0 => GO TO DRV;
+ CCALL strcmp(P,LOC('imp'))=0 => GO TO DRV;
+ ARGVP:=AV0;                                       # ANOTHER NAME (IMPD): THE KERNEL ALONE #
  CCALL exit(IMPK(NA0,AV0));
  DRV: OPTS(0);
  ((DINTER=0) AND (DNSRC=0) AND (DNOBJI=0)) => (DRVHELP(0); CCALL exit(2));
- ((OUTN NE 0) AND (DSTOP NE 170B) AND (DNSRC>1)) => (OUTSTR('imp72: cannot name the output with more than one source to compile'); OUTCHR(12B); CCALL exit(1));
+ ((OUTN NE 0) AND (DSTOP NE 170B) AND (DNSRC>1)) => (OUTSTR('imp: cannot name the output with more than one source to compile'); OUTCHR(12B); CCALL exit(1));
  SETPATHS(0);
  CCALL snprintf(LOC(DSELFB),4096,LOC('%s/%s'),LOC(DIRB),P);        # THIS PROGRAM, FOR THE ONES IT STARTS #
  DTGT NE 0 => (LLVMTARGET(DTGT) NE 0 => CCALL exit(1);
-              DJIT NE 0 => (OUTSTR('imp72: --run is for this machine, not for '); OUTCS(DTGT); OUTCHR(12B); CCALL exit(1)));
+              DJIT NE 0 => (OUTSTR('imp: --run is for this machine, not for '); OUTCS(DTGT); OUTCHR(12B); CCALL exit(1)));
  DINTER NE 0 => RUNINTER(0);
  DNSRC=0 => (DOBJL:=DOBJI; DNOBJL:=DNOBJI; CCALL exit(LNK(0)));       # ONLY OBJECTS: LINK THEM #
  DNSRC>1 => MULTI(0);

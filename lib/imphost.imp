@@ -224,10 +224,10 @@ SUBR IMPRUNLD(ARGC,ARGV) IS (
              (CCALL strcmp(A1,LOC('arm64pe')) AND 4294967295)=0 => ALT:=LOC('aarch64-w64-mingw32-ld');
              (CCALL strcmp(A1,LOC('thumb2pe')) AND 4294967295)=0 => ALT:=LOC('armv7-w64-mingw32-ld')));
      ALT NE 0 => FINDPROG(ALT) NE 0 => (IMPARGSET(ARGV,0,ALT); A0:=ALT; GO TO RL1);
-     CCALL dprintf(2,LOC('imp72: cannot link: no linker found: %s is not in the PATH or in the bin directory of LLVM%s%c'),A0,
+     CCALL dprintf(2,LOC('imp: cannot link: no linker found: %s is not in the PATH or in the bin directory of LLVM%s%c'),A0,
                    ((CCALL strcmp(A0,LOC('ld.lld')) AND 4294967295)=0 => LOC(', and there is no plain ld in the PATH') ELSE LOC('.')),10);
      RETURN 1);
- RL1: CCALL getenv(LOC('IMP72LDSHOW')) NE 0 => CCALL dprintf(2,LOC('linker: %s%c'),A0,10);
+ RL1: CCALL getenv(LOC('IMPLDSHOW')) NE 0 => CCALL dprintf(2,LOC('linker: %s%c'),A0,10);
  CCALL fflush(0);
  PID:=CCALL fork();
  PID<0 => RETURN 1;
@@ -298,7 +298,7 @@ SUBR IMPTMPBASE(P) IS (CCALL snprintf(LOC(TDDF),4096,LOC('%s'),P); 0);
 # A PRIVATE DIRECTORY IN THE DIRECTORY BASE: 1 IF IT WAS MADE.  IT IS ARMED BEFORE MKDTEMP MAKES IT, SO THAT A SIGNAL IN BETWEEN FINDS IT #
 SUBR TDTRYMK(BASE) IS (
  TDARM:=0;
- CCALL snprintf(LOC(TDTRY),4096,LOC('%s/imp72stage0.XXXXXX'),BASE);
+ CCALL snprintf(LOC(TDTRY),4096,LOC('%s/impstage0.XXXXXX'),BASE);
  TDPID:=CCALL getpid() AND 4294967295; TDLEN:=0; TDKID:=0;
  TDARM:=1;
  CCALL mkdtemp(LOC(TDTRY))=0 => (TDARM:=0; RETURN 0);
@@ -319,11 +319,11 @@ SUBR TDMAKE(Z) IS (
 # THE PATH OF THE FILE NAME IN THE PRIVATE DIRECTORY, WHICH IS MADE IF NEED BE, INTO OUT (4096 BYTES); THE FILE IS REMOVED WITH THE DIRECTORY.  0 IF IT WORKED #
 SUBR IMPTMPPATH(NAME,OUT) IS (
  L,Q ARE LOCAL;
- TDMAKE(0)=0 => (CCALL dprintf(2,LOC('%s%c'),LOC('imp72: cannot make a temporary directory'),10); RETURN 1);
+ TDMAKE(0)=0 => (CCALL dprintf(2,LOC('%s%c'),LOC('imp: cannot make a temporary directory'),10); RETURN 1);
  CCALL snprintf(OUT,4096,LOC('%s/%s'),LOC(TDTRY),NAME);
  L:=CCALL strlen(OUT);
  L:=L+1;
- (TDLEN+L)>65536 => (CCALL dprintf(2,LOC('%s%c'),LOC('imp72: too many temporary files'),10); RETURN 1);
+ (TDLEN+L)>65536 => (CCALL dprintf(2,LOC('%s%c'),LOC('imp: too many temporary files'),10); RETURN 1);
  Q:=LOC(TDLST)+TDLEN;
  CCALL memcpy(Q,OUT,L);
  TDLEN:=TDLEN+L;
@@ -334,10 +334,10 @@ SUBR IMPTMPKID(PID) IS (TDKID:=PID; 0);
 
 SUBR IMPTMPCLEAN(Z) IS (TDCLEAN(0); 0);
 
-# IMP72NOMEMFD SET, AND NOT 0: NO MEMORY FILE #
+# IMPNOMEMFD SET, AND NOT 0: NO MEMORY FILE #
 SUBR TDNOMEMFD(Z) IS (
  V ARE LOCAL;
- V:=CCALL getenv(LOC('IMP72NOMEMFD'));
+ V:=CCALL getenv(LOC('IMPNOMEMFD'));
  V=0 => RETURN 0;
  IMPPEEK(V,1)=0 => RETURN 0;
  IMPPEEK(V,1)=60B => IMPPEEK(V+1,1)=0 => RETURN 0;
@@ -358,7 +358,7 @@ SUBR TDMEMFD(Z) IS (
  (CCALL strcmp(A,LOC('ppc64le')) AND 4294967295)=0 => N:=360;
  (CCALL strcmp(A,LOC('s390x')) AND 4294967295)=0 => N:=350;
  N=0 => RETURN 0-1;
- R:=TDSYSCALL(N,LOC('imp72'),0) AND 4294967295;
+ R:=TDSYSCALL(N,LOC('imp'),0) AND 4294967295;
  R=4294967295 => RETURN 0-1;
  R);
 

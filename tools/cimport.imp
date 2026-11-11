@@ -91,13 +91,13 @@ SUBR WR(P,I,V) IS (
 
 SUBR DIE(M,A) IS (
  NL ARE LOCAL;
- CCALL write(2,'imp72-cimport: ',15); CCALL write(2,M,CCALL strlen(M));
+ CCALL write(2,'imp-cimport: ',15); CCALL write(2,M,CCALL strlen(M));
  A NE 0 => (CCALL write(2,': ',2); CCALL write(2,A,CCALL strlen(A)));
  NL:=CCALL calloc(16,1); PUTB(NL,0,10); CCALL write(2,NL,1); CCALL exit(1));
 
 SUBR WARN(M,A) IS (
  NL ARE LOCAL;
- CCALL write(2,'imp72-cimport: ',15); CCALL write(2,M,CCALL strlen(M));
+ CCALL write(2,'imp-cimport: ',15); CCALL write(2,M,CCALL strlen(M));
  A NE 0 => (CCALL write(2,' ',1); CCALL write(2,A,CCALL strlen(A)));
  NL:=CCALL calloc(16,1); PUTB(NL,0,10); CCALL write(2,NL,1); 0);
 
@@ -260,8 +260,8 @@ SUBR SAFEID(S) IS (
 SUBR USAGE(Z) IS (
  B ARE LOCAL;
  B:=B_NEW(0);
- B_LN(B,LOC('usage: imp72-cimport [-n NAME] [-p PREFIX] [-D MACRO] [-I DIR] [-o FILE] HEADER'));
- B_LN(B,LOC('       imp72-cimport [-n NAME] [-p PREFIX] [-o FILE] -i FILE'));
+ B_LN(B,LOC('usage: imp-cimport [-n NAME] [-p PREFIX] [-D MACRO] [-I DIR] [-o FILE] HEADER'));
+ B_LN(B,LOC('       imp-cimport [-n NAME] [-p PREFIX] [-o FILE] -i FILE'));
  B_LN(B,LOC('  HEADER     a header, as #include <HEADER> names it (cc -E reads it; CC names the compiler)'));
  B_LN(B,LOC('  -i FILE    text that the C preprocessor made (- is the standard input), no cc'));
  B_LN(B,LOC('  -n NAME    declare only this name (function, structure, typedef name, enumerator); repeatable'));

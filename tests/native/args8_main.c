@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "imp72words.h"
+#include "impwords.h"
 word SUM8(word*,word*,word*,word*,word*,word*,word*,word*), VIA(word*);
 int main(void) {
     word a[8] = {1,2,3,4,5,6,7,8}, x = 10;

@@ -1,9 +1,9 @@
-.\" Copyright (c) 2026 The imp72 authors.  ISC licence, see LICENSE.
+.\" Copyright (c) 2026 The imp authors.  ISC licence, see LICENSE.
 .Dd November 3, 2026
-.Dt IMP72STAGE0 1
+.Dt IMPSTAGE0 1
 .Os
 .Sh NAME
-.Nm imp72stage0
+.Nm impstage0
 .Nd the seed compiler for IMP72, written in C
 .Sh SYNOPSIS
 .Nm
@@ -14,7 +14,7 @@
 .Sh DESCRIPTION
 .Nm
 is the seed of the IMP72 compiler
-.Xr imp72 1 :
+.Xr imp 1 :
 a C99 port of the kernel and of the code generator, which builds the stage
 compilers.
 It compiles programs in IMP72, the extensible systems language of Ned Irons as
@@ -33,7 +33,7 @@ It reads the syntax of the language from
 and the C interface from
 .Pa ffi.imc .
 Its code generator writes the same LLVM IR as the code generator of
-.Xr imp72 1
+.Xr imp 1
 for the same program.
 .Pp
 All the files named are compiled together as one program, and the output is
@@ -80,7 +80,7 @@ or
 fails with
 .Ql Symbols not found ;
 a program that calls only C functions runs.
-.Xr imp72 1
+.Xr imp 1
 runs any program.
 .It Fl o Ar output
 Name of the output file.
@@ -104,7 +104,7 @@ the directory of names.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width Ds
-.It Ev IMP72SYNTAX , Ev IMP72FFI , Ev IMP72LIB
+.It Ev IMPSYNTAX , Ev IMPFFI , Ev IMPLIB
 Other files for the syntax, the C interface and the runtime library.
 .It Ev TMPDIR
 The directory for the private directory that holds the object of a program to be linked,
@@ -126,20 +126,20 @@ The directory and its files are deleted on exit and on
 .Dv SIGQUIT
 and
 .Dv SIGTERM .
-.It Ev IMP72NOMEMFD
+.It Ev IMPNOMEMFD
 If set and not
 .Ql 0 ,
 a link on Linux uses the private directory and not an unnamed memory file.
-.It Ev IMP72LDSHOW
+.It Ev IMPLDSHOW
 If set, the arguments of the linker are printed.
 .It Ev SDKROOT
 On macOS, the SDK to link with.
 .El
 .Sh FILES
 .Bl -tag -width Ds
-.It Pa /usr/share/imp72/syntax64.imc
+.It Pa /usr/share/imp/syntax64.imc
 The syntax of IMP72.
-.It Pa /usr/share/imp72/ffi.imc
+.It Pa /usr/share/imp/ffi.imc
 The extension that defines
 .Sy CCALL ,
 .Sy EXTERNAL ,
@@ -147,7 +147,7 @@ The extension that defines
 .Sy FNPTR
 and
 .Sy STRUCT .
-.It Pa /usr/lib/imp72/libimp72.a
+.It Pa /usr/lib/imp/libimp.a
 The runtime library.
 .El
 .Pp
@@ -155,7 +155,7 @@ The seed finds these relative to its own place.
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
-.Xr imp72 1
+.Xr imp 1
 .Sh AUTHORS
 The original IMP72 is by
 .An Walter Bilofsky ;
