@@ -19,31 +19,31 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>lex.imc</h1>
 <p class="mut">left, old (the tape): decus/lex.imc<br>right, new (the port): src/lex.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 19 changed places, 214 tokens deleted, 741 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 20 changed places, 212 tokens deleted, 739 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n d">1</td><td class="c d"><del>#LEX: LEXICAL ANALYZER MODULE FOR IMP COMPILER#</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">2</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
 <tr><td class="n d">4</td><td class="c d"><del>BHEAD,FINAM</del> ARE <del>COMMON;</del></td><td class="n a">2</td><td class="c a"><ins>#LEX: LEXICAL ANALYZER MODULE FOR IMP COMPILER, FOR THE 64 BIT PORT.</ins></td></tr>
 <tr><td class="n d">5</td><td class="c d">C IS <del>REGISTER,</del>RESERVED<del>,SCRATCH</del>;</td><td class="n a">3</td><td class="c a"> <ins>SEE DECUS/LEX.IMC FOR THE ORIGINAL AND DOCS/PORTING/MODULES.MD FOR THE DIFFERENCES.</ins></td></tr>
 <tr><td class="n d">8</td><td class="c d">SUBR LEXIN() IS (</td><td class="n a">4</td><td class="c a"> <ins>A TOKEN IS A RUN OF LETTERS AND DIGITS; A TEXT IN APOSTROPHES (THE TOKEN KEEPS ITS OPENING</ins></td></tr>
-<tr><td class="n d">9</td><td class="c d"> <del>CHAN_OPENIN</del>();</td><td class="n a">5</td><td class="c a"> <ins>APOSTROPHE AND LOSES THE CLOSING ONE; TWO APOSTROPHES</ins> ARE <ins>ONE); A TEXT BETWEEN EXCLAMATION MARKS (THE</ins></td></tr>
-<tr><td class="n d">10</td><td class="c d"> <del>CHAN</del>=0 =&gt; RETURN -1;</td><td class="n a">6</td><td class="c a"> <ins>MARKS ARE DROPPED); OR ONE OTHER NON-BLANK CHARACTER.  BLANKS AND CONTROL CHARACTERS SEPARATE TOKENS;</ins></td></tr>
-<tr><td class="n d">11</td><td class="c d"> LINIT=0=&gt;(LINIT<del>_</del>1;</td><td class="n a">7</td><td class="c a"> <ins>A TEXT BETWEEN NUMBER SIGNS IS A COMMENT.</ins></td></tr>
-<tr><td class="n d">12</td><td class="c d">	LINE<del>_</del>FALLOT('LEXL',20); LLINE<del>_</del>90;</td><td class="n a">8</td><td class="c a"> <ins>THE LINE AND THE TOKEN ARE PACKED, A CHARACTER (A BYTE, UTF-8) TO A BYTE, EIGHT TO A WORD, AND ARE STEPPED THROUGH</ins></td></tr>
-<tr><td class="n d">13</td><td class="c d">	TOKE<del>_</del>FALLOT('LEXT',20); LTOKE<del>_</del>90;</td><td class="n a">9</td><td class="c a"> <ins>WITH BYTE POINTERS AS IN THE ORIGINAL; THE TOKEN IS A NAME OF THE DIRECTORY AS IT IS.  THE FILE IS READ WITH THE</ins> C</td></tr>
-<tr><td class="n d">14</td><td class="c d">	PC<del>_</del>QC<del>_</del>BYTEP FREE(LINE)&lt;7,36&gt;;</td><td class="n a">10</td><td class="c a"> <ins>LIBRARY'S FOPEN AND IMPGETC WHERE THE ORIGINAL READS BUFFERS OF A CHANNEL (OPENIN, INPUT, BHEAD); BYTES OF 128 AND UP</ins></td></tr>
-<tr><td class="n d">15</td><td class="c d">	K0<del>_</del>BYTEP FREE(TOKE)&lt;7,36&gt;);</td><td class="n a">11</td><td class="c a"> <ins>ARE LETTERS, SO THAT A NAME MAY BE IN UTF-8.  THE ARRAYS ARE FILLED THROUGH POINTERS INTO FREE STORAGE, WHICH DOES NOT MOVE</ins></td></tr>
+<tr><td class="n d">9</td><td class="c d"> CHAN<del>_OPENIN</del>();</td><td class="n a">5</td><td class="c a"> <ins>APOSTROPHE AND LOSES THE CLOSING ONE; TWO APOSTROPHES</ins> ARE <ins>ONE); A TEXT BETWEEN EXCLAMATION MARKS (THE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a"> <ins>MARKS ARE DROPPED); OR ONE OTHER NON-BLANK CHARACTER.  BLANKS AND CONTROL CHARACTERS SEPARATE TOKENS;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">7</td><td class="c a"> <ins>A TEXT BETWEEN NUMBER SIGNS IS A COMMENT.</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>THE LINE AND THE TOKEN ARE PACKED, A CHARACTER (A BYTE, UTF-8) TO A BYTE, EIGHT TO A WORD, AND ARE STEPPED THROUGH</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>WITH BYTE POINTERS AS IN THE ORIGINAL; THE TOKEN IS A NAME OF THE DIRECTORY AS IT IS.  THE FILE IS READ WITH THE</ins> C</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>LIBRARY'S FOPEN AND IMPGETC WHERE THE ORIGINAL READS BUFFERS OF A CHANNEL (OPENIN, INPUT, BHEAD); BYTES OF 128 AND UP</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">11</td><td class="c a"> <ins>ARE LETTERS, SO THAT A NAME MAY BE IN UTF-8.  THE ARRAYS ARE FILLED THROUGH POINTERS INTO FREE STORAGE, WHICH DOES NOT MOVE</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">12</td><td class="c a"> <ins>(SEE CORE IN FREE).  C</ins> IS <ins>AN ORDINARY VARIABLE OF THE MODULE, WHERE THE ORIGINAL KEEPS IT IN A</ins> RESERVED <ins>REGISTER. #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">14</td><td class="c a"><ins>FINAM IS COMMON</ins>;</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">17</td><td class="c a">SUBR LEXIN(<ins>NAME</ins>) IS (</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> <ins>SRCFP NE 0 =&gt; CCALL impfclose</ins>(<ins>SRCFP</ins>);</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>SRCFP:=CCALL fopen(NAME,LOC('r'));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">20</td><td class="c a"> <ins>SRCFP</ins>=0 =&gt; RETURN -1;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">21</td><td class="c a"> LINIT=0=&gt;(LINIT<ins>:=</ins>1;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">22</td><td class="c a">	LINE<ins>:=</ins>FALLOT('LEXL',20); LLINE<ins>:=</ins>90;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">23</td><td class="c a">	TOKE<ins>:=</ins>FALLOT('LEXT',20); LTOKE<ins>:=</ins>90;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">24</td><td class="c a">	PC<ins>:=</ins>QC<ins>:=</ins>BYTEP FREE(LINE)&lt;7,36&gt;;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">25</td><td class="c a">	K0<ins>:=</ins>BYTEP FREE(TOKE)&lt;7,36&gt;);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">18</td><td class="c a"> CHAN <ins>NE 0 =&gt; CCALL impfclose</ins>(<ins>CHAN);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">19</td><td class="c a"> <ins>CHAN:=CCALL fopen(NAME,LOC('r')</ins>);</td></tr>
+<tr><td class="n q">10</td><td class="c q"> CHAN=0 =&gt; RETURN -1;</td><td class="n q">20</td><td class="c q"> CHAN=0 =&gt; RETURN -1;</td></tr>
+<tr><td class="n d">11</td><td class="c d"> LINIT=0=&gt;(LINIT<del>_</del>1;</td><td class="n a">21</td><td class="c a"> LINIT=0=&gt;(LINIT<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">12</td><td class="c d">	LINE<del>_</del>FALLOT('LEXL',20); LLINE<del>_</del>90;</td><td class="n a">22</td><td class="c a">	LINE<ins>:=</ins>FALLOT('LEXL',20); LLINE<ins>:=</ins>90;</td></tr>
+<tr><td class="n d">13</td><td class="c d">	TOKE<del>_</del>FALLOT('LEXT',20); LTOKE<del>_</del>90;</td><td class="n a">23</td><td class="c a">	TOKE<ins>:=</ins>FALLOT('LEXT',20); LTOKE<ins>:=</ins>90;</td></tr>
+<tr><td class="n d">14</td><td class="c d">	PC<del>_</del>QC<del>_</del>BYTEP FREE(LINE)&lt;7,36&gt;;</td><td class="n a">24</td><td class="c a">	PC<ins>:=</ins>QC<ins>:=</ins>BYTEP FREE(LINE)&lt;7,36&gt;;</td></tr>
+<tr><td class="n d">15</td><td class="c d">	K0<del>_</del>BYTEP FREE(TOKE)&lt;7,36&gt;);</td><td class="n a">25</td><td class="c a">	K0<ins>:=</ins>BYTEP FREE(TOKE)&lt;7,36&gt;);</td></tr>
 <tr><td class="n q">16</td><td class="c q"> FREES(LINE,0);</td><td class="n q">26</td><td class="c q"> FREES(LINE,0);</td></tr>
 <tr><td class="n d">17</td><td class="c d"> PCT<del>_</del>0);</td><td class="n a">27</td><td class="c a"> <ins>PC:=QC; SKIP:=0;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">28</td><td class="c a"> PCT<ins>:=</ins>0);</td></tr>
@@ -83,7 +83,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">54</td><td class="c d">         GCHRS: (<del>BHEAD[2]_BHEAD[2]-1) LE 0 =&gt; INPUT(CHAN) =&gt;</del></td><td class="n a">66</td><td class="c a">         GCHRS: (ILINE<ins>:=</ins>ILINE+1) GE LLINE=&gt;(</td></tr>
 <tr><td class="n d">55</td><td class="c d">                            <del>ERROR(0,'PREMATURE END OF INPUT FILE');</del></td><td class="n a">67</td><td class="c a">		LINE<ins>:=</ins>FALLOT(OTOKE<ins>:=</ins>LINE,(<ins>17</ins>+LLINE<ins>:=</ins>LLINE+50)/<ins>8</ins>);</td></tr>
 <tr><td class="n d">56</td><td class="c d">	 <del>(</del>ILINE<del>_</del>ILINE+1) GE LLINE=&gt;(</td><td class="n a">68</td><td class="c a">		PC<ins>:=</ins>PC-<ins>8*(</ins>OTOKE<ins>:=</ins>OTOKE-LINE<ins>)</ins>; QC<ins>:=</ins>QC-<ins>8*</ins>OTOKE);</td></tr>
-<tr><td class="n d">57</td><td class="c d">		LINE<del>_</del>FALLOT(OTOKE<del>_</del>LINE,(<del>10</del>+LLINE<del>_</del>LLINE+50)/<del>5</del>);</td><td class="n a">69</td><td class="c a">         C<ins>:=IMPGETC(SRCFP);</ins></td></tr>
+<tr><td class="n d">57</td><td class="c d">		LINE<del>_</del>FALLOT(OTOKE<del>_</del>LINE,(<del>10</del>+LLINE<del>_</del>LLINE+50)/<del>5</del>);</td><td class="n a">69</td><td class="c a">         C<ins>:=IMPGETC(CHAN);</ins></td></tr>
 <tr><td class="n d">58</td><td class="c d">		PC<del>_</del>PC-OTOKE<del>_</del>OTOKE-LINE; QC<del>_</del>QC-OTOKE);</td><td class="n a">70</td><td class="c a">         <ins>C</ins>&lt;<ins>0 =&gt; ERROR(0,'PREMATURE END OF INPUT FILE')</ins>;</td></tr>
 <tr><td class="n d">59</td><td class="c d">         C<del>_</del>&lt;<del>+BHEAD[1]&gt;</del>;</td><td class="n a">71</td><td class="c a">	 C NE 12B=&gt;(C=&gt;&lt;+PC&gt;<ins>:=</ins>C;</td></tr>
 <tr><td class="n d">60</td><td class="c d">	 C NE 12B=&gt;(C=&gt;&lt;+PC&gt;<del>_</del>C;</td><td class="n a">72</td><td class="c a">	         C=<ins>CODE(</ins>'('<ins>)</ins> =&gt; PCT<ins>:=</ins>PCT+1;</td></tr>

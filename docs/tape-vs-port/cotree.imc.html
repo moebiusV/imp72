@@ -19,7 +19,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>cotree.imc</h1>
 <p class="mut">left, old (the tape): decus/cotree.imc<br>right, new (the port): src/cotree.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 29 changed places, 818 tokens deleted, 349 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 32 changed places, 812 tokens deleted, 343 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n d">1</td><td class="c d">TWOSEG; #<del>&lt;EXP&gt;::=TR::="0";&lt;EXP&gt;::=TRM::="0";#</del></td><td class="n a">1</td><td class="c a">TWOSEG;</td></tr>
 <tr><td class="n d">3</td><td class="c d"><del>#</del>THIS IS FILE <del>COTREE.I10,</del> SEMANTIC STACK REDUCER FOR IMP <del>COMPILERS.</del></td><td class="n a">3</td><td class="c a">#THIS IS FILE <ins>COTREE,</ins> SEMANTIC STACK REDUCER FOR IMP <ins>COMPILERS, FOR THE 64 BIT PORT.</ins></td></tr>
@@ -39,7 +39,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">16</td><td class="c d">   <del>IS FOUND.</del>  (COTREE(0) INITIALIZES CODE STACK.)</td><td class="n a">21</td><td class="c a"><ins>CS,NCS,ENTRIES,PRIO,DEMON,MAXIE,NMAXIE,NC ARE</ins> COMMON;</td></tr>
 <tr><td class="n d">18</td><td class="c d"> <del>THE FORMAT OF</del> A STACK ENTRY <del>(EITHER CODE</del> OR SEMANTICS) IS <del>:</del></td><td class="n a">23</td><td class="c a">SUBR COTREE(SS) IS (S<ins>:=</ins>SS;</td></tr>
 <tr><td class="n d">20</td><td class="c d">    WORD 1  <del>BITS 35-18</del>  DI  USUALLY A DIRECTORY INDEX</td><td class="n a">24</td><td class="c a"> FINAM IS COMMON; TR<ins>:=</ins>FINAM[5] AND 110000B; TRM<ins>:=</ins>FINAM[5] AND 10000B;</td></tr>
-<tr><td class="n d">21</td><td class="c d">            BITS 7-6    AR  0=NO TYPE ASSIGNED, 1=INTEGER, <del>2=REAL.</del></td><td class="n a">25</td><td class="c a"> <ins>CINIT</ins>=0=&gt;(<ins>CINIT:=</ins>1; PRIO<ins>:=</ins>1;</td></tr>
+<tr><td class="n d">21</td><td class="c d">            BITS 7-6    AR  0=NO TYPE ASSIGNED, 1=INTEGER, <del>2=REAL.</del></td><td class="n a">25</td><td class="c a"> INIT=0=&gt;(INIT<ins>:=</ins>1; PRIO<ins>:=</ins>1;</td></tr>
 <tr><td class="n d">22</td><td class="c d">            BITS 5-0    TY  TYPE OF <del>NODE.  SEE BELOW.</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">23</td><td class="c d">    WORD 2              VAL VALUE ASSOCIATED WITH <del>NODE.</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">24</td><td class="c d">    WORD 3  <del>BITS 35-18</del>  CB  POINTER TO BEGINNING OF ASSOCIATED CODE</td><td class="n e"></td><td class="c e"></td></tr>
@@ -87,12 +87,12 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">81</td><td class="c d"><del>TORG IS</del> COMMON;</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">85</td><td class="c d">SUBR COTREE(SS) IS (S<del>_</del>SS;</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">86</td><td class="c d"> FINAM IS COMMON; TR<del>_</del>FINAM[5] AND 110000B; TRM<del>_</del>FINAM[5] AND 10000B;</td><td class="n e"></td><td class="c e"></td></tr>
-<tr><td class="n d">87</td><td class="c d"> <del>INIT</del>=0=&gt;(<del>INIT_</del>1; PRIO<del>_</del>1;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">87</td><td class="c d"> INIT=0=&gt;(INIT<del>_</del>1; PRIO<del>_</del>1;</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">88</td><td class="c q">          DSEM('MAXWELL',MAXWELL);</td><td class="n q">26</td><td class="c q">          DSEM('MAXWELL',MAXWELL);</td></tr>
 <tr><td class="n q">89</td><td class="c q">          DSEM('MAXEND',MAXEND);</td><td class="n q">27</td><td class="c q">          DSEM('MAXEND',MAXEND);</td></tr>
 <tr><td class="n q">90</td><td class="c q">          DSEM('SETPRI',SETPRI);</td><td class="n q">28</td><td class="c q">          DSEM('SETPRI',SETPRI);</td></tr>
 <tr><td class="n d">91</td><td class="c d">          FRELOT(CS,'COSTK',90,0); NCS<del>_CTT_</del>0;</td><td class="n a">29</td><td class="c a">          FRELOT(CS,'COSTK',90,0); NCS<ins>:=</ins>0;</td></tr>
-<tr><td class="n d">92</td><td class="c d">          FRELOT(<del>ST</del>,'COST2',15,0));</td><td class="n a">30</td><td class="c a">          FRELOT(<ins>CST</ins>,'COST2',15,0));</td></tr>
+<tr><td class="n q">92</td><td class="c q">          FRELOT(ST,'COST2',15,0));</td><td class="n q">30</td><td class="c q">          FRELOT(ST,'COST2',15,0));</td></tr>
 <tr><td class="n d">93</td><td class="c d"> S=0 =&gt; (NCS<del>_</del>0; GO TO COTREX); #INITIALIZE#</td><td class="n a">31</td><td class="c a"> S=0 =&gt; (NCS<ins>:=</ins>0; GO TO COTREX); #INITIALIZE#</td></tr>
 <tr><td class="n q">94</td><td class="c q"> S=1 =&gt; GO TO COTREX; #DUMMY PRODUCTION NO#</td><td class="n q">32</td><td class="c q"> S=1 =&gt; GO TO COTREX; #DUMMY PRODUCTION NO#</td></tr>
 <tr><td class="n d">96</td><td class="c d"> IMMED<del>_</del>0; S&gt;0 =&gt; IMMED<del>_</del>SEMED(S);</td><td class="n a">34</td><td class="c a"> IMMED<ins>:=</ins>0; S&gt;0 =&gt; IMMED<ins>:=</ins>SEMED(S);</td></tr>
@@ -147,12 +147,12 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">150</td><td class="c d">			      (77B AND J<del>_</del>FREE(CS+IM))=0=&gt;</td><td class="n a">90</td><td class="c a">                              (77B AND <ins>(</ins>J<ins>:=</ins>FREE(CS+IM))<ins>)</ins>=0=&gt;</td></tr>
 <tr><td class="n d">151</td><td class="c d">				(SNONR<del>_</del>SNODEN(S<del>_J&lt;L&gt;</del>); IP<del>_</del>IM);</td><td class="n a">91</td><td class="c a">                                (<ins>S:=HLEFT(J);</ins> SNONR<ins>:=</ins>SNODEN(S); IP<ins>:=</ins>IM);</td></tr>
 <tr><td class="n d">152</td><td class="c d">			      IM<del>_</del>IM-3;</td><td class="n a">92</td><td class="c a">                              IM<ins>:=</ins>IM-3;</td></tr>
-<tr><td class="n d">153</td><td class="c d">                              NODE<del>_</del>FREE(<del>ST</del>+NST) <del>AND 777777B</del>;</td><td class="n a">93</td><td class="c a">                              NODE<ins>:=HRIGHT(</ins>FREE(<ins>CST</ins>+NST)<ins>)</ins>;</td></tr>
+<tr><td class="n d">153</td><td class="c d">                              NODE<del>_</del>FREE(ST+NST) <del>AND 777777B</del>;</td><td class="n a">93</td><td class="c a">                              NODE<ins>:=HRIGHT(</ins>FREE(ST+NST)<ins>)</ins>;</td></tr>
 <tr><td class="n q">154</td><td class="c q">                              GO TO TRYALT);</td><td class="n q">94</td><td class="c q">                              GO TO TRYALT);</td></tr>
 <tr><td class="n q">155</td><td class="c q">                        GO TO NXST);</td><td class="n q">95</td><td class="c q">                        GO TO NXST);</td></tr>
 <tr><td class="n d">156</td><td class="c d">        J&lt;0 =&gt; ((T<del>_</del>TSCR(NODE)) =&gt; (#MARK VAL/ NODE READ AS ORIG PRODN#</td><td class="n a">96</td><td class="c a">        J&lt;0 =&gt; ((T<ins>:=</ins>TSCR(NODE)) =&gt; (#MARK VAL/ NODE READ AS ORIG PRODN#</td></tr>
 <tr><td class="n d">157</td><td class="c d">                                   J=-2=&gt;NODE<del>_</del>NODE OR <del>400000000000B</del>;</td><td class="n a">97</td><td class="c a">                                   J=-2=&gt;NODE<ins>:=</ins>NODE OR <ins>(1 LS 63)</ins>;</td></tr>
-<tr><td class="n d">158</td><td class="c d">                                   FADD(<del>ST</del>,NST,NODE);</td><td class="n a">98</td><td class="c a">                                   FADD(<ins>CST</ins>,NST,NODE);</td></tr>
+<tr><td class="n q">158</td><td class="c q">                                   FADD(ST,NST,NODE);</td><td class="n q">98</td><td class="c q">                                   FADD(ST,NST,NODE);</td></tr>
 <tr><td class="n d">159</td><td class="c d">                                   IM<del>_</del>IM+3;</td><td class="n a">99</td><td class="c a">                                   IM<ins>:=</ins>IM+3;</td></tr>
 <tr><td class="n d">160</td><td class="c d">                                   NODE<del>_</del>T; GO TO TRYON)</td><td class="n a">100</td><td class="c a">                                   NODE<ins>:=</ins>T; GO TO TRYON)</td></tr>
 <tr><td class="n q">161</td><td class="c q">                              ELSE GO TO TRYALT);</td><td class="n q">101</td><td class="c q">                              ELSE GO TO TRYALT);</td></tr>
@@ -161,10 +161,10 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">165</td><td class="c d"> L1: IC<del>_</del>IC+3; L<del>_</del>STINIT(<del>IC-NC</del>); LL<del>_</del>0;</td><td class="n a">105</td><td class="c a"> L1: IC<ins>:=</ins>IC+3; L<ins>:=</ins>STINIT(<ins>0</ins>); LL<ins>:=</ins>0;</td></tr>
 <tr><td class="n d">166</td><td class="c d">     ((<del>[</del>K<del>_</del>CS+I<del>]</del> AND 77B)=0 =&gt; (#IGNORE PRODNS UNLESS THEY ARE VAL/ ARGUMENTS#</td><td class="n a">106</td><td class="c a">     ((K<ins>:=</ins>CS+I<ins>;</ins></td></tr>
 <tr><td class="n d">167</td><td class="c d">                               <del>[</del>K+1<del>]</del>=0=&gt;GO TO IGN;</td><td class="n a">107</td><td class="c a">       <ins>(FREE(K)</ins> AND 77B)=0 =&gt; (#IGNORE PRODNS UNLESS THEY ARE VAL/ ARGUMENTS#</td></tr>
-<tr><td class="n d">168</td><td class="c d">                               FREE(<del>ST</del>+(I-NC)/3)&lt;0=&gt;GO TO IGN);</td><td class="n a">108</td><td class="c a">                               <ins>FREE(</ins>K+1<ins>)</ins>=0=&gt;GO TO IGN;</td></tr>
-<tr><td class="n d">169</td><td class="c d">      <del>[</del>L<del>]_[</del>K<del>]</del>; <del>[</del>L+1<del>]_[</del>K+1<del>]</del>; <del>[</del>L+2<del>]_[</del>K+2<del>]</del>;</td><td class="n a">109</td><td class="c a">                               FREE(<ins>CST</ins>+(I-NC)/3)&lt;0=&gt;GO TO IGN);</td></tr>
-<tr><td class="n d">170</td><td class="c d">      L<del>_</del>L+3; LL<del>_</del>LL-1; IGN: 0) FOR I IN NC,3,IC-3;</td><td class="n a">110</td><td class="c a">      <ins>FREES(</ins>L<ins>,FREE(</ins>K<ins>))</ins>; <ins>FREES(</ins>L+1<ins>,FREE(</ins>K+1<ins>))</ins>; <ins>FREES(</ins>L+2<ins>,FREE(</ins>K+2<ins>))</ins>;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">111</td><td class="c a">      L<ins>:=</ins>L+3; LL<ins>:=</ins>LL-1; IGN: 0<ins>)</ins>) FOR I IN NC,3,IC-3;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">108</td><td class="c a">                               <ins>FREE(</ins>K+1<ins>)</ins>=0=&gt;GO TO IGN;</td></tr>
+<tr><td class="n q">168</td><td class="c q">                               FREE(ST+(I-NC)/3)&lt;0=&gt;GO TO IGN);</td><td class="n q">109</td><td class="c q">                               FREE(ST+(I-NC)/3)&lt;0=&gt;GO TO IGN);</td></tr>
+<tr><td class="n d">169</td><td class="c d">      <del>[</del>L<del>]_[</del>K<del>]</del>; <del>[</del>L+1<del>]_[</del>K+1<del>]</del>; <del>[</del>L+2<del>]_[</del>K+2<del>]</del>;</td><td class="n a">110</td><td class="c a">      <ins>FREES(</ins>L<ins>,FREE(</ins>K<ins>))</ins>; <ins>FREES(</ins>L+1<ins>,FREE(</ins>K+1<ins>))</ins>; <ins>FREES(</ins>L+2<ins>,FREE(</ins>K+2<ins>))</ins>;</td></tr>
+<tr><td class="n d">170</td><td class="c d">      L<del>_</del>L+3; LL<del>_</del>LL-1; IGN: 0) FOR I IN NC,3,IC-3;</td><td class="n a">111</td><td class="c a">      L<ins>:=</ins>L+3; LL<ins>:=</ins>LL-1; IGN: 0<ins>)</ins>) FOR I IN NC,3,IC-3;</td></tr>
 <tr><td class="n q">171</td><td class="c q">     STPOP(LL);</td><td class="n q">112</td><td class="c q">     STPOP(LL);</td></tr>
 <tr><td class="n d">173</td><td class="c d"> ENTRIES<del>_</del>0<del>;</del></td><td class="n a">114</td><td class="c a"> ENTRIES<ins>:=</ins>0;</td></tr>
 <tr><td class="n d">174</td><td class="c d"> <del>FLAG'Z'=&gt;CTT_CTT-1+CALLI(27B,0)</del>;</td><td class="n e"></td><td class="c e"></td></tr>

@@ -19,7 +19,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>parse.imc</h1>
 <p class="mut">left, old (the tape): decus/parse.imc<br>right, new (the port): src/parse.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 38 changed places, 299 tokens deleted, 329 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 38 changed places, 297 tokens deleted, 327 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
 <tr><td class="n q">2</td><td class="c q"># PARSE:  THE IRONS FAST MULTI-TRACK PARSER WITH MODIFICATIONS,</td><td class="n q">2</td><td class="c q"># PARSE:  THE IRONS FAST MULTI-TRACK PARSER WITH MODIFICATIONS,</td></tr>
@@ -52,7 +52,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">31</td><td class="c d">FINAM IS COMMON; TR<del>_</del>FINAM[5] AND 100B;</td><td class="n a">37</td><td class="c a">FINAM IS COMMON; TR<ins>:=</ins>FINAM[5] AND 100B;</td></tr>
 <tr><td class="n d">32</td><td class="c d"> PSTS<del>_</del>PSPN<del>_</del>PSPNT<del>_</del>PSPS<del>_</del>PSPST<del>_</del>PSOS<del>_</del>AMTIME<del>_</del>0;</td><td class="n a">38</td><td class="c a"> PSTS<ins>:=</ins>PSPN<ins>:=</ins>PSPNT<ins>:=</ins>PSPS<ins>:=</ins>PSPST<ins>:=</ins>PSOS<ins>:=</ins>AMTIME<ins>:=</ins>0;</td></tr>
 <tr><td class="n d">33</td><td class="c d"> PSTT<del>_</del>-CALLI(27B,0); SRTT<del>_</del>0;</td><td class="n a">39</td><td class="c a"> PSTT<ins>:=</ins>-CALLI(27B,0); SRTT<ins>:=</ins>0;</td></tr>
-<tr><td class="n d">34</td><td class="c d"> <del>INIT</del>=0=&gt;(<del>INIT_</del>1;</td><td class="n a">40</td><td class="c a"> <ins>PINIT</ins>=0=&gt;(<ins>PINIT:=</ins>1;</td></tr>
+<tr><td class="n d">34</td><td class="c d"> INIT=0=&gt;(INIT<del>_</del>1;</td><td class="n a">40</td><td class="c a"> INIT=0=&gt;(INIT<ins>:=</ins>1;</td></tr>
 <tr><td class="n d">35</td><td class="c d">          P<del>_</del>FALLOT('P/P',400);</td><td class="n a">41</td><td class="c a">          P<ins>:=</ins>FALLOT('P/P',400);</td></tr>
 <tr><td class="n d">36</td><td class="c d">          PP<del>_</del>FALLOT('P/PP',150);</td><td class="n a">42</td><td class="c a">          PP<ins>:=</ins>FALLOT('P/PP',150);</td></tr>
 <tr><td class="n q">37</td><td class="c q">          FRELOT(O,'P/OUT',100,0));</td><td class="n q">43</td><td class="c q">          FRELOT(O,'P/OUT',100,0));</td></tr>
@@ -204,7 +204,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">189</td><td class="c d"> Q<del>_[KQ]</del> RS <del>18</del>; <del>HRL</del>(<del>[KQ]</del>,NO);</td><td class="n a">194</td><td class="c a"> FADD(O,NO,Q OR <ins>(</ins>VV LS <ins>HSHIFT)</ins>));</td></tr>
 <tr><td class="n d">190</td><td class="c d"> FADD(O,NO,Q OR VV LS <del>18</del>));</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">192</td><td class="c q">SUBR PARSEF() IS (</td><td class="n q">196</td><td class="c q">SUBR PARSEF() IS (</td></tr>
-<tr><td class="n d">193</td><td class="c d"> FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0));</td><td class="n a">197</td><td class="c a"> FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0)<ins>; PINIT:=0</ins>);</td></tr>
+<tr><td class="n d">193</td><td class="c d"> FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0));</td><td class="n a">197</td><td class="c a"> FALLOT(PP,0); FALLOT(P,0); FALLOT(O,0)<ins>; INIT:=0</ins>);</td></tr>
 <tr><td class="n d">195</td><td class="c d">SUBR PSTATS() IS (<del>SRTT_SRTT-ASTIME(0);</del></td><td class="n a">199</td><td class="c a">SUBR PSTATS(<ins>NIL</ins>) IS (</td></tr>
 <tr><td class="n d">196</td><td class="c d"> PRINT STG 0,'PARSE TIME ',IGR 0,PSTT,STG 0,' MSEC., ', IGR 0,</td><td class="n a">200</td><td class="c a"> PRINT STG 0,'PARSE TIME ',IGR 0,PSTT,STG 0,' MSEC., ',IGR 0,PSTS,STG 0,' INPUT SYMBOLS.',/<ins>,</ins></td></tr>
 <tr><td class="n d">197</td><td class="c d">    PSTS,STG 0,' INPUT SYMBOLS.',/,'   MAX. PARSE BRANCHING ',</td><td class="n a">201</td><td class="c a">       <ins>STG 0</ins>,'   MAX. PARSE BRANCHING ',IGR 0,PSPNT,STG 0,'/',IGR 0,PSPN,/,</td></tr>

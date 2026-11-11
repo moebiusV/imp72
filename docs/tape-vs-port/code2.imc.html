@@ -19,7 +19,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>code2.imc</h1>
 <p class="mut">left, old (the tape): decus/code2.imc<br>right, new (the port): src/code2.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 35 changed places, 1311 tokens deleted, 2067 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 39 changed places, 1390 tokens deleted, 2146 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n d">1</td><td class="c d"><del># THIS IS FILE CODE2, HOLDING OVERFLOW FROM FILE CODE, Q.V. FOR DOCUMENTATION #</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">3</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
@@ -143,10 +143,10 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">73</td><td class="c d"> <del>ADDCODE(</del>S<del>,204000000000B,0)</del>;</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n d">74</td><td class="c d"> <del>HOOK(S,T,S));</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">76</td><td class="c q">SUBR SUBRCALL(T) IS (</td><td class="n q">123</td><td class="c q">SUBR SUBRCALL(T) IS (</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a"> <ins>TT,DD,J ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">124</td><td class="c a"> <ins>TT,DSE,J ARE LOCAL;</ins></td></tr>
 <tr><td class="n q">77</td><td class="c q"> SUBPR0(0);</td><td class="n q">125</td><td class="c q"> SUBPR0(0);</td></tr>
-<tr><td class="n d">78</td><td class="c d"> TT<del>_</del>FREE(T); <del>DSE_</del>TT <del>RS 18</del>;</td><td class="n a">126</td><td class="c a"> TT<ins>:=</ins>FREE(T); <ins>DD:=HLEFT(</ins>TT<ins>)</ins>;</td></tr>
-<tr><td class="n d">79</td><td class="c d"> DPROP('COM',<del>DSE</del>) <del>NE</del> 2=&gt;DPROPS('COM',<del>DSE</del>,1);</td><td class="n a">127</td><td class="c a"> DPROP('COM',<ins>DD</ins>)<ins>&lt;</ins>2 =&gt; DPROPS('COM',<ins>DD</ins>,1);</td></tr>
+<tr><td class="n d">78</td><td class="c d"> TT<del>_</del>FREE(T); DSE<del>_</del>TT <del>RS 18</del>;</td><td class="n a">126</td><td class="c a"> TT<ins>:=</ins>FREE(T); DSE<ins>:=HLEFT(</ins>TT<ins>)</ins>;</td></tr>
+<tr><td class="n d">79</td><td class="c d"> DPROP('COM',DSE) <del>NE</del> 2=&gt;DPROPS('COM',DSE,1);</td><td class="n a">127</td><td class="c a"> DPROP('COM',DSE)<ins>&lt;</ins>2 =&gt; DPROPS('COM',DSE,1);</td></tr>
 <tr><td class="n d">80</td><td class="c d"> <del>DEWOP</del>(<del>266B</del>,<del>AREG</del>(<del>16B</del>),<del>DEWFUN</del>(T<del>,</del>1,<del>15B</del>)<del>)</del>;</td><td class="n a">128</td><td class="c a"> <ins>ADDCODE</ins>(<ins>T</ins>,<ins>KOP,OCALLB,0,FREE</ins>(<ins>T</ins>),<ins>FREE</ins>(T<ins>+</ins>1<ins>)</ins>,<ins>0</ins>);</td></tr>
 <tr><td class="n d">81</td><td class="c d"> <del>TT_FREE</del>(<del>T</del>); FREES(T,2 OR TT AND NOT 77B)<del>;</del></td><td class="n a">129</td><td class="c a"> <ins>J:=AREG1</ins>(<ins>140B,0</ins>);</td></tr>
 <tr><td class="n d">82</td><td class="c d"> <del>J_AREG1(140B,0</del>); FREES(T+1,J LS <del>18</del>);</td><td class="n a">130</td><td class="c a"> FREES(T,<ins>(</ins>2 OR <ins>(</ins>TT AND <ins>(</ins>NOT 77B))<ins>))</ins>;</td></tr>
@@ -279,21 +279,29 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">214</td><td class="c a"><ins># DATAST(B): CONSTANT WORDS FOR A DATA STATEMENT #</ins></td></tr>
 <tr><td class="n q">199</td><td class="c q">SUBR DATAST(B) IS (</td><td class="n q">215</td><td class="c q">SUBR DATAST(B) IS (</td></tr>
 <tr><td class="n d">200</td><td class="c d"> A<del>_</del>ENSTACK(DIR('0'));  FREES(A,4 OR FREE(A) AND NOT 77B);</td><td class="n a">216</td><td class="c a"> A<ins>,I,J,K ARE LOCAL;</ins></td></tr>
-<tr><td class="n d">201</td><td class="c d"> <del>L6</del>: GETLIST(B)=&gt;(FREE(B+2)=&gt;(</td><td class="n a">217</td><td class="c a"> <ins>A:=</ins>ENSTACK(DIR('0'));</td></tr>
+<tr><td class="n d">201</td><td class="c d"> L6: GETLIST(B)=&gt;(FREE(B+2)=&gt;(</td><td class="n a">217</td><td class="c a"> <ins>A:=</ins>ENSTACK(DIR('0'));</td></tr>
 <tr><td class="n d">202</td><td class="c d">			ERROR(1,'NON-CONSTANT EXPRESSION IN DATA STATEMENT.');</td><td class="n a">218</td><td class="c a"> FREES(A,<ins>((</ins>4 OR <ins>(</ins>FREE(A) AND <ins>(</ins>NOT 77B)<ins>))))</ins>;</td></tr>
-<tr><td class="n d">203</td><td class="c d">			GO TO <del>L6</del>);</td><td class="n a">219</td><td class="c a"> <ins>DS1</ins>: GETLIST(B) =&gt; (</td></tr>
-<tr><td class="n d">204</td><td class="c d">		I<del>_</del>FREE(B);</td><td class="n a">220</td><td class="c a">        FREE(B+2) =&gt; (ERROR(1,'NON-CONSTANT EXPRESSION IN DATA STATEMENT.'); GO TO <ins>DS1</ins>);</td></tr>
-<tr><td class="n d">205</td><td class="c d">		I&lt;6,0&gt;=4=&gt;I<del>&lt;L&gt;</del>=0=&gt;(ADDCODE(A,<del>600000000000B</del>,FREE(B+1));</td><td class="n a">221</td><td class="c a">        I<ins>:=</ins>FREE(B);</td></tr>
-<tr><td class="n d">206</td><td class="c d">			GO TO <del>L6</del>);</td><td class="n a">222</td><td class="c a">        I&lt;6,0&gt;=4 =&gt; <ins>HLEFT(</ins>I<ins>)</ins>=0 =&gt; (ADDCODE(A,<ins>KWORD</ins>,<ins>0,0,0,</ins>FREE(B+1)<ins>,0</ins>); GO TO <ins>DS1</ins>);</td></tr>
-<tr><td class="n d">207</td><td class="c d">		I<del>_</del>I<del>&lt;L&gt;</del>;</td><td class="n a">223</td><td class="c a">        I<ins>:=HLEFT(</ins>I<ins>)</ins>;</td></tr>
-<tr><td class="n d">208</td><td class="c d">                  (J<del>_</del>CONVC(I))=&gt;(J&lt;0=&gt;(ADDCODE(A,<del>600000000000B</del>,CONST);</td><td class="n a">224</td><td class="c a">        (J<ins>:=</ins>CONVC(I)) <ins>NE 0</ins> =&gt; (J&lt;0 =&gt; (ADDCODE(A,<ins>KWORD</ins>,<ins>0,0,0,</ins>CONST<ins>,0</ins>); GO TO <ins>DS1</ins>);</td></tr>
-<tr><td class="n d">209</td><td class="c d">                                       GO TO <del>L6</del>);</td><td class="n a">225</td><td class="c a">                              I<ins>:=</ins>FREE(J);</td></tr>
-<tr><td class="n d">210</td><td class="c d">                                 I<del>_</del>FREE(J);</td><td class="n a">226</td><td class="c a">                              ADDCODE(A,<ins>KWORD</ins>,<ins>0,0,0,</ins>FREE(J+K)<ins>,0</ins>) FOR K IN 1,1,I;</td></tr>
-<tr><td class="n d">211</td><td class="c d">                                 ADDCODE(A,<del>600000000000B</del>,FREE(J+K))</td><td class="n a">227</td><td class="c a">                              GO TO <ins>DS1</ins>);</td></tr>
-<tr><td class="n d">212</td><td class="c d">                                                         FOR K IN 1,1,I;</td><td class="n a">228</td><td class="c a">        <ins># A NAME: ITS ADDRESS, A WORD OF THE DATA THAT THE ASSEMBLER (AND THE IR WRITER) RELOCATES: THE RECORD HAS THE OPERAND OF THE NAME #</ins></td></tr>
-<tr><td class="n d">213</td><td class="c d">                                 GO TO <del>L6</del>);</td><td class="n a">229</td><td class="c a">        <ins>UNPCK</ins>(<ins>B); ADDCODE(</ins>A,<ins>KWORD</ins>,0,0,<ins>SE,SE1,0</ins>);</td></tr>
-<tr><td class="n d">214</td><td class="c d">                  <del>HOOK</del>(A,<del>A</del>,<del>DEWOP(</del>0,0,<del>B</del>)<del>)</del>;</td><td class="n a">230</td><td class="c a">        GO TO <ins>DS1</ins>);</td></tr>
-<tr><td class="n d">215</td><td class="c d">                  GO TO <del>L6</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">219</td><td class="c a"> L6: GETLIST(B) =&gt; (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">220</td><td class="c a">        FREE(B+2) =&gt; (ERROR(1,'NON-CONSTANT EXPRESSION IN DATA STATEMENT.')<ins>; GO TO L6);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">221</td><td class="c a">        <ins>I:=FREE(B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">222</td><td class="c a">        <ins>I&lt;6,0&gt;=4 =&gt; HLEFT(I)=0 =&gt; (ADDCODE(A,KWORD,0,0,0,FREE(B+1),0); GO TO L6);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">223</td><td class="c a">        <ins>I:=HLEFT(I);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">224</td><td class="c a">        <ins>(J:=CONVC(I)) NE 0 =&gt; (J&lt;0 =&gt; (ADDCODE(A,KWORD,0,0,0,CONST,0); GO TO L6);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">225</td><td class="c a">                              <ins>I:=FREE(J);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">226</td><td class="c a">                              <ins>ADDCODE(A,KWORD,0,0,0,FREE(J+K),0) FOR K IN 1,1,I</ins>;</td></tr>
+<tr><td class="n q">203</td><td class="c q">			GO TO L6);</td><td class="n q">227</td><td class="c q">                              GO TO L6);</td></tr>
+<tr><td class="n d">204</td><td class="c d">		<del>I_FREE</del>(B);</td><td class="n a">228</td><td class="c a">        <ins># A NAME: ITS ADDRESS, A WORD OF THE DATA THAT THE ASSEMBLER (AND THE IR WRITER) RELOCATES: THE RECORD HAS THE OPERAND OF THE NAME #</ins></td></tr>
+<tr><td class="n d">205</td><td class="c d">		<del>I&lt;6,0&gt;=4=&gt;I&lt;L&gt;=0=&gt;(</del>ADDCODE(A,<del>600000000000B</del>,<del>FREE(B+1)</del>);</td><td class="n a">229</td><td class="c a">        <ins>UNPCK</ins>(B); ADDCODE(A,<ins>KWORD</ins>,<ins>0,0,SE,SE1,0</ins>);</td></tr>
+<tr><td class="n q">206</td><td class="c q">			GO TO L6);</td><td class="n q">230</td><td class="c q">        GO TO L6);</td></tr>
+<tr><td class="n d">207</td><td class="c d">		<del>I_I&lt;L&gt;;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">208</td><td class="c d">                  <del>(J_CONVC(I))=&gt;(J&lt;0=&gt;(ADDCODE(A,600000000000B,CONST);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">209</td><td class="c d">                                       <del>GO TO L6);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">210</td><td class="c d">                                 <del>I_FREE(J);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">211</td><td class="c d">                                 <del>ADDCODE(A,600000000000B,FREE(J+K))</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">212</td><td class="c d">                                                         <del>FOR K IN 1,1,I;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">213</td><td class="c d">                                 <del>GO TO L6);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">214</td><td class="c d">                  <del>HOOK(A,A,DEWOP(0,0,B));</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">215</td><td class="c d">                  <del>GO TO L6);</del></td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">216</td><td class="c q"> A);</td><td class="n q">231</td><td class="c q"> A);</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">233</td><td class="c a"><ins># SUBRPAR(S,PP): ADD THE ARGUMENT PP TO THE CALL S #</ins></td></tr>
 <tr><td class="n q">218</td><td class="c q">SUBR SUBRPAR(S,PP) IS (</td><td class="n q">234</td><td class="c q">SUBR SUBRPAR(S,PP) IS (</td></tr>
@@ -307,42 +315,51 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">227</td><td class="c d">SUBR PRINPAR(N,AA,B,C,D) IS (A<del>_</del>AA;</td><td class="n a">240</td><td class="c a"><ins># PRINPAR(N,A,B,C,D): A PRINT LIST ITEM; THE ENTRY IT MAKES HAS THE CODE THAT COMPUTES THE ITEM IN WORD 2 AND, IN WORD 1, THE RECORDS THAT</ins></td></tr>
 <tr><td class="n d">228</td><td class="c d">     T<del>_</del>ENSTACK(0);</td><td class="n a">241</td><td class="c a">  <ins>ENTER IT IN THE PRINT LIST.  N IS 0 AN EXPRESSION, 1 OCT, 2 IGR, 3 STG, 5 / (NEW LINE), 6 FILE, 7 IMAGE MODE, 8 DEVICE, 9 TAB, 10 FILL, 11 FLT #</ins></td></tr>
 <tr><td class="n d">229</td><td class="c d">     N=5=&gt;(<del>AE_TM_</del>0; GO TO <del>L8</del>);</td><td class="n a">242</td><td class="c a">SUBR PRINPAR(N,AA,B,C,D) IS (</td></tr>
-<tr><td class="n d">230</td><td class="c d">     N=11=&gt;(FREE(A)<del>&lt;6,0&gt;</del>=4=&gt;FREE(B)<del>&lt;6,0&gt;</del>=4=&gt;(</td><td class="n a">243</td><td class="c a"> A<ins>,T,I,J,KK,SH,SA,SV,K ARE LOCAL;</ins></td></tr>
-<tr><td class="n d">231</td><td class="c d">		FREE(A+1)<del>&lt;L&gt;_</del>FREE(B+1); FREE(A)<del>&lt;L&gt;_0</del>; GO TO <del>PPR1</del>);</td><td class="n a">244</td><td class="c a"> <ins>PPS IS 3 LONG;</ins></td></tr>
+<tr><td class="n d">230</td><td class="c d">     N=11=&gt;(FREE(A)<del>&lt;6,0&gt;</del>=4=&gt;FREE(B)<del>&lt;6,0&gt;</del>=4=&gt;(</td><td class="n a">243</td><td class="c a"> A<ins>,T,I,J,KK,SH,S,SV,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n d">231</td><td class="c d">		FREE(A+1)<del>&lt;L&gt;_</del>FREE(B+1); FREE(A)<del>&lt;L&gt;_0</del>; GO TO PPR1);</td><td class="n a">244</td><td class="c a"> <ins>S IS 3 LONG;</ins></td></tr>
 <tr><td class="n d">232</td><td class="c d">	I<del>_</del>REGOF(DEWOP(<del>540B</del>,AREG1(1,<del>13</del>),A));</td><td class="n a">245</td><td class="c a"> <ins>A:=</ins>AA;</td></tr>
-<tr><td class="n d">233</td><td class="c d">	HOOK(A,A,DEWOP(<del>504B</del>,I,<del>B</del>)<del>)</del>;</td><td class="n a">246</td><td class="c a"> T<ins>:=</ins>ENSTACK(0);</td></tr>
-<tr><td class="n d">234</td><td class="c d">	<del>PPR1</del>: 0);</td><td class="n a">247</td><td class="c a"> N=5 =&gt; (<ins>ADDCODE(T,KOP,OPITEM,</ins>0<ins>,0,0,N)</ins>; GO TO <ins>PP9</ins>);</td></tr>
-<tr><td class="n d">235</td><td class="c d">     A<del>_</del>SUBARG(T,A);</td><td class="n a">248</td><td class="c a"> N=11 =&gt; (</td></tr>
-<tr><td class="n d">236</td><td class="c d">     <del>TM_A RS 18;</del></td><td class="n a">249</td><td class="c a">    <ins>(</ins>FREE(A) <ins>AND 77B)</ins>=4 =&gt; <ins>(</ins>FREE(B) <ins>AND 77B)</ins>=4 =&gt; (</td></tr>
-<tr><td class="n d">237</td><td class="c d">     <del>A_A AND 777777B;</del></td><td class="n a">250</td><td class="c a">        <ins>FREES(A+1,((</ins>FREE(A+1) <ins>AND HMASK) OR (</ins>FREE(B+1) <ins>LS HSHIFT)))</ins>;</td></tr>
-<tr><td class="n d">238</td><td class="c d">     <del>TM =&gt; AE_20000000B</del></td><td class="n a">251</td><td class="c a">        <ins>FREES(A,HRIGHT(</ins>FREE(A)<ins>))</ins>;</td></tr>
-<tr><td class="n d">239</td><td class="c d">      <del>ELSE</del> (<del>TM_</del>FREE(A) <del>RS 18;</del></td><td class="n a">252</td><td class="c a">        GO TO <ins>PP1</ins>);</td></tr>
-<tr><td class="n d">240</td><td class="c d">            <del>AE_</del>FREE(A+1) <del>AND 777777B);</del></td><td class="n a">253</td><td class="c a">    I<ins>:=</ins>REGOF(DEWOP(<ins>OLOAD</ins>,AREG1(1,<ins>13B</ins>),A));</td></tr>
-<tr><td class="n d">241</td><td class="c d"> <del>L8: ADDCODE(T</del>,<del>600000000000B OR TM,AE OR</del> N <del>LS 24</del>);</td><td class="n a">254</td><td class="c a">    <ins>J:=REGOF(DEWOP(OLOAD,AREG1(1,13B),B));</ins></td></tr>
-<tr><td class="n d">242</td><td class="c d">     N NE 6=&gt;GO TO <del>L9</del>;</td><td class="n a">255</td><td class="c a">    HOOK(<ins>B,B,DEWOP(OLSH,J,STACKUP(HSHIFT)));</ins></td></tr>
-<tr><td class="n d">243</td><td class="c d">     <del>S IS 3 LONG; S_</del>B; <del>S</del>[1]<del>_</del>C; <del>S</del>[2]<del>_</del>D;</td><td class="n a">256</td><td class="c a">    <ins>HOOK(</ins>A,A,<ins>B);</ins></td></tr>
-<tr><td class="n d">244</td><td class="c d">     (<del>S</del>[<del>I</del>]=0 =&gt; (<del>S_AE_TM_</del>0; GO TO <del>L10</del>);</td><td class="n a">257</td><td class="c a">    DEWOP(<ins>OIOR</ins>,I,<ins>A</ins>);</td></tr>
-<tr><td class="n d">245</td><td class="c d">      <del>S_</del>SUBARG(T,<del>S</del>[<del>I</del>]); <del>TM_S RS 18; S_S AND 777777B;</del></td><td class="n a">258</td><td class="c a">    <ins>PP1</ins>: 0);</td></tr>
-<tr><td class="n d">246</td><td class="c d">      <del>TM=&gt;</del>(<del>AE_20000000B; GO TO L10);</del></td><td class="n a">259</td><td class="c a"> A<ins>:=</ins>SUBARG(T,A);</td></tr>
-<tr><td class="n d">247</td><td class="c d">      <del>TM_</del>FREE(<del>S</del>) <del>RS 18; AE_FREE(S+1)</del> AND <del>777777B;</del></td><td class="n a">260</td><td class="c a"> <ins>ADDCODE</ins>(<ins>T,KOP,OPITEM,0,</ins>FREE(A)<ins>,</ins>FREE(A+1),N);</td></tr>
-<tr><td class="n d">248</td><td class="c d">      <del>(FREE(S) AND</del> 77B)=4=&gt;(</td><td class="n a">261</td><td class="c a"> N NE 6 =&gt; GO TO <ins>PP9</ins>;</td></tr>
-<tr><td class="n d">249</td><td class="c d">        <del>I</del>=&gt;(# <del>CONVERT</del> CONSTANT <del>PJ,PN TO</del> OCTAL #</td><td class="n a">262</td><td class="c a"> <ins>PPS[0]:=</ins>B; <ins>PPS</ins>[1]<ins>:=</ins>C; <ins>PPS</ins>[2]<ins>:=</ins>D;</td></tr>
-<tr><td class="n d">250</td><td class="c d">            CONVC(<del>TM</del>); J<del>_</del>CONST;</td><td class="n a">263</td><td class="c a"> (<ins>PPS</ins>[<ins>K</ins>]=0 =&gt; (<ins>ADDCODE(T,KOP,OPITEM,</ins>0<ins>,0,0,N)</ins>; GO TO <ins>PP10</ins>);</td></tr>
-<tr><td class="n d">251</td><td class="c d">            SH<del>_</del>0; <del>TM_</del>0; <del>AE_0;</del></td><td class="n a">264</td><td class="c a">  <ins>SA:=</ins>SUBARG(T,<ins>PPS</ins>[<ins>K</ins>]);</td></tr>
-<tr><td class="n d">252</td><td class="c d">            <del>L11</del>: J=&gt;(KK<del>_</del>J/10;</td><td class="n a">265</td><td class="c a">  (FREE(<ins>SA</ins>) AND 77B)=4 =&gt; (</td></tr>
-<tr><td class="n d">253</td><td class="c d">                     (KK<del>_</del>J-10*KK)&gt;7=&gt;ERROR(1,'NON-OCTAL PJ OR PN **');</td><td class="n a">266</td><td class="c a">     <ins>K&gt;0</ins> =&gt; (                                # <ins>PROJECT AND PROGRAMMER: A DECIMAL</ins> CONSTANT <ins>READ AS</ins> OCTAL #</td></tr>
-<tr><td class="n d">254</td><td class="c d">                     <del>AE_AE</del> OR KK LS SH; SH<del>_</del>SH+3;</td><td class="n a">267</td><td class="c a">        CONVC(<ins>HLEFT(FREE(SA</ins>)<ins>))</ins>; J<ins>:=</ins>CONST;</td></tr>
-<tr><td class="n d">255</td><td class="c d">                     J<del>_</del>J/10; GO TO <del>L11</del>)<del>)</del>;</td><td class="n a">268</td><td class="c a">        SH<ins>:=</ins>0; <ins>SV:=</ins>0;</td></tr>
-<tr><td class="n d">256</td><td class="c d">        <del>TM=0 =&gt; TM_</del>STCON(<del>AE</del>);</td><td class="n a">269</td><td class="c a">        <ins>PP11</ins>: J <ins>NE 0</ins> =&gt; (KK<ins>:=</ins>J/10;</td></tr>
-<tr><td class="n d">257</td><td class="c d">        <del>AE_</del>0);</td><td class="n a">270</td><td class="c a">                         (KK<ins>:=</ins>J-<ins>(</ins>10*KK)<ins>)</ins>&gt;7 =&gt; ERROR(1,'NON-OCTAL PJ OR PN **');</td></tr>
-<tr><td class="n d">258</td><td class="c d">     <del>L10:</del> ADDCODE(T,<del>600000000000B OR TM</del>,<del>AE OR</del> N <del>LS 24</del>);</td><td class="n a">271</td><td class="c a">                         <ins>SV:=SV</ins> OR KK LS SH; SH<ins>:=</ins>SH+3;</td></tr>
-<tr><td class="n d">259</td><td class="c d">     <del>S</del> =&gt; HOOK(A,<del>S</del>,A)) FOR <del>I TO</del> 2;</td><td class="n a">272</td><td class="c a">                         J<ins>:=</ins>J/10; GO TO <ins>PP11</ins>);</td></tr>
-<tr><td class="n d">260</td><td class="c d"> <del>L9</del>: FREES(A+1,FREE(T+2));</td><td class="n a">273</td><td class="c a">        <ins>FREES(SA,(4 OR (</ins>STCON(<ins>SV</ins>) <ins>LS 32)))</ins>;</td></tr>
-<tr><td class="n d">261</td><td class="c d"> <del># FUDGE TYPE OF STACK OBJECT TO 4 SO MATCHER DOESN'T INTERPRET</del></td><td class="n a">274</td><td class="c a">        <ins>FREES(SA+1,</ins>0)<ins>))</ins>;</td></tr>
-<tr><td class="n d">262</td><td class="c d">  <del>WORD 2 #</del></td><td class="n a">275</td><td class="c a">  ADDCODE(T,<ins>KOP</ins>,<ins>OPITEM,0,FREE(SA),FREE(SA+1),</ins>N);</td></tr>
-<tr><td class="n d">263</td><td class="c d"> FREES(A,4);</td><td class="n a">276</td><td class="c a">  <ins>PP10: PPS[K]=0</ins> =&gt; <ins>0 ELSE</ins> HOOK(A,<ins>SA</ins>,A)) FOR <ins>K IN 0,1,</ins>2;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">277</td><td class="c a"> <ins>PP9</ins>: FREES(A+1,FREE(T+2));</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">278</td><td class="c a"> FREES(A,4);                                 <ins># SO THE MATCHER DOES NOT READ WORD 2 #</ins></td></tr>
+<tr><td class="n d">233</td><td class="c d">	HOOK(A,A,DEWOP(<del>504B</del>,I,<del>B)</del>);</td><td class="n a">246</td><td class="c a"> T<ins>:=</ins>ENSTACK(0);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">247</td><td class="c a"> N=5 =&gt; (<ins>ADDCODE(T,KOP,OPITEM,</ins>0<ins>,0,0,N)</ins>; GO TO <ins>PP9</ins>);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">248</td><td class="c a"> N=11 =&gt; (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">249</td><td class="c a">    <ins>(</ins>FREE(A) <ins>AND 77B)</ins>=4 =&gt; <ins>(</ins>FREE(B) <ins>AND 77B)</ins>=4 =&gt; (</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">250</td><td class="c a">        <ins>FREES(A+1,((</ins>FREE(A+1) <ins>AND HMASK) OR (</ins>FREE(B+1) <ins>LS HSHIFT)))</ins>;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">251</td><td class="c a">        <ins>FREES(A,HRIGHT(</ins>FREE(A)<ins>))</ins>;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">252</td><td class="c a">        GO TO PPR1);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">253</td><td class="c a">    I<ins>:=</ins>REGOF(DEWOP(<ins>OLOAD</ins>,AREG1(1,<ins>13B</ins>),A));</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">254</td><td class="c a">    <ins>J:=REGOF(DEWOP(OLOAD,AREG1(1,13B),B));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">255</td><td class="c a">    HOOK(<ins>B,B,DEWOP(OLSH,J,STACKUP(HSHIFT)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">256</td><td class="c a">    <ins>HOOK(</ins>A,A,<ins>B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">257</td><td class="c a">    DEWOP(<ins>OIOR</ins>,I,<ins>A</ins>);</td></tr>
+<tr><td class="n q">234</td><td class="c q">	PPR1: 0);</td><td class="n q">258</td><td class="c q">    PPR1: 0);</td></tr>
+<tr><td class="n d">235</td><td class="c d">     A<del>_</del>SUBARG(T,A);</td><td class="n a">259</td><td class="c a"> A<ins>:=</ins>SUBARG(T,A);</td></tr>
+<tr><td class="n d">236</td><td class="c d">     <del>TM_A RS 18;</del></td><td class="n a">260</td><td class="c a"> <ins>ADDCODE</ins>(<ins>T,KOP,OPITEM,0,</ins>FREE(A)<ins>,</ins>FREE(A+1),N);</td></tr>
+<tr><td class="n d">237</td><td class="c d">     <del>A_A AND 777777B;</del></td><td class="n a">261</td><td class="c a"> N NE 6 =&gt; GO TO <ins>PP9</ins>;</td></tr>
+<tr><td class="n d">238</td><td class="c d">     <del>TM =&gt; AE_20000000B</del></td><td class="n a">262</td><td class="c a"> S<ins>[0]:=</ins>B; S[1]<ins>:=</ins>C; S[2]<ins>:=</ins>D;</td></tr>
+<tr><td class="n d">239</td><td class="c d">      <del>ELSE</del> (<del>TM_</del>FREE(A) <del>RS 18;</del></td><td class="n a">263</td><td class="c a"> (S[<ins>K</ins>]=0 =&gt; (<ins>ADDCODE(T,KOP,OPITEM,</ins>0<ins>,0,0,N)</ins>; GO TO <ins>PP10</ins>);</td></tr>
+<tr><td class="n d">240</td><td class="c d">            <del>AE_</del>FREE(A+1) <del>AND 777777B);</del></td><td class="n a">264</td><td class="c a">  S<ins>:=</ins>SUBARG(T,S[<ins>K</ins>]);</td></tr>
+<tr><td class="n d">241</td><td class="c d"> <del>L8: ADDCODE(T</del>,<del>600000000000B OR TM,AE OR</del> N <del>LS 24</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">242</td><td class="c d">     N NE 6=&gt;GO TO <del>L9</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">243</td><td class="c d">     S <del>IS 3 LONG; S_</del>B; S[1]<del>_</del>C; S[2]<del>_</del>D;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">244</td><td class="c d">     (S[<del>I</del>]=0 =&gt; (<del>S_AE_TM_</del>0; GO TO <del>L10</del>);</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">245</td><td class="c d">      S<del>_</del>SUBARG(T,S[<del>I</del>])<del>; TM_S RS 18; S_S AND 777777B;</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">246</td><td class="c d">      <del>TM=&gt;(AE_20000000B; GO TO L10);</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">247</td><td class="c d">      <del>TM_FREE(S) RS 18; AE_FREE(S+1) AND 777777B</del>;</td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n q">248</td><td class="c q">      (FREE(S) AND 77B)=4=&gt;(</td><td class="n q">265</td><td class="c q">  (FREE(S) AND 77B)=4 =&gt; (</td></tr>
+<tr><td class="n d">249</td><td class="c d">        <del>I</del>=&gt;(# <del>CONVERT</del> CONSTANT <del>PJ,PN TO</del> OCTAL #</td><td class="n a">266</td><td class="c a">     <ins>K&gt;0</ins> =&gt; (                                # <ins>PROJECT AND PROGRAMMER: A DECIMAL</ins> CONSTANT <ins>READ AS</ins> OCTAL #</td></tr>
+<tr><td class="n d">250</td><td class="c d">            CONVC(<del>TM</del>); J<del>_</del>CONST;</td><td class="n a">267</td><td class="c a">        CONVC(<ins>HLEFT(FREE(S</ins>)<ins>))</ins>; J<ins>:=</ins>CONST;</td></tr>
+<tr><td class="n d">251</td><td class="c d">            SH<del>_</del>0; <del>TM_</del>0; <del>AE_0;</del></td><td class="n a">268</td><td class="c a">        SH<ins>:=</ins>0; <ins>SV:=</ins>0;</td></tr>
+<tr><td class="n d">252</td><td class="c d">            <del>L11</del>: J=&gt;(KK<del>_</del>J/10;</td><td class="n a">269</td><td class="c a">        <ins>PP11</ins>: J <ins>NE 0</ins> =&gt; (KK<ins>:=</ins>J/10;</td></tr>
+<tr><td class="n d">253</td><td class="c d">                     (KK<del>_</del>J-10*KK)&gt;7=&gt;ERROR(1,'NON-OCTAL PJ OR PN **');</td><td class="n a">270</td><td class="c a">                         (KK<ins>:=</ins>J-<ins>(</ins>10*KK)<ins>)</ins>&gt;7 =&gt; ERROR(1,'NON-OCTAL PJ OR PN **');</td></tr>
+<tr><td class="n d">254</td><td class="c d">                     <del>AE_AE</del> OR KK LS SH; SH<del>_</del>SH+3;</td><td class="n a">271</td><td class="c a">                         <ins>SV:=SV</ins> OR KK LS SH; SH<ins>:=</ins>SH+3;</td></tr>
+<tr><td class="n d">255</td><td class="c d">                     J<del>_</del>J/10; GO TO <del>L11</del>)<del>)</del>;</td><td class="n a">272</td><td class="c a">                         J<ins>:=</ins>J/10; GO TO <ins>PP11</ins>);</td></tr>
+<tr><td class="n d">256</td><td class="c d">        <del>TM=0 =&gt; TM_</del>STCON(<del>AE</del>);</td><td class="n a">273</td><td class="c a">        <ins>FREES(S,(4 OR (</ins>STCON(<ins>SV</ins>) <ins>LS 32)))</ins>;</td></tr>
+<tr><td class="n d">257</td><td class="c d">        <del>AE_</del>0);</td><td class="n a">274</td><td class="c a">        <ins>FREES(S+1,</ins>0)<ins>))</ins>;</td></tr>
+<tr><td class="n d">258</td><td class="c d">     <del>L10:</del> ADDCODE(T,<del>600000000000B OR TM</del>,<del>AE OR</del> N <del>LS 24</del>);</td><td class="n a">275</td><td class="c a">  ADDCODE(T,<ins>KOP</ins>,<ins>OPITEM,0,FREE(S),FREE(S+1),</ins>N);</td></tr>
+<tr><td class="n d">259</td><td class="c d">     S =&gt; HOOK(A,S,A)) FOR <del>I TO</del> 2;</td><td class="n a">276</td><td class="c a">  <ins>PP10:</ins> S<ins>[K]=0</ins> =&gt; <ins>0 ELSE</ins> HOOK(A,S,A)) FOR <ins>K IN 0,1,</ins>2;</td></tr>
+<tr><td class="n d">260</td><td class="c d"> <del>L9</del>: FREES(A+1,FREE(T+2));</td><td class="n a">277</td><td class="c a"> <ins>PP9</ins>: FREES(A+1,FREE(T+2));</td></tr>
+<tr><td class="n d">261</td><td class="c d"> <del># FUDGE TYPE OF STACK OBJECT TO 4 SO MATCHER DOESN'T INTERPRET</del></td><td class="n a">278</td><td class="c a"> FREES(A,4);                                 <ins># SO THE MATCHER DOES NOT READ WORD 2 #</ins></td></tr>
+<tr><td class="n d">262</td><td class="c d">  <del>WORD 2 #</del></td><td class="n e"></td><td class="c e"></td></tr>
+<tr><td class="n d">263</td><td class="c d"> FREES(A,4);</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">264</td><td class="c q"> A);</td><td class="n q">279</td><td class="c q"> A);</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">281</td><td class="c a"><ins># PRINCAL(A,B): ADD THE PRINT LIST ITEM B TO THE PRINT CALL A #</ins></td></tr>
 <tr><td class="n q">266</td><td class="c q">SUBR PRINCAL(A,B) IS (</td><td class="n q">282</td><td class="c q">SUBR PRINCAL(A,B) IS (</td></tr>

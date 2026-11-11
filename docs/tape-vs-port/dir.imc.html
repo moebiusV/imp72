@@ -19,7 +19,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>dir.imc</h1>
 <p class="mut">left, old (the tape): decus/dir.imc<br>right, new (the port): src/dir.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 27 changed places, 475 tokens deleted, 1174 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 27 changed places, 460 tokens deleted, 1159 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>DM,DN ARE COMMON;                           # THE C SIDE READS THEM (SRC/SHARED.TXT) #</ins></td></tr>
@@ -64,10 +64,10 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">35</td><td class="c d"> ARE REQUIRED. #</td><td class="n a">38</td><td class="c a"> <ins>EIGHT CHARACTERS EACH, THE FIRST IN THE LOW BYTE (A STRING CONSTANT IS ONE).</ins>  TERMINAL</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"> NULL CHARACTERS ARE REQUIRED. #</td></tr>
 <tr><td class="n q">37</td><td class="c q">SUBR HASH(NM) IS (#9-BIT HASH CODE#</td><td class="n q">41</td><td class="c q">SUBR HASH(NM) IS (#9-BIT HASH CODE#</td></tr>
-<tr><td class="n d">38</td><td class="c d">                  <del>HSH_</del>NM XOR NM RS <del>18</del>;</td><td class="n a">42</td><td class="c a">                  <ins>HV:=</ins>NM XOR NM RS <ins>32</ins>;</td></tr>
-<tr><td class="n d">39</td><td class="c d">                  <del>HSH_HSH</del> XOR <del>HSH</del> RS 9;</td><td class="n a">43</td><td class="c a">                  <ins>HV:=HV</ins> XOR <ins>HV</ins> RS <ins>16;</ins></td></tr>
-<tr><td class="n d">40</td><td class="c d">                  <del>HSH</del> AND 777B);</td><td class="n a">44</td><td class="c a">                  <ins>HV:=HV XOR HV RS</ins> 9;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a">                  <ins>HV</ins> AND 777B);</td></tr>
+<tr><td class="n d">38</td><td class="c d">                  <del>HSH_</del>NM XOR NM RS <del>18</del>;</td><td class="n a">42</td><td class="c a">                  <ins>HSHIFT:=</ins>NM XOR NM RS <ins>32</ins>;</td></tr>
+<tr><td class="n d">39</td><td class="c d">                  <del>HSH_HSH</del> XOR <del>HSH</del> RS 9;</td><td class="n a">43</td><td class="c a">                  <ins>HSHIFT:=HSHIFT</ins> XOR <ins>HSHIFT</ins> RS <ins>16;</ins></td></tr>
+<tr><td class="n d">40</td><td class="c d">                  <del>HSH</del> AND 777B);</td><td class="n a">44</td><td class="c a">                  <ins>HSHIFT:=HSHIFT XOR HSHIFT RS</ins> 9;</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a">                  <ins>HSHIFT</ins> AND 777B);</td></tr>
 <tr><td class="n q">42</td><td class="c q">SUBR DIR(NM) IS (</td><td class="n q">47</td><td class="c q">SUBR DIR(NM) IS (</td></tr>
 <tr><td class="n d">43</td><td class="c d"> DINIT=0 =&gt; (DINIT<del>_</del>1;</td><td class="n a">48</td><td class="c a"> DINIT=0 =&gt; (DINIT<ins>:=</ins>1;</td></tr>
 <tr><td class="n d">44</td><td class="c d">             FRELOT(PRP,'PRP',2100,<del>DORGFIX</del>); FINCSET(PRP,90); NPRP<del>_</del>1536;</td><td class="n a">49</td><td class="c a">             FRELOT(PRP,'PRP',2100,<ins>0</ins>); FINCSET(PRP,90); NPRP<ins>:=</ins>1536;</td></tr>
@@ -88,20 +88,20 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">59</td><td class="c d"> K<del>_</del>NPRP+3; FLEN(PRP) LE K =&gt; FADDEX(PRP,K);</td><td class="n a">63</td><td class="c a"> K<ins>:=</ins>NPRP+3; FLEN(PRP) LE K =&gt; FADDEX(PRP,K);</td></tr>
 <tr><td class="n d">60</td><td class="c d"> FREES(PRP+NPRP,NALF); NPRP<del>_</del>K;</td><td class="n a">64</td><td class="c a"> FREES(PRP+NPRP,NALF); NPRP<ins>:=</ins>K;</td></tr>
 <tr><td class="n d">61</td><td class="c d">L4: K<del>_</del>NALF+N+1; FLEN(ALF) LE K =&gt; FADDEX(ALF,K);</td><td class="n a">65</td><td class="c a">L4: K<ins>:=</ins>NALF+N+1; FLEN(ALF) LE K =&gt; FADDEX(ALF,K);</td></tr>
-<tr><td class="n d">62</td><td class="c d"> <del>ALFX_ALF+</del>NALF; NALF<del>_</del>K;</td><td class="n a">66</td><td class="c a"> <ins>AX:=</ins>NALF; NALF<ins>:=</ins>K;</td></tr>
-<tr><td class="n d">63</td><td class="c d"> <del>[ALFX</del>+K<del>]_</del>NM[K] FOR K TO N;</td><td class="n a">67</td><td class="c a"> <ins>FREES(ALF</ins>+<ins>AX+</ins>K<ins>,</ins>NM[K]<ins>)</ins> FOR K TO N;</td></tr>
+<tr><td class="n d">62</td><td class="c d"> ALFX<del>_ALF+</del>NALF; NALF<del>_</del>K;</td><td class="n a">66</td><td class="c a"> ALFX<ins>:=</ins>NALF; NALF<ins>:=</ins>K;</td></tr>
+<tr><td class="n d">63</td><td class="c d"> <del>[</del>ALFX+K<del>]_</del>NM[K] FOR K TO N;</td><td class="n a">67</td><td class="c a"> <ins>FREES(ALF+</ins>ALFX+K<ins>,</ins>NM[K]<ins>)</ins> FOR K TO N;</td></tr>
 <tr><td class="n q">64</td><td class="c q">L5: I);</td><td class="n q">68</td><td class="c q">L5: I);</td></tr>
-<tr><td class="n d">66</td><td class="c d">SUBR DSEM(N,S) IS (<del>DIRN_</del>DIR(N); <del>LOCS_</del>LOC(S);</td><td class="n a">70</td><td class="c a"><ins># DSEM(N,S): ENTER THE ROUTINE S AS THE SEMANTIC ROUTINE NAMED N.  THE ORIGINAL PUTS THE ADDRESS OF S IN THE 'SEM' PROPERTY OF THE NAME; HERE THE PROPERTY IS THE ID OF THE ROUTINE, 1 PLUS ITS PLACE IN THE TABLE,</ins></td></tr>
-<tr><td class="n d">67</td><td class="c d">                   DPROPS('SEM',<del>DIRN</del>,<del>LOCS</del>));</td><td class="n a">71</td><td class="c a">  <ins>BECAUSE AN ADDRESS DOES NOT FIT IN IT (THE TABLE IS C MEMORY).  S IS CALLED BY SEMCALL, BELOW #</ins></td></tr>
+<tr><td class="n d">66</td><td class="c d">SUBR DSEM(N,S) IS (DIRN<del>_</del>DIR(N); LOCS<del>_</del>LOC(S);</td><td class="n a">70</td><td class="c a"><ins># DSEM(N,S): ENTER THE ROUTINE S AS THE SEMANTIC ROUTINE NAMED N.  THE ORIGINAL PUTS THE ADDRESS OF S IN THE 'SEM' PROPERTY OF THE NAME; HERE THE PROPERTY IS THE ID OF THE ROUTINE, 1 PLUS ITS PLACE IN THE TABLE,</ins></td></tr>
+<tr><td class="n d">67</td><td class="c d">                   <del>DPROPS</del>('SEM',DIRN,LOCS));</td><td class="n a">71</td><td class="c a">  <ins>BECAUSE AN ADDRESS DOES NOT FIT IN IT (THE TABLE IS C MEMORY).  S IS CALLED BY SEMCALL, BELOW #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">72</td><td class="c a">SUBR DSEM(N,S) IS (</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a"> <ins>D,SL,NP,FP,NN ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"> <ins>D:=</ins>DIR(N); <ins>NP:=</ins>LOC(<ins>N); FP:=LOC(</ins>S);</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"> <ins>SL:=DPROP('SEM',D);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"> <ins>SL&gt;0 =&gt; SL LE NRTN =&gt; CCALL strcmp([RTN+(16*(SL-1))],NP)=0 =&gt; ([RTN+((16*(SL-1))+8)]:=FP; RETURN 0);        # ENTERED AGAIN: REPLACE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">73</td><td class="c a"> DIRN<ins>,SL,NP,LOCS,NN ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">74</td><td class="c a"> <ins>DIRN:=</ins>DIR(N); <ins>NP:=LOC(N);</ins> LOCS<ins>:=</ins>LOC(S);</td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">75</td><td class="c a"> <ins>SL:=DPROP</ins>('SEM',DIRN<ins>);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">76</td><td class="c a"> <ins>SL&gt;0 =&gt; SL LE NRTN =&gt; CCALL strcmp([RTN+(16*(SL-1))]</ins>,<ins>NP)=0 =&gt; ([RTN+((16*(SL-1))+8)]:=</ins>LOCS<ins>; RETURN 0</ins>)<ins>;        # ENTERED AGAIN: REPLACE #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">77</td><td class="c a"> <ins>NRTN=CRTN =&gt; (NN:=CRTN+64; RTN:=CCALL realloc(RTN,16*NN); CCALL memset(RTN+(16*CRTN),0,16*(NN-CRTN)); CRTN:=NN);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a"> <ins>[RTN+(16*NRTN)]:=NP; [RTN+((16*NRTN)+8)]:=FP;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">78</td><td class="c a"> <ins>[RTN+(16*NRTN)]:=NP; [RTN+((16*NRTN)+8)]:=LOCS;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">79</td><td class="c a"> <ins>NRTN:=NRTN+1;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"> DPROPS('SEM',<ins>D</ins>,<ins>NRTN</ins>)<ins>;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">80</td><td class="c a"> <ins>DPROPS('SEM',DIRN,NRTN);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">81</td><td class="c a"> <ins>0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">83</td><td class="c a"><ins># THE TABLE FOR THE IMAGE (U AND V): HOW MANY ROUTINES, THE NAME OF THE I-TH, AND THE TABLE MADE AGAIN IN THE ORDER OF THE NAMES THE IMAGE HAS (ITS TABLES HOLD THE IDS) #</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">84</td><td class="c a"><ins>SUBR SEMCOUNT(Z) IS NRTN;</ins></td></tr>
@@ -120,13 +120,13 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"> <ins>RTN:=T; NRTN:=N; CRTN:=N;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"> <ins>1</ins>);</td></tr>
 <tr><td class="n q">69</td><td class="c q">SUBR DSEQ(N) IS (</td><td class="n q">102</td><td class="c q">SUBR DSEQ(N) IS (</td></tr>
-<tr><td class="n d">70</td><td class="c d"> N&lt;0 =&gt; (N<del>_</del>-3; <del>NMARK_</del>-1);</td><td class="n a">103</td><td class="c a"> N&lt;0 =&gt; (N<ins>:=</ins>-3; <ins>NMK:=</ins>-1);</td></tr>
-<tr><td class="n d">71</td><td class="c d"> <del>NMARK</del> GE 0 =&gt; (N<del>_</del>FREE(PRP+N) <del>RS 18</del>;</td><td class="n a">104</td><td class="c a"> <ins>NMK</ins> GE 0 =&gt; (N<ins>:=HLEFT(</ins>FREE(PRP+N)<ins>)</ins>;</td></tr>
-<tr><td class="n d">72</td><td class="c d">                N=0 =&gt; (N<del>_NMARK</del>; <del>NMARK_</del>-1));</td><td class="n a">105</td><td class="c a">                N=0 =&gt; (N<ins>:=NMK</ins>; <ins>NMK:=</ins>-1));</td></tr>
-<tr><td class="n d">73</td><td class="c d"> <del>NMARK</del>&lt;0 =&gt; (L6: N<del>_</del>N+3;</td><td class="n a">106</td><td class="c a"> <ins>NMK</ins>&lt;0 =&gt; (L6: N<ins>:=</ins>N+3;</td></tr>
+<tr><td class="n d">70</td><td class="c d"> N&lt;0 =&gt; (N<del>_</del>-3; <del>NMARK_</del>-1);</td><td class="n a">103</td><td class="c a"> N&lt;0 =&gt; (N<ins>:=</ins>-3; <ins>NMSIGN:=</ins>-1);</td></tr>
+<tr><td class="n d">71</td><td class="c d"> <del>NMARK</del> GE 0 =&gt; (N<del>_</del>FREE(PRP+N) <del>RS 18</del>;</td><td class="n a">104</td><td class="c a"> <ins>NMSIGN</ins> GE 0 =&gt; (N<ins>:=HLEFT(</ins>FREE(PRP+N)<ins>)</ins>;</td></tr>
+<tr><td class="n d">72</td><td class="c d">                N=0 =&gt; (N<del>_NMARK</del>; <del>NMARK_</del>-1));</td><td class="n a">105</td><td class="c a">                N=0 =&gt; (N<ins>:=NMSIGN</ins>; <ins>NMSIGN:=</ins>-1));</td></tr>
+<tr><td class="n d">73</td><td class="c d"> <del>NMARK</del>&lt;0 =&gt; (L6: N<del>_</del>N+3;</td><td class="n a">106</td><td class="c a"> <ins>NMSIGN</ins>&lt;0 =&gt; (L6: N<ins>:=</ins>N+3;</td></tr>
 <tr><td class="n d">74</td><td class="c d">              N GE 1536 =&gt; N<del>_</del>-1</td><td class="n a">107</td><td class="c a">              N GE 1536 =&gt; N<ins>:=</ins>-1</td></tr>
 <tr><td class="n q">75</td><td class="c q">                      ELSE (FREE(PRP+N)=0 =&gt; GO TO L6;</td><td class="n q">108</td><td class="c q">                      ELSE (FREE(PRP+N)=0 =&gt; GO TO L6;</td></tr>
-<tr><td class="n d">76</td><td class="c d">                            <del>NMARK_</del>N));</td><td class="n a">109</td><td class="c a">                            <ins>NMK:=</ins>N));</td></tr>
+<tr><td class="n d">76</td><td class="c d">                            <del>NMARK_</del>N));</td><td class="n a">109</td><td class="c a">                            <ins>NMSIGN:=</ins>N));</td></tr>
 <tr><td class="n q">77</td><td class="c q">N);</td><td class="n q">110</td><td class="c q">N);</td></tr>
 <tr><td class="n d">79</td><td class="c d">SUBR PNAME(DJ) IS (DJ GE 0=&gt;PRINT STG 0,FREE(ALF+FREE(PRP+DJ) <del>AND 777777B</del>));</td><td class="n a">112</td><td class="c a">SUBR PNAME(DJ) IS (DJ GE 0=&gt;PRINT STG 0,FREE(ALF+<ins>HRIGHT(</ins>FREE(PRP+DJ)))<ins>)</ins>;</td></tr>
 <tr><td class="n d">81</td><td class="c d">SUBR DNAME(DI,J) IS FREE(ALF+J+FREE(PRP+DI) <del>AND 777777B</del>);</td><td class="n a">114</td><td class="c a">SUBR DNAME(DI,J) IS FREE(ALF+J+<ins>HRIGHT(</ins>FREE(PRP+DI)<ins>)</ins>);</td></tr>
@@ -233,25 +233,25 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">186</td><td class="c d"> <del>CONST IS COMMON, 1 LONG;</del></td><td class="n a">219</td><td class="c a"> VAL<ins>:=</ins>-1;</td></tr>
 <tr><td class="n d">187</td><td class="c d"> VAL<del>_</del>-1;</td><td class="n e"></td><td class="c e"></td></tr>
 <tr><td class="n q">188</td><td class="c q"> CONVX: VAL);</td><td class="n q">220</td><td class="c q"> CONVX: VAL);</td></tr>
-<tr><td class="n d">190</td><td class="c d">SUBR STCON(V) IS (<del>FOO</del> IS <del>3</del> LONG;</td><td class="n a">222</td><td class="c a"><ins># STCON(V): THE DIRECTORY ENTRY OF THE CONSTANT V, NAMED BY ITS OCTAL DIGITS (22 FOR A 64 BIT NUMBER, WITHOUT THE LEADING ZEROS) AND A B #</ins></td></tr>
-<tr><td class="n d">191</td><td class="c d">                  <del>FOO_FOO</del>[1]<del>_FOO</del>[2]<del>_</del>0;</td><td class="n a">223</td><td class="c a">SUBR STCON(V) IS (<ins>SCW</ins> IS <ins>4</ins> LONG;</td></tr>
-<tr><td class="n d">192</td><td class="c d">                  <del>KK_</del>K<del>_</del>BYTEP <del>FOO</del>&lt;7,36&gt;;</td><td class="n a">224</td><td class="c a">                  <ins>SCW</ins>[<ins>0]:=SCW[</ins>1]<ins>:=SCW</ins>[2]<ins>:=SCW[3]:=</ins>0;</td></tr>
-<tr><td class="n d">193</td><td class="c d">                  <del>L_BYTEP V&lt;3,36&gt;;</del> F<del>_</del>0;</td><td class="n a">225</td><td class="c a">                  K<ins>:=</ins>BYTEP <ins>SCW</ins>&lt;7,36&gt;; F<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">190</td><td class="c d">SUBR STCON(V) IS (FOO IS <del>3</del> LONG;</td><td class="n a">222</td><td class="c a"><ins># STCON(V): THE DIRECTORY ENTRY OF THE CONSTANT V, NAMED BY ITS OCTAL DIGITS (22 FOR A 64 BIT NUMBER, WITHOUT THE LEADING ZEROS) AND A B #</ins></td></tr>
+<tr><td class="n d">191</td><td class="c d">                  FOO<del>_</del>FOO[1]<del>_</del>FOO[2]<del>_</del>0;</td><td class="n a">223</td><td class="c a">SUBR STCON(V) IS (FOO IS <ins>4</ins> LONG;</td></tr>
+<tr><td class="n d">192</td><td class="c d">                  <del>KK_</del>K<del>_</del>BYTEP FOO&lt;7,36&gt;;</td><td class="n a">224</td><td class="c a">                  FOO<ins>[0]:=</ins>FOO[1]<ins>:=</ins>FOO[2]<ins>:=FOO[3]:=</ins>0;</td></tr>
+<tr><td class="n d">193</td><td class="c d">                  <del>L_BYTEP V&lt;3,36&gt;;</del> F<del>_</del>0;</td><td class="n a">225</td><td class="c a">                  K<ins>:=</ins>BYTEP FOO&lt;7,36&gt;; F<ins>:=</ins>0;</td></tr>
 <tr><td class="n d">194</td><td class="c d">                  ((J<del>_&lt;+L&gt;</del>) =&gt; F<del>_</del>1;</td><td class="n a">226</td><td class="c a">                  ((J<ins>:=(V RS (3*I</ins>)<ins>) AND 7) NE 0</ins> =&gt; F<ins>:=</ins>1;</td></tr>
 <tr><td class="n d">195</td><td class="c d">                   F =&gt; &lt;+K&gt;<del>_</del>J <del>OR 060B</del>) FOR I <del>FROM 11</del>;</td><td class="n a">227</td><td class="c a">                   F =&gt; &lt;+K&gt;<ins>:=60B+</ins>J) FOR I <ins>IN 21,-1,0</ins>;</td></tr>
-<tr><td class="n d">196</td><td class="c d">                  <del>K</del>=<del>KK</del> =&gt; <del>FOO_'0' ELSE</del> &lt;+K&gt;<del>_'B' RS 29</del>;</td><td class="n a">228</td><td class="c a">                  <ins>F</ins>=<ins>0</ins> =&gt; &lt;+K&gt;<ins>:=60B</ins>;</td></tr>
-<tr><td class="n d">197</td><td class="c d">                  DIR(<del>FOO</del>));</td><td class="n a">229</td><td class="c a">                  <ins>&lt;+K&gt;:=102B;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">230</td><td class="c a">                  DIR(<ins>SCW</ins>));</td></tr>
+<tr><td class="n d">196</td><td class="c d">                  <del>K</del>=<del>KK</del> =&gt; <del>FOO_'0' ELSE</del> &lt;+K&gt;<del>_'B' RS 29</del>;</td><td class="n a">228</td><td class="c a">                  <ins>F</ins>=<ins>0</ins> =&gt; &lt;+K&gt;<ins>:=60B;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">229</td><td class="c a">                  <ins>&lt;+K&gt;:=102B</ins>;</td></tr>
+<tr><td class="n q">197</td><td class="c q">                  DIR(FOO));</td><td class="n q">230</td><td class="c q">                  DIR(FOO));</td></tr>
 <tr><td class="n q">199</td><td class="c q">SUBR NEWNAME(I) IS (</td><td class="n q">232</td><td class="c q">SUBR NEWNAME(I) IS (</td></tr>
-<tr><td class="n d">200</td><td class="c d"> <del>FOO_</del>(<del>NOT 1) AND</del> (I <del>RS 7</del>) <del>OR '%'</del>; <del>FOO</del>[1]<del>_FOO</del>[2]<del>_</del>0;</td><td class="n a">233</td><td class="c a"> <ins>NMF IS 3 LONG;</ins></td></tr>
-<tr><td class="n d">201</td><td class="c d"> <del>SH_29</del>; <del>W_</del>0; J<del>_</del>NEWNUM<del>_</del>NEWNUM+1; TP<del>_</del>100000;</td><td class="n a">234</td><td class="c a"> <ins>NMF:=PREP</ins>(<ins>PFX4</ins>(I)<ins>,45B)</ins>; <ins>NMF</ins>[1]<ins>:=NMF</ins>[2]<ins>:=</ins>0;</td></tr>
-<tr><td class="n d">202</td><td class="c d"> T10: (J/TP)=0=&gt;(TP<del>_</del>TP/10; GO TO T10);</td><td class="n a">235</td><td class="c a"> <ins>K:=BYTEP NMF&lt;7,36&gt;</ins>; <ins>WHILE &lt;+K&gt; DO</ins> 0; <ins>K:=K-1;</ins></td></tr>
+<tr><td class="n d">200</td><td class="c d"> FOO<del>_</del>(<del>NOT 1) AND</del> (I <del>RS 7</del>) <del>OR '%'</del>; FOO[1]<del>_</del>FOO[2]<del>_</del>0;</td><td class="n a">233</td><td class="c a"> FOO <ins>IS 3 LONG;</ins></td></tr>
+<tr><td class="n d">201</td><td class="c d"> <del>SH_29</del>; <del>W_</del>0; J<del>_</del>NEWNUM<del>_</del>NEWNUM+1; TP<del>_</del>100000;</td><td class="n a">234</td><td class="c a"> <ins>FOO:=PREP</ins>(<ins>PFX4</ins>(I)<ins>,45B)</ins>; FOO[1]<ins>:=</ins>FOO[2]<ins>:=</ins>0;</td></tr>
+<tr><td class="n d">202</td><td class="c d"> T10: (J/TP)=0=&gt;(TP<del>_</del>TP/10; GO TO T10);</td><td class="n a">235</td><td class="c a"> <ins>K:=BYTEP FOO&lt;7,36&gt;</ins>; <ins>WHILE &lt;+K&gt; DO</ins> 0; <ins>K:=K-1;</ins></td></tr>
 <tr><td class="n d">203</td><td class="c d"> T8: <del>(FOO[W] AND 177B LS SH)=&gt;GO TO T9;</del></td><td class="n a">236</td><td class="c a"> J<ins>:=</ins>NEWNUM<ins>:=</ins>NEWNUM+1; TP<ins>:=</ins>100000;</td></tr>
 <tr><td class="n d">204</td><td class="c d">     JJ<del>_</del>J/TP;</td><td class="n a">237</td><td class="c a"> T10: (J/TP)=0=&gt;(TP<ins>:=</ins>TP/10; GO TO T10);</td></tr>
 <tr><td class="n d">205</td><td class="c d">     <del>FOO[W]_FOO[W] OR (</del>60B+JJ<del>) LS SH</del>;</td><td class="n a">238</td><td class="c a"> T8: JJ<ins>:=</ins>J/TP;</td></tr>
 <tr><td class="n d">206</td><td class="c d">     J<del>_</del>J-TP*JJ; TP<del>_</del>TP/10;</td><td class="n a">239</td><td class="c a">     <ins>&lt;+K&gt;:=</ins>60B+JJ;</td></tr>
 <tr><td class="n d">207</td><td class="c d">     TP=&gt;<del>(T9: (SH_SH-7)&lt;0=&gt;(SH_29; W_W+1);</del></td><td class="n a">240</td><td class="c a">     J<ins>:=</ins>J-TP*JJ; TP<ins>:=</ins>TP/10;</td></tr>
 <tr><td class="n d">208</td><td class="c d">          GO TO T8<del>)</del>;</td><td class="n a">241</td><td class="c a">     TP =&gt; GO TO T8;</td></tr>
-<tr><td class="n d">209</td><td class="c d"> DIR(<del>FOO</del>))%%</td><td class="n a">242</td><td class="c a"> DIR(<ins>NMF</ins>))%%</td></tr>
+<tr><td class="n q">209</td><td class="c q"> DIR(FOO))%%</td><td class="n q">242</td><td class="c q"> DIR(FOO))%%</td></tr>
 </table>
 </body></html>
