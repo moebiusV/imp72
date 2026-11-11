@@ -15,12 +15,12 @@ are in `tape-names.md`.
 | `lex` | the line and the token are packed eight characters to a word and stepped with byte pointers, as on the tape; `LEXIN` opens the file with `fopen`; `PLINE` prints with `PRINT` |
 | `graph`, `parse`, `ercor` | halves of 32 bits; the parser takes its goal as a name |
 | `entree`, `cotree`, `dosem`, `rsyn` | the layouts of `layouts.md`; the semantic routines register themselves with `DSEM`, which enters their addresses in a table (the tape patches the address into a `JSA`) |
-| `debug` | the print-outs use `PRINT`; the dumps show the layouts of this machine; `PCODE1` is in `code3.imc` |
+| `debug` | the print-outs use `PRINT`; the dumps show the layouts of this machine; `PCODE1` lists the records of the IR chain, not PDP-10 instructions |
 | `impsem`, `code`, `code2`, `code3` | they make chains of records of the IR machine instead of PDP-10 words (`llvm-ir-path.md`); `EXECUTE` runs one instruction of that machine; `HRL` and `HRR` are the operations 66 and 67 |
 | `demit` | takes the place of `amod`, `rmod` and `omod`: chains to IR; a `GO TO` to a tag of another routine is a `longjmp` |
 | `impm` | the driver program: the command line (`IMPK`) as well as the tape's commands from the terminal (`-i`: `GETTY`, `READCMD`, the loop `AGAINSAM`); `ERROR`, `MSG` and `OUTSTR` write to standard error; a fatal error returns from `IMPK` where the tape goes to `FIN` |
 
-`PCODE` and `PCODE1` (the `/A` listing) are in `src/code3.imc` and list the records of the IR chain, not PDP-10
+`PCODE1` (the `/A` listing, in `src/debug.imc` as on the tape) and `PCODE` (in `src/code3.imc`) list the records of the IR chain, not PDP-10
 instructions. `HELPD`, `GPRINT`, `TPRINT` and `PARTRA` call the debugging routines directly (the tape tests whether the
 debugging module is loaded; it always is here). `FORMARG` is in `src/rsyn.imc`; nothing calls it, on the tape either.
 

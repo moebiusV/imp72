@@ -8,9 +8,9 @@ Why: the port corrects the tape's routines for 64 bit words, UTF-8, Unix and IR 
 |---|---|---|---|---|
 | `code` | 15 | 15 | `RCOCHK` | `REGFIELD` |
 | `code2` | 20 | 22 | `OPCODE` | `CJUMP` `JOP` `MOVEBLK` `SETNEXT` |
-| `code3` | 5 | 31 | - | `C0CALL` `CBADDR` `CBNOCALL` `CPAR` `CPCOUNT` `CSUBCALL` `FLDFIX` `FLDP` `FLDST` `FPBEG` `FPFLD` `PCODE1` `STBEG` `STCONST` `STEND` `STFIND` `STFLD` `STINFO` `STOFF` `STP32` `STRESET` `STSIZE` `STTYPE` `TYALIGN` `TYSIZE` `TYSTRUCT` |
+| `code3` | 5 | 30 | - | `C0CALL` `CBADDR` `CBNOCALL` `CPAR` `CPCOUNT` `CSUBCALL` `FLDFIX` `FLDP` `FLDST` `FPBEG` `FPFLD` `STBEG` `STCONST` `STEND` `STFIND` `STFLD` `STINFO` `STOFF` `STP32` `STRESET` `STSIZE` `STTYPE` `TYALIGN` `TYSIZE` `TYSTRUCT` |
 | `cotree` | 9 | 9 | - | - |
-| `debug` | 7 | 6 | `PCODE1` | - |
+| `debug` | 7 | 7 | - | - |
 | `dir` | 14 | 18 | `DORGFIX` | `BSWAPW` `SEMCALL` `SEMCOUNT` `SEMNAME` `SEMREMAP` |
 | `dosem` | 19 | 19 | - | - |
 | `entree` | 11 | 10 | `TORGFIX` | - |
@@ -105,3 +105,7 @@ Modules of the port with no tape module: `driver`, `llvm`, `ir2ll`, `ir2llx`, `i
 - `--run` and the ORC JIT are gone: that was an addition that was not asked for.
 - `IMPSVDAT`, `IMPSVNUM` and `IMPSVSET` stay: they look redundant (two variables could be `COMMON` in `impm`), and the test of the saved compiler's banner (`(A)`, `(B)`) showed why they are not: the image leaves the variables of `impm` out and carries those of `rsyn`, so the save count and date live in `rsyn` and `impm` reaches them through the routines (tried 2026-11-11).
 - `free`: the six accessors `FBACK`, `FFWD`, `FLENX`, `FSETB`, `FSETF` and `FSETL` are helpers at the head of the module for the tape's `[X]<L>`, `[X]<R>`, `[X+2]<R>` and their assignments (the IR machine has no halfword operations); they stay. `FRELOT` and `FFIXER` are the tape's, corrected in place: the header word that held the address of the pointer variable in 18 bits holds an index into a table of the addresses, which are 64 bits. `FNEW` stays, because it is not redundant: the tape's `FALLOT(A,N)` allocates a new array when `A RS 18` is not zero (`A` is a name of six sixbit characters) and resizes the array `A` otherwise; a name here is up to eight bytes of a word, the first in the low byte, and no test tells it from an index (`ALF` is 4607041, `PRP` 5263952, `CODE` 1162104643: all values an index of a large arena can have), so `FALLOT` keeps the index and `FNEW` takes the name; `FRELOT` and the modules that allocate a named array call it where the tape calls `FALLOT`.
+
+## The order of the routines
+
+The routines of a module are in the order of the tape and in the module of the tape (2026-11-11, the author: "keep functions in the same files, in the same order unless there is a really good reason to change"): `code`, `code2`, `code3`, `debug`, `dosem`, `free`, `impm` and `impsem` were reordered to it, and `PCODE1` is in `debug` again (it lists the IR records where the tape's lists PDP-10 instructions; the seed's C twin keeps `g_pcode1` in `gen_code3.c`, which has the generator's variables). A routine that the port adds stands before the first routine of the tape that uses it, or after the port's routine that uses it, so that it is next to its use. `CORE` is in `free` as on the tape (the tape has another in `impm`, a monitor call, which is not provided).
