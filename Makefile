@@ -23,14 +23,14 @@ LLVMIR = build/llvm-ir2/impd          # the compiler with the code generator of 
 
 all: stage0 $(LIB) llvm-ir runtime cimport
 
-$(LIB): stage0 tools/mklib.sh lib/imprt.iml lib/impio.iml lib/impsys.iml lib/imphost.iml lib/imphostx-elf.iml lib/imphostx-macho.iml lib/impvars.iml lib/impvarsx-elf.iml lib/impvarsx-macho.iml tools/sysconst.sh lib/impmain.iml
+$(LIB): stage0 tools/mklib.sh lib/imprt.iml lib/impio.iml lib/impsys.iml lib/imphost.iml lib/imphostx-elf.iml lib/imphostx-macho.iml lib/impvars.iml lib/impvarsx-elf.iml lib/impvarsx-macho.iml tools/sysconst.sh lib/impmain.iml lib/impchan.iml
 	CFLAGS="$(CFLAGS)" sh tools/guard.sh sh tools/mklib.sh
 
 # the runtime library by stage 2, no C compiler (skipped where stage 2 could not be built)
 runtime: llvm-ir
 	@if [ -x build/llvm-ir2/impstage-llvm-ir ]; then $(MAKE) $(RTLIB) || exit 1; fi
 
-$(RTLIB): build/llvm-ir2/impstage-llvm-ir tools/mkrt.sh tools/sysconst.sh lib/imprt.iml lib/impio.iml lib/impsys.iml lib/imphost.iml lib/imphostx-elf.iml lib/imphostx-macho.iml lib/impvars.iml lib/impvarsx-elf.iml lib/impvarsx-macho.iml lib/impmain.iml
+$(RTLIB): build/llvm-ir2/impstage-llvm-ir tools/mkrt.sh tools/sysconst.sh lib/imprt.iml lib/impio.iml lib/impsys.iml lib/imphost.iml lib/imphostx-elf.iml lib/imphostx-macho.iml lib/impvars.iml lib/impvarsx-elf.iml lib/impvarsx-macho.iml lib/impmain.iml lib/impchan.iml
 	sh tools/guard.sh sh tools/mkrt.sh "" build/rt-host
 
 # the tool imp-cimport (tools/cimport*.imp, an IMP program the compiler of the tree builds; skipped where stage 2 could not be built)

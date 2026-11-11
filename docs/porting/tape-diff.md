@@ -17,7 +17,7 @@ Why: the port corrects the tape's routines for 64 bit words, UTF-8, Unix and IR 
 | `ercor` | 4 | 4 | - | - |
 | `free` | 19 | 22 | `ERROR` `FLEN` `FREES` | `FBACK` `FFWD` `FLENX` `FNEW` `FSETB` `FSETF` `FSETL` |
 | `graph` | 23 | 22 | `GORGFIX` | - |
-| `impm` | 17 | 27 | `CORE` `PEEKAT` `RLEAS` `TMPCOR` `TMPFL` | `COMPIL` `IMPARGV` `IMPBYTE` `IMPCLOSEIRMEM` `IMPCLOSELIST` `IMPGETC` `IMPK` `IMPNOISY` `IMPOBJ` `IMPOPENIR` `IMPOPENIRMEM` `IMPOPENLIST` `LISTOUT` `MKNAME` `OUTCS` `SETSW` `USAGE` |
+| `impm` | 17 | 28 | `CORE` `PEEKAT` `TMPCOR` `TMPFL` | `COMPIL` `IMPARGV` `IMPBYTE` `IMPCLOSEIRMEM` `IMPCLOSELIST` `IMPGETC` `IMPK` `IMPNOISY` `IMPOBJ` `IMPOPENIR` `IMPOPENIRMEM` `IMPOPENLIST` `LISTOUT` `MKNAME` `OUTCS` `SETSW` `USAGE` |
 | `impsem` | 37 | 46 | `SUBTAG` | `CDECL` `CPADD` `CPFIND` `CPHEAD` `CPTYPE` `CTYPEOF` `CVAL` `IINIT` `ISCVAL` `PAIRFIRST` |
 | `lex` | 12 | 12 | - | - |
 | `parse` | 8 | 8 | - | - |
@@ -109,3 +109,4 @@ Modules of the port with no tape module: `driver`, `llvm`, `ir2ll`, `ir2llx`, `i
 ## The order of the routines
 
 The routines of a module are in the order of the tape and in the module of the tape (2026-11-11, the author: "keep functions in the same files, in the same order unless there is a really good reason to change"): `code`, `code2`, `code3`, `debug`, `dosem`, `free`, `impm` and `impsem` were reordered to it, and `PCODE1` is in `debug` again (it lists the IR records where the tape's lists PDP-10 instructions; the seed's C twin keeps `g_pcode1` in `gen_code3.c`, which has the generator's variables). A routine that the port adds stands before the first routine of the tape that uses it, or after the port's routine that uses it, so that it is next to its use. `CORE` is in `free` as on the tape (the tape has another in `impm`, a monitor call, which is not provided).
+- `RLEAS` is the tape's again (it executed the monitor's `RELEAS`; it calls `RELEAS` of `lib/impchan.iml`), now that channel input and output is back as a single buffer emulation: `INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`, `CLOSE`, `RENAME`, `RELEAS` over `FILE *`, new in the library because the tape's are the monitor's own calls (TOPS-10 convention, not IMP's). The only tape routines that touch the buffer header are `NEXTCHAR` of `lex` (reads), `IASSEM` and `OUTBLK` of `omod` (writes) and `OPENIN`, `OPENOUT` and the main program of `impm` (the ring); the library of the tape (`tbin`, `tprin`, `traed`) uses the calls with dump mode lists and not the header.

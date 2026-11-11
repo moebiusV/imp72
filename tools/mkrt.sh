@@ -57,7 +57,7 @@ bd=$(sh tools/llvm.sh bindir)
 sh tools/sysconst.sh "$os" "$arch" "$bd" > "$out/sysgen.iml"
 case $os in darwin) vfmt=macho ;; *) vfmt=elf ;; esac
 objs=
-for m in "imprt_imp:$out/imprt_all.iml" "impsys:lib/impsys.iml" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml"; do
+for m in "imprt_imp:$out/imprt_all.iml" "impsys:lib/impsys.iml" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml" "impchan:lib/impchan.iml"; do
     $w -c $tgt -o "$out/${m%%:*}.o" -C $endf "${m#*:}" > "$out/${m%%:*}.log" 2>&1 || { echo "mkrt: ${m#*:} did not compile:" >&2; head -c 600 "$out/${m%%:*}.log" >&2; exit 1; }
     objs="$objs $out/${m%%:*}.o"
 done

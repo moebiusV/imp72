@@ -17,8 +17,7 @@ that the 64 bit layout or the Unix driver needs.
 | module | routine | what it does | disposition |
 |---|---|---|---|
 | `dir`, `graph`, `entree` | `DORGFIX`, `GORGFIX`, `TORGFIX` | set the origin words of the tables (`DORG`, `DORG1`, `GORG`, `TORG`, ...) and build byte pointers into the packed 18 bit fields (`BYTEP [GORG1]<15,18>`, the `DPBYP*`, `GBYP*`, `T*BP` variables) | not needed: the fields are read with shifts and masks (`DPROP`, `TSCR` and the rest in `impsyn.imc`), and the arena has one address |
-| `impm` | `CORE(N)` | monitor call to grow the core | not provided in `impm`. `free.imc` has its own `CORE(K)` (as `free.imc` has), which makes the first `K+1` words of the reserved arena usable (`IMPCORESET`) |
-| `impm` | `RLEAS(CH)` | release a channel | not provided: no channel is opened |
+| `impm` | `CORE(N)` | monitor call to grow the core | not provided in `impm`. `free.imc` has its own `CORE(K)` (as `free.imc` has), which makes the arena usable (`IMPCORESET`) |
 | `impm` | `TMPCOR`, `TMPFL` | the monitor's temporary core and the name of the job's temporary file `I10`, through which the command line reached `GETMP` | not needed: `GETMP` reads the command line from `argv` (`IMPARGV`) |
 | `impm` | `PEEKAT` | tell a "bulldog" watcher program of the monitor which file is compiled | not needed |
 | `code` | `RCOCHK` | walk the chain of PDP-10 code words checking the use of registers | no counterpart: there is no such chain |
@@ -26,8 +25,8 @@ that the 64 bit layout or the Unix driver needs.
 | `impsem` | `SUBTAG` | make the name of the tag of a subroutine's entry, `%` and the name, for the re-entrant code of `SUBBEG` (switch `R`: a jump in the low segment to the routine in the high one) | no counterpart, and `SUBBEG` has no `RNTRNT` branch: there is one segment, and the text of a Unix process is shared and read-only whatever the switch (the help says `R` is always so); labels of the IR are numbered by `demit.imc` (`IXNEWLABEL`, `TAGLABEL`) |
 | `amod`, `omod`, `rmod` | all (12, 9 and 20 routines) | the PDP-10 assembler, the writer of the `.REL` file and the register allocator | no counterpart: `demit.imc` writes IR and LLVM does this work |
 
-`CORE` and `RLEAS` are the two tape routines whose absence depends on the file I/O of the implementation. If channel
-I/O is implemented, `RLEAS` (the `fclose` of a channel) and the monitor `CORE` are reconsidered.
+`RLEAS` is back, now that channel I/O is (it calls `RELEAS` of `lib/impchan.iml`, the `fclose` of a channel); the monitor `CORE` of `impm` is not provided,
+and `free.imc` has the tape's other `CORE`.
 
 Shared variables of the tape that do not appear in `src/` or `lib/`: `DORG`, `DORG1`, `DORG2`, `GORG`, `GORG1`, `TORG` (the
 origins above); `DPBYPA`, `DPBYPC`, `DPBYPI`, `DPBYPL`, `DPBYPU`, `GBYPNB`, `GBYPTY`, `TALTBP`, `TNONBP`, `TSCRBP` (the

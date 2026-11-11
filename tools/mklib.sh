@@ -17,7 +17,7 @@ bd=$(sh tools/llvm.sh bindir)                          # where lld is as a progr
 sysos=${SYSOS:-$(uname -s | tr 'A-Z' 'a-z')}
 sh tools/sysconst.sh "$sysos" "$SYSARCH" "$bd" > "$out/sysgen.iml"
 case $sysos in darwin) vfmt=macho ;; *) vfmt=elf ;; esac
-for m in "impsys:lib/impsys.iml" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml"; do
+for m in "impsys:lib/impsys.iml" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml" "impchan:lib/impchan.iml"; do
     x=; case ${m%%:*} in sysgen) x='-C lib/ffi.imc' ;; esac                 # (sysgen declares syscall: tools/sysconst.sh)
     env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0 -c -o "$out/${m%%:*}.o" $x -C "$endf" "${m#*:}"
 done
@@ -30,4 +30,4 @@ if [ -n "$rt" ]; then
     ( cd "$out/rt" && ar x "$rtabs" )
     rtobjs=$(ls "$out"/rt/*.o)
 fi
-ar rcs "$out/libimp.a" "$out/imprt_imp.o" "$out/impsys.o" "$out/sysgen.o" "$out/impvars.o" "$out/impvarsx.o" "$out/impmain.o" "$out/imphost.o" "$out/imphostx.o" $rtobjs
+ar rcs "$out/libimp.a" "$out/imprt_imp.o" "$out/impsys.o" "$out/sysgen.o" "$out/impvars.o" "$out/impvarsx.o" "$out/impmain.o" "$out/impchan.o" "$out/imphost.o" "$out/imphostx.o" $rtobjs

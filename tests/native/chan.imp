@@ -1,0 +1,35 @@
+H IS 3 LONG;
+G IS 3 LONG;
+Q,R,C,N,SUM,I ARE 1 LONG;
+INIT(0,0,'DSK',H,'0');
+ENTER(0,'CHANTEST','TMP',0,0) => (PRINT STG 0,'ENTER FAILED',/; FINI(0));
+Q:=H[1];
+R:=BYTEP 'HELLO, CHANNEL'<7,36>;
+WHILE (C:=<+R>) NE 0 DO (<+Q>:=C; H[2]:=H[2]-1);
+<+Q>:=12B; H[2]:=H[2]-1;
+H[1]:=Q;
+OUTPUT(0);
+CLOSE(0);
+INIT(1,0,'DSK','0',G);
+LOOKUP(1,'CHANTEST','TMP',0,0) => (PRINT STG 0,'LOOKUP FAILED',/; FINI(0));
+N:=0; SUM:=0;
+RD1: (G[2]:=G[2]-1) LE 0 => INPUT(1) => GO TO RD2;
+     Q:=G[1]; C:=<+Q>; G[1]:=Q;
+     N:=N+1; SUM:=SUM+C;
+     GO TO RD1;
+RD2: PRINT STG 0,'BYTES ',IGR 0,N,STG 0,' SUM ',IGR 0,SUM,/;
+LOOKUP(2,'CHANTEST','TMP',0,0) => PRINT STG 0,'NOT INITIALISED',/;
+RENAME(1,0,0);
+CLOSE(1);
+LOOKUP(1,'CHANTEST','TMP',0,0) => PRINT STG 0,'GONE',/;
+INIT(3,0,'TTY',H,'0');
+ENTER(3,'TTY',0,0,0);
+Q:=H[1];
+R:=BYTEP 'TTY CHANNEL OK'<7,36>;
+WHILE (C:=<+R>) NE 0 DO (<+Q>:=C; H[2]:=H[2]-1);
+<+Q>:=12B; H[2]:=H[2]-1;
+H[1]:=Q;
+OUTPUT(3);
+CLOSE(3);
+FINI(0)
+%%

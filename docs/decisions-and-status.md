@@ -14,36 +14,25 @@
 ## Contents
 
 - [Summary](#summary)
-- [Left to do (11)](#left-to-do-11)
+- [Left to do (10)](#left-to-do-10)
 - [Left in the air (1)](#left-in-the-air-1)
 - [Rejected or replaced (1)](#rejected-or-replaced-1)
-- [Done (43)](#done-43)
+- [Done (44)](#done-44)
 - [Precedents, by name](#precedents-by-name)
 - [Where the current docs or code differ from the decisions (20)](#where-the-current-docs-or-code-differ-from-the-decisions-20)
 
 # Summary
 
-- Left to do: 11 of 56 subjects
+- Left to do: 10 of 56 subjects
 - Left in the air: 1 of 56 subjects
 - Rejected or replaced: 1 of 56 subjects
-- Done: 43 of 56 subjects
+- Done: 44 of 56 subjects
 
-# Left to do (11)
+# Left to do (10)
 
 - Decided, and not yet in the current code or docs (or only partly).
 
 ## Other
-
-### Channel I/O
-- Status: TO DO — decided, details pending: the channel statements are not built (latest decision 2026-11-11 \[R184\])
-- Decided: 2026-11-11 decided: "decided, details pending. not in the air" \[R184\]
-- Rationale: "you could use them 'Underneath' to implement the channel stuff that was in use before" \[R82\]
-- Rationale: the tape-name audit is to be examined again "once channel io is back" (CORE and RLEAS) \[R140\]
-- Precedent: original channel I/O (chosen; named by author): to be implemented underneath with fopen and putc \[R82\]
-- Precedent: fopen/putc (C stdio) (chosen; named by author): used underneath for the channel statements \[R82\]
-- Precedent: UTF-8 (considered; named by author): other matters for study before v1.0.0 \[R82\]
-- Evidence: docs/ROADMAP.md item 5 "The original's channel I/O": statements over fopen/getc/putc, "None is implemented"
-- Left: details pending: how many routines of decus/ use the buffer header words directly (decides whether the buffer emulation is cheap), and CORE and RLEAS with it
 
 ### CI test runs
 - Status: TO DO — the author chose option 1 (pause the agent while debugging), a process step, details pending: no repository trace (latest decision 2026-11-04 \[R166\])
@@ -179,7 +168,7 @@
 - Precedent: pcc IR (considered; named by author): "pcc ir can handle it" about 36 bits \[R40\]
 - Evidence: 8a2db1a removed the seed's 36-bit emulation (trans.c, sx36/u36/L18/R18, IMP72NARROW); README.md:127 "The IMP word is 64 bits"; the 36-bit forms remain only in decus/ and the oracle (docs/ORACLE.md), stage tests retired on purpose
 
-# Done (43)
+# Done (44)
 
 - Implemented in the current code or stated in the current docs, with the evidence.
 
@@ -205,6 +194,18 @@
 - Precedent: OpenBSD strlcpy and strlcat (chosen; named by author): bring in strlcpy and friends \[R149\]
 - Precedent: djb tmpfile practices (chosen; named by author): best djb practices or better \[R150\]
 - Evidence: stage0/strlcpy.c, stage0/strlcat.c, stage0/strl.c; commit ebce211 (memfd, mkdtemp 0700, O\_EXCL, unlink/rmdir, signal cleanup); docs/BUILDING.md:77-106 "Temporary files"; tests/tmpfiles; README.md:187-188
+
+### Channel I/O
+- Status: DONE — the calls are in lib/impchan.iml over FILE *, one buffer to a channel; the rest of the original's channel I/O is details pending (latest decision 2026-11-11 \[R194\])
+- Decided: 2026-11-11 decided: "count the direct buffer header users first, then do the single-buffer emulation" \[R194\]
+- Rationale: "decided, details pending. not in the air" \[R184\]
+- Rationale: "you could use them 'Underneath' to implement the channel stuff that was in use before" \[R82\]
+- Precedent: original channel I/O (chosen; named by author): implemented underneath with fopen and putc \[R82\]
+- Precedent: fopen/putc (C stdio) (chosen; named by author): used underneath for the channel calls \[R82\]
+- Precedent: UTF-8 (considered; named by author): other matters for study before v1.0.0 \[R82\]
+- Precedent: TOPS-10 monitor calls (chosen; named by the assistant, accepted): INIT, LOOKUP, ENTER, INPUT, OUTPUT, CLOSE, RENAME and RELEAS are the monitor's own calls, not IMP's \[R194\]
+- Evidence: lib/impchan.iml, tests/native/chan.imp, docs/manual/imp.rno 2.2.7; RLEAS is back in src/impm.imc; docs/ROADMAP.md item 5 lists what is not provided
+- Left: details pending: dump mode, binary mode, the devices but DSK and TTY, USETI and USETO, the status bits
 
 ### CI configuration
 - Status: DONE — all workflows can be run, with tags and manual run (latest decision 2026-10-29 \[R116\])

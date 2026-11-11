@@ -216,8 +216,9 @@ comes from the machine and from the runtime library.
 - 12. The terminal is a Unix one: The interactive mode prompts and speaks on the standard error,
   takes a tab for a blank, ends with Control-D, and quotes a name with `!` marks. Section 3.1.2.
 
-- 13. The original's channel input and output (`INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT` and the
-  buffers) is not in this version yet; PRINT and READ with FILE use Unix files (Section 2.2.7).
+- 13. The original's channel input and output (`INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`,
+  `CLOSE`, `RENAME`, `RELEAS`) are routines over Unix files with one buffer of 1024 bytes to a
+  channel, and no dump mode; PRINT and READ with FILE use Unix files (Section 2.2.7).
 
 ## 2: Programmer's Guide to IMP72
 
@@ -895,6 +896,23 @@ On output only, causes leading positions in all fields to be printed as the spec
 instead of being left blank. Thus, for example, FILL '0' causes leading zeros to be printed. FILL '
 ' (or FILL 0) restores blanks. This specification, unlike the others, affects all output files, not
 just the current one.
+
+Channel input and output. The monitor calls of TOPS-10 that the original's programs make for a file
+without PRINT and READ are routines of the runtime library over Unix files:
+`INIT(CH,MODE,DEV,OHDR,IHDR)` makes the channel `CH` (0 to 15) for the device `DEV`, `DSK` the file
+system or `TTY` the standard files, with the buffer headers `OHDR` for output and `IHDR` for input
+(`0` for the one not used); `LOOKUP(CH,NAME,EXT,X,Y)` opens the file `NAME.EXT` for input and
+`ENTER(CH,NAME,EXT,X,Y)` makes it for output, each true if it cannot; `INPUT(CH)` reads the next
+buffer and is true at the end of the file; `OUTPUT(CH)` writes what the program has stored;
+`CLOSE(CH)` writes the rest and closes the file; `RELEAS(CH)` closes it without writing; and
+`RENAME(CH,NAME,EXT)` renames the file of the channel, or deletes it when `NAME` is 0. The program
+takes the bytes itself: the header has three words, the address of the buffer of 1024 bytes, the
+byte pointer (of the byte before the next, for `<+P>` advances the pointer first) and the count, the
+bytes left to read or the room left to write. A program reads with the count decremented before each
+byte, calling `INPUT` when it is 0 or less, and writes with the pointer and the count kept up to
+date, calling `OUTPUT` when the buffer is full. The original's ring of buffers is not used, and dump
+mode, binary mode, the devices other than these, `USETI`, `USETO` and the status bits are not
+provided.
 
 #### 2.2.8: Declarations; DATA and REMOTE statements.
 

@@ -54,23 +54,18 @@ Decided (2026-11-03, "`''` keeps its original meaning"): `''` is the constant 0.
 with no third following: the constant 0) and a test. As a `STG` argument, `''`
 is 0, like any other zero word.
 
-### 5. The original's channel I/O
+### 5. The rest of the original's channel I/O
 
-`PRINT`, `READ` and `PRINT FILE` are in `lib/impio.iml`. The channel
-operations of the TOPS-10 library (`INIT`, `LOOKUP`, `ENTER`, `INPUT`,
-`OUTPUT`, the buffer header) are not in `decus/syntax.imc` or `decus/impsyn.imc`;
-the original reaches them through its libraries, which the port does not have.
+`INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`, `CLOSE`, `RENAME` and `RELEAS` are in `lib/impchan.iml`: the monitor calls of TOPS-10 as routines over
+`FILE *`, one buffer of 1024 bytes to a channel, a header of three words (the buffer, the byte pointer, the count). Not provided: the ring of buffers
+(its links are 18 bit addresses), dump mode (a command list of `IOWD` words), binary mode and its checksums, the devices but `DSK` and `TTY`,
+`USETI` and `USETO` (random access, `fseek`), the status bits of `STATZ` and `STATO`, and the date, protection and project-programmer words of
+`LOOKUP`, `ENTER` and `RENAME`.
 
-Decided (2026-10-27 and 2026-11-03: channel I/O comes back, over the C library; `CORE` and `RLEAS` are examined with it): statements with the original's meaning over `fopen`, `getc` and
-`putc`. A channel is an index into a table of `FILE *`; the buffer header is a
-small record that the program may read (count, pointer), kept in step by the
-library. Programs of the original that call them then compile. `RLEAS` is the
-`fclose` of a channel.
+Decided (2026-11-11: channel I/O comes back; the single buffer is done): the rest as far as a program of the tape needs it; details pending.
 
-*Effect on the code.* A new part of the library, about the size of the file part
-of `impio.iml`, and the statements in an extension file. How many routines of
-`decus/` use the buffer header words directly decides whether the buffer
-emulation is cheap; it has not been counted.
+*Effect on the code.* `lib/impchan.iml` and its test `tests/native/chan.imp`; `USETI` and `USETO` are an `fseek` and the count; dump mode is a
+list of word pairs (count, address) in place of `IOWD`.
 
 ### 6. Counted strings
 
