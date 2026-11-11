@@ -41,7 +41,7 @@ static word incnom = 8;     /* INCNOM: nominal FADD increment */
 static word trace;          /* TRACE */
 static word tr;             /* TR: 4 = array stayed put, 6 = list reordered */
 static word xfix;           /* XFIX: where FPACK left the array being grown */
-static long falln;          /* FALN: calls on FALLOT that moved/resized */
+static long faln;          /* FALN: calls on FALLOT that moved/resized */
 
 #define BACK(x)      HL(fmem[x])
 #define FWD(x)       HR(fmem[x])
@@ -216,7 +216,7 @@ fallot_new(const char *name, word n)
     if (!init)
         finit();
     if (trace || (finam5 & SW_STATS))
-        falln++;
+        faln++;
     tr = 6;
     if (n <= 0)
         return 0;
@@ -260,7 +260,7 @@ fallot(word a, word n)
     if (!init)
         finit();
     if (trace || (finam5 & SW_STATS))
-        falln++;
+        faln++;
     tr = 4;
     x = a - 4;
     v = BACK(x);
@@ -529,9 +529,9 @@ fstats(void)
 {
     fprintf(stderr, "FREE STORAGE %ld WORDS: %lo - %lo\n",
         (long)(fend + 4 - 0), (long)forgn, (long)(fend + 3));
-    if (falln) {
-        fprintf(stderr, "%6ld REALLOTS\n", falln);
-        falln = 0;
+    if (faln) {
+        fprintf(stderr, "%6ld REALLOTS\n", faln);
+        faln = 0;
     }
 }
 
