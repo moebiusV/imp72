@@ -5,7 +5,7 @@ root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 d=${INTERACTIVE_IMPD:-build/llvm-ir2/impd}
 [ -x "$d" ] || { echo "interactive test skipped: no $d"; exit 0; }
-syn="$root/src/llvm-ir/syntax64.imc $root/lib/ffi.imc"
+syn="$root/src/llvm-ir/syntax.imc $root/lib/ffi.imc"
 out=build/interactive
 rm -rf $out; mkdir -p $out
 cp tests/native/hello.imp tests/native/basic.imp $out/

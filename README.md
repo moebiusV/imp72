@@ -8,10 +8,12 @@ compiler is the original's design and source, translated to IMP for 64-bit
 words and IEEE 754 doubles. It compiles to native code through LLVM, in its own
 process, and calls C and ELF or Mach-O objects through the C ABI.
 
+IMP stands for Irons Meta Program: Ned Irons invented it.
+
 Almost none of the language is built in. A small kernel (a lexer, Irons's
 multi-track parser, a syntax graph, a code-tree matcher, a semantic stack)
 starts empty. A bootstrap reader, `RSYN`, reads a notation for syntax
-statements, and `src/llvm-ir/syntax64.imc` then defines the language in
+statements, and `src/llvm-ir/syntax.imc` then defines the language in
 statements of the form
 
     <CLASS> ::= elements ::= semantics ;
@@ -113,7 +115,7 @@ target.
 
     decus/          the DECUS 10-198 tape, unchanged (hashes, PROVENANCE.md)
     src/            the compiler in 64-bit IMP: the kernel, the driver, llvm.imp, ir2ll*.imp
-    src/llvm-ir/    the code generator, and syntax64.imc, the language's syntax
+    src/llvm-ir/    the code generator, and syntax.imc, the language's syntax
     stage0/         the seed (C99), the glue to the LLVM C API, impld.cpp
     lib/            the runtime library (IMP), ffi.imc, imp.h
     tools/          build scripts, tools written in IMP (run by imptool.sh, among them imp-cimport), fuzzers (Python), CI scripts, tools/bsd-vm
@@ -172,7 +174,7 @@ output with it.
 The sources in `decus/` are DECUS program 10-198a, *IMP - PDP-10 IMP72 Compiler,
 Version 1.5*, October 3, 1973, by Walter Bilofsky, Yale University, Department of
 Computer Science, submitted by Sonya Shapiro, Bolt Beranek and Newman, Inc.
-IMP is by Edgar T. (Ned) Irons. They come from the PDP-10 archive's listing of
+IMP (Irons Meta Program) is by Edgar T. (Ned) Irons, who invented it. They come from the PDP-10 archive's listing of
 the DECUS library tape 10-LIB-3,
 <https://pdp-10.trailing-edge.com/decuslib10-03/index.html>, directory
 `[43,50306]`, which states of the DECUS software that it was put into the public

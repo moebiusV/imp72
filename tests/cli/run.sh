@@ -6,7 +6,7 @@ root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 w=${CLI_IMP72:-$root/build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "cli test skipped: no $w"; exit 0; }
-export IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
+export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
 d=build/cli
 rm -rf $d; mkdir -p $d
 cd $d || exit 1

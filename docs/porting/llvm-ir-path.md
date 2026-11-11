@@ -1,7 +1,7 @@
 # The IR code generator in src/llvm-ir
 
 `src/llvm-ir/` holds the code generator of the compiler: the tape's `code.imc`, `code2.imc`, `code3.imc`, `impsem.imc` and
-`syntax.imc`, with the operations of the IR machine (`llvm-ir-machine.md`) in place of PDP-10 instructions, and
+`src/llvm-ir/syntax.imc`, with the operations of the IR machine (`llvm-ir-machine.md`) in place of PDP-10 instructions, and
 `demit.imp`, which takes the place of `amod`, `rmod` and `omod`. How it works is in `docs/internals/code-generator.md`.
 
 | file | contents |
@@ -11,7 +11,7 @@
 | `demit.imp` | the chains of records into IR trees |
 | `ix.imp` | the IR tree builders and the IR text; the names of directory entries as the IR has them |
 | `irsyn.imc` | macros: the records, the operations, the IR operator and type codes |
-| `syntax64.imc` | `decus/syntax.imc` with the operations of the machine; no immediate, self or both modes, half words, skips or register pairs |
+| `src/llvm-ir/syntax.imc` | `decus/syntax.imc` with the operations of the machine; no immediate, self or both modes, half words, skips or register pairs |
 
 `decus/` is never edited. `shared.txt` lists the variables that the C of the seed shares with these modules; the rest of
 a module's symbols are renamed `impl_NAME` when the modules are linked, so that they call one another by the tape's names.
@@ -24,7 +24,7 @@ three words (`layouts.md`). The routines keep the tape's names and structure; th
 
 ## What differs from the tape
 
-`syntax64.imc` differs from `decus/syntax.imc` in:
+`src/llvm-ir/syntax.imc` differs from `decus/syntax.imc` in:
 
 - the opcodes are operation numbers of the machine (`ADDOP(6,A,B)`);
 - `<L>` and `<R>` are 32 bit halves, and `HRL`/`HRR` are the operations 66 and 67;
@@ -60,7 +60,7 @@ and links them with the LLVM glue and the library; it writes `impd` (the kernel)
 program with the driver). By hand:
 
     tools/direct.sh
-    IMPSYNTAX=src/llvm-ir/syntax64.imc IMPLIB=build/lib/libimp.a build/direct/impstage-llvm-ir -o hello tests/native/hello.imp
+    IMPSYNTAX=src/llvm-ir/syntax.imc IMPLIB=build/lib/libimp.a build/direct/impstage-llvm-ir -o hello tests/native/hello.imp
 
 - `tests/direct/run.sh` runs the native tests, the oracle goldens, the IEEE fuzz and `tests/direct/progs` through the
   compiler built by the seed.

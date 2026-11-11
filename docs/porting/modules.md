@@ -4,7 +4,7 @@
 The routines keep their names and their text where the machine does not force a change. What differs everywhere: words are
 64 bits and halves are 32 (a shift by the constant 18 on the tape is a half word move to its translator, so it is written
 as 32); the layout of the tables is `layouts.md`; a name is eight characters to a word; `FREE`, `FREES` and the rest are
-macros of `src/impsyn64.imc` over an arena; reals are IEEE 754; `CALLI` is the library's `impcalli`. The routines that the tape lacks
+macros of `src/impsyn.imc` over an arena; reals are IEEE 754; `CALLI` is the library's `impcalli`. The routines that the tape lacks
 are in `tape-names.md`.
 
 | module | what differs from the tape |

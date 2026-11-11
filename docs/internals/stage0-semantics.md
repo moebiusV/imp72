@@ -8,12 +8,12 @@
 
     stage0/imps0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]
 
-`imps0 src/llvm-ir/syntax64.imc` reads the syntax file of the language. `rsyn` reads the syntax for syntax with the
+`imps0 src/llvm-ir/syntax.imc` reads the syntax file of the language. `rsyn` reads the syntax for syntax with the
 lexer alone; the parser, the code tree and the semantic stack, driven by the productions just defined, read the remaining
 statements. The result is the syntax graph, the semantics array and the code tree, with 177 productions entered (the
 number of syntax statements in the file). `tests/stage0/test_syntax.sh` (run by `make -C stage0 check`) checks the
 count and the two `DUPLICATES ONE ALREADY` advisories the file produces, runs the dump switches `S`, `T`, `X` and `N`, and
-loads `src/impsyn64.imc` after the syntax file.
+loads `src/impsyn.imc` after the syntax file.
 
 Every further file is parsed with the syntax so far: `stinit`, `cotree(0)`, `parse("#PG")`, `ckdone`. `-c IRFILE` writes the
 IR of the program (`-` is standard output); `-T` names the machine the IR is lowered for (`ir_settarget`: `amd64`,
@@ -24,7 +24,7 @@ connectivity matrices, `P` trace semantics execution, `S` print the semantics ar
 the graph, `Y` list the source on the terminal, `Z` statistics.
 
 The same binary is the compiler `impstage0` when it is called by a name that begins `impstage`. It reads
-`src/llvm-ir/syntax64.imc` and `lib/ffi.imc`, runs the kernel with `-c` into a temporary directory, and makes an
+`src/llvm-ir/syntax.imc` and `lib/ffi.imc`, runs the kernel with `-c` into a temporary directory, and makes an
 executable (default), an object (`-c`), LLVM IR (`-S`) or a run (`--run`) with the LLVM back end in the process
 (`stage0/llvmorc.c`) and the linker in the process (`stage0/impld.cpp`). Where its parts are is found relative to
 the executable, in the source tree or installed; `IMPSYNTAX`, `IMPFFI` and `IMPLIB` override them.

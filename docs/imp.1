@@ -1,6 +1,6 @@
 .\" Copyright (c) 2026 The imp authors.  ISC licence, see LICENSE.
 .Dd November 3, 2026
-.Dt IMP72 1
+.Dt IMP 1
 .Os
 .Sh NAME
 .Nm imp
@@ -29,8 +29,9 @@
 compiles programs in IMP72, the extensible systems language of Ned Irons as
 implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a), to native code,
 and links them.
+IMP stands for Irons Meta Program: Ned Irons invented it.
 The syntax of the language is read at start from
-.Pa syntax64.imc
+.Pa syntax.imc
 and the C interface from
 .Pa ffi.imc .
 The code generator makes an intermediate representation, and LLVM, inside the
@@ -191,7 +192,7 @@ Print the usage and exit.
 .Bl -tag -width Ds
 .It Ev IMPSYNTAX
 The syntax file, instead of
-.Pa share/imp/syntax64.imc .
+.Pa share/imp/syntax.imc .
 .It Ev IMPFFI
 The C interface file, instead of
 .Pa share/imp/ffi.imc .
@@ -239,7 +240,7 @@ with, when lld is not linked in.
 .El
 .Sh FILES
 .Bl -tag -width Ds
-.It Pa /usr/share/imp/syntax64.imc
+.It Pa /usr/share/imp/syntax.imc
 The syntax of IMP72.
 .It Pa /usr/share/imp/ffi.imc
 The extension that defines

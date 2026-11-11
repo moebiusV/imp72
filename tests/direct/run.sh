@@ -7,7 +7,7 @@ cd "$root" || exit 1
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct tests skipped: the seed has no LLVM"; exit 0; }
 [ $rc = 0 ] || { dd bs=100000 count=1 if=build/direct.log 2>/dev/null >&2; echo "FAILED: direct build" >&2; exit 1; }
-export IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
+export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
 export DRIVER=build/direct/impstage-llvm-ir
 fail=0
 # the compiler whose own IMP modules (src/*.imp) the IR path compiled, too: tests of it

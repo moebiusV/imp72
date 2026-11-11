@@ -3,10 +3,10 @@
 How the routines of this implementation relate to those of the original (`decus/*.imc`). The page compares the `SUBR`
 names of each module of the tape with those of the module that corresponds to it in `src/` (the kernel in `src/*.imp`, the
 code generator and the semantics in `src/llvm-ir/*.imp`), the names the tape declares `COMMON` with `src/` and `lib/`, and
-the macros and syntax elements of `impsyn.imc` and `syntax.imc` with `impsyn64.imc`, `irsyn.imc` and `syntax64.imc`.
+the macros and syntax elements of `decus/impsyn.imc` and `decus/syntax.imc` with `src/impsyn.imc`, `src/llvm-ir/irsyn.imc` and `src/llvm-ir/syntax.imc`.
 
-`FREES`, `FLEN`, `FADD` and the other macros of `impsyn.imc` are syntax, not routines, and keep their names in
-`src/impsyn64.imc`. The assignment is `_` in the tape and `:=` here, which changes no name.
+`FREES`, `FLEN`, `FADD` and the other macros of `decus/impsyn.imc` are syntax, not routines, and keep their names in
+`src/impsyn.imc`. The assignment is `_` in the tape and `:=` here, which changes no name.
 
 Six modules have exactly the tape's routines: `stack`, `lex`, `parse`, `ercor`, `cotree`, `dosem`. In the others every
 difference is one of three kinds: PDP-10 machinery that has no counterpart, a TOPS-10 service that has none, or a routine
@@ -16,7 +16,7 @@ that the 64 bit layout or the Unix driver needs.
 
 | module | routine | what it does | disposition |
 |---|---|---|---|
-| `dir`, `graph`, `entree` | `DORGFIX`, `GORGFIX`, `TORGFIX` | set the origin words of the tables (`DORG`, `DORG1`, `GORG`, `TORG`, ...) and build byte pointers into the packed 18 bit fields (`BYTEP [GORG1]<15,18>`, the `DPBYP*`, `GBYP*`, `T*BP` variables) | not needed: the fields are read with shifts and masks (`DPROP`, `TSCR` and the rest in `impsyn64.imc`), and the arena has one address |
+| `dir`, `graph`, `entree` | `DORGFIX`, `GORGFIX`, `TORGFIX` | set the origin words of the tables (`DORG`, `DORG1`, `GORG`, `TORG`, ...) and build byte pointers into the packed 18 bit fields (`BYTEP [GORG1]<15,18>`, the `DPBYP*`, `GBYP*`, `T*BP` variables) | not needed: the fields are read with shifts and masks (`DPROP`, `TSCR` and the rest in `impsyn.imc`), and the arena has one address |
 | `impm` | `CORE(N)` | monitor call to grow the core | not provided in `impm`. `free.imp` has its own `CORE(K)` (as `free.imc` has), which makes the first `K+1` words of the reserved arena usable (`IMPCORESET`) |
 | `impm` | `RLEAS(CH)` | release a channel | not provided: no channel is opened |
 | `impm` | `TMPCOR`, `TMPFL`, `GETMP` | pass the command line from the monitor through temporary core or a temporary file `I10` | not needed: `argv` (`IMPARGV`, `COMPIL`) |
@@ -35,7 +35,7 @@ Shared variables of the tape that do not appear in `src/` or `lib/`: `DORG`, `DO
 origins above); `DPBYPA`, `DPBYPC`, `DPBYPI`, `DPBYPL`, `DPBYPU`, `GBYPNB`, `GBYPTY`, `TALTBP`, `TNONBP`, `TSCRBP` (the
 prebuilt byte pointers); `IMPSMD` (the TOPS-10 buffer `TBUF` that held the command line); `RSYNLO` (a label of `rsyn`).
 Of the syntax elements, `HRL` and `HRR` (half word stores) are defined in `irsyn.imc` over the 32 bit halves; `FLAG` (a test
-of the `FINAM` switches) is not defined in `impsyn64.imc`, and the modules test the switches directly.
+of the `FINAM` switches) is not defined in `decus/impsyn.imc`, and the modules test the switches directly.
 
 ## (b) A routine that is not on the tape
 

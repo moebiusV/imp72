@@ -60,7 +60,7 @@ jobs:
           if [ $rc != 0 ]; then
             echo "::error::make check failed: $(grep -i -B2 -A2 'fail\|error\|not found' "$RUNNER_TEMP/check.log" | head -c 1800 | tr '\n%' ' _')"
             # what the commands of tests/cli say (its test sends it to /dev/null)
-            ( cd build/cli 2>/dev/null && w=$PWD/../llvm-ir2/impstage-llvm-ir && export IMPSYNTAX=$PWD/../../src/llvm-ir/syntax64.imc IMPFFI=$PWD/../../lib/ffi.imc IMPLIB=$PWD/../lib/libimp.a
+            ( cd build/cli 2>/dev/null && w=$PWD/../llvm-ir2/impstage-llvm-ir && export IMPSYNTAX=$PWD/../../src/llvm-ir/syntax.imc IMPFFI=$PWD/../../lib/ffi.imc IMPLIB=$PWD/../lib/libimp.a
               for c in "-S lib2.imp -o d1.s" "-c --target=aarch64-linux-gnu lib2.imp -o d2.o" "-c --target=riscv64-linux-gnu lib2.imp -o d3.o" "-c --target=x86_64-linux-gnu lib2.imp -o d4.o"; do
                 o=$(echo "$c" | sed 's/.* -o //'); rm -f "$o"
                 m=$($w $c 2>&1 | head -c 400 | tr '\n%' ' _'); r=$?

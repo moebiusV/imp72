@@ -20,6 +20,7 @@ compilers.
 It compiles programs in IMP72, the extensible systems language of Ned Irons as
 implemented by Walter Bilofsky for the PDP-10 (DECUS 10-198a), to native code
 for the machine it runs on.
+IMP stands for Irons Meta Program: Ned Irons invented it.
 It has no
 .Fl -target ,
 .Fl Sir ,
@@ -29,7 +30,7 @@ It has no
 or
 .Fl -help .
 It reads the syntax of the language from
-.Pa syntax64.imc
+.Pa syntax.imc
 and the C interface from
 .Pa ffi.imc .
 Its code generator writes the same LLVM IR as the code generator of
@@ -137,7 +138,7 @@ On macOS, the SDK to link with.
 .El
 .Sh FILES
 .Bl -tag -width Ds
-.It Pa /usr/share/imp/syntax64.imc
+.It Pa /usr/share/imp/syntax.imc
 The syntax of IMP72.
 .It Pa /usr/share/imp/ffi.imc
 The extension that defines

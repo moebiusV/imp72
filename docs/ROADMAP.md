@@ -19,7 +19,7 @@ may be UTF-8 text; a symbol in an operator position would be read as the start
 of a name.
 
 Proposed: spellings of the existing operators, not additional syntax, defined in an
-extension file loaded after `syntax64.imc` that repeats the rule of `LE` and the
+extension file loaded after `syntax.imc` that repeats the rule of `LE` and the
 others (`<ATOM> ::= '≤' ::= ...`), the way `lib/ffi.imc` extends the language.
 Names keep all bytes of 128 and up except those that a loaded extension makes
 into symbols.
@@ -40,7 +40,7 @@ one-character `'a'` stays a string of one character; giving it the value of a
 character would change `STG 0,'A'` and every program of the original.
 
 *Effect on the code.* The quoting code of the lexer and the rule for the
-constant in `syntax64.imc`. The code generators see a constant either way.
+constant in `syntax.imc`. The code generators see a constant either way.
 
 ### 3. The empty string `''`
 

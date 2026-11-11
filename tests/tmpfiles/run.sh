@@ -8,7 +8,7 @@ cd "$root" || exit 1
 two=${TMPFILES_IMP72:-$root/build/llvm-ir2/impstage-llvm-ir}
 seed=$root/stage0/impstage0
 [ -x "$two" ] || { echo "tmpfiles test skipped: no $two"; exit 0; }
-export IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
+export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
 w=build/tmpfiles
 rm -rf $w; mkdir -p $w
 fail=0

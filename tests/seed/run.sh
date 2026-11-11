@@ -16,7 +16,7 @@ endf=$(sh tools/endian.sh)
 one() {
     nm=$1; envs=$2; shift 2
     n=$((n + 1))
-    env $envs IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc "$w" -Sir -o $out/$nm.stage.ll "$@" > $out/$nm.stage.log 2>&1
+    env $envs IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc "$w" -Sir -o $out/$nm.stage.ll "$@" > $out/$nm.stage.log 2>&1
     env -u IMPSYNTAX -u IMPFFI -u IMPLIB $envs "$s" -S -o $out/$nm.seed.ll "$@" > $out/$nm.seed.log 2>&1
     if [ -s $out/$nm.seed.ll ] && cmp -s $out/$nm.stage.ll $out/$nm.seed.ll; then rm -f $out/$nm.*; else
         echo "FAILED: seed: $nm: the seed and the stage compiler write different IR ($out/$nm.seed.ll, $out/$nm.stage.ll)" >&2; fail=1; fi
@@ -27,7 +27,7 @@ done
 { sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > $out/imprt_all.imp
 one rt "IMPCHARPTR=1" $endf $out/imprt_all.imp
 for m in impsem code code2 code3 demit ix; do
-    one gen_$m "IMPMODULE=$m" $endf src/impsyn64.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp
+    one gen_$m "IMPMODULE=$m" $endf src/impsyn.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp
 done
 [ $fail = 0 ] && echo "ok ($n programs)"
 exit $fail

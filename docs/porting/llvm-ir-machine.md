@@ -3,7 +3,7 @@
 The code generating routines of the tape (`code.imc`, `code2.imc`, `code3.imc`) generate PDP-10 instructions into free array
 `CO`. The routines of `src/llvm-ir/` generate the operations of the machine this implementation compiles to: 64 bit
 words, byte addresses, `double` for `REAL`, an unlimited supply of virtual registers (IR temporaries), and the C procedure
-call standard. The operation numbers are the macros of `src/llvm-ir/irsyn.imc`; `src/llvm-ir/syntax64.imc` uses the
+call standard. The operation numbers are the macros of `src/llvm-ir/irsyn.imc`; `src/llvm-ir/syntax.imc` uses the
 numbers themselves, because a semantics cannot name a macro.
 
 The assembler, the register allocator and the object writer of the tape (`amod`, `rmod`, `omod`) have no counterpart:

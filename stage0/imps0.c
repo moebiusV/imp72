@@ -21,7 +21,7 @@
  *
  *     impstage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...
  *
- * It reads the syntax of the language (src/llvm-ir/syntax64.imc) and the extension ffi.imc,
+ * It reads the syntax of the language (src/llvm-ir/syntax.imc) and the extension ffi.imc,
  * compiles the files with the kernel above to IR, and makes the IR, with LLVM
  * in this process, into an executable (default), an object (-c), LLVM IR (-S)
  * or a run (--run, with ORC).  It finds its parts relative to
@@ -455,13 +455,13 @@ driver_main(int argc, char **argv)
         return 1;
     strlcpy(root, dir, sizeof root);
     strlcat(root, "/..", sizeof root);
-    snprintf(syntax, sizeof syntax, "%s/src/llvm-ir/syntax64.imc", root);
+    snprintf(syntax, sizeof syntax, "%s/src/llvm-ir/syntax.imc", root);
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
         snprintf(lib, sizeof lib, "%s/build/lib/libimp.a", root);
         snprintf(tmpbase, sizeof tmpbase, "%s/tmp", root);     /* the tree's own (gitignored) tmp/ */
     } else {                                    /* installed */
-        snprintf(syntax, sizeof syntax, "%s/share/imp/syntax64.imc", root);
+        snprintf(syntax, sizeof syntax, "%s/share/imp/syntax.imc", root);
         snprintf(ffi, sizeof ffi, "%s/share/imp/ffi.imc", root);
         snprintf(lib, sizeof lib, "%s/lib/imp/libimp.a", root);
         snprintf(tmpbase, sizeof tmpbase, "/tmp");              /* installed: the system's temporary directory */

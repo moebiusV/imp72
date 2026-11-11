@@ -44,7 +44,7 @@ By hand:
     tools/llvm-ir.sh          # stage 1 and stage 2: build/llvm-ir2/impd and impstage-llvm-ir
     tools/direct.sh           # one stage, built by the seed: build/direct/impd, impstage-llvm-ir
     build/llvm-ir2/impstage-llvm-ir -o hello tests/native/hello.imp
-    build/llvm-ir2/impd -s TSX -o dump.txt -c ir.txt src/llvm-ir/syntax64.imc lib/ffi.imc prog.imp
+    build/llvm-ir2/impd -s TSX -o dump.txt -c ir.txt src/llvm-ir/syntax.imc lib/ffi.imc prog.imp
 
 `impd` is the compiler proper (`src/impm.imp`). Its arguments are `-i` (the
 original's commands from the terminal), `-I IMAGE` (start from an image saved
@@ -55,7 +55,7 @@ driver around it: they find the syntax file and the library, make the object wit
 LLVM in the process, and link.
 
 The seed alone: `make -C stage0`, then `stage0/impstage0 -o prog prog.imp`,
-or `stage0/imps0 -s TSX -o dump.txt src/llvm-ir/syntax64.imc`.
+or `stage0/imps0 -s TSX -o dump.txt src/llvm-ir/syntax.imc`.
 
 ## Installed layout
 
@@ -63,7 +63,7 @@ or `stage0/imps0 -s TSX -o dump.txt src/llvm-ir/syntax64.imc`.
     PREFIX/bin/impstage0                 the seed
     PREFIX/bin/imp-cimport               the declarations of a C header (where stage 2 is built)
     PREFIX/lib/imp/libimp.a            the library stage 2 built
-    PREFIX/share/imp/syntax64.imc, ffi.imc
+    PREFIX/share/imp/syntax.imc, ffi.imc
     PREFIX/include/imp.h
     PREFIX/share/man/man1/imp.1, impstage0.1, imp-cimport.1
     PREFIX/share/man/man7/imp.7          the language manual

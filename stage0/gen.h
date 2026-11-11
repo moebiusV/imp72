@@ -13,7 +13,7 @@
  * different shape, IXSETTARGET/TGINIT against ir_settarget, is not used here).
  *
  * The word formats are those of the IMP port (64 bit words, halves of 32 bits: HL, HR, HW of imp.h; the
- * formats of src/impsyn64.imc, src/cotree.imp, src/entree.imp, src/dosem.imp, src/dir.imp).
+ * formats of src/impsyn.imc, src/cotree.imp, src/entree.imp, src/dosem.imp, src/dir.imp).
  *
  * Three differences of the language that the port keeps in mind:
  *
@@ -105,7 +105,7 @@ g_rs(word x, word n)
     return g_ls(x, -n);
 }
 
-/* HMASK of impsyn64.imc, and a word shifted left by 32 (LS 32) */
+/* HMASK of impsyn.imc, and a word shifted left by 32 (LS 32) */
 #define G_HM ((word)0xFFFFFFFFLL)
 #define G_L32(x) ((word)((uword)(x) << 32))
 

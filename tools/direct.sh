@@ -4,7 +4,7 @@
 # The modules are compiled by impstage0 (the compiler with the old code generator), each next to the others: their symbols
 # are renamed impl_NAME (all of them in all the objects, so that the modules call one another by name), except the variables the C
 # side shares (src/llvm-ir/shared.txt and src/shared.txt); there is no C of the compiler's in the result but the LLVM glue and the library.  Run from the top
-# of the tree after `make`.  impd with the syntax src/llvm-ir/syntax64.imc compiles IMP to IR itself.
+# of the tree after `make`.  impd with the syntax src/llvm-ir/syntax.imc compiles IMP to IR itself.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
@@ -15,14 +15,14 @@ out=${DIRECT_OUT:-build/direct}
 mkdir -p "$out"
 imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.imp, built below by the driver)
 driver=${DIRECT_DRIVER:-stage0/impstage0}
-case $driver in stage0/*) unset IMPSYNTAX IMPFFI IMPLIB ;; esac     # the seed reads src/llvm-ir/syntax64.imc, whatever the environment says
+case $driver in stage0/*) unset IMPSYNTAX IMPFFI IMPLIB ;; esac     # the seed reads src/llvm-ir/syntax.imc, whatever the environment says
 mkdir -p $out
 # the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
 endf=$(sh tools/endian.sh)
 export IMPENDIAN=$endf
 sh tools/capped.sh $out/imprename.log $driver -o "$imprename" tools/imprename.imp || { dd bs=100000 count=1 if=$out/imprename.log 2>/dev/null >&2; echo "direct: imprename failed" >&2; exit 1; }
 for m in $modules; do
-    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn64.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp \
+    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $driver -c -o $out/$m.imp.o $endf src/impsyn.imc src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp \
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
@@ -32,7 +32,7 @@ for m in $srcmodules; do
     f=src/$m.imp; case $m in llvmgen) f=$out/llvmgen.imp ;; esac
     d=$driver
     case " $oldmodules " in *" $m "*) d="env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0" ;; esac
-    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn64.imc $f \
+    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $d -c -o $out/$m.imp.o $x $endf src/impsyn.imc $f \
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"

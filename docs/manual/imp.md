@@ -66,9 +66,10 @@ CONTENTS
 ```
 
 The IMP72 compiler was designed and implemented at the Yale University Department of Computer
-Science by Walt Bilofsky, based largely on previous work of E. T. Irons. Substantial contributions
-were made by Steven Weingart and Terry Lyons. This manual describes version 0.10.0 of the IMP72
-compiler, which translates IMP72 to native code on 64-bit Unix systems.
+Science by Walt Bilofsky, based largely on previous work of E. T. Irons. IMP stands for Irons Meta
+Program: E. T. Irons invented it. Substantial contributions were made by Steven Weingart and Terry
+Lyons. This manual describes version 0.10.0 of the IMP72 compiler, which translates IMP72 to native
+code on 64-bit Unix systems.
 
 ## 1: Introduction.
 
@@ -967,8 +968,8 @@ DATA(10,20,30) the elements are TBL[0], TBL[1] and TBL[2].
 
 Executes the instruction contained in the variable E. The instruction is a word of the abstract
 machine that the compiler generates code for: the operation in bits 56 to 63 (the numbers are listed
-at the head of the file `syntax64.imc`: 1 LOAD, 6 ADD, 7 SUB, ...), the register in bits 52 to 55,
-an index register in bits 48 to 51, bit 47 set for an immediate operand and the address or number in
+at the head of the file `syntax.imc`: 1 LOAD, 6 ADD, 7 SUB, ...), the register in bits 52 to 55, an
+index register in bits 48 to 51, bit 47 set for an immediate operand and the address or number in
 the bits 0 to 46. The registers are 0R to 15R. A register that the instruction names must be
 mentioned elsewhere in the routine, as 8R is in the example, because the compiler keeps the
 registers a routine mentions. The program
@@ -2367,7 +2368,7 @@ executable program. The options are
 --help      Print the options.
 ```
 
-The compiler finds its syntax file `syntax64.imc`, the file of the C interface `ffi.imc` and
+The compiler finds its syntax file `syntax.imc`, the file of the C interface `ffi.imc` and
 `libimp.a` next to itself (`share/imp` and `lib/imp` of its installation prefix); the environment
 variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others. It makes no temporary file for `-c`, `-S`,
 `-Sir` or `--run`; to link, it hands the linker the object in an unnamed memory file on LINUX, and
@@ -2694,13 +2695,13 @@ statements (Section 2.3) in three ways.
   was saved at, and when the system gives another one (as a system that randomises the addresses of a
   process does) the addresses of the tables that the modules hold are moved with them.
 
-The file `syntax64.imc` is the definition of IMP72, and the compiler reads it first. To make a
+The file `syntax.imc` is the definition of IMP72, and the compiler reads it first. To make a
 compiler with a different language, change the file (or point IMP72SYNTAX at another) and the
 semantic routines it calls. The compiler is built from its sources by `make` in the source tree,
 which needs a C99 compiler and the LLVM libraries (and lld, as a library, to link in the process).
 `make check` runs the tests, and `make install PREFIX=DIR` installs `bin/imp`,
-`share/imp/syntax64.imc`, `share/imp/ffi.imc` and `lib/imp/libimp.a`. The sources of the compiler
-are in IMP72 (directory `src`) and compile with the compiler (Section 4).
+`share/imp/syntax.imc`, `share/imp/ffi.imc` and `lib/imp/libimp.a`. The sources of the compiler are
+in IMP72 (directory `src`) and compile with the compiler (Section 4).
 
 ## 4: Internal Documentation of the IMP72 Compiler.
 
@@ -2937,8 +2938,8 @@ statements it reads are the syntax and semantics for more complex syntax stateme
 comes the syntax for the computational portion of the language. The compiler then goes on to the
 files named on the command line. Thus, except for lexical conventions and the syntax built into RSYN
 (which is only used to bootstrap the compiler), the entire syntax and semantics for IMP72 comes from
-file `syntax64.imc` and the semantic subroutines referred to on it. The compiler can be saved after
-it has read its syntax (Section 3.4).
+file `syntax.imc` and the semantic subroutines referred to on it. The compiler can be saved after it
+has read its syntax (Section 3.4).
 
 The other routines on files RSYN and RSYN2 implement the semantics for syntax statements. They were
 at once the first and the most complex semantic routines implemented, and, to put it kindly, are

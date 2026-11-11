@@ -1,7 +1,7 @@
 /*
  * entree.c -- the code tree.  Ports src/entree.imp (decus/entree.imc): ENTREE, ENTMARK, INSNO,
  * NUNO, COMPNO, CODEID, MATCH, ENTRCA, ENTRC1, TPRINT, and the tree accessors
- * TSCR, TALT, TNODEN that impsyn64.imc expands in line.  The 36 bit formats of
+ * TSCR, TALT, TNODEN that impsyn.imc expands in line.  The 36 bit formats of
  * the tape are gone: the words are those of src/entree.imp.
  *
  * The code tree is kept in free array CT, in nodes of two or three words

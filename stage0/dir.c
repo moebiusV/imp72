@@ -1,7 +1,7 @@
 /*
  * dir.c -- the directory of names.  Ports src/dir.imp (decus/dir.imc: DIR, DSEQ, PNAME,
  * DNAME, GNAME, DSTATS, DSPILL, RADI50, DORGFIX, CONVC, STCON, NEWNAME).  The 36 bit
- * formats of the tape are gone: the words are those of src/dir.imp and src/impsyn64.imc.
+ * formats of the tape are gone: the words are those of src/dir.imp and src/impsyn.imc.
  *
  * A hash coded directory.  Free array PRP is a hash table of 512 buckets of
  * three word nodes (indices 3*h), followed by overflow nodes added at NPRP.

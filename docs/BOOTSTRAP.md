@@ -4,7 +4,7 @@ The compiler is written in IMP, so building it takes a compiler. The route has
 three steps.
 
 1. **The seed** (`stage0/`) is a port of the kernel and of the code generator to
-   C99. It reads `src/llvm-ir/syntax64.imc` and `lib/ffi.imc` and compiles IMP to
+   C99. It reads `src/llvm-ir/syntax.imc` and `lib/ffi.imc` and compiles IMP to
    LLVM IR with `stage0/gen_*.c`, a C port of the code generator in
    `src/llvm-ir/*.imp`. It is the one part of the compiler that is not IMP,
    apart from `stage0/impld.cpp`, and it is installed as `impstage0`. It

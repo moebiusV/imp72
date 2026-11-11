@@ -18,7 +18,7 @@
  *    characters (bytes) to a word, the first in the LOW byte, NUL terminated.
  *    Everything outside the directory sees ordinary C strings.
  *  - The kernel's words (the semantics array, the code tree, the directory
- *    nodes) are those of the IMP ports in src/ (the .imp files) and of src/impsyn64.imc:
+ *    nodes) are those of the IMP ports in src/ (the .imp files) and of src/impsyn.imc:
  *    the 36 bit formats of the tape are gone from the kernel (the 36 bit
  *    helpers below remain for the old generator files only).
  *
@@ -41,7 +41,7 @@ typedef uint64_t uword;
 #define HL(w)   ((word)(((uword)(w) >> 32) & HW_MASK))
 #define HR(w)   ((word)((uword)(w) & HW_MASK))
 #define HW(l,r) ((word)(((uword)(l) << 32) | ((uword)(r) & HW_MASK)))
-#define HLS(w)  ((word)(w) >> 32)             /* the left half, signed (HLS of impsyn64.imc) */
+#define HLS(w)  ((word)(w) >> 32)             /* the left half, signed (HLS of impsyn.imc) */
 
 /* ---- error.c: driver services the kernel calls (ERROR, MSG, PRINT) ----- */
 
@@ -227,7 +227,7 @@ void helpd(void);                     /* HELPD */
 void partr1(word cnode, word ctyp, word cval, word p, word ip, word o, word cw);
 void gprin1(void);                    /* GPRIN1: the graph and its matrices */
 
-/* ---- the words of the IMP ports (src/impsyn64.imc), 64 bits ------------- */
+/* ---- the words of the IMP ports (src/impsyn.imc), 64 bits ------------- */
 
 /* LS: a logical shift left; a negative count shifts right, a count of 64 or more (or -64 or less) shifts everything out
  * (what the stage compiler's variable shift does; ESHIFTV in src/llvm-ir/demit.imp) */

@@ -1,6 +1,7 @@
 # Architecture
 
-IMP72 is a small kernel plus a language defined in data. This page is the map.
+IMP72 is a small kernel plus a language defined in data. (IMP stands for Irons
+Meta Program: Ned Irons invented it.) This page is the map.
 `docs/internals/` describes what each kernel module does, and `docs/porting/`
 describes the code generator's machine, the layouts of the compiler's tables
 and the modules compared with the original.
@@ -29,7 +30,7 @@ The kernel modules are `lex`, `parse`, `ercor`, `graph`, `dir`, `free`, `stack`,
 has learned, and `driver` is the command line of `imp`. All are `src/*.imp`,
 the 64-bit IMP translation of the original modules in `decus/`.
 
-- **The language** is the syntax file `src/llvm-ir/syntax64.imc` (the
+- **The language** is the syntax file `src/llvm-ir/syntax.imc` (the
   translation of `decus/syntax.imc`) and the extension `lib/ffi.imc`. Both
   compilers read them at start. The part up to the first `%` is read by `rsyn`
   in its own notation; the parser reads the rest. Each statement is
@@ -106,7 +107,7 @@ them. To add or change code generation, change both:
    wrapper `static word w_name(const word *p)` and a `dsem("NAME", w_name)`
    line in that file's `gen_*_dsems`. `gen.h` lists the IMP name to C name
    mapping.
-3. Reference it from a rule of `src/llvm-ir/syntax64.imc` (or `lib/ffi.imc`).
+3. Reference it from a rule of `src/llvm-ir/syntax.imc` (or `lib/ffi.imc`).
 4. An IR operator or type that the generator needs goes into `src/llvm-ir/irsyn.imc`, `stage0/ir.h`,
    `src/ir2ll.imp` or `src/ir2llx.imp`, and `tools/ir2ll.c`.
 5. Run `sh tests/seed/run.sh`, `sh tests/direct/stage2.sh` and

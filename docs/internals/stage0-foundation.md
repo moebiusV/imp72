@@ -49,7 +49,7 @@ storage indices. `pushmi` and `pullyu` are a pushdown stack (`PSHMI`).
 
 A bit matrix is a three word descriptor `a[3]` (free index, rows, words per row less one) and one relocatable array;
 bit `(i,j)` is bit `j%64` of word `a[0] + i + a[1]*(j/64)`. `bit` returns 0 outside the matrix. The `BIT` that the
-compiler uses (`impsyn64.imc`) does not check its indices and reads whatever lies beyond the matrix.
+compiler uses (`impsyn.imc`) does not check its indices and reads whatever lies beyond the matrix.
 
 ## dir.c
 
@@ -64,7 +64,7 @@ chain of overflow nodes. A directory index is the index of the name's node in `P
     node word 2   SEM bits 0-31, ATYPE 32-34, COM 35-36, ISNM 37-38, LXTY 39-40, USE 41-43
 
 - `dprop(p,i)` and `dprops(p,i,v)` read and write the properties; they are the `DPROP`/`DPROPS` forms of
-  `impsyn64.imc`. `DP_NAME` is read only.
+  `impsyn.imc`. `DP_NAME` is read only.
 - `dname(i,j)` is the jth word of a name; `gname(i)` is the first 24 characters as a C string; `dname_str` copies the
   whole name; `dseq` steps through the entries; `dspill` prints the directory; `radi50` is the Radix-50 value of
   the first six characters.

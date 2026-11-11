@@ -8,7 +8,7 @@ cd "$root" || exit 1
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct stage 2 skipped: the seed has no LLVM"; exit 0; }
 [ $rc = 0 ] || { dd bs=100000 count=1 if=build/direct.log 2>/dev/null >&2; echo "FAILED: direct build" >&2; exit 1; }
-export IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
+export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
 DIRECT_OUT=build/direct2 DIRECT_DRIVER=build/direct/impstage-llvm-ir DIRECT_LIB=build/lib/libimp.a tools/direct.sh >build/direct2.log 2>&1 \
     || { dd bs=100000 count=1 if=build/direct2.log 2>/dev/null >&2; echo "FAILED: direct stage 2 build" >&2; exit 1; }
 out=build/direct2/ir
@@ -23,7 +23,7 @@ run() {         # name files...
     fi
 }
 for f in tests/native/*.imp tests/oracle/*.imp; do run $(basename $(dirname $f))_$(basename $f .imp) $f; done
-for f in src/*.imp; do run src_$(basename $f .imp) $(sh tools/endian.sh) src/impsyn64.imc $f; done
-for f in src/llvm-ir/*.imp; do run ir_$(basename $f .imp) $(sh tools/endian.sh) src/impsyn64.imc src/llvm-ir/irsyn.imc $f; done
+for f in src/*.imp; do run src_$(basename $f .imp) $(sh tools/endian.sh) src/impsyn.imc $f; done
+for f in src/llvm-ir/*.imp; do run ir_$(basename $f .imp) $(sh tools/endian.sh) src/impsyn.imc src/llvm-ir/irsyn.imc $f; done
 [ $fail = 0 ] && echo "direct stage 2: the code generator compiled by itself writes the same IR for every program"
 exit $fail

@@ -4,7 +4,7 @@
 # of the repository (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
-driver=${DRIVER:-stage0/impstage0}              # DRIVER=build/direct/impstage-llvm-ir with IMPSYNTAX=src/llvm-ir/syntax64.imc: the code generator of src/llvm-ir
+driver=${DRIVER:-stage0/impstage0}              # DRIVER=build/direct/impstage-llvm-ir with IMPSYNTAX=src/llvm-ir/syntax.imc: the code generator of src/llvm-ir
 out=${NATIVE_OUT:-build/native}
 lib=${NATIVE_LIB:-build/lib/libimp.a}          # NATIVE_LIB=build/lib/libimp.a for the code generator of src/llvm-ir
 mkdir -p $out

@@ -32,7 +32,7 @@ else
 fi
 # the byte order and the word size of the target, from the object file the compiler makes for it (ELF: class and data; Mach-O: the magic), not from a list of architectures
 mkdir -p "$out"
-export IMPSYNTAX=$root/src/llvm-ir/syntax64.imc IMPFFI=$root/lib/ffi.imc
+export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc
 printf 'FINI(0)\n%%%%\n' > "$out/probe.imp"
 $w -c $tgt -o "$out/probe.o" "$out/probe.imp" > "$out/probe.log" 2>&1 || { echo "mkrt: the compiler cannot make an object for ${triple:-this machine}:" >&2; head -c 600 "$out/probe.log" >&2; exit 1; }
 hd=$(od -An -tx1 -N8 "$out/probe.o" | tr -d ' \n')
