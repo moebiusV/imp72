@@ -65,9 +65,12 @@ tape one compilation ends the session unless the switch `C` is given, and a fata
   `FILE` is tried as given and then with `.imp` and `.imc`.
 - The output `REL` is the IR (`REL.ir`) and `LST` a listing (`LST.lst`, written when `LST` is given).
 - `\PGM` runs `PGM` with the shell and returns to the prompt, where the tape chains to it.
+- `GETMP` is the tape's, for a command that starts the program: it puts the next file of the command line in `BF` as a command (the name
+  between `!` marks, so that a Unix name is one token, the letters of `-s` as `/switches`, and the `%`), and the main program reads it with
+  `READCMD` and `OPENIN`; `OPENOUT` opens the output of a compilation, the file of IR (the tape's the `.REL` file).
 - The line editing of the terminal is the system's, so `GETTY` ends a line at a newline and has no echo of its own. A line
-  is at most 136 characters (the tape's `BF` is 17 words of 5 characters; here `BF` is 17 words of 8, and one word more
-  for the `%` and the end).
+  is at most 4127 characters (the tape's `BF` is 17 words of 5 characters, 85; here `BF` holds a Unix path of 4095 bytes, the
+  switches, the `%` and the end).
 - The banner has the date, from `DATE` over byte pointers (`CALLI(14B)` gives the date as the monitor does).
 - `U` and `V` save the compiler with the syntax and declarations it has compiled (below). `INCHWL` and `RUNPGM` are
   written over `getchar` and `system`.

@@ -19,8 +19,7 @@ that the 64 bit layout or the Unix driver needs.
 | `dir`, `graph`, `entree` | `DORGFIX`, `GORGFIX`, `TORGFIX` | set the origin words of the tables (`DORG`, `DORG1`, `GORG`, `TORG`, ...) and build byte pointers into the packed 18 bit fields (`BYTEP [GORG1]<15,18>`, the `DPBYP*`, `GBYP*`, `T*BP` variables) | not needed: the fields are read with shifts and masks (`DPROP`, `TSCR` and the rest in `impsyn.imc`), and the arena has one address |
 | `impm` | `CORE(N)` | monitor call to grow the core | not provided in `impm`. `free.imc` has its own `CORE(K)` (as `free.imc` has), which makes the first `K+1` words of the reserved arena usable (`IMPCORESET`) |
 | `impm` | `RLEAS(CH)` | release a channel | not provided: no channel is opened |
-| `impm` | `TMPCOR`, `TMPFL`, `GETMP` | pass the command line from the monitor through temporary core or a temporary file `I10` | not needed: `argv` (`IMPARGV`, `COMPIL`) |
-| `impm` | `OPENOUT` | open the `.REL` output on a channel | not needed: the driver opens the IR file and makes the object file (`IMPOPENIR`, `IMPOBJ`) |
+| `impm` | `TMPCOR`, `TMPFL` | the monitor's temporary core and the name of the job's temporary file `I10`, through which the command line reached `GETMP` | not needed: `GETMP` reads the command line from `argv` (`IMPARGV`) |
 | `impm` | `PEEKAT` | tell a "bulldog" watcher program of the monitor which file is compiled | not needed |
 | `debug` | `PCODE1` | list the code as PDP-10 instructions | `PCODE1` of `code3.imc` lists the records of the IR chain |
 | `code` | `RCOCHK` | walk the chain of PDP-10 code words checking the use of registers | no counterpart: there is no such chain |

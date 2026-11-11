@@ -96,7 +96,7 @@ SUBR GETTY(BF) IS (OUTSTR('*');
                    PL: C:=INCHWL(0);
                        C<0 => RETURN -1;
                        C=041B => C:=134B;
-                       C GE 040B => (N<136 => (<+Q>:=C; N:=N+1));
+                       C GE 040B => (N<4128 => (<+Q>:=C; N:=N+1));
                        C NE 12B => GO TO PL;
                    <+Q>:=045B; <+Q>:=0);
 

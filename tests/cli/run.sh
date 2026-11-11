@@ -123,6 +123,9 @@ cp okp.imp $ln.imp
 printf '%s\n' "$ln" | "$w" -i > il.log 2>&1
 [ -s $ln.o ] || bad "-i: a file name of 100 characters ($(head -c 200 il.log))"
 rm -f $ln.o $ln.imp
+cp okp.imp $ln.imp
+"$w" -c -o $ln.o $ln.imp >/dev/null 2>&1 && [ -s $ln.o ] || bad "a source with a file name of 100 characters on the command line"
+rm -f $ln.o $ln.imp
 printf 'okp\n' | "$w" -i > i1.log 2>&1
 [ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "-i: okp makes okp.o and no IR"
 head -1 i1.log | grep -q " $(date +%e-%b-%y | tr a-z A-Z | sed 's/^ *//')" || bad "-i: the banner has the date of today ($(head -1 i1.log))"

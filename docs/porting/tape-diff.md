@@ -17,7 +17,7 @@ Why: the port corrects the tape's routines for 64 bit words, UTF-8, Unix and IR 
 | `ercor` | 4 | 4 | - | - |
 | `free` | 19 | 23 | `ERROR` `FLEN` `FREES` | `FBACK` `FFWD` `FLENX` `FNEW` `FSETB` `FSETF` `FSETL` |
 | `graph` | 23 | 22 | `GORGFIX` | - |
-| `impm` | 17 | 27 | `CORE` `GETMP` `OPENOUT` `PEEKAT` `RLEAS` `TMPCOR` `TMPFL` | `COMPIL` `IMPARGV` `IMPBYTE` `IMPCLOSEIRMEM` `IMPCLOSELIST` `IMPGETC` `IMPK` `IMPNOISY` `IMPOBJ` `IMPOPENIR` `IMPOPENIRMEM` `IMPOPENLIST` `LISTOUT` `MKNAME` `OUTCS` `SETSW` `USAGE` |
+| `impm` | 17 | 27 | `CORE` `PEEKAT` `RLEAS` `TMPCOR` `TMPFL` | `COMPIL` `IMPARGV` `IMPBYTE` `IMPCLOSEIRMEM` `IMPCLOSELIST` `IMPGETC` `IMPK` `IMPNOISY` `IMPOBJ` `IMPOPENIR` `IMPOPENIRMEM` `IMPOPENLIST` `LISTOUT` `MKNAME` `OUTCS` `SETSW` `USAGE` |
 | `impsem` | 37 | 46 | `SUBTAG` | `CDECL` `CPADD` `CPFIND` `CPHEAD` `CPTYPE` `CTYPEOF` `CVAL` `IINIT` `ISCVAL` `PAIRFIRST` |
 | `lex` | 12 | 12 | - | - |
 | `parse` | 8 | 8 | - | - |
@@ -101,3 +101,5 @@ Modules of the port with no tape module: `driver`, `llvm`, `ir2ll`, `ir2llx`, `i
 - `RSYNI` is gone: `RSYN` is the tape's again, and returns after its head when its (unused on the tape) argument is 1, the run from an image (2026-11-11).
 - `ADDREC` is `ADDCODE` again: the tape's routine that adds code to the chain of a stack entry keeps its name and adds an IR record where it added a PDP-10 word (2026-11-11).
 - A helper that makes the code simpler and clearer is fine when it is defined next to its use and does not change the shape of the code (`SETNEXT` before `ADDCODE` and `HOOK`, `REGFIELD` before `COPYCO`); a routine that stands in for a tape routine is not.
+- `GETMP` and `OPENOUT` are the tape's routines again, corrected: `GETMP` puts the next file of the command line in the command buffer as a command (its name between `!` marks, the `-s` letters as switches, the `%` that ends a command), and the main program takes it through `READCMD` and `OPENIN` as it takes a typed command; `OPENOUT` opens the output of a compilation (the file of IR, where the tape's opens the `.REL` file). `BF` holds a Unix path (2026-11-11).
+- `--run` and the ORC JIT are gone: that was an addition that was not asked for.
