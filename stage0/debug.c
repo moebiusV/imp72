@@ -1,11 +1,11 @@
 /*
- * debug.c -- diagnostic print-outs.  Ports src/debug.imp (decus/debug.imc): HELPD, GPRIN1,
+ * debug.c -- diagnostic print-outs.  Ports src/debug.imc (decus/debug.imc): HELPD, GPRIN1,
  * PARTR1, TPRIN1, SEMPR1, PSTAC1.  (PCODE1 lists PDP-10 code and has no counterpart.)
  *
  * The original is linked in only if wanted, and a request for a dump without
  * it is trapped with an advisory.  Here it is always linked.
  *
- * The dumps are those of the stage compiler (src/debug.imp): the 36 bit formats
+ * The dumps are those of the stage compiler (src/debug.imc): the 36 bit formats
  * of the tape are gone.  The raw words of the tables are printed in octal as
  * the 64 bit numbers they are (OCT 17 for a word of SEMS, OCT 22 for the stuff
  * word of the code tree), and the bit matrix NBITM is printed as the masks the
@@ -50,7 +50,7 @@ helpd(void)
     imp_msg("Z = GATHER AND PRINT COMPILATION STATISTICS");
 }
 
-/* The value debug.imp prints for bit j of NBITM: 1 LS (j mod 64). */
+/* The value debug.imc prints for bit j of NBITM: 1 LS (j mod 64). */
 static word
 bitmask(const word a[3], word i, word j)
 {
@@ -224,7 +224,7 @@ partr1(word cnode, word ctyp, word cval, word p, word ip, word o, word cw)
  * ALT, the special field, the type of the stuff word, the node number, the
  * stuff word in octal, and a gloss of it.
  *
- * The matrix is printed 75 columns at a time, as src/debug.imp prints it: the
+ * The matrix is printed 75 columns at a time, as src/debug.imc prints it: the
  * number of columns is 36 * ((MXC//36)+1), at least 5 * 36, MXC being the
  * highest column set (and // the remainder in IMP, which makes it a bug of the
  * port that the dumps keep until it is mended there).
@@ -316,7 +316,7 @@ tprin1(void)
             for (k = 0; k < 64 * (sbitm[2] + 1); k++)
                 if (bit(sbitm, i, k) != 0 && k > mc)
                     mc = k;
-        cols = mc / 36 + 1;             /* as src/debug.imp: COLS:=(MXC/36)+1 */
+        cols = mc / 36 + 1;             /* as src/debug.imc: COLS:=(MXC/36)+1 */
     }
     if (cols < 5)
         cols = 5;

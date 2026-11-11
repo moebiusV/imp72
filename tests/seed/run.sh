@@ -27,7 +27,7 @@ done
 { sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > $out/imprt_all.imp
 one rt "IMPCHARPTR=1" -C $endf $out/imprt_all.imp
 for m in impsem code code2 code3 demit ix; do
-    one gen_$m "IMPMODULE=$m" -C $endf -C src/impsyn.imc -C src/llvm-ir/irsyn.imc src/llvm-ir/$m.imp
+    one gen_$m "IMPMODULE=$m" -C $endf -C src/impsyn.imc -C src/llvm-ir/irsyn.imc src/llvm-ir/$m.imc
 done
 [ $fail = 0 ] && echo "ok ($n programs)"
 exit $fail

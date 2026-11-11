@@ -2,7 +2,7 @@
  * imphost.c -- what the link needs to know of the machine it runs on: the system (imphostos), the architecture (imphostarch), where this very program found its dynamic
  * linker (imphostinterp) and its C library (imphostlibc), the directory of the C library's crt files that goes with it (imphostcrtdir), and the newest version of a library that
  * is only there with its version (impfindlib).  The compiler runs on the system it makes programs for, so what its own loader did is what the programs it makes need.
- * src/driver.imp calls them with CCALL; the seed's driver, stage0/imps0.c, links this file in, and links the same way.
+ * src/driver.imc calls them with CCALL; the seed's driver, stage0/imps0.c, links this file in, and links the same way.
  */
 #define _GNU_SOURCE
 #include <dirent.h>
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* the system the compiler runs on, for the link (src/driver.imp: LNK): linux, freebsd, netbsd, openbsd, darwin, else "" */
+/* the system the compiler runs on, for the link (src/driver.imc: LNK): linux, freebsd, netbsd, openbsd, darwin, else "" */
 const char *
 imphostos(long z)
 {
@@ -38,7 +38,7 @@ imphostos(long z)
 #endif
 }
 
-/* the architecture the compiler runs on, for the link (src/driver.imp: LNK): x86_64, i386, aarch64, arm, ppc64le, s390x, riscv64, loongarch64, else "" */
+/* the architecture the compiler runs on, for the link (src/driver.imc: LNK): x86_64, i386, aarch64, arm, ppc64le, s390x, riscv64, loongarch64, else "" */
 const char *
 imphostarch(long z)
 {

@@ -7,7 +7,7 @@ call standard. The operation numbers are the macros of `src/llvm-ir/irsyn.imc`; 
 numbers themselves, because a semantics cannot name a macro.
 
 The assembler, the register allocator and the object writer of the tape (`amod`, `rmod`, `omod`) have no counterpart:
-`src/llvm-ir/demit.imp` walks the chains and writes IR (`docs/internals/code-generator.md`), and LLVM makes the object file.
+`src/llvm-ir/demit.imc` walks the chains and writes IR (`docs/internals/code-generator.md`), and LLVM makes the object file.
 
 The structure of the original is kept: the code of a stack entry is a chain in `CO`, `HOOK` joins chains, `ADDREC` extends
 one (where the tape has `ADDCODE`), and `DEWOP(OP,R,S)` adds an operation with accumulator `R` and the operand `S`. The
@@ -74,7 +74,7 @@ table CPR of `impsem` (`CPHEAD`, `CPTYPE`), which `ECALL` reads for the result.
 
 The X of an ADDR record is 0 for the address of the operand and 1 for `CALLBACK(NAME)` (`docs/FFI.md`): the operand is then the name of a subroutine
 declared a callback, and the address is that of the symbol `NAME@SIGNATURE`, a function with the C types of the declaration that calls the subroutine
-(`ECBADDR` in `demit.imp`, `CBADDR` in `code3.imp`). The head in `CPR` of a declaration is the type of the result in bits 0 to 3, the number of
+(`ECBADDR` in `demit.imc`, `CBADDR` in `code3.imc`). The head in `CPR` of a declaration is the type of the result in bits 0 to 3, the number of
 parameters in bits 4 to 8, 512 for a variadic function, 1024 for a callback and 2048 for a call through a pointer (the first parameter is then the
 function, a PTR, and the call is named `impcallt@SIGNATURE`).
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# The module that tools/llvm.sh imp writes for the LLVM and the lld of the build (src/llvm.imp, llvmgen) in each of its shapes: the LLVM that takes a context first or not, lld as a library or
+# The module that tools/llvm.sh imp writes for the LLVM and the lld of the build (src/llvm.imc, llvmgen) in each of its shapes: the LLVM that takes a context first or not, lld as a library or
 # not.  Only the shape of the build at hand is built by make; a mistake in another (a semicolon between two routines, say) shows only on the system that has it (OpenBSD has no lld library).
 # Each is compiled by the seed.  Run from the top of the tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
@@ -14,7 +14,7 @@ fail=0
 echo "== llvm gen"
 for ctx in yes no; do
     for lld in yes no; do
-        f=$out/gen-$ctx-$lld.imp
+        f=$out/gen-$ctx-$lld.imc
         LLVM_ORC_FROM_CONTEXT=$ctx WITH_LLD=$lld sh tools/llvm.sh imp > $f
         IMPMODULE=llvmgen env -u IMPSYNTAX -u IMPFFI -u IMPLIB $seed -c -o $out/gen-$ctx-$lld.o -C $endf -C src/impsyn.imc $f > $out/gen-$ctx-$lld.log 2>&1 \
             || { echo "FAILED: llvm gen: context $ctx, lld $lld" >&2; cat $out/gen-$ctx-$lld.log >&2; fail=1; }

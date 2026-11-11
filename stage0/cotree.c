@@ -1,7 +1,7 @@
 /*
- * cotree.c -- the semantic stack reducer.  Ports src/cotree.imp (decus/cotree.imc): COTREE,
+ * cotree.c -- the semantic stack reducer.  Ports src/cotree.imc (decus/cotree.imc): COTREE,
  * CFUDGE, CODENT, CKDONE, MAXWELL, MAXEND, SETPRI, SAMEAS, PSTACK.  The 36 bit formats
- * of the tape are gone: the words are those of src/cotree.imp.
+ * of the tape are gone: the words are those of src/cotree.imc.
  *
  * COTREE(S) adds one item of parser output to the code stack CS: S is a
  * production number, or minus the directory index of a terminal symbol.  For

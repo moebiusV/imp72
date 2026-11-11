@@ -1,11 +1,11 @@
 /*
- * gen_demit.c -- ports src/llvm-ir/demit.imp: it takes the place of the assembler, the register allocator and the output module of the
+ * gen_demit.c -- ports src/llvm-ir/demit.imc: it takes the place of the assembler, the register allocator and the output module of the
  * original (AMOD, RMOD, OMOD): it reads the chains of records the code generator made and writes them as IR, through the builders of
- * stage0/ir.c (the IMP calls the translation of those, src/llvm-ir/ix.imp).  LLVM does the register allocation, the instruction selection and
+ * stage0/ir.c (the IMP calls the translation of those, src/llvm-ir/ix.imc).  LLVM does the register allocation, the instruction selection and
  * the object file.  A register index is a temporary of the IR; a program is the function impmain and each subroutine one function; the arguments
  * of a call are pointers to the values (IMP passes by reference).
  *
- * The IRSYMNAME, IRKIND, IRSTRVAL, IRLABNAME, IRPOOLEMIT, IRFNKIND, IRRUNTIME, IRTAGERR, IRJBNAME and IRVARREC of ix.imp (the names of the
+ * The IRSYMNAME, IRKIND, IRSTRVAL, IRLABNAME, IRPOOLEMIT, IRFNKIND, IRRUNTIME, IRTAGERR, IRJBNAME and IRVARREC of ix.imc (the names of the
  * directory entries as the assembler and the IR have them) are here too.
  *
  * The order of evaluation is that of IMP, which matters here because a register's first use takes the next temporary and a shift writes
@@ -42,7 +42,7 @@ static word cwused;                             /* CWUSED: the words imp_cw0 to 
 static struct irn *pargs[2];
 static struct irn *plast;                       /* PLAST: the call of a print list item, written when the next one starts */
 
-/* ---- the names of the directory entries (ix.imp: IRNAMEOF ... IRVARREC) --------------------------------------------------- */
+/* ---- the names of the directory entries (ix.imc: IRNAMEOF ... IRVARREC) --------------------------------------------------- */
 
 static char sbuf[8 * 52 + 8];                   /* SBUF: the whole name, a C string */
 

@@ -1,5 +1,5 @@
 /*
- * gen_code2.c -- ports src/llvm-ir/code2.imp: ADDREC (ADDCODE of the original), SETNEXT, HOOK, ANYCODE, DEWFUN, CONOP, JOP, CJUMP,
+ * gen_code2.c -- ports src/llvm-ir/code2.imc: ADDREC (ADDCODE of the original), SETNEXT, HOOK, ANYCODE, DEWFUN, CONOP, JOP, CJUMP,
  * MOVEBLK, FREEZE, ONEWORD, COPPY, SUBRCALL, RETURN, FLOAT, FIX, DATAST, SUBRPAR, PRINPAR, PRINCAL, OJUMPOP, ADDR and CODE2I (the
  * DSEMs of this file).  The code is a chain of records in the free array CO; the code of a stack entry is the pair (first,last) in
  * its third word (left and right 32 bit halves; 0: no code).

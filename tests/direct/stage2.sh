@@ -23,7 +23,7 @@ run() {         # name files...
     fi
 }
 for f in tests/native/*.imp tests/oracle/*.imp; do run $(basename $(dirname $f))_$(basename $f .imp) $f; done
-for f in src/*.imp; do run src_$(basename $f .imp) $(sh tools/endian.sh) src/impsyn.imc $f; done
-for f in src/llvm-ir/*.imp; do run ir_$(basename $f .imp) $(sh tools/endian.sh) src/impsyn.imc src/llvm-ir/irsyn.imc $f; done
+for f in $(ls src/*.imc | grep -v 'impsyn\|impend-'); do run src_$(basename $f .imc) $(sh tools/endian.sh) src/impsyn.imc $f; done
+for f in $(ls src/llvm-ir/*.imc | grep -v 'irsyn\|syntax'); do run ir_$(basename $f .imc) $(sh tools/endian.sh) src/impsyn.imc src/llvm-ir/irsyn.imc $f; done
 [ $fail = 0 ] && echo "direct stage 2: the code generator compiled by itself writes the same IR for every program"
 exit $fail

@@ -1,5 +1,5 @@
 #!/bin/sh
-# The link in the process (src/driver.imp: LNK, stage0/impld.cpp): a program is compiled to an executable with -o while no cc and no rm is on the PATH (it holds at most ld.lld), so
+# The link in the process (src/driver.imc: LNK, stage0/impld.cpp): a program is compiled to an executable with -o while no cc and no rm is on the PATH (it holds at most ld.lld), so
 # lld in the process must have made the executable, and it must run and print what the native test prints.  Skipped where the
 # compiler has no lld.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)

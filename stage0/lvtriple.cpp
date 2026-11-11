@@ -1,5 +1,5 @@
 /*
- * lvtriple.cpp -- the check of a --target triple by LLVM's own parser (src/llvm.imp: LVTRIOK calls imp_triple_check with CCALL).  The C API cannot be asked which
+ * lvtriple.cpp -- the check of a --target triple by LLVM's own parser (src/llvm.imc: LVTRIOK calls imp_triple_check with CCALL).  The C API cannot be asked which
  * operating systems, environments and object formats llvm::Triple knows, so this file, with impld.cpp the only C++ of the tree, asks the class: the set of names
  * follows the installed LLVM.  Whether this LLVM has a code generator for the architecture is the C API's business (LLVMGetTargetFromTriple); the architecture is
  * looked at here too, so that the message names the part that is wrong.  The vendor is free text and is not looked at.

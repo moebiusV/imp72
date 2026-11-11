@@ -1,13 +1,13 @@
 /*
- * dir.c -- the directory of names.  Ports src/dir.imp (decus/dir.imc: DIR, DSEQ, PNAME,
+ * dir.c -- the directory of names.  Ports src/dir.imc (decus/dir.imc: DIR, DSEQ, PNAME,
  * DNAME, GNAME, DSTATS, DSPILL, RADI50, DORGFIX, CONVC, STCON, NEWNAME).  The 36 bit
- * formats of the tape are gone: the words are those of src/dir.imp and src/impsyn.imc.
+ * formats of the tape are gone: the words are those of src/dir.imc and src/impsyn.imc.
  *
  * A hash coded directory.  Free array PRP is a hash table of 512 buckets of
  * three word nodes (indices 3*h), followed by overflow nodes added at NPRP.
  * A name's "directory index" is the index in PRP of its node, so it is
  * the same number the stage compiler computes: the hash below is that of
- * src/dir.imp, taken over the first word of the name (eight characters).
+ * src/dir.imc, taken over the first word of the name (eight characters).
  *
  *   node word 0   HL: sibling (next node with a colliding name)  HR: ALF index
  *   node word 1   HL: 'ENTRY'  HR: 'NODE'
@@ -38,7 +38,7 @@ dorgfix(void)
 {
 }
 
-/* Pack up to eight characters, the first in the low byte, as src/dir.imp. */
+/* Pack up to eight characters, the first in the low byte, as src/dir.imc. */
 static word
 pack8(const char *s, size_t n)
 {
@@ -371,10 +371,10 @@ static int cinit, jnit;
  * above 9).  The value is a 64 bit number that wraps (the 36 bit wrap of the
  * tape is gone): 777777777777B is 68719476735, and -1 is written -1.
  */
-/* The words of a text constant are in memory order, as in src/dir.imp (its CHR0, REST and FRONTLAST are those of src/impend-le.imc or impend-be.imc): the first character is
+/* The words of a text constant are in memory order, as in src/dir.imc (its CHR0, REST and FRONTLAST are those of src/impend-le.imc or impend-be.imc): the first character is
  * the first byte of the word in memory, the low byte on a little endian machine and the high byte on a big endian one.  The names of the directory stay first-character-low
  * inside this program, so the words of a constant are swapped on the way out where the machine is big endian. */
-int tgtswap;                        /* 1 when the byte order of the target is not the host's (TGTSWAP of src/dir.imp); the seed compiles for its host, so it stays 0 */
+int tgtswap;                        /* 1 when the byte order of the target is not the host's (TGTSWAP of src/dir.imc); the seed compiles for its host, so it stays 0 */
 
 static uword
 memorder(uword w)

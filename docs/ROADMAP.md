@@ -3,8 +3,8 @@
 Each item says what it is, what is proposed, and the effect on the code. None
 is implemented; `docs/LANGUAGE-DIFFERENCES.md`, `docs/FFI.md` and
 `docs/BUILDING.md` describe what exists. Every change to code generation is
-made in both languages of the generator (`src/llvm-ir/*.imp` and `stage0/gen_*.c`) and in both IR writers
-(`src/ir2ll.imp`, `src/ir2llx.imp` and `tools/ir2ll.c`), and `tests/seed`
+made in both languages of the generator (`src/llvm-ir/*.imc` and `stage0/gen_*.c`) and in both IR writers
+(`src/ir2ll.imc`, `src/ir2llx.imc` and `tools/ir2ll.c`), and `tests/seed`
 requires the seed and stage 2 to keep writing the same IR.
 
 A call to C stays visibly different from a call to IMP, whose arguments are
@@ -14,7 +14,7 @@ by reference: `CCALL` is always written.
 
 ### 1. UTF-8 operator symbols (`≤ ≥ ≠ ← ∧ ∨ ¬`)
 
-`src/lex.imp` makes every byte of 128 and up a letter of names, so that a name
+`src/lex.imc` makes every byte of 128 and up a letter of names, so that a name
 may be UTF-8 text; a symbol in an operator position would be read as the start
 of a name.
 
@@ -25,7 +25,7 @@ Names keep all bytes of 128 and up except those that a loaded extension makes
 into symbols.
 
 *Effect on the code.* The lexer tests a table of symbols before it takes a high
-byte for a letter (one routine in `lex.imp`, and in `stage0/lex.c`); the rest
+byte for a letter (one routine in `lex.imc`, and in `stage0/lex.c`); the rest
 is a file of rules. A name that used one of those characters would change
 meaning.
 
@@ -50,13 +50,13 @@ the number 0. A quote inside a string stays written doubled.
 
 Proposed: `''` is the constant 0.
 
-*Effect on the code.* One case in `lex.imp` and `stage0/lex.c` (two apostrophes
+*Effect on the code.* One case in `lex.imc` and `stage0/lex.c` (two apostrophes
 with no third following: the constant 0) and a test. As a `STG` argument, `''`
 is 0, like any other zero word.
 
 ### 4. File names with Unix limits
 
-`MKNAME` (`src/impm.imp`) builds a file name from two words (15 characters)
+`MKNAME` (`src/impm.imc`) builds a file name from two words (15 characters)
 and an extension of one word (7); the original had six and three. The library
 cuts the names of `FILE` items in `PRINT` and `READ` to 7 characters
 (`lib/impio.imp`, label `CM6`).
@@ -182,7 +182,7 @@ Cygwin), the constants of both systems in `tools/sysconst.sh`, and a test run on
 a Windows or Cygwin machine; none is available for the tests.
 
 *Effect on the code.* New files in `lib/`, a case in `tools/mkrt.sh`, and the
-link tables in `src/driver.imp` when a run shows them wrong.
+link tables in `src/driver.imc` when a run shows them wrong.
 
 ### 12. The result type of an IMP routine, seen from C
 
@@ -202,7 +202,7 @@ is made the word stays `int64_t`.
 
 `docs/porting/tape-names.md` compares the routine names of the tape with the
 port's. Two of the tape's routines are not present: `CORE(N)`, a monitor call
-to grow the core (the arena is reserved once and `free.imp` grows its usable
+to grow the core (the arena is reserved once and `free.imc` grows its usable
 part, so `CORE` could return as "make N words usable"), and `RLEAS(CH)`,
 which released a channel. Whether either is restored is to be examined
 together with item 5, since `RLEAS` is the `fclose` of a channel and `CORE`

@@ -15,14 +15,14 @@ are in `tape-names.md`.
 | `lex` | the line and the token are packed eight characters to a word and stepped with byte pointers, as on the tape; `LEXIN` opens the file with `fopen`; `PLINE` prints with `PRINT` |
 | `graph`, `parse`, `ercor` | halves of 32 bits; the parser takes its goal as a name |
 | `entree`, `cotree`, `dosem`, `rsyn` | the layouts of `layouts.md`; the semantic routines register themselves with `DSEM`, which enters their addresses in a table (the tape patches the address into a `JSA`) |
-| `debug` | the print-outs use `PRINT`; the dumps show the layouts of this machine; `PCODE1` is in `code3.imp` |
+| `debug` | the print-outs use `PRINT`; the dumps show the layouts of this machine; `PCODE1` is in `code3.imc` |
 | `impsem`, `code`, `code2`, `code3` | they make chains of records of the IR machine instead of PDP-10 words (`llvm-ir-path.md`); `EXECUTE` runs one instruction of that machine; `HRL` and `HRR` are the operations 66 and 67 |
 | `demit` | takes the place of `amod`, `rmod` and `omod`: chains to IR; a `GO TO` to a tag of another routine is a `longjmp` |
 | `impm` | the driver program: the command line (`IMPK`) as well as the tape's commands from the terminal (`-i`: `GETTY`, `READCMD`, the loop `AGAINSAM`); `ERROR`, `MSG` and `OUTSTR` write to standard error; a fatal error returns from `IMPK` where the tape goes to `FIN` |
 
-`PCODE` and `PCODE1` (the `/A` listing) are in `src/llvm-ir/code3.imp` and list the records of the IR chain, not PDP-10
+`PCODE` and `PCODE1` (the `/A` listing) are in `src/llvm-ir/code3.imc` and list the records of the IR chain, not PDP-10
 instructions. `HELPD`, `GPRINT`, `TPRINT` and `PARTRA` call the debugging routines directly (the tape tests whether the
-debugging module is loaded; it always is here). `FORMARG` is in `src/rsyn.imp`; nothing calls it, on the tape either.
+debugging module is loaded; it always is here). `FORMARG` is in `src/rsyn.imc`; nothing calls it, on the tape either.
 
 ## Byte pointers
 
@@ -82,10 +82,10 @@ The image is the state of the language, not of the process: the free storage (th
 tree, the semantics array, all the compiler's tables), the variables of the compiler's modules, the names of the
 semantic routines in the order of their ids, and the registry of relocatable arrays. The modules are compiled with
 `IMPMODULE` set (`tools/direct.sh`), and each variable leaves a record (address, size, `module:name`) in the section
-`impvars` (`IRVARREC`); `src/image.imp` writes and reads them, and `lib/impvars.imp` finds the section
+`impvars` (`IRVARREC`); `src/image.imc` writes and reads them, and `lib/impvars.imp` finds the section
 (`lib/impvarsx-elf.imp`, `lib/impvarsx-macho.imp`). An image is for the build that made it and says so if it is not (a
 hash of the list). The arena is restored at any address (format version 6): everything in it is an index from `FB`, and the load adds the
-difference of the bases to the five byte pointers of the lexer that point into it (`docs/internals/modules.md`). `IMGSKIP` in `src/image.imp` lists what the image
+difference of the bases to the five byte pointers of the lexer that point into it (`docs/internals/modules.md`). `IMGSKIP` in `src/image.imc` lists what the image
 leaves out: the variables of `impm`, `ix`, `image`, `driver`, `llvm` and `llvmgen`, of the IR writer (`ir2ll`, `ir2llx`),
 the table of semantic routines (written by name), the file the lexer has open, and the registry itself. A run from an image
 does what the head of `RSYN` and the first `COTREE` do (`RSYNI`), so that the routines they enter are in the table; the
@@ -99,16 +99,16 @@ first address: the low byte on a little-endian host, the high byte on a big-endi
 with macros (`CHR0`, `CHR`, `REST`, `PREP`, `LASTC`, `FRONTLAST`, `PFX4`, `CHAT`, `CODE`, `CHFIRST`, `CHSTEP`, `CHEND`,
 `CHBEYOND`, `CHPAST`) that `src/impend-le.imc` and `src/impend-be.imc` define, and `tools/endian.sh` names the file for
 the host the compiler is built on (`tools/direct.sh` puts it in front of every module). `CODE('(')` is the character code
-of a text constant of one character. `IRSTRVAL` (`ix.imp`, `g_irstrval` in the seed) and `CONVC` make a text constant's
+of a text constant of one character. `IRSTRVAL` (`ix.imc`, `g_irstrval` in the seed) and `CONVC` make a text constant's
 word in memory order of the target. The macros describe the machine the compiler runs on; the
-byte order of the program being compiled is separate: `LLVMTARGET` (`src/llvm.imp`) sets `TGTSWAP` to 1 from the data layout of
+byte order of the program being compiled is separate: `LLVMTARGET` (`src/llvm.imc`) sets `TGTSWAP` to 1 from the data layout of
 the target machine when it is not the host's, and `CONVC` (`dir.c`: `memorder`), `IRSTRVAL` and the data writer of `ir2ll`
 (the pair `{ i32, i32 }` of a 32-bit address) read it; the seed compiles for its host, so its flag is 0. A byte pointer needs no macro. An image is for the byte order and the build that made it.
 
 ## The back end
 
-The code generator writes IR (lowered for the target, `amd64` by default) whatever the host, and `src/ir2ll.imp` (the
+The code generator writes IR (lowered for the target, `amd64` by default) whatever the host, and `src/ir2ll.imc` (the
 seed: `tools/ir2ll.c`) turns it into LLVM IR; LLVM is the only back end. The compiler links `libLLVM` and makes the
-object in the process, with no clang (`src/llvm.imp`; the seed: `stage0/llvmorc.c`). `imp --run` compiles a program with
+object in the process, with no clang (`src/llvm.imc`; the seed: `stage0/llvmorc.c`). `imp --run` compiles a program with
 ORC and calls its `impmain`. The records that name the compiler's own variables for the image are the section `impvars`
 (`IRVARREC`), written as data.

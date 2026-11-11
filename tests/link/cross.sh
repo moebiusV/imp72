@@ -1,5 +1,5 @@
 #!/bin/sh
-# The tables of the link for another system (src/driver.imp: LNKCROSS, SETARCH, LNKBSD): imp --target=TRIPLE --sysroot=DIR with a sysroot of empty files prints (IMPLDSHOW=1) the
+# The tables of the link for another system (src/driver.imc: LNKCROSS, SETARCH, LNKBSD): imp --target=TRIPLE --sysroot=DIR with a sysroot of empty files prints (IMPLDSHOW=1) the
 # arguments of ld before lld finds them empty, and they must be those of tests/link/cross.out: the loader of each architecture and C library, the start files of each system.  The
 # refusals (windows, no sysroot, no crt1.o) must say what is missing.  Needs no real sysroot.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)

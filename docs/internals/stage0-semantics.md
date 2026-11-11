@@ -1,7 +1,7 @@
 # The seed, part 3: semantics, the code tree, RSYN and the driver
 
-`stage0/dosem.c`, `entree.c`, `cotree.c`, `rsyn.c`, `semtab.c` and `debug.c` correspond to `src/dosem.imp`,
-`src/entree.imp`, `src/cotree.imp`, `src/rsyn.imp`, `src/dir.imp` (the table of semantic routines) and `src/debug.imp`.
+`stage0/dosem.c`, `entree.c`, `cotree.c`, `rsyn.c`, `semtab.c` and `debug.c` correspond to `src/dosem.imc`,
+`src/entree.imc`, `src/cotree.imc`, `src/rsyn.imc`, `src/dir.imc` (the table of semantic routines) and `src/debug.imc`.
 `imps0.c` is the driver. The code generating routines are `stage0/gen_*.c` (`code-generator.md`).
 
 ## What runs

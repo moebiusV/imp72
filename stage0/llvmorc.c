@@ -233,7 +233,7 @@ module(const char *ir, size_t n, char **buf, size_t *len)
     return rc;
 }
 
-/* The entries of the driver (src/driver.imp), which calls them with CCALL, so no underscores: 0 for success.  The IR text of the kernel is in memory (ir, n bytes). */
+/* The entries of the driver (src/driver.imc), which calls them with CCALL, so no underscores: 0 for success.  The IR text of the kernel is in memory (ir, n bytes). */
 long llvmhave(long z) { (void)z; return 1; }
 
 long

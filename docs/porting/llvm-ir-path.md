@@ -2,14 +2,14 @@
 
 `src/llvm-ir/` holds the code generator of the compiler: the tape's `code.imc`, `code2.imc`, `code3.imc`, `impsem.imc` and
 `src/llvm-ir/syntax.imc`, with the operations of the IR machine (`llvm-ir-machine.md`) in place of PDP-10 instructions, and
-`demit.imp`, which takes the place of `amod`, `rmod` and `omod`. How it works is in `docs/internals/code-generator.md`.
+`demit.imc`, which takes the place of `amod`, `rmod` and `omod`. How it works is in `docs/internals/code-generator.md`.
 
 | file | contents |
 |---|---|
-| `code.imp`, `code2.imp`, `code3.imp` | `code.imc`, `code2.imc`, `code3.imc` |
-| `impsem.imp` | the register and declaration routines of `impsem.imc`, `ASSEMC`, `FCON`, `CVAL` |
-| `demit.imp` | the chains of records into IR trees |
-| `ix.imp` | the IR tree builders and the IR text; the names of directory entries as the IR has them |
+| `code.imc`, `code2.imc`, `code3.imc` | `code.imc`, `code2.imc`, `code3.imc` |
+| `impsem.imc` | the register and declaration routines of `impsem.imc`, `ASSEMC`, `FCON`, `CVAL` |
+| `demit.imc` | the chains of records into IR trees |
+| `ix.imc` | the IR tree builders and the IR text; the names of directory entries as the IR has them |
 | `irsyn.imc` | macros: the records, the operations, the IR operator and type codes |
 | `src/llvm-ir/syntax.imc` | `decus/syntax.imc` with the operations of the machine; no immediate, self or both modes, half words, skips or register pairs |
 
@@ -32,7 +32,7 @@ three words (`layouts.md`). The routines keep the tape's names and structure; th
 - `REAL` is the double's own bits, and a real constant is `FCON`'s double;
 - constants are 64 bit.
 
-The routines of `code*.imp` and `impsem.imp` differ from the tape's in:
+The routines of `code*.imp` and `impsem.imc` differ from the tape's in:
 
 - they add records (`ADDREC`, where the tape has `ADDCODE`);
 - `RCOCHK`, `OCHK` and `OPCODE` do not exist; they read PDP-10 instruction words;
@@ -44,7 +44,7 @@ The routines of `code*.imp` and `impsem.imp` differ from the tape's in:
 - `CONOP` does not divide by zero, and `ADDREC` copies its arguments before the array `CO` can move (an argument such as
   `FREE(R)` is passed by reference).
 
-`demit.imp` has no counterpart on the tape.
+`demit.imc` has no counterpart on the tape.
 
 ## The PDP-10 constructs
 
@@ -71,7 +71,7 @@ program with the driver). By hand:
 
 ## Optimization
 
-LLVM optimizes the module in the process with `default<O1>` (`stage0/llvmorc.c`, `src/llvm.imp`). The IR keeps two
+LLVM optimizes the module in the process with `default<O1>` (`stage0/llvmorc.c`, `src/llvm.imc`). The IR keeps two
 properties it has from pass 2 of pcc: each function has a label after the argument moves (`PROLOG, LABEL, argument
 moves, LABEL, code, EPILOG`), and a double is never held in a temporary: the word is stored in a scratch word
 (`imp_fs0`, `imp_fs1`), read as a double where it is used, and the result is stored in `imp_fsr` and read back as a word.

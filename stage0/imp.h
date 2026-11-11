@@ -14,7 +14,7 @@
  *  - "Pointers" into free storage are word indices into one growable array
  *    (`fmem`), exactly as in the original, where they were addresses relative
  *    to FORG.  Index 0 means "none".
- *  - Names in the directory are packed as src/dir.imp packs them: eight
+ *  - Names in the directory are packed as src/dir.imc packs them: eight
  *    characters (bytes) to a word, the first in the LOW byte, NUL terminated.
  *    Everything outside the directory sees ordinary C strings.
  *  - The kernel's words (the semantics array, the code tree, the directory
@@ -190,7 +190,7 @@ void graphf(void);
 void gprint(void);
 extern word ga, ng, nprods;                    /* GA, NG, NPRODS */
 /* graph state, for debug.c */
-/* (IMP names have no underscore: _ is assignment; src/graph.imp calls them GRBITM and so on) */
+/* (IMP names have no underscore: _ is assignment; src/graph.imc calls them GRBITM and so on) */
 #define gr_nodes grnodes
 #define gr_ntgent grntgent
 #define gr_nbitn grnbitn
@@ -230,7 +230,7 @@ void gprin1(void);                    /* GPRIN1: the graph and its matrices */
 /* ---- the words of the IMP ports (src/impsyn.imc), 64 bits ------------- */
 
 /* LS: a logical shift left; a negative count shifts right, a count of 64 or more (or -64 or less) shifts everything out
- * (what the stage compiler's variable shift does; ESHIFTV in src/llvm-ir/demit.imp) */
+ * (what the stage compiler's variable shift does; ESHIFTV in src/llvm-ir/demit.imc) */
 static inline word ls64(word x, word n)
 {
     if (n >= 64 || n <= -64)
@@ -241,7 +241,7 @@ static inline word ls64(word x, word n)
 /* RS: a logical shift right, the same rules */
 static inline word rs64(word x, word n) { return ls64(x, -n); }
 
-/* the code tree (entree.imp): the type of a stuff word is its top three bits */
+/* the code tree (entree.imc): the type of a stuff word is its top three bits */
 #define NT1   ((word)((uword)1 << 61))
 #define NT2   ((word)((uword)2 << 61))
 #define NT3   ((word)((uword)3 << 61))
@@ -250,7 +250,7 @@ static inline word rs64(word x, word n) { return ls64(x, -n); }
 #define PLIM  ((word)(((uword)1 << 29) + 2)) /* HL of the stuff word of a production node is at most this */
 #define NMARK ((word)((uword)1 << 63))       /* the mark of ENTRCA */
 
-/* the semantics array (dosem.imp): V is bits 0-31, N bits 32-43, the type bits 44-49; V and N together are a signed number of
+/* the semantics array (dosem.imc): V is bits 0-31, N bits 32-43, the type bits 44-49; V and N together are a signed number of
  * 44 bits for the types 4, 5 and 10 */
 #define SVMASK ((word)0xFFFFFFFFFFFLL)
 #define SVSIGN ((word)0x80000000000LL)

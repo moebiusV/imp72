@@ -114,7 +114,7 @@ target.
 ## Repository layout
 
     decus/          the DECUS 10-198 tape, unchanged (hashes, PROVENANCE.md)
-    src/            the compiler in 64-bit IMP: the kernel, the driver, llvm.imp, ir2ll*.imp
+    src/            the compiler in 64-bit IMP: the kernel, the driver, llvm.imc, ir2ll*.imp
     src/llvm-ir/    the code generator, and syntax.imc, the language's syntax
     stage0/         the seed (C99), the glue to the LLVM C API, impld.cpp
     lib/            the runtime library (IMP), ffi.imc, imp.h
@@ -146,7 +146,7 @@ constants of a C header. `docs/FFI.md` has all of it.
 
 **Code generation.** The code generator builds chains of records whose
 operations are those of an IR machine (`docs/porting/llvm-ir-machine.md`).
-`src/llvm-ir/demit.imp` turns the chains into IR trees, `src/ir2ll.imp` writes
+`src/llvm-ir/demit.imc` turns the chains into IR trees, `src/ir2ll.imc` writes
 them as LLVM IR text, and LLVM makes the object. `docs/ARCHITECTURE.md` is the
 map.
 

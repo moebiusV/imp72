@@ -1,19 +1,19 @@
 /*
  * gen.h -- the code generator of the stage compilers, in C (the seed's twin of src/llvm-ir, the .imp files).
  *
- * gen_impsem.c   ports src/llvm-ir/impsem.imp   (registers, subroutines, declarations, lists, names)
- * gen_code.c     ports src/llvm-ir/code.imp     (UNPCK, FETCH, DEWOP, STORE, COPYCO, SUBARG, ...)
- * gen_code2.c    ports src/llvm-ir/code2.imp    (ADDREC, HOOK, CONOP, SUBRCALL, FLOAT, PRINPAR, ...)
- * gen_code3.c    ports src/llvm-ir/code3.imp    (SUBCALL, SUBSCRIPT, BYTEP, PCODE)
- * gen_demit.c    ports src/llvm-ir/demit.imp    (the chain of records into IR trees) and the IRxxx
- *                                               helpers of src/llvm-ir/ix.imp (names, kinds, pools).
+ * gen_impsem.c   ports src/llvm-ir/impsem.imc   (registers, subroutines, declarations, lists, names)
+ * gen_code.c     ports src/llvm-ir/code.imc     (UNPCK, FETCH, DEWOP, STORE, COPYCO, SUBARG, ...)
+ * gen_code2.c    ports src/llvm-ir/code2.imc    (ADDREC, HOOK, CONOP, SUBRCALL, FLOAT, PRINPAR, ...)
+ * gen_code3.c    ports src/llvm-ir/code3.imc    (SUBCALL, SUBSCRIPT, BYTEP, PCODE)
+ * gen_demit.c    ports src/llvm-ir/demit.imc    (the chain of records into IR trees) and the IRxxx
+ *                                               helpers of src/llvm-ir/ix.imc (names, kinds, pools).
  *
- * The tree builders of ix.imp are NOT ported: stage0/ir.c's are called (ir.h).  ix.imp was compared with
+ * The tree builders of ix.imc are NOT ported: stage0/ir.c's are called (ir.h).  ix.imc was compared with
  * ir.c, routine by routine, and they agree (see the report of the port; the one place where they have a
  * different shape, IXSETTARGET/TGINIT against ir_settarget, is not used here).
  *
  * The word formats are those of the IMP port (64 bit words, halves of 32 bits: HL, HR, HW of imp.h; the
- * formats of src/impsyn.imc, src/cotree.imp, src/entree.imp, src/dosem.imp, src/dir.imp).
+ * formats of src/impsyn.imc, src/cotree.imc, src/entree.imc, src/dosem.imc, src/dir.imc).
  *
  * Three differences of the language that the port keeps in mind:
  *
@@ -38,29 +38,29 @@ void gen_init(void);
 
 /* ---- the names of the routines: IMP name -> C name ---------------------------------------------------------------------
  *
- * impsem.imp: IINIT g_iinit, AREG g_areg, REG2 g_reg2, AREG1 g_areg1, TSTRN g_tstrn, NAME g_name, VAL g_val, SVAL g_sval,
+ * impsem.imc: IINIT g_iinit, AREG g_areg, REG2 g_reg2, AREG1 g_areg1, TSTRN g_tstrn, NAME g_name, VAL g_val, SVAL g_sval,
  *   STACKUP g_stackup, SWITCH g_switch, NSUBP g_nsubp, HISREG g_hisreg, PAIRFIRST g_pairfirst, SUBREG g_subreg,
  *   TMPREG g_tmpreg, SAMEREG g_samereg, REGEQ g_regeq, REGSIM g_regsim, REG0 g_reg0, RMATCH g_rmatch, SUBPR0 g_subpr0,
  *   SUBPRM g_subprm, SUBTMPF g_subtmpf, SUBBEG g_subbeg, SUBEND g_subend, REMOT g_remot, CALLME g_callme,
  *   REG2S g_reg2s, NEWLIST g_newlist, ENLIST g_enlist, GETLIST g_getlist, ASSEMC g_assemc, DECL g_decl,
  *   DECLARE g_declare, LETSYN g_letsyn, ERRSRT g_errsrt, CVAL g_cval, ISCVAL g_iscval, FCON g_fcon,
  *   IMPSEM gen_init (all the DSEMs).
- * code.imp: UNPCK g_unpck, REGOF g_regof, FETCH g_fetch, ADDOP g_addop, DEWOP g_dewop, TAG g_tag, STORE g_store,
+ * code.imc: UNPCK g_unpck, REGOF g_regof, FETCH g_fetch, ADDOP g_addop, DEWOP g_dewop, TAG g_tag, STORE g_store,
  *   COPYC1 g_copyc1, REGFIELD g_regfield, COPYCO g_copyco, NEXCO g_nexco, MCODE1 g_mcode1, MCODE g_mcode,
  *   SUBARG g_subarg, CODEI gen_init.
- * code2.imp: SETNEXT g_setnext, ADDREC g_addrec, HOOK g_hook, ANYCODE g_anycode, DEWFUN g_dewfun, CONOP g_conop,
+ * code2.imc: SETNEXT g_setnext, ADDREC g_addrec, HOOK g_hook, ANYCODE g_anycode, DEWFUN g_dewfun, CONOP g_conop,
  *   JOP g_jop, CJUMP g_cjump, MOVEBLK g_moveblk, FREEZE g_freeze, ONEWORD g_oneword, COPPY g_coppy (the semantic
  *   name COPY), SUBRCALL g_subrcall, RETURN g_return, FLOAT g_float, FIX g_fix, DATAST g_datast, SUBRPAR g_subrpar,
  *   PRINPAR g_prinpar, PRINCAL g_princal, OJUMPOP g_ojumpop, ADDR g_addr, CODE2I gen_init.
- * code3.imp: SUBCALL g_subcall, SUBSCRIPT g_subscript, BYTEP g_bytep, PCODE g_pcode, PCODE1 g_pcode1, CODE3I gen_init.
- * demit.imp: RV rv, ICN icn, ASG asg, OFFSET offset, TAGLABEL taglabel, USEVAR usevar, POOLOF poolof, SYMADDR symaddr,
+ * code3.imc: SUBCALL g_subcall, SUBSCRIPT g_subscript, BYTEP g_bytep, PCODE g_pcode, PCODE1 g_pcode1, CODE3I gen_init.
+ * demit.imc: RV rv, ICN icn, ASG asg, OFFSET offset, TAGLABEL taglabel, USEVAR usevar, POOLOF poolof, SYMADDR symaddr,
  *   EADDR eaddr, VEXPR vexpr, BOOLOP boolop, CMPOF cmpof, ESHIFTV eshiftv, ESHIFT eshift, ECALL ecall, EPITEM epitem,
  *   ETABJUMP etabjump, BDFIND bdfind, TMPV tmpv, TV tv, SHL shl, SHR shr, FMASK fmask, BPVALUE bpvalue, BPIN bpin,
  *   BPOUT bpout, CHARPTR charptr, CPSTEP cpstep, CPBYTE cpbyte, BPIBP bpibp, BPLDB bpldb, BPDPB bpdpb, EFIELD efield,
  *   ENEWWORD enewword, EWRITE ewrite, ELDB eldb, EDPB edpb, EHALF ehalf, ECALLI ecalli, EXECUTEW executew, EREC erec,
  *   TAGDEF tagdef, ISXTAG isxtag, JUMPTAG jumptag, XSCAN xscan, EXPORTTAGS exporttags, ECHKTAGS echktags, EBODY ebody,
  *   EFUNC efunc, EDATA edata (the last ones static, all in gen_demit.c), DEMIT g_demit.
- * ix.imp: only the IR* helpers on directory entries are ported (the builders are ir.c's): IRNAMEOF irnameof,
+ * ix.imc: only the IR* helpers on directory entries are ported (the builders are ir.c's): IRNAMEOF irnameof,
  *   IRSYMNAME g_irsymname, IRKIND g_irkind, IRSTRVAL g_irstrval, IRLABNAME g_irlabname, IRPOOLEMIT g_irpoolemit,
  *   IRFNKIND g_irfnkind, IRRUNTIME g_irruntime, IRTAGERR g_irtagerr, IRJBNAME g_irjbname, IRVARREC g_irvarrec.
  *   The builders: IXICON ir_icon, IXSYM ir_sym, IXNAME ir_name, IXTEMP ir_temp, IXREG ir_reg, IXUN ir_un, IXBIN ir_bin,
@@ -73,16 +73,16 @@ void gen_init(void);
 
 /* ---- state shared between the files (COMMON of the IMP modules) -------------------------------------------------------- */
 
-/* the code chain: CO, NCO, ANCO (code2.imp), REMO (impsem.imp, demit.imp) */
+/* the code chain: CO, NCO, ANCO (code2.imc), REMO (impsem.imc, demit.imc) */
 extern word g_co, g_nco, g_anco, g_remo;
-/* the declared arrays (ARR, NARR) and the register array's size (REGN): impsem.imp, demit.imp */
+/* the declared arrays (ARR, NARR) and the register array's size (REGN): impsem.imc, demit.imc */
 extern word g_arr, g_narr, g_regn;
-/* the byte descriptors (BDESC, NBD): code3.imp, demit.imp */
+/* the byte descriptors (BDESC, NBD): code3.imc, demit.imc */
 extern word g_bdesc, g_nbd;
 extern word g_fdesc, g_nfd;
-/* the unpacked stack entry, as UNPCK leaves it (code.imp) */
+/* the unpacked stack entry, as UNPCK leaves it (code.imc) */
 extern word g_se, g_tse, g_dse, g_se1, g_rse, g_cse;
-/* the assembler names of the directory entries, by index (SYMC, NSYMC of ix.imp: a cache of C strings; the
+/* the assembler names of the directory entries, by index (SYMC, NSYMC of ix.imc: a cache of C strings; the
  * image code of the IMP side clears it after loading an image) */
 extern char **g_symc;
 extern word g_nsymc;
@@ -119,7 +119,7 @@ g_chr(word w, int k)
     return (word)(((uword)w >> (8 * k)) & 0xFF);
 }
 
-/* ---- impsem.imp -------------------------------------------------------------------------------------------------------- */
+/* ---- impsem.imc -------------------------------------------------------------------------------------------------------- */
 
 word g_iinit(void);
 word g_areg(word i);
@@ -168,7 +168,7 @@ word g_cdecl(word t, word f, word l, word v);
 word g_fcon(word a, word b, word e);
 void gen_impsem_dsems(void);                    /* IMPSEM: the DSEMs of gen_impsem.c */
 
-/* ---- code.imp ---------------------------------------------------------------------------------------------------------- */
+/* ---- code.imc ---------------------------------------------------------------------------------------------------------- */
 
 word g_unpck(word s);
 word g_regof(word s);
@@ -186,7 +186,7 @@ word g_mcode(word s, word t);
 word g_subarg(word s, word pp);
 void gen_code_dsems(void);
 
-/* ---- code2.imp --------------------------------------------------------------------------------------------------------- */
+/* ---- code2.imc --------------------------------------------------------------------------------------------------------- */
 
 word g_setnext(word r, word n);
 word g_addrec(word s, word kind, word op, word rd, word v0, word v1, word x);
@@ -212,7 +212,7 @@ word g_ojumpop(word i);
 word g_addr(word s);
 void gen_code2_dsems(void);
 
-/* ---- code3.imp --------------------------------------------------------------------------------------------------------- */
+/* ---- code3.imc --------------------------------------------------------------------------------------------------------- */
 
 word g_subcall(word a, word b);
 word g_csubcall(word a, word b);
@@ -240,7 +240,7 @@ word g_pcode(word s, word ns);
 word g_pcode1(word s, word ns);
 void gen_code3_dsems(void);
 
-/* ---- demit.imp and the IR helpers of ix.imp ---------------------------------------------------------------------------- */
+/* ---- demit.imc and the IR helpers of ix.imc ---------------------------------------------------------------------------- */
 
 word g_demit(word a);
 const char *g_irsymname(word v);

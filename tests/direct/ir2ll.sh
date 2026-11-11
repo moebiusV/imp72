@@ -1,5 +1,5 @@
 #!/bin/sh
-# The LLVM IR writer in IMP (src/ir2ll.imp, src/ir2llx.imp) against the C it was translated from (tools/ir2ll.c, which the seed links): the IR of the native tests, the oracle
+# The LLVM IR writer in IMP (src/ir2ll.imc, src/ir2llx.imc) against the C it was translated from (tools/ir2ll.c, which the seed links): the IR of the native tests, the oracle
 # programs, the modules of the compiler and a fuzzer (tools/ir2ll-fuzz.py: every operator, type and directive) goes through both, for pointers of 64 and of 32 bits, in the byte order of the host and in the other, and what they write
 # must be the same, byte for byte.  The IMP one is taken as stage 1 (the seed) and stage 2 (stage 1) compiled it, which are the objects tools/direct.sh left in build/llvm-ir1 and build/llvm-ir2.
 root=$(cd "$(dirname "$0")/../.." && pwd)
@@ -21,11 +21,11 @@ endf=$(sh tools/endian.sh)
 for f in tests/native/*.imp tests/oracle/*.imp tests/direct/progs/*.imp; do
     $k -c $out/ir/$(basename $(dirname $f))_$(basename $f .imp).ir $IMPSYNTAX $IMPFFI $f >/dev/null 2>&1
 done
-for f in src/*.imp; do
-    IMPMODULE=$(basename $f .imp) $k -c $out/ir/src_$(basename $f .imp).ir $IMPSYNTAX $IMPFFI $endf src/impsyn.imc $f >/dev/null 2>&1
+for f in $(ls src/*.imc | grep -v 'impsyn\|impend-'); do       # (the modules; the other .imc files are syntax)
+    IMPMODULE=$(basename $f .imc) $k -c $out/ir/src_$(basename $f .imc).ir $IMPSYNTAX $IMPFFI $endf src/impsyn.imc $f >/dev/null 2>&1
 done
-for f in src/llvm-ir/*.imp; do
-    IMPMODULE=$(basename $f .imp) $k -c $out/ir/ir_$(basename $f .imp).ir $IMPSYNTAX $IMPFFI $endf src/impsyn.imc src/llvm-ir/irsyn.imc $f >/dev/null 2>&1
+for f in $(ls src/llvm-ir/*.imc | grep -v 'irsyn\|syntax'); do
+    IMPMODULE=$(basename $f .imc) $k -c $out/ir/ir_$(basename $f .imc).ir $IMPSYNTAX $IMPFFI $endf src/impsyn.imc src/llvm-ir/irsyn.imc $f >/dev/null 2>&1
 done
 python3 tools/ir2ll-fuzz.py 1 ${IR2LL_COUNT:-60} $out/ir >/dev/null 2>&1 || echo "ir2ll: no python3, or the fuzzer failed: the fuzzed IR is left out"
 fail=0

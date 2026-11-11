@@ -1,7 +1,7 @@
 # The seed, part 1: free storage, stack, directory, lexer
 
 The seed in `stage0/` is the compiler's kernel in C99. This page covers `free.c`, `stack.c`, `dir.c` and `lex.c`, which
-correspond to `src/free.imp`, `src/stack.imp`, `src/dir.imp` and `src/lex.imp` (and to `decus/free.imc`, `stack.imc`,
+correspond to `src/free.imc`, `src/stack.imc`, `src/dir.imc` and `src/lex.imc` (and to `decus/free.imc`, `stack.imc`,
 `dir.imc`, `lex.imc` of the tape). The parser is in `stage0-parser.md`, the semantic machinery in `stage0-semantics.md`.
 `make -C stage0 check` runs the unit tests in `tests/stage0/` (`test_free`, `test_stack`, `test_dir`, `test_lex`,
 `test_parse`, `test_debug`) and `tests/stage0/test_syntax.sh`.
@@ -81,7 +81,7 @@ chain of overflow nodes. A directory index is the index of the name's node in `P
 reached. A token is a run of letters, digits and `_`; an apostrophe string (the token keeps its opening apostrophe and
 loses the closing one, `''` is one apostrophe); the text between two exclamation marks (the marks are dropped); or one
 other non-blank character. `:=` is one token and `::=` is not. Blanks and control characters separate tokens and
-`#...#` is a comment. Letters are ASCII only here; `src/lex.imp` also takes bytes of 128 and up as letters.
+`#...#` is a comment. Letters are ASCII only here; `src/lex.imc` also takes bytes of 128 and up as letters.
 
 The line and the token are C buffers where the original keeps them in free arrays (`LEXL`, `LEXT`). The routines of
 the TOPS-10 command line (`GETTY`, `READCMD`, `PUTN`, `PUTO`, `PUTSW`, `LEXSAV`, `LEXRES`) are not in `lex.c`; the

@@ -203,7 +203,7 @@ override(char *path, size_t n, const char *name)
 }
 
 /*
- * The link: lld in this process (stage0/impld.cpp), the same way as src/driver.imp (LNK) does it for imp, with the same files and the same arguments for the system and the
+ * The link: lld in this process (stage0/impld.cpp), the same way as src/driver.imc (LNK) does it for imp, with the same files and the same arguments for the system and the
  * architecture this is; there is no cc.  IMPLDSHOW=1 prints the arguments of ld, and a test requires this driver and imp to print the same.  This is the C of what
  * LNK, LNKLIN, LNKBSD and LNKMAC are in IMP: change the one, change the other.
  */

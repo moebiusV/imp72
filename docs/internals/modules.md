@@ -9,23 +9,23 @@ the compiler that compiles itself.
 
 | Module | Original | C (seed) | IMP |
 |---|---|---|---|
-| free | `decus/free.imc` | `stage0/free.c` | `src/free.imp` |
-| dir | `dir.imc` | `dir.c`, `semtab.c` | `src/dir.imp` |
-| stack | `stack.imc` | `stack.c` | `src/stack.imp` |
-| lex | `lex.imc` | `lex.c` | `src/lex.imp` |
-| graph | `graph.imc` | `graph.c` | `src/graph.imp` |
-| parse | `parse.imc` | `parse.c` | `src/parse.imp` |
-| ercor | `ercor.imc` | `ercor.c` | `src/ercor.imp` |
-| entree | `entree.imc` | `entree.c` | `src/entree.imp` |
-| cotree | `cotree.imc` | `cotree.c` | `src/cotree.imp` |
-| dosem | `dosem.imc` | `dosem.c` | `src/dosem.imp` |
-| rsyn | `rsyn.imc` | `rsyn.c` | `src/rsyn.imp` |
-| debug | `debug.imc` | `debug.c`, `pr.c` | `src/debug.imp` |
-| impsem, code, code2, code3 | `impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` | `gen_impsem.c`, `gen_code.c`, `gen_code2.c`, `gen_code3.c` | `src/llvm-ir/impsem.imp`, `code.imp`, `code2.imp`, `code3.imp` |
-| demit | `amod.imc`, `rmod.imc`, `omod.imc` (not translated) | `gen_demit.c`, `ir.c` | `src/llvm-ir/demit.imp`, `ix.imp` |
-| driver | `impm.imc` | `imps0.c`, `error.c` | `src/impm.imp`, `src/driver.imp` |
-| back end | none | `llvmorc.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imp`, `src/ir2ll.imp`, `src/ir2llx.imp`, `lib/imphost.imp` |
-| image | none (the monitor's `SSAVE`) | none | `src/image.imp` |
+| free | `decus/free.imc` | `stage0/free.c` | `src/free.imc` |
+| dir | `dir.imc` | `dir.c`, `semtab.c` | `src/dir.imc` |
+| stack | `stack.imc` | `stack.c` | `src/stack.imc` |
+| lex | `lex.imc` | `lex.c` | `src/lex.imc` |
+| graph | `graph.imc` | `graph.c` | `src/graph.imc` |
+| parse | `parse.imc` | `parse.c` | `src/parse.imc` |
+| ercor | `ercor.imc` | `ercor.c` | `src/ercor.imc` |
+| entree | `entree.imc` | `entree.c` | `src/entree.imc` |
+| cotree | `cotree.imc` | `cotree.c` | `src/cotree.imc` |
+| dosem | `dosem.imc` | `dosem.c` | `src/dosem.imc` |
+| rsyn | `rsyn.imc` | `rsyn.c` | `src/rsyn.imc` |
+| debug | `debug.imc` | `debug.c`, `pr.c` | `src/debug.imc` |
+| impsem, code, code2, code3 | `impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` | `gen_impsem.c`, `gen_code.c`, `gen_code2.c`, `gen_code3.c` | `src/llvm-ir/impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` |
+| demit | `amod.imc`, `rmod.imc`, `omod.imc` (not translated) | `gen_demit.c`, `ir.c` | `src/llvm-ir/demit.imc`, `ix.imc` |
+| driver | `impm.imc` | `imps0.c`, `error.c` | `src/impm.imc`, `src/driver.imc` |
+| back end | none | `llvmorc.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imc`, `src/ir2ll.imc`, `src/ir2llx.imc`, `lib/imphost.imp` |
+| image | none (the monitor's `SSAVE`) | none | `src/image.imc` |
 
 ## free: free storage
 
@@ -45,9 +45,9 @@ stays good until the array itself moves.
 
 Everything the modules keep of the arena is an index from `FB`, except five byte pointers of the lexer (`lex:PC`, `QC`,
 `K0`, `K`, `PC0`), which step through the line and token arrays. The arena lies at the address of `SCHINT`, or at the
-one in `IMPCOREBASE` (a test), and an image saved by `src/image.imp` is restored with it at any address: the loader
+one in `IMPCOREBASE` (a test), and an image saved by `src/image.imc` is restored with it at any address: the loader
 adds the difference of the bases to those five variables and sets `FB`. The census of the absolute addresses is in the
-header of `src/image.imp`; `IMPIMGCENSUS=1` prints it at the saving. The seed has no images.
+header of `src/image.imc`; `IMPIMGCENSUS=1` prints it at the saving. The seed has no images.
 
 ## dir: the directory of names
 
@@ -56,7 +56,7 @@ the names, eight characters (bytes) to a word, the first in the low byte. A name
 in `PRP`. Entry points: `DIR`, `DSEQ`, `PNAME`, `DNAME`, `GNAME`, `DSTATS`, `DSPILL`, `RADI50`, `CONVC`, `STCON`,
 `NEWNAME`, and the property accessors `DPROP` and `DPROPS`.
 
-`src/dir.imp` also holds the table of semantic routines: `DSEM(name,routine)` enters a routine and stores its id (1 plus
+`src/dir.imc` also holds the table of semantic routines: `DSEM(name,routine)` enters a routine and stores its id (1 plus
 its slot) as the `SEM` property of the name, `SEMCALL(id,pars)` calls it with a copy of the parameters on a stack of its
 own, and `SEMCOUNT`, `SEMNAME`, `SEMREMAP` give the table to the image. In the seed the table is `stage0/semtab.c`.
 
@@ -73,7 +73,7 @@ other non-blank character; blanks and control characters separate tokens and `#.
 Entry points `LEXIN`, `LEX`, `NEXTCHAR`, `PLINE1`, `PLINE`.
 
 In IMP the line and the token are packed arrays stepped with byte pointers, as in the original, and bytes of 128 and up
-are letters, so that a name can be in UTF-8. `src/lex.imp` also has `GETTY`, `READCMD`, `PUTN`, `PUTO`, `PUTSW`,
+are letters, so that a name can be in UTF-8. `src/lex.imc` also has `GETTY`, `READCMD`, `PUTN`, `PUTO`, `PUTSW`,
 `LEXSAV`, `LEXRES` for the commands of `imp -i`. The seed's lexer reads the whole file into a buffer, takes ASCII
 letters only, and has none of the command line routines.
 
@@ -129,9 +129,9 @@ head of `RSYN` alone, used when the compiler starts from an image.
 
 ## debug: the diagnostic print-outs
 
-`GPRIN1`, `PARTR1`, `TPRIN1`, `SEMPR1`, `PSTAC1` and `HELPD` print the tables as the switches ask. `src/debug.imp` does it
+`GPRIN1`, `PARTR1`, `TPRIN1`, `SEMPR1`, `PSTAC1` and `HELPD` print the tables as the switches ask. `src/debug.imc` does it
 with `PRINT`; `stage0/debug.c` with `stage0/pr.c`, the part of PMOD (`pmod.md`) that it needs. `PCODE1` lists the code
-and is in `src/llvm-ir/code3.imp`. The dumps print the 64 bit words in octal.
+and is in `src/llvm-ir/code3.imc`. The dumps print the 64 bit words in octal.
 
 ## impsem, code, code2, code3, demit: the code generator
 
@@ -139,11 +139,11 @@ See `code-generator.md`.
 
 ## driver
 
-`src/impm.imp` is the kernel's driver program: `IMPK` reads the command line (`-s`, `-o`, `-c`, `-T`, `-I`, `-i`), reads
+`src/impm.imc` is the kernel's driver program: `IMPK` reads the command line (`-s`, `-o`, `-c`, `-T`, `-I`, `-i`), reads
 the syntax with `RSYN`, and compiles the files with `COMPIL`; `ERROR` and `MSG` write to standard error, and a fatal
 error returns from `IMPK`. With `-i` it reads the commands of the original from the terminal (`GETTY`, `READCMD`).
-`src/image.imp` writes and reads an image (`NAME_/U`, `/V`, `-I`). `src/driver.imp` is the main program of `imp`: it
-finds its parts relative to itself, runs `IMPK`, then the back end (`src/llvm.imp`) and the link. In the seed, `imps0`
+`src/image.imc` writes and reads an image (`NAME_/U`, `/V`, `-I`). `src/driver.imc` is the main program of `imp`: it
+finds its parts relative to itself, runs `IMPK`, then the back end (`src/llvm.imc`) and the link. In the seed, `imps0`
 is the kernel and `impstage0` the compiler, the same program under another name (`stage0-semantics.md`).
 
 The runtime library is in `lib/`: `impio.imp` (`PRINT`, `READ`, `FINI`), `imprt.imp` (`CALLI`, shifts, byte pointers,

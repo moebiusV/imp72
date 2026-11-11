@@ -1,8 +1,8 @@
 # The routines of the tape and of this implementation
 
 How the routines of this implementation relate to those of the original (`decus/*.imc`). The page compares the `SUBR`
-names of each module of the tape with those of the module that corresponds to it in `src/` (the kernel in `src/*.imp`, the
-code generator and the semantics in `src/llvm-ir/*.imp`), the names the tape declares `COMMON` with `src/` and `lib/`, and
+names of each module of the tape with those of the module that corresponds to it in `src/` (the kernel in `src/*.imc`, the
+code generator and the semantics in `src/llvm-ir/*.imc`), the names the tape declares `COMMON` with `src/` and `lib/`, and
 the macros and syntax elements of `decus/impsyn.imc` and `decus/syntax.imc` with `src/impsyn.imc`, `src/llvm-ir/irsyn.imc` and `src/llvm-ir/syntax.imc`.
 
 `FREES`, `FLEN`, `FADD` and the other macros of `decus/impsyn.imc` are syntax, not routines, and keep their names in
@@ -17,16 +17,16 @@ that the 64 bit layout or the Unix driver needs.
 | module | routine | what it does | disposition |
 |---|---|---|---|
 | `dir`, `graph`, `entree` | `DORGFIX`, `GORGFIX`, `TORGFIX` | set the origin words of the tables (`DORG`, `DORG1`, `GORG`, `TORG`, ...) and build byte pointers into the packed 18 bit fields (`BYTEP [GORG1]<15,18>`, the `DPBYP*`, `GBYP*`, `T*BP` variables) | not needed: the fields are read with shifts and masks (`DPROP`, `TSCR` and the rest in `impsyn.imc`), and the arena has one address |
-| `impm` | `CORE(N)` | monitor call to grow the core | not provided in `impm`. `free.imp` has its own `CORE(K)` (as `free.imc` has), which makes the first `K+1` words of the reserved arena usable (`IMPCORESET`) |
+| `impm` | `CORE(N)` | monitor call to grow the core | not provided in `impm`. `free.imc` has its own `CORE(K)` (as `free.imc` has), which makes the first `K+1` words of the reserved arena usable (`IMPCORESET`) |
 | `impm` | `RLEAS(CH)` | release a channel | not provided: no channel is opened |
 | `impm` | `TMPCOR`, `TMPFL`, `GETMP` | pass the command line from the monitor through temporary core or a temporary file `I10` | not needed: `argv` (`IMPARGV`, `COMPIL`) |
 | `impm` | `OPENOUT` | open the `.REL` output on a channel | not needed: the driver opens the IR file and makes the object file (`IMPOPENIR`, `IMPOBJ`) |
 | `impm` | `PEEKAT` | tell a "bulldog" watcher program of the monitor which file is compiled | not needed |
-| `debug` | `PCODE1` | list the code as PDP-10 instructions | `PCODE1` of `code3.imp` lists the records of the IR chain |
+| `debug` | `PCODE1` | list the code as PDP-10 instructions | `PCODE1` of `code3.imc` lists the records of the IR chain |
 | `code` | `RCOCHK` | walk the chain of PDP-10 code words checking the use of registers | no counterpart: there is no such chain |
 | `code2` | `ADDCODE`, `OPCODE` | add a PDP-10 instruction word; the assembler's table of mnemonics | `ADDREC` adds a record; `OPCODE` has no counterpart |
-| `impsem` | `SUBTAG` | make a tag's name from a number, with a byte pointer into a PDP-10 word | not needed: `demit.imp` numbers labels (`IXNEWLABEL`, `TAGLABEL`) |
-| `amod`, `omod`, `rmod` | all (12, 9 and 20 routines) | the PDP-10 assembler, the writer of the `.REL` file and the register allocator | no counterpart: `demit.imp` writes IR and LLVM does this work |
+| `impsem` | `SUBTAG` | make a tag's name from a number, with a byte pointer into a PDP-10 word | not needed: `demit.imc` numbers labels (`IXNEWLABEL`, `TAGLABEL`) |
+| `amod`, `omod`, `rmod` | all (12, 9 and 20 routines) | the PDP-10 assembler, the writer of the `.REL` file and the register allocator | no counterpart: `demit.imc` writes IR and LLVM does this work |
 
 `CORE` and `RLEAS` are the two tape routines whose absence depends on the file I/O of the implementation. If channel
 I/O is implemented, `RLEAS` (the `fclose` of a channel) and the monitor `CORE` are reconsidered.

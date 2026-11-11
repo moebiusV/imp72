@@ -27,7 +27,7 @@ and the modules compared with the original.
 The kernel modules are `lex`, `parse`, `ercor`, `graph`, `dir`, `free`, `stack`,
 `entree`, `cotree`, `dosem`, `rsyn` and `debug`. `impm` is the kernel's driver
 (`IMPK`), `image` saves and restores a compiler together with the language it
-has learned, and `driver` is the command line of `imp`. All are `src/*.imp`,
+has learned, and `driver` is the command line of `imp`. All are `src/*.imc`,
 the 64-bit IMP translation of the original modules in `decus/`.
 
 - **The language** is the syntax file `src/llvm-ir/syntax.imc` (the
@@ -42,14 +42,14 @@ the 64-bit IMP translation of the original modules in `decus/`.
   of a record are those of the IR machine
   (`docs/porting/llvm-ir-machine.md`); registers are IR temporaries.
 - **`demit`** reads the chains and writes IR trees. In the stage compilers the
-  tree builders and the IR file writer are `src/llvm-ir/ix.imp`; in the seed they
+  tree builders and the IR file writer are `src/llvm-ir/ix.imc`; in the seed they
   are `stage0/ir.c`. The IR file is text, one tree node a line.
-- **`ir2ll`** (`src/ir2ll.imp`, `src/ir2llx.imp`; the seed's copy is
+- **`ir2ll`** (`src/ir2ll.imc`, `src/ir2llx.imc`; the seed's copy is
   `tools/ir2ll.c`) reads the IR file and writes a module of LLVM IR as text.
   The IR is lowered for one machine model: the arguments of a call are pointers
   to the values and the word is 64 bits. The pointer size (32 or 64 bits) is the
   writer's only parameter, so the output does not depend on the host otherwise.
-- **`llvm`** (`src/llvm.imp`; the seed's copy is `stage0/llvmorc.c`) calls the
+- **`llvm`** (`src/llvm.imc`; the seed's copy is `stage0/llvmorc.c`) calls the
   LLVM C API through `CCALL`. It parses the module, optimizes it at `default<O1>`
   and emits an object file or assembly, or compiles it with ORC (LLJIT) and runs
   it. The module `llvmgen`, written by `tools/llvm.sh imp` for the LLVM at hand, holds what the LLVM headers decide.
@@ -89,18 +89,18 @@ generator twice:
 
 | IMP | C | contents |
 |---|---|---|
-| `src/llvm-ir/impsem.imp` | `stage0/gen_impsem.c` | registers, subroutines, declarations, lists, names |
-| `src/llvm-ir/code.imp` | `stage0/gen_code.c` | `UNPCK`, `FETCH`, `DEWOP`, `STORE`, `COPYCO`, `SUBARG`, ... |
-| `src/llvm-ir/code2.imp` | `stage0/gen_code2.c` | `ADDREC`, `HOOK`, `CONOP`, `SUBRCALL`, `FLOAT`, `PRINPAR`, ... |
-| `src/llvm-ir/code3.imp` | `stage0/gen_code3.c` | `SUBCALL`, `SUBSCRIPT`, `BYTEP`, `PCODE` |
-| `src/llvm-ir/demit.imp`, `ix.imp` | `stage0/gen_demit.c`, `stage0/ir.c` | chains to IR trees, and the tree builders |
-| `src/ir2ll.imp`, `src/ir2llx.imp` | `tools/ir2ll.c` | IR file to LLVM IR |
-| `src/llvm.imp` | `stage0/llvmorc.c` | the LLVM C API glue |
+| `src/llvm-ir/impsem.imc` | `stage0/gen_impsem.c` | registers, subroutines, declarations, lists, names |
+| `src/llvm-ir/code.imc` | `stage0/gen_code.c` | `UNPCK`, `FETCH`, `DEWOP`, `STORE`, `COPYCO`, `SUBARG`, ... |
+| `src/llvm-ir/code2.imc` | `stage0/gen_code2.c` | `ADDREC`, `HOOK`, `CONOP`, `SUBRCALL`, `FLOAT`, `PRINPAR`, ... |
+| `src/llvm-ir/code3.imc` | `stage0/gen_code3.c` | `SUBCALL`, `SUBSCRIPT`, `BYTEP`, `PCODE` |
+| `src/llvm-ir/demit.imc`, `ix.imc` | `stage0/gen_demit.c`, `stage0/ir.c` | chains to IR trees, and the tree builders |
+| `src/ir2ll.imc`, `src/ir2llx.imc` | `tools/ir2ll.c` | IR file to LLVM IR |
+| `src/llvm.imc` | `stage0/llvmorc.c` | the LLVM C API glue |
 
 The two write the same LLVM IR for the same program, and `tests/seed` compares
 them. To add or change code generation, change both:
 
-1. Write the semantic routine in the right `src/llvm-ir/*.imp` file and
+1. Write the semantic routine in the right `src/llvm-ir/*.imc` file and
    register it with `DSEM('NAME',ROUTINE)` in that file's initializer
    (`IMPSEM`, `CODEI`, `CODE2I`, `CODE3I`).
 2. Write the same routine in the matching `stage0/gen_*.c` file, with a
@@ -109,7 +109,7 @@ them. To add or change code generation, change both:
    mapping.
 3. Reference it from a rule of `src/llvm-ir/syntax.imc` (or `lib/ffi.imc`).
 4. An IR operator or type that the generator needs goes into `src/llvm-ir/irsyn.imc`, `stage0/ir.h`,
-   `src/ir2ll.imp` or `src/ir2llx.imp`, and `tools/ir2ll.c`.
+   `src/ir2ll.imc` or `src/ir2llx.imc`, and `tools/ir2ll.c`.
 5. Run `sh tests/seed/run.sh`, `sh tests/direct/stage2.sh` and
    `sh tests/direct/ir2ll.sh`.
 
@@ -127,7 +127,7 @@ variables are listed for images).
 
 `NAME_/U` (or `/V`) in the commands of `imp -i` saves the compiler with the
 language it has learned to `NAME.img`; `-I NAME.img` starts from it.
-`src/image.imp` writes the free storage (directory, syntax graph, code tree,
+`src/image.imc` writes the free storage (directory, syntax graph, code tree,
 semantics array), the variables of the compiler's modules, listed in the
 section `impvars` of the program, and the table of semantic routines by name.
 An image is valid for the compiler build that made it. Its format is version 6.

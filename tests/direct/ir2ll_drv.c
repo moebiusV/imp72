@@ -1,5 +1,5 @@
-/* ir2ll_drv IR OUT P32: the LLVM IR writer on a file of IR.  With -DREF it is tools/ir2ll.c (the C the seed links); without, the IMP one (src/ir2ll.imp, src/ir2llx.imp) whose
-   routine takes pointers to words, as an IMP routine does (src/llvm.imp calls it so).  tests/direct/ir2ll.sh compares the two. */
+/* ir2ll_drv IR OUT P32: the LLVM IR writer on a file of IR.  With -DREF it is tools/ir2ll.c (the C the seed links); without, the IMP one (src/ir2ll.imc, src/ir2llx.imc) whose
+   routine takes pointers to words, as an IMP routine does (src/llvm.imc calls it so).  tests/direct/ir2ll.sh compares the two. */
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

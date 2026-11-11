@@ -1,6 +1,6 @@
 /*
  * rsyn.c -- the bootstrap reader for the initial IMP syntax.  Ports
- * src/rsyn.imp (decus/rsyn.imc): RSYN and the routines that enter syntax statements into
+ * src/rsyn.imc (decus/rsyn.imc): RSYN and the routines that enter syntax statements into
  * the syntax graph and the semantics array (SYNT, SYTRM, SYTERM, ADDCHAR,
  * SYNTS, SEMANTICS, FORMARG, SYNARG, DEFCASE, CASE, QUOSEM, EQUOSE, SEMP,
  * GETARG, SEMR, SYNTAX, SEMBIT, REPVAL, VALU, RSERR).
@@ -21,7 +21,7 @@
  * invokes them (as SYNT, SEMR, ...) from the productions that read the rest
  * of syntax.imc, so they are registered by name.
  *
- * The 36 bit formats of the tape are gone: the words are those of src/rsyn.imp
+ * The 36 bit formats of the tape are gone: the words are those of src/rsyn.imc
  * (halves of 32 bits; a name is eight characters to a word, the first in the
  * low byte).
  *

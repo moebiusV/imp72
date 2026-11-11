@@ -1,8 +1,8 @@
 /*
- * entree.c -- the code tree.  Ports src/entree.imp (decus/entree.imc): ENTREE, ENTMARK, INSNO,
+ * entree.c -- the code tree.  Ports src/entree.imc (decus/entree.imc): ENTREE, ENTMARK, INSNO,
  * NUNO, COMPNO, CODEID, MATCH, ENTRCA, ENTRC1, TPRINT, and the tree accessors
  * TSCR, TALT, TNODEN that impsyn.imc expands in line.  The 36 bit formats of
- * the tape are gone: the words are those of src/entree.imp.
+ * the tape are gone: the words are those of src/entree.imc.
  *
  * The code tree is kept in free array CT, in nodes of two or three words
  * (the node is named by the index of its links word):
@@ -255,7 +255,7 @@ static uword cid_id;
 static word n1, n2;
 
 /*
- * CODEID(SW): disassemble an identifier (src/entree.imp).  With sw nonzero (a
+ * CODEID(SW): disassemble an identifier (src/entree.imc).  With sw nonzero (a
  * directory index), start on that identifier.  With sw = 0, return the
  * directory index of the next name in it, or minus (1 + the index in REG CON
  * CNG VAR MEM WRD IGR FLT BYT NAM [NSE counted as WRD]) of a special

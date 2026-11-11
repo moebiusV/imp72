@@ -7,8 +7,8 @@ v=$(cat VERSION)
 echo "== version $v"
 fail=0
 chk() { grep -q -F -e "$2" "$1" || { echo "FAILED: version: $1 does not say $2" >&2; fail=1; }; }
-chk src/driver.imp "imp $v"
-chk src/impm.imp "IMP72 $v"
+chk src/driver.imc "imp $v"
+chk src/impm.imc "IMP72 $v"
 chk tests/cli/run.sh "VERSION"
 chk tests/interactive/run.sh "VERSION"
 chk debian/changelog "imp ($v)"

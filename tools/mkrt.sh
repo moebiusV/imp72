@@ -50,7 +50,7 @@ feedface*) bits=32; endf=src/impend-be.imc ;;
 esac
 export SYSBITS=$bits
 case $endf in *-be.imc) export SYSBE=1 ;; *) export SYSBE=0 ;; esac
-export IMPCHARPTR=1                       # the library is compiled as it always was: a byte pointer in a variable points at characters, a shift is in line (see src/llvm-ir/demit.imp CHARPTR)
+export IMPCHARPTR=1                       # the library is compiled as it always was: a byte pointer in a variable points at characters, a shift is in line (see src/llvm-ir/demit.imc CHARPTR)
 unset IMPLIB
 bd=$(sh tools/llvm.sh bindir)
 { sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > "$out/imprt_all.imp"

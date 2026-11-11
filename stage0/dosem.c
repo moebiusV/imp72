@@ -1,8 +1,8 @@
 /*
- * dosem.c -- the semantics array and its interpreter.  Ports src/dosem.imp (decus/dosem.imc):
+ * dosem.c -- the semantics array and its interpreter.  Ports src/dosem.imc (decus/dosem.imc):
  * DOSEM, SEMFIX, SEMFX1, DOCASE, ENPROD, MATCHP, NOTEPROD, PLIES, SNODEN,
  * ENSTACK, RESETSEM, SETSEM, PAR, SEMPER, SNARG, SEMGET, SEMED, SEMOR, CKSVAL.
- * The 36 bit formats of the tape are gone: the words are those of src/dosem.imp.
+ * The 36 bit formats of the tape are gone: the words are those of src/dosem.imc.
  *
  * The semantics of a production is a run of words in free array SEMS (64 bit
  * words; V = bits 31-0, N = bits 43-32, TYPE = bits 49-44; V and N together
@@ -68,7 +68,7 @@ setsem(word ty, word val)
         frelot(&sems, "SEMS", 2200, NULL);
         nsems = 2;
         many = 31;
-        /* SEMS[1] as src/dosem.imp has it: (1 LS 44) OR 1, a type 1 and V = 1, as the tape's word is */
+        /* SEMS[1] as src/dosem.imc has it: (1 LS 44) OR 1, a type 1 and V = 1, as the tape's word is */
         FREES(sems + 1, ((word)1 << 44) | 1);
         frelot(&pstak, "SPSTK", 20, NULL);
         npstak = 0;

@@ -1,5 +1,5 @@
 /*
- * gen_code.c -- ports src/llvm-ir/code.imp: UNPCK, REGOF, FETCH, ADDOP, DEWOP, TAG, STORE, COPYC1, REGFIELD, COPYCO, NEXCO, MCODE1,
+ * gen_code.c -- ports src/llvm-ir/code.imc: UNPCK, REGOF, FETCH, ADDOP, DEWOP, TAG, STORE, COPYC1, REGFIELD, COPYCO, NEXCO, MCODE1,
  * MCODE, SUBARG, and CODEI (the DSEMs of this file; CODEI of the IMP also enters CODE2I, which gen_init does).
  *
  * The code of a stack entry is the pair (first,last) of records of the chain CO in its third word (HL, HR; 0: no code); a record is

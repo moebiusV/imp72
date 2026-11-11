@@ -10,7 +10,7 @@ to be the same.
 
 `PRN.` reads a list of words, one for each item; the item code `n` is the word shifted right by 30, and the word holds
 the address of the operand. A format stays set between items and statements. In this implementation `PRINPAR`
-(`src/llvm-ir/code2.imp`) numbers the items 0 value, 1 `OCT`, 2 `IGR`, 3 `STG`, 5 `/`, 6 `FILE`, 7 `IMAGE MODE`,
+(`src/llvm-ir/code2.imc`) numbers the items 0 value, 1 `OCT`, 2 `IGR`, 3 `STG`, 5 `/`, 6 `FILE`, 7 `IMAGE MODE`,
 8 `DEVICE`, 9 `TAB`, 10 `FILL`, 11 `FLT`, and each item becomes a call of `imppr(n,p)` (`imprd` for `READ`) in
 `lib/impio.imp`; see `code-generator.md`. For `FLT` the format word holds `m` in the right half and `n` in the left.
 The original works with `G = m-1` and `D = n`.

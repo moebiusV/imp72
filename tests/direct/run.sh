@@ -10,7 +10,7 @@ tools/direct.sh >build/direct.log 2>&1; rc=$?
 export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
 export DRIVER=build/direct/impstage-llvm-ir
 fail=0
-# the compiler whose own IMP modules (src/*.imp) the IR path compiled, too: tests of it
+# the compiler whose own IMP modules (src/*.imc) the IR path compiled, too: tests of it
 DIRECT_OUT=build/direct3 DIRECT_DRIVER=build/direct/impstage-llvm-ir DIRECT_LIB=build/lib/libimp.a \
     SRC_MODULES="free debug stack dir graph parse ercor entree cotree dosem rsyn lex image impm ir2ll ir2llx driver linktab llvm llvmgen" tools/direct.sh >build/direct3.log 2>&1 \
     || { dd bs=100000 count=1 if=build/direct3.log 2>/dev/null >&2; echo "FAILED: direct build of the compiler's own modules" >&2; fail=1; }

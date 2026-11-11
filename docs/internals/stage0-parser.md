@@ -1,6 +1,6 @@
 # The seed, part 2: the syntax graph and the parser
 
-`stage0/graph.c`, `parse.c` and `ercor.c` correspond to `src/graph.imp`, `src/parse.imp` and `src/ercor.imp` (and to
+`stage0/graph.c`, `parse.c` and `ercor.c` correspond to `src/graph.imc`, `src/parse.imc` and `src/ercor.imc` (and to
 `decus/graph.imc`, `parse.imc`, `ercor.imc`). `tests/stage0/test_parse.c` builds a small grammar with `graph()` and
 `gmatr()` and runs `parse()` over it.
 

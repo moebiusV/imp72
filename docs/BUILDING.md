@@ -46,7 +46,7 @@ By hand:
     build/llvm-ir2/impstage-llvm-ir -o hello tests/native/hello.imp
     build/llvm-ir2/impd -s TSX -o dump.txt -c ir.txt src/llvm-ir/syntax.imc lib/ffi.imc prog.imp
 
-`impd` is the compiler proper (`src/impm.imp`). Its arguments are `-i` (the
+`impd` is the compiler proper (`src/impm.imc`). Its arguments are `-i` (the
 original's commands from the terminal), `-I IMAGE` (start from an image saved
 with `NAME_/U`), `-s LETTERS` (the original's switches), `-o FILE` (listing and
 dumps), `-c FILE` (the IR file), `-T TARGET`, then the syntax file and the
@@ -207,8 +207,8 @@ when gcc and clang run it. `IMPLDSHOW=1` prints the arguments and a line
 looked for (`no linker found: ld.lld is not in the PATH ..., and there is no
 plain ld in the PATH`).
 
-The arguments come from tables, in `src/linktab.imp` (architecture, loader,
-directory of the C library, `-m` emulation of the target) and `src/driver.imp`
+The arguments come from tables, in `src/linktab.imc` (architecture, loader,
+directory of the C library, `-m` emulation of the target) and `src/driver.imc`
 (the system families); the seed's driver `stage0/imps0.c` links this machine
 only, with the same arguments for it. `tests/link/cross.sh` checks them for many
 triples against `tests/link/cross.out`.
@@ -304,7 +304,7 @@ The free storage of the compiler is an arena of address space reserved once
 image (`/U`, `-I`; format version 6) is restored with the arena at any address: if the system
 gives the one the image was saved at, nothing is moved; otherwise the
 addresses of the arena that the modules' variables hold are moved with it
-(`src/image.imp`). These variables of the environment are for tests and
+(`src/image.imc`). These variables of the environment are for tests and
 diagnostics:
 
 - `IMPCOREBASE=ADDR` (decimal, or `0x` hexadecimal) asks for the arena at

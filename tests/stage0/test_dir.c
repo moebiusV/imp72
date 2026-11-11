@@ -1,5 +1,5 @@
 /* The directory: hashing (checked against indices worked out by hand from
- * the algorithm in src/dir.imp: eight characters to a word, the first in the
+ * the algorithm in src/dir.imc: eight characters to a word, the first in the
  * low byte, HASH = NM xor NM RS 32, RS 16, RS 9, and 777B), constants, and names. */
 #include <string.h>
 #include "imp.h"

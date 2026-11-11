@@ -1,10 +1,10 @@
 /*
- * gen_impsem.c -- ports src/llvm-ir/impsem.imp: the machine-independent semantic routines of the stage compilers for the
+ * gen_impsem.c -- ports src/llvm-ir/impsem.imc: the machine-independent semantic routines of the stage compilers for the
  * 64 bit port that compiles to IR: NAME, AREG, AREG1, REG2, TSTRN, VAL, SVAL, STACKUP, SWITCH, DECL, DECLARE, the register
  * tests (HISREG, PAIRFIRST, SUBREG, TMPREG, SAMEREG, REGEQ, REGSIM, REG0, RMATCH), the subroutine routines (SUBPR0, SUBPRM,
  * SUBTMPF, SUBBEG, SUBEND, NSUBP), REMOT, CALLME, REG2S, the lists (NEWLIST, ENLIST, GETLIST), ASSEMC, LETSYN, ERRSRT, CVAL
  * and FCON.  A register is a word of the array RG (the layout of the comment at AREG1 of the original): see gen.h for the
- * names.  Each C routine says which routine of impsem.imp it ports.
+ * names.  Each C routine says which routine of impsem.imc it ports.
  *
  * The IMP locals are static; a routine here that is entered again (through SEMANTICS, which LETSYN calls) shares nothing it
  * would need to keep, so the C ones are automatic, except where a comment says so.
@@ -941,7 +941,7 @@ static word w_cval(const word *p) { return g_cval(p[0]); }
 static word w_cdecl(const word *p) { return g_cdecl(p[0], p[1], p[2], p[3]); }
 static word w_fcon(const word *p) { return g_fcon(p[0], p[1], p[2]); }
 
-/* IMPSEM(NIL): the DSEMs of this file, in the order of impsem.imp */
+/* IMPSEM(NIL): the DSEMs of this file, in the order of impsem.imc */
 void
 gen_impsem_dsems(void)
 {
