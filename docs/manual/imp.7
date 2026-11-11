@@ -203,7 +203,16 @@ Integers are 64-bit two’s complement numbers, addresses are byte addresses
 and
 .Li A[I\&]
 scales the subscript by 8.
-The original’s word was 36 bits.
+The original’s word was 36 bits, and it wrote -1 as the octal constant
+of all its bits,
+.Li 777777777777B :
+Write
+.Li \-1 ,
+which is right on any word, and no constant of 12 or 22 octal digits
+for the bits of a word.
+An
+.Li OCT
+field is a word of 22 digits.
 .It 2.
 Assignment is the token
 .Li := ,
@@ -261,6 +270,35 @@ The syntax file defines the same language as the original’s, with the
 operation codes of the abstract machine in the semantic routine calls
 instead of the PDP-10’s.
 Section 2.3.
+.It 11.
+Time is Unix time:
+.Li CALLI(14B,0\&)
+is the seconds since 1970-01-01 00:00:00
+.Ic UTC
+in a 64-bit word (the monitor’s date was a number of the year, month
+and day that ran out in 2027), and dates and times are written
+.Li YYYY\-MM\-DD
+and
+.Li "HH:MM:SS (ISO 8601, local time\&)" ,
+with four digits for the year.
+Section 2.2.9.
+.It 12.
+The terminal is a Unix one: The interactive mode prompts and speaks
+on the standard error, takes a tab for a blank, ends with Control-D,
+and quotes a name with
+.Li \&!
+marks.
+Section 3.1.2.
+.It 13.
+The original’s channel input and output
+.Li "(INIT, LOOKUP, ENTER, INPUT, OUTPUT and the buffers\&)"
+is not in this version yet;
+.Ic PRINT
+and
+.Ic READ
+with
+.Ic FILE
+use Unix files (Section 2.2.7).
 .El
 .Sh "2 PROGRAMMER’S GUIDE TO IMP72"
 .Ss "2.1 Conventions"
@@ -490,9 +528,11 @@ is taken modulo
 Digits followed by
 .Ql B :
 octal constants.
-The constant
-.Li 1777777777777777777777B
-is -1.
+A negative number is written with a minus sign,
+.Li \-1 ;
+the octal constant of all the bits of the word is not the way to write
+it (the original’s 36-bit word was
+.Li 777777777777B ) .
 .It Li 2AFB16
 A string of digits and letters beginning with a digit and ending in
 .Ql Bnn ,
@@ -1410,16 +1450,16 @@ On output, leading zeros are suppressed, and a leading minus sign is
 printed for negative numbers.
 On input, the field is a decimal number with an optional sign.
 .It Ic OCT Ar N
-Conversion is in base 8, unsigned (i.e., negative numbers print with
-leading 7’s: -1 is 1777777777777777777777), in a field
+Conversion is in base 8, unsigned (i.e., negative numbers print as the
+22 digits of their 64 bits, the first of them 1), in a field
 .Ar N
 positions wide.
 On output, leading zeros are printed.
 If
 .Ar N
-is greater than 12 and the number is less than
-.Li 8**12 ,
-exactly the leftmost N-12 positions will be blank.
+is greater than 22 and the number is less than
+.Li 8**22 ,
+exactly the leftmost N-22 positions will be blank.
 .It Ic STG Ar N
 Conversion is in bytes, in a field
 .Ar N
@@ -2985,9 +3025,11 @@ Thus,
 in a condition would only match in cases where a minus sign was actually
 used before a constant with value 18.
 One should trust the compiler to perform constant arithmetic, and write
-.Li 1777777777777777777756B
-instead, which will match any constant expression which evaluates to
--18.) Variable names will match any
+the constant of the 64 bits of -18,
+.Li 1777777777777777777756B ,
+instead (the one place where an octal constant of all the bits is right),
+which will match any constant expression which evaluates to -18.) Variable
+names will match any
 .Li <EXP> ,
 unless they are tagged with modifiers.
 If the same name appears twice or more in the condition, the expressions

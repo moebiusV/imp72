@@ -361,7 +361,7 @@ SUBR imppr(N,P) IS (
               RTLPUT(P,L); RETURN COL[0]);
  FMT[0]=1 => (RTLNUMSTR([P],8,1);
               L:=CCALL strlen(LOC(NBUF));
-              WID[0]>12 => L<13 => (RTLPAD(WID[0]-12,32); RTLFIELD(LOC(NBUF),12,1); RETURN COL[0]);
+              WID[0]>22 => L<23 => (RTLPAD(WID[0]-22,32); RTLFIELD(LOC(NBUF),22,1); RETURN COL[0]);                  # A WORD IS 22 OCTAL DIGITS (THE TAPE'S, OF 36 BITS, 12) #
               RTLFIELD(LOC(NBUF),WID[0],1); RETURN COL[0]);
  FMT[0]=11 => (RTLPRINTFLT([P],FLM[0],FLN[0]); RETURN COL[0]);
  RTLNUMSTR([P],10,0);

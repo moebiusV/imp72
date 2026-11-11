@@ -178,7 +178,9 @@ The language is the language of the original compiler for the PDP-10 under TOPS-
 comes from the machine and from the runtime library.
 
 - 1. The word is 64 bits. Integers are 64-bit two's complement numbers, addresses are byte addresses
-  and A[I] scales the subscript by 8. The original's word was 36 bits.
+  and A[I] scales the subscript by 8. The original's word was 36 bits, and it wrote -1 as the octal
+  constant of all its bits, `777777777777B`: Write `-1`, which is right on any word, and no constant
+  of 12 or 22 octal digits for the bits of a word. An `OCT` field is a word of 22 digits.
 
 - 2. Assignment is the token `:=`, where the original wrote `_`. The character `_` is a letter of
   names. Names are case sensitive, as the original's are, and the words of the language are the
@@ -205,6 +207,17 @@ comes from the machine and from the runtime library.
 
 - 10. The syntax file defines the same language as the original's, with the operation codes of the
   abstract machine in the semantic routine calls instead of the PDP-10's. Section 2.3.
+
+- 11. Time is Unix time: `CALLI(14B,0)` is the seconds since 1970-01-01 00:00:00 UTC in a 64-bit
+  word (the monitor's date was a number of the year, month and day that ran out in 2027), and dates
+  and times are written `YYYY-MM-DD` and `HH:MM:SS` (ISO 8601, local time), with four digits for the
+  year. Section 2.2.9.
+
+- 12. The terminal is a Unix one: The interactive mode prompts and speaks on the standard error,
+  takes a tab for a blank, ends with Control-D, and quotes a name with `!` marks. Section 3.1.2.
+
+- 13. The original's channel input and output (`INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT` and the
+  buffers) is not in this version yet; PRINT and READ with FILE use Unix files (Section 2.2.7).
 
 ## 2: Programmer's Guide to IMP72
 
@@ -335,7 +348,9 @@ Integer numbers (base 10). An integer is a 64-bit two's complement number; a con
 
 - 777000B
 
-Digits followed by 'B': octal constants. The constant 1777777777777777777777B is -1.
+Digits followed by 'B': octal constants. A negative number is written with a minus sign, `-1`; the
+octal constant of all the bits of the word is not the way to write it (the original's 36-bit word
+was `777777777777B`).
 
 - 2AFB16
 
@@ -779,9 +794,9 @@ an optional sign.
 
 - OCT N
 
-Conversion is in base 8, unsigned (i.e., negative numbers print with leading 7's: -1
-is 1777777777777777777777), in a field N positions wide. On output, leading zeros are printed. If N
-is greater than 12 and the number is less than `8**12`, exactly the leftmost N-12 positions will be
+Conversion is in base 8, unsigned (i.e., negative numbers print as the 22 digits of their 64 bits,
+the first of them 1), in a field N positions wide. On output, leading zeros are printed. If N is
+greater than 22 and the number is less than `8**22`, exactly the leftmost N-22 positions will be
 blank.
 
 - STG N
@@ -1665,9 +1680,10 @@ The condition is satisfied if the expression being parsed matches the expression
 Constants in the condition will match any constant with the same value, even if the names are
 different. (But constant expressions in the condition are not evaluated. Thus, "-18" in a condition
 would only match in cases where a minus sign was actually used before a constant with value 18. One
-should trust the compiler to perform constant arithmetic, and write 1777777777777777777756B instead,
-which will match any constant expression which evaluates to -18.) Variable names will match any
-\<EXP>, unless they are tagged with modifiers. If the same name appears twice or more in the
+should trust the compiler to perform constant arithmetic, and write the constant of the 64 bits
+of -18, 1777777777777777777756B, instead (the one place where an octal constant of all the bits is
+right), which will match any constant expression which evaluates to -18.) Variable names will match
+any \<EXP>, unless they are tagged with modifiers. If the same name appears twice or more in the
 condition, the expressions matching all occurrences must be identical.
 
 Modifiers may be added to the first occurrence of a given variable name in a condition by adding the
