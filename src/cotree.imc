@@ -22,12 +22,12 @@ CS,NCS,ENTRIES,PRIO,DEMON,MAXIE,NMAXIE,NC ARE COMMON;
 
 SUBR COTREE(SS) IS (S:=SS;
  FINAM IS COMMON; TR:=FINAM[5] AND 110000B; TRM:=FINAM[5] AND 10000B;
- CINIT=0=>(CINIT:=1; PRIO:=1;
+ INIT=0=>(INIT:=1; PRIO:=1;
           DSEM('MAXWELL',MAXWELL);
           DSEM('MAXEND',MAXEND);
           DSEM('SETPRI',SETPRI);
           FRELOT(CS,'COSTK',90,0); NCS:=0;
-          FRELOT(CST,'COST2',15,0));
+          FRELOT(ST,'COST2',15,0));
  S=0 => (NCS:=0; GO TO COTREX); #INITIALIZE#
  S=1 => GO TO COTREX; #DUMMY PRODUCTION NO#
 
@@ -90,12 +90,12 @@ SUBR COTREE(SS) IS (S:=SS;
                               (77B AND (J:=FREE(CS+IM)))=0=>
                                 (S:=HLEFT(J); SNONR:=SNODEN(S); IP:=IM);
                               IM:=IM-3;
-                              NODE:=HRIGHT(FREE(CST+NST));
+                              NODE:=HRIGHT(FREE(ST+NST));
                               GO TO TRYALT);
                         GO TO NXST);
         J<0 => ((T:=TSCR(NODE)) => (#MARK VAL/ NODE READ AS ORIG PRODN#
                                    J=-2=>NODE:=NODE OR (1 LS 63);
-                                   FADD(CST,NST,NODE);
+                                   FADD(ST,NST,NODE);
                                    IM:=IM+3;
                                    NODE:=T; GO TO TRYON)
                               ELSE GO TO TRYALT);
@@ -106,7 +106,7 @@ SUBR COTREE(SS) IS (S:=SS;
      ((K:=CS+I;
        (FREE(K) AND 77B)=0 => (#IGNORE PRODNS UNLESS THEY ARE VAL/ ARGUMENTS#
                                FREE(K+1)=0=>GO TO IGN;
-                               FREE(CST+(I-NC)/3)<0=>GO TO IGN);
+                               FREE(ST+(I-NC)/3)<0=>GO TO IGN);
       FREES(L,FREE(K)); FREES(L+1,FREE(K+1)); FREES(L+2,FREE(K+2));
       L:=L+3; LL:=LL-1; IGN: 0)) FOR I IN NC,3,IC-3;
      STPOP(LL);
