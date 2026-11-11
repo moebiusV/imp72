@@ -39,10 +39,10 @@ RTN,NRTN,CRTN ARE COMMON;                   # THE TABLE OF SEMANTIC ROUTINES: TW
  NULL CHARACTERS ARE REQUIRED. #
 
 SUBR HASH(NM) IS (#9-BIT HASH CODE#
-                  HSHIFT:=NM XOR NM RS 32;
-                  HSHIFT:=HSHIFT XOR HSHIFT RS 16;
-                  HSHIFT:=HSHIFT XOR HSHIFT RS 9;
-                  HSHIFT AND 777B);
+                  HSH:=NM XOR NM RS 32;
+                  HSH:=HSH XOR HSH RS 16;
+                  HSH:=HSH XOR HSH RS 9;
+                  HSH AND 777B);
 
 SUBR DIR(NM) IS (
  DINIT=0 => (DINIT:=1;
@@ -100,13 +100,13 @@ SUBR SEMREMAP(NAMES,N) IS (
  1);
 
 SUBR DSEQ(N) IS (
- N<0 => (N:=-3; NMSIGN:=-1);
- NMSIGN GE 0 => (N:=HLEFT(FREE(PRP+N));
-                N=0 => (N:=NMSIGN; NMSIGN:=-1));
- NMSIGN<0 => (L6: N:=N+3;
+ N<0 => (N:=-3; NMARK:=-1);
+ NMARK GE 0 => (N:=HLEFT(FREE(PRP+N));
+                N=0 => (N:=NMARK; NMARK:=-1));
+ NMARK<0 => (L6: N:=N+3;
               N GE 1536 => N:=-1
                       ELSE (FREE(PRP+N)=0 => GO TO L6;
-                            NMSIGN:=N));
+                            NMARK:=N));
 N);
 
 SUBR PNAME(DJ) IS (DJ GE 0=>PRINT STG 0,FREE(ALF+HRIGHT(FREE(PRP+DJ))));
