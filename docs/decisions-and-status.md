@@ -14,8 +14,8 @@
 ## Contents
 
 - [Summary](#summary)
-- [Left to do (10)](#left-to-do-10)
-- [Left in the air (2)](#left-in-the-air-2)
+- [Left to do (11)](#left-to-do-11)
+- [Left in the air (1)](#left-in-the-air-1)
 - [Rejected or replaced (1)](#rejected-or-replaced-1)
 - [Done (43)](#done-43)
 - [Precedents, by name](#precedents-by-name)
@@ -23,16 +23,27 @@
 
 # Summary
 
-- Left to do: 10 of 56 subjects
-- Left in the air: 2 of 56 subjects
+- Left to do: 11 of 56 subjects
+- Left in the air: 1 of 56 subjects
 - Rejected or replaced: 1 of 56 subjects
 - Done: 43 of 56 subjects
 
-# Left to do (10)
+# Left to do (11)
 
 - Decided, and not yet in the current code or docs (or only partly).
 
 ## Other
+
+### Channel I/O
+- Status: TO DO — decided, details pending: the channel statements are not built (latest decision 2026-11-11 \[R184\])
+- Decided: 2026-11-11 decided: "decided, details pending. not in the air" \[R184\]
+- Rationale: "you could use them 'Underneath' to implement the channel stuff that was in use before" \[R82\]
+- Rationale: the tape-name audit is to be examined again "once channel io is back" (CORE and RLEAS) \[R140\]
+- Precedent: original channel I/O (chosen; named by author): to be implemented underneath with fopen and putc \[R82\]
+- Precedent: fopen/putc (C stdio) (chosen; named by author): used underneath for the channel statements \[R82\]
+- Precedent: UTF-8 (considered; named by author): other matters for study before v1.0.0 \[R82\]
+- Evidence: docs/ROADMAP.md item 5 "The original's channel I/O": statements over fopen/getc/putc, "None is implemented"
+- Left: details pending: how many routines of decus/ use the buffer header words directly (decides whether the buffer emulation is cheap), and CORE and RLEAS with it
 
 ### CI test runs
 - Status: TO DO — the author chose option 1 (pause the agent while debugging), a process step, details pending: no repository trace (latest decision 2026-11-04 \[R166\])
@@ -137,21 +148,11 @@
 - Doc differs: docs/ROADMAP.md:### 11 "A runtime library for Windows and Cygwin" is not done ("There is no runtime library for Windows or Cygwin"); 130226f "OpenBSD, macOS, older LLVM headers: not run"; Cygwin values "from memory and marked unverified" (25979df)
 - Left: the evaluation of the 2026-11-09 request is not in the repository at 2026-11-07; the potentials on the shim superseding earlier fixes and localising the linker are partly met (hand lists of src/llvm.imp gone) but unrecorded as decisions
 
-# Left in the air (2)
+# Left in the air (1)
 
 - Only ideas, open questions, conflicting decisions, or points the record and the repository do not settle.
 
 ## Other
-
-### Channel I/O
-- Status: IN THE AIR — no standing decision, only a potential to study before v1.0.0 (latest decision no standing decision)
-- Decided: no standing decision (only potential decisions)
-- Rationale: "you could use them 'Underneath' to implement the channel stuff that was in use before"; to study before v1.0.0 \[R82\]
-- Precedent: original channel I/O (considered; named by author): to be implemented underneath with fopen and putc \[R82\]
-- Precedent: fopen/putc (C stdio) (considered; named by author): used underneath for the channel statements \[R82\]
-- Precedent: UTF-8 (considered; named by author): other matters for study before v1.0.0 \[R82\]
-- Evidence: docs/ROADMAP.md item 5 "The original's channel I/O" proposes statements over fopen/getc/putc, "None is implemented"; docs/porting/pre-1.0-studies.md is gone from HEAD (the item is docs/ROADMAP.md:73)
-- Left: decide whether to build the channel statements; the study note was removed
 
 ### musl changes
 - Status: IN THE AIR — no standing decision, only a question (latest decision no standing decision)
@@ -649,7 +650,7 @@
 - docker or qemu before CI: chosen in Local VMs and local-before-CI
 - ELF/Mach-O object files: chosen in Interactive mode, switches and TOPS-10 compatibility
 - facet language: considered in Operator set and precedence
-- fopen/putc (C stdio): considered in Channel I/O
+- fopen/putc (C stdio): chosen in Channel I/O
 - FreeBSD before OpenBSD: chosen in Local VMs and local-before-CI
 - GNU extensions: chosen in Stage-0 seed
 - hbnf: considered in imp72 compared with meta2, Ada and hbnf
@@ -685,7 +686,7 @@
 - OpenBSD strlcpy and strlcat: chosen in Bounded strings and temporary files
 - OpenBSD W^X: considered in OpenBSD self-hosting failure
 - original 27-bit signed-magnitude REAL: considered in IEEE 754 floating point
-- original channel I/O: considered in Channel I/O
+- original channel I/O: chosen in Channel I/O
 - original IMP on TOPS-10: chosen in Interactive mode, switches and TOPS-10 compatibility
 - original IMP72: chosen in Syntax freeze
 - original IMP72 \`\_\` assignment: considered in Assignment token and the \_ to := conversion

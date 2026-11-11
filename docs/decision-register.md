@@ -99,7 +99,7 @@
 - R92 | 2026-10-28 | decision | "leave out; return to your assigned work" | subjects: Return type and imp\_word typedef | supersedes R90 | current
 - R93 | 2026-10-28 | rationale | "other than the seed, and the linkage to llvm orc, why leave anything in C? what need loading, use ffi" | subjects: Porting C and Python tools to IMP | current
 - R94 | 2026-10-28 | decision | "we're trying to be as close as possible to the decus tapes, given the changes we've agreed to; 64 bit words, binary64, unix, llvm." | subjects: Project goal, native port and fidelity | current
-- R95 | 2026-10-28 | context | "also add to the "to study" making filenames match unix filename limitations." | subjects: Studies deferred to later releases | current
+- R95 | 2026-10-28 | context | "also add to the "to study" making filenames match unix filename limitations." | subjects: Studies deferred to later releases | superseded by R185
 - R96 | 2026-10-28 | rationale | "i said to use the jit; why are you still keeping code to spawn clang?" | subjects: Backend: pcc IR to LLVM ORC JIT | current
 - R97 | 2026-10-28 | rationale | "no, it would be without \_ for backward compatibility, \_ would join the chars allowed in names, making imp elf compatible" | subjects: Assignment token and the \_ to := conversion | current
 - R98 | 2026-10-29 | rationale | "how many times do I have to tell you, never use /tmp ? how much work did you lose?" | subjects: No /tmp | current
@@ -188,3 +188,5 @@
 - R181 | 2026-11-10 | context | "but the llvmorc lib we are using does allow the optimization levels?" | subjects: Backend: pcc IR to LLVM ORC JIT | current
 - R182 | 2026-11-10 | decision | "then afterward do the exact same thing for imp72, there are a bunch of suggestions and decisions that need to be turned into a proper plan" | subjects: Decision log | current
 - R183 | 2026-11-10 | decision | "well, import my prompts anyways" | subjects: Other projects | current
+- R184 | 2026-11-11 | decision | "decided, details pending. not in the air" | subjects: Channel I/O | current
+- R185 | 2026-11-11 | decision | "yes, do the file name limits; if i say to do something it isn't proposed it is decided" | subjects: Studies deferred to later releases | supersedes R95 | current
