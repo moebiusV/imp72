@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>new.imc: the tape and the port, token by token</title><style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#59636e;--bd:#d1d9e0;--pre:#f6f8fa;--del:#ffc1c0;--delfg:#82071e;--ins:#aceebb;--insfg:#0f5323}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9198a1;--bd:#3d444d;--pre:#151b23;--del:#6b1a1f;--delfg:#ffdcd7;--ins:#1a4727;--insfg:#d2fedb}}
+body{margin:0 auto;max-width:1100px;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+h1{font-size:1.35rem;margin:.2em 0}a{color:inherit}.mut{color:var(--mut)}
+pre{background:var(--pre);border:1px solid var(--bd);border-radius:6px;padding:10px 14px;margin:6px 0;overflow-x:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}pre:empty{display:none}
+del{background:var(--del);color:var(--delfg);text-decoration:none;border-radius:2px}
+ins{background:var(--ins);color:var(--insfg);text-decoration:none;border-radius:2px}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:13px;padding:2px 0}
+table{border-collapse:collapse;width:100%}th,td{text-align:right;padding:4px 10px;border-bottom:1px solid var(--bd)}
+th:first-child,td:first-child{text-align:left}th{font-size:13px;color:var(--mut);font-weight:600}
+@media (max-width:600px){body{padding:10px}th,td{padding:4px 6px}}
+</style></head><body>
+<p class="mut"><a href="index.html">all modules</a></p><h1>new.imc</h1>
+<p class="mut">old (the tape): tests/tokdiff/old.imc<br>new (the port): tests/tokdiff/new.imc</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 4 tokens deleted, 8 inserted.</p>
+<pre>#A COMMENT WITH AN APOSTROPHE, DONT STOP -- IT'S ONLY TEXT#
+SUBR F(X) IS (
+    Y<del>_</del><ins>:=</ins>X+<del>1</del><ins>2</ins>; Z<del>_</del><ins>:=</ins>'A''B'; K<del>_</del><ins>:=</ins>!Q!<ins>;
+    MY_NAME:=Y</ins>;
+  Y);</pre>
+</body></html>

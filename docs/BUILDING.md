@@ -266,6 +266,7 @@ archive).
 | `tests/cimport/run.sh` | `imp-cimport`: golden outputs for preprocessed text, compiled by the seed and by `imp`; with `cc`, the declarations of `string.h`, `stdlib.h`, `stdio.h` used by a program, the layouts of `struct tm`, `timespec` (and `stat`, `dirent` on Linux) against `offsetof`, the values of macros against the C compiler's, and no file left in `TMPDIR` |
 | `tests/fuzz64/run.sh` | random integer, byte-pointer and real programs against 64-bit rules worked out in Python |
 | `tests/manual/run.sh` | `docs/manual/imp.md` and `imp.7` are what the RUNOFF converters make of `decus/imp.rno` |
+| `tests/tokdiff/run.sh` | `tools/token-diff.imp` writes the HTML of two versions of a program token by token: white space is no difference, `_` replaced by `:=` is a replacement, a golden page, and the whole tape against the port |
 
 ### Scripts the tests share
 

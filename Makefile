@@ -103,6 +103,7 @@ check-run:
 	sh tests/cimport/run.sh
 	sh tests/fuzz64/run.sh
 	sh tests/manual/run.sh
+	sh tests/tokdiff/run.sh
 	sh tests/crossrun/run.sh || [ $$? = 77 ]
 
 clean:
