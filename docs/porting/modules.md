@@ -110,6 +110,5 @@ the target machine when it is not the host's, and `CONVC` (`dir.c`: `memorder`),
 
 The code generator writes IR (lowered for the target, `amd64` by default) whatever the host, and `src/ir2ll.imc` (the
 seed: `tools/ir2ll.c`) turns it into LLVM IR; LLVM is the only back end. The compiler links `libLLVM` and makes the
-object in the process, with no clang (`src/llvm.imc`; the seed: `stage0/llvmorc.c`). `imp --run` compiles a program with
-ORC and calls its `impmain`. The records that name the compiler's own variables for the image are the section `impvars`
+object in the process, with no clang (`src/llvm.imc`; the seed: `stage0/llvm.c`). The records that name the compiler's own variables for the image are the section `impvars`
 (`IRVARREC`), written as data.

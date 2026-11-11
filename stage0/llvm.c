@@ -1,8 +1,7 @@
 /*
- * llvmorc.c -- the LLVM back end in the process: the module of LLVM IR that ir2ll_run (tools/ir2ll.c) writes becomes an object file with the
- * target machine of the host, or is compiled by ORC (LLJIT) and run, without a clang or a file in between.  Built when the LLVM C API is there
- * (-DHAVE_LLVM; tools/direct.sh looks for llvm-config).  The runtime library and the C library are found in the program itself, which is linked
- * with -rdynamic for the purpose.
+ * llvm.c -- the LLVM back end in the process (the seed's; src/llvm.imc is the same in IMP): the module of LLVM IR that ir2ll_run (tools/ir2ll.c)
+ * writes becomes an object file, assembly or IR text, with the target machine of the host or of --target, without a clang or a file in between.
+ * Built when the LLVM C API is there (-DHAVE_LLVM; tools/direct.sh looks for llvm-config).
  */
 #define _GNU_SOURCE 1
 #include "strl.h"
@@ -14,8 +13,6 @@
 #include <llvm-c/Core.h>
 #include <llvm-c/Error.h>
 #include <llvm-c/IRReader.h>
-#include <llvm-c/LLJIT.h>
-#include <llvm-c/Orc.h>
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Transforms/PassBuilder.h>
@@ -156,63 +153,6 @@ done:
     return rc;
 }
 
-/* the module compiled by ORC and its function entry (no arguments) called; the result of the call in *result */
-int
-llvm_run(const char *ir, size_t n, const char *entry, long *result)
-{
-    LLVMOrcLLJITRef jit;
-    LLVMOrcJITDylibRef jd;
-    LLVMOrcDefinitionGeneratorRef gen;
-    LLVMOrcThreadSafeContextRef tsc;
-    LLVMOrcThreadSafeModuleRef tsm;
-    LLVMOrcExecutorAddress addr;
-    LLVMModuleRef m;
-    LLVMErrorRef e;
-
-    if (init())
-        return 1;
-    {
-        LLVMOrcLLJITBuilderRef lb = NULL;
-        char *triple = LLVMNormalizeTargetTriple(LLVMGetDefaultTargetTriple()), *cpu, *feat;
-        LLVMTargetRef tgt;
-        char *msg = NULL;
-
-        if (hostcpu(triple, &cpu, &feat) && !LLVMGetTargetFromTriple(triple, &tgt, &msg)) {      /* the JIT detects the host itself, and would find no +d */
-            LLVMTargetMachineRef tm = LLVMCreateTargetMachine(tgt, triple, cpu, feat, LLVMCodeGenLevelDefault, LLVMRelocPIC, LLVMCodeModelJITDefault);
-
-            lb = LLVMOrcCreateLLJITBuilder();
-            LLVMOrcLLJITBuilderSetJITTargetMachineBuilder(lb, LLVMOrcJITTargetMachineBuilderCreateFromTargetMachine(tm));
-        }
-        if ((e = LLVMOrcCreateLLJIT(&jit, lb)) != NULL)
-            return error("the JIT", e);
-    }
-    jd = LLVMOrcLLJITGetMainJITDylib(jit);
-    if ((e = LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&gen, LLVMOrcLLJITGetGlobalPrefix(jit), NULL, NULL)) != NULL)
-        return error("the symbols of the program", e);
-    LLVMOrcJITDylibAddGenerator(jd, gen);
-#ifdef HAVE_ORC_FROM_CONTEXT                                      /* newer LLVM: the context is made first, then given to ORC */
-    {
-        LLVMContextRef ctx = LLVMContextCreate();
-
-        if ((m = parse(ctx, ir, n)) == NULL)
-            return 1;
-        tsc = LLVMOrcCreateNewThreadSafeContextFromLLVMContext(ctx);
-    }
-#else
-    tsc = LLVMOrcCreateNewThreadSafeContext();
-    if ((m = parse(LLVMOrcThreadSafeContextGetContext(tsc), ir, n)) == NULL)
-        return 1;
-#endif
-    tsm = LLVMOrcCreateNewThreadSafeModule(m, tsc);
-    LLVMOrcDisposeThreadSafeContext(tsc);
-    if ((e = LLVMOrcLLJITAddLLVMIRModule(jit, jd, tsm)) != NULL)
-        return error("adding the module", e);
-    if ((e = LLVMOrcLLJITLookup(jit, &addr, entry)) != NULL)
-        return error(entry, e);
-    *result = ((long (*)(void))(size_t)addr)();
-    return 0;
-}
-
 extern int ir2ll_run(FILE *in, FILE *out, int p32);                 /* tools/ir2ll.c */
 
 /* the module of LLVM IR for the IR text at ir (n bytes), as text in *buf (n bytes at *len), all in memory */
@@ -266,22 +206,11 @@ llvmsave(const char *ir, size_t n, const char *out)                 /* the modul
     return (o = fopen(out, "w")) == NULL || fwrite(buf, 1, len, o) != len || fclose(o) != 0;
 }
 
-long
-llvmrun(const char *ir, size_t n)                                   /* compile with ORC and run: the main program is impmain */
-{
-    char *buf = NULL;
-    size_t len = 0;
-    long r = 0;
-
-    return module(ir, n, &buf, &len) != 0 || llvm_run(buf, len, "impmain", &r) != 0;
-}
-
 #else
 long llvmhave(long z) { (void)z; return 0; }
 long llvmobj(const char *ir, size_t n, const char *out) { (void)ir; (void)n; (void)out; return 1; }
 long llvmobjmem(const char *ir, size_t n, char **obj, size_t *objn) { (void)ir; (void)n; (void)obj; (void)objn; return 1; }
 long llvmsave(const char *ir, size_t n, const char *out) { (void)ir; (void)n; (void)out; return 1; }
-long llvmrun(const char *ir, size_t n) { (void)ir; (void)n; return 1; }
 #endif
 
 /* lld in the process is stage0/impld.cpp, built where lld is installed (-DHAVE_LLD, tools/llvm.sh); without it the driver links with the system's cc */

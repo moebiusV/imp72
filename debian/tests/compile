@@ -13,6 +13,5 @@ imp -o hello hello.imp
 ./hello > out.txt
 grep -q '^HELLO, WORLD$' out.txt
 grep -q '^THE ANSWER IS 42$' out.txt
-imp --run hello.imp | grep -q '^THE ANSWER IS 42$'
 impstage0 -o hello0 hello.imp
 ./hello0 | grep -q '^HELLO, WORLD$'

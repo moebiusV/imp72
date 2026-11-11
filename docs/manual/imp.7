@@ -4305,9 +4305,9 @@ next to itself
 .Li "(share/imp and lib/imp of its installation prefix\&)" ;
 the environment variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others.
 It makes no temporary file for
-.Li "\-c, \-S, \-Sir"
+.Li "\-c, \-S"
 or
-.Li \-\-run ;
+.Li \-Sir ;
 to link, it hands the linker the object in an unnamed memory file on
 .Ic LINUX ,
 and elsewhere in a private directory (mode 0700) in
@@ -4330,8 +4330,6 @@ the simplest way is
 and
 .Li \&./a.out
 runs it.
-.Li "imp \-\-run sum.imp"
-compiles and runs it in one step.
 .Li "imp \-c a.imp b.imp"
 makes
 .Li a.o
@@ -4515,8 +4513,6 @@ The runtime library of a system is built by the compiler itself, with
 no
 .Li C
 compiler.
-.Li \-\-run
-is for the system the compiler runs on.
 .Ss "3.2 Compilation Error Diagnostics"
 The compiler reports on three classes of errors: fatal errors, errors,
 and advisory errors.

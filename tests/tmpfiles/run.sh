@@ -1,6 +1,6 @@
 #!/bin/sh
 # The temporary files of the compilers (the seed, stage0/impstage0, and imp, build/llvm-ir2/impstage-llvm-ir): none unless the link needs a file for the object; then an unnamed
-# memory file where Linux has one, else a private directory in TMPDIR (an absolute path naming a directory) or the default, removed on every way out.  Checks that -S, -c, -Sir and --run make
+# memory file where Linux has one, else a private directory in TMPDIR (an absolute path naming a directory) or the default, removed on every way out.  Checks that -S, -c and -Sir make
 # nothing, even with a TMPDIR that cannot be written; that a link leaves TMPDIR empty with and without the memory file (IMPNOMEMFD=1); that a failed compile does; that SIGTERM, SIGINT,
 # SIGHUP and SIGQUIT during a link do; and that a TMPDIR that is relative, a file or not there is not used.  Run from the top of the tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
@@ -62,7 +62,7 @@ sigs() {
 }
 
 for c in seed two; do
-    if [ $c = seed ]; then bin=$seed; modes="-S -c"; else bin=$two; modes="-S -c -Sir --run"; fi        # (the seed has no runtime to run a program with)
+    if [ $c = seed ]; then bin=$seed; modes="-S -c"; else bin=$two; modes="-S -c -Sir"; fi
     [ -x "$bin" ] || continue
     # (a) the modes that make no file: with an empty TMPDIR it stays empty, and with one that cannot be written they work
     t=$w/$c.tmp; fresh $t

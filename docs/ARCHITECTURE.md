@@ -20,8 +20,7 @@ and the modules compared with the original.
                                                                 v
               demit: chains --> IR trees (ix) --> IR file --> ir2ll --> LLVM IR --> LLVM, in the process
                                                                           |--> object file --> lld --> executable
-                                                                          |--> assembly, LLVM IR text (-S, -Sir)
-                                                                          '--> ORC: --run
+                                                                          '--> assembly, LLVM IR text (-S, -Sir)
 ```
 
 The kernel modules are `lex`, `parse`, `ercor`, `graph`, `dir`, `free`, `stack`,
@@ -49,10 +48,9 @@ the 64-bit IMP translation of the original modules in `decus/`.
   The IR is lowered for one machine model: the arguments of a call are pointers
   to the values and the word is 64 bits. The pointer size (32 or 64 bits) is the
   writer's only parameter, so the output does not depend on the host otherwise.
-- **`llvm`** (`src/llvm.imc`; the seed's copy is `stage0/llvmorc.c`) calls the
+- **`llvm`** (`src/llvm.imc`; the seed's copy is `stage0/llvm.c`) calls the
   LLVM C API through `CCALL`. It parses the module, optimizes it at `default<O1>`
-  and emits an object file or assembly, or compiles it with ORC (LLJIT) and runs
-  it. The module `llvmgen`, written by `tools/llvm.sh imp` for the LLVM at hand, holds what the LLVM headers decide.
+  and emits an object file, assembly or IR text. The module `llvmgen`, written by `tools/llvm.sh imp` for the LLVM at hand, holds what the LLVM headers decide.
 - **`driver`** links an executable from the object, the objects named on the
   command line, the C library's start files and `libimp.a`, with lld
   (`impld`, `stage0/impld.cpp`), `ld.lld` or the system's `ld`. The loader and
@@ -95,7 +93,7 @@ generator twice:
 | `src/code3.imc` | `stage0/gen_code3.c` | `SUBCALL`, `SUBSCRIPT`, `BYTEP`, `PCODE` |
 | `src/demit.imc`, `ix.imc` | `stage0/gen_demit.c`, `stage0/ir.c` | chains to IR trees, and the tree builders |
 | `src/ir2ll.imc`, `src/ir2llx.imc` | `tools/ir2ll.c` | IR file to LLVM IR |
-| `src/llvm.imc` | `stage0/llvmorc.c` | the LLVM C API glue |
+| `src/llvm.imc` | `stage0/llvm.c` | the LLVM C API glue |
 
 The two write the same LLVM IR for the same program, and `tests/seed` compares
 them. To add or change code generation, change both:

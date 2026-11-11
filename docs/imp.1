@@ -105,10 +105,6 @@ with
 or
 .Fl Sir
 and more than one source.
-.It Fl -run
-Compile with ORC and run the program in this process.
-It cannot be combined with
-.Fl -target .
 .It Fl -target Ns = Ns Ar triple
 Make output for another system (LLVM's names, the vendor may be left out:
 .Ql aarch64-linux-gnu ,
@@ -284,11 +280,6 @@ imp hello.imp && ./a.out
 Compile two sources and link them with a C object:
 .Bd -literal -offset indent
 imp main.imp lib.imp util.o -o prog
-.Ed
-.Pp
-Run without writing a file:
-.Bd -literal -offset indent
-imp --run hello.imp
 .Ed
 .Pp
 An object for another system:

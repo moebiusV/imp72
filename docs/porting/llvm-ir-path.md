@@ -71,7 +71,7 @@ program with the driver). By hand:
 
 ## Optimization
 
-LLVM optimizes the module in the process with `default<O1>` (`stage0/llvmorc.c`, `src/llvm.imc`). The IR keeps two
+LLVM optimizes the module in the process with `default<O1>` (`stage0/llvm.c`, `src/llvm.imc`). The IR keeps two
 properties it has from pass 2 of pcc: each function has a label after the argument moves (`PROLOG, LABEL, argument
 moves, LABEL, code, EPILOG`), and a double is never held in a temporary: the word is stored in a scratch word
 (`imp_fs0`, `imp_fs1`), read as a double where it is used, and the result is stored in `imp_fsr` and read back as a word.

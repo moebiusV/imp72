@@ -1,6 +1,6 @@
 #!/bin/sh
 # ci-host.sh NAME: what the host of a CI run is, as a GitHub notice (the log of the step cannot be read afterwards): the machine, the CPU as the kernel names it (model name, or
-# isa and uarch on riscv), and the triple, CPU and features LLVM reports for it (IMPLLVMINFO, stage0/llvmorc.c), which are what the code is generated for.  Never fails.
+# isa and uarch on riscv), and the triple, CPU and features LLVM reports for it (IMPLLVMINFO, stage0/llvm.c), which are what the code is generated for.  Never fails.
 # Run from the top of the tree, after the build.
 name=$1
 w=${CI_IMP:-build/llvm-ir2/impstage-llvm-ir}
@@ -11,7 +11,7 @@ w=${CI_IMP:-build/llvm-ir2/impstage-llvm-ir}
     [ "$(uname)" = OpenBSD ] || [ "$(uname)" = FreeBSD ] || [ "$(uname)" = NetBSD ] && sysctl -n hw.model 2>/dev/null
     if [ -x "$w" ] && [ -f tests/native/hello.imp ]; then
         IMPSYNTAX=$PWD/src/syntax.imc IMPFFI=$PWD/lib/ffi.imc IMPLIB=$PWD/build/lib/libimp.a IMPLLVMINFO=1 \
-            "$w" --run tests/native/hello.imp 2>&1 >/dev/null | grep '^imp-host:'
+            "$w" -S -o /dev/null tests/native/hello.imp 2>&1 >/dev/null | grep '^imp-host:'
     else
         echo "imp-host: no compiler to ask ($w)"
     fi

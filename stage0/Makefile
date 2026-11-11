@@ -24,8 +24,8 @@ imphost.o: imphost.c
 imps0.o: imps0.c imp.h ir.h gen.h
 	$(CC) $(CFLAGS) $(LLVMCFLAGS) -c imps0.c
 
-llvmorc.o: llvmorc.c
-	$(CC) -std=gnu99 -O1 -g $(LLVMCFLAGS) -c llvmorc.c
+llvm.o: llvm.c
+	$(CC) -std=gnu99 -O1 -g $(LLVMCFLAGS) -c llvm.c
 
 lvtriple.o: lvtriple.cpp
 	$(CXX) -std=c++17 -O1 -g -fno-rtti $(LLVMCFLAGS) -c lvtriple.cpp
@@ -71,4 +71,4 @@ test_debug: $(TESTDIR)/test_debug.c libstage0.a
 
 
 clean:
-	rm -f $(OBJS) imps0.o llvmorc.o ir2ll.o imps0 impstage0 libstage0.a $(TESTS)
+	rm -f $(OBJS) imps0.o llvm.o ir2ll.o imps0 impstage0 libstage0.a $(TESTS)

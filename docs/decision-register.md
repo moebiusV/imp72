@@ -190,3 +190,4 @@
 - R183 | 2026-11-10 | decision | "well, import my prompts anyways" | subjects: Other projects | current
 - R184 | 2026-11-11 | decision | "decided, details pending. not in the air" | subjects: Channel I/O | current
 - R185 | 2026-11-11 | decision | "yes, do the file name limits; if i say to do something it isn't proposed it is decided" | subjects: Studies deferred to later releases | supersedes R95 | current
+- R186 | 2026-11-11 | decision | "remove --run" | subjects: Backend: pcc IR to LLVM ORC JIT | current

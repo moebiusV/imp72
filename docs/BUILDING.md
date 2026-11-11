@@ -77,7 +77,7 @@ tree. `IMPSYNTAX`, `IMPFFI` and `IMPLIB` name other files.
 ### Temporary files
 
 The compilers make no temporary file unless an executable is linked. The
-kernel writes the IR text to memory, and `-c`, `-S`, `-Sir` and `--run` work
+kernel writes the IR text to memory, and `-c`, `-S` and `-Sir` work
 from it, so they need no writable directory. For a link the object goes to a
 file for the linker:
 
@@ -109,8 +109,7 @@ for any link.
 `tools/llvm.sh` gives the flags (`cflags`, `libs`, `bindir`, `imp`). The seed
 (`stage0/`) and the compilers `tools/direct.sh` builds link `libLLVM`. The back
 end makes the object with the host's target machine in the process, so no
-`clang` runs. `imp --run prog.imp` compiles with ORC (LLJIT) and runs in the
-process, finding the runtime and the C library in the program itself.
+`clang` runs.
 
 The link is lld in the process (`stage0/impld.cpp`, built where `tools/llvm.sh`
 finds `liblldELF` or `liblldMachO` and their headers), or lld as a program where
@@ -123,7 +122,7 @@ with no loader of its own (a static one) takes the `crt1.o` whose ELF header
 beside it (`imphostprobe`). The BSDs keep the start files in `/usr/lib` whatever
 the architecture; macOS needs the SDK and has arm64 and x86_64. When a file is
 missing the message names it (`cannot link: no crt0.o in /usr/lib`). The only
-program the driver starts is `ld.lld` (`ld64.lld`); `-c`, `-S` and `--run` start
+program the driver starts is `ld.lld` (`ld64.lld`); `-c`, `-S` and `-Sir` start
 none.
 
 ## Cross-compiling
@@ -254,7 +253,6 @@ archive).
 | `tests/direct/ir2ll.sh` | the IMP LLVM IR writer and `tools/ir2ll.c` write the same text |
 | `tests/interactive/run.sh` | `impd -i`, the original's commands |
 | `tests/image/run.sh` | saving the compiler with `/U` and starting from it with `-I`, including an image restored with the free storage at another address |
-| `tests/orc/run.sh` | `--run`, and objects made in the process |
 | `tests/llvm/gen.sh` | `tools/llvm.sh imp` in each of its shapes |
 | `tests/link/run.sh` | the link with lld in the process, with no `cc` on the `PATH` |
 | `tests/link/cross.sh` | the arguments of ld for each architecture and C library of the table of loaders, the BSDs, and the refusals, with a sysroot of empty files |
@@ -262,7 +260,7 @@ archive).
 | `tests/version/run.sh` | every place that names the version (`VERSION`, the compiler's `--version` and banner, the packages, the port, the manual) agrees |
 | `tests/variadic/run.sh` | every `CCALL` in the tree's IMP sources of a C function that takes a variable number of arguments (`printf`, `open`, `fcntl`, ...) has a declaration with `...` before it in the same compilation unit |
 | `tests/runtime/run.sh` | the runtime library built by `imp`, for the host and other targets |
-| `tests/tmpfiles/run.sh` | temporary files of the seed and of `imp`: none for `-S`, `-c`, `-Sir` and `--run`; a link leaves `TMPDIR` empty, with and without the memory file, after an error and on `SIGHUP`, `SIGINT`, `SIGQUIT` and `SIGTERM`; a `TMPDIR` that is relative, a file or missing is not used |
+| `tests/tmpfiles/run.sh` | temporary files of the seed and of `imp`: none for `-S`, `-c` and `-Sir`; a link leaves `TMPDIR` empty, with and without the memory file, after an error and on `SIGHUP`, `SIGINT`, `SIGQUIT` and `SIGTERM`; a `TMPDIR` that is relative, a file or missing is not used |
 | `tests/seed/run.sh` | the seed and stage 2 write the same LLVM IR |
 | `tests/cli/run.sh` | the command line of `imp` |
 | `tests/cimport/run.sh` | `imp-cimport`: golden outputs for preprocessed text, compiled by the seed and by `imp`; with `cc`, the declarations of `string.h`, `stdlib.h`, `stdio.h` used by a program, the layouts of `struct tm`, `timespec` (and `stat`, `dirent` on Linux) against `offsetof`, the values of macros against the C compiler's, and no file left in `TMPDIR` |
@@ -293,7 +291,6 @@ the same LLVM IR for the same program. Their command lines differ:
 | `--target`, `--sysroot`, `--runtime` | not options: the seed makes code for this machine only | cross-compiling (below) |
 | `-I`, `-i`, `--version`, `--help` | not options (`--help` is an unknown option, status 2) | images, the original's commands, version, usage |
 | several sources | compiled together as one program, output named after the first | each compiled by itself |
-| `--run` | compiles with ORC and runs, but the seed's own program does not contain the runtime library, so a program that calls `PRINT`, `READ` or `FINI` fails with `Symbols not found`; a program that calls only C functions runs | runs any program: the runtime library is in the compiler's program |
 
 `tests/seed` compares the seed's `-S` text with `imp -Sir`.
 

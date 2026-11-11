@@ -25,8 +25,8 @@ the graph, `Y` list the source on the terminal, `Z` statistics.
 
 The same binary is the compiler `impstage0` when it is called by a name that begins `impstage`. It reads
 `src/syntax.imc` and `lib/ffi.imc`, runs the kernel with `-c` into a temporary directory, and makes an
-executable (default), an object (`-c`), LLVM IR (`-S`) or a run (`--run`) with the LLVM back end in the process
-(`stage0/llvmorc.c`) and the linker in the process (`stage0/impld.cpp`). Where its parts are is found relative to
+executable (default), an object (`-c`), or LLVM IR (`-S`) with the LLVM back end in the process
+(`stage0/llvm.c`) and the linker in the process (`stage0/impld.cpp`). Where its parts are is found relative to
 the executable, in the source tree or installed; `IMPSYNTAX`, `IMPFFI` and `IMPLIB` override them.
 
 ## The words

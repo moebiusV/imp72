@@ -151,7 +151,7 @@ names as `imp`. `--target` stays in `imp`: the seed makes code for the
 machine it runs on, because it is the compiler that exists before the
 other.
 
-*Effect on the code.* `stage0/imps0.c` and `stage0/llvmorc.c`; `tests/seed/run.sh`,
+*Effect on the code.* `stage0/imps0.c` and `stage0/llvm.c`; `tests/seed/run.sh`,
 which takes the seed's IR with `-S`, takes it with `-Sir`.
 
 ### 11. A runtime library for Windows and Cygwin

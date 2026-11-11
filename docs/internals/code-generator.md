@@ -12,7 +12,7 @@ code generator itself.
       demit                                      the chain of a unit into IR trees
       IR text                                    ix.imc (the seed: stage0/ir.c)
       ir2ll                                      LLVM IR text (src/ir2ll.imc, src/ir2llx.imc; the seed: tools/ir2ll.c)
-      LLVM, in the process                       an object file, or ORC and a run (src/llvm.imc; the seed: stage0/llvmorc.c)
+      LLVM, in the process                       an object file, assembly or IR text (src/llvm.imc; the seed: stage0/llvm.c)
       lld, in the process                        the executable, linked with libimp.a
 
 ## Files

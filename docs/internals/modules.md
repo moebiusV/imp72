@@ -24,7 +24,7 @@ the compiler that compiles itself.
 | impsem, code, code2, code3 | `impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` | `gen_impsem.c`, `gen_code.c`, `gen_code2.c`, `gen_code3.c` | `src/impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` |
 | demit | `amod.imc`, `rmod.imc`, `omod.imc` (not translated) | `gen_demit.c`, `ir.c` | `src/demit.imc`, `ix.imc` |
 | driver | `impm.imc` | `imps0.c`, `error.c` | `src/impm.imc`, `src/driver.imc` |
-| back end | none | `llvmorc.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imc`, `src/ir2ll.imc`, `src/ir2llx.imc`, `lib/imphost.iml` |
+| back end | none | `llvm.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imc`, `src/ir2ll.imc`, `src/ir2llx.imc`, `lib/imphost.iml` |
 | image | none (the monitor's `SSAVE`) | none | `src/image.imc` |
 
 ## free: free storage

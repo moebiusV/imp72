@@ -71,18 +71,6 @@ Stop after writing the LLVM IR as text,
 .It Fl c
 Stop after generating the object file,
 .Pa NAME.o .
-.It Fl -run
-Compile with ORC and run the program in this process.
-The runtime library is not part of the seed's program, so a program that calls
-.Sy PRINT ,
-.Sy READ
-or
-.Sy FINI
-fails with
-.Ql Symbols not found ;
-a program that calls only C functions runs.
-.Xr imp 1
-runs any program.
 .It Fl o Ar output
 Name of the output file.
 The default is the first source's name without

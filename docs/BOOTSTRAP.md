@@ -9,15 +9,15 @@ three steps.
    `src/*.imc`. It is the one part of the compiler that is not IMP,
    apart from `stage0/impld.cpp`, and it is installed as `impstage0`. It
    makes a program with its own driver (`stage0/imps0.c`): `-S` writes LLVM IR
-   text, `-c` an object, `-o` names the output, `-s` gives the switches, `--run`
-   runs a program that needs no runtime library. It has no `--target`, `-Sir`,
+   text, `-c` an object, `-o` names the output, `-s` gives the switches, `-C` names
+   a file of syntax. It has no `--target`, `-Sir`,
    `-I` or `-i` (`docs/BUILDING.md`, The seed and `imp`).
-2. **Stage 1** is `src/*.imc` and `src/*.imc` compiled by the seed
+2. **Stage 1** is `src/*.imc` compiled by the seed
    (`tools/direct.sh`, called by `tools/llvm-ir.sh` with `DIRECT_OUT=build/llvm-ir1`),
    linked with the runtime library that the seed makes (`tools/mklib.sh`) and
    with LLVM and lld. The main program is `src/driver.imc`. The LLVM glue
    (`src/llvm.imc`) and the IR writer (`src/ir2ll.imc`, `src/ir2llx.imc`) are
-   modules like the others; the seed has its own C copies (`stage0/llvmorc.c`,
+   modules like the others; the seed has its own C copies (`stage0/llvm.c`,
    `tools/ir2ll.c`).
 3. **Stage 2** is the same sources compiled by stage 1
    (`DIRECT_OUT=build/llvm-ir2`). It is the compiler that `make install`

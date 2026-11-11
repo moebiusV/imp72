@@ -3,7 +3,7 @@
 #   make            build stage 0, the library and the compilers
 #   make check      run all the tests
 #
-# The back end is LLVM's ORC JIT, in the process: the LLVM C API must be installed (tools/llvm.sh).
+# The back end is LLVM, in the process: the LLVM C API must be installed (tools/llvm.sh).
 
 # Compiler flags and where to install (make install DESTDIR=... PREFIX=...).
 CC       = cc
@@ -42,7 +42,7 @@ llvm-ir: stage0 $(LIB)
 	@LDFLAGS="$(LDFLAGS)" sh tools/guard.sh sh tools/llvm-ir.sh; r=$$?; if [ $$r != 0 ] && [ $$r != 77 ]; then exit $$r; fi
 
 stage0:
-	sf=`sh tools/hasstrl.sh`; lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o lvtriple.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
+	sf=`sh tools/hasstrl.sh`; lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvm.o; [ -n "$$lf" ] && lo="llvm.o ir2ll.o lvtriple.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
 	bd=`sh tools/llvm.sh bindir`; bdd=; [ -n "$$bd" ] && bdd="-DIMP_LLVM_BINDIR=$$bd"; \
 	$(MAKE) -C stage0 CC="$(CC)" CXX="$(CXX)" CFLAGS="-std=c99 -pedantic $(CFLAGS) $$sf" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
 
@@ -80,7 +80,7 @@ check: all
 	@sh tools/guard.sh $(MAKE) check-run
 
 check-run:
-	sf=`sh tools/hasstrl.sh`; lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvmorc.o; [ -n "$$lf" ] && lo="llvmorc.o ir2ll.o lvtriple.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
+	sf=`sh tools/hasstrl.sh`; lf=`sh tools/llvm.sh cflags`; ll=`sh tools/llvm.sh libs`; lo=llvm.o; [ -n "$$lf" ] && lo="llvm.o ir2ll.o lvtriple.o"; case "$$lf" in *HAVE_LLD*) lo="$$lo impld.o";; esac; \
 	bd=`sh tools/llvm.sh bindir`; bdd=; [ -n "$$bd" ] && bdd="-DIMP_LLVM_BINDIR=$$bd"; \
 	$(MAKE) -C stage0 check CC="$(CC)" CFLAGS="-std=c99 -pedantic $(CFLAGS) $$sf" LDFLAGS="$(LDFLAGS)" LLVMCFLAGS="$$lf" LLVMLIBS="$$ll" LLVMOBJS="$$lo" LLVMBINDIRDEF="$$bdd"
 	sh tests/native/run.sh
@@ -91,7 +91,6 @@ check-run:
 	sh tests/direct/ir2ll.sh
 	sh tests/interactive/run.sh
 	sh tests/image/run.sh
-	sh tests/orc/run.sh
 	sh tests/llvm/gen.sh
 	sh tests/link/run.sh
 	sh tests/link/cross.sh

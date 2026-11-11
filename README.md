@@ -28,7 +28,6 @@ file of such statements; `lib/ffi.imc` is one (`CCALL`, `EXTERNAL`).
     make install PREFIX=/usr/local
 
     imp hello.imp && ./a.out            # compile, link, run
-    imp --run hello.imp                 # compile with ORC and run in the process
     imp -c a.imp b.imp                  # a.o and b.o
     imp -S hello.imp                    # assembly, hello.s
     imp -Sir hello.imp                  # LLVM IR text, hello.ll
@@ -81,8 +80,8 @@ The seed and stage 2 write byte-identical LLVM IR for the same program;
 library and the code generator's own modules. Stage 1 and stage 2 also write
 the same IR (`tests/direct/stage2.sh`). `docs/BOOTSTRAP.md` describes the route.
 
-LLVM is the back end, in the compiler's process: `--run` compiles with ORC and
-runs, the other modes write an object file, assembly or LLVM IR. The driver links
+LLVM is the back end, in the compiler's process: it writes an object file,
+assembly or LLVM IR. The driver links
 executables with lld in the process where lld is installed as a library, and by
 running `ld.lld` (`ld64.lld` on macOS) where it is not. It never runs `cc`.
 

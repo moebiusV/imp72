@@ -19,12 +19,12 @@
  * The same program is also the compiler, impstage0 (a link to it, or a
  * copy: the name decides):
  *
- *     impstage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...
+ *     impstage0 [-S | -c] [-o OUT] [-s LETTERS] [-C SYNTAX] FILE.imp ...
  *
  * It reads the syntax of the language (src/syntax.imc) and the extension ffi.imc,
  * compiles the files with the kernel above to IR, and makes the IR, with LLVM
  * in this process, into an executable (default), an object (-c), LLVM IR (-S)
- * or a run (--run, with ORC).  It finds its parts relative to
+ * or assembly or IR text.  It finds its parts relative to
  * itself: in the source tree (stage0/impstage0, src/, lib/, build/) or installed
  * (PREFIX/bin/impstage0, PREFIX/lib/imp/, PREFIX/share/imp/).
  */
@@ -44,9 +44,9 @@
 #include "gen.h"
 
 
-/* the LLVM back end in the process (stage0/llvmorc.c); llvmhave tells whether the compiler was built with the LLVM libraries */
+/* the LLVM back end in the process (stage0/llvm.c); llvmhave tells whether the compiler was built with the LLVM libraries */
 extern long llvmhave(long), llvmobj(const char *ir, size_t n, const char *out), llvmobjmem(const char *ir, size_t n, char **obj, size_t *objn),
-    llvmsave(const char *ir, size_t n, const char *out), llvmrun(const char *ir, size_t n);
+    llvmsave(const char *ir, size_t n, const char *out);
 /* the temporary files (stage0/imphost.c): none unless the link needs a file for the object */
 extern long imptmpbase(const char *dflt), imptmpobj(const char *buf, size_t n, char *out);
 static FILE *kernel_ir;                         /* the driver: where the kernel writes the IR text (a memory stream), else the file of -c */
@@ -414,7 +414,6 @@ driver_main(int argc, char **argv)
     size_t irlen = 0, objlen = 0;
     char syntax[PATH_MAX], ffi[PATH_MAX], lib[PATH_MAX], tmpbase[PATH_MAX];
     const char *outname = NULL, *sw = NULL;
-    int jit = 0;
     int stop = 'x', i = 1, rc = 0, nfiles, k;
     char **kargv, **csyn = calloc((size_t)argc + 1, sizeof *csyn);
     int ncsyn = 0;
@@ -433,8 +432,6 @@ driver_main(int argc, char **argv)
             sw = argv[++i];
         else if (strcmp(argv[i], "-C") == 0 && i + 1 < argc)
             csyn[ncsyn++] = argv[++i];                 /* a file of syntax or declarations, as the tape's /C: read in the order given, before the sources */
-        else if (strcmp(argv[i], "--run") == 0)
-            jit = 1;
         else {
             fprintf(stderr, "impstage0: unknown option %s\n", argv[i]);
             return 2;
@@ -446,7 +443,7 @@ driver_main(int argc, char **argv)
         return 2;
     }
     if (i >= argc) {
-        fputs("usage: impstage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] [-C SYNTAX] FILE.imp ...\n", stderr);
+        fputs("usage: impstage0 [-S | -c] [-o OUT] [-s LETTERS] [-C SYNTAX] FILE.imp ...\n", stderr);
         return 2;
     }
     nfiles = argc - i;
@@ -510,10 +507,7 @@ driver_main(int argc, char **argv)
     fflush(NULL);
 
     {                                               /* LLVM in the process */
-        if (jit) {                                  /* compile and run: the main program is impmain */
-            rc = llvmrun(irbuf, irlen) != 0;
-            fflush(NULL);
-        } else if (stop == 'S')
+        if (stop == 'S')
             rc = llvmsave(irbuf, irlen, outname ? outname : strcat(base, ".ll")) != 0;
         else if (stop == 'o')
             rc = llvmobj(irbuf, irlen, outname ? outname : strcat(base, ".o")) != 0;

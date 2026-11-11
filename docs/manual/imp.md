@@ -2371,18 +2371,18 @@ runtime library `libimp.a`, to the executable program. The options are
 
 The compiler finds its syntax file `syntax.imc`, the file of the C interface `ffi.imc` and
 `libimp.a` next to itself (`share/imp` and `lib/imp` of its installation prefix); the environment
-variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others. It makes no temporary file for `-c`, `-S`,
-`-Sir` or `--run`; to link, it hands the linker the object in an unnamed memory file on LINUX, and
-elsewhere in a private directory (mode 0700) in TMPDIR if that is an absolute path, else in `/tmp`,
-deleted at exit, on an error and on a signal. The messages go to the standard error. A compilation
-with errors writes no output and exits with the status 1; a wrong command line exits with the
-status 2. The compiler is made of LLVM and lld libraries and runs no other program, except `ld.lld`
-where its lld is not a library.
+variables IMP72SYNTAX, IMP72FFI and IMP72LIB name others. It makes no temporary file for `-c`, `-S`
+or `-Sir`; to link, it hands the linker the object in an unnamed memory file on LINUX, and elsewhere
+in a private directory (mode 0700) in TMPDIR if that is an absolute path, else in `/tmp`, deleted at
+exit, on an error and on a signal. The messages go to the standard error. A compilation with errors
+writes no output and exits with the status 1; a wrong command line exits with the status 2. The
+compiler is made of LLVM and lld libraries and runs no other program, except `ld.lld` where its lld
+is not a library.
 
 If you want to compile the IMP program on file `sum.imp`, the simplest way is `imp sum.imp`, and
-`./a.out` runs it. `imp --run sum.imp` compiles and runs it in one step. `imp -c a.imp b.imp` makes
-`a.o` and `b.o`, and `imp main.imp lib.imp -o prog` compiles two files and links them; a variable
-that the two share is declared COMMON in both (Section 2.1.4).
+`./a.out` runs it. `imp -c a.imp b.imp` makes `a.o` and `b.o`, and `imp main.imp lib.imp -o prog`
+compiles two files and links them; a variable that the two share is declared COMMON in both
+(Section 2.1.4).
 
 The compiler switches are given as the letters of the argument of `-s`, and the listing and
 printouts go to the standard error:
@@ -2459,7 +2459,7 @@ WINDOWS or CYGWIN: objects can be made, and a program that has its own `main` an
 can be linked. A target the driver cannot link is refused with the system named. Without them the
 message says what is missing (`no crt1.o under DIR/usr/lib/TRIPLE...`) and how to give it, or
 compile with `-c` and link on the other system. The runtime library of a system is built by the
-compiler itself, with no `C` compiler. `--run` is for the system the compiler runs on.
+compiler itself, with no `C` compiler.
 
 ### 3.2: Compilation Error Diagnostics.
 

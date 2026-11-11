@@ -582,7 +582,7 @@
 ## 04 Code generation and targets
 
 ### Backend: pcc IR to LLVM ORC JIT
-- Status: DONE — pcc and the C back end are removed; LLVM ORC in process is the only back end; the optimisation level is still fixed (latest decision 2026-11-10 \[R181\], a potential)
+- Status: DONE — pcc and the C back end are removed; LLVM in the process is the only back end; `--run` and the ORC JIT are removed (2026-11-11 \[R186\]); the optimisation level is still fixed (latest decision 2026-11-11 \[R186\])
 - Decided: 2026-10-29 decided: "delete ir2c.imp and remove pcc and the c backend" \[R101\]
 - Rationale: "i said to use the jit; why are you still keeping code to spawn clang?" \[R96\]
 - Rationale: earlier: "since c backend is working, leave pcc alone for now, do the other stuff" \[R53\]

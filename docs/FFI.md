@@ -481,6 +481,5 @@ uses a declared name right; the compiler does, as for any declaration.
 - The link adds `-lm` when the C library's directory holds `libm.so` or
   `libm.a` (glibc; on OpenBSD `libm.so.N.M`), so `sqrt`, `pow` and `sin` can be declared, called and
   linked. Where the math functions are in the C library (musl, the BSDs, macOS)
-  no second library is needed. `--run` finds them in the compiler's own
-  process.
+  no second library is needed.
 - The routines of `lib/*.iml` that call C by hand mask the `int` results.
