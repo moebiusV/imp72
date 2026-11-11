@@ -24,7 +24,7 @@ done
 rm -f IOTEST.TMP
 # the library for other systems: ELF e_machine (byte 18) of its members: x86-64 62, aarch64 183, riscv 243; Mach-O cputype x86_64 0x01000007
 mach() { od -An -tu1 -v -N20 "$1" | tr -s ' \n' '  ' | awk '{print $19 + 256 * $20}'; }
-have() { "$w" -c --target=$1 lib/impmain.imp -o $out/probe.o > $out/probe.log 2>&1; ! grep -q 'No available targets' $out/probe.log; }
+have() { "$w" -c --target=$1 lib/impmain.iml -o $out/probe.o > $out/probe.log 2>&1; ! grep -q 'No available targets' $out/probe.log; }
 case $(sh tools/endian.sh 2>/dev/null) in *-be.imc) be=1 ;; *) be=0 ;; esac
 if [ $be = 0 ]; then
     for t in aarch64-linux-gnu:183 riscv64-linux-gnu:243; do

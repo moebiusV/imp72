@@ -32,7 +32,7 @@ three words (`layouts.md`). The routines keep the tape's names and structure; th
 - `REAL` is the double's own bits, and a real constant is `FCON`'s double;
 - constants are 64 bit.
 
-The routines of `code*.imp` and `impsem.imc` differ from the tape's in:
+The routines of `code*.imc` and `impsem.imc` differ from the tape's in:
 
 - they add records (`ADDREC`, where the tape has `ADDCODE`);
 - `RCOCHK`, `OCHK` and `OPCODE` do not exist; they read PDP-10 instruction words;

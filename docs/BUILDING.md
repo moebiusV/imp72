@@ -116,7 +116,7 @@ The link is lld in the process (`stage0/impld.cpp`, built where `tools/llvm.sh`
 finds `liblldELF` or `liblldMachO` and their headers), or lld as a program where
 there is no library (`WITH_LLD=no` builds so on any system, to test it). The
 loader and the C library are those the compiler itself runs with
-(`lib/imphost*.imp`: `PT_INTERP`, `dl_iterate_phdr`), so the native link of
+(`lib/imphost*.iml`: `PT_INTERP`, `dl_iterate_phdr`), so the native link of
 Linux works on every architecture and consults no table of them. A compiler
 with no loader of its own (a static one) takes the `crt1.o` whose ELF header
 (class, byte order, machine) is its own, and the `PT_INTERP` of the C library
@@ -229,10 +229,10 @@ objects of the library for Cygwin with constants in `tools/sysconst.sh` that
 are unverified (`MAP_ANONYMOUS` 0x20, `MAP_NORESERVE` 0x4000, `d_name` at 16 of
 a `struct dirent`, `RTLD_DEFAULT` 0, no `dl_iterate_phdr`, and `stdin` and
 `stdout` read as `_impure_ptr->_stdin` and `_stdout` of newlib). The library
-needs a COFF variant of `lib/imphostx-elf.imp` and `lib/impvarsx-elf.imp`,
+needs a COFF variant of `lib/imphostx-elf.iml` and `lib/impvarsx-elf.iml`,
 which call `dl_iterate_phdr` (Cygwin has `dladdr` instead), and nothing of it
-has run. For Windows proper, the host layer (`lib/imphost.imp`,
-`lib/impsys.imp`: `mmap` for the arena, `dl_iterate_phdr`, `fork`,
+has run. For Windows proper, the host layer (`lib/imphost.iml`,
+`lib/impsys.iml`: `mmap` for the arena, `dl_iterate_phdr`, `fork`,
 `readlink`) and `tools/sysconst.sh` describe POSIX systems only.
 
 What works for Windows targets: objects (`-c`, `-S`, `-Sir`), and the link of a
@@ -300,7 +300,7 @@ the same LLVM IR for the same program. Their command lines differ:
 ## Diagnostics of the free storage and the images
 
 The free storage of the compiler is an arena of address space reserved once
-(`lib/impsys.imp`), asked for at the address `SCHINT` of `tools/sysconst.sh`. An
+(`lib/impsys.iml`), asked for at the address `SCHINT` of `tools/sysconst.sh`. An
 image (`/U`, `-I`; format version 6) is restored with the arena at any address: if the system
 gives the one the image was saved at, nothing is moved; otherwise the
 addresses of the arena that the modules' variables hold are moved with it

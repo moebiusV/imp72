@@ -59,7 +59,7 @@ is 0, like any other zero word.
 `MKNAME` (`src/impm.imc`) builds a file name from two words (15 characters)
 and an extension of one word (7); the original had six and three. The library
 cuts the names of `FILE` items in `PRINT` and `READ` to 7 characters
-(`lib/impio.imp`, label `CM6`).
+(`lib/impio.iml`, label `CM6`).
 
 Proposed: keep the form `FILE NAME.EXT`, but let a name be as long as the
 string given (up to `NAME_MAX`), since the library takes it from the string. The
@@ -72,7 +72,7 @@ file items of the library take the length of the buffer. A test with a name of
 
 ### 5. The original's channel I/O
 
-`PRINT`, `READ` and `PRINT FILE` are in `lib/impio.imp`. The channel
+`PRINT`, `READ` and `PRINT FILE` are in `lib/impio.iml`. The channel
 operations of the TOPS-10 library (`INIT`, `LOOKUP`, `ENTER`, `INPUT`,
 `OUTPUT`, the buffer header) are not in `decus/syntax.imc` or `decus/impsyn.imc`;
 the original reaches them through its libraries, which the port does not have.
@@ -84,7 +84,7 @@ library. Programs of the original that call them then compile. `RLEAS` is the
 `fclose` of a channel.
 
 *Effect on the code.* A new part of the library, about the size of the file part
-of `impio.imp`, and the statements in an extension file. How many routines of
+of `impio.iml`, and the statements in an extension file. How many routines of
 `decus/` use the buffer header words directly decides whether the buffer
 emulation is cheap; it has not been counted.
 
@@ -140,7 +140,7 @@ compilers.
 
 ### 9. Initialising the runtime from a C program
 
-The `main` of the runtime library (`lib/impmain.imp`) keeps `argc` and `argv`
+The `main` of the runtime library (`lib/impmain.iml`) keeps `argc` and `argv`
 for `impargc` and `impargvp`, and calls `impmain`. A C program with a `main` of
 its own does not link it. The command line is then not kept for the IMP
 routines, and the only way to start the main program of an IMP source is to
@@ -151,7 +151,7 @@ declared in `lib/imp.h`. A C program calls `imp_init` first, so that the
 IMP routines find the runtime initialised, and `imp_run` where it wants the
 main program of an IMP source. The library's `main` becomes the two calls.
 
-*Effect on the code.* `lib/impmain.imp`, `lib/imp.h`, and a test with a C
+*Effect on the code.* `lib/impmain.iml`, `lib/imp.h`, and a test with a C
 `main` that prints through `PRINT`.
 
 ### 10. Parity of the seed's `-S` and `-Sir` with `imp`
@@ -172,12 +172,12 @@ which takes the seed's IR with `-S`, takes it with `-Sir`.
 
 `imp --target=x86_64-w64-mingw32` and the Cygwin triples write objects and
 link a program that needs no runtime (`docs/BUILDING.md`). There is no
-`libimp.a` for them: the host layer (`lib/imphost.imp`, `lib/impsys.imp`)
+`libimp.a` for them: the host layer (`lib/imphost.iml`, `lib/impsys.iml`)
 uses `mmap` for the arena, `dl_iterate_phdr`, `fork` and `readlink`, and
 `tools/sysconst.sh` describes POSIX systems.
 
-Proposed: a COFF variant of the host layer (`lib/imphostx-*.imp`,
-`lib/impvarsx-*.imp`) and of the arena (`VirtualAlloc` for Windows, `mmap` for
+Proposed: a COFF variant of the host layer (`lib/imphostx-*.iml`,
+`lib/impvarsx-*.iml`) and of the arena (`VirtualAlloc` for Windows, `mmap` for
 Cygwin), the constants of both systems in `tools/sysconst.sh`, and a test run on
 a Windows or Cygwin machine; none is available for the tests.
 

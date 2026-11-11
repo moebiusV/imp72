@@ -131,8 +131,8 @@ function loads it into the result register.
 - **Computed `GO TO (L0,L1,...) N`.** The jumps after the table tag become one compare and branch for each.
 - **`PRINT` and `READ`.** The syntax builds a call of `PRN.` or `RED.` with one `PITEM` record per item. Each item
   stores its code and the address of its operand in the cells `impca` and calls `imppr(&impca[0], &impca[1])` (`imprd`
-  for `READ`); the library in `lib/impio.imp` holds the format between items. `pmod.md` describes the formats.
-- **`CALLI(a,b)`** calls `impcalli` (`lib/imprt.imp`: exit, date, time of day, run time, job number).
+  for `READ`); the library in `lib/impio.iml` holds the format between items. `pmod.md` describes the formats.
+- **`CALLI(a,b)`** calls `impcalli` (`lib/imprt.iml`: exit, date, time of day, run time, job number).
 - **`EXECUTE a`** calls `impxct`, which does the one operation of the machine that the word holds, with the registers
   `0R` to `15R` stored in `impac` before and loaded after. Floating operations and jumps are an error at run time.
 - **`MOVE B THROUGH N TO A`** calls `impblk(A,B,N)`, which copies N+1 words upward, a word at a time.
@@ -148,7 +148,7 @@ byte address of the byte before the first of `A`; `<+P>` adds 1 and then reads o
 character is a byte. Any other field keeps the layout of the PDP-10 pointer in one word: bits 63-58 the size, 57-52 the
 position, the low 52 bits the byte address of the word. The two are told apart by the size bits, which a byte address
 never has. Stepping a field pointer moves to the next lower field of the same size, or to the next word (address + 8)
-when there is no room. `impibp`, `impldb` and `impdpb` in `lib/imprt.imp` do `IBP`, `LDB` and `DPB`. When the
+when there is no room. `impibp`, `impldb` and `impdpb` in `lib/imprt.iml` do `IBP`, `LDB` and `DPB`. When the
 environment variable `IMPCHARPTR` is set the compiler does the stepping, loading and storing of character pointers in
 line; the runtime library is compiled so, because those routines are made of such pointers.
 

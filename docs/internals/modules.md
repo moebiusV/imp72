@@ -24,7 +24,7 @@ the compiler that compiles itself.
 | impsem, code, code2, code3 | `impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` | `gen_impsem.c`, `gen_code.c`, `gen_code2.c`, `gen_code3.c` | `src/impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` |
 | demit | `amod.imc`, `rmod.imc`, `omod.imc` (not translated) | `gen_demit.c`, `ir.c` | `src/demit.imc`, `ix.imc` |
 | driver | `impm.imc` | `imps0.c`, `error.c` | `src/impm.imc`, `src/driver.imc` |
-| back end | none | `llvmorc.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imc`, `src/ir2ll.imc`, `src/ir2llx.imc`, `lib/imphost.imp` |
+| back end | none | `llvmorc.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imc`, `src/ir2ll.imc`, `src/ir2llx.imc`, `lib/imphost.iml` |
 | image | none (the monitor's `SSAVE`) | none | `src/image.imc` |
 
 ## free: free storage
@@ -40,7 +40,7 @@ in a half word; there is no 64000 word ceiling on a gap; a named array is alloca
 because a name of eight characters in a 64 bit word cannot be told from an index.
 
 The seed's block is a `realloc`ed C heap. In the IMP module the block is an arena of reserved address space at `FB`
-that `CORE` makes usable with `mprotect` (`lib/impsys.imp`), so the arena never moves and a byte pointer into an array
+that `CORE` makes usable with `mprotect` (`lib/impsys.iml`), so the arena never moves and a byte pointer into an array
 stays good until the array itself moves.
 
 Everything the modules keep of the arena is an index from `FB`, except five byte pointers of the lexer (`lex:PC`, `QC`,
@@ -146,6 +146,6 @@ error returns from `IMPK`. With `-i` it reads the commands of the original from 
 finds its parts relative to itself, runs `IMPK`, then the back end (`src/llvm.imc`) and the link. In the seed, `imps0`
 is the kernel and `impstage0` the compiler, the same program under another name (`stage0-semantics.md`).
 
-The runtime library is in `lib/`: `impio.imp` (`PRINT`, `READ`, `FINI`), `imprt.imp` (`CALLI`, shifts, byte pointers,
-`EXECUTE`), `impsys.imp` (the arena, argument vectors), `impmain.imp` (the C `main`), `imphost.imp` and
-`impvars.imp` (what the link and the images need of the host).
+The runtime library is in `lib/`: `impio.iml` (`PRINT`, `READ`, `FINI`), `imprt.iml` (`CALLI`, shifts, byte pointers,
+`EXECUTE`), `impsys.iml` (the arena, argument vectors), `impmain.iml` (the C `main`), `imphost.iml` and
+`impvars.iml` (what the link and the images need of the host).

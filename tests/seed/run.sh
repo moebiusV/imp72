@@ -24,8 +24,8 @@ one() {
 for f in tests/native/*.imp tests/oracle/*.imp; do
     one $(echo "$f" | tr / _) "X=1" "$f"
 done
-{ sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > $out/imprt_all.imp
-one rt "IMPCHARPTR=1" -C $endf $out/imprt_all.imp
+{ sed '/^%%$/d' lib/imprt.iml; sed '1d' lib/impio.iml; } > $out/imprt_all.iml
+one rt "IMPCHARPTR=1" -C $endf $out/imprt_all.iml
 for m in impsem code code2 code3 demit ix; do
     one gen_$m "IMPMODULE=$m" -C $endf -C src/impsyn.imc -C src/irsyn.imc src/$m.imc
 done

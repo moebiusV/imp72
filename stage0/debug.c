@@ -13,7 +13,7 @@
  */
 #include "imp.h"
 
-/* OCT w of the library (lib/impio.imp): the 64 bits as unsigned octal, zero filled to w columns; in a field of more than 12 columns
+/* OCT w of the library (lib/impio.iml): the 64 bits as unsigned octal, zero filled to w columns; in a field of more than 12 columns
  * a number of 12 digits or fewer is zero filled to 12 and the rest of the field is blanks (as the field of a 36 bit word was) */
 void
 pr_oct64(int w, word v)

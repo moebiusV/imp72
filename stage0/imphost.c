@@ -193,7 +193,7 @@ imphostcrtdir(long out)
  * A program with no loader of its own (a static one) cannot say where its C library is: the files are looked for by what they are.  The start file crt1.o (crt0.o) of the machine is
  * the one whose ELF header (class, byte order, machine) is this program's own, read from /proc/self/exe, and the loader is the PT_INTERP of the C library beside it (libc.so.6 of
  * glibc, libc.so of musl, which are programs too).  No table of architectures: the machine is what the files say.  Returns 1 and the directory of the start files into CRT and
- * the loader into INTERP (buffers of 4096 bytes), else 0.  lib/imphost.imp (IMPHOSTPROBE) is the IMP twin.
+ * the loader into INTERP (buffers of 4096 bytes), else 0.  lib/imphost.iml (IMPHOSTPROBE) is the IMP twin.
  */
 static int
 elfident(const char *path, unsigned char *id)
@@ -415,7 +415,7 @@ imprunld(long argc, long argv)
  * The temporary files of the compiler (imptmp*): none unless the link needs a file for the object.  The object of a program to be linked goes to an unnamed memory file on Linux
  * (memfd_create, found at run time, and the linker is given /proc/self/fd/N), else to a file in a private directory: made when it is first needed, by mkdtemp in $TMPDIR (an
  * absolute path naming a directory) or else in the default (imptmpbase), checked to be a directory of mode 0700 owned by this user, and removed, with the files made in it, at exit
- * and by a handler of SIGHUP, SIGINT, SIGQUIT and SIGTERM, with unlink and rmdir and no shell.  lib/imphost.imp (IMPTMPOBJ and the others) is the IMP twin of this.
+ * and by a handler of SIGHUP, SIGINT, SIGQUIT and SIGTERM, with unlink and rmdir and no shell.  lib/imphost.iml (IMPTMPOBJ and the others) is the IMP twin of this.
  */
 #include <fcntl.h>
 #include <signal.h>

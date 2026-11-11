@@ -1,7 +1,7 @@
 #!/bin/sh
 # mkrt.sh [TRIPLE [OUTDIR]]: build the runtime library libimp.a with imp itself (build/llvm-ir2/impstage-llvm-ir), for this machine or, with a target triple, for another system:
 #   sh tools/mkrt.sh aarch64-linux-gnu        build/rt-aarch64-linux-gnu/libimp.a
-# No C compiler is used: the library is IMP (lib/*.imp, and sysgen.imp from tools/sysconst.sh), and imp writes the objects of any target.  It is the file to give a cross link
+# No C compiler is used: the library is IMP (lib/*.iml, and sysgen.iml from tools/sysconst.sh), and imp writes the objects of any target.  It is the file to give a cross link
 # (imp --target=TRIPLE --sysroot=DIR --runtime=build/rt-TRIPLE/libimp.a prog.imp).  tools/mklib.sh makes the library of this machine with the seed, which the compilers are linked
 # with; this one is made by the compiler, so it needs it built first.  A system whose C library the table of tools/sysconst.sh does not know the shape of (the size of a FILE of NetBSD)
 # is refused with its message: build the library on that system.
@@ -53,11 +53,11 @@ case $endf in *-be.imc) export SYSBE=1 ;; *) export SYSBE=0 ;; esac
 export IMPCHARPTR=1                       # the library is compiled as it always was: a byte pointer in a variable points at characters, a shift is in line (see src/demit.imc CHARPTR)
 unset IMPLIB
 bd=$(sh tools/llvm.sh bindir)
-{ sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > "$out/imprt_all.imp"
-sh tools/sysconst.sh "$os" "$arch" "$bd" > "$out/sysgen.imp"
+{ sed '/^%%$/d' lib/imprt.iml; sed '1d' lib/impio.iml; } > "$out/imprt_all.iml"
+sh tools/sysconst.sh "$os" "$arch" "$bd" > "$out/sysgen.iml"
 case $os in darwin) vfmt=macho ;; *) vfmt=elf ;; esac
 objs=
-for m in "imprt_imp:$out/imprt_all.imp" "impsys:lib/impsys.imp" "sysgen:$out/sysgen.imp" "impvars:lib/impvars.imp" "impvarsx:lib/impvarsx-$vfmt.imp" "imphost:lib/imphost.imp" "imphostx:lib/imphostx-$vfmt.imp" "impmain:lib/impmain.imp"; do
+for m in "imprt_imp:$out/imprt_all.iml" "impsys:lib/impsys.iml" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml"; do
     $w -c $tgt -o "$out/${m%%:*}.o" -C $endf "${m#*:}" > "$out/${m%%:*}.log" 2>&1 || { echo "mkrt: ${m#*:} did not compile:" >&2; head -c 600 "$out/${m%%:*}.log" >&2; exit 1; }
     objs="$objs $out/${m%%:*}.o"
 done

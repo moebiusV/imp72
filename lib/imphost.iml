@@ -49,7 +49,7 @@ SUBR IMPFINDLIB(OUT,DIRP,PREFIX) IS (
  CCALL snprintf(OUT,4096,LOC('%s/%s'),DIRP,LOC(BESTB));
  1);
 
-# (IMPHOSTINTERP, the dynamic linker of the program, is in IMPHOSTX-ELF.IMP or IMPHOSTX-MACHO.IMP: dl_iterate_phdr is the ELF systems') #
+# (IMPHOSTINTERP, the dynamic linker of the program, is in IMPHOSTX-ELF.IML or IMPHOSTX-MACHO.IML: dl_iterate_phdr is the ELF systems') #
 
 # THE FILE OF THE C LIBRARY THIS PROGRAM USES (THE SHARED OBJECT THAT HAS GETENV), INTO THE BUFFER OUT; 1 IF IT IS A FILE: LIBC.SO.6, LIBC.SO.97.1, LD-MUSL-X86_64.SO.1 #
 SUBR IMPHOSTLIBC(OUT) IS (

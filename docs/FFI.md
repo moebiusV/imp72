@@ -483,4 +483,4 @@ uses a declared name right; the compiler does, as for any declaration.
   linked. Where the math functions are in the C library (musl, the BSDs, macOS)
   no second library is needed. `--run` finds them in the compiler's own
   process.
-- The routines of `lib/*.imp` that call C by hand mask the `int` results.
+- The routines of `lib/*.iml` that call C by hand mask the `int` results.

@@ -57,23 +57,23 @@ the 64-bit IMP translation of the original modules in `decus/`.
   command line, the C library's start files and `libimp.a`, with lld
   (`impld`, `stage0/impld.cpp`), `ld.lld` or the system's `ld`. The loader and
   C library of this machine are those the compiler itself runs with
-  (`lib/imphost*.imp`), for any architecture; a target's come from the tables
+  (`lib/imphost*.iml`), for any architecture; a target's come from the tables
   of `linktab` (docs/BUILDING.md, The linker and its flags).
 
 ## The runtime library
 
-`lib/*.imp` is `libimp.a`:
+`lib/*.iml` is `libimp.a`:
 
 | file | contents |
 |---|---|
-| `impio.imp` | `PRINT`, `READ`, files, `FINI` |
-| `imprt.imp` | `CALLI`, `BLT`, `IFIX`, shifts and rotations by a variable count, byte pointers, `EXECUTE` |
-| `impsys.imp` | the standard files, the arena's address space, argument vector access |
-| `impmain.imp` | the C `main`, a member of its own so that a program with a `main` of its own does not link it |
-| `imphost.imp`, `imphostx-*.imp` | what the link needs to know of the host |
-| `impvars.imp`, `impvarsx-*.imp` | the table of the compiler's own variables, for images |
+| `impio.iml` | `PRINT`, `READ`, files, `FINI` |
+| `imprt.iml` | `CALLI`, `BLT`, `IFIX`, shifts and rotations by a variable count, byte pointers, `EXECUTE` |
+| `impsys.iml` | the standard files, the arena's address space, argument vector access |
+| `impmain.iml` | the C `main`, a member of its own so that a program with a `main` of its own does not link it |
+| `imphost.iml`, `imphostx-*.iml` | what the link needs to know of the host |
+| `impvars.iml`, `impvarsx-*.iml` | the table of the compiler's own variables, for images |
 
-`tools/sysconst.sh` writes `sysgen.imp`, the constants of the target system's
+`tools/sysconst.sh` writes `sysgen.iml`, the constants of the target system's
 headers (`mmap` flags, directory entry layout, names of the standard files).
 `lib/imp.h` is the C header for code that shares data with IMP programs.
 

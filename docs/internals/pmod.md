@@ -3,7 +3,7 @@
 `IMPLIB.LIB` of the original holds PMOD, the module that does the `PRINT` and `READ` of the manual; its sources are not
 on the tape. The IMP compiler compiled it, so its code is readable: the labels `%IF19#`, `%WH21#`, `%FOR54#` are the
 compiler's. The disassembly, from DDT on the KI10 oracle, is in [pmod-disassembly.txt](pmod-disassembly.txt).
-`lib/impio.imp` implements `PRINT` and `READ` for this implementation and follows the disassembly where the output has
+`lib/impio.iml` implements `PRINT` and `READ` for this implementation and follows the disassembly where the output has
 to be the same.
 
 ## Items
@@ -12,7 +12,7 @@ to be the same.
 the address of the operand. A format stays set between items and statements. In this implementation `PRINPAR`
 (`src/code2.imc`) numbers the items 0 value, 1 `OCT`, 2 `IGR`, 3 `STG`, 5 `/`, 6 `FILE`, 7 `IMAGE MODE`,
 8 `DEVICE`, 9 `TAB`, 10 `FILL`, 11 `FLT`, and each item becomes a call of `imppr(n,p)` (`imprd` for `READ`) in
-`lib/impio.imp`; see `code-generator.md`. For `FLT` the format word holds `m` in the right half and `n` in the left.
+`lib/impio.iml`; see `code-generator.md`. For `FLT` the format word holds `m` in the right half and `n` in the left.
 The original works with `G = m-1` and `D = n`.
 
 ## FLT in the original
@@ -41,7 +41,7 @@ PMOD works in PDP-10 single precision (27 bit mantissa) with the rounded instruc
 
 ## FLT in this implementation
 
-A `REAL` is an IEEE 754 binary64. `RTLPRINTFLT` in `lib/impio.imp` keeps the layout of steps 3, 4, 7 and 8: the field
+A `REAL` is an IEEE 754 binary64. `RTLPRINTFLT` in `lib/impio.iml` keeps the layout of steps 3, 4, 7 and 8: the field
 width `G`, the test whether the number fits, the scientific form with `"` and the exponent, the padding. It replaces
 steps 1, 2, 5 and 6 (the scaling and the digit loop with their accumulating errors) by the correctly rounded digits of
 the exact decimal value, ties away from zero. `0.125` with two decimals is `.13`; the original's inexact arithmetic gives

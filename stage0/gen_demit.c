@@ -985,7 +985,7 @@ bpout(word v0, word v1)
 }
 
 /* IMPCHARPTR in the environment (the seed's same switch): a byte pointer held in a variable is a pointer to characters, a byte address, and the stepping,
- * loading and storing are done in line instead of by IMPIBP, IMPLDB and IMPDPB.  The runtime library (lib/imprt.imp, impio.imp) is compiled so: those
+ * loading and storing are done in line instead of by IMPIBP, IMPLDB and IMPDPB.  The runtime library (lib/imprt.iml, impio.iml) is compiled so: those
  * routines are the ones that would call themselves.  CPFLAG: 0 not asked yet, 1 no, 2 yes */
 static int
 charptr(void)

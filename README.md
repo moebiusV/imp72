@@ -87,7 +87,7 @@ executables with lld in the process where lld is installed as a library, and by
 running `ld.lld` (`ld64.lld` on macOS) where it is not. It never runs `cc`.
 
 The runtime library `libimp.a` (`PRINT`, `READ`, `FINI`, the entry `main`,
-the helpers that generated code calls) is IMP too, in `lib/*.imp`.
+the helpers that generated code calls) is IMP too, in `lib/*.iml`.
 `tools/mklib.sh` builds it with the seed, for the compilers themselves.
 `tools/mkrt.sh` builds it with `imp` for any target; `make install` installs
 that one.
