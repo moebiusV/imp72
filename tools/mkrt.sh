@@ -32,7 +32,7 @@ else
 fi
 # the byte order and the word size of the target, from the object file the compiler makes for it (ELF: class and data; Mach-O: the magic), not from a list of architectures
 mkdir -p "$out"
-export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc
+export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc
 printf 'FINI(0)\n%%%%\n' > "$out/probe.imp"
 $w -c $tgt -o "$out/probe.o" "$out/probe.imp" > "$out/probe.log" 2>&1 || { echo "mkrt: the compiler cannot make an object for ${triple:-this machine}:" >&2; head -c 600 "$out/probe.log" >&2; exit 1; }
 hd=$(od -An -tx1 -N8 "$out/probe.o" | tr -d ' \n')
@@ -50,7 +50,7 @@ feedface*) bits=32; endf=src/impend-be.imc ;;
 esac
 export SYSBITS=$bits
 case $endf in *-be.imc) export SYSBE=1 ;; *) export SYSBE=0 ;; esac
-export IMPCHARPTR=1                       # the library is compiled as it always was: a byte pointer in a variable points at characters, a shift is in line (see src/llvm-ir/demit.imc CHARPTR)
+export IMPCHARPTR=1                       # the library is compiled as it always was: a byte pointer in a variable points at characters, a shift is in line (see src/demit.imc CHARPTR)
 unset IMPLIB
 bd=$(sh tools/llvm.sh bindir)
 { sed '/^%%$/d' lib/imprt.imp; sed '1d' lib/impio.imp; } > "$out/imprt_all.imp"

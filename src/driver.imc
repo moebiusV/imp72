@@ -444,7 +444,7 @@ SUBR SETPATHS(Z) IS (
  EXISTS(LOC(SYNP)) NE 0 => (CCALL snprintf(LOC(FFIP),4096,LOC('%s/share/imp/ffi.imc'),LOC(ROOT));
                             CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/imp/libimp.a'),LOC(ROOT));
                             CCALL snprintf(LOC(TMPB),4096,LOC('/tmp')))                # INSTALLED: THE SYSTEM'S TEMPORARY DIRECTORY #
-   ELSE (CCALL snprintf(LOC(SYNP),4096,LOC('%s/../src/llvm-ir/syntax.imc'),LOC(ROOT));
+   ELSE (CCALL snprintf(LOC(SYNP),4096,LOC('%s/../src/syntax.imc'),LOC(ROOT));
          CCALL snprintf(LOC(FFIP),4096,LOC('%s/../lib/ffi.imc'),LOC(ROOT));
          CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/libimp.a'),LOC(ROOT));
          CCALL snprintf(LOC(TMPB),4096,LOC('%s/../tmp'),LOC(ROOT)));       # THE TREE'S OWN (GITIGNORED) TMP/ #

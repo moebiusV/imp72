@@ -3,8 +3,8 @@
 # impsem.imc whose instructions are those of IR, docs/porting/llvm-ir-machine.md) in place of codegen.c, impsem.c, trans.c and pcode.c.
 # The modules are compiled by impstage0 (the compiler with the old code generator), each next to the others: their symbols
 # are renamed impl_NAME (all of them in all the objects, so that the modules call one another by name), except the variables the C
-# side shares (src/llvm-ir/shared.txt and src/shared.txt); there is no C of the compiler's in the result but the LLVM glue and the library.  Run from the top
-# of the tree after `make`.  impd with the syntax src/llvm-ir/syntax.imc compiles IMP to IR itself.
+# side shares (src/shared.txt); there is no C of the compiler's in the result but the LLVM glue and the library.  Run from the top
+# of the tree after `make`.  impd with the syntax src/syntax.imc compiles IMP to IR itself.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
@@ -15,14 +15,14 @@ out=${DIRECT_OUT:-build/direct}
 mkdir -p "$out"
 imprename=$out/imprename                    # what the build uses of nm and objcopy, for ELF and Mach-O (tools/imprename.imp, built below by the driver)
 driver=${DIRECT_DRIVER:-stage0/impstage0}
-case $driver in stage0/*) unset IMPSYNTAX IMPFFI IMPLIB ;; esac     # the seed reads src/llvm-ir/syntax.imc, whatever the environment says
+case $driver in stage0/*) unset IMPSYNTAX IMPFFI IMPLIB ;; esac     # the seed reads src/syntax.imc, whatever the environment says
 mkdir -p $out
 # the byte order of the machine the compiler is built for: the modules say CHR0, REST and the rest (src/impend-le.imc, src/impend-be.imc)
 endf=$(sh tools/endian.sh)
 export IMPENDIAN=$endf
 sh tools/capped.sh $out/imprename.log $driver -o "$imprename" tools/imprename.imp || { dd bs=100000 count=1 if=$out/imprename.log 2>/dev/null >&2; echo "direct: imprename failed" >&2; exit 1; }
 for m in $modules; do
-    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $driver -c -o $out/$m.imp.o -C $endf -C src/impsyn.imc -C src/llvm-ir/irsyn.imc src/llvm-ir/$m.imc \
+    sh tools/capped.sh $out/$m.log env IMPMODULE=$m $driver -c -o $out/$m.imp.o -C $endf -C src/impsyn.imc -C src/irsyn.imc src/$m.imc \
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 oldmodules=${OLD_SRC_MODULES:-}               # (debugging) the ones of them that the old code generator compiles
@@ -36,7 +36,7 @@ for m in $srcmodules; do
         || { dd bs=100000 count=1 if=$out/$m.log 2>/dev/null >&2; echo "direct: $m failed" >&2; exit 1; }
 done
 allmodules="$modules $srcmodules"
-# every symbol the modules define (src/llvm-ir and src/), except the ones shared with the C side, gets the prefix in all of them: they call one another by the
+# every symbol the modules define (all of them in src/), except the ones shared with the C side, gets the prefix in all of them: they call one another by the
 # tape's names.  What they call and do not define is the C side's
 syms=
 for m in $modules $srcmodules; do
@@ -44,7 +44,7 @@ for m in $modules $srcmodules; do
 done
 syms=$(printf '%s\n' $syms | sort -u)
 # the names are as the modules write them (ST); the C side's are lower case (st): the ones they share are renamed to the C side's, the others get the prefix
-cat src/shared.txt src/llvm-ir/shared.txt > $out/shared.all
+cp src/shared.txt $out/shared.all
 for s in $syms; do
     l=$(printf '%s' "$s" | tr 'A-Z' 'a-z')
     if grep -qx -- "$l" $out/shared.all && [ "$s" != "$l" ]; then echo "$s $l"
@@ -76,4 +76,4 @@ for o in stage0/*.o; do
 done
 ${CC:-cc} $LDFLAGS -o $out/impd $keep $objs $llvmobjs ${DIRECT_LIB:-build/lib/libimp.a} $llvmlibs
 ln -sf impd $out/impstage-llvm-ir
-echo "built $out/impd with the code generator of src/llvm-ir: $modules; the compiler's own: $srcmodules"
+echo "built $out/impd with the code generator ($modules); the compiler's own: $srcmodules"

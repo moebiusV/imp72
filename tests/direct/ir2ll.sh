@@ -15,17 +15,19 @@ cc -DREF -o $out/ref tests/direct/ir2ll_drv.c tools/ir2ll.c || exit 1
 for s in llvm-ir1 llvm-ir2; do
     cc -o $out/imp-$s tests/direct/ir2ll_drv.c build/$s/ir2ll.imp2.o build/$s/ir2llx.imp2.o build/lib/libimp.a || exit 1
 done
-export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc
+export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc
 k=build/llvm-ir2/impd
 endf=$(sh tools/endian.sh)
 for f in tests/native/*.imp tests/oracle/*.imp tests/direct/progs/*.imp; do
     $k -c $out/ir/$(basename $(dirname $f))_$(basename $f .imp).ir $IMPSYNTAX $IMPFFI $f >/dev/null 2>&1
 done
-for f in $(ls src/*.imc | grep -v 'impsyn\|impend-'); do       # (the modules; the other .imc files are syntax)
+gen="code code2 code3 demit impsem ix"       # the code generator; the other modules of src are the kernel's and the compiler's own (impsyn, impend-*, irsyn and syntax are syntax)
+for f in $(ls src/*.imc | grep -v 'impsyn\|impend-\|irsyn\|syntax'); do
+    case " $gen " in *" $(basename $f .imc) "*) continue ;; esac
     IMPMODULE=$(basename $f .imc) $k -c $out/ir/src_$(basename $f .imc).ir $IMPSYNTAX $IMPFFI $endf src/impsyn.imc $f >/dev/null 2>&1
 done
-for f in $(ls src/llvm-ir/*.imc | grep -v 'irsyn\|syntax'); do
-    IMPMODULE=$(basename $f .imc) $k -c $out/ir/ir_$(basename $f .imc).ir $IMPSYNTAX $IMPFFI $endf src/impsyn.imc src/llvm-ir/irsyn.imc $f >/dev/null 2>&1
+for m in $gen; do
+    IMPMODULE=$m $k -c $out/ir/ir_$m.ir $IMPSYNTAX $IMPFFI $endf src/impsyn.imc src/irsyn.imc src/$m.imc >/dev/null 2>&1
 done
 python3 tools/ir2ll-fuzz.py 1 ${IR2LL_COUNT:-60} $out/ir >/dev/null 2>&1 || echo "ir2ll: no python3, or the fuzzer failed: the fuzzed IR is left out"
 fail=0

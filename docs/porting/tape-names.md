@@ -2,8 +2,8 @@
 
 How the routines of this implementation relate to those of the original (`decus/*.imc`). The page compares the `SUBR`
 names of each module of the tape with those of the module that corresponds to it in `src/` (the kernel in `src/*.imc`, the
-code generator and the semantics in `src/llvm-ir/*.imc`), the names the tape declares `COMMON` with `src/` and `lib/`, and
-the macros and syntax elements of `decus/impsyn.imc` and `decus/syntax.imc` with `src/impsyn.imc`, `src/llvm-ir/irsyn.imc` and `src/llvm-ir/syntax.imc`.
+code generator and the semantics in `src/*.imc`), the names the tape declares `COMMON` with `src/` and `lib/`, and
+the macros and syntax elements of `decus/impsyn.imc` and `decus/syntax.imc` with `src/impsyn.imc`, `src/irsyn.imc` and `src/syntax.imc`.
 
 `FREES`, `FLEN`, `FADD` and the other macros of `decus/impsyn.imc` are syntax, not routines, and keep their names in
 `src/impsyn.imc`. The assignment is `_` in the tape and `:=` here, which changes no name.

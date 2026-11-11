@@ -2770,7 +2770,7 @@ DOSEM   Semantics       Semantics module.  Builds and accesses
         array.          semantics array.  Oversees semantics
                         stack.
 -------------------------------------------------------------
-V. Semantics & Code Generation (directory src/llvm-ir).
+V. Semantics & Code Generation (files code, code2, code3, demit, impsem and ix of directory src).
 CODE    Entries in      Semantic routines, mostly target-
  & CODE2  semantics       machine-dependent.  Generate chains of
  & CODE3  stack; code     operations of the abstract machine
@@ -2778,7 +2778,7 @@ CODE    Entries in      Semantic routines, mostly target-
 IMPSEM  Code and reg-   Machine-independent semantic routines.
         ister arrays.   Declarations and registers.
 -------------------------------------------------------------
-VI. Code Output (directories src and src/llvm-ir).
+VI. Code Output (directory src).
 DEMIT   Code chains.    Walks the chains of operations and
  & IX                     writes the text of the IR.
 IR2LL   IR text.        Writes the IR as LLVM IR.
@@ -2969,11 +2969,11 @@ in the event that a VALUE kludge applies to them.
 ## 5: Source and Licence.
 
 The sources of the compiler, of the runtime library, of this manual and of the tests are in one
-tree. Its main directories are `src` (the compiler: the kernel in `src`, the code generator in
-`src/llvm-ir`), `lib` (the runtime library and `ffi.imc`), `tests`, `tools` (the tools that make
-this manual among them), `docs` and `decus` (the original compiler, as it was distributed by DECUS,
-program 10-198, for the PDP-10). The manual is `docs/manual/imp.rno`, a RUNOFF source; the page
-`imp.7` and the file `imp.md` are made from it by the tools `runoff2mdoc` and `runoff2md`.
+tree. Its main directories are `src` (the compiler: the kernel and the code generator), `lib` (the
+runtime library and `ffi.imc`), `tests`, `tools` (the tools that make this manual among them),
+`docs` and `decus` (the original compiler, as it was distributed by DECUS, program 10-198, for the
+PDP-10). The manual is `docs/manual/imp.rno`, a RUNOFF source; the page `imp.7` and the file
+`imp.md` are made from it by the tools `runoff2mdoc` and `runoff2md`.
 
 The software is distributed under the ISC licence (the file `LICENSE`): permission to use, copy,
 modify and distribute it for any purpose, with or without fee, is granted provided that the

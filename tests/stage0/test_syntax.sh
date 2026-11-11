@@ -1,8 +1,8 @@
 #!/bin/sh
-# Integration test: stage 0 reads the whole of the 64 bit syntax file (src/llvm-ir/syntax.imc, the tape's syntax.imc without the rules of halves of 18 bits).
+# Integration test: stage 0 reads the whole of the 64 bit syntax file (src/syntax.imc, the tape's syntax.imc without the rules of halves of 18 bits).
 # Run from stage0/ (make check does).
 fail() { echo "FAILED: $*" >&2; rm -f test_syntax.err test_syntax.out test_syntax.dump; exit 1; }
-SYNTAX=../src/llvm-ir/syntax.imc
+SYNTAX=../src/syntax.imc
 
 ./imps0 -s E "$SYNTAX" >test_syntax.out 2>test_syntax.err || fail "imps0 exit status"
 grep -q '^SYNTAX BOOTSTRAPPED$' test_syntax.err || fail "no SYNTAX BOOTSTRAPPED"

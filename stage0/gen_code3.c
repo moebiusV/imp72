@@ -1,5 +1,5 @@
 /*
- * gen_code3.c -- ports src/llvm-ir/code3.imc: SUBCALL, SUBSCRIPT, BYTEP, PCODE and PCODE1 (the listing of the code, /A), and CODE3I
+ * gen_code3.c -- ports src/code3.imc: SUBCALL, SUBSCRIPT, BYTEP, PCODE and PCODE1 (the listing of the code, /A), and CODE3I
  * (the DSEMs of this file).  See gen_code2.c.
  */
 #include <stdio.h>

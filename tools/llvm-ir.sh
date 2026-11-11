@@ -1,6 +1,6 @@
 #!/bin/sh
-# llvm-ir.sh: build the compiler whose code generator is src/llvm-ir (docs/porting/llvm-ir-path.md): stage 1 is made by the seed (stage0/, the
-# C code generator), compiling src/llvm-ir and the compiler's own IMP modules; stage 2 by stage 1; stage 2 is the one that is installed
+# llvm-ir.sh: build the compiler whose code generator is code, code2, code3, demit, impsem and ix of src (docs/porting/llvm-ir-path.md): stage 1 is made by the seed (stage0/, the
+# C code generator), compiling the modules of the code generator and the compiler's own IMP modules; stage 2 by stage 1; stage 2 is the one that is installed
 # (tests/direct/stage2.sh checks that stage 1 and 2 write the same IR).  Exit 77 where it cannot be built (no LLVM libraries).
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)

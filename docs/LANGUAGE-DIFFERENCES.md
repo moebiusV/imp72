@@ -1,7 +1,7 @@
 # IMP72 on the PDP-10 and IMP72 here
 
 The language is the original's. `docs/manual/imp.md` is its manual, and
-`src/llvm-ir/syntax.imc` (the original `decus/syntax.imc` with `:=`, words of
+`src/syntax.imc` (the original `decus/syntax.imc` with `:=`, words of
 64 bits and the operations of the IR machine) is its definition. What differs
 comes from the machine and from the runtime.
 

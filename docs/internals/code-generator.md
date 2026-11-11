@@ -1,7 +1,7 @@
 # The code generator
 
-The code generator turns the semantics of `src/llvm-ir/syntax.imc` into IR. It exists twice, as the same program in two
-languages: in IMP in `src/llvm-ir/` (part of the compiler `imp`), and in C in `stage0/gen_*.c` (part of the seed
+The code generator turns the semantics of `src/syntax.imc` into IR. It exists twice, as the same program in two
+languages: in IMP in `src/` (part of the compiler `imp`), and in C in `stage0/gen_*.c` (part of the seed
 `impstage0`, `stage0-semantics.md`). Both write the same IR byte for byte for the same program;
 `tests/seed/run.sh` compares them for the native tests, the oracle programs, the runtime library and the modules of the
 code generator itself.
@@ -19,14 +19,14 @@ code generator itself.
 
 | IMP | C (seed) | contents |
 |---|---|---|
-| `src/llvm-ir/impsem.imc` | `stage0/gen_impsem.c` | registers (`RG`), subroutines, declarations, lists, `NAME`, `FCON`, `ASSEMC` |
-| `src/llvm-ir/code.imc` | `stage0/gen_code.c` | `UNPCK`, `FETCH`, `DEWOP`, `ADDOP`, `STORE`, `COPYCO`, `MCODE`, `SUBARG` |
-| `src/llvm-ir/code2.imc` | `stage0/gen_code2.c` | `ADDREC`, `HOOK`, `CONOP`, `SUBRCALL`, `FLOAT`, `FIX`, `DATAST`, `PRINPAR`, jumps |
-| `src/llvm-ir/code3.imc` | `stage0/gen_code3.c` | `SUBCALL`, `SUBSCRIPT`, `BYTEP`, `PCODE` |
-| `src/llvm-ir/demit.imc` | `stage0/gen_demit.c` | `DEMIT`: records to IR trees |
-| `src/llvm-ir/ix.imc` | `stage0/ir.c` and the `IR...` helpers of `gen_demit.c` | tree builders, IR text, names of directory entries |
-| `src/llvm-ir/irsyn.imc` | `stage0/gen.h` | macros for the records and operations; the IR operator and type codes |
-| `src/llvm-ir/syntax.imc` | the same file | the syntax and semantics of the language |
+| `src/impsem.imc` | `stage0/gen_impsem.c` | registers (`RG`), subroutines, declarations, lists, `NAME`, `FCON`, `ASSEMC` |
+| `src/code.imc` | `stage0/gen_code.c` | `UNPCK`, `FETCH`, `DEWOP`, `ADDOP`, `STORE`, `COPYCO`, `MCODE`, `SUBARG` |
+| `src/code2.imc` | `stage0/gen_code2.c` | `ADDREC`, `HOOK`, `CONOP`, `SUBRCALL`, `FLOAT`, `FIX`, `DATAST`, `PRINPAR`, jumps |
+| `src/code3.imc` | `stage0/gen_code3.c` | `SUBCALL`, `SUBSCRIPT`, `BYTEP`, `PCODE` |
+| `src/demit.imc` | `stage0/gen_demit.c` | `DEMIT`: records to IR trees |
+| `src/ix.imc` | `stage0/ir.c` and the `IR...` helpers of `gen_demit.c` | tree builders, IR text, names of directory entries |
+| `src/irsyn.imc` | `stage0/gen.h` | macros for the records and operations; the IR operator and type codes |
+| `src/syntax.imc` | the same file | the syntax and semantics of the language |
 
 `stage0/gen.h` has the table of IMP names against C names (`g_` for the semantic routines, `ir_` for the builders). The C
 port keeps the IMP evaluation order where it has effects (a register's first use takes the next temporary, a shift
@@ -34,7 +34,7 @@ writes statements).
 
 ## The semantic routines
 
-`src/llvm-ir/syntax.imc` is the tape's `decus/syntax.imc` with the operations of the machine of `docs/porting/llvm-ir-machine.md`. Its
+`src/syntax.imc` is the tape's `decus/syntax.imc` with the operations of the machine of `docs/porting/llvm-ir-machine.md`. Its
 semantics call `DEWOP`, `ADDOP`, `FETCH`, `STORE`, `HOOK`, `SUBCALL` and the rest with operation numbers. Each stack
 entry carries its code as a chain of five word records in free array `CO`: `DEWOP(op,r,s)` adds an operation with
 accumulator `r` and the operand `s`, `ADDREC` adds any record, `HOOK(d,a,b)` joins the chain of `a` to that of `b` and

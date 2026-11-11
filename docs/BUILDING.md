@@ -44,7 +44,7 @@ By hand:
     tools/llvm-ir.sh          # stage 1 and stage 2: build/llvm-ir2/impd and impstage-llvm-ir
     tools/direct.sh           # one stage, built by the seed: build/direct/impd, impstage-llvm-ir
     build/llvm-ir2/impstage-llvm-ir -o hello tests/native/hello.imp
-    build/llvm-ir2/impd -s TSX -o dump.txt -c ir.txt src/llvm-ir/syntax.imc lib/ffi.imc prog.imp
+    build/llvm-ir2/impd -s TSX -o dump.txt -c ir.txt src/syntax.imc lib/ffi.imc prog.imp
 
 `impd` is the compiler proper (`src/impm.imc`). Its arguments are `-i` (the
 original's commands from the terminal), `-I IMAGE` (start from an image saved
@@ -55,7 +55,7 @@ driver around it: they find the syntax file and the library, make the object wit
 LLVM in the process, and link.
 
 The seed alone: `make -C stage0`, then `stage0/impstage0 -o prog prog.imp`,
-or `stage0/imps0 -s TSX -o dump.txt src/llvm-ir/syntax.imc`.
+or `stage0/imps0 -s TSX -o dump.txt src/syntax.imc`.
 
 ## Installed layout
 

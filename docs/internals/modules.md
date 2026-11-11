@@ -21,8 +21,8 @@ the compiler that compiles itself.
 | dosem | `dosem.imc` | `dosem.c` | `src/dosem.imc` |
 | rsyn | `rsyn.imc` | `rsyn.c` | `src/rsyn.imc` |
 | debug | `debug.imc` | `debug.c`, `pr.c` | `src/debug.imc` |
-| impsem, code, code2, code3 | `impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` | `gen_impsem.c`, `gen_code.c`, `gen_code2.c`, `gen_code3.c` | `src/llvm-ir/impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` |
-| demit | `amod.imc`, `rmod.imc`, `omod.imc` (not translated) | `gen_demit.c`, `ir.c` | `src/llvm-ir/demit.imc`, `ix.imc` |
+| impsem, code, code2, code3 | `impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` | `gen_impsem.c`, `gen_code.c`, `gen_code2.c`, `gen_code3.c` | `src/impsem.imc`, `code.imc`, `code2.imc`, `code3.imc` |
+| demit | `amod.imc`, `rmod.imc`, `omod.imc` (not translated) | `gen_demit.c`, `ir.c` | `src/demit.imc`, `ix.imc` |
 | driver | `impm.imc` | `imps0.c`, `error.c` | `src/impm.imc`, `src/driver.imc` |
 | back end | none | `llvmorc.c`, `impld.cpp`, `imphost.c`, `tools/ir2ll.c` | `src/llvm.imc`, `src/ir2ll.imc`, `src/ir2llx.imc`, `lib/imphost.imp` |
 | image | none (the monitor's `SSAVE`) | none | `src/image.imc` |
@@ -131,7 +131,7 @@ head of `RSYN` alone, used when the compiler starts from an image.
 
 `GPRIN1`, `PARTR1`, `TPRIN1`, `SEMPR1`, `PSTAC1` and `HELPD` print the tables as the switches ask. `src/debug.imc` does it
 with `PRINT`; `stage0/debug.c` with `stage0/pr.c`, the part of PMOD (`pmod.md`) that it needs. `PCODE1` lists the code
-and is in `src/llvm-ir/code3.imc`. The dumps print the 64 bit words in octal.
+and is in `src/code3.imc`. The dumps print the 64 bit words in octal.
 
 ## impsem, code, code2, code3, demit: the code generator
 

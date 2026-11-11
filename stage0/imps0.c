@@ -21,11 +21,11 @@
  *
  *     impstage0 [-S | -c] [--run] [-o OUT] [-s LETTERS] FILE.imp ...
  *
- * It reads the syntax of the language (src/llvm-ir/syntax.imc) and the extension ffi.imc,
+ * It reads the syntax of the language (src/syntax.imc) and the extension ffi.imc,
  * compiles the files with the kernel above to IR, and makes the IR, with LLVM
  * in this process, into an executable (default), an object (-c), LLVM IR (-S)
  * or a run (--run, with ORC).  It finds its parts relative to
- * itself: in the source tree (stage0/impstage0, src/llvm-ir/, lib/, build/) or installed
+ * itself: in the source tree (stage0/impstage0, src/, lib/, build/) or installed
  * (PREFIX/bin/impstage0, PREFIX/lib/imp/, PREFIX/share/imp/).
  */
 /* the compiler driver below uses POSIX (readlink, realpath, mkdtemp) */
@@ -460,7 +460,7 @@ driver_main(int argc, char **argv)
         return 1;
     strlcpy(root, dir, sizeof root);
     strlcat(root, "/..", sizeof root);
-    snprintf(syntax, sizeof syntax, "%s/src/llvm-ir/syntax.imc", root);
+    snprintf(syntax, sizeof syntax, "%s/src/syntax.imc", root);
     if (exists(syntax)) {                       /* the source tree */
         snprintf(ffi, sizeof ffi, "%s/lib/ffi.imc", root);
         snprintf(lib, sizeof lib, "%s/build/lib/libimp.a", root);

@@ -3,7 +3,7 @@
 Each item says what it is, what is proposed, and the effect on the code. None
 is implemented; `docs/LANGUAGE-DIFFERENCES.md`, `docs/FFI.md` and
 `docs/BUILDING.md` describe what exists. Every change to code generation is
-made in both languages of the generator (`src/llvm-ir/*.imc` and `stage0/gen_*.c`) and in both IR writers
+made in both languages of the generator (`src/*.imc` and `stage0/gen_*.c`) and in both IR writers
 (`src/ir2ll.imc`, `src/ir2llx.imc` and `tools/ir2ll.c`), and `tests/seed`
 requires the seed and stage 2 to keep writing the same IR.
 

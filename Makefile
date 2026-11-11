@@ -58,13 +58,13 @@ install: all
 	rm -f $(DESTDIR)$(PREFIX)/bin/imp
 	if [ -x $(LLVMIR) ]; then \
 	    install -m 755 $(LLVMIR) $(DESTDIR)$(PREFIX)/bin/imp; \
-	    install -m 644 src/llvm-ir/syntax.imc $(DESTDIR)$(PREFIX)/share/imp/syntax.imc; \
+	    install -m 644 src/syntax.imc $(DESTDIR)$(PREFIX)/share/imp/syntax.imc; \
 	else ln -sf impstage0 $(DESTDIR)$(PREFIX)/bin/imp; fi
 	if [ -f $(RTLIB) ]; then install -m 644 $(RTLIB) $(DESTDIR)$(PREFIX)/lib/imp/libimp.a; \
 	else install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp/libimp.a; fi
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -m 644 lib/imp.h $(DESTDIR)$(PREFIX)/include/imp.h
-	install -m 644 src/llvm-ir/syntax.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp/
+	install -m 644 src/syntax.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp/
 	install -m 644 docs/impstage0.1 $(DESTDIR)$(MANDIR)/man1/impstage0.1
 	install -m 644 docs/imp.1 $(DESTDIR)$(MANDIR)/man1/imp.1
 	if [ -x build/tools/cimport ]; then \

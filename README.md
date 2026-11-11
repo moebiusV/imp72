@@ -13,7 +13,7 @@ IMP stands for Irons Meta Program: Ned Irons invented it.
 Almost none of the language is built in. A small kernel (a lexer, Irons's
 multi-track parser, a syntax graph, a code-tree matcher, a semantic stack)
 starts empty. A bootstrap reader, `RSYN`, reads a notation for syntax
-statements, and `src/llvm-ir/syntax.imc` then defines the language in
+statements, and `src/syntax.imc` then defines the language in
 statements of the form
 
     <CLASS> ::= elements ::= semantics ;
@@ -68,7 +68,7 @@ The compiler is IMP, apart from the seed and two short C++ files.
 - **The seed** (`stage0/`, C99) is a port of the kernel and of the code
   generator to C. It builds stage 1 and is installed as `impstage0`.
 - **Stage 1** is `src/` (the kernel, the driver, the LLVM glue, the IR writer)
-  and `src/llvm-ir/` (the code generator), compiled by the seed.
+  and `src/` (the code generator), compiled by the seed.
 - **Stage 2** is the same sources compiled by stage 1. It is installed as
   `imp`.
 - **`stage0/impld.cpp`** (47 lines of C++) gives lld's driver a C name, because
@@ -114,8 +114,8 @@ target.
 ## Repository layout
 
     decus/          the DECUS 10-198 tape, unchanged (hashes, PROVENANCE.md)
-    src/            the compiler in 64-bit IMP: the kernel, the driver, llvm.imc, ir2ll*.imp
-    src/llvm-ir/    the code generator, and syntax.imc, the language's syntax
+    src/            the compiler in 64-bit IMP (.imc, as on the tape): the kernel, the code
+                    generator, the driver, llvm.imc, ir2ll*.imc, and syntax.imc, the language's syntax
     stage0/         the seed (C99), the glue to the LLVM C API, impld.cpp
     lib/            the runtime library (IMP), ffi.imc, imp.h
     tools/          build scripts, tools written in IMP (run by imptool.sh, among them imp-cimport), fuzzers (Python), CI scripts, tools/bsd-vm
@@ -146,7 +146,7 @@ constants of a C header. `docs/FFI.md` has all of it.
 
 **Code generation.** The code generator builds chains of records whose
 operations are those of an IR machine (`docs/porting/llvm-ir-machine.md`).
-`src/llvm-ir/demit.imc` turns the chains into IR trees, `src/ir2ll.imc` writes
+`src/demit.imc` turns the chains into IR trees, `src/ir2ll.imc` writes
 them as LLVM IR text, and LLVM makes the object. `docs/ARCHITECTURE.md` is the
 map.
 

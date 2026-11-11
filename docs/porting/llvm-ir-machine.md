@@ -1,13 +1,13 @@
 # The machine the code generator compiles to
 
 The code generating routines of the tape (`code.imc`, `code2.imc`, `code3.imc`) generate PDP-10 instructions into free array
-`CO`. The routines of `src/llvm-ir/` generate the operations of the machine this implementation compiles to: 64 bit
+`CO`. The routines of `src/` generate the operations of the machine this implementation compiles to: 64 bit
 words, byte addresses, `double` for `REAL`, an unlimited supply of virtual registers (IR temporaries), and the C procedure
-call standard. The operation numbers are the macros of `src/llvm-ir/irsyn.imc`; `src/llvm-ir/syntax.imc` uses the
+call standard. The operation numbers are the macros of `src/irsyn.imc`; `src/syntax.imc` uses the
 numbers themselves, because a semantics cannot name a macro.
 
 The assembler, the register allocator and the object writer of the tape (`amod`, `rmod`, `omod`) have no counterpart:
-`src/llvm-ir/demit.imc` walks the chains and writes IR (`docs/internals/code-generator.md`), and LLVM makes the object file.
+`src/demit.imc` walks the chains and writes IR (`docs/internals/code-generator.md`), and LLVM makes the object file.
 
 The structure of the original is kept: the code of a stack entry is a chain in `CO`, `HOOK` joins chains, `ADDREC` extends
 one (where the tape has `ADDCODE`), and `DEWOP(OP,R,S)` adds an operation with accumulator `R` and the operand `S`. The

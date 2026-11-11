@@ -54,3 +54,9 @@ quiet
 symc
 nsymc
 impmain
+co
+nco
+anco
+arr
+narr
+regn

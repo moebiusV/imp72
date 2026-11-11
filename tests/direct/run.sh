@@ -1,5 +1,5 @@
 #!/bin/sh
-# The code generator that compiles to IR (src/llvm-ir, tools/direct.sh): the native tests, the oracle goldens and the IEEE fuzz
+# The code generator that compiles to IR (code, code2, code3, demit, impsem and ix of src; tools/direct.sh): the native tests, the oracle goldens and the IEEE fuzz
 # through impd, the compiler with it (a REAL word is the double's own bits here, so the library is libimp.a).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
@@ -7,7 +7,7 @@ cd "$root" || exit 1
 tools/direct.sh >build/direct.log 2>&1; rc=$?
 [ $rc = 77 ] && { echo "direct tests skipped: the seed has no LLVM"; exit 0; }
 [ $rc = 0 ] || { dd bs=100000 count=1 if=build/direct.log 2>/dev/null >&2; echo "FAILED: direct build" >&2; exit 1; }
-export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
+export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
 export DRIVER=build/direct/impstage-llvm-ir
 fail=0
 # the compiler whose own IMP modules (src/*.imc) the IR path compiled, too: tests of it

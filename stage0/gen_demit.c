@@ -1,7 +1,7 @@
 /*
- * gen_demit.c -- ports src/llvm-ir/demit.imc: it takes the place of the assembler, the register allocator and the output module of the
+ * gen_demit.c -- ports src/demit.imc: it takes the place of the assembler, the register allocator and the output module of the
  * original (AMOD, RMOD, OMOD): it reads the chains of records the code generator made and writes them as IR, through the builders of
- * stage0/ir.c (the IMP calls the translation of those, src/llvm-ir/ix.imc).  LLVM does the register allocation, the instruction selection and
+ * stage0/ir.c (the IMP calls the translation of those, src/ix.imc).  LLVM does the register allocation, the instruction selection and
  * the object file.  A register index is a temporary of the IR; a program is the function impmain and each subroutine one function; the arguments
  * of a call are pointers to the values (IMP passes by reference).
  *

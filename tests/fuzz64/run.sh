@@ -1,7 +1,7 @@
 #!/bin/sh
 # The arithmetic of both code generators against the 64 bit arithmetic of tools/imp-fuzz64.py: programs of random expressions (shifts, comparisons, division, array indexing with
 # offsets, values around every width a word has had), each printing what the generator itself worked out.  The seed (stage0/impstage0) and imp (the IMP generator of
-# src/llvm-ir) compile the same programs.  Run from the top of the tree (make check does).
+# the code generator of src) compile the same programs.  Run from the top of the tree (make check does).
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 echo "== fuzz64"

@@ -230,7 +230,7 @@ void gprin1(void);                    /* GPRIN1: the graph and its matrices */
 /* ---- the words of the IMP ports (src/impsyn.imc), 64 bits ------------- */
 
 /* LS: a logical shift left; a negative count shifts right, a count of 64 or more (or -64 or less) shifts everything out
- * (what the stage compiler's variable shift does; ESHIFTV in src/llvm-ir/demit.imc) */
+ * (what the stage compiler's variable shift does; ESHIFTV in src/demit.imc) */
 static inline word ls64(word x, word n)
 {
     if (n >= 64 || n <= -64)

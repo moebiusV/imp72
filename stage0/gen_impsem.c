@@ -1,5 +1,5 @@
 /*
- * gen_impsem.c -- ports src/llvm-ir/impsem.imc: the machine-independent semantic routines of the stage compilers for the
+ * gen_impsem.c -- ports src/impsem.imc: the machine-independent semantic routines of the stage compilers for the
  * 64 bit port that compiles to IR: NAME, AREG, AREG1, REG2, TSTRN, VAL, SVAL, STACKUP, SWITCH, DECL, DECLARE, the register
  * tests (HISREG, PAIRFIRST, SUBREG, TMPREG, SAMEREG, REGEQ, REGSIM, REG0, RMATCH), the subroutine routines (SUBPR0, SUBPRM,
  * SUBTMPF, SUBBEG, SUBEND, NSUBP), REMOT, CALLME, REG2S, the lists (NEWLIST, ENLIST, GETLIST), ASSEMC, LETSYN, ERRSRT, CVAL

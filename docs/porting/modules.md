@@ -20,7 +20,7 @@ are in `tape-names.md`.
 | `demit` | takes the place of `amod`, `rmod` and `omod`: chains to IR; a `GO TO` to a tag of another routine is a `longjmp` |
 | `impm` | the driver program: the command line (`IMPK`) as well as the tape's commands from the terminal (`-i`: `GETTY`, `READCMD`, the loop `AGAINSAM`); `ERROR`, `MSG` and `OUTSTR` write to standard error; a fatal error returns from `IMPK` where the tape goes to `FIN` |
 
-`PCODE` and `PCODE1` (the `/A` listing) are in `src/llvm-ir/code3.imc` and list the records of the IR chain, not PDP-10
+`PCODE` and `PCODE1` (the `/A` listing) are in `src/code3.imc` and list the records of the IR chain, not PDP-10
 instructions. `HELPD`, `GPRINT`, `TPRINT` and `PARTRA` call the debugging routines directly (the tape tests whether the
 debugging module is loaded; it always is here). `FORMARG` is in `src/rsyn.imc`; nothing calls it, on the tape either.
 

@@ -6,7 +6,7 @@ cd "$root" || exit 1
 w=${ORC_IMP:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "orc test skipped: no $w"; exit 0; }
 ldd "$w" 2>/dev/null | grep -qi llvm || { echo "orc test skipped: built without the LLVM libraries"; exit 0; }
-export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
+export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/build/lib/libimp.a
 out=build/orc
 rm -rf $out; mkdir -p $out
 fail=0

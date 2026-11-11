@@ -4,15 +4,15 @@ The compiler is written in IMP, so building it takes a compiler. The route has
 three steps.
 
 1. **The seed** (`stage0/`) is a port of the kernel and of the code generator to
-   C99. It reads `src/llvm-ir/syntax.imc` and `lib/ffi.imc` and compiles IMP to
+   C99. It reads `src/syntax.imc` and `lib/ffi.imc` and compiles IMP to
    LLVM IR with `stage0/gen_*.c`, a C port of the code generator in
-   `src/llvm-ir/*.imc`. It is the one part of the compiler that is not IMP,
+   `src/*.imc`. It is the one part of the compiler that is not IMP,
    apart from `stage0/impld.cpp`, and it is installed as `impstage0`. It
    makes a program with its own driver (`stage0/imps0.c`): `-S` writes LLVM IR
    text, `-c` an object, `-o` names the output, `-s` gives the switches, `--run`
    runs a program that needs no runtime library. It has no `--target`, `-Sir`,
    `-I` or `-i` (`docs/BUILDING.md`, The seed and `imp`).
-2. **Stage 1** is `src/*.imc` and `src/llvm-ir/*.imc` compiled by the seed
+2. **Stage 1** is `src/*.imc` and `src/*.imc` compiled by the seed
    (`tools/direct.sh`, called by `tools/llvm-ir.sh` with `DIRECT_OUT=build/llvm-ir1`),
    linked with the runtime library that the seed makes (`tools/mklib.sh`) and
    with LLVM and lld. The main program is `src/driver.imc`. The LLVM glue

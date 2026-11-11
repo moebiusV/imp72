@@ -11,7 +11,7 @@ command -v dpkg >/dev/null 2>&1 || { echo "crossrun test skipped: no dpkg"; exit
 [ -d "${PREP_INPUTS:-$root/../prebsd/mirror/dev/inputs}" ] || { echo "crossrun test skipped: no prep inputs"; exit 77; }
 out=tmp/crossrun
 mkdir -p $out
-export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc
+export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc
 fail=0 ran=0
 # the programs: tests/native without a C main, and the ones whose output depends on the size of a long are left out
 progs="hello chars names bytes algo basic case callind gotoconst gotomain printorder features structs cdecl cdecl2 callback cmath datasym fltwide io extcall realffi"

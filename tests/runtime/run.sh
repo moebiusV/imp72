@@ -12,7 +12,7 @@ echo "== runtime"
 fail=0
 bad() { echo "FAILED: runtime: $*" >&2; fail=1; }
 lib=$(sh tools/mkrt.sh "" $out/host 2>$out/mkrt.log) || { bad "tools/mkrt.sh: $(head -c 400 $out/mkrt.log)"; exit 1; }
-export IMPSYNTAX=$root/src/llvm-ir/syntax.imc IMPFFI=$root/lib/ffi.imc
+export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc
 for p in tests/native/*.imp; do
     n=$(basename "$p" .imp)
     [ -f tests/native/${n}_main.c ] && continue                      # these need a C main

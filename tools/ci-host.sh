@@ -10,7 +10,7 @@ w=${CI_IMP:-build/llvm-ir2/impstage-llvm-ir}
     [ "$(uname)" = Darwin ] && sysctl -n machdep.cpu.brand_string hw.model 2>/dev/null
     [ "$(uname)" = OpenBSD ] || [ "$(uname)" = FreeBSD ] || [ "$(uname)" = NetBSD ] && sysctl -n hw.model 2>/dev/null
     if [ -x "$w" ] && [ -f tests/native/hello.imp ]; then
-        IMPSYNTAX=$PWD/src/llvm-ir/syntax.imc IMPFFI=$PWD/lib/ffi.imc IMPLIB=$PWD/build/lib/libimp.a IMPLLVMINFO=1 \
+        IMPSYNTAX=$PWD/src/syntax.imc IMPFFI=$PWD/lib/ffi.imc IMPLIB=$PWD/build/lib/libimp.a IMPLLVMINFO=1 \
             "$w" --run tests/native/hello.imp 2>&1 >/dev/null | grep '^imp-host:'
     else
         echo "imp-host: no compiler to ask ($w)"

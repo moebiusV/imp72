@@ -314,7 +314,7 @@ ir_func_end(int retlab, int rettemp)
         fprintf(out, ") 0\n");
 }
 
-/* ---- helpers for a front end that makes the IR directly (src/llvm-ir/demit.imc) ----------------------------------------------- */
+/* ---- helpers for a front end that makes the IR directly (src/demit.imc) ----------------------------------------------- */
 
 #define NARGREG (irtgt->narg)
 

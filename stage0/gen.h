@@ -1,12 +1,12 @@
 /*
- * gen.h -- the code generator of the stage compilers, in C (the seed's twin of src/llvm-ir, the .imp files).
+ * gen.h -- the code generator of the stage compilers, in C (the seed's twin of the code generator in src: code, code2, code3, demit, impsem, ix).
  *
- * gen_impsem.c   ports src/llvm-ir/impsem.imc   (registers, subroutines, declarations, lists, names)
- * gen_code.c     ports src/llvm-ir/code.imc     (UNPCK, FETCH, DEWOP, STORE, COPYCO, SUBARG, ...)
- * gen_code2.c    ports src/llvm-ir/code2.imc    (ADDREC, HOOK, CONOP, SUBRCALL, FLOAT, PRINPAR, ...)
- * gen_code3.c    ports src/llvm-ir/code3.imc    (SUBCALL, SUBSCRIPT, BYTEP, PCODE)
- * gen_demit.c    ports src/llvm-ir/demit.imc    (the chain of records into IR trees) and the IRxxx
- *                                               helpers of src/llvm-ir/ix.imc (names, kinds, pools).
+ * gen_impsem.c   ports src/impsem.imc   (registers, subroutines, declarations, lists, names)
+ * gen_code.c     ports src/code.imc     (UNPCK, FETCH, DEWOP, STORE, COPYCO, SUBARG, ...)
+ * gen_code2.c    ports src/code2.imc    (ADDREC, HOOK, CONOP, SUBRCALL, FLOAT, PRINPAR, ...)
+ * gen_code3.c    ports src/code3.imc    (SUBCALL, SUBSCRIPT, BYTEP, PCODE)
+ * gen_demit.c    ports src/demit.imc    (the chain of records into IR trees) and the IRxxx
+ *                                               helpers of src/ix.imc (names, kinds, pools).
  *
  * The tree builders of ix.imc are NOT ported: stage0/ir.c's are called (ir.h).  ix.imc was compared with
  * ir.c, routine by routine, and they agree (see the report of the port; the one place where they have a
@@ -254,7 +254,7 @@ word g_irtagerr(word d);
 const char *g_irjbname(word d);
 word g_irvarrec(const char *sym, word sz);
 
-/* the offsets of the record of the chain (src/llvm-ir/irsyn.imc) */
+/* the offsets of the record of the chain (src/irsyn.imc) */
 #define G_RECW 5
 #define G_RNEXT(a)  HL(FREE(g_co + (a)))
 #define G_RKIND(a)  (FREE(g_co + (a)) & 0377)
