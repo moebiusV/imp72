@@ -13,7 +13,7 @@ SUBR OUTC(C) IS (CCALL fputc(C,FO); 0);
 
 SUBR OUTS(S) IS (CCALL fwrite(S,1,CCALL strlen(S),FO); 0);
 
-SUBR OUTN(N) IS (CCALL snprintf(NBUF,32,LOC('%lld'),N); OUTS(NBUF); 0);
+SUBR OUTN(N) IS (CCALL snprintf(NBUF,32,LOC('%ld'),N); OUTS(NBUF); 0);
 
 # A TEXT OF THE SOURCE, WITH & < AND > AS HTML HAS THEM #
 SUBR ESC(S) IS (
