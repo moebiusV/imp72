@@ -45,7 +45,6 @@ of the `FINAM` switches) is not defined in `decus/impsyn.imc`, and the modules t
 | `free` | `FNEW` | allocate a block by name |
 | `dir` | `SEMCALL` | call a semantic routine by number, with a frame stack of its own (`SEMSTK`; the locals of IMP are static, so a routine that calls itself through the table needs one) |
 | `dir` | `SEMCOUNT`, `SEMNAME`, `SEMREMAP` | the table of routines for the image (`-I`): how many, the name of the I-th, the table made again in the order the image has |
-| `rsyn` | `RSYNI` | the head of `RSYN`: sets up its tables and enters its semantic routines; a run from an image does not read the syntax again |
 | `rsyn` | `IMPSVDAT`, `IMPSVNUM`, `IMPSVSET` | the save count and date for the banner, kept in `rsyn` because the image leaves the variables of `impm` out |
 | `impm` | `IMPK` | the driver program: reads the syntax with `RSYN`, compiles the files on the command line, returns 0 if all went well |
 | `impm` | `COMPIL` | compile the file the lexer has open and print what the switches ask for (inline in the main program on the tape) |

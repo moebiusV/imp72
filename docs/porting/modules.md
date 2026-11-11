@@ -89,7 +89,7 @@ hash of the list). The arena is restored at any address (format version 6): ever
 difference of the bases to the five byte pointers of the lexer that point into it (`docs/internals/modules.md`). `IMGSKIP` in `src/image.imc` lists what the image
 leaves out: the variables of `impm`, `ix`, `image`, `driver`, `llvm` and `llvmgen`, of the IR writer (`ir2ll`, `ir2llx`),
 the table of semantic routines (written by name), the file the lexer has open, and the registry itself. A run from an image
-does what the head of `RSYN` and the first `COTREE` do (`RSYNI`), so that the routines they enter are in the table; the
+does what the head of `RSYN` (which returns there when its argument is 1) and the first `COTREE` do, so that the routines they enter are in the table; the
 table is put in the image's order by name, and a name that this run has not entered is an error.
 
 ## Byte order

@@ -124,8 +124,8 @@ and query it.
 Reads, with `LEX` alone, the part of the syntax file up to the first `%%`: statements `<CLASS> ::= elements ::=
 semantics` in a small notation, making the graph and the semantics array as the full compiler does once the syntax for
 syntax is in. Its routines (`SYNT`, `SYTRM`, `SEMP`, `SEMR`, `QUOSEM`, `SYNTAX`, `REPVAL`, `VALU`, and others) are semantic
-routines too, registered by name, because the bootstrapped syntax calls them for the rest of the file. `RSYNI` is the
-head of `RSYN` alone, used when the compiler starts from an image.
+routines too, registered by name, because the bootstrapped syntax calls them for the rest of the file. `RSYN` returns after its head (the tables and the
+routines entered in the table) when the compiler starts from an image (its argument, which the tape does not use, is 1), where it does not read the syntax.
 
 ## debug: the diagnostic print-outs
 
