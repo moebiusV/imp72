@@ -8,11 +8,11 @@ dn
 ga
 ng
 nprods
-grnodes
-grntgent
-grnbitn
-grbitm
-grnbitm
+nodes
+ntgent
+nbitn
+bitm
+nbitm
 finam
 psts
 pspn

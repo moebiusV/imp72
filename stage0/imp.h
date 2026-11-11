@@ -190,12 +190,12 @@ void graphf(void);
 void gprint(void);
 extern word ga, ng, nprods;                    /* GA, NG, NPRODS */
 /* graph state, for debug.c */
-/* (IMP names have no underscore: _ is assignment; src/graph.imc calls them GRBITM and so on) */
-#define gr_nodes grnodes
-#define gr_ntgent grntgent
-#define gr_nbitn grnbitn
-#define gr_bitm grbitm
-#define gr_nbitm grnbitm
+/* (IMP names have no underscore; the tape's names of src/graph.imc and src/debug.imc are the symbols) */
+#define gr_nodes nodes
+#define gr_ntgent ntgent
+#define gr_nbitn nbitn
+#define gr_bitm bitm
+#define gr_nbitm nbitm
 extern word gr_nodes, gr_ntgent, gr_nbitn, gr_bitm[3], gr_nbitm[3];
 long imp_msec(void);                           /* CALLI(27B,0): run time, ms */
 

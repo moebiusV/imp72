@@ -39,10 +39,10 @@ RTN,NRTN,CRTN ARE COMMON;                   # THE TABLE OF SEMANTIC ROUTINES: TW
  NULL CHARACTERS ARE REQUIRED. #
 
 SUBR HASH(NM) IS (#9-BIT HASH CODE#
-                  HSH:=NM XOR NM RS 32;
-                  HSH:=HSH XOR HSH RS 16;
-                  HSH:=HSH XOR HSH RS 9;
-                  HSH AND 777B);
+                  HSHIFT:=NM XOR NM RS 32;
+                  HSHIFT:=HSHIFT XOR HSHIFT RS 16;
+                  HSHIFT:=HSHIFT XOR HSHIFT RS 9;
+                  HSHIFT AND 777B);
 
 SUBR DIR(NM) IS (
  DINIT=0 => (DINIT:=1;
