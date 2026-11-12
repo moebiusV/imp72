@@ -28,22 +28,6 @@ None of the tape's own programs uses any of these.
 Decided (2026-11-11): the rest as far as a program of the tape needs it; the programs of the tape (the compiler's modules) need none of what is
 not provided, so it stays so until a program that does is found.
 
-### 8. A generated header for exported routines
-
-A `SUBR` is a C function whose parameters are pointers to 64-bit words
-(`docs/FFI.md`). C, Zig and Rust code that calls one writes the prototype by
-hand.
-
-Decided (2026-11-11: in scope; details pending): a tool, in the manner of `imp-cimport` and written in IMP, that reads
-the routines of a source (or of the object's symbols) and writes a header: a C
-header (`int64_t NAME(int64_t *A, int64_t *B);`, `extern int64_t X;` for a
-`COMMON` variable), a Zig declaration file and a Rust `extern "C"` block. The
-parameters stay by reference, which is what they are: each is a word pointer.
-A typed export (`EXPORT INT F(INT)` with C's argument passing) is not planned.
-
-*Effect on the code.* A tool in `tools/` and its tests; no change to the
-compilers.
-
 ### 11. A runtime library for Windows
 
 `imp --target=x86_64-w64-mingw32` writes objects and links a program that needs no runtime (`docs/BUILDING.md`). There is no `libimp.a` for it: the host

@@ -33,9 +33,9 @@ runtime: llvm-ir
 $(RTLIB): build/llvm-ir2/impstage-llvm-ir tools/mkrt.sh tools/sysconst.sh lib/imprt.iml lib/impio.iml lib/impsys.iml lib/imphost.iml lib/imphostx-elf.iml lib/imphostx-macho.iml lib/imphostx-coff.iml lib/impvars.iml lib/impvarsx-elf.iml lib/impvarsx-macho.iml lib/impvarsx-coff.iml lib/impmain.iml lib/impinit.iml lib/imprun.iml lib/impsix.iml lib/impstr.iml lib/impchan.iml
 	sh tools/guard.sh sh tools/mkrt.sh "" build/rt-host
 
-# the tool imp-cimport (tools/cimport*.imp, an IMP program the compiler of the tree builds; skipped where stage 2 could not be built)
+# the tools imp-cimport (tools/cimport*.imp) and imp-exports (tools/exports.imp), IMP programs the compiler of the tree builds; skipped where stage 2 could not be built
 cimport: runtime
-	@if [ -x build/llvm-ir2/impstage-llvm-ir ]; then sh tools/imptool.sh cimport -h >/dev/null 2>&1; [ $$? = 2 ] || { sh tools/imptool.sh cimport -h; exit 1; }; fi
+	@if [ -x build/llvm-ir2/impstage-llvm-ir ]; then sh tools/imptool.sh cimport -h >/dev/null 2>&1; [ $$? = 2 ] || { sh tools/imptool.sh cimport -h; exit 1; }; sh tools/imptool.sh exports -h >/dev/null 2>&1; [ $$? = 2 ] || { sh tools/imptool.sh exports -h; exit 1; }; fi
 
 # stage 1 by the seed, stage 2 by stage 1 (skipped where the LLVM libraries are missing)
 llvm-ir: stage0 $(LIB)
@@ -50,7 +50,7 @@ stage0:
 #   PREFIX/bin/impstage0 (the seed; also as imp where stage 2 cannot be built)   PREFIX/bin/imp (stage 2)
 #   PREFIX/lib/imp/libimp.a (made by stage 2, else by the seed)   PREFIX/share/imp/syntax.imc
 #   PREFIX/share/imp/ffi.imc, utf8.imc  MANDIR/man1/{imp.1,impstage0.1} (MANDIR is PREFIX/share/man)
-#   PREFIX/bin/imp-cimport and MANDIR/man1/imp-cimport.1 (where stage 2 is built)
+#   PREFIX/bin/imp-cimport, imp-exports and MANDIR/man1/imp-cimport.1, imp-exports.1 (where stage 2 is built)
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp \
 	    $(DESTDIR)$(PREFIX)/share/imp $(DESTDIR)$(MANDIR)/man1
@@ -70,6 +70,9 @@ install: all
 	if [ -x build/tools/cimport ]; then \
 	    install -m 755 build/tools/cimport $(DESTDIR)$(PREFIX)/bin/imp-cimport; \
 	    install -m 644 docs/cimport.1 $(DESTDIR)$(MANDIR)/man1/imp-cimport.1; fi
+	if [ -x build/tools/exports ]; then \
+	    install -m 755 build/tools/exports $(DESTDIR)$(PREFIX)/bin/imp-exports; \
+	    install -m 644 docs/exports.1 $(DESTDIR)$(MANDIR)/man1/imp-exports.1; fi
 	install -d $(DESTDIR)$(MANDIR)/man7
 	install -m 644 docs/manual/imp.7 $(DESTDIR)$(MANDIR)/man7/imp.7
 	install -d $(DESTDIR)$(DOCDIR)
@@ -98,6 +101,7 @@ check-run:
 	sh tests/version/run.sh
 	sh tests/variadic/run.sh
 	sh tests/decls/run.sh
+	sh tests/exports/run.sh
 	sh tests/tmpfiles/run.sh
 	sh tests/seed/run.sh
 	sh tests/cli/run.sh

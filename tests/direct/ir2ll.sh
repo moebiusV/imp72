@@ -19,7 +19,7 @@ export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc
 k=build/llvm-ir2/impd
 endf=$(sh tools/endian.sh)
 for f in tests/native/*.imp tests/oracle/*.imp tests/direct/progs/*.imp; do
-    $k -c $out/ir/$(basename $(dirname $f))_$(basename $f .imp).ir $IMPSYNTAX $IMPFFI $f >/dev/null 2>&1
+    $k -c $out/ir/$(basename $(dirname $f))_$(basename $f .imp).ir $IMPSYNTAX $IMPFFI $root/lib/utf8.imc $f >/dev/null 2>&1
 done
 gen="code code2 code3 demit impsem ix"       # the code generator; the other modules of src are the kernel's and the compiler's own (impsyn, impend-*, irsyn and syntax are syntax)
 for f in $(ls src/*.imc | grep -v -E 'impsyn|impend-|irsyn|syntax'); do

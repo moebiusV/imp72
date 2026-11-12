@@ -1,10 +1,12 @@
 @bin bin/imp
 @bin bin/imp-cimport
+@bin bin/imp-exports
 @bin bin/impstage0
 include/imp.h
 lib/imp/
 @static-lib lib/imp/libimp.a
 @man man/man1/imp-cimport.1
+@man man/man1/imp-exports.1
 @man man/man1/imp.1
 @man man/man1/impstage0.1
 @man man/man7/imp.7

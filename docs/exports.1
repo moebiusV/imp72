@@ -1,0 +1,70 @@
+.\" Copyright (c) 2026 The imp authors.  ISC licence, see LICENSE.
+.Dd November 12, 2026
+.Dt IMP-EXPORTS 1
+.Os
+.Sh NAME
+.Nm imp-exports
+.Nd write the declarations of the routines and variables of IMP72 sources for C, Zig and Rust
+.Sh SYNOPSIS
+.Nm
+.Op Fl c | z | r
+.Op Fl n Ar name
+.Op Fl o Ar file
+.Ar source ...
+.Sh DESCRIPTION
+.Nm
+reads IMP72 sources as text, the comments and the strings skipped, and writes the
+declarations that a program in another language needs to call the routines they define
+and to use the variables they declare
+.Sy COMMON .
+A
+.Sy SUBR
+is a function whose parameters are pointers to 64-bit words and whose result is a word, so
+.Ql SUBR ADD2(A,B) IS A+B
+is
+.Ql int64_t ADD2(int64_t *A, int64_t *B); :
+the parameters stay by reference, which is what they are.
+A
+.Sy COMMON
+variable is
+.Ql extern int64_t X; ,
+and one declared with a length
+.Pq Ql A IS COMMON,8 LONG
+an array,
+.Ql extern int64_t A[8]; .
+A routine with no parameters
+.Pq Ql NIL
+is declared with none.
+The names are as written: IMP72 names are case sensitive and a symbol is its name.
+A parameter named like a keyword of the language written for gets an underscore after it.
+.Pp
+The declarations of a type are not written: IMP72 has no typed export, and the object's
+symbols say nothing of the parameters.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl c
+A C header, with an include guard and
+.Ql extern "C"
+for C++ (the default).
+.It Fl z
+A Zig file:
+.Ql pub extern fn ADD2(A: *i64, B: *i64) i64;
+and
+.Ql pub extern var X: i64; .
+.It Fl r
+A Rust file: an
+.Ql extern "C"
+block with
+.Ql pub fn ADD2(A: *mut i64, B: *mut i64) -> i64;
+and
+.Ql pub static mut X: i64; .
+.It Fl n Ar name
+The name of the header, which names the guard of a C header; by default the base name of the first source.
+.It Fl o Ar file
+Write the file (the standard output by default).
+.El
+.Sh EXIT STATUS
+0, or 1 for a source that cannot be read or an unknown option; 2 for the usage.
+.Sh SEE ALSO
+.Xr imp 1 ,
+.Xr imp-cimport 1

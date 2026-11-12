@@ -36,6 +36,7 @@ file of such statements; `lib/ffi.imc` is one (`CCALL`, `EXTERNAL`).
     imp -Sir hello.imp                  # LLVM IR text, hello.ll
     imp -c --target=aarch64-linux-gnu hello.imp    # an object for another system
     imp-cimport -n qsort -o decls.imp stdlib.h   # IMP72 declarations from a C header
+    imp-exports -o mylib.h mylib.imp             # a C header (-z Zig, -r Rust) for the routines of an IMP72 source
 
 The build needs a C99 compiler, a C++ compiler, GNU make, the LLVM C API
 (`llvm-dev`) and, to link in the process, lld as a library (`liblld-dev`).
@@ -160,7 +161,7 @@ output with it.
 ## Documentation
 
 - [docs/manual/imp.md](docs/manual/imp.md), [docs/manual/imp.7](docs/manual/imp.7): the language manual (the 1973 RUNOFF source rendered as Markdown and as an mdoc page)
-- [docs/imp.1](docs/imp.1), [docs/impstage0.1](docs/impstage0.1), [docs/cimport.1](docs/cimport.1): the manual pages of the compiler, of the seed and of `imp-cimport`
+- [docs/imp.1](docs/imp.1), [docs/impstage0.1](docs/impstage0.1), [docs/cimport.1](docs/cimport.1), [docs/exports.1](docs/exports.1): the manual pages of the compiler, of the seed and of `imp-cimport`
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the map; [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md): the build route
 - [docs/BUILDING.md](docs/BUILDING.md): building, cross-compiling, tests, CI
 - [docs/LANGUAGE-DIFFERENCES.md](docs/LANGUAGE-DIFFERENCES.md): IMP72 here and on the PDP-10; [docs/LANGUAGE-NOTES.md](docs/LANGUAGE-NOTES.md): pitfalls

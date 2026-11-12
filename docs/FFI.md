@@ -23,6 +23,12 @@ A variable declared `COMMON` is a global symbol, so C declares it
 Any other variable belongs to its module, as in the original, and C cannot see
 it. `tests/native/*_main.c` are C programs that call IMP.
 
+`imp-exports` (`tools/exports.imp`, `man imp-exports`) writes the declarations for you, for C, Zig or Rust, from the sources:
+
+    imp-exports -c -n mylib -o mylib.h mylib.imp      # int64_t ADD2(int64_t *A, int64_t *B); extern int64_t TAB[8]; ...
+    imp-exports -z mylib.imp                          # pub extern fn ADD2(A: *i64, B: *i64) i64;
+    imp-exports -r mylib.imp                          # extern "C" { pub fn ADD2(A: *mut i64, B: *mut i64) -> i64; }
+
 A C program with a `main` of its own starts the runtime itself: `imp_init(argc, argv)`
 first (`lib/imp.h` declares it), so that the IMP routines find the command line
 (`CCALL impargc(0)` and `CCALL impargvp(0)`), and `imp_run()` where it wants the

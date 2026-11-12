@@ -16,8 +16,8 @@ mkdir -p $out
 fail=0
 run() {         # name files...
     n=$1; shift
-    build/direct/impd -c $out/$n.1 $IMPSYNTAX $IMPFFI "$@" >/dev/null 2>&1; r1=$?
-    build/direct2/impd -c $out/$n.2 $IMPSYNTAX $IMPFFI "$@" >/dev/null 2>&1; r2=$?
+    build/direct/impd -c $out/$n.1 $IMPSYNTAX $IMPFFI $root/lib/utf8.imc "$@" >/dev/null 2>&1; r1=$?
+    build/direct2/impd -c $out/$n.2 $IMPSYNTAX $IMPFFI $root/lib/utf8.imc "$@" >/dev/null 2>&1; r2=$?
     if cmp -s $out/$n.1 $out/$n.2 && [ -s $out/$n.1 ]; then :; else
         echo "DIFFERENT: $n (stage 1 exit $r1, stage 2 exit $r2)" >&2; fail=1
     fi
