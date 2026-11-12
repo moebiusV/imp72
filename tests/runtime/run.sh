@@ -34,6 +34,13 @@ if [ $be = 0 ]; then
         [ "$(mach $out/$tr_/impmain.o)" = $em ] && [ "$(mach $out/$tr_/imprt_imp.o)" = $em ] || bad "$tr_: the members are not for it"
         ar t $l | grep -q impmain.o || bad "$tr_: no main in the library"
     done
+    for t in x86_64-pc-cygwin:6486 i686-pc-cygwin:4c01; do          # Cygwin: COFF, and no table of variables for the images (lib/impvarsx-coff.iml); the library is built, not run
+        tr_=${t%:*}; mg=${t#*:}
+        have $tr_ || continue
+        l=$(sh tools/mkrt.sh $tr_ $out/$tr_ 2>$out/mkrt-$tr_.log) || { bad "tools/mkrt.sh $tr_: $(head -c 400 $out/mkrt-$tr_.log)"; continue; }
+        [ "$(od -An -tx1 -v -N2 $out/$tr_/impmain.o | tr -d ' ')" = $mg ] && [ "$(od -An -tx1 -v -N2 $out/$tr_/imprt_imp.o | tr -d ' ')" = $mg ] || bad "$tr_: the members are not COFF for it"
+        ar t $l | grep -q impinit.o && ar t $l | grep -q imprun.o || bad "$tr_: no imp_init and imp_run in the library"
+    done
     if have x86_64-apple-darwin; then
         l=$(sh tools/mkrt.sh x86_64-apple-darwin $out/macho 2>$out/mkrt-macho.log) || bad "tools/mkrt.sh x86_64-apple-darwin: $(head -c 400 $out/mkrt-macho.log)"
         [ -n "$l" ] && [ "$(od -An -tx1 -v -N4 $out/macho/impmain.o | tr -d ' ')" = cffaedfe ] || bad "x86_64-apple-darwin: the members are not Mach-O"

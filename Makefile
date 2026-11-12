@@ -30,7 +30,7 @@ $(LIB): stage0 tools/mklib.sh lib/imprt.iml lib/impio.iml lib/impsys.iml lib/imp
 runtime: llvm-ir
 	@if [ -x build/llvm-ir2/impstage-llvm-ir ]; then $(MAKE) $(RTLIB) || exit 1; fi
 
-$(RTLIB): build/llvm-ir2/impstage-llvm-ir tools/mkrt.sh tools/sysconst.sh lib/imprt.iml lib/impio.iml lib/impsys.iml lib/imphost.iml lib/imphostx-elf.iml lib/imphostx-macho.iml lib/impvars.iml lib/impvarsx-elf.iml lib/impvarsx-macho.iml lib/impmain.iml lib/impinit.iml lib/imprun.iml lib/impchan.iml
+$(RTLIB): build/llvm-ir2/impstage-llvm-ir tools/mkrt.sh tools/sysconst.sh lib/imprt.iml lib/impio.iml lib/impsys.iml lib/imphost.iml lib/imphostx-elf.iml lib/imphostx-macho.iml lib/imphostx-coff.iml lib/impvars.iml lib/impvarsx-elf.iml lib/impvarsx-macho.iml lib/impvarsx-coff.iml lib/impmain.iml lib/impinit.iml lib/imprun.iml lib/impchan.iml
 	sh tools/guard.sh sh tools/mkrt.sh "" build/rt-host
 
 # the tool imp-cimport (tools/cimport*.imp, an IMP program the compiler of the tree builds; skipped where stage 2 could not be built)

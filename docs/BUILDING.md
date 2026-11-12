@@ -238,16 +238,20 @@ triples against `tests/link/cross.out`.
 
 The Cygwin row is unverified. It follows the specs of Cygwin's gcc and has not been run on Cygwin or checked against clang's Cygwin toolchain. The start file `crt0.o`, the libraries and the gcc directory are the likely ones. The entry point, the image base and `--dynamicbase`, `--nxcompat` and `--tsaware` (lld's defaults are used) are unverified. The tests cover the argument lists (`tests/link/cross.sh`) and objects, not a run.
 
-There is no runtime library for Windows or Cygwin. `tools/mkrt.sh` builds the
-objects of the library for Cygwin with constants in `tools/sysconst.sh` that
-are unverified (`MAP_ANONYMOUS` 0x20, `MAP_NORESERVE` 0x4000, `d_name` at 16 of
-a `struct dirent`, `RTLD_DEFAULT` 0, no `dl_iterate_phdr`, and `stdin` and
-`stdout` read as `_impure_ptr->_stdin` and `_stdout` of newlib). The library
-needs a COFF variant of `lib/imphostx-elf.iml` and `lib/impvarsx-elf.iml`,
-which call `dl_iterate_phdr` (Cygwin has `dladdr` instead), and nothing of it
-has run. For Windows proper, the host layer (`lib/imphost.iml`,
-`lib/impsys.iml`: `mmap` for the arena, `dl_iterate_phdr`, `fork`,
-`readlink`) and `tools/sysconst.sh` describe POSIX systems only.
+The runtime library for Cygwin is built (`tools/mkrt.sh x86_64-pc-cygwin` and
+`i686-pc-cygwin` make COFF objects of every member and `libimp.a`), and has not
+been run: no Cygwin machine was available. It uses the constants of
+`tools/sysconst.sh` that are unverified (`MAP_ANONYMOUS` 0x20, `MAP_NORESERVE`
+0x4000, `d_name` at 16 of a `struct dirent`, `RTLD_DEFAULT` 0, no
+`dl_iterate_phdr`, and `stdin` and `stdout` read as `_impure_ptr->_stdin` and
+`_stdout` of newlib), and the COFF files `lib/imphostx-coff.iml` (no dynamic
+linker to name) and `lib/impvarsx-coff.iml` (no table of the compiler's variables:
+the linker bounds no section for COFF, so a compiler built for Cygwin saves no
+image). `tests/runtime` checks that the members are COFF for the machine and that
+the library has `imp_init` and `imp_run`. For Windows proper there is no library:
+the host layer (`lib/imphost.iml`, `lib/impsys.iml`: `mmap` for the arena,
+`fork`, `readlink`) and `tools/sysconst.sh` describe POSIX systems only, and it
+needs `VirtualAlloc` for the arena and `CreateProcess` for the programs it starts.
 
 What works for Windows targets: objects (`-c`, `-S`, `-Sir`), and the link of a
 program that has its own `main` and needs no runtime (`--runtime=` an empty

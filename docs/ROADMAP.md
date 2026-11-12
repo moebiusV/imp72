@@ -122,21 +122,18 @@ A typed export (`EXPORT INT F(INT)` with C's argument passing) is not planned.
 *Effect on the code.* A tool in `tools/` and its tests; no change to the
 compilers.
 
-### 11. A runtime library for Windows and Cygwin
+### 11. A runtime library for Windows
 
-`imp --target=x86_64-w64-mingw32` and the Cygwin triples write objects and
-link a program that needs no runtime (`docs/BUILDING.md`). There is no
-`libimp.a` for them: the host layer (`lib/imphost.iml`, `lib/impsys.iml`)
-uses `mmap` for the arena, `dl_iterate_phdr`, `fork` and `readlink`, and
-`tools/sysconst.sh` describes POSIX systems.
+`imp --target=x86_64-w64-mingw32` writes objects and links a program that needs no runtime (`docs/BUILDING.md`). There is no `libimp.a` for it: the host
+layer (`lib/imphost.iml`, `lib/impsys.iml`) uses `mmap` for the arena, `fork`, `waitpid` and `readlink`, and `tools/sysconst.sh` describes POSIX
+systems. Cygwin has the library, built but not run (`lib/imphostx-coff.iml`, `lib/impvarsx-coff.iml`; no machine to run it on).
 
-Decided (2026-11-05: Windows is supported where LLVM and mingw can do it, and Cygwin; the code is pending): a COFF variant of the host layer (`lib/imphostx-*.iml`,
-`lib/impvarsx-*.iml`) and of the arena (`VirtualAlloc` for Windows, `mmap` for
-Cygwin), the constants of both systems in `tools/sysconst.sh`, and a test run on
-a Windows or Cygwin machine; none is available for the tests.
+Decided (2026-11-05: Windows is supported where LLVM and mingw can do it; the code is pending): a Windows variant of the arena (`VirtualAlloc` to reserve
+the address space and to commit it as `CORE` asks), of the process routines (`CreateProcess` and `WaitForSingleObject` where the host layer forks) and the
+constants of `tools/sysconst.sh`, and a test run on a Windows machine; none is available for the tests, and the code of a layer that cannot be run is
+not written.
 
-*Effect on the code.* New files in `lib/`, a case in `tools/mkrt.sh`, and the
-link tables in `src/driver.imc` when a run shows them wrong.
+*Effect on the code.* New files in `lib/`, a case in `tools/mkrt.sh`, and the link tables in `src/driver.imc` when a run shows them wrong.
 
 ## Open question: tape routines
 
