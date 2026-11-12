@@ -6,7 +6,8 @@ int main(int argc, char **argv) {
     imp_init(argc, argv);
     printf("before\n");
     fflush(stdout);
-    imp_run();
+    imp_word r = imp_run();
+    (void)r;
     printf("after\n");
     return 0;
 }

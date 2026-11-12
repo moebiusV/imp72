@@ -6,7 +6,11 @@ A `SUBR` is a C function. IMP72 passes arguments by reference, so each
 parameter is a pointer to a 64-bit word and the result is a 64-bit word.
 `SUBR ADD2(A,B) IS A+B` is `int64_t ADD2(int64_t *, int64_t *)`. A caller
 declares the result `int64_t`, never `long`: on a 32-bit host the word is a
-`long long`. More than six parameters go on the stack as the C ABI puts
+`long long`. `lib/imp.h` names it: `typedef int64_t imp_word;`, so that a C
+caller writes `imp_word ADD2(imp_word *, imp_word *)`. A routine does not
+declare the C type of its result: the word is the whole of what an IMP routine
+returns, and a result that is a pointer, a double (its bits) or a smaller integer
+is that word, read as the C caller knows it is. More than six parameters go on the stack as the C ABI puts
 pointers.
 
 A symbol is the name exactly as written. IMP72 names are case sensitive, as the
