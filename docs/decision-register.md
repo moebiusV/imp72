@@ -68,7 +68,7 @@
 - R61 | 2026-10-23 | decision | "and then the pcc library should transform the ir to assembler then binary which we can directly link back in." | subjects: pcc as the back end | supersedes R57 | superseded by R63
 - R62 | 2026-10-23 | decision | "x86\_64/amd64 is our primary backend, then i386, make sure both those work, and we can leave the others for later." | subjects: Cross-compiling and target coverage | superseded by R120
 - R63 | 2026-10-23 | decision | "what you doing now?" | subjects: pcc as the back end | supersedes R61 | current
-- R64 | 2026-10-23 | decision | "and deffault to all optimizations enabled" | subjects: Optimization default | current
+- R64 | 2026-10-23 | decision | "and deffault to all optimizations enabled" | subjects: Optimization default | superseded by R195
 - R65 | 2026-10-23 | rationale | "and all the other things too. I said, except for the 36-\>64 shift, and ieee754 floats, and pccir output instead of pdp10 asm, it should all be the same, and even the replacements should be semantically equivalent." | subjects: Tape translation to 64 bit | current
 - R66 | 2026-10-23 | decision | "same names, everything" | subjects: Translating the tape to 64-bit IMP | superseded by R67
 - R67 | 2026-10-23 | context | "wel, no, for instance, dewop can be redone so it emits pccir instead of pdp10 output, and all dewop calls updated." | subjects: Tape translation to 64 bit | supersedes R66 | current
@@ -199,3 +199,4 @@
 - R192 | 2026-11-11 | decision | "keep the order of functions as close as reasonable to the decus order" and "keep functions in the same files, in the same order unless there is a really good reason to change" and "if someone becomes redundant it is ok to remove it; the token diff will reflect that" | subjects: Fidelity to the original tape and rename policy | current
 - R193 | 2026-11-11 | decision | "also in the manual you translated from the decus runoff that need to be updated afterward to reflect our current policy of -1 rather than long contants, etc" | subjects: Tape translation to 64 bit | current
 - R194 | 2026-11-11 | decision | "count the direct buffer header users first, then do the single-buffer emulation" | subjects: Channel I/O | current
+- R195 | 2026-11-11 | decision | "the optimization flags" (the plan of 2026-11-11: -O0 -O1 -O2 -O3 -Os -Oz, default -Os, IMPOPT in the environment) | subjects: Optimization default | supersedes R64 | current

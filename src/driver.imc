@@ -13,7 +13,7 @@ DIRB,ROOT,TMPB,OFILE,BASEN,SYNP,FFIP,LIBP,OUTB,C1P,C2P,C3P,LIBD,DLP,MAD,CBP,CEP,
 CMD IS 4096 LONG;
 EXEB IS 520 LONG;
 AV0,NA0,KA,KNN,OUTN,TRI,DLG,DLM,WH,DW,FC0,EMU ARE COMMON;
-DSTOP,DSW,DIMG,DINTER,DTGT,DSIR,DNSRC,DSRCV,DNOBJI,DOBJI,DOBJL,DNOBJL,DEMP,DKV,DNK,DSYV,DNSY,DSYSROOT,DRUNTIME ARE COMMON;      # THE OPTIONS, THE SOURCES AND THE OBJECTS NAMED, THE OBJECTS TO LINK #
+DSTOP,DSW,DIMG,DINTER,DTGT,DSIR,DOPT,DNSRC,DSRCV,DNOBJI,DOBJI,DOBJL,DNOBJL,DEMP,DKV,DNK,DSYV,DNSY,DSYSROOT,DRUNTIME ARE COMMON;      # THE OPTIONS, THE SOURCES AND THE OBJECTS NAMED, THE OBJECTS TO LINK #
 DSELFB,DB1,DB3 ARE 520 LONG;
 IRBUF,IRLEN,LVOBJP,LVOBJN ARE COMMON;                                     # THE IR OF THE KERNEL, AND THE OBJECT, IN MEMORY (SRC/IMPM.IMC, SRC/LLVM.IMC) #
 CYG,WSTART,WLIBK ARE COMMON;                                                  # A CYGWIN TARGET (1); THE START FILE AND THE LIBRARY THAT MARK A WINDOWS SYSROOT #
@@ -381,6 +381,7 @@ SUBR DRVHELP(Z) IS (
  CCALL puts(LOC('  -S                 compile to the assembly of the target, file.s'));
  CCALL puts(LOC('  -Sir               compile to LLVM IR text, file.ll'));
  CCALL puts(LOC('  -o FILE            name the output (a.out for a program)'));
+ CCALL puts(LOC('  -O0 -O1 -O2 -O3 -Os -Oz   the optimization level (-O is -O1; the last one given wins; -Os is the default); or set IMPOPT'));
  CCALL puts(LOC('  --target=TRIPLE    for another system (with -c, -S, -Sir), say aarch64-linux-gnu or riscv64-unknown-linux-musl'));
 CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that system, for its C library (DIR/usr/lib/crt1.o ...); or IMPSYSROOT'));
  CCALL puts(LOC('  --runtime=FILE     with --target and no -c: the libimp.a built for that system; or IMPRUNTIME'));
@@ -391,11 +392,22 @@ CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that s
  CCALL puts(LOC('  --version, --help'));
  0);
 
+# THE OPTIMIZATION LEVEL THE TEXT A NAMES (THE LETTERS AFTER -O): NOTHING IS 1, 0 TO 3 ARE THEIR NUMBERS, S IS 4, Z IS 5; -1 IF IT IS NONE OF THESE #
+SUBR OPTLVL(A) IS (
+ C ARE LOCAL;
+ C:=IMPBYTE(A,0);
+ C=0 => RETURN 1;
+ IMPBYTE(A,1) NE 0 => RETURN 0-1;
+ C GE 60B => (C LE 63B => RETURN C-60B);
+ C=163B => RETURN 4;
+ C=172B => RETURN 5;
+ 0-1);
+
 # THE OPTIONS AND THE FILES OF THE COMMAND LINE, IN ANY ORDER AS THE C COMPILER'S: A NAME THAT ENDS IN .O, .A OR .SO IS TO BE LINKED, ANY OTHER IS A SOURCE (A FILE OF SYNTAX OR DECLARATIONS IS NAMED BY -C, AS THE TAPE'S /C).  A MISTAKE ENDS THE PROGRAM (2) #
 SUBR OPTS(Z) IS (
  I,A,V ARE LOCAL;
  DSRCV:=CCALL calloc(NA0+1,8); DOBJI:=CCALL calloc(NA0+1,8); DKV:=CCALL calloc(NA0+1,8); DSYV:=CCALL calloc(NA0+1,8); DNSRC:=0; DNOBJI:=0; DNK:=0; DNSY:=0;
- DSTOP:=170B; DINTER:=0; OUTN:=0; DSW:=0; DIMG:=0; DTGT:=0; DSIR:=0; DEMP:=0; DSYSROOT:=ENVOR(LOC('IMPSYSROOT'),0); DRUNTIME:=ENVOR(LOC('IMPRUNTIME'),0);
+ DSTOP:=170B; DINTER:=0; OUTN:=0; DSW:=0; DIMG:=0; DTGT:=0; DSIR:=0; DOPT:=0-1; DEMP:=0; DSYSROOT:=ENVOR(LOC('IMPSYSROOT'),0); DRUNTIME:=ENVOR(LOC('IMPRUNTIME'),0);
  I:=1;
  OP1: I GE NA0 => RETURN 0;
       A:=DARG(I); I:=I+1;
@@ -415,6 +427,9 @@ SUBR OPTS(Z) IS (
       ((CCALL strcmp(A,LOC('--target'))=0) OR (CCALL strcmp(A,LOC('-target'))=0)) => (
           I GE NA0 => GO TO OPM;
           DTGT:=DARG(I); I:=I+1; GO TO OP1);
+      STARTS(A,LOC('-O'))=1 => (V:=OPTLVL(A+2);
+                                V<0 => (OUTSTR('imp: unknown option '); OUTCS(A); OUTCHR(12B); CCALL exit(2));
+                                DOPT:=V; GO TO OP1);                                                    # -O, -O0 ... -O3, -OS, -OZ #
       STARTS(A,LOC('-o'))=1 => (IMPBYTE(A,2) NE 0 => (OUTN:=A+2; GO TO OP1);              # -OFILE #
                                 I GE NA0 => GO TO OPM;
                                 OUTN:=DARG(I); I:=I+1; GO TO OP1);                       # -O FILE #
@@ -502,6 +517,7 @@ SUBR MULTI(Z) IS (
      DSTOP=170B => (CCALL snprintf(LOC(DB1),24,LOC('o%d.o'),K);
                     IMPTMPPATH(LOC(DB1),LOC(DB3)) NE 0 => CCALL exit(1);
                     KADD(LOC('-o')); KADD(CCALL strdup(LOC(DB3))));
+     CCALL snprintf(LOC(DB1),8,LOC('-O%c'),IMPBYTE(LOC('0123sz'),DOPT)); KADD(CCALL strdup(LOC(DB1)));
      DSW NE 0 => (KADD(LOC('-s')); KADD(DSW));
      DIMG NE 0 => (KADD(LOC('-I')); KADD(DIMG));
      DTGT NE 0 => (CCALL snprintf(LOC(DB1),4096,LOC('--target=%s'),DTGT); KADD(CCALL strdup(LOC(DB1))));
@@ -517,7 +533,7 @@ SUBR MULTI(Z) IS (
  CCALL exit(LNK(0)));
 
 SUBR IMPD(Z) IS (
- P ARE LOCAL;
+ P,V ARE LOCAL;
  NA0:=CCALL impargc(0); AV0:=CCALL impargvp(0);
  P:=CCALL strrchr(DARG(0),57B);
  P=0 => P:=DARG(0) ELSE P:=P+1;
@@ -526,6 +542,9 @@ SUBR IMPD(Z) IS (
  ARGVP:=AV0;                                       # ANOTHER NAME (IMPD): THE KERNEL ALONE #
  CCALL exit(IMPK(NA0,AV0));
  DRV: OPTS(0);
+ DOPT<0 => (V:=ENVOR(LOC('IMPOPT'),0);                              # NO -O GIVEN: THE ENVIRONMENT, OR -OS #
+            V=0 => DOPT:=4 ELSE (STARTS(V,LOC('-O'))=1 => V:=V+2; DOPT:=OPTLVL(V); DOPT<0 => DOPT:=4));
+ LLVMOPT(DOPT);
  ((DNSRC=0) AND (DNOBJI=0)) => DINTER:=1;                        # NO FILE: THE COMMANDS OF THE ORIGINAL (A PROMPT ON THE STANDARD ERROR, THE COMMANDS ON THE STANDARD INPUT: A TERMINAL, A PIPE, EXPECT) #
  ((OUTN NE 0) AND (DSTOP NE 170B) AND (DNSRC>1)) => (OUTSTR('imp: cannot name the output with more than one source to compile'); OUTCHR(12B); CCALL exit(1));
  SETPATHS(0);

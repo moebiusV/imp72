@@ -31,6 +31,7 @@ file of such statements; `lib/ffi.imc` is one (`CCALL`, `EXTERNAL`).
 
     imp hello.imp && ./a.out            # compile, link, run
     imp -c a.imp b.imp                  # a.o and b.o
+    imp -O2 hello.imp                   # optimization level (-O0 -O1 -O2 -O3 -Os -Oz; -Os is the default)
     imp -S hello.imp                    # assembly, hello.s
     imp -Sir hello.imp                  # LLVM IR text, hello.ll
     imp -c --target=aarch64-linux-gnu hello.imp    # an object for another system

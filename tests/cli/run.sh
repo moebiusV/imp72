@@ -243,5 +243,21 @@ E
 if [ $be = 0 ]; then
 "$w" struct_ir.imp -Sir --target=i686-linux-gnu > /dev/null 2>&1 && grep -q 'store i16' struct_ir.ll && grep -q 'add i64 %v[0-9]*, 16$' struct_ir.ll || bad "struct: the typed store on i686"
 fi
+# the optimization levels: -O0 -O1 -O2 -O3 -Os -Oz and -O (= -O1), the last one given wins, anything else is refused with status 2, IMPOPT in the environment sets the level when no flag is given
+for o in -O -O0 -O1 -O2 -O3 -Os -Oz; do
+    rm -f a.out; "$w" $o main.imp lib2.imp >/dev/null 2>&1 && [ "$(./a.out)" = "ANSWER 42" ] || bad "$o: two files linked into a program that runs"
+done
+cp "$root/tests/native/algo.imp" algo.imp
+for o in -O0 -O1 -O2 -O3 -Os -Oz; do "$w" -c $o -o algo$o.o algo.imp >/dev/null 2>&1 && [ -s algo$o.o ] || bad "$o: -c makes an object"; done
+[ "$(wc -c < algo-Oz.o)" -le "$(wc -c < algo-O0.o)" ] || bad "-Oz: the object is larger than -O0's"
+[ "$(wc -c < algo-Os.o)" -le "$(wc -c < algo-O0.o)" ] || bad "-Os: the object is larger than -O0's"
+cmp -s algo-O0.o algo-O3.o && bad "-O0 and -O3 write the same object"
+"$w" -c -O0 -O3 -o algo-last.o algo.imp >/dev/null 2>&1 && cmp -s algo-last.o algo-O3.o || bad "-O0 -O3: the last flag does not win"
+"$w" -c -O -o algo-bare.o algo.imp >/dev/null 2>&1 && cmp -s algo-bare.o algo-O1.o || bad "-O is not -O1"
+env -u IMPOPT "$w" -c -o algo-none.o algo.imp >/dev/null 2>&1 && cmp -s algo-none.o algo-Os.o || bad "no flag is not -Os"           # (the suite may be run with IMPOPT set)
+IMPOPT=-O0 "$w" -c -o algo-env.o algo.imp >/dev/null 2>&1 && cmp -s algo-env.o algo-O0.o || bad "IMPOPT=-O0 is not -O0"
+IMPOPT=-O0 "$w" -c -O3 -o algo-envf.o algo.imp >/dev/null 2>&1 && cmp -s algo-envf.o algo-O3.o || bad "a flag does not win over IMPOPT"
+"$w" -O9 -c algo.imp >/dev/null 2>&1; [ $? = 2 ] || bad "-O9 is not refused with status 2"
+"$w" -Ofoo -c algo.imp >/dev/null 2>&1; [ $? = 2 ] || bad "-Ofoo is not refused with status 2"
 [ $fail = 0 ] && echo ok
 exit $fail

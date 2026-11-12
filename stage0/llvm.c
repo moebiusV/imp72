@@ -91,6 +91,46 @@ hostcpu(const char *triple, char **cpu, char **feat)
     return 1;
 }
 
+/* the optimization level: 0 to 3 for -O0 to -O3, 4 for -Os (the default), 5 for -Oz.  The seed has no flag: IMPOPT in the environment (-O0 ... -Oz, or the letter alone)
+ * sets it, as it does for imp (src/driver.imc), so that a test can run the whole suite at another level */
+static int
+optlevel(void)
+{
+    const char *e = getenv("IMPOPT");
+
+    if (e == NULL || *e == '\0')
+        return 4;
+    if (e[0] == '-' && e[1] == 'O')
+        e += 2;
+    if (*e == '\0')
+        return 1;
+    if (e[1] == '\0') {
+        if (*e >= '0' && *e <= '3')
+            return *e - '0';
+        if (*e == 's')
+            return 4;
+        if (*e == 'z')
+            return 5;
+    }
+    return 4;
+}
+
+/* -Os and -Oz: each function the module defines gets the attribute optsize (-Oz: and minsize), which the passes and the code generator read */
+static void
+sizeattr(LLVMContextRef ctx, LLVMModuleRef m, int level)
+{
+    LLVMAttributeRef a = LLVMCreateEnumAttribute(ctx, LLVMGetEnumAttributeKindForName("optsize", 7), 0);
+    LLVMAttributeRef b = LLVMCreateEnumAttribute(ctx, LLVMGetEnumAttributeKindForName("minsize", 7), 0);
+    LLVMValueRef f;
+
+    for (f = LLVMGetFirstFunction(m); f != NULL; f = LLVMGetNextFunction(f))
+        if (LLVMCountBasicBlocks(f) != 0) {
+            LLVMAddAttributeAtIndex(f, LLVMAttributeFunctionIndex, a);
+            if (level == 5)
+                LLVMAddAttributeAtIndex(f, LLVMAttributeFunctionIndex, b);
+        }
+}
+
 /* the module of the text ir (n bytes) for the host, optimised, as an object file: in the file path, or in memory (path NULL) at *obj, *objn (malloc) */
 static int
 object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
@@ -105,6 +145,8 @@ object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
     LLVMMemoryBufferRef mb;
     char *triple, *cpu, *feat, *msg = NULL;
     int rc = 1;
+    int level = optlevel();
+    static const char *const pipeline[] = { "default<O0>", "default<O1>", "default<O2>", "default<O3>", "default<Os>", "default<Oz>" };
 
     if (init())
         return 1;
@@ -118,12 +160,14 @@ object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
         LLVMDisposeMessage(msg);
         goto done;
     }
-    tm = LLVMCreateTargetMachine(tgt, triple, cpu, feat, LLVMCodeGenLevelDefault, LLVMRelocPIC, LLVMCodeModelDefault);
+    tm = LLVMCreateTargetMachine(tgt, triple, cpu, feat, level < 4 ? (LLVMCodeGenOptLevel)level : LLVMCodeGenLevelDefault, LLVMRelocPIC, LLVMCodeModelDefault);
     LLVMSetTarget(m, triple);
     dl = LLVMCreateTargetDataLayout(tm);
     LLVMSetModuleDataLayout(m, dl);
+    if (level > 3)
+        sizeattr(ctx, m, level);
     pbo = LLVMCreatePassBuilderOptions();
-    if ((e = LLVMRunPasses(m, "default<O1>", tm, pbo)) != NULL) {
+    if ((e = LLVMRunPasses(m, pipeline[level], tm, pbo)) != NULL) {
         error("the optimiser", e);
         goto done;
     }

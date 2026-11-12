@@ -125,6 +125,21 @@ missing the message names it (`cannot link: no crt0.o in /usr/lib`). The only
 program the driver starts is `ld.lld` (`ld64.lld`); `-c`, `-S` and `-Sir` start
 none.
 
+### Optimization levels
+
+`-O0`, `-O1`, `-O2`, `-O3`, `-Os` and `-Oz` choose the pass pipeline of LLVM
+(`default<O0>` and the rest) and the level of code generation (none, less,
+default, aggressive for `-O0` to `-O3`; `-Os` and `-Oz` are default), and `-Os`
+and `-Oz` put the attribute `optsize` (and for `-Oz` `minsize`) on each function
+the module defines. `-O` alone is `-O1`, the last one given wins, and any other
+`-O...` is refused with status 2. With none the level is `-Os`, or what
+`IMPOPT` in the environment says (`-O2` or `2`), which is how a test suite is
+run at another level: `IMPOPT=-O3 make check` builds the compilers and runs the
+tests at `-O3`. The seed has no flag and reads `IMPOPT` only. The IR that
+`-Sir` writes does not depend on the level, so `tests/seed` compares the seed
+and stage 2 at whatever level they were built; `make check` passed with the
+compilers built and tested at `-O0`, the default and `-O3`.
+
 ## Cross-compiling
 
 `--target=TRIPLE` (LLVM's names; the vendor may be left out:

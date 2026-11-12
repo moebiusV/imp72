@@ -9,6 +9,7 @@
 .Nm
 .Op Fl c | S | Sir
 .Op Fl o Ar output
+.Op Fl O Ns Ar level
 .Op Fl -target Ns = Ns Ar triple
 .Op Fl -sysroot Ns = Ns Ar dir
 .Op Fl -runtime Ns = Ns Ar file
@@ -93,6 +94,31 @@ Compile to the assembly of the target,
 .It Fl Sir
 Compile to LLVM IR text,
 .Pa NAME.ll .
+.It Fl O0 | O1 | O2 | O3 | Os | Oz
+The optimization level, as the C compiler's:
+.Fl O
+alone is
+.Fl O1 ,
+the last one given wins, and
+.Fl Os
+(small code) is the default.
+.Fl Oz
+is smaller still.
+Any other
+.Fl O
+is an error (status 2).
+The environment variable
+.Ev IMPOPT
+(for example
+.Ql -O2 )
+sets the level when no
+.Fl O
+is given, so that a whole test suite can be run at another level.
+The seed,
+.Nm impstage0 ,
+has no flag and reads
+.Ev IMPOPT
+only.
 .It Fl o Ar file
 Name the output: the executable
 .Pa a.out

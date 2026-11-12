@@ -49,12 +49,11 @@
 - Left: details pending: nothing in the repository states the rule; whether it belongs in a doc is not decided
 
 ### Optimization default
-- Status: TO DO — the optimizer runs at O1 and the target machine at the default level, not all optimizations (latest decision 2026-10-23 \[R64\])
-- Decided: 2026-10-23 decided: "default to all optimizations enabled" \[R64\]
-- Rationale and precedent: none stated in the sources
-- Evidence: stage0/llvmorc.c:129 "default\<O1\>"; src/llvm.imp:130 "LLVMRunPasses(M,LOC('default\<O1\>')"; LLVMCodeGenLevelDefault at llvmorc.c:124
-- Doc differs: docs/ARCHITECTURE.md:52 says "optimizes it at \`default\<O1\>\`"
-- Left: set the pass pipeline and code generation level to the highest in both stage0/llvmorc.c and src/llvm.imp; searched docs/ROADMAP.md, docs/imp72.1, docs/BUILDING.md for an -O option and found none
+- Status: DONE — the optimization level is a flag, -O0 -O1 -O2 -O3 -Os -Oz, and -Os is the default (latest decision 2026-11-11 [R195], replacing 2026-10-23 [R64])
+- Decided: 2026-11-11 decided: the default optimization level is -Os; the flags are those of the C compiler (-O alone is -O1, the last one given wins), IMPOPT in the environment sets the level when no flag is given [R195]
+- Rationale and precedent: [R64] "default to all optimizations enabled" was replaced by a default of small code, with the levels a user of the C compiler expects
+- Evidence: src/llvm.imc LLVMOPT, LVPIPELINE, LVSIZEATTR, LVCGLEVEL; stage0/llvm.c optlevel, sizeattr; src/driver.imc OPTLVL and OPTS; tests/cli/run.sh; make check passed with the compiler built and tested at -O0, -Os (the default) and -O3
+- Left: nothing
 
 ### Quirks
 - Status: TO DO — details pending: the chain does not say which quirks; no way to map "those quirks" to a commit (latest decision 2026-11-03 \[R145\])

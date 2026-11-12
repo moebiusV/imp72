@@ -2395,6 +2395,7 @@ runtime library `libimp.a`, to the executable program. The options are
 -S          Compile to the assembly of the target, file.s.
 -Sir        Compile to LLVM IR text, file.ll.
 -o FILE     Name the output (a.out for a program).  With -c, -S or -Sir, one source only.
+-O0, -O1, -O2, -O3, -Os, -Oz   The optimization level (-O is -O1; the last one given wins; -Os, small code, is the default; IMPOPT in the environment sets it when no one is given).
 -C FILE     A file of syntax and declarations, read before the sources (in the order given).
 -s LETTERS  Set the compiler switches (below).
 -I IMAGE    Start from the compiler saved by /U or /V (Section 3.4).
