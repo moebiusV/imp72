@@ -120,35 +120,35 @@ rm -f cz1.o cz2.o
 # a file name at the prompt is a Unix name (up to the system's), not the tape's six characters and not 15
 ln=$(printf '%0100d' 0 | tr 0 n)
 cp okp.imp $ln.imp
-printf '%s\n' "$ln" | "$w" -i > il.log 2>&1
-[ -s $ln.o ] || bad "-i: a file name of 100 characters ($(head -c 200 il.log))"
+printf '%s\n' "$ln" | "$w" > il.log 2>&1
+[ -s $ln.o ] || bad "bare imp: a file name of 100 characters ($(head -c 200 il.log))"
 rm -f $ln.o $ln.imp
 cp okp.imp $ln.imp
 "$w" -c -o $ln.o $ln.imp >/dev/null 2>&1 && [ -s $ln.o ] || bad "a source with a file name of 100 characters on the command line"
 rm -f $ln.o $ln.imp
-printf 'okp\n' | "$w" -i > i1.log 2>&1
-[ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "-i: okp makes okp.o and no IR"
-head -1 i1.log | grep -q " $(date +%Y-%m-%d)" || bad "-i: the banner has the date of today ($(head -1 i1.log))"
+printf 'okp\n' | "$w" > i1.log 2>&1
+[ -s okp.o ] && [ ! -e okp.ir ] && [ ! -e okp.ir.ll ] || bad "bare imp: okp makes okp.o and no IR"
+head -1 i1.log | grep -q " $(date +%Y-%m-%d)" || bad "bare imp: the banner has the date of today ($(head -1 i1.log))"
 rm -f okp.o
 mkdir -p sub; cp okp.imp sub/okq.imp
-printf '!sub/okq.imp!\n' | "$w" -i > iq.log 2>&1
-[ -s sub/okq.imp.o ] || bad "-i: a path between ! marks is one name ($(head -c 200 iq.log))"
-printf 'ext/C\nzprog\n' | "$w" -i > i2.log 2>&1
-[ -s zprog.o ] && [ ! -e ext.o ] || bad "-i: ext/C then zprog makes zprog.o and no ext.o"
-printf 'mine,mine_okp/L\n' | "$w" -i > i3.log 2>&1
-[ -s mine.o ] && [ -s mine.lst ] || bad "-i: mine,mine_okp/L makes mine.o and mine.lst"
-printf 'ext/C\nmy_/U\n' | "$w" -i > i4.log 2>&1
-[ -s my.img ] && grep -q 'COMPILER SAVED ON my.img' i4.log || bad "-i: ext/C then my_/U saves my.img"
-printf '\n' | "$w" -i -I my.img 2>&1 | head -1 | grep -q "$verre(A)  " || bad "-i -I: the saved compiler shows (A)"
-printf 'ext/C\nmy2_/V\n' | "$w" -i -I my.img > i5.log 2>&1
-printf '\n' | "$w" -i -I my2.img 2>&1 | head -1 | grep -q "$verre(B)  " || bad "-i -I: the one saved from it shows (B)"
+printf '!sub/okq.imp!\n' | "$w" > iq.log 2>&1
+[ -s sub/okq.imp.o ] || bad "bare imp: a path between ! marks is one name ($(head -c 200 iq.log))"
+printf 'ext/C\nzprog\n' | "$w" > i2.log 2>&1
+[ -s zprog.o ] && [ ! -e ext.o ] || bad "bare imp: ext/C then zprog makes zprog.o and no ext.o"
+printf 'mine,mine_okp/L\n' | "$w" > i3.log 2>&1
+[ -s mine.o ] && [ -s mine.lst ] || bad "bare imp: mine,mine_okp/L makes mine.o and mine.lst"
+printf 'ext/C\nmy_/U\n' | "$w" > i4.log 2>&1
+[ -s my.img ] && grep -q 'COMPILER SAVED ON my.img' i4.log || bad "bare imp: ext/C then my_/U saves my.img"
+printf '\n' | "$w" -I my.img 2>&1 | head -1 | grep -q "$verre(A)  " || bad "-I with no file: the saved compiler shows (A)"
+printf 'ext/C\nmy2_/V\n' | "$w" -I my.img > i5.log 2>&1
+printf '\n' | "$w" -I my2.img 2>&1 | head -1 | grep -q "$verre(B)  " || bad "-I with no file: the one saved from it shows (B)"
 rm -f zprog.o
-printf 'zprog\n' | "$w" -i -I my.img > i6.log 2>&1
-[ -s zprog.o ] || bad "-i -I: the saved compiler compiles zprog"
+printf 'zprog\n' | "$w" -I my.img > i6.log 2>&1
+[ -s zprog.o ] || bad "-I with no file: the saved compiler compiles zprog"
 if [ "$be" = 0 ] && have aarch64-linux-gnu; then
 rm -f okp.o
-printf 'okp\n' | "$w" -i --target=aarch64-linux-gnu > i7.log 2>&1
-[ -s okp.o ] && [ "$(mach okp.o)" = 183 ] || bad "-i --target=aarch64-linux-gnu makes an aarch64 object"
+printf 'okp\n' | "$w" --target=aarch64-linux-gnu > i7.log 2>&1
+[ -s okp.o ] && [ "$(mach okp.o)" = 183 ] || bad "a bare imp with --target=aarch64-linux-gnu makes an aarch64 object"
 fi
 # declarations of C functions (EXTERNAL INT puts(PTR);): the count of the arguments, the types and the declarations are checked at compile time
 cat > cdecl_bad.imp <<'E'

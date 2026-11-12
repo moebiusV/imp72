@@ -123,7 +123,7 @@ variables are listed for images).
 
 ## Images
 
-`NAME_/U` (or `/V`) in the commands of `imp -i` saves the compiler with the
+`NAME_/U` (or `/V`) in the commands of a bare `imp` (no file) saves the compiler with the
 language it has learned to `NAME.img`; `-I NAME.img` starts from it.
 `src/image.imc` writes the free storage (directory, syntax graph, code tree,
 semantics array), the variables of the compiler's modules, listed in the

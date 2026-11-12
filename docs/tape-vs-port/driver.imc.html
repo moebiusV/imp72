@@ -19,13 +19,13 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>driver.imc</h1>
 <p class="mut">left, old (the tape): -<br>right, new (the port): src/driver.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 10377 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 1 changed places, 0 tokens deleted, 10363 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">1</td><td class="c a"><ins>QUIET,ARGVP,IMPHOOK ARE COMMON;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>#THIS IS FILE DRIVER, THE FRONT OF THE COMPILER: THE MAIN PROGRAM OF IMP72, WHICH THE LIBRARY'S MAIN CALLS.  NOT IN THE TAPE, WHICH HAS ONE PROGRAM THAT READS ITS COMMANDS FROM THE TERMINAL (SRC/IMPM.IMC IS THAT,</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">3</td><td class="c a"> <ins>IMPK); THIS TURNS A COMMAND LINE LIKE THE C COMPILER'S INTO A COMPILATION AND AN EXECUTABLE:</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">5</td><td class="c a">    <ins>IMP [-c | -S | -Sir] [-o OUT] [--target=TRIPLE] [-s LETTERS] [-I IMAGE] [-C SYNTAX] FILE.imp ...</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a">    <ins>IMP -i [-s LETTERS] [FILE.imp ...]        THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">6</td><td class="c a">    <ins>IMP [-s LETTERS] [-I IMAGE] [-C SYNTAX]      NO FILE: THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL OR A PIPE</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">8</td><td class="c a"> <ins>(-c STOP AT THE OBJECT, NAME.O, WHICH IS WHAT A REL FILE IS ON TOPS-10; -S AT THE ASSEMBLY OF THE TARGET, NAME.S; -SIR AT LLVM IR, NAME.LL; NOTHING: A PROGRAM, A.OUT; -o THE OUTPUT; --TARGET=TRIPLE FOR ANOTHER SYSTEM; -s THE SWITCHES; -I AN IMAGE SAVED BY U OR V.)  IT FINDS ITS PARTS RELATIVE TO ITSELF (THE SOURCE TREE, OR PREFIX/BIN, PREFIX/LIB/IMP72 AND PREFIX/SHARE/IMP72),</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">9</td><td class="c a"> <ins>RUNS THE KERNEL (IMPK) IN THIS PROCESS TO WRITE THE IR OF THE PROGRAM, AND THEN THE BACK END, LLVM IN THE PROCESS (SRC/LLVM.IMC); THE LINK IS THE SYSTEM'S CC.  CALLED</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">10</td><td class="c a"> <ins>BY ANOTHER NAME THAN IMP OR IMPSTAGE... (IMPD IS ONE) IT IS THE KERNEL ALONE: IMPK, WITH THE ARGUMENTS OF STAGE0/IMPS0.C.  STAGE0/IMPS0.C IS THE SEED'S DRIVER, WHICH THIS REPLACES FOR IMP72.#</ins></td></tr>
@@ -374,7 +374,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">387</td><td class="c a"> <ins>CCALL puts(LOC('  -C FILE            a file of syntax or declarations, read before the sources (as /C on the tape)'));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">388</td><td class="c a"> <ins>CCALL puts(LOC('  -s LETTERS         the switches of the original compiler (A listing, T tree, ...)'));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">389</td><td class="c a"> <ins>CCALL puts(LOC('  -I IMAGE           start from the compiler saved by /U or /V'));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">390</td><td class="c a"> <ins>CCALL puts(LOC('  -i                 the commands of the original compiler, from the terminal: OBJ,LIST_FILE/switches'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">390</td><td class="c a"> <ins>CCALL puts(LOC('  (no file)          the commands of the original compiler, from the terminal or a pipe: OBJ,LIST_FILE/switches'));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">391</td><td class="c a"> <ins>CCALL puts(LOC('  --version, --help'));</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">392</td><td class="c a"> <ins>0);</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">394</td><td class="c a"><ins># THE OPTIONS AND THE FILES OF THE COMMAND LINE, IN ANY ORDER AS THE C COMPILER'S: A NAME THAT ENDS IN .O, .A OR .SO IS TO BE LINKED, ANY OTHER IS A SOURCE (A FILE OF SYNTAX OR DECLARATIONS IS NAMED BY -C, AS THE TAPE'S /C).  A MISTAKE ENDS THE PROGRAM (2) #</ins></td></tr>
@@ -386,138 +386,137 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">400</td><td class="c a"> <ins>OP1: I GE NA0 =&gt; RETURN 0;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">401</td><td class="c a">      <ins>A:=DARG(I); I:=I+1;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">402</td><td class="c a">      <ins>((IMPBYTE(A,0) NE 55B) OR (IMPBYTE(A,1)=0)) =&gt; GO TO OPF;                   # A FILE (AND - ALONE IS NOT AN OPTION) #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">403</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-i'))=0 =&gt; (DINTER:=1; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">404</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-c'))=0 =&gt; (DSTOP:=157B; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">405</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-S'))=0 =&gt; (DSTOP:=123B; DSIR:=0; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">406</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-Sir'))=0 =&gt; (DSTOP:=123B; DSIR:=1; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">407</td><td class="c a">      <ins>CCALL strcmp(A,LOC('--version'))=0 =&gt; (CCALL puts(LOC('imp 0.10.0')); CCALL exit(0));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">408</td><td class="c a">      <ins>((CCALL strcmp(A,LOC('--help'))=0) OR (CCALL strcmp(A,LOC('-h'))=0)) =&gt; (DRVHELP(0); CCALL exit(0));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">409</td><td class="c a">      <ins>STARTS(A,LOC('--target='))=1 =&gt; (DTGT:=A+9; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">410</td><td class="c a">      <ins>STARTS(A,LOC('--sysroot='))=1 =&gt; (DSYSROOT:=A+10; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">411</td><td class="c a">      <ins>STARTS(A,LOC('--runtime='))=1 =&gt; (DRUNTIME:=A+10; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">412</td><td class="c a">      <ins>((CCALL strcmp(A,LOC('--sysroot'))=0) OR (CCALL strcmp(A,LOC('--runtime'))=0)) =&gt; (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">413</td><td class="c a">          <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">414</td><td class="c a">          <ins>CCALL strcmp(A,LOC('--sysroot'))=0 =&gt; DSYSROOT:=DARG(I) ELSE DRUNTIME:=DARG(I);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">415</td><td class="c a">          <ins>I:=I+1; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">416</td><td class="c a">      <ins>((CCALL strcmp(A,LOC('--target'))=0) OR (CCALL strcmp(A,LOC('-target'))=0)) =&gt; (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">417</td><td class="c a">          <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">418</td><td class="c a">          <ins>DTGT:=DARG(I); I:=I+1; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">419</td><td class="c a">      <ins>STARTS(A,LOC('-o'))=1 =&gt; (IMPBYTE(A,2) NE 0 =&gt; (OUTN:=A+2; GO TO OP1);              # -OFILE #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">420</td><td class="c a">                                <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">421</td><td class="c a">                                <ins>OUTN:=DARG(I); I:=I+1; GO TO OP1);                       # -O FILE #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">422</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-C'))=0 =&gt; (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">423</td><td class="c a">          <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">424</td><td class="c a">          <ins>IMPARGSET(DKV,DNK,DARG(I)); DNK:=DNK+1; IMPARGSET(DSYV,DNSY,DARG(I)); DNSY:=DNSY+1;      # IN THE ORDER GIVEN, WITH THE SOURCES #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">425</td><td class="c a">          <ins>I:=I+1; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">426</td><td class="c a">      <ins>((CCALL strcmp(A,LOC('-s'))=0) OR (CCALL strcmp(A,LOC('-I'))=0)) =&gt; (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">427</td><td class="c a">          <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">428</td><td class="c a">          <ins>CCALL strcmp(A,LOC('-s'))=0 =&gt; DSW:=DARG(I) ELSE DIMG:=DARG(I);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">429</td><td class="c a">          <ins>I:=I+1; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">430</td><td class="c a">      <ins>OUTSTR('imp: unknown option '); OUTCS(A); OUTCHR(12B); CCALL exit(2);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">431</td><td class="c a"> <ins>OPM: OUTSTR('imp: missing argument to '); OUTCS(A); OUTCHR(12B); CCALL exit(2);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">432</td><td class="c a"> <ins>OPF: ((ENDS(A,LOC('.o'))=1) OR (ENDS(A,LOC('.a'))=1) OR (ENDS(A,LOC('.so'))=1)) =&gt; (IMPARGSET(DOBJI,DNOBJI,A); DNOBJI:=DNOBJI+1; GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">433</td><td class="c a">      <ins>IMPARGSET(DKV,DNK,A); DNK:=DNK+1;                                                  # SYNTAX AND SOURCES, IN THE ORDER GIVEN: THE KERNEL READS THEM SO #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">434</td><td class="c a">      <ins>IMPARGSET(DSRCV,DNSRC,A); DNSRC:=DNSRC+1;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">435</td><td class="c a">      <ins>GO TO OP1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">437</td><td class="c a"><ins># WHERE THE PARTS ARE: THE SOURCE TREE (BUILD/DIR/IMPD) OR INSTALLED (DIRB, SYNP, FFIP, LIBP, TMPB) #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">438</td><td class="c a"><ins>SUBR SETPATHS(Z) IS (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">439</td><td class="c a"> <ins>EXEDIR(DARG(0))&lt;0 =&gt; (OUTSTR('imp: cannot find myself'); OUTCHR(12B); CCALL exit(1));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">440</td><td class="c a"> <ins>CCALL snprintf(LOC(ROOT),4096,LOC('%s/..'),LOC(DIRB));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">441</td><td class="c a"> <ins>CCALL snprintf(LOC(SYNP),4096,LOC('%s/share/imp/syntax.imc'),LOC(ROOT));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">442</td><td class="c a"> <ins>EXISTS(LOC(SYNP)) NE 0 =&gt; (CCALL snprintf(LOC(FFIP),4096,LOC('%s/share/imp/ffi.imc'),LOC(ROOT));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">443</td><td class="c a">                            <ins>CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/imp/libimp.a'),LOC(ROOT));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">444</td><td class="c a">                            <ins>CCALL snprintf(LOC(TMPB),4096,LOC('/tmp')))                # INSTALLED: THE SYSTEM'S TEMPORARY DIRECTORY #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">445</td><td class="c a">   <ins>ELSE (CCALL snprintf(LOC(SYNP),4096,LOC('%s/../src/syntax.imc'),LOC(ROOT));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">446</td><td class="c a">         <ins>CCALL snprintf(LOC(FFIP),4096,LOC('%s/../lib/ffi.imc'),LOC(ROOT));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">447</td><td class="c a">         <ins>CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/libimp.a'),LOC(ROOT));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">448</td><td class="c a">         <ins>CCALL snprintf(LOC(TMPB),4096,LOC('%s/../tmp'),LOC(ROOT)));       # THE TREE'S OWN (GITIGNORED) TMP/ #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">449</td><td class="c a"> <ins>IMPTMPBASE(LOC(TMPB));                           # (TMPDIR, IF IT IS AN ABSOLUTE PATH NAMING A DIRECTORY, ELSE THIS: USED ONLY WHEN A FILE IS NEEDED) #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">450</td><td class="c a"> <ins>OVERRIDE(LOC(SYNP),LOC('IMPSYNTAX')); OVERRIDE(LOC(FFIP),LOC('IMPFFI')); OVERRIDE(LOC(LIBP),LOC('IMPLIB'));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">451</td><td class="c a"> <ins>0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">453</td><td class="c a"><ins># THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL: THE KERNEL ALONE, WITH THE SYNTAX, THE FILES NAMED, THEN THE TERMINAL.  NEVER RETURNS #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">454</td><td class="c a"><ins>SUBR RUNINTER(Z) IS (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">455</td><td class="c a"> <ins>K ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">456</td><td class="c a"> <ins>KA:=CCALL calloc((DNK+12),8); KNN:=0;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">457</td><td class="c a"> <ins>QUIET:=1; IMPHOOK:=1;                                 # EACH COMPILATION WRITES ITS OBJECT, THE REL FILE #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">458</td><td class="c a"> <ins>KADD(LOC('imps0')); KADD(LOC('-i'));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">459</td><td class="c a"> <ins>DSW NE 0 =&gt; (KADD(LOC('-s')); KADD(DSW));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">460</td><td class="c a"> <ins>DIMG NE 0 =&gt; (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">461</td><td class="c a"> <ins>K:=0; RI1: K&lt;DNK =&gt; (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO RI1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">462</td><td class="c a"> <ins>ARGVP:=KA;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">463</td><td class="c a"> <ins>CCALL exit(IMPK(KNN,KA)));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">465</td><td class="c a"><ins># ONE SOURCE, COMPILED IN THIS PROCESS: THE KERNEL WRITES THE IR TO MEMORY (NO FILE), THE BACK END MAKES WHAT -c, -S, -SIR OR NOTHING (A PROGRAM) ASKS FOR.  A TEMPORARY FILE IS MADE ONLY FOR THE OBJECT OF A PROGRAM TO BE</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">466</td><td class="c a">  <ins>LINKED (IMPTMPOBJ, SRC/../LIB/IMPHOST.IML: A MEMORY FILE ON LINUX, ELSE A PRIVATE DIRECTORY).  NEVER RETURNS #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">467</td><td class="c a"><ins>SUBR ONEFILE(SRC) IS (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">468</td><td class="c a"> <ins>R,K ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">469</td><td class="c a"> <ins>BASEOF(SRC,LOC(BASEN));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">470</td><td class="c a"> <ins>KA:=CCALL calloc(DNK+16,8); KNN:=0;                           # THE KERNEL, IN THIS PROCESS #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">471</td><td class="c a"> <ins>KADD(LOC('imps0'));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">472</td><td class="c a"> <ins>DSW NE 0 =&gt; (KADD(LOC('-s')); KADD(DSW); CCALL dup2(2,1)) ELSE QUIET:=1;        # THE DUMPS GO WITH THE MESSAGES #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">473</td><td class="c a"> <ins>DIMG NE 0 =&gt; (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">474</td><td class="c a"> <ins>K:=0; OK1: K&lt;DNK =&gt; (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO OK1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">475</td><td class="c a"> <ins>ARGVP:=KA;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">476</td><td class="c a"> <ins>IMPOPENIRMEM(0) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">477</td><td class="c a"> <ins>IMPK(KNN,KA) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">478</td><td class="c a"> <ins>IMPCLOSEIRMEM(0) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">479</td><td class="c a"> <ins>CCALL fflush(0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">480</td><td class="c a"> <ins>DSTOP=123B =&gt; (DSIR NE 0 =&gt; R:=LLVMSAVEB(IRBUF,IRLEN,OUTNAME(LOC('.ll'))) ELSE R:=LLVMASMB(IRBUF,IRLEN,OUTNAME(LOC('.s')));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">481</td><td class="c a">               <ins>CCALL exit((R NE 0 =&gt; 1 ELSE 0)));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">482</td><td class="c a"> <ins>DSTOP=157B =&gt; CCALL exit((LLVMOBJB(IRBUF,IRLEN,OUTNAME(LOC('.o'))) NE 0 =&gt; 1 ELSE 0));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">483</td><td class="c a"> <ins>LLVMOBJMEM(IRBUF,IRLEN) NE 0 =&gt; (MSG('? OBJECT FILE NOT WRITTEN'); CCALL exit(1));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">484</td><td class="c a"> <ins>IMPTMPOBJ(LVOBJP,LVOBJN,LOC(OFILE)) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">485</td><td class="c a"> <ins>DOBJL:=CCALL calloc(DNOBJI+2,8); IMPARGSET(DOBJL,0,LOC(OFILE)); DNOBJL:=1;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">486</td><td class="c a"> <ins>K:=0;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">487</td><td class="c a"> <ins>OF1: K&lt;DNOBJI =&gt; (IMPARGET(LOC(DW),DOBJI,K); IMPARGSET(DOBJL,DNOBJL,DW); DNOBJL:=DNOBJL+1; K:=K+1; GO TO OF1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">488</td><td class="c a"> <ins>CCALL exit(LNK(0)));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">490</td><td class="c a"><ins># MORE THAN ONE SOURCE: EACH IS COMPILED BY A PROGRAM OF ITS OWN, AS THE C COMPILER DOES (THIS PROGRAM, RUN WITHOUT A SHELL), TO NAME.O (-c), NAME.S (-S), NAME.LL (-SIR) OR AN OBJECT IN THE PRIVATE TEMPORARY</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">491</td><td class="c a">  <ins>DIRECTORY TO BE LINKED WITH THE OTHERS.  NEVER RETURNS #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">492</td><td class="c a"><ins>SUBR MULTI(Z) IS (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">493</td><td class="c a"> <ins>K,S,BAD,FL,C ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">494</td><td class="c a"> <ins>DOBJL:=CCALL calloc(DNSRC+DNOBJI+2,8); DNOBJL:=0; BAD:=0;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">495</td><td class="c a"> <ins>DSTOP=157B =&gt; FL:=LOC('-c');</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">496</td><td class="c a"> <ins>DSTOP=170B =&gt; FL:=LOC('-c');</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">497</td><td class="c a"> <ins>DSTOP=123B =&gt; (DSIR NE 0 =&gt; FL:=LOC('-Sir') ELSE FL:=LOC('-S'));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">498</td><td class="c a"> <ins>K:=0;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">499</td><td class="c a"> <ins>ML1: K&lt;DNSRC =&gt; (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">500</td><td class="c a">     <ins>IMPARGET(LOC(DW),DSRCV,K); S:=DW;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">501</td><td class="c a">     <ins>KA:=CCALL calloc(DNSY+12,8); KNN:=0;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">502</td><td class="c a">     <ins>KADD(LOC(DSELFB)); KADD(FL);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">503</td><td class="c a">     <ins>DSTOP=170B =&gt; (CCALL snprintf(LOC(DB1),24,LOC('o%d.o'),K);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">504</td><td class="c a">                    <ins>IMPTMPPATH(LOC(DB1),LOC(DB3)) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">505</td><td class="c a">                    <ins>KADD(LOC('-o')); KADD(CCALL strdup(LOC(DB3))));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">506</td><td class="c a">     <ins>DSW NE 0 =&gt; (KADD(LOC('-s')); KADD(DSW));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">507</td><td class="c a">     <ins>DIMG NE 0 =&gt; (KADD(LOC('-I')); KADD(DIMG));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">508</td><td class="c a">     <ins>DTGT NE 0 =&gt; (CCALL snprintf(LOC(DB1),4096,LOC('--target=%s'),DTGT); KADD(CCALL strdup(LOC(DB1))));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">509</td><td class="c a">     <ins>C:=0; MS1: C&lt;DNSY =&gt; (IMPARGET(LOC(DW),DSYV,C); KADD(LOC('-C')); KADD(DW); C:=C+1; GO TO MS1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">510</td><td class="c a">     <ins>KADD(S);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">511</td><td class="c a">     <ins>IMPARGSET(KA,KNN,0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">512</td><td class="c a">     <ins>IMPRUNKID(KNN,KA) NE 0 =&gt; BAD:=1;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">513</td><td class="c a">     <ins>DSTOP=170B =&gt; (IMPARGSET(DOBJL,DNOBJL,CCALL strdup(LOC(DB3))); DNOBJL:=DNOBJL+1);        # A COPY: DB3 IS WRITTEN AGAIN FOR THE NEXT FILE #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">514</td><td class="c a">     <ins>K:=K+1; GO TO ML1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">515</td><td class="c a"> <ins>BAD NE 0 =&gt; CCALL exit(1);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">516</td><td class="c a"> <ins>DSTOP NE 170B =&gt; CCALL exit(0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">517</td><td class="c a"> <ins>K:=0; ML2: K&lt;DNOBJI =&gt; (IMPARGET(LOC(DW),DOBJI,K); IMPARGSET(DOBJL,DNOBJL,DW); DNOBJL:=DNOBJL+1; K:=K+1; GO TO ML2);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">518</td><td class="c a"> <ins>CCALL exit(LNK(0)));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">520</td><td class="c a"><ins>SUBR IMPD(Z) IS (</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">521</td><td class="c a"> <ins>P ARE LOCAL;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">522</td><td class="c a"> <ins>NA0:=CCALL impargc(0); AV0:=CCALL impargvp(0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">523</td><td class="c a"> <ins>P:=CCALL strrchr(DARG(0),57B);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">524</td><td class="c a"> <ins>P=0 =&gt; P:=DARG(0) ELSE P:=P+1;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">525</td><td class="c a"> <ins>CCALL strncmp(P,LOC('impstage'),8)=0 =&gt; GO TO DRV;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">526</td><td class="c a"> <ins>CCALL strcmp(P,LOC('imp'))=0 =&gt; GO TO DRV;</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">527</td><td class="c a"> <ins>ARGVP:=AV0;                                       # ANOTHER NAME (IMPD): THE KERNEL ALONE #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">528</td><td class="c a"> <ins>CCALL exit(IMPK(NA0,AV0));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">529</td><td class="c a"> <ins>DRV: OPTS(0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">530</td><td class="c a"> <ins>((DINTER=0) AND (DNSRC=0) AND (DNOBJI=0)) =&gt; (DRVHELP(0); CCALL exit(2));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">531</td><td class="c a"> <ins>((OUTN NE 0) AND (DSTOP NE 170B) AND (DNSRC&gt;1)) =&gt; (OUTSTR('imp: cannot name the output with more than one source to compile'); OUTCHR(12B); CCALL exit(1));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">532</td><td class="c a"> <ins>SETPATHS(0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">533</td><td class="c a"> <ins>CCALL snprintf(LOC(DSELFB),4096,LOC('%s/%s'),LOC(DIRB),P);        # THIS PROGRAM, FOR THE ONES IT STARTS #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">534</td><td class="c a"> <ins>DTGT NE 0 =&gt; (LLVMTARGET(DTGT) NE 0 =&gt; CCALL exit(1));</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">535</td><td class="c a"> <ins>DINTER NE 0 =&gt; RUNINTER(0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">536</td><td class="c a"> <ins>DNSRC=0 =&gt; (DOBJL:=DOBJI; DNOBJL:=DNOBJI; CCALL exit(LNK(0)));       # ONLY OBJECTS: LINK THEM #</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">537</td><td class="c a"> <ins>DNSRC&gt;1 =&gt; MULTI(0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">538</td><td class="c a"> <ins>IMPARGET(LOC(DW),DSRCV,0);</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">539</td><td class="c a"> <ins>ONEFILE(DW))</ins></td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">540</td><td class="c a"><ins>%%</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">403</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-c'))=0 =&gt; (DSTOP:=157B; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">404</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-S'))=0 =&gt; (DSTOP:=123B; DSIR:=0; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">405</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-Sir'))=0 =&gt; (DSTOP:=123B; DSIR:=1; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">406</td><td class="c a">      <ins>CCALL strcmp(A,LOC('--version'))=0 =&gt; (CCALL puts(LOC('imp 0.10.0')); CCALL exit(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">407</td><td class="c a">      <ins>((CCALL strcmp(A,LOC('--help'))=0) OR (CCALL strcmp(A,LOC('-h'))=0)) =&gt; (DRVHELP(0); CCALL exit(0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">408</td><td class="c a">      <ins>STARTS(A,LOC('--target='))=1 =&gt; (DTGT:=A+9; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">409</td><td class="c a">      <ins>STARTS(A,LOC('--sysroot='))=1 =&gt; (DSYSROOT:=A+10; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">410</td><td class="c a">      <ins>STARTS(A,LOC('--runtime='))=1 =&gt; (DRUNTIME:=A+10; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">411</td><td class="c a">      <ins>((CCALL strcmp(A,LOC('--sysroot'))=0) OR (CCALL strcmp(A,LOC('--runtime'))=0)) =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">412</td><td class="c a">          <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">413</td><td class="c a">          <ins>CCALL strcmp(A,LOC('--sysroot'))=0 =&gt; DSYSROOT:=DARG(I) ELSE DRUNTIME:=DARG(I);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">414</td><td class="c a">          <ins>I:=I+1; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">415</td><td class="c a">      <ins>((CCALL strcmp(A,LOC('--target'))=0) OR (CCALL strcmp(A,LOC('-target'))=0)) =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">416</td><td class="c a">          <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">417</td><td class="c a">          <ins>DTGT:=DARG(I); I:=I+1; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">418</td><td class="c a">      <ins>STARTS(A,LOC('-o'))=1 =&gt; (IMPBYTE(A,2) NE 0 =&gt; (OUTN:=A+2; GO TO OP1);              # -OFILE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">419</td><td class="c a">                                <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">420</td><td class="c a">                                <ins>OUTN:=DARG(I); I:=I+1; GO TO OP1);                       # -O FILE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">421</td><td class="c a">      <ins>CCALL strcmp(A,LOC('-C'))=0 =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">422</td><td class="c a">          <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">423</td><td class="c a">          <ins>IMPARGSET(DKV,DNK,DARG(I)); DNK:=DNK+1; IMPARGSET(DSYV,DNSY,DARG(I)); DNSY:=DNSY+1;      # IN THE ORDER GIVEN, WITH THE SOURCES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">424</td><td class="c a">          <ins>I:=I+1; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">425</td><td class="c a">      <ins>((CCALL strcmp(A,LOC('-s'))=0) OR (CCALL strcmp(A,LOC('-I'))=0)) =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">426</td><td class="c a">          <ins>I GE NA0 =&gt; GO TO OPM;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">427</td><td class="c a">          <ins>CCALL strcmp(A,LOC('-s'))=0 =&gt; DSW:=DARG(I) ELSE DIMG:=DARG(I);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">428</td><td class="c a">          <ins>I:=I+1; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">429</td><td class="c a">      <ins>OUTSTR('imp: unknown option '); OUTCS(A); OUTCHR(12B); CCALL exit(2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">430</td><td class="c a"> <ins>OPM: OUTSTR('imp: missing argument to '); OUTCS(A); OUTCHR(12B); CCALL exit(2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">431</td><td class="c a"> <ins>OPF: ((ENDS(A,LOC('.o'))=1) OR (ENDS(A,LOC('.a'))=1) OR (ENDS(A,LOC('.so'))=1)) =&gt; (IMPARGSET(DOBJI,DNOBJI,A); DNOBJI:=DNOBJI+1; GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">432</td><td class="c a">      <ins>IMPARGSET(DKV,DNK,A); DNK:=DNK+1;                                                  # SYNTAX AND SOURCES, IN THE ORDER GIVEN: THE KERNEL READS THEM SO #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">433</td><td class="c a">      <ins>IMPARGSET(DSRCV,DNSRC,A); DNSRC:=DNSRC+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">434</td><td class="c a">      <ins>GO TO OP1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">436</td><td class="c a"><ins># WHERE THE PARTS ARE: THE SOURCE TREE (BUILD/DIR/IMPD) OR INSTALLED (DIRB, SYNP, FFIP, LIBP, TMPB) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">437</td><td class="c a"><ins>SUBR SETPATHS(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">438</td><td class="c a"> <ins>EXEDIR(DARG(0))&lt;0 =&gt; (OUTSTR('imp: cannot find myself'); OUTCHR(12B); CCALL exit(1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">439</td><td class="c a"> <ins>CCALL snprintf(LOC(ROOT),4096,LOC('%s/..'),LOC(DIRB));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">440</td><td class="c a"> <ins>CCALL snprintf(LOC(SYNP),4096,LOC('%s/share/imp/syntax.imc'),LOC(ROOT));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">441</td><td class="c a"> <ins>EXISTS(LOC(SYNP)) NE 0 =&gt; (CCALL snprintf(LOC(FFIP),4096,LOC('%s/share/imp/ffi.imc'),LOC(ROOT));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">442</td><td class="c a">                            <ins>CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/imp/libimp.a'),LOC(ROOT));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">443</td><td class="c a">                            <ins>CCALL snprintf(LOC(TMPB),4096,LOC('/tmp')))                # INSTALLED: THE SYSTEM'S TEMPORARY DIRECTORY #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">444</td><td class="c a">   <ins>ELSE (CCALL snprintf(LOC(SYNP),4096,LOC('%s/../src/syntax.imc'),LOC(ROOT));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">445</td><td class="c a">         <ins>CCALL snprintf(LOC(FFIP),4096,LOC('%s/../lib/ffi.imc'),LOC(ROOT));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">446</td><td class="c a">         <ins>CCALL snprintf(LOC(LIBP),4096,LOC('%s/lib/libimp.a'),LOC(ROOT));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">447</td><td class="c a">         <ins>CCALL snprintf(LOC(TMPB),4096,LOC('%s/../tmp'),LOC(ROOT)));       # THE TREE'S OWN (GITIGNORED) TMP/ #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">448</td><td class="c a"> <ins>IMPTMPBASE(LOC(TMPB));                           # (TMPDIR, IF IT IS AN ABSOLUTE PATH NAMING A DIRECTORY, ELSE THIS: USED ONLY WHEN A FILE IS NEEDED) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">449</td><td class="c a"> <ins>OVERRIDE(LOC(SYNP),LOC('IMPSYNTAX')); OVERRIDE(LOC(FFIP),LOC('IMPFFI')); OVERRIDE(LOC(LIBP),LOC('IMPLIB'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">450</td><td class="c a"> <ins>0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">452</td><td class="c a"><ins># THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL: THE KERNEL ALONE, WITH THE SYNTAX, THE FILES NAMED, THEN THE TERMINAL.  NEVER RETURNS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">453</td><td class="c a"><ins>SUBR RUNINTER(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">454</td><td class="c a"> <ins>K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">455</td><td class="c a"> <ins>KA:=CCALL calloc((DNK+12),8); KNN:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">456</td><td class="c a"> <ins>QUIET:=1; IMPHOOK:=1;                                 # EACH COMPILATION WRITES ITS OBJECT, THE REL FILE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">457</td><td class="c a"> <ins>KADD(LOC('imps0'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">458</td><td class="c a"> <ins>DSW NE 0 =&gt; (KADD(LOC('-s')); KADD(DSW));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">459</td><td class="c a"> <ins>DIMG NE 0 =&gt; (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">460</td><td class="c a"> <ins>K:=0; RI1: K&lt;DNK =&gt; (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO RI1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">461</td><td class="c a"> <ins>ARGVP:=KA;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">462</td><td class="c a"> <ins>CCALL exit(IMPKI(KNN,KA)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">464</td><td class="c a"><ins># ONE SOURCE, COMPILED IN THIS PROCESS: THE KERNEL WRITES THE IR TO MEMORY (NO FILE), THE BACK END MAKES WHAT -c, -S, -SIR OR NOTHING (A PROGRAM) ASKS FOR.  A TEMPORARY FILE IS MADE ONLY FOR THE OBJECT OF A PROGRAM TO BE</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">465</td><td class="c a">  <ins>LINKED (IMPTMPOBJ, SRC/../LIB/IMPHOST.IML: A MEMORY FILE ON LINUX, ELSE A PRIVATE DIRECTORY).  NEVER RETURNS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">466</td><td class="c a"><ins>SUBR ONEFILE(SRC) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">467</td><td class="c a"> <ins>R,K ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">468</td><td class="c a"> <ins>BASEOF(SRC,LOC(BASEN));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">469</td><td class="c a"> <ins>KA:=CCALL calloc(DNK+16,8); KNN:=0;                           # THE KERNEL, IN THIS PROCESS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">470</td><td class="c a"> <ins>KADD(LOC('imps0'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">471</td><td class="c a"> <ins>DSW NE 0 =&gt; (KADD(LOC('-s')); KADD(DSW); CCALL dup2(2,1)) ELSE QUIET:=1;        # THE DUMPS GO WITH THE MESSAGES #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">472</td><td class="c a"> <ins>DIMG NE 0 =&gt; (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">473</td><td class="c a"> <ins>K:=0; OK1: K&lt;DNK =&gt; (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO OK1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">474</td><td class="c a"> <ins>ARGVP:=KA;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">475</td><td class="c a"> <ins>IMPOPENIRMEM(0) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">476</td><td class="c a"> <ins>IMPK(KNN,KA) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">477</td><td class="c a"> <ins>IMPCLOSEIRMEM(0) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">478</td><td class="c a"> <ins>CCALL fflush(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">479</td><td class="c a"> <ins>DSTOP=123B =&gt; (DSIR NE 0 =&gt; R:=LLVMSAVEB(IRBUF,IRLEN,OUTNAME(LOC('.ll'))) ELSE R:=LLVMASMB(IRBUF,IRLEN,OUTNAME(LOC('.s')));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">480</td><td class="c a">               <ins>CCALL exit((R NE 0 =&gt; 1 ELSE 0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">481</td><td class="c a"> <ins>DSTOP=157B =&gt; CCALL exit((LLVMOBJB(IRBUF,IRLEN,OUTNAME(LOC('.o'))) NE 0 =&gt; 1 ELSE 0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">482</td><td class="c a"> <ins>LLVMOBJMEM(IRBUF,IRLEN) NE 0 =&gt; (MSG('? OBJECT FILE NOT WRITTEN'); CCALL exit(1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">483</td><td class="c a"> <ins>IMPTMPOBJ(LVOBJP,LVOBJN,LOC(OFILE)) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">484</td><td class="c a"> <ins>DOBJL:=CCALL calloc(DNOBJI+2,8); IMPARGSET(DOBJL,0,LOC(OFILE)); DNOBJL:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">485</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">486</td><td class="c a"> <ins>OF1: K&lt;DNOBJI =&gt; (IMPARGET(LOC(DW),DOBJI,K); IMPARGSET(DOBJL,DNOBJL,DW); DNOBJL:=DNOBJL+1; K:=K+1; GO TO OF1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">487</td><td class="c a"> <ins>CCALL exit(LNK(0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">489</td><td class="c a"><ins># MORE THAN ONE SOURCE: EACH IS COMPILED BY A PROGRAM OF ITS OWN, AS THE C COMPILER DOES (THIS PROGRAM, RUN WITHOUT A SHELL), TO NAME.O (-c), NAME.S (-S), NAME.LL (-SIR) OR AN OBJECT IN THE PRIVATE TEMPORARY</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">490</td><td class="c a">  <ins>DIRECTORY TO BE LINKED WITH THE OTHERS.  NEVER RETURNS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">491</td><td class="c a"><ins>SUBR MULTI(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">492</td><td class="c a"> <ins>K,S,BAD,FL,C ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">493</td><td class="c a"> <ins>DOBJL:=CCALL calloc(DNSRC+DNOBJI+2,8); DNOBJL:=0; BAD:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">494</td><td class="c a"> <ins>DSTOP=157B =&gt; FL:=LOC('-c');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">495</td><td class="c a"> <ins>DSTOP=170B =&gt; FL:=LOC('-c');</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">496</td><td class="c a"> <ins>DSTOP=123B =&gt; (DSIR NE 0 =&gt; FL:=LOC('-Sir') ELSE FL:=LOC('-S'));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">497</td><td class="c a"> <ins>K:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">498</td><td class="c a"> <ins>ML1: K&lt;DNSRC =&gt; (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">499</td><td class="c a">     <ins>IMPARGET(LOC(DW),DSRCV,K); S:=DW;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">500</td><td class="c a">     <ins>KA:=CCALL calloc(DNSY+12,8); KNN:=0;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">501</td><td class="c a">     <ins>KADD(LOC(DSELFB)); KADD(FL);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">502</td><td class="c a">     <ins>DSTOP=170B =&gt; (CCALL snprintf(LOC(DB1),24,LOC('o%d.o'),K);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">503</td><td class="c a">                    <ins>IMPTMPPATH(LOC(DB1),LOC(DB3)) NE 0 =&gt; CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">504</td><td class="c a">                    <ins>KADD(LOC('-o')); KADD(CCALL strdup(LOC(DB3))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">505</td><td class="c a">     <ins>DSW NE 0 =&gt; (KADD(LOC('-s')); KADD(DSW));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">506</td><td class="c a">     <ins>DIMG NE 0 =&gt; (KADD(LOC('-I')); KADD(DIMG));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">507</td><td class="c a">     <ins>DTGT NE 0 =&gt; (CCALL snprintf(LOC(DB1),4096,LOC('--target=%s'),DTGT); KADD(CCALL strdup(LOC(DB1))));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">508</td><td class="c a">     <ins>C:=0; MS1: C&lt;DNSY =&gt; (IMPARGET(LOC(DW),DSYV,C); KADD(LOC('-C')); KADD(DW); C:=C+1; GO TO MS1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">509</td><td class="c a">     <ins>KADD(S);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">510</td><td class="c a">     <ins>IMPARGSET(KA,KNN,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">511</td><td class="c a">     <ins>IMPRUNKID(KNN,KA) NE 0 =&gt; BAD:=1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">512</td><td class="c a">     <ins>DSTOP=170B =&gt; (IMPARGSET(DOBJL,DNOBJL,CCALL strdup(LOC(DB3))); DNOBJL:=DNOBJL+1);        # A COPY: DB3 IS WRITTEN AGAIN FOR THE NEXT FILE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">513</td><td class="c a">     <ins>K:=K+1; GO TO ML1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">514</td><td class="c a"> <ins>BAD NE 0 =&gt; CCALL exit(1);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">515</td><td class="c a"> <ins>DSTOP NE 170B =&gt; CCALL exit(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">516</td><td class="c a"> <ins>K:=0; ML2: K&lt;DNOBJI =&gt; (IMPARGET(LOC(DW),DOBJI,K); IMPARGSET(DOBJL,DNOBJL,DW); DNOBJL:=DNOBJL+1; K:=K+1; GO TO ML2);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">517</td><td class="c a"> <ins>CCALL exit(LNK(0)));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">519</td><td class="c a"><ins>SUBR IMPD(Z) IS (</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">520</td><td class="c a"> <ins>P ARE LOCAL;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">521</td><td class="c a"> <ins>NA0:=CCALL impargc(0); AV0:=CCALL impargvp(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">522</td><td class="c a"> <ins>P:=CCALL strrchr(DARG(0),57B);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">523</td><td class="c a"> <ins>P=0 =&gt; P:=DARG(0) ELSE P:=P+1;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">524</td><td class="c a"> <ins>CCALL strncmp(P,LOC('impstage'),8)=0 =&gt; GO TO DRV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">525</td><td class="c a"> <ins>CCALL strcmp(P,LOC('imp'))=0 =&gt; GO TO DRV;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">526</td><td class="c a"> <ins>ARGVP:=AV0;                                       # ANOTHER NAME (IMPD): THE KERNEL ALONE #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">527</td><td class="c a"> <ins>CCALL exit(IMPK(NA0,AV0));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">528</td><td class="c a"> <ins>DRV: OPTS(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">529</td><td class="c a"> <ins>((DNSRC=0) AND (DNOBJI=0)) =&gt; DINTER:=1;                        # NO FILE: THE COMMANDS OF THE ORIGINAL (A PROMPT ON THE STANDARD ERROR, THE COMMANDS ON THE STANDARD INPUT: A TERMINAL, A PIPE, EXPECT) #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">530</td><td class="c a"> <ins>((OUTN NE 0) AND (DSTOP NE 170B) AND (DNSRC&gt;1)) =&gt; (OUTSTR('imp: cannot name the output with more than one source to compile'); OUTCHR(12B); CCALL exit(1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">531</td><td class="c a"> <ins>SETPATHS(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">532</td><td class="c a"> <ins>CCALL snprintf(LOC(DSELFB),4096,LOC('%s/%s'),LOC(DIRB),P);        # THIS PROGRAM, FOR THE ONES IT STARTS #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">533</td><td class="c a"> <ins>DTGT NE 0 =&gt; (LLVMTARGET(DTGT) NE 0 =&gt; CCALL exit(1));</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">534</td><td class="c a"> <ins>DINTER NE 0 =&gt; RUNINTER(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">535</td><td class="c a"> <ins>DNSRC=0 =&gt; (DOBJL:=DOBJI; DNOBJL:=DNOBJI; CCALL exit(LNK(0)));       # ONLY OBJECTS: LINK THEM #</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">536</td><td class="c a"> <ins>DNSRC&gt;1 =&gt; MULTI(0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">537</td><td class="c a"> <ins>IMPARGET(LOC(DW),DSRCV,0);</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">538</td><td class="c a"> <ins>ONEFILE(DW))</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">539</td><td class="c a"><ins>%%</ins></td></tr>
 </table>
 </body></html>

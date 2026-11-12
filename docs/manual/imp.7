@@ -4359,7 +4359,7 @@ which takes the options of a
 compiler:
 .Bd -literal -offset indent
 imp [options] file.imp ...
-imp -i [-s LETTERS] [file.imp ...]
+imp [-s LETTERS] [-I IMAGE]
 .Ed
 .Pp
 A file named on the command line is a source file (any name;
@@ -4385,7 +4385,6 @@ The options are
 -C FILE     A file of syntax and declarations, read before the sources (in the order given).
 -s LETTERS  Set the compiler switches (below).
 -I IMAGE    Start from the compiler saved by /U or /V (Section 3.4).
--i          Read commands from the terminal (Section 3.1.2).
 --run       Compile and run the program in the process of the compiler.
 --target=TRIPLE  Compile for another system (Section 3.1.3).
 --sysroot=DIR, --runtime=FILE   Where the files of that system are.
@@ -4482,8 +4481,10 @@ signs are not counted.
 If the compiler detects an error, the listing from that point in the
 source file on is written.
 .Ss "3.1.2 Interactive Commands"
-.Li "imp \-i"
-reads commands from the standard input.
+.Li imp
+with no file on the command line reads commands from the standard input:
+a terminal, a pipe, or a program like
+.Li expect .
 It prints its version and the date
 .Pf \&( Li YYYY\-MM\-DD )
 as a banner and an asterisk as the prompt.
@@ -4968,8 +4969,8 @@ is such a file.
 .It 3.
 In an image of the compiler.
 With
-.Li "imp \-i" ,
-the command
+.Li imp
+and no file, the command
 .Li inv.imc/C
 reads the file and continues, and the command
 .Li myc_/U

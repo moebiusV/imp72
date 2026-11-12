@@ -251,7 +251,7 @@ archive).
 | `tests/direct/run.sh` | the native and oracle tests, the IEEE fuzz and a differential fuzz through the compiler the seed builds |
 | `tests/direct/stage2.sh` | a compiler built by the seed and one built by that compiler write the same IR for every program |
 | `tests/direct/ir2ll.sh` | the IMP LLVM IR writer and `tools/ir2ll.c` write the same text |
-| `tests/interactive/run.sh` | `impd -i`, the original's commands |
+| `tests/interactive/run.sh` | a bare `imp`, the original's commands |
 | `tests/image/run.sh` | saving the compiler with `/U` and starting from it with `-I`, including an image restored with the free storage at another address |
 | `tests/llvm/gen.sh` | `tools/llvm.sh imp` in each of its shapes |
 | `tests/link/run.sh` | the link with lld in the process, with no `cc` on the `PATH` |

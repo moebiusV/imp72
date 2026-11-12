@@ -3,7 +3,7 @@ QUIET,ARGVP,IMPHOOK ARE COMMON;
  IMPK); THIS TURNS A COMMAND LINE LIKE THE C COMPILER'S INTO A COMPILATION AND AN EXECUTABLE:
 
     IMP [-c | -S | -Sir] [-o OUT] [--target=TRIPLE] [-s LETTERS] [-I IMAGE] [-C SYNTAX] FILE.imp ...
-    IMP -i [-s LETTERS] [FILE.imp ...]        THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL
+    IMP [-s LETTERS] [-I IMAGE] [-C SYNTAX]      NO FILE: THE COMMANDS OF THE ORIGINAL, FROM THE TERMINAL OR A PIPE
 
  (-c STOP AT THE OBJECT, NAME.O, WHICH IS WHAT A REL FILE IS ON TOPS-10; -S AT THE ASSEMBLY OF THE TARGET, NAME.S; -SIR AT LLVM IR, NAME.LL; NOTHING: A PROGRAM, A.OUT; -o THE OUTPUT; --TARGET=TRIPLE FOR ANOTHER SYSTEM; -s THE SWITCHES; -I AN IMAGE SAVED BY U OR V.)  IT FINDS ITS PARTS RELATIVE TO ITSELF (THE SOURCE TREE, OR PREFIX/BIN, PREFIX/LIB/IMP72 AND PREFIX/SHARE/IMP72),
  RUNS THE KERNEL (IMPK) IN THIS PROCESS TO WRITE THE IR OF THE PROGRAM, AND THEN THE BACK END, LLVM IN THE PROCESS (SRC/LLVM.IMC); THE LINK IS THE SYSTEM'S CC.  CALLED
@@ -387,7 +387,7 @@ CCALL puts(LOC('  --sysroot=DIR      with --target and no -c: the root of that s
  CCALL puts(LOC('  -C FILE            a file of syntax or declarations, read before the sources (as /C on the tape)'));
  CCALL puts(LOC('  -s LETTERS         the switches of the original compiler (A listing, T tree, ...)'));
  CCALL puts(LOC('  -I IMAGE           start from the compiler saved by /U or /V'));
- CCALL puts(LOC('  -i                 the commands of the original compiler, from the terminal: OBJ,LIST_FILE/switches'));
+ CCALL puts(LOC('  (no file)          the commands of the original compiler, from the terminal or a pipe: OBJ,LIST_FILE/switches'));
  CCALL puts(LOC('  --version, --help'));
  0);
 
@@ -400,7 +400,6 @@ SUBR OPTS(Z) IS (
  OP1: I GE NA0 => RETURN 0;
       A:=DARG(I); I:=I+1;
       ((IMPBYTE(A,0) NE 55B) OR (IMPBYTE(A,1)=0)) => GO TO OPF;                   # A FILE (AND - ALONE IS NOT AN OPTION) #
-      CCALL strcmp(A,LOC('-i'))=0 => (DINTER:=1; GO TO OP1);
       CCALL strcmp(A,LOC('-c'))=0 => (DSTOP:=157B; GO TO OP1);
       CCALL strcmp(A,LOC('-S'))=0 => (DSTOP:=123B; DSIR:=0; GO TO OP1);
       CCALL strcmp(A,LOC('-Sir'))=0 => (DSTOP:=123B; DSIR:=1; GO TO OP1);
@@ -455,12 +454,12 @@ SUBR RUNINTER(Z) IS (
  K ARE LOCAL;
  KA:=CCALL calloc((DNK+12),8); KNN:=0;
  QUIET:=1; IMPHOOK:=1;                                 # EACH COMPILATION WRITES ITS OBJECT, THE REL FILE #
- KADD(LOC('imps0')); KADD(LOC('-i'));
+ KADD(LOC('imps0'));
  DSW NE 0 => (KADD(LOC('-s')); KADD(DSW));
  DIMG NE 0 => (KADD(LOC('-I')); KADD(DIMG)) ELSE (KADD(LOC(SYNP)); KADD(LOC(FFIP)));
  K:=0; RI1: K<DNK => (IMPARGET(LOC(DW),DKV,K); KADD(DW); K:=K+1; GO TO RI1);
  ARGVP:=KA;
- CCALL exit(IMPK(KNN,KA)));
+ CCALL exit(IMPKI(KNN,KA)));
 
 # ONE SOURCE, COMPILED IN THIS PROCESS: THE KERNEL WRITES THE IR TO MEMORY (NO FILE), THE BACK END MAKES WHAT -c, -S, -SIR OR NOTHING (A PROGRAM) ASKS FOR.  A TEMPORARY FILE IS MADE ONLY FOR THE OBJECT OF A PROGRAM TO BE
   LINKED (IMPTMPOBJ, SRC/../LIB/IMPHOST.IML: A MEMORY FILE ON LINUX, ELSE A PRIVATE DIRECTORY).  NEVER RETURNS #
@@ -527,7 +526,7 @@ SUBR IMPD(Z) IS (
  ARGVP:=AV0;                                       # ANOTHER NAME (IMPD): THE KERNEL ALONE #
  CCALL exit(IMPK(NA0,AV0));
  DRV: OPTS(0);
- ((DINTER=0) AND (DNSRC=0) AND (DNOBJI=0)) => (DRVHELP(0); CCALL exit(2));
+ ((DNSRC=0) AND (DNOBJI=0)) => DINTER:=1;                        # NO FILE: THE COMMANDS OF THE ORIGINAL (A PROMPT ON THE STANDARD ERROR, THE COMMANDS ON THE STANDARD INPUT: A TERMINAL, A PIPE, EXPECT) #
  ((OUTN NE 0) AND (DSTOP NE 170B) AND (DNSRC>1)) => (OUTSTR('imp: cannot name the output with more than one source to compile'); OUTCHR(12B); CCALL exit(1));
  SETPATHS(0);
  CCALL snprintf(LOC(DSELFB),4096,LOC('%s/%s'),LOC(DIRB),P);        # THIS PROGRAM, FOR THE ONES IT STARTS #

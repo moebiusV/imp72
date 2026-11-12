@@ -2380,7 +2380,7 @@ The IMP compiler is called by the command `imp`, which takes the options of a `C
 
 ```
 imp [options] file.imp ...
-imp -i [-s LETTERS] [file.imp ...]
+imp [-s LETTERS] [-I IMAGE]
 ```
 
 A file named on the command line is a source file (any name; `.imp` by custom) or an object file or
@@ -2398,7 +2398,6 @@ runtime library `libimp.a`, to the executable program. The options are
 -C FILE     A file of syntax and declarations, read before the sources (in the order given).
 -s LETTERS  Set the compiler switches (below).
 -I IMAGE    Start from the compiler saved by /U or /V (Section 3.4).
--i          Read commands from the terminal (Section 3.1.2).
 --run       Compile and run the program in the process of the compiler.
 --target=TRIPLE  Compile for another system (Section 3.1.3).
 --sysroot=DIR, --runtime=FILE   Where the files of that system are.
@@ -2445,8 +2444,9 @@ is written.
 
 #### 3.1.2: Interactive Commands.
 
-`imp -i` reads commands from the standard input. It prints its version and the date (`YYYY-MM-DD`)
-as a banner and an asterisk as the prompt. A command line has the format
+`imp` with no file on the command line reads commands from the standard input: a terminal, a pipe,
+or a program like `expect`. It prints its version and the date (`YYYY-MM-DD`) as a banner and an
+asterisk as the prompt. A command line has the format
 
 ```
 obj,list_file.ext/a/b
@@ -2727,7 +2727,7 @@ statements (Section 2.3) in three ways.
   inv.imc p1.imp`. It ends with two % signs, like a program. The file `ffi.imc` of the compiler, which
   defines CCALL, EXTERNAL, CALLBACK, FNPTR and STRUCT, is such a file.
 
-- 3. In an image of the compiler. With `imp -i`, the command `inv.imc/C` reads the file and
+- 3. In an image of the compiler. With `imp` and no file, the command `inv.imc/C` reads the file and
   continues, and the command `myc_/U` saves the compiler with the syntax read so far on `myc.img`. A
   program is then compiled by the extended compiler with `imp -I myc.img p1.imp`. The image holds the
   tables of the compiler (the directory, the syntax, the declarations) and the variables of its

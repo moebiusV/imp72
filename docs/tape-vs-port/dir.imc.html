@@ -19,7 +19,7 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 </style></head><body>
 <p class="mut"><a href="index.html">all modules</a></p><h1>dir.imc</h1>
 <p class="mut">left, old (the tape): decus/dir.imc<br>right, new (the port): src/dir.imc</p>
-<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 27 changed places, 460 tokens deleted, 1159 inserted.</p>
+<p><del>deleted</del> is in the old file only, <ins>inserted</ins> in the new one only; 27 changed places, 449 tokens deleted, 1148 inserted.</p>
 <table class="sbs"><colgroup><col class="n"><col class="c"><col class="n"><col class="c"></colgroup>
 <tr><td class="n q">1</td><td class="c q">TWOSEG;</td><td class="n q">1</td><td class="c q">TWOSEG;</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">2</td><td class="c a"><ins>DM,DN ARE COMMON;                           # THE C SIDE READS THEM (SRC/SHARED.TXT) #</ins></td></tr>
@@ -64,10 +64,10 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n d">35</td><td class="c d"> ARE REQUIRED. #</td><td class="n a">38</td><td class="c a"> <ins>EIGHT CHARACTERS EACH, THE FIRST IN THE LOW BYTE (A STRING CONSTANT IS ONE).</ins>  TERMINAL</td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">39</td><td class="c a"> NULL CHARACTERS ARE REQUIRED. #</td></tr>
 <tr><td class="n q">37</td><td class="c q">SUBR HASH(NM) IS (#9-BIT HASH CODE#</td><td class="n q">41</td><td class="c q">SUBR HASH(NM) IS (#9-BIT HASH CODE#</td></tr>
-<tr><td class="n d">38</td><td class="c d">                  <del>HSH_</del>NM XOR NM RS <del>18</del>;</td><td class="n a">42</td><td class="c a">                  <ins>HSHIFT:=</ins>NM XOR NM RS <ins>32</ins>;</td></tr>
-<tr><td class="n d">39</td><td class="c d">                  <del>HSH_HSH</del> XOR <del>HSH</del> RS 9;</td><td class="n a">43</td><td class="c a">                  <ins>HSHIFT:=HSHIFT</ins> XOR <ins>HSHIFT</ins> RS <ins>16;</ins></td></tr>
-<tr><td class="n d">40</td><td class="c d">                  <del>HSH</del> AND 777B);</td><td class="n a">44</td><td class="c a">                  <ins>HSHIFT:=HSHIFT XOR HSHIFT RS</ins> 9;</td></tr>
-<tr><td class="n e"></td><td class="c e"></td><td class="n a">45</td><td class="c a">                  <ins>HSHIFT</ins> AND 777B);</td></tr>
+<tr><td class="n d">38</td><td class="c d">                  HSH<del>_</del>NM XOR NM RS <del>18</del>;</td><td class="n a">42</td><td class="c a">                  HSH<ins>:=</ins>NM XOR NM RS <ins>32</ins>;</td></tr>
+<tr><td class="n d">39</td><td class="c d">                  HSH<del>_</del>HSH XOR HSH RS 9;</td><td class="n a">43</td><td class="c a">                  HSH<ins>:=HSH XOR HSH RS 16;</ins></td></tr>
+<tr><td class="n e"></td><td class="c e"></td><td class="n a">44</td><td class="c a">                  <ins>HSH:=</ins>HSH XOR HSH RS 9;</td></tr>
+<tr><td class="n q">40</td><td class="c q">                  HSH AND 777B);</td><td class="n q">45</td><td class="c q">                  HSH AND 777B);</td></tr>
 <tr><td class="n q">42</td><td class="c q">SUBR DIR(NM) IS (</td><td class="n q">47</td><td class="c q">SUBR DIR(NM) IS (</td></tr>
 <tr><td class="n d">43</td><td class="c d"> DINIT=0 =&gt; (DINIT<del>_</del>1;</td><td class="n a">48</td><td class="c a"> DINIT=0 =&gt; (DINIT<ins>:=</ins>1;</td></tr>
 <tr><td class="n d">44</td><td class="c d">             FRELOT(PRP,'PRP',2100,<del>DORGFIX</del>); FINCSET(PRP,90); NPRP<del>_</del>1536;</td><td class="n a">49</td><td class="c a">             FRELOT(PRP,'PRP',2100,<ins>0</ins>); FINCSET(PRP,90); NPRP<ins>:=</ins>1536;</td></tr>
@@ -120,13 +120,13 @@ table.idx th:first-child,table.idx td:first-child{text-align:left}table.idx th{f
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">99</td><td class="c a"> <ins>RTN:=T; NRTN:=N; CRTN:=N;</ins></td></tr>
 <tr><td class="n e"></td><td class="c e"></td><td class="n a">100</td><td class="c a"> <ins>1</ins>);</td></tr>
 <tr><td class="n q">69</td><td class="c q">SUBR DSEQ(N) IS (</td><td class="n q">102</td><td class="c q">SUBR DSEQ(N) IS (</td></tr>
-<tr><td class="n d">70</td><td class="c d"> N&lt;0 =&gt; (N<del>_</del>-3; <del>NMARK_</del>-1);</td><td class="n a">103</td><td class="c a"> N&lt;0 =&gt; (N<ins>:=</ins>-3; <ins>NMSIGN:=</ins>-1);</td></tr>
-<tr><td class="n d">71</td><td class="c d"> <del>NMARK</del> GE 0 =&gt; (N<del>_</del>FREE(PRP+N) <del>RS 18</del>;</td><td class="n a">104</td><td class="c a"> <ins>NMSIGN</ins> GE 0 =&gt; (N<ins>:=HLEFT(</ins>FREE(PRP+N)<ins>)</ins>;</td></tr>
-<tr><td class="n d">72</td><td class="c d">                N=0 =&gt; (N<del>_NMARK</del>; <del>NMARK_</del>-1));</td><td class="n a">105</td><td class="c a">                N=0 =&gt; (N<ins>:=NMSIGN</ins>; <ins>NMSIGN:=</ins>-1));</td></tr>
-<tr><td class="n d">73</td><td class="c d"> <del>NMARK</del>&lt;0 =&gt; (L6: N<del>_</del>N+3;</td><td class="n a">106</td><td class="c a"> <ins>NMSIGN</ins>&lt;0 =&gt; (L6: N<ins>:=</ins>N+3;</td></tr>
+<tr><td class="n d">70</td><td class="c d"> N&lt;0 =&gt; (N<del>_</del>-3; NMARK<del>_</del>-1);</td><td class="n a">103</td><td class="c a"> N&lt;0 =&gt; (N<ins>:=</ins>-3; NMARK<ins>:=</ins>-1);</td></tr>
+<tr><td class="n d">71</td><td class="c d"> NMARK GE 0 =&gt; (N<del>_</del>FREE(PRP+N) <del>RS 18</del>;</td><td class="n a">104</td><td class="c a"> NMARK GE 0 =&gt; (N<ins>:=HLEFT(</ins>FREE(PRP+N)<ins>)</ins>;</td></tr>
+<tr><td class="n d">72</td><td class="c d">                N=0 =&gt; (N<del>_</del>NMARK; NMARK<del>_</del>-1));</td><td class="n a">105</td><td class="c a">                N=0 =&gt; (N<ins>:=</ins>NMARK; NMARK<ins>:=</ins>-1));</td></tr>
+<tr><td class="n d">73</td><td class="c d"> NMARK&lt;0 =&gt; (L6: N<del>_</del>N+3;</td><td class="n a">106</td><td class="c a"> NMARK&lt;0 =&gt; (L6: N<ins>:=</ins>N+3;</td></tr>
 <tr><td class="n d">74</td><td class="c d">              N GE 1536 =&gt; N<del>_</del>-1</td><td class="n a">107</td><td class="c a">              N GE 1536 =&gt; N<ins>:=</ins>-1</td></tr>
 <tr><td class="n q">75</td><td class="c q">                      ELSE (FREE(PRP+N)=0 =&gt; GO TO L6;</td><td class="n q">108</td><td class="c q">                      ELSE (FREE(PRP+N)=0 =&gt; GO TO L6;</td></tr>
-<tr><td class="n d">76</td><td class="c d">                            <del>NMARK_</del>N));</td><td class="n a">109</td><td class="c a">                            <ins>NMSIGN:=</ins>N));</td></tr>
+<tr><td class="n d">76</td><td class="c d">                            NMARK<del>_</del>N));</td><td class="n a">109</td><td class="c a">                            NMARK<ins>:=</ins>N));</td></tr>
 <tr><td class="n q">77</td><td class="c q">N);</td><td class="n q">110</td><td class="c q">N);</td></tr>
 <tr><td class="n d">79</td><td class="c d">SUBR PNAME(DJ) IS (DJ GE 0=&gt;PRINT STG 0,FREE(ALF+FREE(PRP+DJ) <del>AND 777777B</del>));</td><td class="n a">112</td><td class="c a">SUBR PNAME(DJ) IS (DJ GE 0=&gt;PRINT STG 0,FREE(ALF+<ins>HRIGHT(</ins>FREE(PRP+DJ)))<ins>)</ins>;</td></tr>
 <tr><td class="n d">81</td><td class="c d">SUBR DNAME(DI,J) IS FREE(ALF+J+FREE(PRP+DI) <del>AND 777777B</del>);</td><td class="n a">114</td><td class="c a">SUBR DNAME(DI,J) IS FREE(ALF+J+<ins>HRIGHT(</ins>FREE(PRP+DI)<ins>)</ins>);</td></tr>

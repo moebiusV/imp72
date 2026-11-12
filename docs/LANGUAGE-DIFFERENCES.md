@@ -10,7 +10,7 @@ comes from the machine and from the runtime.
   statements, is not `:` followed by `:=`). A name may contain `_`, so every IMP
   name is a valid C and ELF name. `decus/` and `docs/manual/imp.md` keep the
   original's `_`. In a syntax statement the token is quoted, `':='`. The command
-  line of `imp -i` is not IMP source: there `_` still separates
+  line of a bare `imp` is not IMP source: there `_` still separates
   (`OBJ,LIST_SRC`).
 - **Names are case sensitive.** `ab` and `AB` are two variables, as on TOPS-10,
   and the symbol of a routine or `COMMON` variable is its name as written.
