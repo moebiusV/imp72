@@ -54,18 +54,21 @@ Decided (2026-11-03, "`''` keeps its original meaning"): `''` is the constant 0.
 with no third following: the constant 0) and a test. As a `STG` argument, `''`
 is 0, like any other zero word.
 
-### 5. The rest of the original's channel I/O
+### 5. What is left of the original's channel I/O
 
 `INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`, `CLOSE`, `RENAME` and `RELEAS` are in `lib/impchan.iml`: the monitor calls of TOPS-10 as routines over
-`FILE *`, one buffer of 1024 bytes to a channel, a header of three words (the buffer, the byte pointer, the count). Not provided: the ring of buffers
-(its links are 18 bit addresses), dump mode (a command list of `IOWD` words), binary mode and its checksums, the devices but `DSK` and `TTY`,
-`USETI` and `USETO` (random access, `fseek`), the status bits of `STATZ` and `STATO`, and the date, protection and project-programmer words of
-`LOOKUP`, `ENTER` and `RENAME`.
+`FILE *`, one buffer of 1024 bytes to a channel, a header of three words (the buffer, the byte pointer, the count). Added since: `USETI` and `USETO`
+(an `fseek` to a block of 1024 bytes), the status of a channel (`GETSTS`, `SETSTS`, `STATZ`, `STATO`, with the bits of TOPS-10 for the end of the
+file and a failed transfer), and dump mode (mode `17B`: `INPUT` and `OUTPUT` take a list of pairs, count and address, ended by a count of 0, and
+move that many words of 8 bytes). `RLEAS` is back and the other `CORE` is in `free.imc`. The test is `tests/native/chan.imp` and `chan2.imp`.
 
-Decided (2026-11-11: channel I/O comes back; the single buffer is done): the rest as far as a program of the tape needs it; details pending.
+Not provided: binary mode and its checksums (a block of 36 bit words with a count and a checksum word has no file format on a machine with 64
+bit words that a program of the tape could read), the ring of buffers (its links are 18 bit addresses), the devices but `DSK` and `TTY`, and the
+date, protection and project-programmer words of `LOOKUP`, `ENTER` and `RENAME` (a Unix file has none of them that a program could set).
+None of the tape's own programs uses any of these.
 
-*Effect on the code.* `lib/impchan.iml` and its test `tests/native/chan.imp`; `USETI` and `USETO` are an `fseek` and the count; dump mode is a
-list of word pairs (count, address) in place of `IOWD`.
+Decided (2026-11-11): the rest as far as a program of the tape needs it; the programs of the tape (the compiler's modules) need none of what is
+not provided, so it stays so until a program that does is found.
 
 ### 6. Counted strings
 
