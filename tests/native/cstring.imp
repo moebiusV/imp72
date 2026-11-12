@@ -1,0 +1,8 @@
+PRINT STG 0,"A\tB\n";
+PRINT STG 0,"caf\xC3\xA9 é €",/;
+PRINT STG 0,"quote \" and \\ and ' done",/;
+PRINT STG 0,"stop\0hidden",/;
+PRINT STG 0,"same ",STG 0,'same',/;
+PRINT STG 0,"emoji \U0001F600",/;
+FINI(0)
+%%

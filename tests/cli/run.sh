@@ -259,5 +259,16 @@ IMPOPT=-O0 "$w" -c -o algo-env.o algo.imp >/dev/null 2>&1 && cmp -s algo-env.o a
 IMPOPT=-O0 "$w" -c -O3 -o algo-envf.o algo.imp >/dev/null 2>&1 && cmp -s algo-envf.o algo-O3.o || bad "a flag does not win over IMPOPT"
 "$w" -O9 -c algo.imp >/dev/null 2>&1; [ $? = 2 ] || bad "-O9 is not refused with status 2"
 "$w" -Ofoo -c algo.imp >/dev/null 2>&1; [ $? = 2 ] || bad "-Ofoo is not refused with status 2"
+# a string in quotes ("text", with C's escapes): the same constant as one in apostrophes; an unterminated one and a bad hexadecimal escape are errors
+cat > cstr_ok.imp <<'E'
+PRINT STG 0,"a\tb",STG 0,'a	b',/;
+FINI(0)
+%%
+E
+"$w" cstr_ok.imp >/dev/null 2>&1 && [ "$(./a.out)" = "$(printf 'a\tb' ; printf 'a\tb')" ] || bad "a string in quotes and the same in apostrophes"
+printf 'PRINT STG 0,"abc,/;\nFINI(0)\n%%%%\n' > cstr_unterminated.imp
+"$w" -c cstr_unterminated.imp >/dev/null 2>&1 && bad "a string in quotes with no closing quote was accepted"
+printf 'PRINT STG 0,"a\\xZZ",/;\nFINI(0)\n%%%%\n' > cstr_hex.imp
+"$w" -c cstr_hex.imp >/dev/null 2>&1 && bad "a bad hexadecimal escape in a string was accepted"
 [ $fail = 0 ] && echo ok
 exit $fail

@@ -1,0 +1,5 @@
+PRINT OCT 0,R'AB',STG 0,' ',OCT 0,R"AB",STG 0,' ',OCT 0,R!'AB!,/;
+PRINT OCT 0,R'ABCDEFGH',/;
+PRINT IGR 0,'',STG 0,' ',IGR 0,"",STG 0,' ',IGR 0,R'',/;
+FINI(0)
+%%

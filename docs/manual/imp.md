@@ -220,7 +220,66 @@ comes from the machine and from the runtime library.
 
 - 13. The original's channel input and output (`INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`,
   `CLOSE`, `RENAME`, `RELEAS`) are routines over Unix files with one buffer of 1024 bytes to a
-  channel, and no dump mode; PRINT and READ with FILE use Unix files (Section 2.2.7).
+  channel, and dump mode (mode `17B`) with a list of pairs count, address of words of 8 bytes where
+  the original had `IOWD` words; `USETI`, `USETO` and the status of a channel (`GETSTS`, `SETSTS`,
+  `STATZ`, `STATO`) are there; binary mode, the ring of buffers and the other devices are not. PRINT
+  and READ with FILE use Unix files (Section 2.2.7).
+
+- 14. Numbers and strings are what a C program on a 64-bit machine holds, and not what the PDP-10
+  held. The original's representation, for comparison and for history, and the one here:
+
+- Word and integer
+
+TOPS-10: 36 bits, halves of 18 bits, an 18-bit word address, integers 36-bit two's complement
+(-2**35 to 2**35-1). Here: 64 bits, halves of 32 bits, a byte address, integers 64-bit two's
+complement.
+
+- Octal constant
+
+TOPS-10: up to 12 digits, and -1 was `777777777777B`. Here: up to 22 digits, `777777777777B`
+is 2**36-1 and -1 is `-1`.
+
+- Real
+
+TOPS-10: one word with a sign bit, an 8-bit exponent in excess 128 and a 27-bit fraction (about
+seven decimal digits), a decimal constant converted by the compiler's own code (`0.25` was one unit
+low and `0.001` printed as `.99999"-3`). Here: an IEEE 754 double, the word is its bits, a constant
+is the nearest double, `0.001` prints as `.001`.
+
+- Character
+
+TOPS-10: ASCII, 7 bits, five to a word, left-justified, the last bit of the word empty. Here: a
+byte, the text is UTF-8, a name is kept eight to a word and a string one to a byte.
+
+- String constant
+
+TOPS-10: `'ABC'` stored left-justified and zero-filled in successive words, always ended by at least
+one zero character, its value the word (of up to five characters), its address a word address. Here:
+the bytes and a zero byte in successive words, which is a C string; the value of one of eight bytes
+or fewer is the word that holds it (the first byte in the least significant byte on a little-endian
+machine, the order of the bytes in memory), and its address, `LOC('ABC')`, is a pointer for C. It
+can be written `'ABC'` or `"ABC"` (with C's escapes, Section 2.2.1).
+
+- Names
+
+TOPS-10: five characters to a word in the compiler, of which the first 24 of a name were kept. Here:
+a whole name, eight bytes to a word, up to 4095 bytes.
+
+- R'STG'
+
+TOPS-10: one to five characters of 7 bits, right-justified in the word. Here: one to eight bytes,
+right-justified (Section 2.2.1).
+
+- Sixbit, Radix 50
+
+TOPS-10: the library's SIXBIT, ASCII, RAD50, RADX50, ASCI50 and SIX50, six characters to a word
+of 36 bits. Here: the same functions with the same numbers in the low 36 bits of a word
+(Section 2.2.9).
+
+- Byte pointer
+
+TOPS-10: the hardware's, `BYTEP A\<S,P>` a size and a position in a word. Here: `BYTEP A<7,36>` is a
+byte address, and any other `\<S,P>` works on the bits of the word.
 
 ## 2: Programmer's Guide to IMP72
 
@@ -370,7 +429,8 @@ variable name; the desired constant may be written 0ABB12.
 Floating point constant. Consists of a string of digits containing an embedded decimal point (i.e.,
 .01 and 3. are not legal), and followed optionally by " and a power-of-ten scaling factor, an
 integer written with a minus sign if it is negative and with no plus sign. The value is the REAL (an
-IEEE 754 double) nearest to the number.
+IEEE 754 double) nearest to the number. A double quote right after a digit is this mark and not the
+start of a string in double quotes.
 
 - A
 
@@ -390,7 +450,21 @@ first byte in the least significant byte, which is the order of the bytes in mem
 string is its first eight bytes; the address of the string is `LOC('text')`, which is what a C
 function expects (Section 2.4). The character ' is represented within a string by two successive
 quotes: ''. Thus, the string consisting of one single quote would be written '''' (but would print
-as ').
+as '). The string `''` (and `""`) is the same as 0, as it was on the original; it is the only string
+without a character. A string may also be written in double quotes, `"text\n"`, with C's escapes:
+`\n \t \r \a \b \f \v \e`, `\0` (which ends the string: a string is ASCIIZ), `\\`, `\"`, `\'`,
+`\xHH` (one byte), `\uHHHH` and `\UHHHHHHHH` (a code point, as UTF-8 bytes); any other character
+after a backslash is itself. It is the same string constant as one in quotes of the other kind, and
+ends at its closing quote on the line. In a syntax statement, from its `::=` to its `;`, the double
+quote is the delimiter of a semantic string, as it was.
+
+- R'STG'
+
+A string of one to eight characters prefixed by the letter R is a constant containing the bytes of
+the string right-justified: the last character is in the least significant byte, so that `R'AB'` is
+`40502B` (hex 4142). It may be written in apostrophes, in double quotes (`R"AB"`) or as `R!'AB!`,
+and is a number in the source like any other. The original's was one to five characters of 7 bits
+each, right-justified in the 36 bits of a word.
 
 - !Any thing.!
 
@@ -1057,6 +1131,31 @@ Copies the N+1 words that start at A to the N+1 words that start at B, upward, o
 It performs the operation `(B[I]:=A[I]) FOR I TO N`. N is any positive expression (if real, it is
 fixed). A and B are any expressions having an address, such as simple or subscripted variables, or
 [expression].
+
+- SIXBIT(STG)
+
+Has the value of the string STG (six characters or less, a string of at most eight bytes) as a
+SIXBIT word: six characters of six bits, the ascii code minus 40b (a lower case letter is taken for
+its capital, any other character for a blank), the first in the high end of the low 36 bits: the
+number the original gave, in the low 36 bits of a 64-bit word. `SIXBIT('ABC')` is `414243000000B`.
+
+- ASCII(SIXB)
+
+Has the value of the SIXBIT word SIXB as a string of six bytes (a blank for a zero code). The
+original returned two words of five characters, the second in register 1R; six bytes fit in one word
+here.
+
+- RAD50(STG,BITS), RADX50(SIXB,BITS)
+
+Has the value of the string STG (or of the SIXBIT word SIXB) as a RADIX 50 symbol: six characters of
+the 40 blank, 0-9, a-z, ., $ and %, the first the most significant, in 32 bits, with the four code
+bits BITS above them (bits 32 to 35). The original's BITS was optional; here it is not (a missing
+argument cannot be told from one that is there): give 0 for none.
+
+- ASCI50(R50,BITS), SIX50(R50,BITS)
+
+Has the value of the RADIX 50 symbol R50 converted to ascii (a string of six bytes) or to SIXBIT,
+and sets the variable BITS to the value of the code bits. BITS must be a variable.
 
 ### 2.3:  Syntactic and Semantic Extension.
 

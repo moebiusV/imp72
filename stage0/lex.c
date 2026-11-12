@@ -25,6 +25,9 @@
 
 static char *src;                   /* the whole input file */
 static size_t srclen, srcpos;
+static int syn, ins, p1, p2;      /* in a syntax statement, between the " of a semantic string, and the kinds of the last two tokens (src/lex.imc TKSTATE) */
+static int dead;                  /* a backslash-zero has ended the C string being read */
+static int fc, nc;                /* the first character and the length of a name being read: R followed by a string is a number (rstr) */
 
 static char *line;                  /* LINE: the current line, NUL ended */
 static size_t linelen, linecap;
@@ -143,6 +146,7 @@ lexin(const char *path)
     pc = 0;
     pct = 0;
     skip = 0;
+    syn = ins = p1 = p2 = 0;
     return 0;
 }
 
@@ -215,6 +219,197 @@ nextchar(void)
     isanm = alnum(c);
 }
 
+/* where a " is the delimiter of a semantic string and where it starts a C string: a syntax statement (<..> ::= ... ::= ...;) is from its ::= (the tokens : : =) to its ; or its %
+ * outside a semantic string; in it every " is a token of its own and ins says whether we are between a pair; anywhere else a " starts a string (src/lex.imc TKSTATE) */
+static void
+tkstate(void)
+{
+    int b0 = (unsigned char)tok[0], k = 0;
+
+    if (tok[0] == '\0' || tok[1] != '\0') {          /* more than one character: not one of these */
+        p2 = p1;
+        p1 = 0;
+        return;
+    }
+    if (b0 == ':')
+        k = 1;
+    else if (b0 == '=')
+        k = 2;
+    if (k == 2 && p1 == 1 && p2 == 1)
+        syn = 1;
+    if (b0 == ';' && ins == 0)
+        syn = 0;
+    if (b0 == '%' && ins == 0)
+        syn = 0;
+    p2 = p1;
+    p1 = k;
+}
+
+static int
+hexv(int ch)
+{
+    if (ch >= '0' && ch <= '9')
+        return ch - '0';
+    if (ch >= 'A' && ch <= 'F')
+        return ch - 'A' + 10;
+    if (ch >= 'a' && ch <= 'f')
+        return ch - 'a' + 10;
+    return -1;
+}
+
+/* a byte of a C string: in the token unless a \0 has ended the string (the rest of it up to the closing " is read and left out) */
+static void
+cput(int v)
+{
+    if (!dead)
+        tokput(v);
+}
+
+static void
+putu(unsigned long x)
+{
+    if (x < 128)
+        cput((int)x);
+    else if (x < 2048) {
+        cput((int)(192 | (x >> 6)));
+        cput((int)(128 | (x & 63)));
+    } else if (x < 65536) {
+        cput((int)(224 | (x >> 12)));
+        cput((int)(128 | ((x >> 6) & 63)));
+        cput((int)(128 | (x & 63)));
+    } else {
+        cput((int)(240 | (x >> 18)));
+        cput((int)(128 | ((x >> 12) & 63)));
+        cput((int)(128 | ((x >> 6) & 63)));
+        cput((int)(128 | (x & 63)));
+    }
+}
+
+/* CSTR: "text" at the " that starts it.  The token is the one of a string in apostrophes (the apostrophe and the bytes), and it is the same string constant.  The escapes are
+ * C's: \n \t \r \a \b \f \v \e, \0 (which ends the string: a string is ASCIZ), \\ \" \', \xHH (one byte) \uHHHH and \UHHHHHHHH (a code point, as UTF-8); any other character after a \ is itself.
+ * The string ends at the next " that is not escaped, on its line. */
+static void
+cstr(void)
+{
+    unsigned long v;
+    int d, i, n;
+
+    dead = 0;
+    cput('\'');
+    for (;;) {
+        nextchar();
+        if (c == '"') {
+            nextchar();
+            skip = -1;
+            return;
+        }
+        if (c == '\n') {
+            imp_error(1, "A STRING IN QUOTES ENDS AT THE END OF THE LINE.");
+            skip = -1;
+            return;
+        }
+        if (c != '\\') {
+            cput(c);
+            continue;
+        }
+        nextchar();
+        switch (c) {
+        case 'n': cput('\n'); continue;
+        case 't': cput('\t'); continue;
+        case 'r': cput('\r'); continue;
+        case 'a': cput(7); continue;
+        case 'b': cput(8); continue;
+        case 'f': cput(12); continue;
+        case 'v': cput(11); continue;
+        case 'e': cput(27); continue;
+        case '0': dead = 1; continue;
+        case 'x': n = 2; break;
+        case 'u': n = 4; break;
+        case 'U': n = 8; break;
+        default: cput(c); continue;
+        }
+        v = 0;
+        for (i = 0; i < n; i++) {
+            nextchar();
+            if ((d = hexv(c)) < 0) {
+                imp_error(1, "A HEXADECIMAL DIGIT IS EXPECTED AFTER \\X OR \\U IN A STRING.");
+                skip = -1;
+                return;
+            }
+            v = (v << 4) | (unsigned long)d;
+        }
+        if (n == 2)
+            cput((int)v);
+        else
+            putu(v);
+    }
+}
+
+/* R'TEXT': the characters of the string, one to eight, right-justified in a number (the last in the low byte; the tape's are one to five, 7 bits each).  The lexer has read the R and
+ * stands at the ' or " or ! that follows, which is how the form of the string is told ('TEXT', "TEXT" with C's escapes, or !'TEXT!, which R may prefix as well).  The string is read
+ * into the token as it would be, and the token becomes the number, in octal with a B (up to 22 digits) (src/lex.imc RSTR) */
+static void
+rstr(int f)
+{
+    unsigned long v = 0;
+    size_t n, i;
+    int dg, started = 0, b;
+
+    toklen = 0;
+    if (f == 0) {
+        tokput('\'');
+        for (;;) {
+            nextchar();
+            if (c != '\'') {
+                tokput(c);
+                continue;
+            }
+            nextchar();
+            if (c != '\'')
+                break;
+            tokput(c);
+        }
+    } else if (f == 1)
+        cstr();
+    else {
+        nextchar();
+        if (c == '\'') {
+            tokput('\'');
+            for (nextchar(); c != '!'; nextchar())
+                tokput(c);
+            nextchar();
+        } else {
+            imp_error(1, "R REQUIRES TEXT CONSTANT OPERAND.");
+            toklen = 0;
+            tokput('0');
+            tokput('B');
+            skip = -1;
+            return;
+        }
+    }
+    skip = -1;
+    n = toklen;                                     /* the bytes of the token, the leading ' included */
+    for (i = 1; i < n; i++)
+        v = (v << 8) | (unsigned char)tok[i];
+    if (n > 9)
+        imp_error(1, "R TAKES AT MOST EIGHT CHARACTERS.");
+    toklen = 0;
+    if (v == 0) {
+        tokput('0');
+        tokput('B');
+        return;
+    }
+    for (dg = 22; dg > 0;) {
+        dg--;
+        b = (int)((v >> (3 * dg)) & 7);
+        if (b != 0 || started) {
+            tokput('0' + b);
+            started = 1;
+        }
+    }
+    tokput('B');
+}
+
 /* LEX(S): read the next token.  *s is its directory index; the value is IC,
  * the column the lexer has reached (one past the token, for most tokens). */
 word
@@ -227,10 +422,27 @@ t0: if (!skip)
     skip = 0;
     if (!isanm)
         goto t2;
+    fc = c;
+    nc = 0;
 t1: tokput(c);
+    nc++;
     nextchar();
     if (isanm)
         goto t1;
+    if (nc == 1 && fc == 'R') {            /* R'TEXT', R"TEXT" and R!'TEXT!: the characters right-justified in a number */
+        if (c == '\'') {
+            rstr(0);
+            goto lx;
+        }
+        if (c == '"' && !syn) {
+            rstr(1);
+            goto lx;
+        }
+        if (c == '!') {
+            rstr(2);
+            goto lx;
+        }
+    }
     skip = -1;
     goto lx;
 t2: if (c <= 040)
@@ -250,6 +462,10 @@ t4:     tokput(c);
         if (c == '\'')
             goto t4;
         skip = -1;
+        if (toklen == 1) {                  /* '' is the constant 0, as it is on the tape */
+            toklen = 0;
+            tokput('0');
+        }
         goto lx;
     }
     if (c == '!') {
@@ -259,6 +475,18 @@ t5:     nextchar();
             goto t5;
         }
         goto lx;
+    }
+    if (c == '"') {
+        if (syn)
+            ins = !ins;
+        else if (lastc < '0' || lastc > '9') {      /* (a " after a digit is the exponent of a real: 3.27"-5) */
+            cstr();
+            if (toklen == 1) {              /* "" is the constant 0, as '' is */
+                toklen = 0;
+                tokput('0');
+            }
+            goto lx;
+        }
     }
     tokput(c);
     if (c == ':' && lastc != ':') {         /* := is one token */
@@ -270,6 +498,7 @@ t5:     nextchar();
     }
 lx: tokput(0);
     csv = c;
+    tkstate();
     *s = dir(tok);
     return ic;
 }

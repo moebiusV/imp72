@@ -29,31 +29,6 @@ byte for a letter (one routine in `lex.imc`, and in `stage0/lex.c`); the rest
 is a file of rules. A name that used one of those characters would change
 meaning.
 
-### 2. C string syntax `"text\n"`
-
-`'text'` is the string constant, two apostrophes are one inside it, and
-`!name!` is an exact identifier.
-
-Proposed: `"..."` with C's escapes (`\n \t \\ \" \0 \xHH`, and `\u` as UTF-8
-bytes) as a second spelling of the same string constant. `'...'` stays. A
-one-character `'a'` stays a string of one character; giving it the value of a
-character would change `STG 0,'A'` and every program of the original.
-
-*Effect on the code.* The quoting code of the lexer and the rule for the
-constant in `syntax.imc`. The code generators see a constant either way.
-
-### 3. The empty string `''`
-
-`''` is a syntax error. The original manual says the string `''` is the
-same as 0: the empty ASCIZ string is its terminating zero, which as a value is
-the number 0. A quote inside a string stays written doubled.
-
-Decided (2026-11-03, "`''` keeps its original meaning"): `''` is the constant 0. Details pending: the lexer case and a test.
-
-*Effect on the code.* One case in `lex.imc` and `stage0/lex.c` (two apostrophes
-with no third following: the constant 0) and a test. As a `STG` argument, `''`
-is 0, like any other zero word.
-
 ### 5. What is left of the original's channel I/O
 
 `INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`, `CLOSE`, `RENAME` and `RELEAS` are in `lib/impchan.iml`: the monitor calls of TOPS-10 as routines over
@@ -86,7 +61,7 @@ tell apart.
 
 *Effect on the code.* A new part of the library and its declarations. The
 lexer, the code generators and the existing library are untouched, and no
-existing program changes. It depends on item 2.
+existing program changes. Item 2 (a string in double quotes) is done.
 
 ### 8. A generated header for exported routines
 

@@ -293,13 +293,106 @@ Section 3.1.2.
 The original’s channel input and output
 .Li "(INIT, LOOKUP, ENTER, INPUT, OUTPUT, CLOSE, RENAME, RELEAS\&)"
 are routines over Unix files with one buffer of 1024 bytes to a channel,
-and no dump mode;
+and dump mode (mode
+.Li 17B )
+with a list of pairs count, address of words of 8 bytes where the original
+had
+.Li IOWD
+words;
+.Li "USETI, USETO"
+and the status of a channel
+.Li "(GETSTS, SETSTS, STATZ, STATO\&)"
+are there; binary mode, the ring of buffers and the other devices are
+not.
 .Ic PRINT
 and
 .Ic READ
 with
 .Ic FILE
 use Unix files (Section 2.2.7).
+.It 14.
+Numbers and strings are what a
+.Ar C
+program on a 64-bit machine holds, and not what the PDP-10 held.
+The original’s representation, for comparison and for history, and the
+one here:
+.El
+.Bl -tag -width 17n -compact
+.It Li "Word and integer"
+TOPS-10: 36 bits, halves of 18 bits, an 18-bit word address, integers
+36-bit two’s complement
+.Li "(\-2**35 to 2**35\-1\&)" .
+Here: 64 bits, halves of 32 bits, a byte address, integers 64-bit two’s
+complement.
+.It Li "Octal constant"
+TOPS-10: up to 12 digits, and -1 was
+.Li 777777777777B .
+Here: up to 22 digits,
+.Li 777777777777B
+is
+.Li 2**36\-1
+and -1 is
+.Li \-1 .
+.It Li Real
+TOPS-10: one word with a sign bit, an 8-bit exponent in excess 128 and
+a 27-bit fraction (about seven decimal digits), a decimal constant converted
+by the compiler’s own code
+.Li "(0.25 was one unit low and 0.001 printed as .99999\(dq\-3\&)" .
+Here: an IEEE 754 double, the word is its bits, a constant is the nearest
+double,
+.Li 0.001
+prints as
+.Li \&.001 .
+.It Li Character
+TOPS-10: ASCII, 7 bits, five to a word, left-justified, the last bit
+of the word empty.
+Here: a byte, the text is UTF-8, a name is kept eight to a word and
+a string one to a byte.
+.It Li "String constant"
+TOPS-10:
+.Li \(aqABC\(aq
+stored left-justified and zero-filled in successive words, always ended
+by at least one zero character, its value the word (of up to five characters),
+its address a word address.
+Here: the bytes and a zero byte in successive words, which is a
+.Ar C
+string; the value of one of eight bytes or fewer is the word that holds
+it (the first byte in the least significant byte on a little-endian
+machine, the order of the bytes in memory), and its address,
+.Li LOC(\(aqABC\(aq\&) ,
+is a pointer for
+.Ar C .
+It can be written
+.Li \(aqABC\(aq
+or
+.Li \(dqABC\(dq
+(with C’s escapes, Section 2.2.1).
+.It Li Names
+TOPS-10: five characters to a word in the compiler, of which the first
+24 of a name were kept.
+Here: a whole name, eight bytes to a word, up to 4095 bytes.
+.It Li R\(aqSTG\(aq
+TOPS-10: one to five characters of 7 bits, right-justified in the word.
+Here: one to eight bytes, right-justified (Section 2.2.1).
+.It Li "Sixbit, Radix 50"
+TOPS-10: the library’s
+.Ic SIXBIT ,
+ASCII,
+.Li "RAD50, RADX50, ASCI50"
+and
+.Li SIX50 ,
+six characters to a word of 36 bits.
+Here: the same functions with the same numbers in the low 36 bits of
+a word (Section 2.2.9).
+.It Li "Byte pointer"
+TOPS-10: the hardware’s,
+.Li "BYTEP A<S,P>"
+a size and a position in a word.
+Here:
+.Li "BYTEP A<7,36>"
+is a byte address, and any other
+.Li <S,P>
+works on the bits of the word.
 .El
 .Sh "2 PROGRAMMER’S GUIDE TO IMP72"
 .Ss "2.1 Conventions"
@@ -574,6 +667,8 @@ if it is negative and with no plus sign.
 The value is the
 .Ic REAL
 (an IEEE 754 double) nearest to the number.
+A double quote right after a digit is this mark and not the start of
+a string in double quotes.
 .It Ar A
 Variable name.
 Any string of letters, digits and underscores not interpretable as one
@@ -612,6 +707,48 @@ Thus, the string consisting of one single quote would be written
 .Li \(aq\(aq\(aq\(aq
 (but would print as
 .Li \(aq ) .
+The string
+.Li \(aq\(aq
+(and
+.Li \(dq\(dq )
+is the same as 0, as it was on the original; it is the only string without
+a character.
+A string may also be written in double quotes,
+.Li \(dqtext\en\(dq ,
+with C’s escapes:
+.Li "\en \et \er \ea \eb \ef \ev \ee, \e0"
+(which ends the string: a string is
+.Ic ASCIIZ ) ,
+.Li "\e\e, \e\(dq, \e\(aq, \exHH"
+(one byte),
+.Li \euHHHH
+and
+.Li \eUHHHHHHHH
+(a code point, as UTF-8 bytes); any other character after a backslash
+is itself.
+It is the same string constant as one in quotes of the other kind, and
+ends at its closing quote on the line.
+In a syntax statement, from its
+.Li ::=
+to its
+.Li \&; ,
+the double quote is the delimiter of a semantic string, as it was.
+.It Li R\(aqSTG\(aq
+A string of one to eight characters prefixed by the letter
+.Ar R
+is a constant containing the bytes of the string right-justified: the
+last character is in the least significant byte, so that
+.Li R\(aqAB\(aq
+is
+.Li 40502B
+(hex 4142).
+It may be written in apostrophes, in double quotes
+.Pf \&( Li R\(dqAB\(dq )
+or as
+.Li R!\(aqAB\&! ,
+and is a number in the source like any other.
+The original’s was one to five characters of 7 bits each, right-justified
+in the 36 bits of a word.
 .It Li "!Any thing.\&!"
 Special identifier: any string of characters not containing a
 .Ql \&! ,
@@ -1961,6 +2098,57 @@ and
 .Ar B
 are any expressions having an address, such as simple or subscripted
 variables, or [expression].
+.It Li SIXBIT(STG\&)
+Has the value of the string
+.Ic STG
+(six characters or less, a string of at most eight bytes) as a
+.Ic SIXBIT
+word: six characters of six bits, the ascii code minus 40b (a lower
+case letter is taken for its capital, any other character for a blank),
+the first in the high end of the low 36 bits: the number the original
+gave, in the low 36 bits of a 64-bit word.
+.Li SIXBIT(\(aqABC\(aq\&)
+is
+.Li 414243000000B .
+.It Li ASCII(SIXB\&)
+Has the value of the
+.Ic SIXBIT
+word
+.Ic SIXB
+as a string of six bytes (a blank for a zero code).
+The original returned two words of five characters, the second in register
+.Li 1R ;
+six bytes fit in one word here.
+.It Li "RAD50(STG,BITS), RADX50(SIXB,BITS\&)"
+Has the value of the string
+.Ic STG
+(or of the
+.Ic SIXBIT
+word
+.Ic SIXB )
+as a
+.Ic RADIX
+50 symbol: six characters of the 40 blank, 0-9, a-z, \&.,
+.Li $
+and
+.Li % ,
+the first the most significant, in 32 bits, with the four code bits
+.Ic BITS
+above them (bits 32 to 35).
+The original’s
+.Ic BITS
+was optional; here it is not (a missing argument cannot be told from
+one that is there): give 0 for none.
+.It Li "ASCI50(R50,BITS), SIX50(R50,BITS\&)"
+Has the value of the
+.Ic RADIX
+50 symbol R50 converted to ascii (a string of six bytes) or to
+.Ic SIXBIT ,
+and sets the variable
+.Ic BITS
+to the value of the code bits.
+.Ic BITS
+must be a variable.
 .El
 .Ss "2.3 Syntactic and Semantic Extension"
 This section explains the IMP72 facilities for extending the language.
