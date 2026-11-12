@@ -1,7 +1,7 @@
 #!/bin/sh
 # mklib.sh: build build/lib/libimp.a, the runtime library of the programs IMP72 compiles.  The runtime (PRINT, READ, FINI, CALLI, BLT, IFIX, the shifts, the byte
 # pointers) is IMP, lib/imprt.iml and lib/impio.iml, compiled by the seed (stage0/impstage0) into one object; lib/impsys.iml, impvars.iml, imphost.iml and the generated sysgen.iml have what the system says in its headers, and
-# lib/impmain.iml is the program's main (in a member of its own, so that a program with a main of its own does not link it).  Run from the top of the tree after `make` has built stage0.
+# lib/impmain.iml is the program's main (in a member of its own, so that a program with a main of its own does not link it; it is imp_init and imp_run, lib/impinit.iml and lib/imprun.iml, which such a program calls itself).  Run from the top of the tree after `make` has built stage0.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
@@ -17,7 +17,7 @@ bd=$(sh tools/llvm.sh bindir)                          # where lld is as a progr
 sysos=${SYSOS:-$(uname -s | tr 'A-Z' 'a-z')}
 sh tools/sysconst.sh "$sysos" "$SYSARCH" "$bd" > "$out/sysgen.iml"
 case $sysos in darwin) vfmt=macho ;; *) vfmt=elf ;; esac
-for m in "impsys:lib/impsys.iml" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml" "impchan:lib/impchan.iml"; do
+for m in "impsys:lib/impsys.iml" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml" "impinit:lib/impinit.iml" "imprun:lib/imprun.iml" "impchan:lib/impchan.iml"; do
     x=; case ${m%%:*} in sysgen) x='-C lib/ffi.imc' ;; esac                 # (sysgen declares syscall: tools/sysconst.sh)
     env -u IMPSYNTAX -u IMPFFI -u IMPLIB stage0/impstage0 -c -o "$out/${m%%:*}.o" $x -C "$endf" "${m#*:}"
 done
@@ -30,4 +30,4 @@ if [ -n "$rt" ]; then
     ( cd "$out/rt" && ar x "$rtabs" )
     rtobjs=$(ls "$out"/rt/*.o)
 fi
-ar rcs "$out/libimp.a" "$out/imprt_imp.o" "$out/impsys.o" "$out/sysgen.o" "$out/impvars.o" "$out/impvarsx.o" "$out/impmain.o" "$out/impchan.o" "$out/imphost.o" "$out/imphostx.o" $rtobjs
+ar rcs "$out/libimp.a" "$out/imprt_imp.o" "$out/impsys.o" "$out/sysgen.o" "$out/impvars.o" "$out/impvarsx.o" "$out/impmain.o" "$out/impinit.o" "$out/imprun.o" "$out/impchan.o" "$out/imphost.o" "$out/imphostx.o" $rtobjs

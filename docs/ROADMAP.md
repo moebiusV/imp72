@@ -119,22 +119,6 @@ A typed export (`EXPORT INT F(INT)` with C's argument passing) is not planned.
 *Effect on the code.* A tool in `tools/` and its tests; no change to the
 compilers.
 
-### 9. Initialising the runtime from a C program
-
-The `main` of the runtime library (`lib/impmain.iml`) keeps `argc` and `argv`
-for `impargc` and `impargvp`, and calls `impmain`. A C program with a `main` of
-its own does not link it. The command line is then not kept for the IMP
-routines, and the only way to start the main program of an IMP source is to
-call `impmain`.
-
-Decided (2026-11-11: in scope; details pending): split that `main` into `imp_init(argc, argv)` and `imp_run()`,
-declared in `lib/imp.h`. A C program calls `imp_init` first, so that the
-IMP routines find the runtime initialised, and `imp_run` where it wants the
-main program of an IMP source. The library's `main` becomes the two calls.
-
-*Effect on the code.* `lib/impmain.iml`, `lib/imp.h`, and a test with a C
-`main` that prints through `PRINT`.
-
 ### 11. A runtime library for Windows and Cygwin
 
 `imp --target=x86_64-w64-mingw32` and the Cygwin triples write objects and

@@ -19,6 +19,15 @@ A variable declared `COMMON` is a global symbol, so C declares it
 Any other variable belongs to its module, as in the original, and C cannot see
 it. `tests/native/*_main.c` are C programs that call IMP.
 
+A C program with a `main` of its own starts the runtime itself: `imp_init(argc, argv)`
+first (`lib/imp.h` declares it), so that the IMP routines find the command line
+(`CCALL impargc(0)` and `CCALL impargvp(0)`), and `imp_run()` where it wants the
+main program of an IMP source (the statements before its first `SUBR`; it returns
+the value of the last). A source with no main program has no `imp_run`, and a
+program that never calls it does not link one. The `main` of the library, which a
+program with a `main` of its own does not link, is these two calls.
+`tests/native/initmain_main.c` is such a program.
+
 A routine that C calls with its arguments by value (the comparison of `qsort`, a
 signal handler) is a callback, declared with `CALLBACK` (below).
 

@@ -1,0 +1,4 @@
+N:=CCALL impargc(0);
+PRINT STG 0,'THE MAIN PROGRAM, ',IGR 0,N,STG 0,' ARGUMENT',/;
+FINI(-1)
+%%

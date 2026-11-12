@@ -67,7 +67,8 @@ the 64-bit IMP translation of the original modules in `decus/`.
 | `impio.iml` | `PRINT`, `READ`, files, `FINI` |
 | `imprt.iml` | `CALLI`, `BLT`, `IFIX`, shifts and rotations by a variable count, byte pointers, `EXECUTE` |
 | `impsys.iml` | the standard files, the arena's address space, argument vector access |
-| `impmain.iml` | the C `main`, a member of its own so that a program with a `main` of its own does not link it |
+| `impmain.iml` | the C `main`, a member of its own so that a program with a `main` of its own does not link it; it is the two calls `imp_init(argc, argv)` and `imp_run()` |
+| `impinit.iml`, `imprun.iml` | `imp_init` (the command line for `impargc` and `impargvp`) and `imp_run` (the main program of the source), each a member of its own, for a C program that has a `main` |
 | `imphost.iml`, `imphostx-*.iml` | what the link needs to know of the host |
 | `impvars.iml`, `impvarsx-*.iml` | the table of the compiler's own variables, for images |
 
