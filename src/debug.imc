@@ -69,7 +69,7 @@ TREEX: PRINT STG 0,'CODE TREE BIT MATRIX:',/,/;
  N:=36*COLS;
  J:=0;
 MX: T:=J+74; T>N=>T:=N;
- PRINT STG 5,' ';                                     # (THE TAPE'S IGR 6 HAS NO VALUE AND PRINTS NOTHING) #
+ PRINT STG 5,' ';                                     # (THE TAPE GIVES THE WIDTH 6 WITH A BARE IGR 6 AT THE END OF THIS PRINT; HERE EACH NUMBER HAS ITS WIDTH) #
  (PRINT IGR 6,K) FOR K IN J+4,5,T;
  PRINT /;
  (PRINT IGR 3,I,STG 2,' ',IGR 1;
