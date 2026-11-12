@@ -372,7 +372,7 @@ cstr(void)
 static void
 rstr(int f)
 {
-    unsigned long v = 0;
+    unsigned long long v = 0;            /* (64 bits on a machine whose long is 32: eight bytes of text are a word) */
     size_t n, i;
     int dg, started = 0, b;
 

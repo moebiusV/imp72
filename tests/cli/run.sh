@@ -100,7 +100,8 @@ fi
 "$w" -c --target=nonsense lib2.imp >/dev/null 2>&1 && bad "a nonsense target was accepted"
 fi
 if [ "$(uname -m)" = x86_64 ] && [ "$(getconf LONG_BIT)" = 64 ]; then       # the host's own architecture and system, whatever the vendor and the C library: a target that links
-    "$w" --target=x86_64-linux-gnu main.imp lib2.imp -o hosted >/dev/null 2>&1 && [ "$(./hosted)" = "ANSWER 42" ] || { [ "$(uname -s)" != Linux ] || bad "the host's own triple is a target that links"; }
+    hl=gnu; [ -e /lib/ld-musl-x86_64.so.1 ] && hl=musl          # (the host's own C library: another one is another target, linked with its own files)
+    "$w" --target=x86_64-linux-$hl main.imp lib2.imp -o hosted >/dev/null 2>&1 && [ "$(./hosted)" = "ANSWER 42" ] || { [ "$(uname -s)" != Linux ] || bad "the host's own triple is a target that links"; }
 fi
 # the commands of the original (-i): a compile writes the object, the REL file of TOPS-10 (a .o), and not the IR; a file of syntax with /C writes none; the banner has today's date; the compiler
 # saved by /U shows (A) and the date of the save, and the next one saved from it (B); OBJ,LIST_SOURCE names the object and the listing
