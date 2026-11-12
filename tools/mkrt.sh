@@ -76,5 +76,7 @@ if [ -n "$rt" ]; then
     objs="$objs $(ls "$out"/rt/*.o)"
 fi
 rm -f "$out/libimp.a"
-ar rcs "$out/libimp.a" $objs
+# (the index of a Mach-O archive is of Mach-O symbols, which GNU ar does not read: ld64.lld refuses an archive with no index; llvm-ar, which comes with the LLVM the compiler is built on, reads them)
+arx=ar; [ "$os" = darwin ] && [ -x "$bd/llvm-ar" ] && arx=$bd/llvm-ar
+$arx rcs "$out/libimp.a" $objs
 echo "$out/libimp.a"

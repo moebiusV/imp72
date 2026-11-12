@@ -53,9 +53,17 @@ unpackdeb() {
 resolve() {
     want=$1
     norm=$(printf '%s' "$want" | sed 's/-w64-windows-gnu/-w64-mingw32/; s/-unknown-linux-/-linux-/; s/-pc-linux-/-linux-/; s/-unknown-windows-gnu/-w64-mingw32/; s/-pc-windows-cygnus/-pc-cygwin/; s/^armv7a-/armv7-/; s/^arm64-/aarch64-/; s/^amd64-/x86_64-/; s/^i[3456]86-/i686-/')
+    dist=
+    case $want in *@*) dist=${want#*@}; want=${want%%@*}; norm=${norm%%@*} ;; esac       # (T@debian12, T@alpine321: that release of the distribution instead of the one the table names)
     line=$(grep -v '^#' "$tsv" | awk -F'\t' -v w="$want" -v n="$norm" '$1==w || $1==n || ($2 "/" $3)==w { print; exit }')
     [ -n "$line" ] || return 1
     triple=$(echo "$line" | cut -f1); os=$(echo "$line" | cut -f2); arch=$(echo "$line" | cut -f3); recipe=$(echo "$line" | cut -f4)
+    if [ -n "$dist" ]; then
+        case ${recipe%%:*}:$dist in
+        debian:debian[0-9]*|alpine:alpine[0-9]*) os=linux/$dist; recipe=${recipe%:*}:$dist ;;
+        *) echo "imp-sysroot: $triple has no release $dist" >&2; return 1 ;;
+        esac
+    fi
     dir=$cache/$os/$arch
     return 0
 }
@@ -92,7 +100,7 @@ debpkg() {   # INDEXFILE NAME
     awk -v pkg="$2" 'BEGIN { RS = ""; FS = "\n" } { n = ""; f = ""; s = ""; for (i = 1; i <= NF; i++) { if ($i ~ /^Package: /) n = substr($i, 10); else if ($i ~ /^Filename: /) f = substr($i, 11); else if ($i ~ /^SHA256: /) s = substr($i, 9) } if (n == pkg) { rf = f; rs = s } } END { if (rf != "") print rf, rs }' "$1"
 }
 debindex() {   # ARCH -> the index of binary-ARCH in $work
-    mirror=${IMP_DEBIAN_MIRROR:-https://deb.debian.org/debian}; suite=${IMP_DEBIAN_SUITE:-stable}
+    mirror=${IMP_DEBIAN_MIRROR:-https://deb.debian.org/debian}; suite=${IMP_DEBIAN_SUITE:-trixie}
     f=$work/Packages-$1
     [ -s "$f" ] && { echo "$f"; return 0; }
     fetch "$mirror/dists/$suite/main/binary-$1/Packages.xz" "$f.xz" || die "cannot fetch the index of $suite binary-$1 from $mirror"
@@ -110,12 +118,18 @@ debget() {   # ARCH NAME DESTDIR [only the packages that exist]
     say "fetching $(basename "$fn")"
     fetch "$mirror/$fn" "$deb" || die "cannot fetch $mirror/$fn"
     check "$deb" "$sum" "$(basename "$fn")"
-    echo "$(basename "$fn")" >> "$work/versions"
+    echo "$(basename "$fn") sha256 $sum" >> "$work/versions"
     unpackdeb "$deb" "$3" || die "cannot unpack $(basename "$fn")"
     return 0
 }
-recipe_debian() {   # DEBIANARCH
-    a=$1
+debsuite() {   # debian13 -> trixie ...; a suite name stays; IMP_DEBIAN_SUITE overrides
+    case $1 in debian13|trixie) echo trixie ;; debian12|bookworm) echo bookworm ;; debian11|bullseye) echo bullseye ;; debian10|buster) echo buster ;; *) echo "$1" ;; esac
+}
+recipe_debian() {   # DEBIANARCH [debianNN]
+    a=${1%%:*}; [ "$1" != "${1#*:}" ] && IMP_DEBIAN_SUITE=$(debsuite "${1#*:}")
+    [ -n "$IMP_DEBIAN_SUITE" ] || IMP_DEBIAN_SUITE=trixie
+    case $IMP_DEBIAN_SUITE in buster) IMP_DEBIAN_MIRROR=${IMP_DEBIAN_MIRROR:-https://archive.debian.org/debian} ;; esac
+    export IMP_DEBIAN_SUITE
     for p in libc6 libc6-dev libgcc-s1 linux-libc-dev; do debget "$a" "$p" "$sr" || die "the package $p of $a is not in the Debian index"; done
     idx=$(debindex "$a")
     g=$(grep '^Package: libgcc-[0-9]*-dev$' "$idx" | sed 's/Package: //' | sort -t- -k2 -n | tail -1)
@@ -185,7 +199,7 @@ recipe_freebsd() {   # amd64, i386 or arm64: the base.txz of the newest release 
     fetch "$base/base.txz" "$work/base.txz" || die "cannot fetch $base/base.txz"
     check "$work/base.txz" "$sum" "base.txz"
     echo "FreeBSD-$ver-RELEASE-$a base.txz $sum" >> "$work/versions"
-    xz -dc "$work/base.txz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./lib ./libexec/ld-elf.so.1 2>/dev/null
+    xz -dc "$work/base.txz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./lib ./libexec/ld-elf.so.1 ./COPYRIGHT 2>/dev/null
     [ -f "$sr/usr/lib/crt1.o" ] || die "base.txz has no usr/lib/crt1.o"
     return 0
 }
@@ -204,7 +218,7 @@ recipe_openbsd() {   # amd64 or arm64: baseNN.tgz of the newest release (IMP_OPE
     fetch "$base/base$n.tgz" "$work/base.tgz" || die "cannot fetch $base/base$n.tgz"
     check "$work/base.tgz" "$sum" "base$n.tgz"
     echo "OpenBSD-$ver-$a base$n.tgz $sum" >> "$work/versions"
-    gzip -dc "$work/base.tgz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./usr/libexec/ld.so 2>/dev/null
+    gzip -dc "$work/base.tgz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./usr/libexec/ld.so ./COPYRIGHT 2>/dev/null
     [ -f "$sr/usr/lib/crt0.o" ] || die "base$n.tgz has no usr/lib/crt0.o"
     return 0
 }
@@ -226,12 +240,67 @@ recipe_netbsd() {   # amd64: base.tar.xz of the newest release (IMP_NETBSD_VERSI
         got=$(if command -v sha512sum >/dev/null 2>&1; then sha512sum "$work/$set.tar.xz" | cut -d' ' -f1; else shasum -a 512 "$work/$set.tar.xz" | cut -d' ' -f1; fi)
         [ "$got" = "$sum" ] || die "$set.tar.xz: the checksum of the download is not the one of the index"
         echo "NetBSD-$ver-$a $set.tar.xz $sum" >> "$work/versions"
-        xz -dc "$work/$set.tar.xz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./libexec/ld.elf_so 2>/dev/null
+        xz -dc "$work/$set.tar.xz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./libexec/ld.elf_so ./COPYRIGHT 2>/dev/null
         rm -f "$work/$set.tar.xz"
     done
     [ -f "$sr/usr/lib/crt0.o" ] || die "comp.tar.xz has no usr/lib/crt0.o"
     return 0
 }
+# musl: Alpine's packages, from its mirror over https (the index's checksums are SHA-1 of a part of each package, which is not checked here: the SHA-256 of what was fetched is in imp-meta)
+recipe_alpine() {   # ARCH:alpineNNN (alpine322 is v3.22)
+    a=${1%%:*}; d=${1#*:}; n=${d#alpine}
+    v=${IMP_ALPINE_VERSION:-v${n%${n#?}}.${n#?}}
+    mirror=${IMP_ALPINE_MIRROR:-https://dl-cdn.alpinelinux.org/alpine}
+    fetch "$mirror/$v/main/$a/APKINDEX.tar.gz" "$work/APKINDEX.tar.gz" || die "cannot fetch the Alpine index $mirror/$v/main/$a"
+    tar -xzf "$work/APKINDEX.tar.gz" -C "$work" APKINDEX 2>/dev/null || die "cannot read the Alpine index"
+    for p in musl musl-dev linux-headers gcc; do
+        ver=$(awk -v pkg="$p" 'BEGIN { RS = ""; FS = "\n" } { n = ""; vv = ""; for (i = 1; i <= NF; i++) { if ($i ~ /^P:/) n = substr($i, 3); else if ($i ~ /^V:/) vv = substr($i, 3) } if (n == pkg) { print vv; exit } }' "$work/APKINDEX")
+        [ -n "$ver" ] || die "the Alpine package $p is not in the index of $v/$a"
+        f=$work/$p-$ver.apk
+        say "fetching $p-$ver.apk"
+        fetch "$mirror/$v/main/$a/$p-$ver.apk" "$f" || die "cannot fetch $p-$ver.apk"
+        echo "$p-$ver.apk $v/$a $(sha256 "$f")" >> "$work/versions"
+        case $p in
+        gcc) tar -xzf "$f" -C "$sr" usr/lib/gcc 2>/dev/null ;;      # (only its start files and libgcc.a: the compiler itself is of no use)
+        *) tar -xzf "$f" -C "$sr" 2>/dev/null ;;
+        esac
+    done
+    mkdir -p "$sr/usr/share/doc/musl"      # (the package has no license file: musl's own, the version of the package)
+    fetch "https://git.musl-libc.org/cgit/musl/plain/COPYRIGHT" "$sr/usr/share/doc/musl/COPYRIGHT" || say "warning: musl's COPYRIGHT file could not be fetched"
+    rm -f "$sr"/.PKGINFO "$sr"/.SIGN.* "$sr"/.post-* "$sr"/.pre-* 2>/dev/null
+    g=$(ls -d "$sr"/usr/lib/gcc/*-linux-musl 2>/dev/null | head -1)
+    [ -n "$g" ] && [ ! -e "$sr/usr/lib/gcc/$triple" ] && ln -s "$(basename "$g")" "$sr/usr/lib/gcc/$triple"     # (Alpine's triple has alpine in it: the driver looks under the one of --target)
+    [ -f "$sr/usr/lib/crt1.o" ] || die "no usr/lib/crt1.o in the Alpine packages"
+    return 0
+}
+
+# macOS without Apple's SDK: the Zig project's own copy of what a link needs of Darwin, in its source tarball: the header files (from Apple's open source: Libc and xnu) in lib/libc/include/any-darwin-any, and
+# libSystem.tbd, the text stub of the system library that ld64.lld reads in place of the dylib; that is enough for programs that use the C library (not for frameworks)
+recipe_zigmac() {
+    idx=$work/zig-index.json
+    fetch "${IMP_ZIG_INDEX:-https://ziglang.org/download/index.json}" "$idx" || die "cannot fetch the Zig download index"
+    zv=${IMP_ZIG_VERSION:-}
+    [ -n "$zv" ] || zv=$(grep -o '"[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*"' "$idx" | tr -d '"' | sort -V | tail -1)
+    t=$(awk -v v="\"$zv\"" '$0 ~ "^  " v ": *{" { f=1 } f && /"src": *{/ { g=1 } g && /"tarball"/ { gsub(/[",]/, "", $2); print $2 } g && /"shasum"/ { gsub(/[",]/, "", $2); print $2; exit }' "$idx" | tr '\n' ' ')
+    url=${t%% *}; sum=${t#* }; sum=${sum% }
+    [ -n "$url" ] && [ -n "$sum" ] && [ "$url" != "$sum" ] || die "no source tarball of Zig $zv in its download index"
+    say "fetching zig-$zv.tar.xz (about 25 MB; only its Darwin headers and libSystem.tbd are kept)"
+    fetch "$url" "$work/zig.tar.xz" || die "cannot fetch $url"
+    check "$work/zig.tar.xz" "$sum" "zig-$zv.tar.xz"
+    echo "zig-$zv.tar.xz $url $sum" >> "$work/versions"
+    mkdir -p "$work/z"; xz -dc "$work/zig.tar.xz" | tar -xf - -C "$work/z" --wildcards "*/LICENSE" "*/lib/libc/darwin" "*/lib/libc/include/any-darwin-any" 2>/dev/null
+    zd=$(ls -d "$work"/z/*/lib/libc 2>/dev/null | head -1)
+    [ -f "$zd/darwin/libSystem.tbd" ] || die "no lib/libc/darwin/libSystem.tbd in the Zig tarball"
+    mkdir -p "$sr/usr/lib" "$sr/usr/include"
+    cp -R "$zd/include/any-darwin-any"/. "$sr/usr/include/"
+    # (the stub lists the targets of Zig's newer LLVM: arm64e.x1 is not known to the TAPI reader of an older lld, and arm64e alone is not what a program for arm64 asks for)
+    sed -e ':a' -e 'N' -e '$!ba' -e 's/,[[:space:]]*arm64e\.x1-[a-z]*//g' -e 's/arm64e-macos/arm64-macos, arm64e-macos/g' -e 's/arm64e-maccatalyst/arm64-maccatalyst, arm64e-maccatalyst/g' "$zd/darwin/libSystem.tbd" > "$sr/usr/lib/libSystem.tbd"
+    cp "$sr/usr/lib/libSystem.tbd" "$sr/usr/lib/libSystem.B.tbd"
+    mkdir -p "$sr/usr/share/doc/zig"; cp "$zd/../../LICENSE" "$sr/usr/share/doc/zig/LICENSE" 2>/dev/null
+    [ -f "$zd/darwin/SDKSettings.json" ] && cp "$zd/darwin/SDKSettings.json" "$sr/"
+    return 0
+}
+
 # macOS: Apple's SDK is not for anyone else to hand out, so it is the one on the user's Mac (xcrun), or the path the user gives; the sysroot is a link to it
 recipe_apple() {
     sdk=${APPLE_SDK:-}
@@ -280,6 +349,56 @@ trim_bsd() {
     return 0
 }
 
+# the provenance of one sysroot, as a section of the README of the cruntime repository (imp-sysroot --readme ROOT puts the sections of all the directories there): where each kind of file in it came from, under what license, and
+# what was left out; the names, versions and SHA-256 sums of what was fetched are in the imp-meta of the directory
+provenance() {   # SYSROOT-DIR: read its imp-meta
+    m=$1/imp-meta
+    triple=$(sed -n 's/^triple //p' "$m"); recipe=$(sed -n 's/^recipe //p' "$m"); os=$(sed -n 's/^os //p' "$m"); arch=$(sed -n 's/^arch //p' "$m"); dist=$(sed -n 's/^release //p' "$m")
+    APPLE_SDK=$(sed -n 's/^apple-sdk //p' "$m")
+    {
+    echo "### $os/$arch ($triple)"
+    echo
+    echo "Made by imp-sysroot on $(sed -n 's/^date //p' "$m" | cut -c1-10) with the recipe \`$recipe\`; nothing in it was written by hand."
+    echo
+    case ${recipe%%:*} in
+    debian) echo "**Source: Debian ${recipe##*:debian} packages** (https://deb.debian.org/debian), architecture $(echo "${recipe#debian:}" | cut -d: -f1): the C library and its headers (libc6, libc6-dev: glibc, LGPL-2.1+), the kernel's headers (linux-libc-dev: GPL-2 with the Linux-syscall-note), libgcc and its start files (libgcc-s1, libgcc-N-dev: GPL-3 with the GCC runtime library exception).  Each package is checked against the SHA-256 of Debian's Packages index.  Taken whole." ;;
+    alpine) echo "**Source: Alpine Linux packages** (https://dl-cdn.alpinelinux.org/alpine), release alpine${recipe##*:alpine}: musl and musl-dev (the C library, its headers and start files: MIT), linux-headers (GPL-2 with the Linux-syscall-note), and from gcc only usr/lib/gcc (its start files and libgcc.a: GPL-3 with the GCC runtime library exception; the compiler itself is left out).  Fetched over https; the SHA-256 of each file is listed below (Alpine's index has only a SHA-1 of part of each package, which is not checked)." ;;
+    mingw) echo "**Source: Debian packages of mingw-w64** (https://deb.debian.org/debian): mingw-w64-${recipe#mingw:}-dev and mingw-w64-common (the headers and import libraries of Windows, the msvcrt start files crt2.o, libmingw32.a: public domain, ZPL-2.1 and BSD-style licenses, see usr/share/doc), and from gcc-mingw-w64-${recipe#mingw:}-win32 only libgcc.a, libgcc_eh.a and the start files crtbegin.o and crtend.o (GPL-3 with the GCC runtime library exception).  Checked against the SHA-256 of Debian's Packages index." ;;
+    cygwin) echo "**Source: Cygwin packages** (https://mirrors.kernel.org/sourceware/cygwin): cygwin, cygwin-devel, w32api-headers, w32api-runtime, libgcc1 (LGPL-3 for the Cygwin library; w32api is public domain/ZPL), checked against the SHA-512 of setup.ini.  Not run." ;;
+    freebsd) echo "**Source: the FreeBSD base system** (base.txz of the release, https://download.freebsd.org/releases/): the C library, libm, start files, libgcc/compiler-rt and headers (BSD-2-Clause and the licenses of the files in them).  Checked against the SHA-256 of the release's MANIFEST.  Of its usr/lib only what a link needs is kept (start files, libc, libm, libgcc and compiler-rt, the threads, utility and kernel-access libraries); the rest of the base system, usr/include/c++ and usr/include/clang are left out." ;;
+    openbsd) echo "**Source: the OpenBSD base set** (baseNN.tgz of the release, https://cdn.openbsd.org/pub/OpenBSD/): the C library, libm, start files, compiler-rt and headers (BSD licenses of the files in them, ISC).  Checked against the SHA-256 of the release's SHA256 file (the signature SHA256.sig is not checked).  Of its usr/lib only what a link needs is kept." ;;
+    netbsd) echo "**Source: the NetBSD base and comp sets** (base.tar.xz and comp.tar.xz of the release, https://cdn.netbsd.org/pub/NetBSD/): the shared libraries and loader (base), the start files, static libraries and headers (comp) (BSD licenses of the files in them).  Checked against the SHA-512 of the release's SHA512 file.  Of its usr/lib only what a link needs is kept." ;;
+    zigmac) if [ -n "$APPLE_SDK" ]; then echo "**Source: the macOS SDK of a Mac** ($APPLE_SDK), linked, not copied: Apple's, under Apple's license, not to be redistributed."; else
+        echo "**Source: the Zig project's source tarball** (https://ziglang.org/download/, the version and SHA-256 below), not Apple's SDK itself: Zig carries the files a program that uses the C library links against, and this takes only those: \`lib/libc/include/any-darwin-any\` as usr/include (the Darwin header files, from Apple's open source releases of Libc and xnu, with their own licenses: APSL-2.0, BSD and others, see the files) and \`lib/libc/darwin/libSystem.tbd\` as usr/lib/libSystem.tbd and libSystem.B.tbd (the text stub of libSystem, which lld links against instead of the dylib; it lists no code).  One change was made to it, for the lld here (LLVM ${LVVER:-19}): the targets \`arm64e.x1-*\`, which an older TAPI reader does not know, are taken out, and \`arm64-macos\` and \`arm64-maccatalyst\` are put before \`arm64e-macos\` and \`arm64e-maccatalyst\`.  Enough for programs of the C library, not for frameworks (Foundation, Cocoa).  It is not Apple's SDK, but the stub was made from it (see the license below)."; fi ;;
+    esac
+    echo
+    echo "#### What was fetched"
+    echo
+    sed -n 's/^from /- /p' "$m"
+    echo
+    echo "#### License and source"
+    echo
+    case ${recipe%%:*} in
+    debian) echo "The licenses are those of the packages, in usr/share/doc/PACKAGE/copyright (glibc: LGPL-2.1-or-later with parts under BSD, ISC, GPL-2 and others, listed there; the kernel headers: GPL-2.0 WITH Linux-syscall-note; libgcc: GPL-3.0-or-later WITH GCC-exception-3.1).  LGPL and GPL binaries are here: the corresponding source of each is the Debian source package of the same name and version (\`apt-get source\`, or https://sources.debian.org/)." ;;
+    alpine) echo "musl: MIT (usr/share/doc/musl/COPYRIGHT lists the few files under BSD and other licenses).  linux-headers: GPL-2.0 WITH Linux-syscall-note.  libgcc.a and the start files of gcc: GPL-3.0-or-later WITH GCC-exception-3.1.  Corresponding source: Alpine's aports, https://git.alpinelinux.org/aports, and https://musl.libc.org/." ;;
+    mingw) echo "mingw-w64 is public domain, ZPL-2.1 and BSD-style by file (usr/share/doc/mingw-w64-*/copyright); libgcc and the start files: GPL-3.0-or-later WITH GCC-exception-3.1.  Corresponding source: the Debian source packages mingw-w64 and gcc-mingw-w64 (https://sources.debian.org/)." ;;
+    cygwin) echo "The Cygwin library: LGPL-3.0-or-later with the Cygwin linking exception; w32api: public domain and ZPL-2.1.  Corresponding source: https://cygwin.com/." ;;
+    freebsd|openbsd|netbsd) echo "BSD-2-Clause, BSD-3-Clause and ISC by file (the notices are in the header files; ./COPYRIGHT of the release is here where the set has one), with the compiler-rt and libgcc parts under Apache-2.0 WITH LLVM-exception and GPL-3.0-or-later WITH GCC-exception-3.1.  Corresponding source: the release's src set or its repository (https://cgit.freebsd.org/, https://cvsweb.openbsd.org/, https://cvsweb.netbsd.org/)." ;;
+    zigmac) if [ -n "$APPLE_SDK" ]; then echo "Apple's: not to be redistributed; this directory stays on the Mac."; else echo "The headers: most files are under the Apple Public Source License 2.0 (APSL-2.0, https://opensource.apple.com/apsl/: a free software license, which allows copying and redistribution of unmodified files with the notice and the license kept), the others under BSD licenses of the Regents of the University of California and others, each file with its own notice, unchanged here.  Zig's own files are MIT (usr/share/doc/zig/LICENSE).  **libSystem.tbd** is derived from Apple's SDK (a list of what the system library exports, made by the Zig project): Zig's repository carries it, and the compiler's own downloads do, but Apple has not given it a license of its own, so it is fetched from Zig's tarball by this tool for use on this machine, and is **not redistributed in the cruntime repository**.  For a use that must be sure of its terms: take the SDK of a Mac (imp-sysroot --apple-sdk)." ; fi ;;
+    esac
+    echo
+    } 
+}
+
+# the sections of all the directories under ROOT in README.md of ROOT, between the lines <!-- provenance:begin --> and <!-- provenance:end -->
+readme() {   # ROOT
+    r=$1; [ -f "$r/README.md" ] || die "no $r/README.md"
+    grep -q '<!-- provenance:begin -->' "$r/README.md" && grep -q '<!-- provenance:end -->' "$r/README.md" || die "README.md has no provenance:begin and provenance:end lines"
+    { sed -n '1,/<!-- provenance:begin -->/p' "$r/README.md"; echo
+      find "$r" -name imp-meta | sort | while read -r f; do provenance "$(dirname "$f")"; done
+      sed -n '/<!-- provenance:end -->/,$p' "$r/README.md"; } > "$r/README.md.new" && mv "$r/README.md.new" "$r/README.md"
+}
+
 get() {
     resolve "$1" || { [ $auto = 1 ] || echo "imp-sysroot: no system $1 (imp-sysroot --list)" >&2; exit 2; }
     if [ -f "$dir/imp-meta" ] && [ $force = 0 ]; then say "$triple is here: $dir"; return 0; fi
@@ -292,7 +411,7 @@ get() {
     sr=$dir.new; rm -rf "$sr"; mkdir -p "$sr"
     src=${IMP_SYSROOT_SOURCE:-}
     ok=0
-    if [ "$src" != upstream ] && [ "${recipe%%:*}" != apple ]; then from_cruntime && ok=1; fi
+    if [ "$src" != upstream ] && [ "${recipe%%:*}" != apple ] && { [ "${recipe%%:*}" != zigmac ] || [ -z "$APPLE_SDK" ]; }; then from_cruntime && ok=1; fi
     if [ $ok = 0 ]; then
         [ "$src" = cruntime ] && die "not in the cruntime repository ($os/$arch)"
         rm -rf "$sr"; mkdir -p "$sr"
@@ -300,13 +419,13 @@ get() {
         case $m in
         debian) recipe_debian "$a" ;; mingw) recipe_mingw "$a" ;; cygwin) recipe_cygwin "$a" ;;
         freebsd) recipe_freebsd "$a" ;; openbsd) recipe_openbsd "$a" ;; netbsd) recipe_netbsd "$a" ;;
-        apple) recipe_apple ;;
+        zigmac) if [ -n "$APPLE_SDK" ] || { command -v xcrun >/dev/null 2>&1 && [ -z "$IMP_MAC_SDK" ]; }; then recipe_apple; else recipe_zigmac; fi ;; alpine) recipe_alpine "$a" ;;
         *) die "no recipe $recipe" ;;
         esac
     fi
     case $os in freebsd|openbsd|netbsd) trim_bsd ;; esac
     make_runtime
-    { echo "triple $triple"; echo "date $(date -u +%Y-%m-%dT%H:%M:%SZ)"; sed 's/^/from /' "$work/versions" 2>/dev/null; } > "$sr/imp-meta"
+    { echo "triple $triple"; echo "os $os"; echo "arch $arch"; echo "recipe $recipe"; [ -n "$dist" ] && echo "release $dist"; [ -n "$APPLE_SDK" ] && echo "apple-sdk $APPLE_SDK"; echo "date $(date -u +%Y-%m-%dT%H:%M:%SZ)"; sed 's/^/from /' "$work/versions" 2>/dev/null; } > "$sr/imp-meta"
     rm -rf "$dir"; mv "$sr" "$dir"
     rm -rf "$work"
     say "$triple: $dir"
@@ -323,6 +442,7 @@ while [ $# -gt 0 ]; do
     --quiet|-q) quiet=1; shift ;;
     --auto) auto=1; shift ;;      # (as the driver calls it: a system that is not in the table is not said, the driver's own message is)
     --apple-sdk) APPLE_SDK=$2; export APPLE_SDK; shift 2 ;;
+    --readme) readme "$2"; exit 0 ;;
     -h|--help) sed -n '2,/^# Exit/p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*) echo "imp-sysroot: unknown option $1" >&2; exit 2 ;;
     *) break ;;

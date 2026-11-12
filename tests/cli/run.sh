@@ -90,7 +90,7 @@ fi
 if have arm64-apple-darwin; then
 # Mach-O from any system: the object (magic cf fa ed fe), the message for the SDK, and the Mach-O driver of lld in this compiler (a fake SDK and an empty runtime: it must get as far as lld's complaint)
 "$w" -c --target=arm64-apple-darwin lib2.imp -o m.o >/dev/null 2>&1 && [ "$(od -An -tx1 -N4 m.o | tr -d ' \n')" = cffaedfe ] || bad "--target=arm64-apple-darwin: a Mach-O object"
-"$w" --target=arm64-apple-darwin main.imp lib2.imp > xm.log 2>&1 && bad "linking for macOS with no SDK succeeded"
+IMPFETCH=0 IMP_SYSROOTS=$PWD/nocache "$w" --target=arm64-apple-darwin main.imp lib2.imp > xm.log 2>&1 && bad "linking for macOS with no SDK succeeded"
 grep -q 'libSystem.tbd' xm.log && grep -q -e '--sysroot=DIR' xm.log || bad "the message for macOS does not say what is needed"
 mkdir -p fakesdk/usr/lib && printf -- '--- !tapi-tbd\ntbd-version: 4\ntargets: [ arm64-macos ]\ninstall-name: "/usr/lib/libSystem.B.dylib"\nexports:\n  - targets: [ arm64-macos ]\n    symbols: [ dyld_stub_binder ]\n...\n' > fakesdk/usr/lib/libSystem.tbd
 ar rcs empty.a 2>/dev/null

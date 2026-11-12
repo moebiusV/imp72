@@ -145,14 +145,19 @@ compilers built and tested at `-O0`, the default and `-O3`.
 The short way: `imp --target=TRIPLE -o prog prog.imp` (or `--target=OS/ARCH`).
 With no `--sysroot` and `--runtime` the driver asks `imp-sysroot` (beside it
 or in the PATH) for what the link needs of that system, which fetches it once
-into `${XDG_CACHE_HOME:-~/.cache}/imp/sysroots/OS[/vNN]/ARCH` (`$IMP_SYSROOTS`
+into `${XDG_CACHE_HOME:-~/.cache}/imp/sysroots/OS[/RELEASE]/ARCH` (`$IMP_SYSROOTS`
 moves it) and makes `libimp.a` for the target there. That directory is the
 sysroot, as `--sysroot` takes it: `usr/include` (the matching header files),
 `usr/lib` with the start files (crt0.o or crt1.o, crtbegin.o), the C library,
 libm and libgcc, and the runtime library. A system with releases has the
-release in the path (`openbsd/v80/amd64`, `freebsd/v151/amd64`,
-`netbsd/v111/amd64`), the others have none (`linux/aarch64`,
-`windows/x86_64`). `imp-sysroot --list` says which systems it knows (the table
+release in the path (`openbsd/v80/x86_64`, `freebsd/v151/x86_64`,
+`netbsd/v111/x86_64`), and so does Linux, by distribution (`linux/debian13/aarch64`
+is glibc, `linux/alpine322/x86_64` is musl, chosen by the triple: `aarch64-linux-gnu`
+or `x86_64-linux-musl`); Windows has none (`windows/x86_64`). Another release of the
+same distribution is `imp-sysroot aarch64-linux-gnu@debian12` or
+`x86_64-linux-musl@alpine321`, and `--sysroot=$(imp-sysroot --path T@debian12)`
+uses it. A triple whose C library is not the host's (`x86_64-linux-musl` on a glibc
+machine) is a cross target, linked with its own files and not the host's. `imp-sysroot --list` says which systems it knows (the table
 is `tools/sysroots.tsv`) and which are here, `imp-sysroot --path T` where one
 is, `IMPFETCH=0` stops the driver fetching, and `IMP_FREEBSD_VERSION`,
 `IMP_OPENBSD_VERSION` and `IMP_NETBSD_VERSION` pick a release other than the
@@ -166,8 +171,14 @@ checkout of that one directory or by release tarball), and, where it has none,
 from the system's own packages, checked against the checksums of their
 indexes: the Debian packages for Linux (glibc) and mingw-w64, the Cygwin
 packages, the base (and, for NetBSD, comp) sets of FreeBSD, OpenBSD and
-NetBSD. macOS has no download: Apple's SDK is taken from the Mac (`xcrun`) or
-`imp-sysroot --apple-sdk DIR`. Needed here: sh, curl or wget, tar, xz and
+NetBSD, Alpine's packages for musl. macOS has no Apple download (Apple's SDK is not
+to be handed out): the SDK of a Mac is used where there is one (`xcrun`, or
+`imp-sysroot --apple-sdk DIR`), and elsewhere the Darwin headers and the
+`libSystem.tbd` stub of the Zig project's source tarball, which lld links against
+in place of the dylib: enough for programs of the C library, not for frameworks.
+The provenance and license of every directory, with the versions and checksums of
+what it was made from, are in the README of the cruntime repository, which
+`imp-sysroot --readme ROOT` writes. Needed here: sh, curl or wget, tar, xz and
 `ar` (for `.deb`), a sha256 tool. To run what is made: qemu's user mode for
 another machine's Linux, Wine for Windows (`tools/wine-setup.sh`).
 `tests/sysroot` checks the table, and with `IMP_TEST_NET=1` the whole way for
