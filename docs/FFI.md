@@ -384,11 +384,16 @@ The C preprocessor (`$CC -E`, `cc` by default) reads `#include <HEADER>`, or
 `-i` names a file (`-` is the standard input) of text that it made, and then no
 other program runs. The output is a fragment of IMP72 source. A declaration holds
 to the end of the file, and the compiler reads no header, so the fragment goes in
-front of the program's source:
+front of the program's source. `-H FILE` of `imp` does it, for every source of the
+command line, so that a declaration is written once:
 
     imp-cimport -n qsort -n malloc -o decls.imp stdlib.h
-    cat decls.imp prog.imp > all.imp
-    imp all.imp
+    imp -H decls.imp a.imp b.imp
+
+(`cat decls.imp prog.imp > all.imp` does the same for one source.) The file is read
+in front of each source and is part of it, which `-C FILE` is not: a file named with
+`-C` is a unit of its own, ends at its `%%`, and what it declares does not reach the
+unit that follows.
 
 Header files are big (`stdio.h` declares 90 functions and includes `bits/*.h`):
 `-n NAME` declares only that name and `-p PREFIX` the names that start with it;

@@ -60,7 +60,7 @@ cotree_hook(word k)
 static void
 usage(void)
 {
-    fputs("usage: imps0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [FILE ...]\n", stderr);
+    fputs("usage: imps0 [-s LETTERS] [-o FILE] [-c IRFILE] [-T TARGET] SYNTAX [-H DECLARATIONS | FILE] ...\n", stderr);
     exit(2);
 }
 
@@ -120,6 +120,10 @@ kernel_main(int argc, char **argv)
     imp_msg("SYNTAX BOOTSTRAPPED");
 
     for (i = 0; i < nfiles; i++) {
+        if (i > 0 && strcmp(files[i], "-H") == 0 && i + 1 < nfiles) {       /* a file of declarations for each source from here on */
+            lexhdr(files[++i]);
+            continue;
+        }
         if (i > 0 && lexin(files[i]) != 0) {
             fprintf(stderr, "? FILE NOT FOUND: %s\n", files[i]);
             return 1;
@@ -415,11 +419,11 @@ driver_main(int argc, char **argv)
     char syntax[PATH_MAX], ffi[PATH_MAX], lib[PATH_MAX], tmpbase[PATH_MAX];
     const char *outname = NULL, *sw = NULL;
     int stop = 'x', i = 1, rc = 0, nfiles, k, sir = 0;
-    char **kargv, **csyn = calloc((size_t)argc + 1, sizeof *csyn);
-    int ncsyn = 0;
+    char **kargv, **csyn = calloc((size_t)argc + 1, sizeof *csyn), **hdrs = calloc((size_t)argc + 1, sizeof *hdrs);
+    int ncsyn = 0, nhdrs = 0;
     size_t blen;
 
-    if (csyn == NULL)
+    if (csyn == NULL || hdrs == NULL)
         return 1;
     while (i < argc && argv[i][0] == '-' && argv[i][1] != '\0') {
         if (strcmp(argv[i], "-S") == 0) {
@@ -434,6 +438,8 @@ driver_main(int argc, char **argv)
             outname = argv[++i];
         else if (strcmp(argv[i], "-s") == 0 && i + 1 < argc)
             sw = argv[++i];
+        else if (strcmp(argv[i], "-H") == 0 && i + 1 < argc)
+            hdrs[nhdrs++] = argv[++i];                 /* a file of declarations, read in front of each source */
         else if (strcmp(argv[i], "-C") == 0 && i + 1 < argc)
             csyn[ncsyn++] = argv[++i];                 /* a file of syntax or declarations, as the tape's /C: read in the order given, before the sources */
         else {
@@ -447,7 +453,7 @@ driver_main(int argc, char **argv)
         return 2;
     }
     if (i >= argc) {
-        fputs("usage: impstage0 [-S | -c] [-o OUT] [-s LETTERS] [-C SYNTAX] FILE.imp ...\n", stderr);
+        fputs("usage: impstage0 [-S | -Sir | -c] [-o OUT] [-s LETTERS] [-C SYNTAX] [-H DECLARATIONS] FILE.imp ...\n", stderr);
         return 2;
     }
     nfiles = argc - i;
@@ -483,7 +489,7 @@ driver_main(int argc, char **argv)
     imptmpbase(tmpbase);                        /* TMPDIR, else tmp/ of the source tree, else /tmp: used only if a file is needed */
 
     /* the kernel, in this process */
-    kargv = calloc((size_t)nfiles + (size_t)ncsyn + 10, sizeof *kargv);
+    kargv = calloc((size_t)nfiles + (size_t)ncsyn + 2 * (size_t)nhdrs + 10, sizeof *kargv);
     k = 0;
     kargv[k++] = "imps0";
     if (sw != NULL) {
@@ -496,6 +502,10 @@ driver_main(int argc, char **argv)
     kargv[k++] = ffi;
     for (int c = 0; c < ncsyn; c++)
         kargv[k++] = csyn[c];
+    for (int h = 0; h < nhdrs; h++) {
+        kargv[k++] = "-H";
+        kargv[k++] = hdrs[h];
+    }
     for (; nfiles > 0; nfiles--, i++)
         kargv[k++] = argv[i];
     if ((kernel_ir = open_memstream(&irbuf, &irlen)) == NULL) {

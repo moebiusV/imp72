@@ -88,24 +88,6 @@ tell apart.
 lexer, the code generators and the existing library are untouched, and no
 existing program changes. It depends on item 2.
 
-### 7. A shared declarations file
-
-A declaration (`EXTERNAL`, `CALLBACK`, `FNPTR`, `STRUCT`, `LET`) holds to the end
-of the compilation unit, one file ending at `%%`. A function that several
-files call is declared in each. `imp-cimport` writes a fragment, and the
-fragment goes in front of every source with `cat`.
-
-Decided (2026-11-11: shared declarations and modules are in scope; the mechanism is pending): a way to name a file of declarations that every unit reads, so that
-a declaration is written once. Two forms are possible: a statement in the source
-that reads a file (`INCLUDE 'decls.imp'`), or a file on the command line that
-the driver puts in front of each source. A file named with `-C` does not do it: it is a
-unit of its own (it ends at `%%`, and a declaration ends with its unit), where the
-declarations are to reach the unit that follows.
-
-*Effect on the code.* The lexer (a stack of input files) or the driver. The
-declaration statements of `lib/ffi.imc` stay as they are. A test with two units
-that share one file.
-
 ### 8. A generated header for exported routines
 
 A `SUBR` is a C function whose parameters are pointers to 64-bit words

@@ -16,6 +16,7 @@
 .Op Fl s Ar letters
 .Op Fl I Ar image
 .Op Fl C Ar syntax
+.Op Fl H Ar declarations
 .Ar file ...
 .Nm
 .Fl -run
@@ -167,6 +168,18 @@ the runtime library built for the target.
 A file of syntax and declarations, read before the sources.
 More than one may be named; they are read in the order given, and a source
 compiled by itself (with several sources) reads them each time.
+.It Fl H Ar file
+A file of declarations (
+.Sy EXTERNAL ,
+.Sy CALLBACK ,
+.Sy STRUCT ... ),
+read in front of each source, as if it were its first lines, so that a
+declaration that several sources need is written once.
+More than one may be named.
+It is part of the source: a declaration holds to the end of the unit, which is the
+end of the source.
+.Fl C ,
+whose file is a unit of its own, does not do this.
 .It Fl s Ar letters
 The switches of the original compiler, one letter each.
 The listings and dumps go to the standard error.

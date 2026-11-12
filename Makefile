@@ -97,6 +97,7 @@ check-run:
 	sh tests/runtime/run.sh
 	sh tests/version/run.sh
 	sh tests/variadic/run.sh
+	sh tests/decls/run.sh
 	sh tests/tmpfiles/run.sh
 	sh tests/seed/run.sh
 	sh tests/cli/run.sh

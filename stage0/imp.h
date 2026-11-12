@@ -160,6 +160,7 @@ word newname(const char *s);
 /* ---- lex.c: input and lexical analysis (lex.imc) ----------------------- */
 
 int lexin(const char *path);               /* LEXIN: 0 ok, -1 can't open */
+void lexhdr(const char *path);             /* a file of declarations to read in front of each source that follows (-H) */
 word lex(word *s);                         /* LEX: sets *s to the token's
                                               directory index, returns IC */
 void pline1(word ol);

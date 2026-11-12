@@ -79,37 +79,64 @@ lineput(int ch)
     line[linelen++] = (char)ch;
 }
 
-/* LEXIN: open the source file.  0 if ok, -1 if it cannot be read. */
-int
-lexin(const char *path)
+/* the files of declarations that go in front of each source (-H of imp: src/lex.imc LEXHDR); the first lexin, the syntax, is read before there is one */
+#define MAXHDR 64
+static const char *hdrv[MAXHDR];
+static int nhdr;
+
+void
+lexhdr(const char *path)
+{
+    if (nhdr < MAXHDR)
+        hdrv[nhdr++] = path;
+}
+
+/* append the file at path to src; 0 if ok, -1 if it cannot be read */
+static int
+slurp(const char *path, size_t *cap)
 {
     FILE *f = fopen(path, "rb");
     size_t n;
+    char buf[8192];
 
     if (f == NULL)
         return -1;
+    while ((n = fread(buf, 1, sizeof buf, f)) > 0) {
+        if (srclen + n + 1 > *cap) {
+            char *t = realloc(src, *cap = (srclen + n + 1) * 2);
+
+            if (t == NULL) {
+                fclose(f);
+                return -1;
+            }
+            src = t;
+        }
+        memcpy(src + srclen, buf, n);
+        srclen += n;
+    }
+    fclose(f);
+    return 0;
+}
+
+/* LEXIN: open the source file, behind the files of declarations.  0 if ok, -1 if it cannot be read. */
+int
+lexin(const char *path)
+{
+    size_t cap = 0;
+    int h;
+
     free(src);
     srclen = 0;
     srcpos = 0;
     src = NULL;
-    {
-        size_t cap = 0;
-        char buf[8192];
-
-        while ((n = fread(buf, 1, sizeof buf, f)) > 0) {
-            if (srclen + n > cap) {
-                char *t = realloc(src, cap = (srclen + n) * 2);
-                if (t == NULL) {
-                    fclose(f);
-                    return -1;
-                }
-                src = t;
-            }
-            memcpy(src + srclen, buf, n);
-            srclen += n;
-        }
-    }
-    fclose(f);
+    for (h = 0; h < nhdr; h++)
+        if (slurp(hdrv[h], &cap) != 0) {
+            fprintf(stderr, "imp: cannot read the declarations file %s\n", hdrv[h]);
+            return -1;
+        } else if (srclen > 0 && src[srclen - 1] != '\n')
+            src[srclen++] = '\n';
+    if (slurp(path, &cap) != 0)
+        return -1;
     linelen = 0;
     if (line != NULL)
         line[0] = '\0';
