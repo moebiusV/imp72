@@ -146,7 +146,7 @@ object(const char *ir, size_t n, const char *path, char **obj, size_t *objn, LLV
     char *triple, *cpu, *feat, *msg = NULL;
     int rc = 1;
     int level = optlevel();
-    static const char *const pipeline[] = { "default<O0>", "default<O1>", "default<O2>", "default<O3>", "default<Os>", "default<Oz>" };
+    static const char *const pipeline[] = { "default<O0>", "default<O1>", "default<O2>", "default<O3>", "default<O2>", "default<O2>" };   /* -Os and -Oz: O2 with the optsize and minsize attributes: LLVM 23 has no default<Os> or default<Oz> */
 
     if (init())
         return 1;

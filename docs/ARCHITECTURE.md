@@ -49,7 +49,7 @@ the 64-bit IMP translation of the original modules in `decus/`.
   to the values and the word is 64 bits. The pointer size (32 or 64 bits) is the
   writer's only parameter, so the output does not depend on the host otherwise.
 - **`llvm`** (`src/llvm.imc`; the seed's copy is `stage0/llvm.c`) calls the
-  LLVM C API through `CCALL`. It parses the module, optimizes it at the level of `-O` (`default<Os>` unless asked otherwise, with the `optsize` attribute on each function for `-Os` and `-Oz`)
+  LLVM C API through `CCALL`. It parses the module, optimizes it at the level of `-O` (`default<O2>` with the `optsize` attribute on each function for `-Os`, the default, and `optsize` and `minsize` for `-Oz`: LLVM 23 has no `default<Os>` or `default<Oz>`)
   and emits an object file, assembly or IR text. The module `llvmgen`, written by `tools/llvm.sh imp` for the LLVM at hand, holds what the LLVM headers decide.
 - **`driver`** links an executable from the object, the objects named on the
   command line, the C library's start files and `libimp.a`, with lld
