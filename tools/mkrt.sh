@@ -16,11 +16,12 @@ if [ -n "$triple" ]; then
     case $triple in
     *darwin*|*apple*) os=darwin ;;
     *cygwin*|*windows-cygnus*) os=cygwin ;;
+    *mingw*|*windows-gnu*|*windows-msvc*) os=windows ;;
     *freebsd*) os=freebsd ;;
     *netbsd*) os=netbsd ;;
     *openbsd*) os=openbsd ;;
     *linux*) os=linux ;;
-    *) echo "mkrt: no system in the triple $triple (linux, freebsd, netbsd, openbsd, darwin, cygwin)" >&2; exit 1 ;;
+    *) echo "mkrt: no system in the triple $triple (linux, freebsd, netbsd, openbsd, darwin, cygwin, mingw)" >&2; exit 1 ;;
     esac
     tgt="--target=$triple"
     out=${2:-build/rt-$triple}
@@ -55,9 +56,10 @@ unset IMPLIB
 bd=$(sh tools/llvm.sh bindir)
 { sed '/^%%$/d' lib/imprt.iml; sed '1d' lib/impio.iml; } > "$out/imprt_all.iml"
 sh tools/sysconst.sh "$os" "$arch" "$bd" > "$out/sysgen.iml"
-case $os in darwin) vfmt=macho ;; cygwin) vfmt=coff ;; *) vfmt=elf ;; esac
+case $os in darwin) vfmt=macho ;; cygwin|windows) vfmt=coff ;; *) vfmt=elf ;; esac
 objs=
-for m in "imprt_imp:$out/imprt_all.iml" "impsys:lib/impsys.iml" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml" "impinit:lib/impinit.iml" "imprun:lib/imprun.iml" "impsix:lib/impsix.iml" "impstr:lib/impstr.iml" "impchan:lib/impchan.iml"; do
+case $os in windows) corefile=lib/impcore-win.iml; winm=" impwin:lib/impwin.iml" ;; *) corefile=lib/impcore.iml; winm= ;; esac
+for m in "imprt_imp:$out/imprt_all.iml" "impsys:lib/impsys.iml" "impcore:$corefile" "sysgen:$out/sysgen.iml" "impvars:lib/impvars.iml" "impvarsx:lib/impvarsx-$vfmt.iml" "imphost:lib/imphost.iml" "imphostx:lib/imphostx-$vfmt.iml" "impmain:lib/impmain.iml" "impinit:lib/impinit.iml" "imprun:lib/imprun.iml" "impsix:lib/impsix.iml" "impstr:lib/impstr.iml" "impchan:lib/impchan.iml"$winm; do
     $w -c $tgt -o "$out/${m%%:*}.o" -C $endf "${m#*:}" > "$out/${m%%:*}.log" 2>&1 || { echo "mkrt: ${m#*:} did not compile:" >&2; head -c 600 "$out/${m%%:*}.log" >&2; exit 1; }
     objs="$objs $out/${m%%:*}.o"
 done

@@ -238,20 +238,17 @@ triples against `tests/link/cross.out`.
 
 The Cygwin row is unverified. It follows the specs of Cygwin's gcc and has not been run on Cygwin or checked against clang's Cygwin toolchain. The start file `crt0.o`, the libraries and the gcc directory are the likely ones. The entry point, the image base and `--dynamicbase`, `--nxcompat` and `--tsaware` (lld's defaults are used) are unverified. The tests cover the argument lists (`tests/link/cross.sh`) and objects, not a run.
 
-The runtime library for Cygwin is built (`tools/mkrt.sh x86_64-pc-cygwin` and
-`i686-pc-cygwin` make COFF objects of every member and `libimp.a`), and has not
-been run: no Cygwin machine was available. It uses the constants of
-`tools/sysconst.sh` that are unverified (`MAP_ANONYMOUS` 0x20, `MAP_NORESERVE`
-0x4000, `d_name` at 16 of a `struct dirent`, `RTLD_DEFAULT` 0, no
-`dl_iterate_phdr`, and `stdin` and `stdout` read as `_impure_ptr->_stdin` and
-`_stdout` of newlib), and the COFF files `lib/imphostx-coff.iml` (no dynamic
-linker to name) and `lib/impvarsx-coff.iml` (no table of the compiler's variables:
-the linker bounds no section for COFF, so a compiler built for Cygwin saves no
-image). `tests/runtime` checks that the members are COFF for the machine and that
-the library has `imp_init` and `imp_run`. For Windows proper there is no library:
-the host layer (`lib/imphost.iml`, `lib/impsys.iml`: `mmap` for the arena,
-`fork`, `readlink`) and `tools/sysconst.sh` describe POSIX systems only, and it
-needs `VirtualAlloc` for the arena and `CreateProcess` for the programs it starts.
+The runtime library for Windows (mingw-w64, the C library msvcrt: `tools/mkrt.sh x86_64-w64-mingw32`) is built and runs: `tests/winrun` compiles and links 38 of the test programs
+with `imp --target=x86_64-w64-mingw32 --sysroot=... --runtime=...` and runs them under Wine, and they print what the native tests print. Its parts: the standard files of msvcrt
+(`__iob_func()`, in `tools/sysconst.sh`), put in binary mode when the runtime starts (`IMPBINMODE`, so that a program writes the bytes it means and not CR LF for LF; the files
+`impio` and `impchan` open are `"rb"` and `"wb"` for the same reason), the arena of the compiler's free storage by `VirtualAlloc` (`lib/impcore-win.iml`, where
+`lib/impcore.iml` has `mmap`), the `_longjmp` of the non-local `GO TO` that msvcrt calls `longjmp` (`lib/impwin.iml`), and a `_setjmp` with the null frame that msvcrt's takes as its second
+argument (`src/ir2llx.imc`, for the Windows target only). `RENAME` of a channel closes the file first, which Windows needs of a file it deletes or renames. Left out of the Windows
+run, because they call C functions that Windows does not have: `structs` (`strptime`), `cdecl` (`htonl`, which is in ws2_32), `cdecl2` (the ctype functions with values msvcrt treats otherwise) and
+`extcall` (`environ`). What is not done: the compiler itself on Windows (`lib/imphost.iml` forks and execs: `CreateProcess` is not written, the images need a table of the variables
+that COFF has no section for), the UCRT (the runtime is msvcrt's), 32-bit Windows, ARM, and a run on a real Windows machine: Wine is what the programs run on. `tools/wine-setup.sh` makes the
+mingw-w64 libraries and Wine from the Debian packages into `tmp/win` (nothing is installed; `apt-get download`, `dpkg-deb`, and `unshare` for the namespace that gives Wine `/usr/share/wine`).
+The Cygwin library is built and has not run.
 
 What works for Windows targets: objects (`-c`, `-S`, `-Sir`), and the link of a
 program that has its own `main` and needs no runtime (`--runtime=` an empty

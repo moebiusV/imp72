@@ -28,18 +28,14 @@ None of the tape's own programs uses any of these.
 Decided (2026-11-11): the rest as far as a program of the tape needs it; the programs of the tape (the compiler's modules) need none of what is
 not provided, so it stays so until a program that does is found.
 
-### 11. A runtime library for Windows
+### 11. The compiler on Windows
 
-`imp --target=x86_64-w64-mingw32` writes objects and links a program that needs no runtime (`docs/BUILDING.md`). There is no `libimp.a` for it: the host
-layer (`lib/imphost.iml`, `lib/impsys.iml`) uses `mmap` for the arena, `fork`, `waitpid` and `readlink`, and `tools/sysconst.sh` describes POSIX
-systems. Cygwin has the library, built but not run (`lib/imphostx-coff.iml`, `lib/impvarsx-coff.iml`; no machine to run it on).
+The runtime library for Windows and the programs it links run (`docs/BUILDING.md`, `tests/winrun`, under Wine). The compiler itself does not: `lib/imphost.iml` forks, execs and waits (the
+driver starts lld and the children of a compilation of several files), the temporary files of `src/driver.imc` are POSIX, and the images need the table of the compiler's variables that COFF has no
+section for. Decided (2026-11-05): Windows is supported where LLVM and mingw can do it; what remains is `CreateProcess` and `WaitForSingleObject` where the host layer forks, a Windows
+temporary directory, a table of the variables for COFF, and a run on a Windows machine, where Wine runs the programs and not yet the compiler's own build.
 
-Decided (2026-11-05: Windows is supported where LLVM and mingw can do it; the code is pending): a Windows variant of the arena (`VirtualAlloc` to reserve
-the address space and to commit it as `CORE` asks), of the process routines (`CreateProcess` and `WaitForSingleObject` where the host layer forks) and the
-constants of `tools/sysconst.sh`, and a test run on a Windows machine; none is available for the tests, and the code of a layer that cannot be run is
-not written.
-
-*Effect on the code.* New files in `lib/`, a case in `tools/mkrt.sh`, and the link tables in `src/driver.imc` when a run shows them wrong.
+*Effect on the code.* A `lib/imphostx` for Windows and the link tables in `src/driver.imc` where a run shows them wrong.
 
 ## Open question: tape routines
 

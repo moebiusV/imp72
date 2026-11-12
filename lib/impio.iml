@@ -116,7 +116,7 @@ SUBR RTLOPENFILE(NM,OUT) IS (
               FFP[I]=0 => FS<0 => FS:=I;
               I:=I+1; GO TO OF1);
  FS<0 => (RTLERRS(LOC('imp: more than 4 files open')); RTLERRNL(0); CCALL exit(1));
- FFP[FS]:=CCALL fopen(NM,(OUT NE 0 => LOC('w') ELSE LOC('r')));
+ FFP[FS]:=CCALL fopen(NM,(OUT NE 0 => LOC('wb') ELSE LOC('rb')));            # (b: THE BYTES AS THEY ARE ON WINDOWS TOO, WHERE A TEXT FILE HAS CR LF FOR LF) #
  FFP[FS]=0 => (RTLERRS(LOC('imp: cannot open ')); RTLERRS(NM); RTLERRNL(0); CCALL exit(1));
  CCALL snprintf(LOC(FNM)+(4384*FS),4384,LOC('%s'),NM);
  FOUT[FS]:=OUT;

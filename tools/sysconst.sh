@@ -44,6 +44,9 @@ darwin) anon=4096; nores=64; rtld=-2; dname=21; dl=0 ;;
 # (Cygwin's values are from memory of its headers and are not checked on a Cygwin machine: MAP_ANONYMOUS 0x20, MAP_NORESERVE 0x4000, no MAP_FIXED_NOREPLACE; d_name at 16 of a struct dirent
 # (d_ino, __d_version, __d_reserved); no dl_iterate_phdr; RTLD_DEFAULT 0)
 cygwin) anon=32; nores=16384; rtld=0; dname=16; dl=0 ;;
+# (Windows, mingw-w64 with the C library msvcrt: no mmap, so the flags are 0 and the arena is VirtualAlloc's (lib/impcore-win.iml); struct dirent of mingw-w64 is d_ino (a long), d_reclen and d_namlen
+# (two shorts) and then d_name, at 12; no dl_iterate_phdr and no dladdr; the standard files are the elements of the array that __iob_func() returns)
+windows) anon=0; rtld=0; dname=12; dl=0 ;;
 *) die "no system $os" ;;
 esac
 case $bits in 64) hint=17592186044416; resv=17179869184 ;; *) hint=536870912; resv=268435456 ;; esac
@@ -55,6 +58,7 @@ stdsym=stdout; stdin=stdin; filesz=; stdkind=var
 here=no; [ "$os" = "$(uname -s | tr 'A-Z' 'a-z')" ] && here=yes
 case $os in
 freebsd|darwin) stdsym=__stdoutp; stdin=__stdinp ;;
+windows) stdkind=iobf ;;           # msvcrt: stdin is __iob_func()[0], stdout __iob_func()[1], FILEs of 32 bytes on a 32 bit machine and 48 on a 64 bit one
 cygwin) stdkind=reent ;;           # newlib: stdout is (_REENT->_stdout), _REENT being _impure_ptr; struct _reent is an int _errno and then the pointers _stdin, _stdout, _stderr (not checked on Cygwin)
 openbsd)
     stdkind=addr; stdsym=__stdout; stdin=__stdin
@@ -78,6 +82,8 @@ if [ $stdkind = arr ]; then
     echo "!__sF! IS EXTERNAL;"
 elif [ $stdkind = reent ]; then
     echo "!_impure_ptr! IS EXTERNAL;"
+elif [ $stdkind = iobf ]; then
+    echo "# (THE STANDARD FILES ARE __IOB_FUNC()'S) #"
 else
     echo "!$stdsym!,!$stdin! ARE EXTERNAL;"
 fi
@@ -99,6 +105,7 @@ echo "SUBR SCRTLD(Z) IS $rtld;                              # RTLD_DEFAULT #"
 echo "SUBR SCDNAME(Z) IS $dname;                            # OFFSET OF D_NAME IN A STRUCT DIRENT #"
 echo "SUBR SCDL(Z) IS $dl;                                 # DL_ITERATE_PHDR AND DLADDR (NOT ON MACOS) #"
 echo "SUBR IMPHOSTOS(Z) IS LOC('$os');"
+if [ $os = windows ]; then echo "SUBR IMPBINMODE(Z) IS (CCALL _setmode(0,32768); CCALL _setmode(1,32768); CCALL _setmode(2,32768); 0);       # O_BINARY: THE STANDARD FILES ARE BYTES, NOT TEXT WITH CR LF #"; else echo "SUBR IMPBINMODE(Z) IS 0;"; fi
 # (the directory and time calls of the C library: NetBSD's plain names are the compatibility entry points of the old struct dirent and the 32 bit time_t, <dirent.h> and <time.h> rename them there; the library calls these)
 case $os in
 netbsd) od=__opendir30 rd=__readdir30 tm=__time50 lt=__locatime50 ;;
@@ -117,6 +124,10 @@ case $stdkind in
 arr)
     echo "SUBR IMPSTDIN(Z) IS LOC(!__sF!);"
     echo "SUBR IMPSTDOUT(Z) IS (Q ARE LOCAL; Q:=LOC(!__sF!); Q+$filesz)        # (IN A VARIABLE: THE SEED TAKES LOC(X)+N FOR N WORDS) #" ;;
+iobf)
+    if [ $bits = 32 ]; then filesz=32; else filesz=48; fi
+    echo "SUBR IMPSTDIN(Z) IS (CCALL __iob_func(0));                    # (MSVCRT'S ARRAY OF THE STANDARD FILES: STDIN IS ITS FIRST ELEMENT) #"
+    echo "SUBR IMPSTDOUT(Z) IS (Q ARE LOCAL; Q:=CCALL __iob_func(0); Q+$filesz)" ;;
 reent)
     echo "SUBR IMPSTDIN(Z) IS IMPPEEKPTR(IMPPEEKPTR(LOC(!_impure_ptr!))+SCPTR(0));          # (NEWLIB: _REENT->_STDIN; THE POINTERS FOLLOW THE INT _ERRNO, ALIGNED TO A POINTER) #"
     echo "SUBR IMPSTDOUT(Z) IS IMPPEEKPTR(IMPPEEKPTR(LOC(!_impure_ptr!))+(2*SCPTR(0)))" ;;
