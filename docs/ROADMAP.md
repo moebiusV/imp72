@@ -28,24 +28,6 @@ None of the tape's own programs uses any of these.
 Decided (2026-11-11): the rest as far as a program of the tape needs it; the programs of the tape (the compiler's modules) need none of what is
 not provided, so it stays so until a program that does is found.
 
-### 6. Counted strings
-
-String constants are ASCIZ, as in the original: the bytes, then a zero. They
-pass to C unchanged, and `STG` and the library scan to the zero. This stays.
-
-Decided (2026-11-03: a separate object type with its own handler functions, carrying its length and also NUL terminated): a counted string beside it, with its own
-handler functions. It is a record: a length word (bytes, the NUL not counted),
-the bytes, and a zero byte after them, so that the address of its bytes can be
-given to C. It is made and handled only by routines of its own: create from a
-constant or a C string, length, copy, concatenate, compare, slice, search,
-append, print. A routine that takes a counted string and one that takes an
-ASCIZ string are different routines, which the typed declarations of `docs/FFI.md`
-tell apart.
-
-*Effect on the code.* A new part of the library and its declarations. The
-lexer, the code generators and the existing library are untouched, and no
-existing program changes. Item 2 (a string in double quotes) is done.
-
 ### 8. A generated header for exported routines
 
 A `SUBR` is a C function whose parameters are pointers to 64-bit words

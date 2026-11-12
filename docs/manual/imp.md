@@ -1164,6 +1164,49 @@ argument cannot be told from one that is there): give 0 for none.
 Has the value of the RADIX 50 symbol R50 converted to ascii (a string of six bytes) or to SIXBIT,
 and sets the variable BITS to the value of the code bits. BITS must be a variable.
 
+- Counted strings
+
+A string constant is ASCII: its bytes and a zero, which is its end. A counted string is a separate
+kind of string that carries its length, made and handled by routines of its own (the library member
+`impstr.iml`); the strings of the language stay what they are. It is a record in memory (from
+`malloc`): a word of its length in bytes (the zero not counted), the bytes, and a zero byte after
+them, so that the address of its bytes is a C string too. Its value is the address of the record, a
+word like any other. A byte is a byte: the routines count and compare bytes, not UTF-8 characters,
+and a counted string may hold a zero byte. A routine that takes a counted string is not one that
+takes an ASCII string.
+
+- CSNEW(STG)
+
+The counted string of the ASCII string STG (a string constant, or a variable that holds one).
+`CSMAKE(^A,^N)` is the counted string of the N bytes at the address A, which is a pointer (bytes
+that C made, or a buffer); both are 0 if there is no memory. `CSFREE(^P)` gives one back.
+
+- CSLEN(P), CSBYTES(P)
+
+The length of P in bytes, and the address of its bytes, which is what a C function takes (a zero
+byte follows them).
+
+- CSCOPY(P), CSCAT(P,Q), CSSUB(P,I,N)
+
+A new counted string: a copy of P, the bytes of P and then those of Q, or the N bytes from byte I
+(the first is 0) of P (as many as there are if there are fewer).
+
+- CSAPP(P,Q)
+
+The bytes of Q added to P, which may move: the value is the counted string to use from then on (0,
+and P is not touched, if there is no memory).
+
+- CSCMP(P,Q), CSFIND(P,Q)
+
+-1, 0 or 1 as the bytes of P, compared as unsigned bytes, come before, are, or come after those of Q
+(the shorter is first if it is the start of the longer); and the index of the first place in P where
+the bytes of Q are, -1 if there is none (an empty Q is at 0).
+
+- CSPRINT(P)
+
+The bytes printed, as `PRINT STG 0` prints a string (up to the first zero byte if there is one in
+them).
+
 ### 2.3:  Syntactic and Semantic Extension.
 
 This section explains the IMP72 facilities for extending the language. It is possible to add

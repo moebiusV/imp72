@@ -2182,6 +2182,81 @@ and sets the variable
 to the value of the code bits.
 .Ic BITS
 must be a variable.
+.It Li "Counted strings"
+A string constant is ASCII: its bytes and a zero, which is its end.
+A counted string is a separate kind of string that carries its length,
+made and handled by routines of its own (the library member
+.Li impstr.iml ) ;
+the strings of the language stay what they are.
+It is a record in memory (from
+.Li malloc ) :
+a word of its length in bytes (the zero not counted), the bytes, and
+a zero byte after them, so that the address of its bytes is a
+.Ar C
+string too.
+Its value is the address of the record, a word like any other.
+A byte is a byte: the routines count and compare bytes, not UTF-8 characters,
+and a counted string may hold a zero byte.
+A routine that takes a counted string is not one that takes an ASCII
+string.
+.It Li CSNEW(STG\&)
+The counted string of the ASCII string
+.Ic STG
+(a string constant, or a variable that holds one).
+.Li CSMAKE(\(haA,\(haN\&)
+is the counted string of the
+.Ar N
+bytes at the address
+.Ar A ,
+which is a pointer (bytes that
+.Ar C
+made, or a buffer); both are 0 if there is no memory.
+.Li CSFREE(\(haP\&)
+gives one back.
+.It Li "CSLEN(P), CSBYTES(P\&)"
+The length of
+.Ar P
+in bytes, and the address of its bytes, which is what a
+.Ar C
+function takes (a zero byte follows them).
+.It Li "CSCOPY(P), CSCAT(P,Q), CSSUB(P,I,N\&)"
+A new counted string: a copy of
+.Ar P ,
+the bytes of
+.Ar P
+and then those of
+.Ar Q ,
+or the
+.Ar N
+bytes from byte I (the first is 0) of
+.Ar P
+(as many as there are if there are fewer).
+.It Li CSAPP(P,Q\&)
+The bytes of
+.Ar Q
+added to
+.Ar P ,
+which may move: the value is the counted string to use from then on
+(0, and
+.Ar P
+is not touched, if there is no memory).
+.It Li "CSCMP(P,Q), CSFIND(P,Q\&)"
+-1, 0 or 1 as the bytes of
+.Ar P ,
+compared as unsigned bytes, come before, are, or come after those of
+.Ar Q
+(the shorter is first if it is the start of the longer); and the index
+of the first place in
+.Ar P
+where the bytes of
+.Ar Q
+are, -1 if there is none (an empty
+.Ar Q
+is at 0).
+.It Li CSPRINT(P\&)
+The bytes printed, as
+.Li "PRINT STG 0"
+prints a string (up to the first zero byte if there is one in them).
 .El
 .Ss "2.3 Syntactic and Semantic Extension"
 This section explains the IMP72 facilities for extending the language.
