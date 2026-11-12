@@ -11,8 +11,6 @@ i686-linux-gnu	linux	i386	debian:i386	Linux, glibc
 riscv64-linux-gnu	linux	riscv64	debian:riscv64	Linux, glibc
 s390x-linux-gnu	linux	s390x	debian:s390x	Linux, glibc, big endian
 powerpc64le-linux-gnu	linux	ppc64le	debian:ppc64el	Linux, glibc
-mips64el-linux-gnuabi64	linux	mips64el	debian:mips64el	Linux, glibc
-mipsel-linux-gnu	linux	mipsel	debian:mipsel	Linux, glibc
 x86_64-w64-mingw32	windows	x86_64	mingw:x86-64	Windows, mingw-w64 (msvcrt)
 i686-w64-mingw32	windows	i386	mingw:i686	Windows, mingw-w64 (msvcrt)
 x86_64-pc-cygwin	cygwin	x86_64	cygwin:x86_64	Cygwin
