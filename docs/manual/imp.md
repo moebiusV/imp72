@@ -299,8 +299,15 @@ you will find the words properly distinguished.
 Identifiers consist of letters, digits and the underscore, and are case sensitive: COUNT, `Count`
 and `count` are three names. The words of the language (PRINT, SUBR, IS, ...) are written in capital
 letters, so that `print` is a name. A byte above 127 is a letter, so that the UTF-8 text of a name
-is part of it. An identifier containing any special character (except !) may be represented by
-enclosing the entire name in ! signs; e.g., !Funny*id.! (see Section 2.2.1).
+is part of it, except that the arrows and the mathematical operators (U+2190 to U+22ff) and the not
+sign (U+00ac) are symbols of their own, one token each and never part of a name, so that `A≤B`
+needs no blanks around it. The ASCII operators are not replaced: `LE GE NE AND OR NOT :=` are what
+they were, and both spellings may be used in one program. Seven of them are spellings of operators
+(the file `utf8.imc`, a syntax extension read after the language's and the C interface's): `â¤`
+is `LE`, `â¥` is `GE`, `â ` is `NE`, `â§` is `AND`, `â¨` is `OR`, `Â¬` is `NOT`
+and `â` is `:=`. Another symbol of the block is a token that no rule uses. An identifier
+containing any special character (except !) may be represented by enclosing the entire name in !
+signs; e.g., !Funny*id.! (see Section 2.2.1).
 
 All characters appearing between # signs are treated as comments and ignored by the compiler (except
 for # signs in string constants and between ! signs). A comment that is not closed by a second #

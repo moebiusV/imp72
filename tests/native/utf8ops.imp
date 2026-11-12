@@ -1,0 +1,31 @@
+A:=3; B:=5;
+A≤B => PRINT STG 0,'A LE B',/;
+A≥B => PRINT STG 0,'wrong',/ ELSE PRINT STG 0,'A NOT GE B',/;
+A≠B => PRINT STG 0,'A NE B',/;
+C←A+B;
+PRINT IGR 0,C,/;
+Y:=6 ∧ 3;
+PRINT IGR 0,Y,/;
+Y:=4 ∨ 1;
+PRINT IGR 0,Y,/;
+Y:=¬0;
+PRINT IGR 0,Y,/;
+ÉTÉ:=7;
+日本:=ÉTÉ+1;
+PRINT IGR 0,日本,/;
+PRINT STG 0,'LE ≤ GE ≥',/;
+A LE B => PRINT STG 0,'ASCII A LE B',/;
+A GE B => PRINT STG 0,'wrong',/ ELSE PRINT STG 0,'ASCII A NOT GE B',/;
+A NE B => PRINT STG 0,'ASCII A NE B',/;
+C:=A+B;
+PRINT IGR 0,C,/;
+Y:=6 AND 3;
+PRINT IGR 0,Y,/;
+Y:=4 OR 1;
+PRINT IGR 0,Y,/;
+Y:=NOT 0;
+PRINT IGR 0,Y,/;
+(A LE B) AND (B NE A) => PRINT STG 0,'ASCII BOTH',/;
+(A≤B) AND (B NE A) => PRINT STG 0,'MIXED BOTH',/;
+FINI(0)
+%%

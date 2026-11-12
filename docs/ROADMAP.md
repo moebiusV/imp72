@@ -12,23 +12,6 @@ by reference: `CCALL` is always written.
 
 ## Language
 
-### 1. UTF-8 operator symbols (`≤ ≥ ≠ ← ∧ ∨ ¬`)
-
-`src/lex.imc` makes every byte of 128 and up a letter of names, so that a name
-may be UTF-8 text; a symbol in an operator position would be read as the start
-of a name.
-
-Proposed: spellings of the existing operators, not additional syntax, defined in an
-extension file loaded after `syntax.imc` that repeats the rule of `LE` and the
-others (`<ATOM> ::= '≤' ::= ...`), the way `lib/ffi.imc` extends the language.
-Names keep all bytes of 128 and up except those that a loaded extension makes
-into symbols.
-
-*Effect on the code.* The lexer tests a table of symbols before it takes a high
-byte for a letter (one routine in `lex.imc`, and in `stage0/lex.c`); the rest
-is a file of rules. A name that used one of those characters would change
-meaning.
-
 ### 5. What is left of the original's channel I/O
 
 `INIT`, `LOOKUP`, `ENTER`, `INPUT`, `OUTPUT`, `CLOSE`, `RENAME` and `RELEAS` are in `lib/impchan.iml`: the monitor calls of TOPS-10 as routines over

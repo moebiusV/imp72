@@ -49,7 +49,7 @@ stage0:
 # Installed layout (impstage0 finds its parts relative to its own place):
 #   PREFIX/bin/impstage0 (the seed; also as imp where stage 2 cannot be built)   PREFIX/bin/imp (stage 2)
 #   PREFIX/lib/imp/libimp.a (made by stage 2, else by the seed)   PREFIX/share/imp/syntax.imc
-#   PREFIX/share/imp/ffi.imc  MANDIR/man1/{imp.1,impstage0.1} (MANDIR is PREFIX/share/man)
+#   PREFIX/share/imp/ffi.imc, utf8.imc  MANDIR/man1/{imp.1,impstage0.1} (MANDIR is PREFIX/share/man)
 #   PREFIX/bin/imp-cimport and MANDIR/man1/imp-cimport.1 (where stage 2 is built)
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/lib/imp \
@@ -64,7 +64,7 @@ install: all
 	else install -m 644 $(LIB) $(DESTDIR)$(PREFIX)/lib/imp/libimp.a; fi
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -m 644 lib/imp.h $(DESTDIR)$(PREFIX)/include/imp.h
-	install -m 644 src/syntax.imc lib/ffi.imc $(DESTDIR)$(PREFIX)/share/imp/
+	install -m 644 src/syntax.imc lib/ffi.imc lib/utf8.imc $(DESTDIR)$(PREFIX)/share/imp/
 	install -m 644 docs/impstage0.1 $(DESTDIR)$(MANDIR)/man1/impstage0.1
 	install -m 644 docs/imp.1 $(DESTDIR)$(MANDIR)/man1/imp.1
 	if [ -x build/tools/cimport ]; then \

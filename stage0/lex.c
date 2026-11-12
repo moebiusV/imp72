@@ -44,12 +44,13 @@ static int lastc;                   /* the character before C (a := is one token
 static char *tok;                   /* TOKE */
 static size_t toklen, tokcap;
 
-/* ISTAB: letters and digits (ASCII only), and the underscore: a name is a valid C name, and assignment is := */
+/* ISTAB (src/lex.imc): the letters and digits of ASCII, the underscore (a name is a valid C name, and assignment is :=), and every byte of 128 and up, so that the UTF-8 text of a
+ * name is part of it (a symbol of UTF-8 that begins a token is not: symlen) */
 static int
 alnum(int ch)
 {
     return (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z')
-        || (ch >= 'a' && ch <= 'z') || ch == '_';
+        || (ch >= 'a' && ch <= 'z') || ch == '_' || ch >= 128;
 }
 
 static void
@@ -179,6 +180,24 @@ pline1(word ol)
     fputc('\n', stderr);
 }
 
+/* the bytes of the symbol of UTF-8 that the character c begins, or 0: the arrows and the mathematical operators, U+2190 to U+22FF (three bytes, E2 86 to E2 8B and one more), and the not sign
+ * U+00AC (C2 AC).  They are never part of a name, so that A<=B needs no blanks; what each means is for a syntax extension (lib/utf8.imc), and any other byte of 128 and up is a letter of a name as
+ * before (src/lex.imc SYMLEN).  pc is the position of the byte after c. */
+static int
+symlen(void)
+{
+    unsigned b1, b2;
+
+    if (c == 0342) {
+        b1 = (unsigned char)line[pc];
+        b2 = b1 != 0 ? (unsigned char)line[pc + 1] : 0;
+        if (b1 >= 0206 && b1 <= 0213 && b2 >= 0200 && b2 <= 0277)
+            return 3;
+    } else if (c == 0302 && (unsigned char)line[pc] == 0254)
+        return 2;
+    return 0;
+}
+
 /* NEXTCHAR: advance C; at the end of a line, read the next one. */
 static void
 nextchar(void)
@@ -217,6 +236,8 @@ nextchar(void)
         c = '\n';
     }
     isanm = alnum(c);
+    if (isanm && symlen() != 0)             /* the first byte of a symbol of UTF-8 is not a letter of a name */
+        isanm = 0;
 }
 
 /* where a " is the delimiter of a semantic string and where it starts a C string: a syntax statement (<..> ::= ... ::= ...;) is from its ::= (the tokens : : =) to its ; or its %
@@ -415,6 +436,8 @@ rstr(int f)
 word
 lex(word *s)
 {
+    int n;
+
     c = csv;
     toklen = 0;
 t0: if (!skip)
@@ -487,6 +510,16 @@ t5:     nextchar();
             }
             goto lx;
         }
+    }
+    if ((n = symlen()) != 0) {            /* a symbol of UTF-8: its bytes are one token */
+        tokput(c);
+        nextchar();
+        tokput(c);
+        if (n == 3) {
+            nextchar();
+            tokput(c);
+        }
+        goto lx;
     }
     tokput(c);
     if (c == ':' && lastc != ':') {         /* := is one token */

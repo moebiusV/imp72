@@ -416,7 +416,7 @@ driver_main(int argc, char **argv)
     char dir[PATH_MAX], root[PATH_MAX], ofile[4096], base[PATH_MAX];
     char *irbuf = NULL, *obj = NULL;
     size_t irlen = 0, objlen = 0;
-    char syntax[PATH_MAX], ffi[PATH_MAX], lib[PATH_MAX], tmpbase[PATH_MAX];
+    char syntax[PATH_MAX], ffi[PATH_MAX], utf8[PATH_MAX], lib[PATH_MAX], tmpbase[PATH_MAX];
     const char *outname = NULL, *sw = NULL;
     int stop = 'x', i = 1, rc = 0, nfiles, k, sir = 0;
     char **kargv, **csyn = calloc((size_t)argc + 1, sizeof *csyn), **hdrs = calloc((size_t)argc + 1, sizeof *hdrs);
@@ -481,6 +481,9 @@ driver_main(int argc, char **argv)
     override(syntax, sizeof syntax, "IMPSYNTAX");
     override(ffi, sizeof ffi, "IMPFFI");
     override(lib, sizeof lib, "IMPLIB");
+    snprintf(utf8, sizeof utf8, "%s", ffi);                /* the symbols of UTF-8 are beside the C interface (lib/utf8.imc) */
+    if (strrchr(utf8, '/') != NULL)
+        strlcpy(strrchr(utf8, '/') + 1, "utf8.imc", sizeof utf8 - (size_t)(strrchr(utf8, '/') + 1 - utf8));
     snprintf(base, sizeof base, "%s", argv[i]);
     blen = strlen(base);
     if (blen > 4 && (strcmp(base + blen - 4, ".imp") == 0 || strcmp(base + blen - 4, ".imc") == 0))
@@ -500,6 +503,7 @@ driver_main(int argc, char **argv)
         imp_quiet = 1;
     kargv[k++] = syntax;
     kargv[k++] = ffi;
+    kargv[k++] = utf8;
     for (int c = 0; c < ncsyn; c++)
         kargv[k++] = csyn[c];
     for (int h = 0; h < nhdrs; h++) {

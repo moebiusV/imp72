@@ -14,4 +14,5 @@ share/doc/imp/LANGUAGE-NOTES.md
 share/doc/imp/imp.md
 share/imp/
 share/imp/ffi.imc
+share/imp/utf8.imc
 share/imp/syntax.imc

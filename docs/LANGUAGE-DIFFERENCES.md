@@ -33,6 +33,8 @@ comes from the machine and from the runtime.
   arithmetic showed (`0.001` printed as `.99999"-3` there). C code that shares a
   `REAL` converts with `imp_real_to_double` and `imp_double_to_real`
   (`lib/imp.h`).
+- **The operators** `≤ ≥ ≠ ∧ ∨ ¬ ←` are spellings of `LE GE NE AND OR NOT :=` (`lib/utf8.imc`, a syntax extension read
+  beside `lib/ffi.imc`); the arrows and mathematical operators of Unicode are symbols and never part of a name.
 - **Strings and numbers** are what a C program on a 64-bit machine holds; the original's representation and this one, side by side, are in the manual (`docs/manual/imp.md`, 1.4, item 14).
 - **Strings** may be written in double quotes with C's escapes (`"a\tb\n"`,
   `\xHH`, `\uHHHH`, `\UHHHHHHHH`; `\0` ends the string), the same constant as one in

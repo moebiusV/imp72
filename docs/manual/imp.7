@@ -432,7 +432,40 @@ are written in capital letters, so that
 .Li print
 is a name.
 A byte above 127 is a letter, so that the UTF-8 text of a name is part
-of it.
+of it, except that the arrows and the mathematical operators
+.Li "(U+2190 to U+22ff\&)"
+and the not sign
+.Pf \&( Li U+00ac )
+are symbols of their own, one token each and never part of a name, so
+that
+.Li A≤B
+needs no blanks around it.
+The ASCII operators are not replaced:
+.Li "LE GE NE AND OR NOT :="
+are what they were, and both spellings may be used in one program.
+Seven of them are spellings of operators (the file
+.Li utf8.imc ,
+a syntax extension read after the language’s and the
+.Ar C
+interface’s):
+.Li â¤
+is
+.Li "LE, â¥"
+is
+.Li "GE, â "
+is
+.Li "NE, â§"
+is
+.Li "AND, â¨"
+is
+.Li "OR, Â¬"
+is
+.Li NOT
+and
+.Li â
+is
+.Li := .
+Another symbol of the block is a token that no rule uses.
 An identifier containing any special character (except !) may be represented
 by enclosing the entire name in ! signs; e.g.,
 .Li !Funny*id.\&!
