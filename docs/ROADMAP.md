@@ -35,6 +35,8 @@ driver starts lld and the children of a compilation of several files), the tempo
 section for. Decided (2026-11-05): Windows is supported where LLVM and mingw can do it; what remains is `CreateProcess` and `WaitForSingleObject` where the host layer forks, a Windows
 temporary directory, a table of the variables for COFF, and a run on a Windows machine, where Wine runs the programs and not yet the compiler's own build.
 
+Cygwin: the runtime library is built for it and `imp-sysroot` fetches its packages, but the link stops at `__data_start__`, `__data_end__`, `__bss_start__` and `__bss_end__`, which GNU ld's script defines and lld does not (`docs/BUILDING.md`); nothing was run on Cygwin.
+
 *Effect on the code.* A `lib/imphostx` for Windows and the link tables in `src/driver.imc` where a run shows them wrong.
 
 ## Open question: tape routines

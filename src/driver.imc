@@ -316,6 +316,7 @@ SUBR LNKCROSSWIN(Z) IS (
  HAVELGC NE 0 => (HAVEF(LOC(CBP),LOC(LGCB),LOC('crtbegin.o')) NE 0 => KADD(LOC(CBP)));
  ADDOBJS(0); KADD(DRUNTIME); KADD(LOC('-L')); KADD(LOC(LIBD));
  HAVELGC NE 0 => (KADD(LOC('-L')); KADD(LOC(LGCB)));
+ CYG NE 0 => (CCALL snprintf(LOC(MAD),4096,LOC('%s/usr/lib/w32api'),DSYSROOT); EXISTS(LOC(MAD)) NE 0 => (KADD(LOC('-L')); KADD(CCALL strdup(LOC(MAD)))));      # (THE IMPORT LIBRARIES OF WINDOWS, KERNEL32 AND ITS KIN, ARE OF CYGWIN'S W32API-RUNTIME: USR/LIB/W32API) #
  CYG NE 0 => (KADD(LOC('-lcygwin')); KADD(LOC('-lgcc')); KADD(LOC('-ladvapi32')); KADD(LOC('-lshell32')); KADD(LOC('-luser32')); KADD(LOC('-lkernel32'));
               HAVELGC NE 0 => (HAVEF(LOC(CEP),LOC(LGCB),LOC('crtend.o')) NE 0 => KADD(LOC(CEP)));
               RETURN RUNLD(0));
