@@ -1,5 +1,6 @@
 @bin bin/imp
 @bin bin/imp-cimport
+@bin bin/imp-sysroot
 @bin bin/imp-exports
 @bin bin/impstage0
 include/imp.h
@@ -17,4 +18,6 @@ share/doc/imp/imp.md
 share/imp/
 share/imp/ffi.imc
 share/imp/utf8.imc
+share/imp/sysroots.tsv
+share/imp/rt/
 share/imp/syntax.imc

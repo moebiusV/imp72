@@ -142,6 +142,39 @@ compilers built and tested at `-O0`, the default and `-O3`.
 
 ## Cross-compiling
 
+The short way: `imp --target=TRIPLE -o prog prog.imp` (or `--target=OS/ARCH`).
+With no `--sysroot` and `--runtime` the driver asks `imp-sysroot` (beside it
+or in the PATH) for what the link needs of that system, which fetches it once
+into `${XDG_CACHE_HOME:-~/.cache}/imp/sysroots/OS[/vNN]/ARCH` (`$IMP_SYSROOTS`
+moves it) and makes `libimp.a` for the target there. That directory is the
+sysroot, as `--sysroot` takes it: `usr/include` (the matching header files),
+`usr/lib` with the start files (crt0.o or crt1.o, crtbegin.o), the C library,
+libm and libgcc, and the runtime library. A system with releases has the
+release in the path (`openbsd/v80/amd64`, `freebsd/v151/amd64`,
+`netbsd/v111/amd64`), the others have none (`linux/aarch64`,
+`windows/x86_64`). `imp-sysroot --list` says which systems it knows (the table
+is `tools/sysroots.tsv`) and which are here, `imp-sysroot --path T` where one
+is, `IMPFETCH=0` stops the driver fetching, and `IMP_FREEBSD_VERSION`,
+`IMP_OPENBSD_VERSION` and `IMP_NETBSD_VERSION` pick a release other than the
+newest.
+
+Nothing is kept in this repository. Each system's files come first from the
+`cruntime` repository (`$IMP_CRUNTIME`, default
+`https://github.com/moebiusV/cruntime`, laid out as the cache is:
+`cruntime/openbsd/v80/amd64`, `cruntime/linux/aarch64`; fetched by git sparse
+checkout of that one directory or by release tarball), and, where it has none,
+from the system's own packages, checked against the checksums of their
+indexes: the Debian packages for Linux (glibc) and mingw-w64, the Cygwin
+packages, the base (and, for NetBSD, comp) sets of FreeBSD, OpenBSD and
+NetBSD. macOS has no download: Apple's SDK is taken from the Mac (`xcrun`) or
+`imp-sysroot --apple-sdk DIR`. Needed here: sh, curl or wget, tar, xz and
+`ar` (for `.deb`), a sha256 tool. To run what is made: qemu's user mode for
+another machine's Linux, Wine for Windows (`tools/wine-setup.sh`).
+`tests/sysroot` checks the table, and with `IMP_TEST_NET=1` the whole way for
+Windows and aarch64 Linux.
+
+The long way, by hand, is below.
+
 `--target=TRIPLE` (LLVM's names; the vendor may be left out:
 `aarch64-linux-gnu`, `riscv64-linux-musl`, `i686-linux-gnu`,
 `armv7-linux-gnueabihf`, `x86_64-apple-darwin`) with `-c`, `-S` or `-Sir`

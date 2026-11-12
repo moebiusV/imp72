@@ -10,7 +10,8 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 triple=$1
 w=${MKRT_IMP:-$root/build/llvm-ir2/impstage-llvm-ir}
-[ -x "$w" ] || { echo "mkrt: no $w: run make first" >&2; exit 1; }
+[ -x "$w" ] || w=$(command -v imp 2>/dev/null)          # (installed: the imp in the PATH, with the runtime's sources in share/imp/rt, laid out as this tree is)
+[ -x "$w" ] || { echo "mkrt: no $root/build/llvm-ir2/impstage-llvm-ir and no imp in the PATH: run make first" >&2; exit 1; }
 if [ -n "$triple" ]; then
     arch=${triple%%-*}
     case $triple in

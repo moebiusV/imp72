@@ -72,6 +72,16 @@ if [ $stdkind = arr ]; then
         printf '#include <stdio.h>\nint main(void) { printf("%%ld\\n", (long)((char *)stdout - (char *)stdin)); return 0; }\n' > "$t/p.c"
         ${CC:-cc} -o "$t/p" "$t/p.c" 2>/dev/null && filesz=$("$t/p")
     fi
+    if [ -z "$filesz" ] && [ -n "$MKRT_SYSROOT" ] && [ -f "$MKRT_SYSROOT/usr/include/stdio.h" ] && command -v ${CC:-cc} >/dev/null 2>&1; then
+        # (a target's sysroot: its stdio.h read by this machine's C compiler, which gives the size of the FILE when the two have the same word size, as an amd64 host has for an amd64 target; it is tried, size by size, as a static assertion)
+        . "$(dirname "$0")/mktmpdir.sh"; mktmpdir sysconst
+        n=24
+        while [ $n -le 512 ]; do
+            printf '#include <stdio.h>\ntypedef char chk[(sizeof(FILE) == %d) ? 1 : -1];\n' $n > "$t/q.c"
+            ${CC:-cc} -fsyntax-only -nostdinc -isystem "$MKRT_SYSROOT/usr/include" -D_NETBSD_SOURCE "$t/q.c" >/dev/null 2>&1 && { filesz=$n; break; }
+            n=$((n+8))
+        done
+    fi
     [ -n "$filesz" ] || die "do not know the size of a FILE on $os $arch: build the library on that system"
 fi
 

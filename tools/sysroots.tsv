@@ -1,0 +1,27 @@
+# sysroots.tsv: the systems imp can make programs for, and where what the link needs of each comes from (tools/imp-sysroot reads it; installed as share/imp/sysroots.tsv).
+# Fields, separated by tabs: TRIPLE (what --target= takes), OS and ARCH (the directories of the cruntime repository and of the cache: cruntime/OS/ARCH), the RECIPE that makes the sysroot from the system's own packages (method:argument), and a note.
+# A sysroot is the files of that system's C library that a link needs and nothing else: the start files (crt1.o ...), the C library, libgcc, and the matching header files (usr/include) for imp-cimport.
+# Methods: debian (the Debian packages of that architecture: libc6, libc6-dev, libgcc-s1, libgcc-N-dev, linux-libc-dev), mingw (the Debian packages of mingw-w64), cygwin (the Cygwin packages), freebsd, openbsd and netbsd
+# (the base set of a release), apple (the SDK of the Mac, which Apple does not let anyone else hand out: from xcrun on a Mac, or a path the user gives).
+x86_64-linux-gnu	linux	x86_64	debian:amd64	Linux, glibc
+aarch64-linux-gnu	linux	aarch64	debian:arm64	Linux, glibc
+armv7-linux-gnueabihf	linux	armv7	debian:armhf	Linux, glibc, hard float
+arm-linux-gnueabi	linux	arm	debian:armel	Linux, glibc, soft float
+i686-linux-gnu	linux	i386	debian:i386	Linux, glibc
+riscv64-linux-gnu	linux	riscv64	debian:riscv64	Linux, glibc
+s390x-linux-gnu	linux	s390x	debian:s390x	Linux, glibc, big endian
+powerpc64le-linux-gnu	linux	ppc64le	debian:ppc64el	Linux, glibc
+mips64el-linux-gnuabi64	linux	mips64el	debian:mips64el	Linux, glibc
+mipsel-linux-gnu	linux	mipsel	debian:mipsel	Linux, glibc
+x86_64-w64-mingw32	windows	x86_64	mingw:x86-64	Windows, mingw-w64 (msvcrt)
+i686-w64-mingw32	windows	i386	mingw:i686	Windows, mingw-w64 (msvcrt)
+x86_64-pc-cygwin	cygwin	x86_64	cygwin:x86_64	Cygwin
+i686-pc-cygwin	cygwin	i386	cygwin:i686	Cygwin
+x86_64-unknown-freebsd	freebsd	x86_64	freebsd:amd64	FreeBSD
+i686-unknown-freebsd	freebsd	i386	freebsd:i386	FreeBSD
+aarch64-unknown-freebsd	freebsd	aarch64	freebsd:arm64	FreeBSD
+x86_64-unknown-openbsd	openbsd	x86_64	openbsd:amd64	OpenBSD
+aarch64-unknown-openbsd	openbsd	aarch64	openbsd:arm64	OpenBSD
+x86_64-unknown-netbsd	netbsd	x86_64	netbsd:amd64	NetBSD
+x86_64-apple-darwin	macos	x86_64	apple:sdk	macOS, the SDK of the Mac
+aarch64-apple-darwin	macos	aarch64	apple:sdk	macOS, the SDK of the Mac

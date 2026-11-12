@@ -13,4 +13,5 @@ DIRECT_OUT=build/llvm-ir1 DIRECT_LIB=build/lib/libimp.a SRC_MODULES="$mods" sh t
     || { r=$?; [ $r = 77 ] && { echo "llvm-ir: skipped"; exit 77; }; dd bs=100000 count=1 if=build/llvm-ir1.log 2>/dev/null >&2; exit $r; }
 DIRECT_OUT=build/llvm-ir2 DIRECT_DRIVER=build/llvm-ir1/impstage-llvm-ir DIRECT_LIB=build/lib/libimp.a SRC_MODULES="$mods" \
     sh tools/capped.sh build/llvm-ir2.log tools/direct.sh || { dd bs=100000 count=1 if=build/llvm-ir2.log 2>/dev/null >&2; exit 1; }
+ln -sf ../../tools/imp-sysroot build/llvm-ir2/imp-sysroot          # (the driver asks the tool beside it for the files of a system it makes programs for)
 echo "built build/llvm-ir2/impd: the compiler with the IR code generator, compiled by itself"

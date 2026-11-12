@@ -82,7 +82,7 @@ for t in aarch64-linux-gnu riscv64-linux-gnu x86_64-linux-gnu; do
 done
 if [ -n "$oth" ]; then
 # linking for another system needs that system's files: without them the message says which and how to give them (--sysroot, --runtime)
-"$w" --target=$oth main.imp lib2.imp > xl.log 2>&1 && bad "linking for another system with no sysroot succeeded"
+IMPFETCH=0 IMP_SYSROOTS=$PWD/nocache "$w" --target=$oth main.imp lib2.imp > xl.log 2>&1 && bad "linking for another system with no sysroot succeeded"
 grep -q -e '--sysroot=DIR' xl.log && grep -q -e '--runtime=FILE' xl.log && grep -q 'crt1.o' xl.log || bad "the message for a link for another system does not say what is needed and how to say where"
 "$w" --target=$oth --sysroot=$root/build/cli/nosuchroot main.imp lib2.imp > xl2.log 2>&1 && bad "a sysroot with nothing in it linked"
 grep -q 'no crt1.o under' xl2.log || bad "the message does not say where crt1.o was looked for"

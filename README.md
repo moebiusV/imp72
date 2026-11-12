@@ -37,6 +37,7 @@ file of such statements; `lib/ffi.imc` is one (`CCALL`, `EXTERNAL`).
     imp -c --target=aarch64-linux-gnu hello.imp    # an object for another system
     imp-cimport -n qsort -o decls.imp stdlib.h   # IMP72 declarations from a C header
     imp-exports -o mylib.h mylib.imp             # a C header (-z Zig, -r Rust) for the routines of an IMP72 source
+    imp --target=aarch64-linux-gnu -o prog prog.imp   # another system: its C library and headers are fetched once (imp-sysroot)
 
 The build needs a C99 compiler, a C++ compiler, GNU make, the LLVM C API
 (`llvm-dev`) and, to link in the process, lld as a library (`liblld-dev`).

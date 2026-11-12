@@ -1,0 +1,350 @@
+#!/bin/sh
+# imp-sysroot: fetch what a link for another system needs of that system, and make the runtime library for it, so that  imp --target=TRIPLE prog.imp  works.
+#
+#   imp-sysroot TARGET...        fetch and make each (TARGET is a triple, aarch64-linux-gnu, or OS/ARCH, freebsd/i386: cruntime/freebsd/i386)
+#   imp-sysroot --list           the systems it knows, and which are here
+#   imp-sysroot --path TARGET    the sysroot and the runtime library of TARGET, one to a line, if they are here (exit 1 if not)
+#   imp-sysroot --apple-sdk DIR  for the macOS targets: the SDK of a Mac (xcrun --show-sdk-path says where it is)
+#   imp-sysroot --clean [TARGET] remove one or all
+# Where things are kept: $IMP_SYSROOTS, else ${XDG_CACHE_HOME:-$HOME/.cache}/imp/sysroots/OS[/VERSION]/ARCH (that directory is what --sysroot takes: usr/include, usr/lib with the start files, the C library, libgcc and libimp.a, and imp-meta saying where it came from): a system that has releases has the release in the path (openbsd/v80/amd64, freebsd/v15.1/amd64), the others have none (linux/aarch64, windows/x86_64).  Nothing is installed and nothing needs root.
+# Where they come from, in this order: the cruntime repository ($IMP_CRUNTIME, by default https://github.com/moebiusV/cruntime: a directory OS/ARCH for each system, which git fetches alone
+# (sparse checkout) or a tarball OS-VERSION-ARCH.tar.xz of its release does; the directory is the same as the cache's: cruntime/openbsd/v80/amd64), and else the system's own packages as the recipe of tools/sysroots.tsv says (Debian packages, mingw-w64, Cygwin packages, the base sets of the BSDs),
+# checked against the sizes and SHA-256 sums of their indexes.  IMP_SYSROOT_SOURCE=cruntime or =upstream chooses one.  What it needs of this machine: sh, curl or wget, tar, xz (or zstd, gzip for what the
+# upstream uses), ar and the sha256sum of GNU, shasum or sha256 or openssl; qemu to RUN what it makes for another machine (qemu-user: apt install qemu-user-static) or Wine for Windows (tools/wine-setup.sh).
+# Exit: 0 done, 1 failed, 2 usage, 3 the system is not one it can fetch for (macOS without an SDK).
+p=$0; while [ -L "$p" ]; do l=$(readlink "$p"); case $l in /*) p=$l ;; *) p=$(dirname "$p")/$l ;; esac; done      # (a link to it, as build/llvm-ir2/ has, is followed)
+self=$(cd "$(dirname "$p")" && pwd)
+cache=${IMP_SYSROOTS:-${XDG_CACHE_HOME:-$HOME/.cache}/imp/sysroots}
+for t in "${IMP_SYSROOT_TABLE:-}" "$self/sysroots.tsv" "$self/../share/imp/sysroots.tsv" "$self/../tools/sysroots.tsv"; do [ -n "$t" ] && [ -f "$t" ] && { tsv=$t; break; }; done
+[ -n "$tsv" ] || { echo "imp-sysroot: no sysroots.tsv" >&2; exit 1; }
+quiet=0; force=0; auto=0
+say() { [ $quiet = 1 ] || echo "imp-sysroot: $*" >&2; }
+die() { echo "imp-sysroot: $*" >&2; exit 1; }
+
+# download URL to FILE: curl, wget or the BSDs' ftp
+fetch() {
+    if command -v curl >/dev/null 2>&1; then curl -fsSL --retry 3 -o "$2" "$1" 2>/dev/null
+    elif command -v wget >/dev/null 2>&1; then wget -q -O "$2" "$1"
+    elif command -v ftp >/dev/null 2>&1; then ftp -o "$2" "$1" >/dev/null 2>&1
+    else die "no curl, wget or ftp to download with"; fi
+}
+sha256() {
+    if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | cut -d' ' -f1
+    elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | cut -d' ' -f1
+    elif command -v sha256 >/dev/null 2>&1; then sha256 -q "$1"
+    elif command -v openssl >/dev/null 2>&1; then openssl dgst -sha256 "$1" | sed 's/.*= *//'
+    else die "no sha256sum, shasum, sha256 or openssl to check a download with"; fi
+}
+# FILE (a download) must be the SHA-256 SUM
+check() { [ "$(sha256 "$1")" = "$2" ] || die "$3: the checksum of the download is not the one of the index (expected $2)"; }
+# unpack the data of a .deb into DIR
+unpackdeb() {
+    m=$(ar t "$1" | grep '^data\.tar')
+    case $m in
+    *.xz) ar p "$1" "$m" | xz -dc | tar -xf - -C "$2" ;;
+    *.zst) ar p "$1" "$m" | zstd -dc | tar -xf - -C "$2" ;;
+    *.gz) ar p "$1" "$m" | gzip -dc | tar -xf - -C "$2" ;;
+    *.bz2) ar p "$1" "$m" | bzip2 -dc | tar -xf - -C "$2" ;;
+    *) ar p "$1" "$m" | tar -xf - -C "$2" ;;
+    esac
+}
+
+# the table: find the line of a target (TRIPLE, OS/ARCH, or the triple as LLVM spells it) and set triple, os, arch, recipe
+resolve() {
+    want=$1
+    norm=$(printf '%s' "$want" | sed 's/-w64-windows-gnu/-w64-mingw32/; s/-unknown-linux-/-linux-/; s/-pc-linux-/-linux-/; s/-unknown-windows-gnu/-w64-mingw32/; s/-pc-windows-cygnus/-pc-cygwin/; s/^armv7a-/armv7-/; s/^arm64-/aarch64-/; s/^amd64-/x86_64-/; s/^i[3456]86-/i686-/')
+    line=$(grep -v '^#' "$tsv" | awk -F'\t' -v w="$want" -v n="$norm" '$1==w || $1==n || ($2 "/" $3)==w { print; exit }')
+    [ -n "$line" ] || return 1
+    triple=$(echo "$line" | cut -f1); os=$(echo "$line" | cut -f2); arch=$(echo "$line" | cut -f3); recipe=$(echo "$line" | cut -f4)
+    dir=$cache/$os/$arch
+    return 0
+}
+
+# a system with releases keeps each in its own directory: OS/vNN/ARCH (the release without its dot: 8.0 is v80, 15.1 is v151); IMP_<OS>_VERSION picks one, else the newest the server lists
+versioned() {
+    case $os in freebsd|openbsd|netbsd) ;; *) return 0 ;; esac
+    u=$(echo "$os" | tr a-z A-Z); eval "v=\${IMP_${u}_VERSION:-}"
+    if [ -z "$v" ]; then
+        case $os in
+        freebsd) v=$(newest "${IMP_FREEBSD_MIRROR:-https://download.freebsd.org/releases}/$(case $arch in x86_64) echo amd64/amd64 ;; i386) echo i386/i386 ;; aarch64) echo arm64/aarch64 ;; esac)/" '[0-9][0-9]*\.[0-9][0-9]*-RELEASE/' | sed 's/-RELEASE//') ;;
+        openbsd) v=$(newest "${IMP_OPENBSD_MIRROR:-https://cdn.openbsd.org/pub/OpenBSD}/" '[0-9]\.[0-9][0-9]*/') ;;
+        netbsd) v=$(newest "${IMP_NETBSD_MIRROR:-https://cdn.netbsd.org/pub/NetBSD}/" 'NetBSD-[0-9][0-9]*\.[0-9][0-9]*/' | sed 's/NetBSD-//') ;;
+        esac
+    fi
+    [ -n "$v" ] || return 0
+    eval "IMP_${u}_VERSION=$v; export IMP_${u}_VERSION"
+    dir=$cache/$os/v$(echo "$v" | tr -d .)/$arch
+    return 0
+}
+
+list() {
+    printf '%-26s %-10s %-9s %s\n' TARGET OS/ARCH HERE NOTE
+    grep -v '^#' "$tsv" | while IFS='	' read -r tr o a r n; do
+        h=no; [ -f "$cache/$o/$a/imp-meta" ] && h=yes
+        printf '%-26s %-10s %-9s %s\n' "$tr" "$o/$a" "$h" "$n"
+    done
+}
+
+# ---- the recipes: each puts the sysroot in $sr (made in $dir.new and renamed to $dir when it is whole)
+
+# the fields of a package in a Debian index (Packages, plain): the last one of that name, as FILENAME SHA256
+debpkg() {   # INDEXFILE NAME
+    awk -v pkg="$2" 'BEGIN { RS = ""; FS = "\n" } { n = ""; f = ""; s = ""; for (i = 1; i <= NF; i++) { if ($i ~ /^Package: /) n = substr($i, 10); else if ($i ~ /^Filename: /) f = substr($i, 11); else if ($i ~ /^SHA256: /) s = substr($i, 9) } if (n == pkg) { rf = f; rs = s } } END { if (rf != "") print rf, rs }' "$1"
+}
+debindex() {   # ARCH -> the index of binary-ARCH in $work
+    mirror=${IMP_DEBIAN_MIRROR:-https://deb.debian.org/debian}; suite=${IMP_DEBIAN_SUITE:-stable}
+    f=$work/Packages-$1
+    [ -s "$f" ] && { echo "$f"; return 0; }
+    fetch "$mirror/dists/$suite/main/binary-$1/Packages.xz" "$f.xz" || die "cannot fetch the index of $suite binary-$1 from $mirror"
+    xz -dc "$f.xz" > "$f" || die "cannot unpack the index"
+    echo "$f"
+}
+debget() {   # ARCH NAME DESTDIR [only the packages that exist]
+    idx=$(debindex "$1") || exit 1
+    set -- "$@"
+    r=$(debpkg "$idx" "$2")
+    [ -n "$r" ] || return 1
+    fn=${r% *}; sum=${r#* }
+    mirror=${IMP_DEBIAN_MIRROR:-https://deb.debian.org/debian}
+    deb=$work/$(basename "$fn")
+    say "fetching $(basename "$fn")"
+    fetch "$mirror/$fn" "$deb" || die "cannot fetch $mirror/$fn"
+    check "$deb" "$sum" "$(basename "$fn")"
+    echo "$(basename "$fn")" >> "$work/versions"
+    unpackdeb "$deb" "$3" || die "cannot unpack $(basename "$fn")"
+    return 0
+}
+recipe_debian() {   # DEBIANARCH
+    a=$1
+    for p in libc6 libc6-dev libgcc-s1 linux-libc-dev; do debget "$a" "$p" "$sr" || die "the package $p of $a is not in the Debian index"; done
+    idx=$(debindex "$a")
+    g=$(grep '^Package: libgcc-[0-9]*-dev$' "$idx" | sed 's/Package: //' | sort -t- -k2 -n | tail -1)
+    [ -n "$g" ] && debget "$a" "$g" "$sr"
+    for d in lib lib64 lib32 libx32; do [ -e "$sr/$d" ] || [ ! -d "$sr/usr/$d" ] || ln -s usr/$d "$sr/$d"; done      # Debian merges /lib into /usr/lib: the loaders are /lib/ld-linux...
+    return 0
+}
+recipe_mingw() {   # x86-64 or i686
+    a=$1; t=x86_64-w64-mingw32; [ "$a" = i686 ] && t=i686-w64-mingw32
+    debget all "mingw-w64-$a-dev" "$sr" || die "mingw-w64-$a-dev is not in the Debian index"
+    debget all "mingw-w64-common" "$sr" || true
+    tmp=$work/gcc; mkdir -p "$tmp"
+    debget amd64 "gcc-mingw-w64-$a-win32" "$tmp" || die "gcc-mingw-w64-$a-win32 is not in the Debian index"      # (for its libgcc.a: the package is of the build machine's architecture, the library is the target's)
+    for f in libgcc.a libgcc_eh.a crtbegin.o crtend.o; do
+        g=$(ls "$tmp"/usr/lib/gcc/$t/*/$f 2>/dev/null | head -1); [ -n "$g" ] && cp "$g" "$sr/usr/$t/lib/"
+    done
+    [ -f "$sr/usr/$t/lib/libgcc.a" ] || die "no libgcc.a in the gcc-mingw-w64 package"
+    return 0
+}
+
+# the Cygwin packages: the mirror's setup.ini says where each is and its SHA-512; the C library, its start file and the Windows API headers and libraries are what a link needs
+recipe_cygwin() {   # x86_64 or i686 (the i686 Cygwin is no longer on the main mirror: its archive is)
+    a=$1
+    mirror=${IMP_CYGWIN_MIRROR:-https://mirrors.kernel.org/sourceware/cygwin}
+    ini=$work/setup-$a.ini
+    arch=$a; [ "$a" = i686 ] && { arch=x86; mirror=${IMP_CYGWIN_MIRROR:-https://mirrors.kernel.org/sourceware/cygwin-archive/20221123}; }
+    fetch "$mirror/$arch/setup.ini" "$ini" || die "cannot fetch the Cygwin index $mirror/$arch/setup.ini"
+    for p in cygwin cygwin-devel w32api-headers w32api-runtime libgcc1 gcc-core; do
+        # the first "install:" line after "@ package" of the current version: PATH SIZE SHA512
+        r=$(awk -v pkg="$p" '$0=="@ " pkg { f=1; next } /^@ / { f=0 } f && /^install: / { print $2, $4; exit }' "$ini")
+        [ -n "$r" ] || { [ "$p" = gcc-core ] && continue; die "the Cygwin package $p is not in the index"; }
+        pth=${r% *}; sum=${r#* }
+        f=$work/$(basename "$pth")
+        say "fetching $(basename "$pth")"
+        fetch "$mirror/$pth" "$f" || die "cannot fetch $mirror/$pth"
+        got=$(if command -v sha512sum >/dev/null 2>&1; then sha512sum "$f" | cut -d' ' -f1; else shasum -a 512 "$f" | cut -d' ' -f1; fi)
+        [ "$got" = "$sum" ] || die "$(basename "$pth"): the SHA-512 of the download is not the one of the index"
+        echo "$(basename "$pth")" >> "$work/versions"
+        tmp=$work/cyg-$p; rm -rf "$tmp"; mkdir -p "$tmp"
+        case $f in *.tar.xz) xz -dc "$f" | tar -xf - -C "$tmp" ;; *.tar.zst) zstd -dc "$f" | tar -xf - -C "$tmp" ;; *.tar.bz2) bzip2 -dc "$f" | tar -xf - -C "$tmp" ;; esac
+        cp -R "$tmp"/. "$sr"/ 2>/dev/null
+    done
+    # the layout the driver looks for: crt0.o and libcygwin.a with the other libraries under usr/lib, and the headers
+    mkdir -p "$sr/usr/lib" "$sr/usr/include"
+    [ -d "$sr/lib" ] && cp -R "$sr/lib"/. "$sr/usr/lib"/ 2>/dev/null
+    return 0
+}
+
+# the base sets of the BSDs: the system's own C library, start files and headers, only the directories a link and imp-cimport read
+# the newest release a server lists: the directory names that look like VERSION (a pattern), highest first by the numbers of the version
+newest() {   # URL SEDPATTERN: the listing of URL, the versions matching the pattern, the highest
+    fetch "$1" "$work/listing" || die "cannot fetch the listing $1"
+    grep -o "href=\"$2\"" "$work/listing" | sed 's/href="//; s/"$//' | sed 's#/$##' | sort -V | tail -1
+}
+recipe_freebsd() {   # amd64, i386 or arm64: the base.txz of the newest release (IMP_FREEBSD_VERSION names another: 14.5)
+    a=$1
+    case $a in amd64) d=amd64/amd64 ;; i386) d=i386/i386 ;; arm64) d=arm64/aarch64 ;; riscv64) d=riscv/riscv64 ;; *) die "no FreeBSD base set for $a" ;; esac
+    root=${IMP_FREEBSD_MIRROR:-https://download.freebsd.org/releases}
+    ver=${IMP_FREEBSD_VERSION:-}
+    [ -n "$ver" ] || ver=$(newest "$root/$d/" '[0-9][0-9]*\.[0-9][0-9]*-RELEASE/' | sed 's/-RELEASE//')
+    [ -n "$ver" ] || die "no release in $root/$d/"
+    base=$root/$d/$ver-RELEASE
+    fetch "$base/MANIFEST" "$work/MANIFEST" || die "cannot fetch $base/MANIFEST (IMP_FREEBSD_VERSION names the release)"
+    sum=$(awk '$1=="base.txz" { print $2 }' "$work/MANIFEST")
+    [ -n "$sum" ] || die "no base.txz in $base/MANIFEST"
+    say "fetching FreeBSD $ver $a base.txz (about 200 MB; only its C library, start files and headers are kept)"
+    fetch "$base/base.txz" "$work/base.txz" || die "cannot fetch $base/base.txz"
+    check "$work/base.txz" "$sum" "base.txz"
+    echo "FreeBSD-$ver-RELEASE-$a base.txz $sum" >> "$work/versions"
+    xz -dc "$work/base.txz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./lib ./libexec/ld-elf.so.1 2>/dev/null
+    [ -f "$sr/usr/lib/crt1.o" ] || die "base.txz has no usr/lib/crt1.o"
+    return 0
+}
+recipe_openbsd() {   # amd64 or arm64: baseNN.tgz of the newest release (IMP_OPENBSD_VERSION names another: 7.9)
+    a=$1
+    root=${IMP_OPENBSD_MIRROR:-https://cdn.openbsd.org/pub/OpenBSD}
+    ver=${IMP_OPENBSD_VERSION:-}
+    [ -n "$ver" ] || ver=$(newest "$root/" '[0-9]\.[0-9][0-9]*/')
+    [ -n "$ver" ] || die "no release in $root/"
+    n=$(echo "$ver" | tr -d .)
+    base=$root/$ver/$a
+    fetch "$base/SHA256" "$work/SHA256" || die "cannot fetch $base/SHA256 (IMP_OPENBSD_VERSION names the release)"
+    sum=$(grep "(base$n.tgz)" "$work/SHA256" | sed 's/.*= *//')
+    [ -n "$sum" ] || die "no base$n.tgz in $base/SHA256"
+    say "fetching OpenBSD $ver $a base$n.tgz (about 250 MB; only its C library, start files and headers are kept)"
+    fetch "$base/base$n.tgz" "$work/base.tgz" || die "cannot fetch $base/base$n.tgz"
+    check "$work/base.tgz" "$sum" "base$n.tgz"
+    echo "OpenBSD-$ver-$a base$n.tgz $sum" >> "$work/versions"
+    gzip -dc "$work/base.tgz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./usr/libexec/ld.so 2>/dev/null
+    [ -f "$sr/usr/lib/crt0.o" ] || die "base$n.tgz has no usr/lib/crt0.o"
+    return 0
+}
+recipe_netbsd() {   # amd64: base.tar.xz of the newest release (IMP_NETBSD_VERSION names another: 10.1)
+    a=$1
+    root=${IMP_NETBSD_MIRROR:-https://cdn.netbsd.org/pub/NetBSD}
+    ver=${IMP_NETBSD_VERSION:-}
+    [ -n "$ver" ] || ver=$(newest "$root/" 'NetBSD-[0-9][0-9]*\.[0-9][0-9]*/' | sed 's/NetBSD-//')
+    [ -n "$ver" ] || die "no release in $root/"
+    base=$root/NetBSD-$ver/$a/binary/sets
+    fetch "$base/SHA512" "$work/SHA512" || die "cannot fetch $base/SHA512 (IMP_NETBSD_VERSION names the release)"
+    sum=$(grep '(base.tar.xz)' "$work/SHA512" | sed 's/.*= *//')
+    [ -n "$sum" ] || die "no base.tar.xz in $base/SHA512"
+    for set in base comp; do      # (base has the shared libraries, libc and libm; comp has the start files, the static libraries and the headers)
+        sum=$(grep "($set.tar.xz)" "$work/SHA512" | sed 's/.*= *//')
+        [ -n "$sum" ] || die "no $set.tar.xz in $base/SHA512"
+        say "fetching NetBSD $ver $a $set.tar.xz"
+        fetch "$base/$set.tar.xz" "$work/$set.tar.xz" || die "cannot fetch $base/$set.tar.xz"
+        got=$(if command -v sha512sum >/dev/null 2>&1; then sha512sum "$work/$set.tar.xz" | cut -d' ' -f1; else shasum -a 512 "$work/$set.tar.xz" | cut -d' ' -f1; fi)
+        [ "$got" = "$sum" ] || die "$set.tar.xz: the checksum of the download is not the one of the index"
+        echo "NetBSD-$ver-$a $set.tar.xz $sum" >> "$work/versions"
+        xz -dc "$work/$set.tar.xz" | tar -xf - -C "$sr" ./usr/include ./usr/lib ./libexec/ld.elf_so 2>/dev/null
+        rm -f "$work/$set.tar.xz"
+    done
+    [ -f "$sr/usr/lib/crt0.o" ] || die "comp.tar.xz has no usr/lib/crt0.o"
+    return 0
+}
+# macOS: Apple's SDK is not for anyone else to hand out, so it is the one on the user's Mac (xcrun), or the path the user gives; the sysroot is a link to it
+recipe_apple() {
+    sdk=${APPLE_SDK:-}
+    [ -n "$sdk" ] || { command -v xcrun >/dev/null 2>&1 && sdk=$(xcrun --show-sdk-path 2>/dev/null); }
+    [ -n "$sdk" ] && [ -d "$sdk/usr/lib" ] || { echo "imp-sysroot: macOS needs the SDK of a Mac, which Apple does not let others distribute: run this on a Mac (xcrun finds it), or give the path of one:  imp-sysroot --apple-sdk /path/MacOSX.sdk $want" >&2; exit 3; }
+    rm -rf "$sr"; mkdir -p "$sr/usr/lib"      # (links to the SDK's files, so that libimp.a is put here and not into the SDK)
+    for f in "$sdk"/usr/*; do [ "$(basename "$f")" = lib ] || ln -s "$f" "$sr/usr/"; done
+    for f in "$sdk"/usr/lib/*; do ln -s "$f" "$sr/usr/lib/"; done
+    for f in "$sdk"/System; do [ -e "$f" ] && ln -s "$f" "$sr/"; done
+    echo "$sdk" >> "$work/versions"
+    return 0
+}
+
+# the cruntime repository: OS/ARCH of it, by git (sparse checkout of that directory) or the tarball OS-ARCH.tar.xz of its release
+from_cruntime() {
+    repo=${IMP_CRUNTIME:-https://github.com/moebiusV/cruntime}
+    rm -rf "$sr"
+    if command -v git >/dev/null 2>&1; then
+        g=$work/cruntime
+        GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true git clone -q --depth 1 --filter=blob:none --no-checkout "$repo" "$g" 2>/dev/null && (cd "$g" && git sparse-checkout init --cone >/dev/null 2>&1 && git sparse-checkout set "${dir#$cache/}" >/dev/null 2>&1 && git checkout -q 2>/dev/null) && [ -d "$g/${dir#$cache/}/usr" ] && {
+            rm -rf "$sr"; mv "$g/${dir#$cache/}" "$sr"; echo "cruntime $(cd "$g" && git rev-parse --short HEAD)" >> "$work/versions"; return 0; }
+    fi
+    t=$work/cruntime.tar.xz
+    fetch "$repo/releases/latest/download/$(echo "${dir#$cache/}" | tr / -).tar.xz" "$t" 2>/dev/null && [ -s "$t" ] && mkdir -p "$sr" && xz -dc "$t" | tar -xf - -C "$sr" && { echo "cruntime release $os-$arch" >> "$work/versions"; return 0; }
+    rm -rf "$sr"
+    return 1
+}
+
+# the runtime library for the target, made by imp itself from lib/*.iml (tools/mkrt.sh)
+make_runtime() {
+    for m in "$self/mkrt.sh" "$self/../share/imp/rt/tools/mkrt.sh"; do [ -f "$m" ] && { mk=$m; break; }; done
+    [ -n "$mk" ] || { say "no mkrt.sh: the runtime library is not made (imp --runtime=FILE)"; return 0; }
+    say "making the runtime library for $triple"
+    MKRT_SYSROOT=$sr sh "$mk" "$triple" "$work/rt" >"$work/mkrt.log" 2>&1 || { sed 's/^/imp-sysroot: mkrt: /' "$work/mkrt.log" | tail -8 >&2; die "the runtime library for $triple was not made"; }
+    mkdir -p "$sr/usr/lib" && cp "$work/rt/libimp.a" "$sr/usr/lib/libimp.a"
+}
+
+# a base set has the whole of /usr/lib (compilers, LLVM, crypto, ZFS: hundreds of megabytes); a link needs the start files, the C library and libm, libgcc or compiler-rt, the loader, and the headers
+trim_bsd() {
+    [ -d "$sr/usr/lib" ] || return 0
+    for f in "$sr"/usr/lib/*; do
+        n=$(basename "$f")
+        case $n in crt*.o|libc.*|libc_nonshared.*|libm.*|libgcc*|libcompiler_rt*|libssp*|libpthread.*|libthr.*|librt.*|libdl.*|libutil.*|libkvm.*|gcrt*.o|Scrt*.o|i386|amd64|aarch64) ;; *) rm -rf "$f" ;; esac
+    done
+    rm -rf "$sr"/usr/include/c++ "$sr"/usr/include/clang 2>/dev/null
+    return 0
+}
+
+get() {
+    resolve "$1" || { [ $auto = 1 ] || echo "imp-sysroot: no system $1 (imp-sysroot --list)" >&2; exit 2; }
+    if [ -f "$dir/imp-meta" ] && [ $force = 0 ]; then say "$triple is here: $dir"; return 0; fi
+    mkdir -p "$cache" && work=$cache/work.$$ && rm -rf "$work" && mkdir -p "$work" || die "cannot make $cache"
+    versioned
+    rm -rf "$work"
+    if [ -f "$dir/imp-meta" ] && [ $force = 0 ]; then say "$triple is here: $dir"; return 0; fi
+    mkdir -p "$(dirname "$dir")" || die "cannot make $dir"
+    work=$cache/work.$$; rm -rf "$work"; mkdir -p "$work"
+    sr=$dir.new; rm -rf "$sr"; mkdir -p "$sr"
+    src=${IMP_SYSROOT_SOURCE:-}
+    ok=0
+    if [ "$src" != upstream ] && [ "${recipe%%:*}" != apple ]; then from_cruntime && ok=1; fi
+    if [ $ok = 0 ]; then
+        [ "$src" = cruntime ] && die "not in the cruntime repository ($os/$arch)"
+        rm -rf "$sr"; mkdir -p "$sr"
+        m=${recipe%%:*}; a=${recipe#*:}
+        case $m in
+        debian) recipe_debian "$a" ;; mingw) recipe_mingw "$a" ;; cygwin) recipe_cygwin "$a" ;;
+        freebsd) recipe_freebsd "$a" ;; openbsd) recipe_openbsd "$a" ;; netbsd) recipe_netbsd "$a" ;;
+        apple) recipe_apple ;;
+        *) die "no recipe $recipe" ;;
+        esac
+    fi
+    case $os in freebsd|openbsd|netbsd) trim_bsd ;; esac
+    make_runtime
+    { echo "triple $triple"; echo "date $(date -u +%Y-%m-%dT%H:%M:%SZ)"; sed 's/^/from /' "$work/versions" 2>/dev/null; } > "$sr/imp-meta"
+    rm -rf "$dir"; mv "$sr" "$dir"
+    rm -rf "$work"
+    say "$triple: $dir"
+    return 0
+}
+
+cmd=get
+while [ $# -gt 0 ]; do
+    case $1 in
+    --list) list; exit 0 ;;
+    --path) cmd=path; shift; break ;;
+    --clean) cmd=clean; shift; break ;;
+    --force|-f) force=1; shift ;;
+    --quiet|-q) quiet=1; shift ;;
+    --auto) auto=1; shift ;;      # (as the driver calls it: a system that is not in the table is not said, the driver's own message is)
+    --apple-sdk) APPLE_SDK=$2; export APPLE_SDK; shift 2 ;;
+    -h|--help) sed -n '2,/^# Exit/p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -*) echo "imp-sysroot: unknown option $1" >&2; exit 2 ;;
+    *) break ;;
+    esac
+done
+case $cmd in
+path)
+    [ $# = 1 ] || { echo "usage: imp-sysroot --path TARGET" >&2; exit 2; }
+    resolve "$1" || exit 2
+    case $os in freebsd|openbsd|netbsd)      # (the newest release that is here, or the one IMP_<OS>_VERSION names)
+        u=$(echo "$os" | tr a-z A-Z); eval "v=\${IMP_${u}_VERSION:-}"
+        if [ -n "$v" ]; then dir=$cache/$os/v$(echo "$v" | tr -d .)/$arch
+        else dir=$(ls -d "$cache/$os"/v*/"$arch" 2>/dev/null | sort -t/ -k1 -V | tail -1); fi ;;
+    esac
+    [ -f "$dir/imp-meta" ] || exit 1
+    echo "$dir"
+    [ -f "$dir/usr/lib/libimp.a" ] && echo "$dir/usr/lib/libimp.a"
+    exit 0 ;;
+clean)
+    if [ $# = 0 ]; then rm -rf "$cache"; else for t; do resolve "$t" && rm -rf "$dir"; done; fi
+    exit 0 ;;
+esac
+[ $# -gt 0 ] || { list; echo; echo "usage: imp-sysroot TARGET...   (imp-sysroot --help)" >&2; exit 2; }
+for t; do get "$t"; done
+exit 0

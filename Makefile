@@ -65,6 +65,12 @@ install: all
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -m 644 lib/imp.h $(DESTDIR)$(PREFIX)/include/imp.h
 	install -m 644 src/syntax.imc lib/ffi.imc lib/utf8.imc $(DESTDIR)$(PREFIX)/share/imp/
+	install -m 755 tools/imp-sysroot $(DESTDIR)$(PREFIX)/bin/imp-sysroot
+	install -m 644 tools/sysroots.tsv $(DESTDIR)$(PREFIX)/share/imp/sysroots.tsv
+	install -d $(DESTDIR)$(PREFIX)/share/imp/rt/lib $(DESTDIR)$(PREFIX)/share/imp/rt/src $(DESTDIR)$(PREFIX)/share/imp/rt/tools
+	install -m 644 lib/*.iml lib/*.imc $(DESTDIR)$(PREFIX)/share/imp/rt/lib/
+	install -m 644 src/syntax.imc src/impend-be.imc src/impend-le.imc $(DESTDIR)$(PREFIX)/share/imp/rt/src/
+	install -m 755 tools/mkrt.sh tools/sysconst.sh tools/endian.sh tools/llvm.sh tools/mktmpdir.sh $(DESTDIR)$(PREFIX)/share/imp/rt/tools/
 	install -m 644 docs/impstage0.1 $(DESTDIR)$(MANDIR)/man1/impstage0.1
 	install -m 644 docs/imp.1 $(DESTDIR)$(MANDIR)/man1/imp.1
 	if [ -x build/tools/cimport ]; then \
@@ -111,6 +117,7 @@ check-run:
 	sh tests/tokdiff/run.sh
 	sh tests/crossrun/run.sh || [ $$? = 77 ]
 	sh tests/winrun/run.sh || [ $$? = 77 ]
+	sh tests/sysroot/run.sh
 
 # the published pages of the tape against the port (docs/tape-vs-port, <https://moebiusv.github.io/imp72/docs/tape-vs-port/index.html>)
 tape-vs-port:

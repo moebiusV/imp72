@@ -4,6 +4,7 @@
 # refusals (windows, no sysroot, no crt1.o) must say what is missing.  Needs no real sysroot.  Run from the top of the tree.
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
+export IMPFETCH=0 IMP_SYSROOTS=$root/build/linkcross-nocache      # (the driver fetches the files of a system with no --sysroot: this test is of what it says when they are not given)
 w=${LINK_IMP:-build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "link cross test skipped: no $w"; exit 0; }
 out=build/linkcross
