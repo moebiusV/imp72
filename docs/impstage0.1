@@ -7,7 +7,7 @@
 .Nd the seed compiler for IMP72, written in C
 .Sh SYNOPSIS
 .Nm
-.Op Fl S | c | Fl -run
+.Op Fl S | Sir | c
 .Op Fl o Ar output
 .Op Fl s Ar letters
 .Ar file.imp ...
@@ -23,7 +23,6 @@ for the machine it runs on.
 IMP stands for (Ned) Irons Meta Processor: it is named for Ned Irons, who invented it, as LISP is named for its List Processor.
 It has no
 .Fl -target ,
-.Fl Sir ,
 .Fl I ,
 .Fl i ,
 .Fl -version
@@ -66,11 +65,29 @@ is a global symbol.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl S
+Stop after writing the assembly of the machine,
+.Pa NAME.s .
+.It Fl Sir
 Stop after writing the LLVM IR as text,
 .Pa NAME.ll .
 .It Fl c
 Stop after generating the object file,
 .Pa NAME.o .
+.El
+.Pp
+There is no optimization flag: the environment variable
+.Ev IMPOPT
+(
+.Ql -O0
+to
+.Ql -O3 ,
+.Ql -Os ,
+.Ql -Oz )
+sets the level, and
+.Fl Os
+is the default, as for
+.Xr imp 1 .
+.Bl -tag -width Ds
 .It Fl o Ar output
 Name of the output file.
 The default is the first source's name without
@@ -105,9 +122,9 @@ of the source tree, and
 for an installed compiler.
 No temporary file is made for
 .Fl S ,
-.Fl c
+.Fl Sir
 or
-.Fl -run ,
+.Fl c ,
 and none for a link on Linux while an unnamed memory file can be used.
 The directory and its files are deleted on exit and on
 .Dv SIGHUP ,

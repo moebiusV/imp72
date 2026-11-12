@@ -298,17 +298,17 @@ archive).
 ## The seed and `imp`
 
 The seed (`stage0/impstage0`) and `imp` read the same language and write
-the same LLVM IR for the same program. Their command lines differ:
+the same LLVM IR for the same program. `-c`, `-S`, `-Sir` and `-o` are the same
+in both, with the same file names. Their command lines differ:
 
 | | `impstage0` | `imp` |
 |---|---|---|
-| `-S` | writes LLVM IR text, `NAME.ll` | writes the target's assembly, `NAME.s` |
-| `-Sir` | not an option | writes LLVM IR text, `NAME.ll` |
 | `--target`, `--sysroot`, `--runtime` | not options: the seed makes code for this machine only | cross-compiling (below) |
 | `-I`, `-i`, `--version`, `--help` | not options (`--help` is an unknown option, status 2) | images, the original's commands, version, usage |
 | several sources | compiled together as one program, output named after the first | each compiled by itself |
 
-`tests/seed` compares the seed's `-S` text with `imp -Sir`.
+`tests/seed` compares the seed's `-Sir` text with `imp -Sir`. The optimization level
+is `-O` for `imp` and only `IMPOPT` for the seed (above).
 
 ## Diagnostics of the free storage and the images
 

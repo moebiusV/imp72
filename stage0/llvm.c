@@ -133,7 +133,7 @@ sizeattr(LLVMContextRef ctx, LLVMModuleRef m, int level)
 
 /* the module of the text ir (n bytes) for the host, optimised, as an object file: in the file path, or in memory (path NULL) at *obj, *objn (malloc) */
 static int
-object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
+object(const char *ir, size_t n, const char *path, char **obj, size_t *objn, LLVMCodeGenFileType ft)
 {
     LLVMContextRef ctx;
     LLVMModuleRef m;
@@ -173,13 +173,13 @@ object(const char *ir, size_t n, const char *path, char **obj, size_t *objn)
     }
     LLVMDisposePassBuilderOptions(pbo);
     if (path != NULL) {
-        if (LLVMTargetMachineEmitToFile(tm, m, (char *)path, LLVMObjectFile, &msg)) {
+        if (LLVMTargetMachineEmitToFile(tm, m, (char *)path, ft, &msg)) {
             fprintf(stderr, "imp: LLVM: %s: %s\n", path, msg);
             LLVMDisposeMessage(msg);
             goto done;
         }
     } else {
-        if (LLVMTargetMachineEmitToMemoryBuffer(tm, m, LLVMObjectFile, &msg, &mb)) {
+        if (LLVMTargetMachineEmitToMemoryBuffer(tm, m, ft, &msg, &mb)) {
             fprintf(stderr, "imp: LLVM: %s\n", msg);
             LLVMDisposeMessage(msg);
             goto done;
@@ -226,7 +226,16 @@ llvmobj(const char *ir, size_t n, const char *out)                  /* the objec
     char *buf = NULL;
     size_t len = 0;
 
-    return module(ir, n, &buf, &len) != 0 || object(buf, len, out, NULL, NULL) != 0;
+    return module(ir, n, &buf, &len) != 0 || object(buf, len, out, NULL, NULL, LLVMObjectFile) != 0;
+}
+
+long
+llvmasm(const char *ir, size_t n, const char *out)                  /* the assembly of the target, in the file out (-S) */
+{
+    char *buf = NULL;
+    size_t len = 0;
+
+    return module(ir, n, &buf, &len) != 0 || object(buf, len, out, NULL, NULL, LLVMAssemblyFile) != 0;
 }
 
 long
@@ -235,11 +244,11 @@ llvmobjmem(const char *ir, size_t n, char **obj, size_t *objn)      /* the objec
     char *buf = NULL;
     size_t len = 0;
 
-    return module(ir, n, &buf, &len) != 0 || object(buf, len, NULL, obj, objn) != 0;
+    return module(ir, n, &buf, &len) != 0 || object(buf, len, NULL, obj, objn, LLVMObjectFile) != 0;
 }
 
 long
-llvmsave(const char *ir, size_t n, const char *out)                 /* the module as text (-S) */
+llvmsave(const char *ir, size_t n, const char *out)                 /* the module as LLVM IR text (-Sir) */
 {
     char *buf = NULL;
     size_t len = 0;
@@ -255,6 +264,7 @@ long llvmhave(long z) { (void)z; return 0; }
 long llvmobj(const char *ir, size_t n, const char *out) { (void)ir; (void)n; (void)out; return 1; }
 long llvmobjmem(const char *ir, size_t n, char **obj, size_t *objn) { (void)ir; (void)n; (void)obj; (void)objn; return 1; }
 long llvmsave(const char *ir, size_t n, const char *out) { (void)ir; (void)n; (void)out; return 1; }
+long llvmasm(const char *ir, size_t n, const char *out) { (void)ir; (void)n; (void)out; return 1; }
 #endif
 
 /* lld in the process is stage0/impld.cpp, built where lld is installed (-DHAVE_LLD, tools/llvm.sh); without it the driver links with the system's cc */

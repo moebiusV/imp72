@@ -135,20 +135,6 @@ main program of an IMP source. The library's `main` becomes the two calls.
 *Effect on the code.* `lib/impmain.iml`, `lib/imp.h`, and a test with a C
 `main` that prints through `PRINT`.
 
-### 10. Parity of the seed's `-S` and `-Sir` with `imp`
-
-`imp -S` writes the target's assembly and `-Sir` writes LLVM IR text. The
-seed's `-S` writes LLVM IR text and it has no `-Sir` and no `--target`
-(`docs/BUILDING.md`, The seed and `imp`).
-
-Decided (2026-11-11: part of the plan): the seed's `-S` writes assembly and `-Sir` the IR, with the same file
-names as `imp`. `--target` stays in `imp`: the seed makes code for the
-machine it runs on, because it is the compiler that exists before the
-other.
-
-*Effect on the code.* `stage0/imps0.c` and `stage0/llvm.c`; `tests/seed/run.sh`,
-which takes the seed's IR with `-S`, takes it with `-Sir`.
-
 ### 11. A runtime library for Windows and Cygwin
 
 `imp --target=x86_64-w64-mingw32` and the Cygwin triples write objects and

@@ -62,7 +62,7 @@ sigs() {
 }
 
 for c in seed two; do
-    if [ $c = seed ]; then bin=$seed; modes="-S -c"; else bin=$two; modes="-S -c -Sir"; fi
+    if [ $c = seed ]; then bin=$seed; else bin=$two; fi; modes="-S -c -Sir"
     [ -x "$bin" ] || continue
     # (a) the modes that make no file: with an empty TMPDIR it stays empty, and with one that cannot be written they work
     t=$w/$c.tmp; fresh $t

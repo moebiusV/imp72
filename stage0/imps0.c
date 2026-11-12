@@ -46,7 +46,7 @@
 
 /* the LLVM back end in the process (stage0/llvm.c); llvmhave tells whether the compiler was built with the LLVM libraries */
 extern long llvmhave(long), llvmobj(const char *ir, size_t n, const char *out), llvmobjmem(const char *ir, size_t n, char **obj, size_t *objn),
-    llvmsave(const char *ir, size_t n, const char *out);
+    llvmsave(const char *ir, size_t n, const char *out), llvmasm(const char *ir, size_t n, const char *out);
 /* the temporary files (stage0/imphost.c): none unless the link needs a file for the object */
 extern long imptmpbase(const char *dflt), imptmpobj(const char *buf, size_t n, char *out);
 static FILE *kernel_ir;                         /* the driver: where the kernel writes the IR text (a memory stream), else the file of -c */
@@ -414,7 +414,7 @@ driver_main(int argc, char **argv)
     size_t irlen = 0, objlen = 0;
     char syntax[PATH_MAX], ffi[PATH_MAX], lib[PATH_MAX], tmpbase[PATH_MAX];
     const char *outname = NULL, *sw = NULL;
-    int stop = 'x', i = 1, rc = 0, nfiles, k;
+    int stop = 'x', i = 1, rc = 0, nfiles, k, sir = 0;
     char **kargv, **csyn = calloc((size_t)argc + 1, sizeof *csyn);
     int ncsyn = 0;
     size_t blen;
@@ -422,9 +422,13 @@ driver_main(int argc, char **argv)
     if (csyn == NULL)
         return 1;
     while (i < argc && argv[i][0] == '-' && argv[i][1] != '\0') {
-        if (strcmp(argv[i], "-S") == 0)
+        if (strcmp(argv[i], "-S") == 0) {
             stop = 'S';
-        else if (strcmp(argv[i], "-c") == 0)
+            sir = 0;
+        } else if (strcmp(argv[i], "-Sir") == 0) {
+            stop = 'S';
+            sir = 1;
+        } else if (strcmp(argv[i], "-c") == 0)
             stop = 'o';
         else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc)
             outname = argv[++i];
@@ -507,8 +511,10 @@ driver_main(int argc, char **argv)
     fflush(NULL);
 
     {                                               /* LLVM in the process */
-        if (stop == 'S')
+        if (stop == 'S' && sir)
             rc = llvmsave(irbuf, irlen, outname ? outname : strcat(base, ".ll")) != 0;
+        else if (stop == 'S')
+            rc = llvmasm(irbuf, irlen, outname ? outname : strcat(base, ".s")) != 0;
         else if (stop == 'o')
             rc = llvmobj(irbuf, irlen, outname ? outname : strcat(base, ".o")) != 0;
         else if (llvmobjmem(irbuf, irlen, &obj, &objlen) != 0 || imptmpobj(obj, objlen, ofile) != 0)
