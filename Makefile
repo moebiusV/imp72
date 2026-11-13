@@ -118,6 +118,7 @@ check-run:
 	sh tests/tokdiff/run.sh
 	sh tests/crossrun/run.sh || [ $$? = 77 ]
 	sh tests/winrun/run.sh || [ $$? = 77 ]
+	WINRUN_UCRT=1 sh tests/winrun/run.sh || [ $$? = 77 ]
 	sh tests/sysroot/run.sh
 
 # the published pages of the tape against the port (docs/tape-vs-port, <https://moebiusv.github.io/imp72/docs/tape-vs-port/index.html>)

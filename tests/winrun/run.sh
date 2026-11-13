@@ -15,11 +15,17 @@ r=$?
 triple=x86_64-w64-mingw32
 sr=$d/root/usr/x86_64-w64-mingw32
 out=$root/build/winrun
+if [ "$WINRUN_UCRT" = 1 ]; then      # the same programs with the UCRT (MSYS2's mingw-w64, fetched by imp-sysroot) in place of msvcrt
+    triple=x86_64-w64-mingw32-ucrt
+    sh tools/imp-sysroot --quiet $triple >$root/build/winrun-sysroot.log 2>&1 || { echo "winrun (UCRT) test skipped: no sysroot for $triple ($(tail -1 build/winrun-sysroot.log))"; exit 77; }
+    sr=$(sh tools/imp-sysroot --path $triple | head -1)
+    out=$root/build/winrun-ucrt
+fi
 rm -rf $out; mkdir -p $out
 export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc
 unset TMPDIR
 fail=0 ran=0
-echo "== winrun"
+echo "== winrun $triple"
 sh tools/mkrt.sh $triple $out/rt >$out/mkrt.log 2>&1 || { echo "FAILED: winrun: libimp.a for $triple" >&2; tail -5 $out/mkrt.log >&2; exit 1; }
 # (left out: structs calls strptime, cdecl htonl (ws2_32) and cdecl2 the ctype functions with values the C library of Windows treats otherwise, extcall environ: C functions that Windows lacks or has another way)
 progs="hello chars names bytes algo basic case callind gotoconst gotomain printorder features callback cmath datasym fltwide io realffi chan chan2 cstring rconst sixbit counted utf8ops initmain"

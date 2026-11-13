@@ -14,6 +14,7 @@ w=${MKRT_IMP:-$root/build/llvm-ir2/impstage-llvm-ir}
 [ -x "$w" ] || { echo "mkrt: no $root/build/llvm-ir2/impstage-llvm-ir and no imp in the PATH: run make first" >&2; exit 1; }
 if [ -n "$triple" ]; then
     arch=${triple%%-*}
+    case $triple in *ucrt*) SYSCRT=ucrt; export SYSCRT ;; esac       # (the universal C runtime of Windows, not msvcrt: the triple names it, x86_64-w64-mingw32-ucrt)
     case $triple in
     *darwin*|*apple*) os=darwin ;;
     *cygwin*|*windows-cygnus*) os=cygwin ;;

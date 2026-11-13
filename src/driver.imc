@@ -26,6 +26,7 @@ IMPD(0);
 
 EXTERNAL INT snprintf(PTR, SIZE, PTR, ...);
 EXTERNAL INT sscanf(PTR, PTR, ...);
+EXTERNAL PTR strstr(PTR, PTR);
 EXTERNAL PTR popen(PTR, PTR);
 EXTERNAL INT pclose(PTR);
 EXTERNAL PTR fgets(PTR, INT, PTR);
@@ -320,7 +321,7 @@ SUBR LNKCROSSWIN(Z) IS (
  CYG NE 0 => (KADD(LOC('-lcygwin')); KADD(LOC('-lgcc')); KADD(LOC('-ladvapi32')); KADD(LOC('-lshell32')); KADD(LOC('-luser32')); KADD(LOC('-lkernel32'));
               HAVELGC NE 0 => (HAVEF(LOC(CEP),LOC(LGCB),LOC('crtend.o')) NE 0 => KADD(LOC(CEP)));
               RETURN RUNLD(0));
- KADD(LOC('-lmingw32')); KADD(LOC('-lmoldname')); KADD(LOC('-lmingwex')); KADD(LOC('-lgcc')); KADD(LOC('-lmsvcrt')); KADD(LOC('-ladvapi32')); KADD(LOC('-lshell32')); KADD(LOC('-luser32')); KADD(LOC('-lkernel32'));
+ KADD(LOC('-lmingw32')); KADD(LOC('-lmoldname')); KADD(LOC('-lmingwex')); KADD(LOC('-lgcc')); (CCALL strstr(DTGT,LOC('ucrt')) NE 0 => KADD(LOC('-lucrt')) ELSE KADD(LOC('-lmsvcrt'))); KADD(LOC('-ladvapi32')); KADD(LOC('-lshell32')); KADD(LOC('-luser32')); KADD(LOC('-lkernel32'));
  RUNLD(0));
 
 # THE DIRECTORY D HAS THE START FILE OF MINGW-W64 (CRT2.O) AND ITS LIBRARY (LIBMINGW32.A); SETS C1P AND LIBD #

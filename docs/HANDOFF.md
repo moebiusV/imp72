@@ -14,7 +14,8 @@ without saying so.
 | 32-bit Windows (i686-w64-mingw32) | the sysroot is fetched and a hello.exe links; never run (Wine here is 64-bit only as set up) |
 | Programs for **Cygwin** (x86_64-pc-cygwin) | the runtime library builds; the link **stops** at four symbols (below); nothing was ever run |
 | The **compiler itself** on Windows or Cygwin | not built, not tried |
-| UCRT, ARM Windows | not done |
+| UCRT (x86_64-w64-mingw32-ucrt) | **done under Wine**: the 38 programs of `tests/winrun` print their goldens with it (`WINRUN_UCRT=1`, also in `make check`); not tried on real Windows |
+| ARM Windows, i686 UCRT | not done (MSYS2 has `clangarm64`, which uses compiler-rt and not libgcc, so the driver would need to link `libclang_rt.builtins`; MSYS2 dropped 32-bit) |
 
 The one command that makes a Windows program from Linux: `imp --target=x86_64-w64-mingw32 -o prog.exe prog.imp`.
 It asks `tools/imp-sysroot` for the mingw-w64 files (fetched once from the `sysroots` branch of

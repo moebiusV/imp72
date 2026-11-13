@@ -153,7 +153,7 @@ libm and libgcc, and the runtime library. A system with releases has the
 release in the path (`openbsd/v80/x86_64`, `freebsd/v151/x86_64`,
 `netbsd/v111/x86_64`), and so does Linux, by distribution (`linux/debian13/aarch64`
 is glibc, `linux/alpine322/x86_64` is musl, chosen by the triple: `aarch64-linux-gnu`
-or `x86_64-linux-musl`); Windows has none (`windows/x86_64`). Another release of the
+or `x86_64-linux-musl`); Windows has none (`windows/x86_64`, and `windows-ucrt/x86_64` for `--target=x86_64-w64-mingw32-ucrt`, the UCRT of MSYS2's ucrt64 packages in place of msvcrt: its programs link `-lucrt` and import `api-ms-win-crt-*` and kernel32 only; the 38 programs of `tests/winrun` run under Wine with it too). Another release of the
 same distribution is `imp-sysroot aarch64-linux-gnu@debian12` or
 `x86_64-linux-musl@alpine321`, and `--sysroot=$(imp-sysroot --path T@debian12)`
 uses it. A triple whose C library is not the host's (`x86_64-linux-musl` on a glibc

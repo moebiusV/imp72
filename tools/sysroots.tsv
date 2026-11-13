@@ -2,7 +2,7 @@
 # Fields, separated by tabs: TRIPLE (what --target= takes), OS and ARCH (the directories of the cruntime repository and of the cache: cruntime/OS/ARCH), the RECIPE that makes the sysroot from the system's own packages (method:argument), and a note.
 # A sysroot is the files of that system's C library that a link needs and nothing else: the start files (crt1.o ...), the C library, libgcc, and the matching header files (usr/include) for imp-cimport.
 # Methods: debian (the Debian packages of that architecture: libc6, libc6-dev, libgcc-s1, libgcc-N-dev, linux-libc-dev; the last field is the release, debian13 is trixie), alpine (musl, musl-dev, linux-headers and the start files of gcc of Alpine, release alpine322 is v3.22),
-# zigmac (the Darwin headers and libSystem.tbd of the Zig project's source tarball), mingw (the Debian packages of mingw-w64), cygwin (the Cygwin packages), freebsd, openbsd and netbsd
+# msys2 (the UCRT build of mingw-w64 from MSYS2's repository), zigmac (the Darwin headers and libSystem.tbd of the Zig project's source tarball), mingw (the Debian packages of mingw-w64), cygwin (the Cygwin packages), freebsd, openbsd and netbsd
 # (the base set of a release), apple (the SDK of the Mac, which Apple does not let anyone else hand out: from xcrun on a Mac, or a path the user gives).
 # A row's OS may have the release in it (linux/debian13, linux/alpine322): the directory of the cache and of cruntime is OS/ARCH; imp-sysroot TARGET@debian12 or TARGET@alpine321 makes another release of the same distribution.
 x86_64-linux-gnu	linux/debian13	x86_64	debian:amd64:debian13	Linux, glibc
@@ -21,6 +21,7 @@ riscv64-linux-musl	linux/alpine322	riscv64	alpine:riscv64:alpine322	Linux, musl 
 s390x-linux-musl	linux/alpine322	s390x	alpine:s390x:alpine322	Linux, musl (Alpine)
 powerpc64le-linux-musl	linux/alpine322	ppc64le	alpine:ppc64le:alpine322	Linux, musl (Alpine)
 loongarch64-linux-musl	linux/alpine322	loongarch64	alpine:loongarch64:alpine322	Linux, musl (Alpine)
+x86_64-w64-mingw32-ucrt	windows-ucrt	x86_64	msys2:ucrt64	Windows, the UCRT (MSYS2's mingw-w64)
 x86_64-w64-mingw32	windows	x86_64	mingw:x86-64	Windows, mingw-w64 (msvcrt)
 i686-w64-mingw32	windows	i386	mingw:i686	Windows, mingw-w64 (msvcrt)
 x86_64-pc-cygwin	cygwin	x86_64	cygwin:x86_64	Cygwin

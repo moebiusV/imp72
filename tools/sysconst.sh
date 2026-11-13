@@ -58,7 +58,7 @@ stdsym=stdout; stdin=stdin; filesz=; stdkind=var
 here=no; [ "$os" = "$(uname -s | tr 'A-Z' 'a-z')" ] && here=yes
 case $os in
 freebsd|darwin) stdsym=__stdoutp; stdin=__stdinp ;;
-windows) stdkind=iobf ;;           # msvcrt: stdin is __iob_func()[0], stdout __iob_func()[1], FILEs of 32 bytes on a 32 bit machine and 48 on a 64 bit one
+windows) stdkind=iobf; [ "$SYSCRT" = ucrt ] && stdkind=acrt ;;           # msvcrt: stdin is __iob_func()[0], stdout __iob_func()[1], FILEs of 32 bytes on a 32 bit machine and 48 on a 64 bit one
 cygwin) stdkind=reent ;;           # newlib: stdout is (_REENT->_stdout), _REENT being _impure_ptr; struct _reent is an int _errno and then the pointers _stdin, _stdout, _stderr (not checked on Cygwin)
 openbsd)
     stdkind=addr; stdsym=__stdout; stdin=__stdin
@@ -94,6 +94,8 @@ elif [ $stdkind = reent ]; then
     echo "!_impure_ptr! IS EXTERNAL;"
 elif [ $stdkind = iobf ]; then
     echo "# (THE STANDARD FILES ARE __IOB_FUNC()'S) #"
+elif [ $stdkind = acrt ]; then
+    echo "# (THE STANDARD FILES ARE __ACRT_IOB_FUNC()'S) #"
 else
     echo "!$stdsym!,!$stdin! ARE EXTERNAL;"
 fi
@@ -138,6 +140,9 @@ iobf)
     if [ $bits = 32 ]; then filesz=32; else filesz=48; fi
     echo "SUBR IMPSTDIN(Z) IS (CCALL __iob_func(0));                    # (MSVCRT'S ARRAY OF THE STANDARD FILES: STDIN IS ITS FIRST ELEMENT) #"
     echo "SUBR IMPSTDOUT(Z) IS (Q ARE LOCAL; Q:=CCALL __iob_func(0); Q+$filesz)" ;;
+acrt)
+    echo "SUBR IMPSTDIN(Z) IS (CCALL __acrt_iob_func(0));                # (THE UCRT: A FUNCTION GIVES EACH OF THE STANDARD FILES; THE ARRAY OF MSVCRT IS GONE) #"
+    echo "SUBR IMPSTDOUT(Z) IS (CCALL __acrt_iob_func(1))" ;;
 reent)
     echo "SUBR IMPSTDIN(Z) IS IMPPEEKPTR(IMPPEEKPTR(LOC(!_impure_ptr!))+SCPTR(0));          # (NEWLIB: _REENT->_STDIN; THE POINTERS FOLLOW THE INT _ERRNO, ALIGNED TO A POINTER) #"
     echo "SUBR IMPSTDOUT(Z) IS IMPPEEKPTR(IMPPEEKPTR(LOC(!_impure_ptr!))+(2*SCPTR(0)))" ;;

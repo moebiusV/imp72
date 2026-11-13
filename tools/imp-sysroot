@@ -246,6 +246,39 @@ recipe_netbsd() {   # amd64: base.tar.xz of the newest release (IMP_NETBSD_VERSI
     [ -f "$sr/usr/lib/crt0.o" ] || die "comp.tar.xz has no usr/lib/crt0.o"
     return 0
 }
+# Windows with the UCRT, from MSYS2's pacman repository (https://repo.msys2.org/mingw/ucrt64): the headers, the crt (crt2.o, libmingw32.a, libmingwex.a, libucrt.a and the import libraries), winpthreads, and from gcc only libgcc.a, libgcc_eh.a
+# and the start files; the package database says each package's file, size, SHA-256 and license, and the license is kept in imp-meta
+recipe_msys2() {   # ENV (ucrt64)
+    e=${1%%:*}
+    case $e in ucrt64) pre=mingw-w64-ucrt-x86_64 ;; *) die "no MSYS2 environment $e" ;; esac
+    mirror=${IMP_MSYS2_MIRROR:-https://repo.msys2.org/mingw}
+    fetch "$mirror/$e/$e.db" "$work/msys2.db" || die "cannot fetch the MSYS2 database $mirror/$e/$e.db"
+    mkdir -p "$work/db" "$work/x"
+    zstd -dc "$work/msys2.db" 2>/dev/null | tar -xf - -C "$work/db" 2>/dev/null || tar -xzf "$work/msys2.db" -C "$work/db" 2>/dev/null || die "cannot read the MSYS2 database (zstd or gzip, and tar, are needed)"
+    for p in headers crt winpthreads gcc; do
+        d=$(ls "$work/db" | grep -E "^$pre-$p-[0-9r]" | head -1)
+        [ -n "$d" ] || die "the MSYS2 package $pre-$p is not in the database"
+        fn=$(sed -n '/^%FILENAME%$/{n;p;}' "$work/db/$d/desc"); sum=$(sed -n '/^%SHA256SUM%$/{n;p;}' "$work/db/$d/desc"); lic=$(sed -n '/^%LICENSE%$/,/^$/p' "$work/db/$d/desc" | sed '1d;/^$/d' | tr '\n' ' ')
+        say "fetching $fn"
+        fetch "$mirror/$e/$fn" "$work/$fn" || die "cannot fetch $mirror/$e/$fn"
+        check "$work/$fn" "$sum" "$fn"
+        echo "$fn sha256 $sum license $lic" >> "$work/versions"
+        case $p in
+        gcc) zstd -dc "$work/$fn" | tar -xf - -C "$work/x" --wildcards "*/lib/gcc/*/libgcc.a" "*/lib/gcc/*/libgcc_eh.a" 2>/dev/null ;;
+        *) zstd -dc "$work/$fn" | tar -xf - -C "$work/x" --wildcards "*/include" "*/lib" "*/share/licenses" 2>/dev/null ;;
+        esac
+        rm -f "$work/$fn"
+    done
+    px=$(ls -d "$work"/x/* | head -1)
+    [ -f "$px/lib/crt2.o" ] || die "no lib/crt2.o in the MSYS2 packages"
+    cp -R "$px"/. "$sr"/
+    g=$(ls "$sr"/lib/gcc/*/*/libgcc.a 2>/dev/null | head -1)
+    [ -n "$g" ] && cp "$(dirname "$g")"/libgcc.a "$(dirname "$g")"/libgcc_eh.a "$sr/lib/" 2>/dev/null          # (the driver looks for -lgcc in the directory of the start files)
+    [ -f "$sr/lib/libgcc.a" ] || die "no libgcc.a in the MSYS2 gcc package"
+    [ -f "$sr/lib/libucrt.a" ] || die "no lib/libucrt.a in the MSYS2 packages"
+    return 0
+}
+
 # musl: Alpine's packages, from its mirror over https (the index's checksums are SHA-1 of a part of each package, which is not checked here: the SHA-256 of what was fetched is in imp-meta)
 recipe_alpine() {   # ARCH:alpineNNN (alpine322 is v3.22)
     a=${1%%:*}; d=${1#*:}; n=${d#alpine}
@@ -363,6 +396,7 @@ provenance() {   # SYSROOT-DIR: read its imp-meta
     case ${recipe%%:*} in
     debian) echo "**Source: Debian ${recipe##*:debian} packages** (https://deb.debian.org/debian), architecture $(echo "${recipe#debian:}" | cut -d: -f1): the C library and its headers (libc6, libc6-dev: glibc, LGPL-2.1+), the kernel's headers (linux-libc-dev: GPL-2 with the Linux-syscall-note), libgcc and its start files (libgcc-s1, libgcc-N-dev: GPL-3 with the GCC runtime library exception).  Each package is checked against the SHA-256 of Debian's Packages index.  Taken whole." ;;
     alpine) echo "**Source: Alpine Linux packages** (https://dl-cdn.alpinelinux.org/alpine), release alpine${recipe##*:alpine}: musl and musl-dev (the C library, its headers and start files: MIT), linux-headers (GPL-2 with the Linux-syscall-note), and from gcc only usr/lib/gcc (its start files and libgcc.a: GPL-3 with the GCC runtime library exception; the compiler itself is left out).  Fetched over https; the SHA-256 of each file is listed below (Alpine's index has only a SHA-1 of part of each package, which is not checked)." ;;
+    msys2) echo "**Source: MSYS2 packages** (https://repo.msys2.org/mingw/${recipe#msys2:}), the UCRT build of mingw-w64: mingw-w64-ucrt-x86_64-headers, -crt (the start file crt2.o, libmingw32.a, libmingwex.a, libmoldname.a, the import libraries including libucrt.a and those of the Windows DLLs) and -winpthreads, taken whole, and from -gcc only libgcc.a and libgcc_eh.a (copied beside the start files).  Each package is checked against the SHA-256 of the repository database, which also says its license: the SPDX expression is with each package below.  The programs link to the **UCRT** (ucrtbase.dll, a part of Windows 10 and later), not msvcrt." ;;
     mingw) echo "**Source: Debian packages of mingw-w64** (https://deb.debian.org/debian): mingw-w64-${recipe#mingw:}-dev and mingw-w64-common (the headers and import libraries of Windows, the msvcrt start files crt2.o, libmingw32.a: public domain, ZPL-2.1 and BSD-style licenses, see usr/share/doc), and from gcc-mingw-w64-${recipe#mingw:}-win32 only libgcc.a, libgcc_eh.a and the start files crtbegin.o and crtend.o (GPL-3 with the GCC runtime library exception).  Checked against the SHA-256 of Debian's Packages index." ;;
     cygwin) echo "**Source: Cygwin packages** (https://mirrors.kernel.org/sourceware/cygwin): cygwin, cygwin-devel, w32api-headers, w32api-runtime, libgcc1 (LGPL-3 for the Cygwin library; w32api is public domain/ZPL), checked against the SHA-512 of setup.ini.  Not run." ;;
     freebsd) echo "**Source: the FreeBSD base system** (base.txz of the release, https://download.freebsd.org/releases/): the C library, libm, start files, libgcc/compiler-rt and headers (BSD-2-Clause and the licenses of the files in them).  Checked against the SHA-256 of the release's MANIFEST.  Of its usr/lib only what a link needs is kept (start files, libc, libm, libgcc and compiler-rt, the threads, utility and kernel-access libraries); the rest of the base system, usr/include/c++ and usr/include/clang are left out." ;;
@@ -381,6 +415,7 @@ provenance() {   # SYSROOT-DIR: read its imp-meta
     case ${recipe%%:*} in
     debian) echo "The licenses are those of the packages, in usr/share/doc/PACKAGE/copyright (glibc: LGPL-2.1-or-later with parts under BSD, ISC, GPL-2 and others, listed there; the kernel headers: GPL-2.0 WITH Linux-syscall-note; libgcc: GPL-3.0-or-later WITH GCC-exception-3.1).  LGPL and GPL binaries are here: the corresponding source of each is the Debian source package of the same name and version (\`apt-get source\`, or https://sources.debian.org/)." ;;
     alpine) echo "musl: MIT (usr/share/doc/musl/COPYRIGHT lists the few files under BSD and other licenses).  linux-headers: GPL-2.0 WITH Linux-syscall-note.  libgcc.a and the start files of gcc: GPL-3.0-or-later WITH GCC-exception-3.1.  Corresponding source: Alpine's aports, https://git.alpinelinux.org/aports, and https://musl.libc.org/." ;;
+    msys2) echo "mingw-w64: ZPL-2.1 (the crt), ZPL-2.1 and LGPL-2.1-or-later (the headers), MIT and BSD-3-Clause (winpthreads), and GPL-3.0-or-later WITH GCC-exception-3.1 (libgcc and its start files), as each package says; the texts of the licenses the packages carry are under share/licenses.  Corresponding source: the PKGBUILDs and sources of https://github.com/msys2/MINGW-packages." ;;
     mingw) echo "mingw-w64 is public domain, ZPL-2.1 and BSD-style by file (usr/share/doc/mingw-w64-*/copyright); libgcc and the start files: GPL-3.0-or-later WITH GCC-exception-3.1.  Corresponding source: the Debian source packages mingw-w64 and gcc-mingw-w64 (https://sources.debian.org/)." ;;
     cygwin) echo "The Cygwin library: LGPL-3.0-or-later with the Cygwin linking exception; w32api: public domain and ZPL-2.1.  Corresponding source: https://cygwin.com/." ;;
     freebsd|openbsd|netbsd) echo "BSD-2-Clause, BSD-3-Clause and ISC by file (the notices are in the header files; ./COPYRIGHT of the release is here where the set has one), with the compiler-rt and libgcc parts under Apache-2.0 WITH LLVM-exception and GPL-3.0-or-later WITH GCC-exception-3.1.  Corresponding source: the release's src set or its repository (https://cgit.freebsd.org/, https://cvsweb.openbsd.org/, https://cvsweb.netbsd.org/)." ;;
@@ -419,6 +454,7 @@ get() {
         case $m in
         debian) recipe_debian "$a" ;; mingw) recipe_mingw "$a" ;; cygwin) recipe_cygwin "$a" ;;
         freebsd) recipe_freebsd "$a" ;; openbsd) recipe_openbsd "$a" ;; netbsd) recipe_netbsd "$a" ;;
+        msys2) recipe_msys2 "$a" ;;
         zigmac) if [ -n "$APPLE_SDK" ] || { command -v xcrun >/dev/null 2>&1 && [ -z "$IMP_MAC_SDK" ]; }; then recipe_apple; else recipe_zigmac; fi ;; alpine) recipe_alpine "$a" ;;
         *) die "no recipe $recipe" ;;
         esac
