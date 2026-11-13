@@ -107,13 +107,18 @@ big-endian, 32 and 64 bit; a 32-bit host holds the 64-bit word in a
 **Cross-compiling.** `--target=TRIPLE` writes objects, assembly or IR for every
 target the installed LLVM has, with the byte order and pointer size of the
 target. A triple LLVM does not know by name is refused. The driver links for
-Linux (glibc and musl, about 25 architectures), FreeBSD, NetBSD, OpenBSD, macOS,
-and mingw-w64 and Cygwin on Windows, given that system's C library files
-(`--sysroot`) and a runtime library built for it (`--runtime`, made by
-`sh tools/mkrt.sh TRIPLE`). Native linking needs no table of architectures. There
-is no runtime library for Windows or Cygwin: objects, and programs that need no
-runtime, work there. `docs/BUILDING.md` has the linker order and the flags per
-target.
+Linux (glibc and musl, many architectures), FreeBSD, NetBSD, OpenBSD, macOS and
+Windows (mingw-w64), and `imp prog.imp --target=TRIPLE` is all it takes: it asks
+`imp-sysroot` for that system's C library, start files and headers, which are
+fetched once from the [cruntime](https://github.com/moebiusV/cruntime)
+repository (or from the system's own packages), and for a runtime library built
+for it (`tools/mkrt.sh`); `--sysroot` and `--runtime` name your own. The
+programs for Linux on aarch64, for musl and for Windows were run (under qemu's
+user mode, with Alpine's own loader and under Wine); the BSD and macOS ones are
+linked and not run here, and Cygwin's link stops at four linker-script symbols
+(`docs/BUILDING.md`). The compiler itself does not run on Windows yet.
+`docs/BUILDING.md` has the linker order, the flags per target and where each
+system's files came from.
 
 ## Repository layout
 
