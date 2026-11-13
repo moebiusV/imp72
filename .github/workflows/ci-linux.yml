@@ -36,7 +36,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: sudo apt-get update && sudo apt-get install -y llvm-dev liblld-dev
-      - run: MAKE=make sh tools/ci-run.sh linux-amd64
+      # the cross-compiling test that fetches (tests/sysroot: imp --target= for Windows and aarch64 Linux, from the cruntime repository)
+      - run: MAKE=make IMP_TEST_NET=1 sh tools/ci-run.sh linux-amd64
 
   # arm64: the LLVM back end
   linux-arm64:
