@@ -66,6 +66,7 @@ install: all
 	install -m 644 lib/imp.h $(DESTDIR)$(PREFIX)/include/imp.h
 	install -m 644 src/syntax.imc lib/ffi.imc lib/utf8.imc $(DESTDIR)$(PREFIX)/share/imp/
 	install -m 755 tools/imp-sysroot $(DESTDIR)$(PREFIX)/bin/imp-sysroot
+	install -m 644 docs/sysroot.1 $(DESTDIR)$(MANDIR)/man1/imp-sysroot.1
 	install -m 644 tools/sysroots.tsv $(DESTDIR)$(PREFIX)/share/imp/sysroots.tsv
 	install -d $(DESTDIR)$(PREFIX)/share/imp/rt/lib $(DESTDIR)$(PREFIX)/share/imp/rt/src $(DESTDIR)$(PREFIX)/share/imp/rt/tools
 	install -m 644 lib/*.iml lib/*.imc $(DESTDIR)$(PREFIX)/share/imp/rt/lib/

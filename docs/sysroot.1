@@ -1,0 +1,100 @@
+.\" Copyright (c) 2026 The imp authors.  ISC licence, see LICENSE.
+.Dd November 12, 2026
+.Dt IMP-SYSROOT 1
+.Os
+.Sh NAME
+.Nm imp-sysroot
+.Nd fetch what a link for another system needs of that system
+.Sh SYNOPSIS
+.Nm
+.Op Fl fq
+.Ar target ...
+.Nm
+.Fl Fl list
+.Nm
+.Fl Fl path Ar target
+.Nm
+.Fl Fl clean Op Ar target
+.Nm
+.Fl Fl apple-sdk Ar dir Ar target
+.Nm
+.Fl Fl readme Ar root
+.Sh DESCRIPTION
+.Nm
+makes the files that
+.Ql imp --target=TRIPLE
+links with: the C library of the target system, its start files
+.Pq Pa crt0.o , crt1.o , crtbegin.o ,
+libm, libgcc or compiler-rt, its header files, and the runtime library of
+.Xr imp 1
+built for it, all in one directory laid out as
+.Fl Fl sysroot
+takes it.
+The compiler calls it itself when
+.Fl Fl target
+is given with neither
+.Fl Fl sysroot
+nor
+.Fl Fl runtime ;
+the environment variable
+.Ev IMPFETCH Ns =0
+stops that.
+.Pp
+A
+.Ar target
+is a triple
+.Pq Ql aarch64-linux-gnu , x86_64-linux-musl , x86_64-w64-mingw32 ,
+or
+.Ql OS/ARCH ,
+and may end in
+.Ql @release
+for another release of a Linux distribution
+.Pq Ql aarch64-linux-gnu@debian12 , x86_64-linux-musl@alpine321 .
+.Fl Fl list
+says which systems are known and which are here.
+.Pp
+The files are kept in
+.Pa ${XDG_CACHE_HOME:-~/.cache}/imp/sysroots/OS[/RELEASE]/ARCH
+.Pq Ev IMP_SYSROOTS
+and nothing is installed or needs root.
+They come, in this order, from the
+.Sy sysroots
+branch of the cruntime repository
+.Pq Ev IMP_CRUNTIME , IMP_CRUNTIME_BRANCH ;
+https://github.com/moebiusV/cruntime
+and, where it has none, from the system's own packages: Debian's for glibc and mingw-w64,
+Alpine's for musl, the base sets of FreeBSD, OpenBSD and NetBSD, Cygwin's, and, for macOS,
+the SDK of a Mac
+.Pq Fl Fl apple-sdk , or Xr xcrun 1
+or the Darwin headers and libSystem stub of the Zig project's source tarball.
+.Ev IMP_SYSROOT_SOURCE Ns =cruntime
+or
+.Ns =upstream
+chooses one.
+Each download is checked against the checksums of its index where there is one.
+.Fl Fl readme
+writes the provenance of every directory under a checkout of that branch into its README.
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev IMP_SYSROOTS
+the directory of the cache.
+.It Ev IMP_CRUNTIME , IMP_CRUNTIME_BRANCH
+the repository of the files and its branch.
+.It Ev IMP_FREEBSD_VERSION , IMP_OPENBSD_VERSION , IMP_NETBSD_VERSION
+a release of a BSD other than the newest.
+.It Ev IMPFETCH
+0 stops the compiler fetching.
+.El
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa imp-meta
+in each directory: what it was made from, with the SHA-256 sums.
+.It Pa share/imp/sysroots.tsv
+the table of systems and recipes.
+.El
+.Sh EXIT STATUS
+0 done, 1 failed, 2 usage or an unknown system, 3 macOS with no SDK to use.
+.Sh SEE ALSO
+.Xr imp 1
+.Sh AUTHORS
+The imp authors.
