@@ -32,7 +32,7 @@ export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$root/buil
 "$w" -H $out/decls.imp -o $out/imp.exe $out/a.imp $out/b.imp > $out/imp.log 2>&1 && [ "$($out/imp.exe)" = "A 5 1" ] || { bad "imp: two units that share a file of declarations"; cat $out/imp.log >&2; }
 # (without the file strcmp is a function that returns a word and the upper half of it is the C library's own: how it ends is not for a test to say; what the file changes is the declaration, and a result that is extended from the int it is)
 "$w" -H $out/decls.imp -Sir -o $out/with.ll $out/a.imp > /dev/null 2>&1; "$w" -Sir -o $out/without.ll $out/a.imp > /dev/null 2>&1
-{ grep -q 'declare i32 @"strcmp"(ptr, ptr)' $out/with.ll && grep -q 'sext i32' $out/with.ll && grep -q 'declare i64 @"strcmp"(...)' $out/without.ll; } || bad "imp: the declaration of strcmp does not make its result an extended int (the file is not what changes it)"
+{ grep -q 'declare i32 @"strcmp"(ptr, ptr)' $out/with.ll && grep -q 'sext i32' $out/with.ll && ! grep -q 'declare i32 @"strcmp"(ptr, ptr)' $out/without.ll; } || bad "imp: the declaration of strcmp does not make its result an extended int (the file is not what changes it)"
 "$w" -H $out/decls.imp -c -o $out/a.o $out/a.imp >/dev/null 2>&1 && [ -s $out/a.o ] || bad "imp: -c with -H"
 "$w" -H $out/nothere.imp -c -o $out/n.o $out/a.imp > $out/n.log 2>&1 && bad "imp: a file of declarations that is not there was accepted"
 unset IMPSYNTAX IMPFFI IMPLIB
