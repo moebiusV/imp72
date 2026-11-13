@@ -4,6 +4,9 @@
  * Built when the LLVM C API is there (-DHAVE_LLVM; tools/direct.sh looks for llvm-config).
  */
 #define _GNU_SOURCE 1
+#ifdef _WIN32
+#include "winport.h"
+#endif
 #include "strl.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -206,6 +209,18 @@ module(const char *ir, size_t n, char **buf, size_t *len)
     FILE *irf, *mem;
     int rc;
 
+#ifdef _WIN32
+    irf = winmemfrom(ir, n);                                 /* (no fmemopen or open_memstream on Windows: anonymous temporary files) */
+    if (irf == NULL || (mem = winmemfile()) == NULL) {
+        perror("imp: the IR in memory");
+        return 1;
+    }
+    rc = ir2ll_run(irf, mem, (int)(sizeof(void *) == 4));
+    fclose(irf);
+    if (winmemslurp(mem, buf, len) != 0)
+        return 1;
+    return rc;
+#else
     irf = n > 0 ? fmemopen((void *)ir, n, "r") : fopen("/dev/null", "r");
     if (irf == NULL || (mem = open_memstream(buf, len)) == NULL) {
         perror("imp: the IR in memory");
@@ -215,6 +230,7 @@ module(const char *ir, size_t n, char **buf, size_t *len)
     fclose(mem);
     fclose(irf);
     return rc;
+#endif
 }
 
 /* The entries of the driver (src/driver.imc), which calls them with CCALL, so no underscores: 0 for success.  The IR text of the kernel is in memory (ir, n bytes). */

@@ -30,7 +30,7 @@ not provided, so it stays so until a program that does is found.
 
 ### 11. The compiler on Windows
 
-The runtime library for Windows and the programs it links run (`docs/BUILDING.md`, `tests/winrun`, under Wine). The compiler itself does not: `lib/imphost.iml` forks, execs and waits (the
+The runtime library for Windows and the programs it links run (`docs/BUILDING.md`, `tests/winrun`, under Wine), and so does **the seed**, the C compiler of the bootstrap: `tools/win-seed.sh` cross-builds `build/win-seed/impstage0.exe` from Linux (clang, MSYS2's ucrt64 LLVM, lld and libraries), with LLVM and lld in its process and `stage0/imphost-win.c` as its host layer, and under Wine it compiles and links the 38 programs of `tests/winrun` itself (`WINRUN_SEED=1`), which then print their goldens. The compiler written in IMP does not run there yet: `lib/imphost.iml` forks, execs and waits (the
 driver starts lld and the children of a compilation of several files), the temporary files of `src/driver.imc` are POSIX, and the images need the table of the compiler's variables that COFF has no
 section for. Decided (2026-11-05): Windows is supported where LLVM and mingw can do it; what remains is `CreateProcess` and `WaitForSingleObject` where the host layer forks, a Windows
 temporary directory, a table of the variables for COFF, and a run on a Windows machine, where Wine runs the programs and not yet the compiler's own build.

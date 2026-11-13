@@ -116,7 +116,7 @@ for it (`tools/mkrt.sh`); `--sysroot` and `--runtime` name your own. The
 programs for Linux on aarch64, for musl and for Windows were run (under qemu's
 user mode, with Alpine's own loader and under Wine); the BSD and macOS ones are
 linked and not run here, and Cygwin's link stops at four linker-script symbols
-(`docs/BUILDING.md`). The compiler itself does not run on Windows yet.
+(`docs/BUILDING.md`). The seed (the C compiler of the bootstrap) runs on Windows, under Wine so far, and builds and links these programs there with lld in its process; the compiler in IMP does not run on Windows yet.
 `docs/BUILDING.md` has the linker order, the flags per target and where each
 system's files came from.
 

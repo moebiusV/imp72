@@ -12,6 +12,11 @@
  * Input (see stage0/ir.c): "* text" assembler lines, which here are only data directives; "! type flags prolab tmpbase lblbase name",
  * "^ n" (label), '" op type qual ...' (one tree node per line, preorder) and "% autos retlab tmpend lblend name".
  */
+#ifdef _WIN32
+#include "../stage0/winport.h"
+#define open_memstream(b, l) winopen_memstream((b), (l))      /* no open_memstream on Windows: a temporary file (stage0/imphost-win.c) */
+#define fclose(f) winfclose(f)
+#endif
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>

@@ -15,11 +15,18 @@ r=$?
 triple=x86_64-w64-mingw32
 sr=$d/root/usr/x86_64-w64-mingw32
 out=$root/build/winrun
+seed=$root/build/win-seed/impstage0.exe
+if [ "$WINRUN_SEED" = 1 ]; then       # the compiling too is done under Wine: by the seed for Windows (tools/win-seed.sh), which links with lld in its own process; the UCRT, as it has MSYS2's tree
+    WINRUN_UCRT=1
+    [ -f "$seed" ] || { [ "$IMP_TEST_NET" = 1 ] && sh tools/win-seed.sh >$root/build/win-seed.log 2>&1; }
+    [ -f "$seed" ] || { echo "winrun (seed) test skipped: no $seed (tools/win-seed.sh makes it; IMP_TEST_NET=1 lets this test)"; exit 77; }
+    out=$root/build/winrun-seed
+fi
 if [ "$WINRUN_UCRT" = 1 ]; then      # the same programs with the UCRT (MSYS2's mingw-w64, fetched by imp-sysroot) in place of msvcrt
     triple=x86_64-w64-mingw32-ucrt
     sh tools/imp-sysroot --quiet $triple >$root/build/winrun-sysroot.log 2>&1 || { echo "winrun (UCRT) test skipped: no sysroot for $triple ($(tail -1 build/winrun-sysroot.log))"; exit 77; }
     sr=$(sh tools/imp-sysroot --path $triple | head -1)
-    out=$root/build/winrun-ucrt
+    [ "$WINRUN_SEED" = 1 ] || out=$root/build/winrun-ucrt
 fi
 rm -rf $out; mkdir -p $out
 export IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc
@@ -43,7 +50,11 @@ for pg in $list; do
     p=${pg%:*} g=${pg#*:}
     n=$(basename $p .imp)
     exe=$out/$n.exe
-    $w --target=$triple --sysroot=$sr --runtime=$out/rt/libimp.a -o $exe $p >$out/$n.log 2>&1 || { echo "FAILED: winrun: $n does not compile or link" >&2; head -c 400 $out/$n.log >&2; fail=1; continue; }
+    if [ "$WINRUN_SEED" = 1 ]; then
+        (cd $out && IMPSYNTAX=$root/src/syntax.imc IMPFFI=$root/lib/ffi.imc IMPLIB=$out/rt/libimp.a IMPSYSROOT=$sr WINEDEBUG=-all timeout 300 $d/run.sh $seed -o $exe $root/$p >$out/$n.log 2>&1); [ -f $exe ]
+    else
+        $w --target=$triple --sysroot=$sr --runtime=$out/rt/libimp.a -o $exe $p >$out/$n.log 2>&1
+    fi || { echo "FAILED: winrun: $n does not compile or link" >&2; head -c 400 $out/$n.log >&2; fail=1; continue; }
     (cd $out && rm -f IOTEST.TMP && timeout 120 $d/run.sh $exe >$n.got 2>/dev/null; rm -f IOTEST.TMP)
     ran=$((ran + 1))
     if sed 's/[ 	]*$//' $out/$n.got | cmp -s - $g || cmp -s $out/$n.got $g; then rm -f $exe $out/$n.got $out/$n.log; else

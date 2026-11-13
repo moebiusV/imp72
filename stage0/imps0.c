@@ -42,6 +42,11 @@
 #include "imp.h"
 #include "ir.h"
 #include "gen.h"
+#ifdef _WIN32
+#include <windows.h>
+#include "winport.h"
+#define realpath(p, b) _fullpath((b), (p), PATH_MAX)
+#endif
 
 
 /* the LLVM back end in the process (stage0/llvm.c); llvmhave tells whether the compiler was built with the LLVM libraries */
@@ -163,7 +168,11 @@ static int
 exe_dir(const char *argv0, char *dir, size_t n)
 {
     char buf[PATH_MAX], *slash;
+#ifdef _WIN32
+    ssize_t k = winexepath(buf, sizeof buf) == 0 ? (ssize_t)strlen(buf) : -1;       /* Windows has no /proc/self/exe */
+#else
     ssize_t k = readlink("/proc/self/exe", buf, sizeof buf - 1);
+#endif
 
     if (k > 0)
         buf[k] = '\0';
@@ -397,12 +406,91 @@ lnkmac(const char *ha, const char *out, const char *ofile, const char *lib)
     return runld();
 }
 
+#ifdef _WIN32
+/*
+ * Windows, with mingw-w64 (MSYS2's ucrt64 tree, or imp-sysroot's windows-ucrt): the files of the C library are under a root, IMPSYSROOT or the directory above the one this program
+ * is in; the start file crt2.o and libmingw32.a are in ROOT/lib (MSYS2), ROOT/usr/x86_64-w64-mingw32/lib or ROOT/x86_64-w64-mingw32/lib.  The UCRT is linked where libucrt.a is
+ * there, msvcrt (IMPCRT=msvcrt) if it is asked for; the runtime library has to be the one made for the same C runtime.  The same arguments as src/driver.imc LNKCROSSWIN.
+ */
+static int
+lnkwin(const char *ha, const char *out, const char *ofile, const char *lib)
+{
+    char root[PATH_MAX], d[PATH_MAX], gd[PATH_MAX], *slash;
+    const char *sr = getenv("IMPSYSROOT"), *crt = getenv("IMPCRT"), *pm = NULL;
+    static const char *const cand[] = { "%s/lib", "%s/usr/x86_64-w64-mingw32/lib", "%s/x86_64-w64-mingw32/lib", "%s/usr/lib" };
+    int i, ok = 0, ucrt;
+    WIN32_FIND_DATAA fd;
+    HANDLE h;
+
+    if (strcmp(ha, "x86_64") == 0)
+        pm = "i386pep";
+    else if (strcmp(ha, "i386") == 0)
+        pm = "i386pe";
+    else if (strcmp(ha, "aarch64") == 0)
+        pm = "arm64pe";
+    if (pm == NULL) {
+        fprintf(stderr, "impstage0: cannot link: Windows on %s is not supported; use -c to make the object\n", ha);
+        return 1;
+    }
+    if (sr != NULL && *sr)
+        snprintf(root, sizeof root, "%s", sr);
+    else if (winexepath(root, sizeof root) == 0 && (slash = strrchr(root, '/')) != NULL) {
+        *slash = '\0';                         /* ROOT/bin/imp.exe: ROOT */
+        if ((slash = strrchr(root, '/')) != NULL)
+            *slash = '\0';
+    } else
+        root[0] = '\0';
+    for (i = 0; i < 4 && !ok; i++) {
+        snprintf(d, sizeof d, cand[i], root);
+        snprintf(c1p, sizeof c1p, "%s/crt2.o", d);
+        snprintf(lcp, sizeof lcp, "%s/libmingw32.a", d);
+        ok = exists(c1p) && exists(lcp);
+    }
+    if (!ok) {
+        fprintf(stderr, "impstage0: cannot link: no crt2.o and libmingw32.a under %s/lib, %s/usr/x86_64-w64-mingw32/lib or %s/x86_64-w64-mingw32/lib (IMPSYSROOT names the root of a mingw-w64 tree)\n", root, root, root);
+        return 1;
+    }
+    snprintf(libd, sizeof libd, "%s", d);
+    snprintf(gd, sizeof gd, "%s/libgcc.a", d);   /* libgcc.a beside the start files (imp-sysroot puts it there) or in lib/gcc/TRIPLE/VERSION */
+    if (!exists(gd)) {
+        char pat[PATH_MAX];
+
+        gd[0] = '\0';
+        snprintf(pat, sizeof pat, "%s/gcc/x86_64-w64-mingw32/*", d);
+        if ((h = FindFirstFileA(pat, &fd)) != INVALID_HANDLE_VALUE) {
+            do {
+                if (fd.cFileName[0] != '.') {
+                    snprintf(gd, sizeof gd, "%s/gcc/x86_64-w64-mingw32/%s", d, fd.cFileName);
+                    break;
+                }
+            } while (FindNextFileA(h, &fd));
+            FindClose(h);
+        }
+    } else
+        snprintf(gd, sizeof gd, "%s", d);
+    snprintf(rtp, sizeof rtp, "%s/libucrt.a", d);
+    ucrt = exists(rtp) && !(crt != NULL && strcmp(crt, "msvcrt") == 0);
+    ladd("ld.lld"); ladd("-m"); ladd(pm); ladd("-o"); ladd(out); ladd(c1p); ladd(ofile); ladd(lib);
+    ladd("-L"); ladd(libd);
+    if (gd[0] && strcmp(gd, d) != 0) {
+        ladd("-L"); ladd(gd);
+    }
+    ladd("-lmingw32"); ladd("-lmoldname"); ladd("-lmingwex"); ladd("-lgcc"); ladd(ucrt ? "-lucrt" : "-lmsvcrt");
+    ladd("-ladvapi32"); ladd("-lshell32"); ladd("-luser32"); ladd("-lkernel32");
+    return runld();
+}
+#endif
+
 static int
 link_exe(const char *out, const char *ofile, const char *lib)
 {
     const char *os = imphostos(0), *ha = imphostarch(0);
 
     ldn = 0;
+#ifdef _WIN32
+    if (strcmp(os, "windows") == 0)
+        return lnkwin(ha, out, ofile, lib);
+#endif
     if (strcmp(os, "linux") == 0)
         return lnklin(out, ofile, lib);
     if (strcmp(os, "darwin") == 0)
@@ -512,6 +600,19 @@ driver_main(int argc, char **argv)
     }
     for (; nfiles > 0; nfiles--, i++)
         kargv[k++] = argv[i];
+#ifdef _WIN32
+    if ((kernel_ir = winmemfile()) == NULL) {            /* no open_memstream: an anonymous temporary file */
+        perror("the IR in memory");
+        return 1;
+    }
+    rc = kernel_main(k, kargv);
+    if (rc != 0 || winmemslurp(kernel_ir, &irbuf, &irlen) != 0) {
+        if (rc != 0)
+            fclose(kernel_ir);
+        free(irbuf);
+        return 1;
+    }
+#else
     if ((kernel_ir = open_memstream(&irbuf, &irlen)) == NULL) {
         perror("open_memstream");
         return 1;
@@ -521,6 +622,7 @@ driver_main(int argc, char **argv)
         free(irbuf);
         return 1;
     }
+#endif
     kernel_ir = NULL;
     fflush(NULL);
 
@@ -546,6 +648,14 @@ main(int argc, char **argv)
 {
     const char *name = strrchr(argv[0], '/');
 
+#ifdef _WIN32
+    {                                           /* a path with \ (the program is started as impstage0 or impstage0.exe) */
+        const char *bs = strrchr(argv[0], '\\');
+
+        if (bs != NULL && (name == NULL || bs > name))
+            name = bs;
+    }
+#endif
     name = name ? name + 1 : argv[0];
     if (strncmp(name, "impstage", 8) == 0)
         return driver_main(argc, argv);

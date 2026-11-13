@@ -353,7 +353,7 @@ from_cruntime() {
     rm -rf "$sr"
     if command -v git >/dev/null 2>&1; then
         g=$work/cruntime
-        GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true git clone -q --depth 1 --branch "${IMP_CRUNTIME_BRANCH:-sysroots}" --filter=blob:none --no-checkout "$repo" "$g" 2>/dev/null && (cd "$g" && git sparse-checkout init --cone >/dev/null 2>&1 && git sparse-checkout set "${dir#$cache/}" >/dev/null 2>&1 && git checkout -q 2>/dev/null) && [ -d "$g/${dir#$cache/}/usr" ] && {
+        GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true git clone -q --depth 1 --branch "${IMP_CRUNTIME_BRANCH:-sysroots}" --filter=blob:none --no-checkout "$repo" "$g" 2>/dev/null && (cd "$g" && git sparse-checkout init --cone >/dev/null 2>&1 && git sparse-checkout set "${dir#$cache/}" >/dev/null 2>&1 && git checkout -q 2>/dev/null) && [ -f "$g/${dir#$cache/}/imp-meta" ] && {
             rm -rf "$sr"; mv "$g/${dir#$cache/}" "$sr"; echo "cruntime $(cd "$g" && git rev-parse --short HEAD)" >> "$work/versions"; return 0; }
     fi
     t=$work/cruntime.tar.xz
