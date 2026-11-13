@@ -24,6 +24,7 @@ share/imp/rt/lib/ffi.imc
 share/imp/rt/lib/impchan.iml
 share/imp/rt/lib/impcore-win.iml
 share/imp/rt/lib/impcore.iml
+share/imp/rt/lib/imphost-win.iml
 share/imp/rt/lib/imphost.iml
 share/imp/rt/lib/imphostx-coff.iml
 share/imp/rt/lib/imphostx-elf.iml

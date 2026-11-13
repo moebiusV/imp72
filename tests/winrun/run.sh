@@ -16,11 +16,18 @@ triple=x86_64-w64-mingw32
 sr=$d/root/usr/x86_64-w64-mingw32
 out=$root/build/winrun
 seed=$root/build/win-seed/impstage0.exe
-if [ "$WINRUN_SEED" = 1 ]; then       # the compiling too is done under Wine: by the seed for Windows (tools/win-seed.sh), which links with lld in its own process; the UCRT, as it has MSYS2's tree
+if [ "$WINRUN_SEED" = 1 ] && [ "$WINRUN_WINIMP" != 1 ]; then       # the compiling too is done under Wine: by the seed for Windows (tools/win-seed.sh), which links with lld in its own process; the UCRT, as it has MSYS2's tree
     WINRUN_UCRT=1
     [ -f "$seed" ] || { [ "$IMP_TEST_NET" = 1 ] && sh tools/win-seed.sh >$root/build/win-seed.log 2>&1; }
     [ -f "$seed" ] || { echo "winrun (seed) test skipped: no $seed (tools/win-seed.sh makes it; IMP_TEST_NET=1 lets this test)"; exit 77; }
     out=$root/build/winrun-seed
+fi
+impexe=$root/build/win-imp/impstage-llvm-ir.exe
+if [ "$WINRUN_WINIMP" = 1 ]; then        # the same, by the compiler written in IMP, for Windows (tools/win-imp.sh)
+    WINRUN_UCRT=1; WINRUN_SEED=1; seed=$impexe
+    [ -f "$seed" ] || { [ "$IMP_TEST_NET" = 1 ] && sh tools/win-imp.sh >$root/build/win-imp.log 2>&1; }
+    [ -f "$seed" ] || { echo "winrun (IMP compiler) test skipped: no $seed (tools/win-imp.sh makes it; IMP_TEST_NET=1 lets this test)"; exit 77; }
+    out=$root/build/winrun-imp
 fi
 if [ "$WINRUN_UCRT" = 1 ]; then      # the same programs with the UCRT (MSYS2's mingw-w64, fetched by imp-sysroot) in place of msvcrt
     triple=x86_64-w64-mingw32-ucrt

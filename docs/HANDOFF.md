@@ -14,7 +14,8 @@ without saying so.
 | 32-bit Windows (i686-w64-mingw32) | the sysroot is fetched and a hello.exe links; never run (Wine here is 64-bit only as set up) |
 | Programs for **Cygwin** (x86_64-pc-cygwin) | the runtime library builds; the link **stops** at four symbols (below); nothing was ever run |
 | The **seed** (stage0, C) on Windows | **done under Wine**: `sh tools/win-seed.sh` cross-builds `build/win-seed/impstage0.exe` (MSYS2's ucrt64 LLVM 23 and lld, UCRT); under Wine it compiles and links, in-process with lld, the 38 programs of `tests/winrun` (`WINRUN_SEED=1`), which print their goldens; not tried on real Windows 10 |
-| The **compiler in IMP** on Windows or Cygwin | not built: it needs the host layer in IMP (`lib/imphost.iml`) for Windows, COFF support in `tools/imprename.imp` (the modules are renamed after compiling), and the variables table; the seed's `stage0/imphost-win.c` is the model for the first |
+| The **compiler in IMP** on Windows | **done under Wine**: `sh tools/win-imp.sh` cross-builds `build/win-imp/impstage-llvm-ir.exe` (host layer `lib/imphost-win.iml`, COFF in `tools/imprename.imp`, `LNKWIN` in the driver); under Wine it compiles and links the 38 programs of `tests/winrun` (`WINRUN_WINIMP=1`); not done: images (`/U`, `/V`), self-hosting on Windows, 32-bit and ARM, real Windows 10 |
+| The compiler in IMP on Cygwin | not tried (Cygwin is POSIX: `lib/imphost.iml` may be enough; see the Cygwin section) |
 | UCRT (x86_64-w64-mingw32-ucrt) | **done under Wine**: the 38 programs of `tests/winrun` print their goldens with it (`WINRUN_UCRT=1`, also in `make check`); not tried on real Windows |
 | ARM Windows, i686 UCRT | not done (MSYS2 has `clangarm64`, which uses compiler-rt and not libgcc, so the driver would need to link `libclang_rt.builtins`; MSYS2 dropped 32-bit) |
 
