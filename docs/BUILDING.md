@@ -165,8 +165,8 @@ newest.
 
 Nothing is kept in this repository. Each system's files come first from the
 `cruntime` repository (`$IMP_CRUNTIME`, default
-`https://github.com/moebiusV/cruntime`, laid out as the cache is:
-`cruntime/openbsd/v80/amd64`, `cruntime/linux/aarch64`; fetched by git sparse
+`https://github.com/moebiusV/cruntime`, its `sysroots` branch (`$IMP_CRUNTIME_BRANCH`; `main` is only the documents), laid out as the cache is:
+`openbsd/v80/x86_64`, `linux/debian13/aarch64`; fetched by git sparse
 checkout of that one directory or by release tarball), and, where it has none,
 from the system's own packages, checked against the checksums of their
 indexes: the Debian packages for Linux (glibc) and mingw-w64, the Cygwin

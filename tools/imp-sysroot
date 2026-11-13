@@ -7,7 +7,7 @@
 #   imp-sysroot --apple-sdk DIR  for the macOS targets: the SDK of a Mac (xcrun --show-sdk-path says where it is)
 #   imp-sysroot --clean [TARGET] remove one or all
 # Where things are kept: $IMP_SYSROOTS, else ${XDG_CACHE_HOME:-$HOME/.cache}/imp/sysroots/OS[/VERSION]/ARCH (that directory is what --sysroot takes: usr/include, usr/lib with the start files, the C library, libgcc and libimp.a, and imp-meta saying where it came from): a system that has releases has the release in the path (openbsd/v80/amd64, freebsd/v15.1/amd64), the others have none (linux/aarch64, windows/x86_64).  Nothing is installed and nothing needs root.
-# Where they come from, in this order: the cruntime repository ($IMP_CRUNTIME, by default https://github.com/moebiusV/cruntime: a directory OS/ARCH for each system, which git fetches alone
+# Where they come from, in this order: the sysroots branch of the cruntime repository ($IMP_CRUNTIME, by default https://github.com/moebiusV/cruntime, and $IMP_CRUNTIME_BRANCH: a directory OS/ARCH for each system, which git fetches alone
 # (sparse checkout) or a tarball OS-VERSION-ARCH.tar.xz of its release does; the directory is the same as the cache's: cruntime/openbsd/v80/amd64), and else the system's own packages as the recipe of tools/sysroots.tsv says (Debian packages, mingw-w64, Cygwin packages, the base sets of the BSDs),
 # checked against the sizes and SHA-256 sums of their indexes.  IMP_SYSROOT_SOURCE=cruntime or =upstream chooses one.  What it needs of this machine: sh, curl or wget, tar, xz (or zstd, gzip for what the
 # upstream uses), ar and the sha256sum of GNU, shasum or sha256 or openssl; qemu to RUN what it makes for another machine (qemu-user: apt install qemu-user-static) or Wine for Windows (tools/wine-setup.sh).
@@ -320,7 +320,7 @@ from_cruntime() {
     rm -rf "$sr"
     if command -v git >/dev/null 2>&1; then
         g=$work/cruntime
-        GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true git clone -q --depth 1 --filter=blob:none --no-checkout "$repo" "$g" 2>/dev/null && (cd "$g" && git sparse-checkout init --cone >/dev/null 2>&1 && git sparse-checkout set "${dir#$cache/}" >/dev/null 2>&1 && git checkout -q 2>/dev/null) && [ -d "$g/${dir#$cache/}/usr" ] && {
+        GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true git clone -q --depth 1 --branch "${IMP_CRUNTIME_BRANCH:-sysroots}" --filter=blob:none --no-checkout "$repo" "$g" 2>/dev/null && (cd "$g" && git sparse-checkout init --cone >/dev/null 2>&1 && git sparse-checkout set "${dir#$cache/}" >/dev/null 2>&1 && git checkout -q 2>/dev/null) && [ -d "$g/${dir#$cache/}/usr" ] && {
             rm -rf "$sr"; mv "$g/${dir#$cache/}" "$sr"; echo "cruntime $(cd "$g" && git rev-parse --short HEAD)" >> "$work/versions"; return 0; }
     fi
     t=$work/cruntime.tar.xz
