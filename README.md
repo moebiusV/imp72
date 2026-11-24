@@ -110,7 +110,7 @@ target. A triple LLVM does not know by name is refused. The driver links for
 Linux (glibc and musl, many architectures), FreeBSD, NetBSD, OpenBSD, macOS and
 Windows (mingw-w64), and `imp prog.imp --target=TRIPLE` is all it takes: it asks
 `imp-sysroot` for that system's C library, start files and headers, which are
-fetched once from the [cruntime](https://github.com/moebiusV/cruntime)
+fetched once from the [crunt](https://github.com/moebiusV/crunt)
 repository (or from the system's own packages), and for a runtime library built
 for it (`tools/mkrt.sh`); `--sysroot` and `--runtime` name your own. The
 programs for Linux on aarch64, for musl and for Windows were run (under qemu's

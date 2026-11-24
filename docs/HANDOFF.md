@@ -25,7 +25,7 @@ Windows machine yet: that is the first job.**
 
 The one command that makes a Windows program from Linux: `imp --target=x86_64-w64-mingw32-ucrt -o prog.exe prog.imp`.
 It asks `tools/imp-sysroot` for the mingw-w64 files (fetched once from the `sysroots` branch of
-https://github.com/moebiusV/cruntime: `windows-ucrt/x86_64` from MSYS2's ucrt64 packages, `windows/x86_64` from Debian's
+https://github.com/moebiusV/crunt: `windows-ucrt/x86_64` from MSYS2's ucrt64 packages, `windows/x86_64` from Debian's
 mingw-w64) and builds `libimp.a` for the target (`tools/mkrt.sh`). `docs/BUILDING.md` has the details,
 `docs/sysroot.1` is the tool's manual page, and the README of cruntime has the provenance and license of every directory.
 
@@ -173,8 +173,8 @@ a header into it (and over the constants after it): give every channel a real 3-
 
 ## Facts a new session needs
 
-- Repos: `moebiusV/imp72` (checkout `~/claude/imp72`), the files for other systems in `moebiusV/cruntime` (its `main` is
-  only the README, `LICENSES/` and the Pages site https://moebiusv.github.io/cruntime/; the sysroots are on its
+- Repos: `moebiusV/imp72` (checkout `~/claude/imp72`), the files for other systems in `moebiusV/crunt` (its `main` is
+  only the README, `LICENSES/` and the Pages site https://moebiusv.github.io/crunt/; the sysroots are on its
   `sysroots` branch: `linux/debian13`, `linux/alpine322`, `windows`, `windows-ucrt`, `freebsd`, `openbsd`, `netbsd`;
   macOS is not there on purpose: the libSystem stub has no license of its own, `imp-sysroot` fetches it from Zig), and
   the user's Pages index, `moebiusV/moebiusv.github.io`. CI: GitHub Actions; tag a commit message with `[ci:linux]`,
